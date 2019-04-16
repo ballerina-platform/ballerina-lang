@@ -51,7 +51,7 @@ function bindingPatternError() {
     Person {name: fName3, married: maritalStatus3} = p3;
 
     Person p4 = {name: "John", married: true, age: 12};
-    Person {name: fName4, married: maritalStatus4, !...} = p4; // type 'Person' is not a closed record type
+    Person {| name: fName4, married: maritalStatus4 |} = p4; // type 'Person' is not a closed record type
 
     Person p5 = {married: true, age: 12};
     Person {name: fName5, married: maritalStatus5} = p5;
@@ -64,25 +64,23 @@ function mismatchTypes() {
 
 Person gPerson = {name: "Peter", married: true, extra: "extra"};
 
-type ClosedFoo record {
+type ClosedFoo record {|
     int a;
     ClosedBar b;
-    !...
-};
+|};
 
-type ClosedBar record {
+type ClosedBar record {|
     float a;
     string b;
-    !...
-};
+|};
 
 function testClosedBindingPattern() {
-    Person {name, married, !...} = gPerson; // type 'Person' is not a closed record type
+    Person {| name, married |} = gPerson; // type 'Person' is not a closed record type
     ClosedFoo clf = {a: 56, b: {a: 2.0, b: "A"}};
     ClosedFoo {a, b} = clf;
-    ClosedFoo {a: a1, !...} = clf; // not enough fields to match to closed record type 'ClosedFoo'
-    ClosedFoo {a: a2, b: {a: a3, !...}, !...} = clf; // not enough fields to match to closed record type 'ClosedBar'
-    ClosedFoo {a: a3, b: {a: a4, b: b2, !...}, !...} = clf; // valid
+    ClosedFoo {| a: a1 |} = clf; // not enough fields to match to closed record type 'ClosedFoo'
+    ClosedFoo {| a: a2, b: {| a: a3 |} |} = clf; // not enough fields to match to closed record type 'ClosedBar'
+    ClosedFoo {| a: a3, b: {| a: a4, b: b2 |} |} = clf; // valid
 }
 
 type EmployeeWithAge record {
@@ -127,14 +125,14 @@ type UnionRec1 record {
     string var1;
     string var2;
     string var3?;
-    int...
+    int...;
 };
 
 type UnionRec2 record {
     boolean var1;
     boolean var2;
     boolean var3;
-    float...
+    float...;
 };
 
 function testUnionRecordVariable() returns (string|boolean, string|boolean, string|boolean, int|float) { // incompatible types

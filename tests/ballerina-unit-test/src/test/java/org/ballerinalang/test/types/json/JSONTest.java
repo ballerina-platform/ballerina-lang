@@ -19,9 +19,6 @@ package org.ballerinalang.test.types.json;
 
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
@@ -33,6 +30,9 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -171,8 +171,8 @@ public class JSONTest {
         BValue[] args = {new BString("some words without quotes")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "Failed to parse json string: unrecognized token 'some' at line: 1 column: 6");
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
+        Assert.assertEquals(errorMsg, "unrecognized token 'some' at line: 1 column: 6");
     }
 
     @Test(description = "Convert complex json object in to xml")
@@ -450,7 +450,7 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithOptions", args);
 
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg,
                 "failed to convert json to xml: invalid xml qualified name: unsupported characters in '@storeName'");
     }

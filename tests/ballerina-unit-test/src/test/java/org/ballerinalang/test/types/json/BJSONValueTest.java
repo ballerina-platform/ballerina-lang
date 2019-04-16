@@ -17,11 +17,8 @@
  */
 package org.ballerinalang.test.types.json;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -30,10 +27,17 @@ import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 /**
  * Test class for ballerina map.
@@ -93,6 +97,13 @@ public class BJSONValueTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 7.65);
     }
 
+    @Test(description = "Test initializing json with a decimal")
+    public void testDecimalAsJsonVal() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalAsJsonVal");
+        Assert.assertTrue(returns[0] instanceof BDecimal);
+        Assert.assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal("7.65", MathContext.DECIMAL128));
+    }
+
     @Test(description = "Test initializing json with a boolean")
     public void testBooleanAsJsonVal() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanAsJsonVal");
@@ -150,6 +161,13 @@ public class BJSONValueTest {
     }
 
     @Test
+    public void testGetDecimal() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetDecimal");
+        Assert.assertTrue(returns[0] instanceof BDecimal);
+        Assert.assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal("9.5", MathContext.DECIMAL128));
+    }
+
+    @Test
     public void testGetBoolean() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetBoolean");
         Assert.assertTrue(returns[0] instanceof BBoolean);
@@ -186,6 +204,13 @@ public class BJSONValueTest {
     @Test
     public void testAddFloat() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAddFloat");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"fname\":\"Supun\", \"score\":4.37}");
+    }
+
+    @Test
+    public void testAddDecimal() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddDecimal");
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"fname\":\"Supun\", \"score\":4.37}");
     }
@@ -256,6 +281,13 @@ public class BJSONValueTest {
     @Test
     public void testUpdateFloatInArray() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateFloatInArray");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", 4.72, \"c\"]");
+    }
+
+    @Test
+    public void testUpdateDecimalInArray() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateDecimalInArray");
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\", 4.72, \"c\"]");
     }
@@ -416,7 +448,7 @@ public class BJSONValueTest {
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[[1, 2, 3], [3, 4, 5], [7, 8, 9]]");
         Assert.assertTrue(
-                returns[1].stringValue().contains("assertion error: expected 'json[][]', found 'json[]'"));
+                returns[1].stringValue().contains("incompatible types: 'json[]' cannot be cast to 'json[][]'"));
         Assert.assertEquals(returns[2].stringValue(), "[[1, 2, 3], [3, 4, 5], [7, 8, 9]]");
     }
 
@@ -440,8 +472,8 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'string', found '\\(\\)'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":" +
+                    "\"incompatible types: '\\(\\)' cannot be cast to 'string'\"\\}.*")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }
@@ -460,43 +492,43 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'int', found '\\(\\)'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":" +
+                    "\"incompatible types: '\\(\\)' cannot be cast to 'int'\"\\}.*")
     public void testNullJsonToInt() {
         BRunUtil.invoke(compileResult, "testNullJsonToInt");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'float', found '\\(\\)'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":" +
+                    "\"incompatible types: '\\(\\)' cannot be cast to 'float'\"\\}.*")
     public void testNullJsonToFloat() {
         BRunUtil.invoke(compileResult, "testNullJsonToFloat");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'string', found '\\(\\)'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":" +
+                    "\"incompatible types: '\\(\\)' cannot be cast to 'string'\"\\}.*")
     public void testNullJsonToString() {
         BRunUtil.invoke(compileResult, "testNullJsonToString");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'boolean', found '\\(\\)'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":" +
+                    "\"incompatible types: '\\(\\)' cannot be cast to 'boolean'\"\\}.*")
     public void testNullJsonToBoolean() {
         BRunUtil.invoke(compileResult, "testNullJsonToBoolean");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"cannot stamp 'null' " +
-                    "value to type 'map<json>'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}ConversionError \\{\"message\":\"cannot convert " 
+                    + "'null' value to type 'map<json>'\"\\}.*")
     public void testNullJsonToMap() {
         BRunUtil.invoke(compileResult, "testNullJsonToMap");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'int\\[\\]', found '\\(\\)'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":" +
+                    "\"incompatible types: '\\(\\)' cannot be cast to 'int\\[\\]'\"\\}.*")
     public void testNullJsonToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonToArray");
     }
@@ -517,6 +549,15 @@ public class BJSONValueTest {
         Assert.assertEquals(returns[0].stringValue(), "[1.3, 5.4, 9.4, 4.5]");
         Assert.assertTrue(returns[1] instanceof BFloat);
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 5.4);
+    }
+
+    @Test
+    public void testDecimalArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalArrayToJsonAssignment");
+        Assert.assertTrue(returns[0] instanceof BNewArray);
+        Assert.assertEquals(returns[0].stringValue(), "[1.3, 1.234, 4.1, 4.54]");
+        Assert.assertTrue(returns[1] instanceof BDecimal);
+        Assert.assertEquals(((BDecimal) returns[1]).decimalValue(), new BigDecimal("1.234", MathContext.DECIMAL128));
     }
 
     @Test

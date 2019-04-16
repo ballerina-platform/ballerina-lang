@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaServiceDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaServiceDefinition {
+public class BallerinaServiceDefinitionImpl extends ASTWrapperPsiElement implements BallerinaServiceDefinition {
 
   public BallerinaServiceDefinitionImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaServiceDefinitionImpl extends BallerinaCompositeElementImp
   @Override
   @Nullable
   public BallerinaExpressionList getExpressionList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpressionList.class);
+    return findChildByClass(BallerinaExpressionList.class);
   }
 
   @Override
   @Nullable
   public BallerinaServiceBody getServiceBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaServiceBody.class);
+    return findChildByClass(BallerinaServiceBody.class);
   }
 
   @Override
@@ -62,13 +63,13 @@ public class BallerinaServiceDefinitionImpl extends BallerinaCompositeElementImp
   @Override
   @NotNull
   public PsiElement getOn() {
-    return notNullChild(findChildByType(ON));
+    return findNotNullChildByType(ON);
   }
 
   @Override
   @NotNull
   public PsiElement getService() {
-    return notNullChild(findChildByType(SERVICE));
+    return findNotNullChildByType(SERVICE);
   }
 
 }

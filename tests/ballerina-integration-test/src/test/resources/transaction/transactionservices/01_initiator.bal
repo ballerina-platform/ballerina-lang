@@ -34,12 +34,12 @@ service InitiatorService00 on initiatorEP00 {
         http:Response res = new;
         res.setTextPayload(state0.toString());
         state0.reset();
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 
     resource function testInitiatorAbort(http:Caller ep, http:Request req) {
         transaction {
-            _ = participant1EP00 -> get("/noOp");
+            _ = checkpanic participant1EP00 -> get("/noOp");
 
             testInitiatorAbort_ParticipantTransaction();
 
@@ -52,7 +52,7 @@ service InitiatorService00 on initiatorEP00 {
             log:printInfo("testInitiatorAbort.aborted");
             state0.abortedFunctionCalled = true;
         }
-        _ = ep -> respond("response");
+        checkpanic ep -> respond("response");
     }
 
     resource function testRemoteParticipantAbort(http:Caller ep, http:Request req) {
@@ -60,14 +60,14 @@ service InitiatorService00 on initiatorEP00 {
             var response = participant1EP00 -> get("/testRemoteParticipantAbort");
             if (response is http:Response) {
                 log:printInfo("/testRemoteParticipantAbort response code: " + response.statusCode);
-            } else if (response is error) {
+            } else {
                 log:printInfo("/testRemoteParticipantAbort errored");
             }
 
             testRemoteParticipantAbort_ParticipantTransaction();
 
             http:Response res = new;  res.statusCode = 200;
-            _ = ep -> respond(res);
+            checkpanic ep->respond(res);
         }
     }
 
@@ -76,7 +76,7 @@ service InitiatorService00 on initiatorEP00 {
     //
     //
     //    transaction {
-    //        _ = participant1EP00 -> get("/noOp");
+    //        checkpanic participant1EP00 -> get("/noOp");
     //
     //        transaction { // local participant
     //            state0.abortedByLocalParticipant = true;
@@ -94,12 +94,12 @@ service InitiatorService00 on initiatorEP00 {
     //
     //
     //    http:Response res = new;  res.statusCode = 200;
-    //    _ = ep -> respond(res);
+    //    checkpanic ep->respond(res);
     //}
 
     resource function testLocalParticipantSuccess(http:Caller ep, http:Request req) {
         transaction {
-            _ = participant1EP00 -> get("/noOp");
+            _ = checkpanic participant1EP00 -> get("/noOp");
 
             testLocalParticipantSuccess_ParticipantTransaction();
         } committed {
@@ -111,7 +111,7 @@ service InitiatorService00 on initiatorEP00 {
         }
 
         http:Response res = new;  res.statusCode = 200;
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 
     @http:ResourceConfig {
@@ -137,7 +137,7 @@ service InitiatorService00 on initiatorEP00 {
         } aborted {
             state0.abortedFunctionCalled = true;
         }
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 
 
@@ -147,7 +147,7 @@ service InitiatorService00 on initiatorEP00 {
     resource function testTransactionInfectableTrue (http:Caller ep, http:Request req) {
 
         transaction {
-            _ = participant1EP00 -> get("/infectable");
+            _ = checkpanic participant1EP00 -> get("/infectable");
             testTransactionInfectableTrue_ParticipantTransaction();
         } committed {
             state0.committedFunctionCalled = true;
@@ -157,7 +157,7 @@ service InitiatorService00 on initiatorEP00 {
 
         http:Response res = new;  res.statusCode = 200;
 
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 
 
@@ -212,7 +212,7 @@ service InitiatorService00 on initiatorEP00 {
         } aborted {
             state0.abortedFunctionCalled = true;
         }
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 
     resource function testSaveToDatabaseFailedInParticipant(http:Caller ep, http:Request req) {
@@ -234,7 +234,7 @@ service InitiatorService00 on initiatorEP00 {
         } aborted {
             state0.abortedFunctionCalled = true;
         }
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 }
 

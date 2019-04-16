@@ -17,7 +17,7 @@
 # Represents a WebSocket caller.
 #
 # + id - The connection id
-# + negotiatedSubProtocol - The subprotocols negoriated with the server
+# + negotiatedSubProtocol - The subprotocols that are negotiated with the client
 # + isSecure - `true` if the connection is secure
 # + isOpen - `true` if the connection is open
 # + attributes - A map to store connection related attributes
@@ -34,7 +34,7 @@ public type WebSocketCaller client object {
     # Push text to the connection.
     #
     # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
-    # + finalFrame - True if this is a final frame of a (long) message
+    # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return  - `error` if an error occurs when sending
     public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean finalFrame = true) returns error? {
         return self.conn.pushText(data, finalFrame);
@@ -43,7 +43,7 @@ public type WebSocketCaller client object {
     # Push binary data to the connection.
     #
     # + data - Binary data to be sent
-    # + finalFrame - True if this is a final frame of a (long) message
+    # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
     public remote function pushBinary(byte[] data, boolean finalFrame = true) returns error? {
         return self.conn.pushBinary(data, finalFrame);
@@ -69,10 +69,10 @@ public type WebSocketCaller client object {
     #
     # + statusCode - Status code for closing the connection
     # + reason - Reason for closing the connection
-    # + timeoutInSecs - Time to waits for the close frame from the remote endpoint before closing the connection.
-    #                   If the timeout exceeds then the connection is terminated even though a close frame
-    #                   is not received from the remote endpoint. If the value < 0 (eg: -1) the connection waits
-    #                   until a close frame is received. If WebSocket frame is received from the remote endpoint
+    # + timeoutInSecs - Time to wait for the close frame to be received from the remote endpoint before closing the
+    #                   connection. If the timeout exceeds, then the connection is terminated even though a close frame
+    #                   is not received from the remote endpoint. If the value < 0 (e.g., -1), then the connection waits
+    #                   until a close frame is received. If WebSocket frame is received from the remote endpoint,
     #                   within waiting period the connection is terminated immediately.
     # + return - `error` if an error occurs when sending
     public remote function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60) returns error? {

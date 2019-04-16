@@ -10,17 +10,19 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = s[0];
-    counter += 1;
+    foreach var arg in s {
+        outputs[counter] = arg;
+        counter += 1;
+    }
 }
 
 @test:Config
 function testFunc() {
     // Invoking the main function.
     main();
-    string op1 = "table<ballerina-examples/table:0.0.1:Employee> {index: [], primaryKey: [\"id\"],
-    data: [{id:1, name:\"Mary\", salary:300.5}, {id:2, name:\"John\", salary:200.5},
-    {id:3, name:\"Jim\", salary:330.5}]}";
+    string op1 = "table<ballerina-examples/table:0.0.1:Employee> {index: [], primaryKey: [\"id\"], " +
+    "data: [{id:1, name:\"Mary\", salary:300.5}, {id:2, name:\"John\", salary:200.5}, " +
+    "{id:3, name:\"Jim\", salary:330.5}]}";
     string op2 = "Adding record to table successful";
     string op3 = "Adding record to table successful";
     string op4 = "table<ballerina-examples/table:0.0.1:Employee> {index: [], primaryKey: [\"id\"],
@@ -39,22 +41,22 @@ function testFunc() {
     xml xml1 = xml `<results><result><id>1</id><name>Jane</name><salary>300.5</salary></result><
     result><id>3</id><name>John</name><salary>400.5</salary></result></results>`;
 
-    //test:assertEquals(<string>outputs[0], op2);
+    test:assertEquals(string.convert(outputs[0]), op1);
     test:assertEquals(<string>outputs[1], op2);
     test:assertEquals(<string>outputs[2], op3);
-    test:assertEquals(<string>outputs[4], op5);
-    test:assertEquals(<string>outputs[5], op6);
-    test:assertEquals(<string>outputs[6], op7);
-    test:assertEquals(<string>outputs[7], op8);
-    test:assertEquals(<string>outputs[8], op9);
-    test:assertEquals(<string>outputs[9], op10);
-    test:assertEquals(<string>outputs[10], op6);
-    test:assertEquals(<string>outputs[11], op7);
-    test:assertEquals(<string>outputs[12], op8);
-    test:assertEquals(<string>outputs[13], op9);
-    test:assertEquals(<string>outputs[14], op11);
-    test:assertEquals(<string>outputs[15], op12);
-    test:assertEquals(<string>outputs[17], op13);
-    test:assertEquals(<string>outputs[19], js1);
-    test:assertEquals(outputs[20], xml1);
+    test:assertEquals(<string>outputs[5], op5);
+    test:assertEquals(<string>outputs[6], op6);
+    test:assertEquals(<string>outputs[7], op7);
+    test:assertEquals(<string>outputs[8], op8);
+    test:assertEquals(<string>outputs[9], op9);
+    test:assertEquals(<string>outputs[10], op10);
+    test:assertEquals(<string>outputs[11], op6);
+    test:assertEquals(<string>outputs[12], op7);
+    test:assertEquals(<string>outputs[13], op8);
+    test:assertEquals(<string>outputs[14], op9);
+    test:assertEquals(<string>outputs[15], op11);
+    test:assertEquals(<string>outputs[16], op12);
+    test:assertEquals(<string>outputs[18], op13);
+    test:assertEquals(string.convert(outputs[22]), js1);
+    test:assertEquals(outputs[24], xml1);
 }

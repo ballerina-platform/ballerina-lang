@@ -25,7 +25,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
@@ -36,6 +35,7 @@ import java.nio.channels.SocketChannel;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
@@ -56,13 +56,16 @@ public class Close extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(0);
-        final SocketChannel socketChannel = (SocketChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
+        final SocketChannel socketChannel = (SocketChannel) clientEndpoint.getNativeData(SOCKET_KEY);
         try {
-            socketChannel.close();
-            SelectorManager.getInstance().unRegisterChannel(socketChannel);
+            // SocketChannel can be null if something happen during the onConnect. Hence the null check.
+            if (socketChannel != null) {
+                socketChannel.close();
+                SelectorManager.getInstance().unRegisterChannel(socketChannel);
+            }
             final Object client = clientEndpoint.getNativeData(IS_CLIENT);
             // This need to handle to support multiple client close.
-            if (client != null && Boolean.getBoolean(client.toString())) {
+            if (client != null && Boolean.parseBoolean(client.toString())) {
                 SelectorManager.getInstance().stop();
             }
         } catch (IOException e) {

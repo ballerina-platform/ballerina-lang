@@ -28,15 +28,11 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.tcp.SocketService;
+import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 
 import java.nio.channels.ServerSocketChannel;
-import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_ACCEPT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_CLOSE;
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_ERROR;
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_READ_READY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
@@ -71,37 +67,6 @@ public class Register extends BlockingNativeCallableUnit {
 
     private Map<String, Resource> getResourceMap(Context context) {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        return getResourceRegistry(service);
-    }
-
-    private Map<String, Resource> getResourceRegistry(Service service) {
-        Map<String, Resource> registry = new HashMap<>(4);
-        byte resourceCount = 0;
-        for (Resource resource : service.getResources()) {
-            switch (resource.getName()) {
-                case RESOURCE_ON_ACCEPT:
-                    registry.put(RESOURCE_ON_ACCEPT, resource);
-                    resourceCount++;
-                    break;
-                case RESOURCE_ON_READ_READY:
-                    registry.put(RESOURCE_ON_READ_READY, resource);
-                    resourceCount++;
-                    break;
-                case RESOURCE_ON_ERROR:
-                    registry.put(RESOURCE_ON_ERROR, resource);
-                    resourceCount++;
-                    break;
-                case RESOURCE_ON_CLOSE:
-                    registry.put(RESOURCE_ON_CLOSE, resource);
-                    resourceCount++;
-                    break;
-                default:
-                    // Do nothing.
-            }
-            if (resourceCount == 4) {
-                break;
-            }
-        }
-        return registry;
+        return SocketUtils.getResourceRegistry(service);
     }
 }

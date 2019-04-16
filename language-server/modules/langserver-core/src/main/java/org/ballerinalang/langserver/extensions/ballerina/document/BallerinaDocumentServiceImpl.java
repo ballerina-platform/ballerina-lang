@@ -20,14 +20,18 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.ballerinalang.ballerina.swagger.convertor.service.SwaggerConverterUtils;
+import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiConverterUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
+import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
@@ -37,23 +41,24 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentExceptio
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.extensions.OASGenerationException;
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
-//import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.swagger.CodeGenerator;
-import org.ballerinalang.swagger.model.GenSrcFile;
-import org.ballerinalang.swagger.utils.GeneratorConstants;
+import org.ballerinalang.openapi.CodeGenerator;
+import org.ballerinalang.openapi.model.GenSrcFile;
+import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -72,7 +77,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getSourceRoot;
+import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getProjectDir;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
@@ -86,14 +91,16 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
+    private final LSCompiler lsCompiler;
 
     public BallerinaDocumentServiceImpl(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.documentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
+        this.lsCompiler = new LSCompiler(documentManager);
     }
 
     @Override
-    public CompletableFuture<BallerinaOASResponse> swaggerDef(BallerinaOASRequest request) {
+    public CompletableFuture<BallerinaOASResponse> openApiDefinition(BallerinaOASRequest request) {
         String fileUri = request.getBallerinaDocument().getUri();
         Path formattingFilePath = new LSDocument(fileUri).getPath();
         Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
@@ -103,9 +110,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
         try {
             String fileContent = documentManager.getFileContent(compilationPath);
-            String swaggerDefinition = SwaggerConverterUtils
+            String openApiDefinition = OpenApiConverterUtils
                     .generateOAS3Definitions(fileContent, request.getBallerinaService());
-            reply.setBallerinaOASJson(convertToJson(swaggerDefinition));
+            reply.setBallerinaOASJson(convertToJson(openApiDefinition));
         } catch (Exception e) {
             reply.isIsError(true);
             logger.error("error: while processing service definition at converter service: " + e.getMessage(), e);
@@ -132,9 +139,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
         try {
             //Generate compilation unit for provided Open Api Sep JSON
-            File tempOasJsonFile = getSwaggerFile(params.getOASDefinition());
+            File tempOasJsonFile = getOpenApiFile(params.getOASDefinition());
             CodeGenerator generator = new CodeGenerator();
-            List<GenSrcFile> oasSources = generator.generate(GeneratorConstants.GenType.MOCK,
+            List<GenSrcFile> oasSources = generator.generate(GeneratorConstants.GenType.GEN_SERVICE,
                     tempOasJsonFile.getPath());
 
             Optional<GenSrcFile> oasServiceFile = oasSources.stream()
@@ -183,11 +190,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
                 // create text edit
                 TextEdit textEdit = new TextEdit(range, textEditContent);
-                WorkspaceEdit workspaceEdit = new WorkspaceEdit();
                 ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
                 TextDocumentEdit textDocumentEdit = new TextDocumentEdit(params.getDocumentIdentifier(),
                         Collections.singletonList(textEdit));
-                workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
+                WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections
+                        .singletonList(Either.forLeft(textDocumentEdit)));
                 applyWorkspaceEditParams.setEdit(workspaceEdit);
 
                 ballerinaLanguageServer.getClient().applyEdit(applyWorkspaceEditParams);
@@ -249,10 +256,14 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
-            String fileContent = documentManager.getFileContent(compilationPath);
-            reply.setAst(getTreeForContent(fileContent));
+            LSContext astContext = new LSServiceOperationContext();
+            astContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+            BLangPackage bLangPackage = lsCompiler.getBLangPackage(astContext, this.documentManager, true,
+                    LSCustomErrorStrategy.class, false);
+            astContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+            reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
-        } catch (LSCompilerException | JSONGenerationException | WorkspaceDocumentException e) {
+        } catch (LSCompilerException | JSONGenerationException e) {
             reply.setParseSuccess(false);
         } finally {
             lock.ifPresent(Lock::unlock);
@@ -287,11 +298,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
             // create text edit
             TextEdit textEdit = new TextEdit(range, textEditContent);
-            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
             ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
-            TextDocumentEdit textDocumentEdit = new TextDocumentEdit(notification.getTextDocumentIdentifier(),
+            TextDocumentEdit txtDocumentEdit = new TextDocumentEdit(notification.getTextDocumentIdentifier(),
                     Collections.singletonList(textEdit));
-            workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
+
+            WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(txtDocumentEdit)));
             applyWorkspaceEditParams.setEdit(workspaceEdit);
 
             // update the document
@@ -313,24 +324,27 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             Path sourceFilePath = new LSDocument(params.getDocumentIdentifier().getUri()).getPath();
             BallerinaProject project = new BallerinaProject();
-            project.setPath(getSourceRoot(sourceFilePath));
+            project.setPath(getProjectDir(sourceFilePath));
             return project;
         });
     }
 
-    private JsonElement getTreeForContent(String content) throws LSCompilerException, JSONGenerationException {
-        BallerinaFile ballerinaFile = LSCompiler.compileContent(content, CompilerPhase.CODE_ANALYZE);
-        Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
-        SymbolFindVisitor symbolFindVisitor = new SymbolFindVisitor(ballerinaFile.getCompilerContext());
+    private JsonElement getTreeForContent(LSContext context) throws LSCompilerException, JSONGenerationException {
+        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
 
-        if (bLangPackage.isPresent() && bLangPackage.get().symbol != null) {
-            symbolFindVisitor.visit(bLangPackage.get());
-            Map<BLangNode, List<SymbolMetaInfo>> symbolMetaInfoMap = symbolFindVisitor.getVisibleSymbolsMap();
-            BLangCompilationUnit compilationUnit = bLangPackage.get().getCompilationUnits().stream()
+        if (bLangPackage.symbol != null) {
+            visibleEndpointVisitor.visit(bLangPackage);
+            Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
+            String relativeFilePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+            BLangCompilationUnit compilationUnit = bLangPackage.getCompilationUnits().stream()
+                    .filter(cUnit -> cUnit.getPosition().getSource().cUnitName.replace("/", CommonUtil.FILE_SEPARATOR)
+                            .equals(relativeFilePath))
                     .findFirst()
                     .orElse(null);
             JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>(),
-                    symbolMetaInfoMap);
+                    visibleEPsByNode);
             FormattingSourceGen.build(jsonAST.getAsJsonObject(), "CompilationUnit");
             return jsonAST;
         }
@@ -338,13 +352,13 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     /**
-     * A Util method to create a temporary swagger JSON file to be used to convert into ballerina definition.
+     * A Util method to create a temporary openapi JSON file to be used to convert into ballerina definition.
      *
-     * @param oasDefinition Swagger JSON string for file creation
+     * @param oasDefinition OpenApi JSON string for file creation
      * @return Temporary file created with provided string
      * @throws IOException will throw IO Exception if file error
      */
-    private File getSwaggerFile(String oasDefinition) throws IOException {
+    private File getOpenApiFile(String oasDefinition) throws IOException {
         File oasTempFile = File.createTempFile("oasTempFile", ".json");
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(oasTempFile),
                 StandardCharsets.UTF_8))) {
@@ -505,9 +519,18 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                                                 tree, firstTokenIndex);
                                         targetResourceInfoOperation.add(sourceKeyValue);
                                     } else {
+                                        // Add new key value pair to the annotation record.
                                         FormattingSourceGen.reconcileWS(sourceKeyValue, targetResourceInfoOperation,
                                                 tree, -1);
                                         targetResourceInfoOperation.add(sourceKeyValue);
+
+                                        if (targetResourceInfoOperation.size() > 1) {
+                                            // Add a new comma to separate the new key value pair.
+                                            int startIndex = FormattingSourceGen.extractWS(sourceKeyValue).get(0)
+                                                    .getAsJsonObject().get("i").getAsInt();
+                                            FormattingSourceGen.addNewWS(matchedTargetResourceInfo
+                                                    .getAsJsonObject("value"), tree, "", ",", true, startIndex);
+                                        }
                                     }
                                 }
 
@@ -551,9 +574,17 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                                         .getAsJsonArray("keyValuePairs"), tree, firstTokenIndex);
                                 matchedTargetRecord.getAsJsonArray("keyValuePairs").add(sourceKeyValue);
                             } else {
+                                // Add the new record key value pair.
                                 FormattingSourceGen.reconcileWS(sourceKeyValue, matchedTargetRecord
                                         .getAsJsonArray("keyValuePairs"), tree, -1);
                                 matchedTargetRecord.getAsJsonArray("keyValuePairs").add(sourceKeyValue);
+
+                                if (matchedTargetRecord.getAsJsonArray("keyValuePairs").size() > 1) {
+                                    // Add a new comma to separate the new key value pair.
+                                    int startIndex = FormattingSourceGen.extractWS(sourceKeyValue).get(0)
+                                            .getAsJsonObject().get("i").getAsInt();
+                                    FormattingSourceGen.addNewWS(matchedTargetRecord, tree, "", ",", true, startIndex);
+                                }
                             }
                         }
                     }
@@ -593,12 +624,12 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
      * Util method to match given resource in a service node.
      *
      * @param astResource     service node
-     * @param swaggerResource resource which needs to be checked
+     * @param openApiResource resource which needs to be checked
      * @return true if matched else false
      */
-    private boolean matchResource(JsonObject astResource, JsonObject swaggerResource) {
+    private boolean matchResource(JsonObject astResource, JsonObject openApiResource) {
         return astResource.getAsJsonObject("name").get("value").getAsString()
-                .equals(swaggerResource.getAsJsonObject("name").get("value").getAsString());
+                .equals(openApiResource.getAsJsonObject("name").get("value").getAsString());
     }
 
     /**

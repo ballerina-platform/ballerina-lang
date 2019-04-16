@@ -42,6 +42,7 @@ public class WSServiceTemplate extends AbstractTestTemplate {
     private final String serviceUri;
     private final boolean isSecure;
     private final String serviceUriStrName;
+    private final String serviceChannelName;
     private final String testServiceFunctionName;
     private final String callbackServiceName;
 
@@ -65,6 +66,7 @@ public class WSServiceTemplate extends AbstractTestTemplate {
         }
         String serviceName = upperCaseFirstLetter(service.name.value);
         this.serviceUriStrName = getSafeName(lowerCaseFirstLetter(service.name.value) + "Uri");
+        this.serviceChannelName = getSafeName(lowerCaseFirstLetter(service.name.value) + "Reply");
         this.testServiceFunctionName = getSafeName("test" + serviceName);
         this.callbackServiceName = getSafeName("callback" + serviceName + "Service");
         this.serviceUri = tempServiceUri + serviceBasePath;
@@ -85,14 +87,20 @@ public class WSServiceTemplate extends AbstractTestTemplate {
         serviceOutput.put(PlaceHolder.OTHER.get("serviceUriStrName"), serviceUriStrName);
         serviceOutput.put(PlaceHolder.OTHER.get("callbackServiceName"), callbackServiceName);
         serviceOutput.put(PlaceHolder.OTHER.get("endpointName"), getSafeName("wsClient"));
+        serviceOutput.put(PlaceHolder.OTHER.get("wsReplyChannel"), serviceChannelName);
 
         //Append to root template
         rendererOutput.setFocusLineAcceptor(testServiceFunctionName, focusLineAcceptor);
         rendererOutput.append(PlaceHolder.DECLARATIONS, getServiceUriDeclaration() + LINE_FEED);
+        rendererOutput.append(PlaceHolder.DECLARATIONS, getChannelDeclaration() + LINE_FEED);
         rendererOutput.append(PlaceHolder.CONTENT, LINE_SEPARATOR + serviceOutput.getRenderedContent());
     }
 
     private String getServiceUriDeclaration() {
         return "string " + serviceUriStrName + " = \"" + serviceUri + "\";";
+    }
+
+    private String getChannelDeclaration() {
+        return "channel<string> " + serviceChannelName + " = new;";
     }
 }

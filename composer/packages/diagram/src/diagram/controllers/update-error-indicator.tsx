@@ -1,5 +1,5 @@
 import React, { StatelessComponent } from "react";
-import { Button, Icon, Label, Menu } from "semantic-ui-react";
+import { Icon, Label, Menu, Popup } from "semantic-ui-react";
 import { DiagramContext } from "../diagram-context";
 
 export const UpdateErrorIndicator: StatelessComponent<{}> = () => {
@@ -8,12 +8,17 @@ export const UpdateErrorIndicator: StatelessComponent<{}> = () => {
             {({ hasSyntaxErrors }) => {
                 return (hasSyntaxErrors &&
                     <Menu.Item>
-                        <Button.Group className="update-error-indicator" size="tiny">
-                            <Label as="a">
-                                <span title="please correct syntax errors.">Update Failed</span>
-                                <Icon name="warning" />
-                            </Label>
-                        </Button.Group>
+                        <Popup
+                            trigger={
+                                <Label as="a" basic color="red">
+                                    <Icon className="fw fw-warning" />
+                                    <span>Update Failed</span>
+                                </Label>
+                            }
+                            content="Please correct syntax errors"
+                            size="mini"
+                            inverted
+                        />
                     </Menu.Item>
                 );
             }}

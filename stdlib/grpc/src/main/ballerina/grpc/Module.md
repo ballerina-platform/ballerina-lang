@@ -57,7 +57,7 @@ listener grpc:Listener ep = new(9090);
 // The gRPC service is attached to the server.
 service SamplegRPCService on ep {
    // A resource that accepts a string message.
-   resource function receiveMessage (grpc:Caller caller, string name) {
+   resource function receiveMessage(grpc:Caller caller, string name) {
        // Print the received message.
        io:println("Received message from : " + name);
        // Send the response to the client.
@@ -83,9 +83,7 @@ headers.setEntry("id", "newrequest1");
 var responseFromServer = SamplegRPCServiceBlockingEp->receiveMessage("Ballerina", headers = headers);
 if (responseFromServer is (string, grpc:Headers)) {
     // If a response is received, print the payload.
-    string result;
-    grpc:Headers resHeaders;
-    (result, resHeaders) = responseFromServer;
+    (string, grpc:Headers) (result, resHeaders) = responseFromServer;
     io:println("Response received : " + responseFromServer[0]);
 } else {
     // If an error is returned, print the error message.
@@ -103,12 +101,12 @@ listener grpc:Listener ep = new(9090);
 // The gRPC service is attached to the server.
 service ServerStreaming on ep {
    // Set the Streaming Annotation to ‘true’. It specifies that the resource is capable of sending multiple responses per request.
-   @grpc:ResourceConfig {streaming:true}
+   @grpc:ResourceConfig { streaming: true }
    resource function receiveMessage(grpc:Caller caller, string name) {
        string[] greets = ["Hi", "Welcome"];
        io:println("HelloWorld");
        // Send multiple responses to the client.
-       foreach greet in greets {
+       foreach var greet in greets {
            error? err = caller->send(greet + " " + name + "! Greetings from Ballerina service");
            // If an error is returned, print the error message. print response message otherwise.
            if (err is error) {
@@ -128,7 +126,7 @@ The sample given below calls the above service using the auto-generated Ballerin
 ```ballerina
 // Keep track of the message that were completely received.
 boolean isCompleted = false;
-public function main (string... args) {
+public function main(string... args) {
    // Client endpoint configurations.
     ServerStreamingClient serverStreamingEp = new("http://localhost:9090");
 
@@ -142,11 +140,12 @@ public function main (string... args) {
         io:println("Connected successfully to service");
     }
    // Waits for the service to send the message.
-   while (!isCompleted) {}
+   while (!isCompleted) { }
 }
 
 // Define a listener service to receive the messages from the server.
 service ServerStreamingMessageListener = service {
+
    // This resource method is invoked when the service receives a message.
    resource function onMessage(string message) {
        io:println("Response received from server: " + message);
@@ -180,18 +179,22 @@ listener grpc:Listener ep = new(9090);
     serverStreaming: true
 }
 service Chat bind ep {
+
    // This resource method is invoked when there is a connection request from a client.
    resource function onOpen(grpc:Caller caller) {
        
    }
+
    // This resource method is invoked when the client sends a request.
    resource function onMessage(grpc:Caller caller, string message) {
    
    }
+   
    // This resource method is invoked when the client returns an error while sending requests.
    resource function onError(grpc:Caller caller, error err) {
    
    }
+   
    // This resource method is invoked when the client has finished sending requests.
    resource function onComplete(grpc:Caller caller) {
    
@@ -202,13 +205,13 @@ service Chat bind ep {
 The sample given below calls the above service.
 
 ```ballerina
-//Client endpoint configuration.
+// Client endpoint configuration.
 ChatClient chatEp = new("http://localhost:9090");
     
 grpc:StreamingClient ep;
 
 // Call the relevant service.
-var res = chatEp -> chat(ChatMessageListener);
+var res = chatEp->chat(ChatMessageListener);
 if (res is error) {
     io:println("Error from Connector: " + res.reason() + " - "
                                         + <string>res.detail().message);
@@ -219,10 +222,10 @@ if (res is error) {
 }
 
 // Send multiple messages to the service.
-error connErr = ep -> send(“Hello”);
+error connErr = ep->send(“Hello”);
 
 // After sending the message, call ‘complete()’ to indicate that the request was completely sent. 
-_ = ep -> complete();
+_ = ep->complete();
 
 ```
 

@@ -1,24 +1,46 @@
 import ballerina/test;
+import ballerina/io;
+
+any[] outputs = [];
+int counter = 0;
+
+// This is the mock function that replaces the real function.
+@test:Mock {
+    moduleName: "ballerina/io",
+    functionName: "println"
+}
+public function mockPrint(any... s) {
+    foreach any a in s {
+        outputs[counter] = a;
+        counter += 1;
+    }
+}
 
 @test:Config
 function testFunc() {
-    // Invoke the main function.
-    (Person, Person, string)? result = main();
+    // Define an `Address` record.
+    Address address = {
+        country : "USA",
+        state: "NC",
+        city: "Raleigh",
+        street: "Daniels St"
+    };
 
-    // Check if the returned value of `main` function is of type `(Person, Person, string)`.
-    if (result is (Person, Person, string)) {
-        string refCheck = "Source and Clone are at two different memory locations";
-        test:assertEquals(result[0].name, result[1].name);
-        test:assertEquals(result[0].age, result[1].age);
-        test:assertEquals(result[0].married, result[1].married);
-        test:assertEquals(result[0].salary, result[1].salary);
-        test:assertEquals(result[0].address.country, result[1].address.country);
-        test:assertEquals(result[0].address.state, result[1].address.state);
-        test:assertEquals(result[0].address.city, result[1].address.city);
-        test:assertEquals(result[0].address.street, result[1].address.street);
-        test:assertTrue(result[1] !== result[0]);
-        test:assertEquals(result[2], refCheck);
-    } else {
-        test:assertFail();
-    }
+    // Define a `Person` record.
+    Person person = {
+        name: "Alex",
+        age: 24,
+        married: false,
+        salary: 8000.0,
+        address: address
+    };
+
+    // Invoking the main function.
+    main();
+    test:assertEquals(outputs[0], "Source value: ");
+    test:assertEquals(outputs[1], person);
+    test:assertEquals(outputs[2], "Cloned value: ");
+    test:assertEquals(outputs[3], person);
+    test:assertEquals(outputs[4], "Source and Clone are at two different memory locations: ");
+    test:assertEquals(outputs[5], true);
 }

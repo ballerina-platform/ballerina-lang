@@ -1,6 +1,11 @@
 import * as codepoints from "./codepoints.json";
 
+const cps: any = codepoints;
+
 export function getCodePoint(name: string): string {
-    const cps: any = codepoints;
     return cps[name];
+}
+
+export function getAllCodePoints(): any {
+    return cps;
 }

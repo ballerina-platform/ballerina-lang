@@ -19,11 +19,15 @@ package org.ballerinalang.launcher;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.LaunchListener;
@@ -38,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -67,9 +72,9 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -78,111 +83,57 @@ import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
  */
 public class LauncherUtils {
 
-    private static PrintStream outStream = System.out;
+    private static final String STATUS_CODE = "statusCode";
+    private static final int DEFAULT_ERROR_RETURN_STATUS_CODE = 1;
+
+    private static PrintStream errStream = System.err;
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
                                   String configFilePath, String[] args, boolean offline, boolean observeFlag) {
-        runProgram(sourceRootPath, sourcePath, MAIN_FUNCTION_NAME, runtimeParams, configFilePath, args, offline,
-                observeFlag, false, true);
+        runProgram(sourceRootPath, sourcePath, runtimeParams, configFilePath, args, offline, observeFlag, false, true);
     }
 
-    public static void runProgram(Path sourceRootPath, Path sourcePath, String functionName,
-                                  Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline, boolean observeFlag, boolean printReturn) {
-        runProgram(sourceRootPath, sourcePath, functionName, runtimeParams, configFilePath, args, offline, observeFlag,
-                printReturn, true);
-    }
+    public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams, 
+                                  String configFilePath, String[] args, boolean offline, boolean observeFlag, 
+                                  boolean siddhiRuntimeFlag, boolean experimentalFlag) {
 
-    public static void runProgram(Path sourceRootPath, Path sourcePath, String functionName,
-                                  Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline, boolean observeFlag, boolean printReturn, boolean experimentalFlag) {
-        ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
         // Set the source root path relative to the source path i.e. set the parent directory of the source path
         System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, fullPath.getParent().toString());
         loadConfigurations(fullPath.getParent(), runtimeParams, configFilePath, observeFlag);
 
-        if (srcPathStr.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
-            programFile = BLangProgramLoader.read(sourcePath);
-        } else if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                !RepoUtils.hasProjectRepo(sourceRootPath)) {
-            programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline, experimentalFlag);
-        } else if (Files.isDirectory(sourceRootPath)) {
-            if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
-                throw createLauncherException("did you mean to run the module ? If so, either run from the project " +
-                                              "folder or use --sourceroot to specify the project path and run the " +
-                                              "module");
-            }
-            if (Files.exists(fullPath)) {
-                if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
-                    throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " +
-                                                          BLANG_EXEC_FILE_SUFFIX + " files can be used with the " +
-                                                          "'ballerina run' command.");
-                }
-            } else {
-                throw createLauncherException("ballerina source does not exist '" + srcPathStr + "'");
-            }
-            // If we are trying to run a bal file inside a module from inside a project directory an error is thrown.
-            // To differentiate between top level bals and bals inside modules we need to check if the parent of the
-            // sourcePath given is null. If it is null then its a top level bal else its a bal inside a module
-            if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                    sourcePath.getParent() != null) {
-                throw createLauncherException("you are trying to run a ballerina file inside a module within a " +
-                                                      "project. Try running 'ballerina run <module-name>'");
-            }
-            programFile = compile(sourceRootPath, sourcePath, offline, experimentalFlag);
-        } else {
-            throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " + BLANG_EXEC_FILE_SUFFIX
-                                                  + " files can be used with the 'ballerina run' command.");
-        }
-
-        // If a function named main is expected to be the entry point but such a function does not exist and there is
-        // no service entry point either, throw an error
-        if ((MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable())
-                && !programFile.isServiceEPAvailable()) {
-            throw createLauncherException("'" + programFile.getProgramFilePath()
-                                                  + "' does not contain a main function or a service");
-        }
-
-        boolean runServicesOnly = MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable();
-
-        // Load launcher listeners
-        ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-        listeners.forEach(listener -> listener.beforeRunProgram(runServicesOnly));
-
-        if (runServicesOnly) {
-            if (args.length > 0) {
-                throw LauncherUtils.createUsageExceptionWithHelp("arguments not allowed for services");
-            }
-            runServices(programFile);
-        } else {
-            runMain(programFile, functionName, args, printReturn);
-        }
-        BLangProgramRunner.resumeStates(programFile);
-        listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
+        runBal(sourceRootPath, sourcePath, args, offline, siddhiRuntimeFlag, experimentalFlag, srcPathStr, fullPath);
     }
 
-    public static void runMain(ProgramFile programFile, String functionName, String[] args, boolean printReturn) {
+    @SuppressWarnings("unchecked")
+    public static void runMain(ProgramFile programFile, String[] args) {
+        BValue[] result;
+        int statusCode = 0;
         try {
-            BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, functionName, args);
-            if (printReturn && entryFuncResult != null && entryFuncResult.length >= 1 && entryFuncResult[0] != null) {
-                outStream.print(entryFuncResult[0].stringValue());
+            result = BLangProgramRunner.runMainFunc(programFile, args);
+            if (result[0] != null && result[0].getType().getTag() == TypeTags.ERROR) {
+                // If an error occurred on main function execution, the program should terminate.
+                BError returnedError = (BError) result[0];
+                errStream.print(prepareErrorReturnedErrorMessage(returnedError));
+
+                if (returnedError.getDetails() != null) {
+                    statusCode = getStatusCode((BMap<String, BValue>) returnedError.getDetails());
+                }
+            } else if (programFile.isServiceEPAvailable()) {
+                return;
             }
         } catch (BLangUsageException | BallerinaException e) {
             throw createUsageException(makeFirstLetterLowerCase(e.getLocalizedMessage()));
         }
 
-        if (programFile.isServiceEPAvailable()) {
-            return;
-        }
         try {
             ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
             ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(10000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex) {
             // Ignore the error
         }
-        Runtime.getRuntime().exit(0);
+        Runtime.getRuntime().exit(statusCode);
     }
 
     public static void runServices(ProgramFile programFile) {
@@ -327,6 +278,40 @@ public class LauncherUtils {
     }
 
     /**
+     * Compile and get the executable program file.
+     *
+     * @param sourceRootPath Path to the source root
+     * @param sourcePath Path to the source from the source root
+     * @param offline Should the build call remote repos
+     * @param siddhiRuntimeFlag Flag to enable siddhi runtime based stream processing
+     * @param enableExpFeatures Flag indicating to enable the experimental feature
+     * @return Executable program
+     */
+    public static ProgramFile compile(Path sourceRootPath, Path sourcePath, boolean offline,
+                                      boolean siddhiRuntimeFlag, boolean enableExpFeatures) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRootPath.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        options.put(OFFLINE, Boolean.toString(offline));
+        options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeFlag));
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage entryPkgNode = compiler.compile(sourcePath.toString());
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(entryPkgNode);
+        if (programFile == null) {
+            throw new BLangCompilerException("compilation contains errors");
+        }
+
+        ProgramFile progFile = getExecutableProgram(programFile);
+        progFile.setProgramFilePath(sourcePath);
+        return progFile;
+    }
+
+    /**
      * Get the executable program ({@link ProgramFile}) given the compiled program 
      * ({@link org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile}).
      * 
@@ -387,5 +372,101 @@ public class LauncherUtils {
         } catch (RuntimeException e) {
             throw new BLangRuntimeException(e.getMessage(), e);
         }
+    }
+
+    private static void runBal(Path sourceRootPath, Path sourcePath, String[] args, boolean offline,
+                               boolean siddhiRuntimeFlag, boolean experimentalFlag, String srcPathStr, Path fullPath) {
+        ProgramFile programFile;
+        if (srcPathStr.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
+            programFile = BLangProgramLoader.read(sourcePath);
+        } else if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
+                !RepoUtils.hasProjectRepo(sourceRootPath)) {
+            programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline, siddhiRuntimeFlag,
+                    experimentalFlag);
+        } else if (Files.isDirectory(sourceRootPath)) {
+            programFile = compileModule(sourceRootPath, sourcePath, offline, siddhiRuntimeFlag, experimentalFlag,
+                    srcPathStr, fullPath);
+        } else {
+            throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " + BLANG_EXEC_FILE_SUFFIX
+                                                  + " files can be used with the 'ballerina run' command.");
+        }
+
+        // If a function named main is expected to be the entry point but such a function does not exist and there is
+        // no service entry point either, throw an error
+        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
+            throw createLauncherException("'" + programFile.getProgramFilePath()
+                                                  + "' does not contain a main function or a service");
+        }
+
+        boolean runServicesOnly = !programFile.isMainEPAvailable();
+
+        // Load launcher listeners
+        ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
+        listeners.forEach(listener -> listener.beforeRunProgram(runServicesOnly));
+
+        if (runServicesOnly) {
+            if (args.length > 0) {
+                throw LauncherUtils.createUsageExceptionWithHelp("arguments not allowed for services");
+            }
+            runServices(programFile);
+        } else {
+            runMain(programFile, args);
+        }
+        BLangProgramRunner.resumeStates(programFile);
+        listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
+    }
+
+    private static ProgramFile compileModule(Path sourceRootPath, Path sourcePath, boolean offline,
+                                             boolean siddhiRuntimeFlag, boolean experimentalFlag, String srcPathStr,
+                                             Path fullPath) {
+        ProgramFile programFile;
+        if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
+            throw createLauncherException("you are trying to run a module that is not inside " +
+                    "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                    "project and then run the module.");
+        }
+        if (Files.exists(fullPath)) {
+            if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " +
+                                                      BLANG_EXEC_FILE_SUFFIX + " files can be used with the " +
+                                                      "'ballerina run' command.");
+            }
+        } else {
+            throw createLauncherException("ballerina source does not exist '" + srcPathStr + "'");
+        }
+        // If we are trying to run a bal file inside a module from inside a project directory an error is thrown.
+        // To differentiate between top level bals and bals inside modules we need to check if the parent of the
+        // sourcePath given is null. If it is null then its a top level bal else its a bal inside a module
+        if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
+                sourcePath.getParent() != null) {
+            throw createLauncherException("you are trying to run a ballerina file inside a module within a " +
+                                                  "project. Try running 'ballerina run <module-name>'");
+        }
+        programFile = compile(sourceRootPath, sourcePath, offline, siddhiRuntimeFlag, experimentalFlag);
+        return programFile;
+    }
+
+    private static int getStatusCode(BMap<String, BValue> errorDetails) {
+        if (!errorDetails.hasKey(STATUS_CODE)) {
+            return DEFAULT_ERROR_RETURN_STATUS_CODE;
+        }
+
+        BValue specifiedStatusCode = errorDetails.get(STATUS_CODE);
+        if (specifiedStatusCode.getType().getTag() != TypeTags.INT) {
+            return DEFAULT_ERROR_RETURN_STATUS_CODE;
+        }
+
+        long specifiedIntCode = ((BInteger) specifiedStatusCode).intValue();
+        if (specifiedIntCode >= DEFAULT_ERROR_RETURN_STATUS_CODE) {
+            if (specifiedIntCode > Integer.MAX_VALUE) {
+                return Integer.MAX_VALUE;
+            }
+            return (int) specifiedIntCode;
+        }
+        return DEFAULT_ERROR_RETURN_STATUS_CODE;
+    }
+
+    private static String prepareErrorReturnedErrorMessage(BError error) {
+        return "error: " + BLangVMErrors.getErrorMessage(error);
     }
 }

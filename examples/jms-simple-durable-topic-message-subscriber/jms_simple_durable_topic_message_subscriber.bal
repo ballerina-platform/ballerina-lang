@@ -2,14 +2,12 @@ import ballerina/jms;
 import ballerina/log;
 
 // This creates a simple durable topic subscriber.
-listener jms:SimpleDurableTopicSubscriber subscriberEndpoint = new({
+listener jms:DurableTopicSubscriber subscriberEndpoint = new({
         initialContextFactory: "bmbInitialContextFactory",
         providerUrl: "amqp://admin:admin@carbon/carbon"
             + "?brokerlist='tcp://localhost:5672'",
-        acknowledgementMode: "AUTO_ACKNOWLEDGE",
-        topicPattern: "BallerinaTopic",
-        identifier: "sub1"
-    });
+        acknowledgementMode: "AUTO_ACKNOWLEDGE"
+    }, "BallerinaTopic", "sub1");
 
 // This binds the created consumer to the listener service.
 service jmsListener on subscriberEndpoint {

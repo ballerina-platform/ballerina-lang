@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -37,6 +37,7 @@ public class AbstractObjectTest {
     public void testAbstractObjectNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/abstract-object-negative.bal");
         int index = 0;
+        Assert.assertEquals(negativeResult.getErrorCount(), 13);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 3, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person2'", 4, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 8, 18);
@@ -49,6 +50,16 @@ public class AbstractObjectTest {
                 "function 'getName' in abstract object 'Person4' cannot have a body", 51, 5);
         BAssertUtil.validateError(negativeResult, index++,
                 "cannot attach function 'getName' to abstract object 'Person5'", 67, 1);
+        BAssertUtil.validateError(negativeResult, index++, "abstract object field: 'age' can not be declared as " +
+                "private", 73, 5);
+        BAssertUtil.validateError(negativeResult, index++, "interface function: 'getName' of abstract object " +
+                "'Person6' can not be declared as private", 76, 5);
+        BAssertUtil.validateError(negativeResult, index++, "interface function: 'getName' of abstract object 'Foo' " +
+                "can not be declared as private", 80, 5);
+        BAssertUtil.validateError(negativeResult, index++, "cannot find function signature for function 'getName' in " +
+                "object 'Bar'", 87, 1);
+        BAssertUtil.validateError(negativeResult, index,
+                                  "external function: 'getName' not allowed in abstract object 'Person7'", 93, 5);
     }
 
     @Test
@@ -56,11 +67,12 @@ public class AbstractObjectTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract_anon_object_negative.bal");
         int index = 0;
         BAssertUtil.validateError(compileResult, index++,
-                "abstract object '$anonType$0' cannot have a constructor method", 2, 54);
-        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$2'", 4, 77);
+                                  "abstract object '$anonType$0' cannot have a constructor method", 2, 54);
+        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$0'", 2, 101);
+        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$1'", 3, 77);
         BAssertUtil.validateError(compileResult, index++,
-                "abstract object '$anonType$3' cannot have a constructor method", 7, 58);
-        BAssertUtil.validateError(compileResult, index, "cannot initialize abstract object '$anonType$5'", 9, 81);
+                "abstract object '$anonType$2' cannot have a constructor method", 6, 58);
+        BAssertUtil.validateError(compileResult, index, "cannot initialize abstract object '$anonType$4'", 8, 81);
     }
 
     @Test

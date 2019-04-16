@@ -239,14 +239,7 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      * @return Item at the given index in the sequence
      */
     public abstract BXML<?> getItem(long index);
-
-    /**
-     * Get the length of this XML sequence.
-     * 
-     * @return length of this XML sequence.
-     */
-    public abstract int length();
-
+    
     /**
      * Builds itself.
      */
@@ -269,7 +262,7 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
         if (type.getTag() == TypeTags.ANYDATA_TAG) {
             type = BVM.resolveMatchingTypeForUnion(this, type);
         }

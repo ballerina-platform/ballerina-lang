@@ -17,9 +17,6 @@
 */
 package org.ballerinalang.test.expressions.stamp;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
@@ -30,6 +27,9 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -369,5 +369,18 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue1.getType().getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) mapValue1.getType()).getConstrainedType().getClass(), BAnydataType.class);
+    }
+
+    @Test
+    public void teststampRecordArrayToJsonArray() {
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordArrayToJsonArray");
+        BMap<String, BValue> jsonValue1 = (BMap<String, BValue>) results[0];
+        BMap<String, BValue> jsonValue2 = (BMap<String, BValue>) results[1];
+        Assert.assertEquals(((BMapType) jsonValue1.getType()).getConstrainedType().getClass(), BJSONType.class);
+        Assert.assertEquals(((BMapType) jsonValue2.getType()).getConstrainedType().getClass(), BJSONType.class);
+        Assert.assertEquals(jsonValue1.get("name").stringValue(), "Waruna");
+        Assert.assertEquals(jsonValue2.get("name").stringValue(), "Heshitha");
+        Assert.assertEquals(((BInteger) jsonValue1.get("age")).intValue(), 10);
+        Assert.assertEquals(((BInteger) jsonValue2.get("age")).intValue(), 15);
     }
 }

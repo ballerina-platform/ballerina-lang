@@ -13,6 +13,12 @@ function testFloatAsJsonVal () returns (json) {
     return j;
 }
 
+function testDecimalAsJsonVal() returns (json) {
+    decimal d = 7.65;
+    json j = d;
+    return j;
+}
+
 function testBooleanAsJsonVal () returns (json) {
     json j = true;
     return j;
@@ -68,6 +74,13 @@ function testGetFloat () returns (float) {
     return jFloat;
 }
 
+function testGetDecimal() returns (decimal) {
+    json j = {score:9.5};
+    decimal jDecimal;
+    jDecimal = <decimal>j.score;
+    return jDecimal;
+}
+
 function testGetBoolean () returns (boolean) {
     json j = {pass:true};
     boolean jBoolean;
@@ -100,6 +113,13 @@ function testAddInt () returns (json) {
 function testAddFloat () returns (json) {
     json j = {fname:"Supun"};
     j.score = 4.37;
+    return j;
+}
+
+function testAddDecimal() returns (json) {
+    json j = {fname:"Supun"};
+    decimal d = 4.37;
+    j.score = d;
     return j;
 }
 
@@ -160,6 +180,13 @@ function testUpdateIntInArray () returns (json) {
 function testUpdateFloatInArray () returns (json) {
     json j = ["a", "b", "c"];
     j[1] = 4.72;
+    return j;
+}
+
+function testUpdateDecimalInArray () returns (json) {
+    json j = ["a", "b", "c"];
+    decimal d = 4.72;
+    j[1] = d;
     return j;
 }
 
@@ -395,6 +422,13 @@ function testFloatArrayToJsonAssignment() returns (json, json) {
     float[] f = [1.3, 5.4, 9.4];
     json j = f;
     j[3] = 4.5;
+    return (j, j[1]);
+}
+
+function testDecimalArrayToJsonAssignment() returns (json, json) {
+    decimal[] d = [1.3, 1.234, 4.1];
+    json j = d;
+    j[3] = 4.54;
     return (j, j[1]);
 }
 

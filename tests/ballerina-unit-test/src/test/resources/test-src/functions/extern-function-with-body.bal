@@ -1,4 +1,7 @@
-extern function foo(string param) {
-    string a = "";
-    a = param;
+type Foo object {
+    function foo(string param) = external;
+};
+
+function Foo.foo(string param) {
+    string a = param;
 }

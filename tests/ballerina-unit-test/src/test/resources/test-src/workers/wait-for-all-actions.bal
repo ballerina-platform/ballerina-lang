@@ -157,10 +157,8 @@ function waitTest16() returns int {
     var result = trap wait {f1, f2, f3, f4};
     if (result is map<int|string|boolean>) {
         return 9;
-    } else if (result is error) {
-        return 0;
     } else {
-        return 1;
+        return 0;
     }
 }
 
@@ -270,20 +268,20 @@ function waitTest25() returns map<anydata> {
     future<int> f1 = start add_1(5, 2);
     future<string> f2 = start concat("foo");
 
-    record { int id = 0; string name = "default"; !...} anonRec = wait {id: f1, name : f2};
+    record {| int id = 0; string name = "default"; |} anonRec = wait {id: f1, name : f2};
     map<anydata> m = {};
     m["id"] = anonRec.id;
     m["name"] = anonRec.name;
     return m;
 }
 
-function waitTest26() returns map<anydata> {
+function waitTest26() returns map<anydata|error> {
     future<int> f1 = start add_1(15, 15);
     future<string> f2 = start concat("world");
     future<string> f3 = start concat("moo");
 
     record { int id = 0; string name = "default";} anonRec = wait {id: f1, name : f2, status: f3};
-    map<anydata> m = {};
+    map<anydata|error> m = {};
     m["id"] = anonRec.id;
     m["name"] = anonRec.name;
     m["status"] = anonRec.status;
@@ -295,7 +293,7 @@ function waitTest27() returns map<anydata> {
     future<string> f2 = start concat("mello");
     future<string> f3 = start concat("sunshine");
 
-    record { int id = 0; string name = "default"; string...} anonRec = wait {id: f1, name : f2, greet: f3};
+    record { int id = 0; string name = "default"; string...;} anonRec = wait {id: f1, name : f2, greet: f3};
     map<anydata> m = {};
     m["id"] = anonRec.id;
     m["name"] = anonRec.name;
@@ -303,11 +301,10 @@ function waitTest27() returns map<anydata> {
     return m;
 }
 
-type sealedRec record {
+type sealedRec record {|
     int id = 0;
     string name = "default";
-    !...
-};
+|};
 
 type openRec record {
     int id = 0;
@@ -317,13 +314,13 @@ type openRec record {
 type restRec1 record {
     int id = 0;
     string name = "default";
-    int...
+    int...;
 };
 
 type restRec2 record {
     int id = 0;
     string name = "default";
-    string...
+    string...;
 };
 
 type firstRec record {

@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -48,6 +48,13 @@ public class WorkerInActionTest {
         BValue[] returns = BRunUtil.invoke(result, "testAction2");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "request");
+    }
+
+    @Test(description = "Test default strand error before send action")
+    public void testDefaultErrorBeforeSend() {
+        BValue[] returns = BRunUtil.invoke(result, "testDefaultError");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "REACHED");
     }
 
 }

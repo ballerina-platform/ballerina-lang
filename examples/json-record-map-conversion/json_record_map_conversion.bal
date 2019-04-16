@@ -27,16 +27,22 @@ public function main() {
     // Here's how you can convert a record to a JSON object.
     // This conversion is unsafe because it may not be possible to convert some data types
     // that are defined in the record to JSON.
-    json j = check <json>theRevenant;
-    io:println(j);
-    io:println(j.writer.lname);
+    // Similarly, you can use the `.stamp()` built-in method to manipulate the value
+    // itself, by attempting to change its type.
+    json|error j = json.convert(theRevenant);
+    if (j is json) {
+        io:println(j);
+        io:println(j.writer.lname);
+    }
 
     // Similarly, you can convert a record to a map.
-    // This conversion is safe.
-    map movieMap = map.convert(theRevenant);
-    map writerMap = movieMap["writer"];
-    Person writer = check <Person>writerMap;
-    io:println(writer.age);
+    map<anydata>|error movieMap = map<anydata>.convert(theRevenant);
+    if (movieMap is map<anydata>) {
+        Person|error writer = Person.convert(movieMap["writer"]);
+        if (writer is Person) {
+            io:println(writer.age);
+        }
+    }
 
     // Here's how you can convert a JSON object to a record.
     // This conversion is unsafe because the field names and types are unknown until runtime.
@@ -50,6 +56,8 @@ public function main() {
             age: 30
         }
     };
-    Movie inception = check <Movie>inceptionJ;
-    io:println(inceptionJ);
+    Movie|error inception = Movie.convert(inceptionJ);
+    if (inception is Movie) {
+        io:println(inception);
+    }
 }

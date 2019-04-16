@@ -1,3 +1,12 @@
+   function name0() {
+
+}
+
+type Person record {
+    string name;
+    string location?;
+};
+
 function name1(){float c = 0;}
 
 function name2(int a,string b){
@@ -8,9 +17,10 @@ function name3(){}
 
 function name4(   string s,float i) {}
 
-@Description {value: "test annotation"}function name5() {}
+# test annotation
+function name5() {}
 
-function main(   string... args){}
+     public       function main(   string... args){}
 
 function name6(int a,string... i){}
 
@@ -21,3 +31,20 @@ return 0;
 function name8()returns (int,string){
 return ( 0,"");
 }
+
+function name9() returns ( Person ) {
+    return {name:""};
+}
+
+   private      function name10() {
+
+}
+
+          function name11()=external   ;
+
+      public       function name12()     =    external ;
+
+    private      function name13()
+    =
+    external
+    ;

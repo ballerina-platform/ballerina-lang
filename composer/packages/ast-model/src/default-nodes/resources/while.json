@@ -2,18 +2,18 @@
   "ws": [
     {
       "ws": "\n    ",
-      "i": 101,
+      "i": 99,
       "text": "while",
       "static": true
     },
     {
       "ws": " ",
-      "i": 107,
+      "i": 105,
       "text": "{",
       "static": true
     },
     {
-      "ws": "\n\n    ",
+      "ws": "\n        \n    ",
       "i": 110,
       "text": "}",
       "static": true
@@ -21,33 +21,33 @@
   ],
   "position": {
     "startColumn": 5,
-    "startLine": 20,
+    "startLine": 17,
     "endColumn": 6,
-    "endLine": 22
+    "endLine": 19
   },
-  "id": "a99599fa-8ffc-42c9-ada8-bcdd16e4e9d4",
+  "id": "203497eb-26b0-4f17-84b4-5a519122e267",
   "condition": {
     "ws": [
       {
         "ws": " ",
-        "i": 103,
+        "i": 101,
         "text": "(",
         "static": true
       },
       {
         "ws": "",
-        "i": 105,
+        "i": 103,
         "text": ")",
         "static": true
       }
     ],
     "position": {
       "startColumn": 11,
-      "startLine": 20,
+      "startLine": 17,
       "endColumn": 17,
-      "endLine": 20
+      "endLine": 17
     },
-    "id": "4c051caa-e460-42b2-9b49-6a3fa8ddafeb",
+    "id": "f9ca60be-29be-491c-86c1-d4beafdd05c9",
     "symbolType": [
       "boolean"
     ],
@@ -56,18 +56,18 @@
         "ws": [
           {
             "ws": "",
-            "i": 104,
+            "i": 102,
             "text": "true",
             "static": false
           }
         ],
         "position": {
           "startColumn": 12,
-          "startLine": 20,
+          "startLine": 17,
           "endColumn": 16,
-          "endLine": 20
+          "endLine": 17
         },
-        "id": "ff28f8d2-bd0a-40c4-ab49-5a852f2d7bc5",
+        "id": "cb263e5d-0da9-4e89-bab4-b702027e1e60",
         "symbolType": [
           "boolean"
         ],
@@ -82,11 +82,11 @@
   "body": {
     "position": {
       "startColumn": 5,
-      "startLine": 20,
+      "startLine": 17,
       "endColumn": 6,
-      "endLine": 22
+      "endLine": 19
     },
-    "id": "23c0b7c1-682d-499a-9b63-fc115638f21d",
+    "id": "bd9f88fe-a637-42f4-bf96-8b9a7c44aa0c",
     "statements": [],
     "kind": "Block"
   }

@@ -19,31 +19,28 @@ type Age record {
     string format;
 };
 
-type ClosedAge record {
+type ClosedAge record {|
     int age;
     string format;
-    !...
-};
+|};
 
-type Person record {
+type Person record {|
     string name;
     boolean married;
     Age age;
     (string, int) extra?;
-    !...
-};
+|};
 
-type Person2 record {
+type Person2 record {|
     string name;
     boolean married;
     ClosedAge age;
     (string, int) extra?;
-    !...
-};
+|};
 
 function testUndefinedSymbol() {
     // undefined symbols. age is not a closed record
-    {name: fName, married, age: { age: theAge, format, !...}, ...theMap} = getPerson1();
+    {name: fName, married, age: {| age: theAge, format |}, ...theMap} = getPerson1();
 }
 
 function getPerson1() returns Person {
@@ -58,21 +55,21 @@ function testClosedRecordVarRef() {
     string format;
     string extraLetter;
     int extraInt;
-    map<any> theMap;
+    map<any|error> theMap;
 
     Age age1 = {age:12, format: "Y", three: "three"};
     Person p1 = {name: "Peter", married: true, age: age1, extra: ("extra", 12)};
-    {name: fName, married, age: { age: theAge, format, !...}, ...theMap} = p1;  // Age is not a closed record
+    {name: fName, married, age: {| age: theAge, format |}, ...theMap} = p1;  // Age is not a closed record
 
     ClosedAge age2 = {age:12, format: "Y"};
     Person2 p2 = {name: "Peter", married: true, age: age2, extra: ("extra", 12)};
-    {name: fName, married, age: { age: theAge, format, !...}, ...theMap} = p2;  // valid
+    {name: fName, married, age: {| age: theAge, format |}, ...theMap} = p2;  // valid
 
     Person p5 = {name: "Peter", married: true, age: {age:12, format: "Y"}, extra: ("extra", 12)};
-    {name: fName, married, age: { age: theAge, format}, !...} = p5; // not enough fields to match to closed record type 'Person'
+    {| name: fName, married, age: { age: theAge, format} |} = p5; // not enough fields to match to closed record type 'Person'
 
     Person2 p6 = {name: "Peter", married: true, age: {age:12, format: "Y"}, extra: ("extra", 12)};
-    {name: fName, married, age: { age: theAge, format, !...}} = p6; // valid
+    {name: fName, married, age: {| age: theAge, format |}} = p6; // valid
 
     Person p7 = {name: "Peter", married: true, age: {age:12, format: "Y", three: "three"}, extra: ("extra", 12)};
     {name: fName, married, age: { age: theAge, format}} = p7; // valid
@@ -103,7 +100,7 @@ function testInvalidTypes() {
     string lName;
     boolean married;
     Person age;
-    map<any> theMap;
+    map<any|error> theMap;
 
     Person p = {name: "Peter", married: true, age: {age: 12, format: "Y"}};
     {name: fName, age, married, ...theMap} = p; // incompatible types of age field
@@ -120,4 +117,49 @@ function testUnknownFields() {
     any unknown1;
     any unknown2;
     {name, married, age: {age, format, unknown1}, unknown2} = p; // unknown fields
+}
+
+type UserData1 record {
+    *Data;
+};
+
+type UserData2 record {
+    int index;
+    *Data;
+};
+
+type Object object {
+    private int field;
+
+    public function __init() {
+        self.field = 12;
+    }
+
+    public function getField() returns int {
+        return self.field;
+    }
+};
+
+type IntRestRecord record {
+    string name;
+    boolean married;
+    int...;
+};
+
+type ObjectRestRecord record {
+    string name;
+    boolean married;
+    Object...;
+};
+
+function testRestParameterType() {
+    string name;
+    map<int> other1 = {};
+    map<anydata> other2 = {};
+
+    IntRestRecord rec1 = { name: "A", married: true, age: 19, token: 200 };
+    { name, ...other1 } = rec1; // incompatible types: expected 'map<int>', found 'map<anydata|error>'
+
+    ObjectRestRecord rec2 = { name: "A", married: true, extra: new };
+    { name, ...other2 } = rec2; // incompatible types: expected 'map<anydata>', found 'map<any|error>'
 }

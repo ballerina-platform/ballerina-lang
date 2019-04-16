@@ -32,8 +32,8 @@ import ballerina/http;
 # + secret - The secret to be used for authenticated content distribution
 # + callback - The callback to use when registering, if unspecified host:port/path will be used
 # + subscriptionClientConfig - The configuration for subscription client
-public type SubscriberServiceConfiguration record {
-    Listener[] endpoints = [];
+public type SubscriberServiceConfiguration record {|
+    Listener?[] endpoints = [];
     string path = "";
     boolean subscribeOnStartUp = false;
     string resourceUrl = "";
@@ -43,8 +43,7 @@ public type SubscriberServiceConfiguration record {
     string secret = "";
     string callback = "";
     http:ClientEndpointConfig subscriptionClientConfig?;
-    !...
-};
+|};
 
 # WebSub Subscriber Configuration for the service, indicating subscription related parameters.
 public annotation<service> SubscriberServiceConfig SubscriberServiceConfiguration;

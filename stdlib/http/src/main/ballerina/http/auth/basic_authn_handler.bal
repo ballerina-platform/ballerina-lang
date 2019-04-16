@@ -16,6 +16,7 @@
 
 
 import ballerina/auth;
+import ballerina/encoding;
 import ballerina/log;
 import ballerina/runtime;
 
@@ -27,6 +28,7 @@ const string AUTH_CACHE = "basic_auth_cache";
 # + name - Authentication handler name
 # + authStoreProvider - AuthStoreProvider instance
 public type HttpBasicAuthnHandler object {
+
     public string name = "basic";
     public auth:AuthStoreProvider authStoreProvider = new;
 
@@ -47,7 +49,7 @@ public type HttpBasicAuthnHandler object {
     public function handle(Request req) returns (boolean);
 };
 
-function HttpBasicAuthnHandler.handle(Request req) returns (boolean) {
+public function HttpBasicAuthnHandler.handle(Request req) returns (boolean) {
     // extract the header value
     var basicAuthHeader = extractBasicAuthHeaderValue(req);
     string basicAuthHeaderValue = "";
@@ -63,21 +65,21 @@ function HttpBasicAuthnHandler.handle(Request req) returns (boolean) {
         boolean authenticated = self.authStoreProvider.authenticate(username, password);
         if (authenticated) {
             // set username
-            runtime:getInvocationContext().userPrincipal.username = username;
+            runtime:getInvocationContext().principal.username = username;
             // read scopes and set to the invocation context
             string[] scopes = self.authStoreProvider.getScopes(username);
             if (scopes.length() > 0) {
-                runtime:getInvocationContext().userPrincipal.scopes = scopes;
+                runtime:getInvocationContext().principal.scopes = scopes;
             }
         }
         return authenticated;
-    } else if (credentials is error) {
+    } else {
         log:printError("Error in decoding basic authentication header", err = credentials);
     }
     return false;
 }
 
-function HttpBasicAuthnHandler.canHandle(Request req) returns (boolean) {
+public function HttpBasicAuthnHandler.canHandle(Request req) returns (boolean) {
     var basicAuthHeader = trap req.getHeader(AUTH_HEADER);
     if (basicAuthHeader is string) {
         return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
@@ -91,7 +93,8 @@ function HttpBasicAuthnHandler.canHandle(Request req) returns (boolean) {
 # + return - A `string` tuple with the extracted username and password or `error` that occured while extracting credentials
 function extractBasicAuthCredentials(string authHeader) returns (string, string)|error {
     // extract user credentials from basic auth header
-    string decodedBasicAuthHeader = check authHeader.substring(5, authHeader.length()).trim().base64Decode();
+    string decodedBasicAuthHeader = encoding:byteArrayToString(check
+        encoding:decodeBase64(authHeader.substring(5, authHeader.length()).trim()));
     string[] decodedCredentials = decodedBasicAuthHeader.split(":");
     if (decodedCredentials.length() != 2) {
         return handleError("Incorrect basic authentication header format");

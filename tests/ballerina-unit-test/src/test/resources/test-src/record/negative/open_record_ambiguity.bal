@@ -77,9 +77,7 @@ function testAmbiguityResolution2() returns (string, string, string, string){
 function resolve(A|B|C rec) returns string {
     if (rec is A) {
         return "A";
-    } else if (rec is B) {
-        return "B";
     } else {
-        return "C";
+        return "B|C";
     }
 }

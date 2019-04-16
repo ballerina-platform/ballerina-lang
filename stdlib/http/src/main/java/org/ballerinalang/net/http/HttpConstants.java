@@ -60,6 +60,7 @@ public class HttpConstants {
     public static final String TO = "TO";
     public static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
     public static final String HTTP_VERSION = "HTTP_VERSION";
+    public static final String MUTUAL_SSL_RESULT = "MUTUAL_SSL_HANDSHAKE_RESULT";
     public static final String LISTENER_PORT = "LISTENER_PORT";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
     public static final String TLS_STORE_TYPE = "tlsStoreType";
@@ -193,6 +194,7 @@ public class HttpConstants {
     public static final String TRANSPORT_PUSH_PROMISE = "transport_push_promise";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
     public static final String HTTP_SESSION = "http_session";
+    public static final String MUTUAL_SSL_HANDSHAKE_RECORD = "MutualSslHandshake";
 
     public static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
     public static final String CIPHERS = "ciphers";
@@ -222,6 +224,10 @@ public class HttpConstants {
     public static final String REQUEST_USER_AGENT_FIELD = "userAgent";
     public static final String REQUEST_EXTRA_PATH_INFO_FIELD = "extraPathInfo";
     public static final String REQUEST_CACHE_CONTROL_FIELD = "cacheControl";
+    public static final String REQUEST_REUSE_STATUS_FIELD = "dirtyRequest";
+    public static final String REQUEST_NO_ENTITY_BODY_FIELD = "noEntityBody";
+    public static final String REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD = "mutualSslHandshake";
+    public static final String REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS = "status";
 
     //Response struct field names
     public static final String RESPONSE_STATUS_CODE_FIELD = "statusCode";
@@ -324,6 +330,8 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_KEY = "keyFile";
     public static final String ENDPOINT_CONFIG_KEY_PASSWORD = "keyPassword";
     public static final String ENDPOINT_CONFIG_TRUST_CERTIFICATES = "trustedCertFile";
+    public static final String ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT = "handshakeTimeout";
+    public static final String ENDPOINT_CONFIG_SESSION_TIMEOUT = "sessionTimeout";
 
     //SslConfiguration indexes
     public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";
@@ -338,7 +346,7 @@ public class HttpConstants {
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
     public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
     public static final int CLIENT_ENDPOINT_URL_INDEX = 0;
-
+    public static final int CLIENT_GLOBAL_POOL_INDEX = 1;
     
     //Client Endpoint Config
     public static final String CLIENT_EP_CHUNKING = "chunking";
@@ -355,6 +363,16 @@ public class HttpConstants {
     public static final String CONNECTION_THROTTLING_WAIT_TIME = "waitTime";
     public static final String CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION =
             "maxActiveStreamsPerConnection";
+
+    //Client connection pooling configs
+    public static final String CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS = "maxActiveConnections";
+    public static final String CONNECTION_POOLING_MAX_IDLE_CONNECTIONS = "maxIdleConnections";
+    public static final String CONNECTION_POOLING_WAIT_TIME = "waitTimeinMillis";
+    public static final String CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION = "maxActiveStreamsPerConnection";
+    public static final String HTTP_CLIENT_CONNECTION_POOL = "PoolConfiguration";
+    public static final String CONNECTION_MANAGER = "ConnectionManager";
+    public static final int POOL_CONFIG_INDEX = 1;
+    public static final String USER_DEFINED_POOL_CONFIG = "poolConfig";
 
     //FollowRedirect field names
     public static final String FOLLOW_REDIRECT_STRUCT_REFERENCE = "followRedirects";
@@ -395,8 +413,8 @@ public class HttpConstants {
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER = "NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER";
 
     public static final int REQUEST_STRUCT_INDEX = 1;
-    public static final String REQUEST_REUSE_STATUS_INDEX = "dirtyRequest";
     public static final boolean DIRTY_REQUEST = true;
+    public static final String NO_ENTITY_BODY = "NO_ENTITY_BODY";
 
     public static final String MOCK_LISTENER_ENDPOINT = "MockListener";
     public static final String HTTP_LISTENER_ENDPOINT = "Listener";

@@ -16,10 +16,7 @@ jms:Session jmsSession3 = new (conn3, {
     });
 
 // Initialize a Queue consumer using the created session.
-listener jms:QueueReceiver queueConsumer3 = new({
-    session: jmsSession3,
-    queueName: "MyPropQueue"
-});
+listener jms:QueueReceiver queueConsumer3 = new(jmsSession3, queueName = "MyPropQueue");
 
 // Bind the created consumer to the listener service.
 service jmsListener3 on queueConsumer3 {

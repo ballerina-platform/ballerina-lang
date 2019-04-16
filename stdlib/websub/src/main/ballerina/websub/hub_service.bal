@@ -14,9 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/crypto;
+import ballerina/encoding;
 import ballerina/http;
-import ballerina/h2;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/sql;
@@ -27,24 +28,30 @@ map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
 service hubService =
 @http:ServiceConfig {
-    basePath:BASE_PATH
+    basePath: BASE_PATH,
+    authConfig: {
+        authentication: {
+            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", defaultValue = false)
+        },
+        scopes: getArray(config:getAsString("b7a.websub.hub.auth.scopes"))
+    }
 }
 service {
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:HUB_PATH
+        methods: ["GET"],
+        path: HUB_PATH
     }
     resource function status(http:Caller httpCaller, http:Request request) {
         http:Response response = new;
         response.statusCode = http:ACCEPTED_202;
         response.setTextPayload("Ballerina Hub Service - Up and Running!");
-        _ = httpCaller->respond(response);
+        checkpanic httpCaller->respond(response);
     }
 
     @http:ResourceConfig {
-        methods:["POST"],
-        path:HUB_PATH
+        methods: ["POST"],
+        path: HUB_PATH
     }
     resource function hub(http:Caller httpCaller, http:Request request) {
         http:Response response = new;
@@ -161,9 +168,9 @@ service {
                             if (fetchResponse.hasHeader(CONTENT_TYPE)) {
                                 contentType = fetchResponse.getHeader(CONTENT_TYPE);
                             }
-                            var fetchedPayload = fetchResponse.getPayloadAsString();
+                            var fetchedPayload = fetchResponse.getTextPayload();
                             stringPayload = fetchedPayload is string ? fetchedPayload : "";
-                        } else if (fetchResponse is error) {
+                        } else {
                             string errorCause = <string> fetchResponse.detail().message;
                             string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
                                                     + errorCause;
@@ -175,16 +182,13 @@ service {
                                 log:printError("Error responding on update fetch failure", err = responseError);
                             }
                             return;
-                        } else {
-                            // should never reach here
-                            return;
                         }
                     } else {
                         binaryPayload = request.getBinaryPayload();
                         if (request.hasHeader(CONTENT_TYPE)) {
                             contentType = request.getHeader(CONTENT_TYPE);
                         }
-                        var result = request.getPayloadAsString();
+                        var result = request.getTextPayload();
                         stringPayload = result is string ? result : "";
                     }
 
@@ -192,7 +196,7 @@ service {
                     if (binaryPayload is byte[]) {
                         WebSubContent notification = { payload:binaryPayload, contentType:contentType };
                         publishStatus = publishToInternalHub(topic, notification);
-                    } else if (binaryPayload is error) {
+                    } else {
                         string errorCause = <string> binaryPayload.detail().message;
                         string errorMessage = "Error extracting payload: " + untaint errorCause;
                         log:printError(errorMessage);
@@ -262,7 +266,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         }
         return;
     }
-    map<any> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
+    map<anydata> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
     error err = error(WEBSUB_ERROR_CODE, errorDetail);
     return err;
 }
@@ -289,7 +293,11 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 
     http:Request request = new;
 
-    string queryParams = HUB_MODE + "=" + mode
+    var decodedCallback = http:decode(callback, "UTF-8");
+    string callbackToCheck = decodedCallback is error ? callback : decodedCallback;
+
+    string queryParams = (callbackToCheck.contains("?") ? "&" : "?")
+        + HUB_MODE + "=" + mode
         + "&" + HUB_TOPIC + "=" + topic
         + "&" + HUB_CHALLENGE + "=" + challenge;
 
@@ -297,7 +305,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
         queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds;
     }
 
-    var subscriberResponse = callbackEp->get(untaint ("?" + queryParams), message = request);
+    var subscriberResponse = callbackEp->get(untaint queryParams, message = request);
 
     if (subscriberResponse is http:Response) {
         var respStringPayload = subscriberResponse.getTextPayload();
@@ -324,17 +332,17 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                 }
 
                 if (hubPersistenceEnabled) {
-                    changeSubscriptionInDatabase(mode, subscriptionDetails);
+                    persistSubscriptionChange(mode, subscriptionDetails);
                 }
                 log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
                         + callback + "]");
             }
-        } else if (respStringPayload is error) {
+        } else {
             string errCause = <string> respStringPayload.detail().message;
             log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
                     + "]: Error retrieving response payload: " + errCause);
         }
-    } else if (subscriberResponse is error) {
+    } else {
         string errCause = <string> subscriberResponse.detail().message;
         log:printInfo("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
     }
@@ -348,191 +356,64 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     }
 }
 
-# Function to add/remove the details of topics registered, in the database.
+# Function to add/remove the persisted details of topics registered.
 #
 # + mode - Whether the change is for addition/removal
 # + topic - The topic for which registration is changing
-function changeTopicRegistrationInDatabase(string mode, string topic) {
-    h2:Client subscriptionDbEp = new h2:Client({
-        path: hubDatabaseDirectory,
-        name: hubDatabaseName,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: {
-            maximumPoolSize: 5
-        }
-    });
-
-    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
+function persistTopicRegistrationChange(string mode, string topic) {
     if (mode == MODE_REGISTER) {
-        var rowCount = subscriptionDbEp->update("INSERT INTO topics (topic) VALUES (?)", para1);
-        if (rowCount is int) {
-            log:printInfo("Successfully updated " + rowCount + " entries for registration");
-        } else if (rowCount is error) {
-            string errCause = <string> rowCount.detail().message;
-            log:printError("Error occurred updating registration data: " + errCause);
-        }
+        hubPersistenceStoreImpl.addTopic(topic);
     } else {
-        var rowCount = subscriptionDbEp->update("DELETE FROM topics WHERE topic=?", para1);
-        if (rowCount is int) {
-            log:printInfo("Successfully updated " + rowCount + " entries for unregistration");
-        } else if (rowCount is error) {
-            string errCause = <string> rowCount.detail().message;
-            log:printError("Error occurred updating unregistration data: " + errCause);
-        }
+        hubPersistenceStoreImpl.removeTopic(topic);
     }
-    subscriptionDbEp.stop();
 }
 
-# Function to add/change/remove the subscription details in the database.
+# Function to add/change/remove the persisted subscription details.
 #
 # + mode - Whether the subscription change is for unsubscription/unsubscription
 # + subscriptionDetails - The details of the subscription changing
-function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscriptionDetails) {
-    h2:Client subscriptionDbEp = new h2:Client({
-        path: hubDatabaseDirectory,
-        name: hubDatabaseName,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: {
-            maximumPoolSize: 5
-        }
-    });
-
-    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.topic};
-    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.callback};
+function persistSubscriptionChange(string mode, SubscriptionDetails subscriptionDetails) {
     if (mode == MODE_SUBSCRIBE) {
-        sql:Parameter para3 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.secret};
-        sql:Parameter para4 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.leaseSeconds};
-        sql:Parameter para5 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.createdAt};
-        var rowCount = subscriptionDbEp->update("INSERT INTO subscriptions"
-                + " (topic,callback,secret,lease_seconds,created_at) VALUES (?,?,?,?,?) ON"
-                + " DUPLICATE KEY UPDATE secret=?, lease_seconds=?,created_at=?",
-            untaint para1, untaint para2, untaint para3, untaint para4, untaint para5);
-        if (rowCount is int) {
-            log:printInfo("Successfully updated " + rowCount + " entries for subscription");
-        } else if (rowCount is error) {
-            string errCause = <string> rowCount.detail().message;
-            log:printError("Error occurred updating subscription data: " + errCause);
-        }
+        hubPersistenceStoreImpl.addSubscription(subscriptionDetails);
     } else {
-        var rowCount = subscriptionDbEp->update("DELETE FROM subscriptions WHERE topic=? AND callback=?",
-            untaint para1, untaint para2);
-
-        if (rowCount is int) {
-            log:printInfo("Successfully updated " + rowCount + " entries for unsubscription");
-        } else if (rowCount is error) {
-            string errCause = <string> rowCount.detail().message;
-            log:printError("Error occurred updating unsubscription data: " + errCause);
-        }
+        hubPersistenceStoreImpl.removeSubscription(subscriptionDetails);
     }
-    subscriptionDbEp.stop();
 }
 
 # Function to initiate set up activities on startup/restart.
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
-        addTopicRegistrationsOnStartup();
-        addSubscriptionsOnStartup(); //TODO:verify against topics
+        HubPersistenceStore hubServicePersistenceImpl = <HubPersistenceStore> hubPersistenceStoreImpl;
+        addTopicRegistrationsOnStartup(hubServicePersistenceImpl);
+        addSubscriptionsOnStartup(hubServicePersistenceImpl); //TODO:verify against topics
     }
     return;
 }
 
-# Function to load topic registrations from the database.
-function addTopicRegistrationsOnStartup() {
-    h2:Client subscriptionDbEp = new h2:Client({
-        path: hubDatabaseDirectory,
-        name: hubDatabaseName,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: {
-            maximumPoolSize: 5
+# Function to load persisted topic registrations.
+function addTopicRegistrationsOnStartup(HubPersistenceStore persistenceStore) {
+    string[] topics = persistenceStore.retrieveTopics();
+    foreach string topic in topics {
+        var registerStatus = registerTopicAtHub(topic, loadingOnStartUp = true);
+        if (registerStatus is error) {
+            string errCause = <string> registerStatus.detail().message;
+            log:printError("Error registering retrieved topic details: "+ errCause);
         }
-    });
-    var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
-    if (dbResult is table<TopicRegistration>) {
-        table<TopicRegistration> dt = dbResult;
-        while (dt.hasNext()) {
-            var registrationDetails = trap <TopicRegistration>dt.getNext();
-            if (registrationDetails is TopicRegistration) {
-                var registerStatus = registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true);
-                if (registerStatus is error) {
-                    string errCause = <string> registerStatus.detail().message;
-                    log:printError("Error registering topic details retrieved from the database: "+ errCause);
-                }
-            } else if (registrationDetails is error) {
-                string errCause = <string> registrationDetails.detail().message;
-                log:printError("Error retreiving topic registration details from the database: " + errCause);
-            }
-        }
-    } else if (dbResult is error) {
-        string errCause = <string> dbResult.detail().message;
-        log:printError("Error retreiving data from the database: " + errCause);
     }
-    subscriptionDbEp.stop();
 }
 
 # Function to add subscriptions to the broker on startup, if persistence is enabled.
-function addSubscriptionsOnStartup() {
-    h2:Client subscriptionDbEp = new h2:Client({
-        path: hubDatabaseDirectory,
-        name: hubDatabaseName,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: {
-            maximumPoolSize: 5
+function addSubscriptionsOnStartup(HubPersistenceStore persistenceStore) {
+    SubscriptionDetails[] subscriptions = persistenceStore.retrieveAllSubscribers();
+
+    foreach SubscriptionDetails subscription in subscriptions {
+        int time = time:currentTime().time;
+        if (time - subscription.leaseSeconds > subscription.createdAt) {
+            persistenceStore.removeSubscription(subscription);
+            continue;
         }
-    });
-
-    int time = time:currentTime().time;
-    sql:Parameter para1 = {sqlType:sql:TYPE_BIGINT, value:time};
-    _ = subscriptionDbEp->update("DELETE FROM subscriptions WHERE ? - lease_seconds > created_at", para1);
-
-    var dbResult = subscriptionDbEp->select("SELECT topic, callback, secret, lease_seconds, created_at"
-            + " FROM subscriptions", SubscriptionDetails);
-    if (dbResult is table<SubscriptionDetails>) {
-        table<SubscriptionDetails> dt = dbResult;
-        while (dt.hasNext()) {
-            var subscriptionDetails = trap <SubscriptionDetails>dt.getNext();
-            if (subscriptionDetails is SubscriptionDetails) {
-                addSubscription(subscriptionDetails);
-            } else if (subscriptionDetails is error) {
-                string errCause = <string> subscriptionDetails.detail().message;
-                log:printError("Error retreiving subscription details from the database: " + errCause);
-            }
-        }
-    } else if (dbResult is error) {
-        string errCause = <string> dbResult.detail().message;
-        log:printError("Error retreiving data from the database: " + errCause);
+        addSubscription(subscription);
     }
-    subscriptionDbEp.stop();
-}
-
-# Function to delete topic and subscription details from the database at shutdown, if persistence is enabled.
-function clearSubscriptionDataInDb() {
-    h2:Client subscriptionDbEp = new h2:Client({
-        path: hubDatabaseDirectory,
-        name: hubDatabaseName,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: {
-            maximumPoolSize: 5
-        }
-    });
-
-    var dbResult = subscriptionDbEp->update("DELETE FROM subscriptions");
-    if (dbResult is error) {
-        string errCause = <string> dbResult.detail().message;
-        log:printError("Error deleting subscription data from the database: " + errCause);
-    }
-
-    dbResult = subscriptionDbEp->update("DELETE FROM topics");
-    if (dbResult is error) {
-        string errCause = <string> dbResult.detail().message;
-        log:printError("Error deleting topic data from the database: " + errCause);
-    }
-
-    subscriptionDbEp.stop();
 }
 
 # Function to fetch updates for a particular topic.
@@ -569,19 +450,21 @@ returns error? {
         //TODO: introduce a separate periodic task, and modify select to select only active subs
         removeSubscription(subscriptionDetails.topic, callback);
         if (hubPersistenceEnabled) {
-            changeSubscriptionInDatabase(MODE_UNSUBSCRIBE, subscriptionDetails);
+            persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
         }
     } else {
-        var result = request.getPayloadAsString();
+        var result = request.getTextPayload();
         string stringPayload = result is error ? "" : result;
 
         if (subscriptionDetails.secret != "") {
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";
             if (SHA1.equalsIgnoreCase(hubSignatureMethod)) { //not recommended
-                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA1);
+                generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toByteArray("UTF-8"),
+                    subscriptionDetails.secret.toByteArray("UTF-8")));
             } else if (SHA256.equalsIgnoreCase(hubSignatureMethod)) {
-                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA256);
+                generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toByteArray("UTF-8"),
+                    subscriptionDetails.secret.toByteArray("UTF-8")));
             }
             xHubSignature = xHubSignature + generatedSignature;
             request.setHeader(X_HUB_SIGNATURE, xHubSignature);
@@ -599,17 +482,17 @@ returns error? {
             } else if (respStatusCode == http:GONE_410) {
                 removeSubscription(subscriptionDetails.topic, callback);
                 if (hubPersistenceEnabled) {
-                    changeSubscriptionInDatabase(MODE_UNSUBSCRIBE, subscriptionDetails);
+                    persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
                 }
                 log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
                                 + "], topic[" + subscriptionDetails.topic + "]");
             } else {
-                log:printError("Error delievering content to callback[" + callback + "] for topic["
+                log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: received response code " + respStatusCode);
             }
-        } else if (contentDistributionResponse is error) {
+        } else {
             string errCause = <string> contentDistributionResponse.detail().message;
-            log:printError("Error delievering content to callback[" + callback + "] for topic["
+            log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: " + errCause);
         }
     }
@@ -620,10 +503,9 @@ returns error? {
 # Struct to represent a topic registration.
 #
 # + topic - The topic for which notification would happen
-type TopicRegistration record {
+type TopicRegistration record {|
     string topic = "";
-    !...
-};
+|};
 
 # Object to represent a pending subscription/unsubscription request.
 #
@@ -664,4 +546,16 @@ function generateKey(string topic, string callback) returns (string) {
 function buildWebSubLinkHeader(string hub, string topic) returns (string) {
     string linkHeader = "<" + hub + ">; rel=\"hub\", <" + topic + ">; rel=\"self\"";
     return linkHeader;
+}
+
+# Construct an array of groups from the comma separed group string passed
+#
+# + groupString - comma separated string of groups
+# + return - array of groups, nil if the groups string is empty/nil
+function getArray(string groupString) returns string[]? {
+    string[] groupsArr = [];
+    if (groupString.length() == 0) {
+        return ();
+    }
+    return groupString.split(",");
 }

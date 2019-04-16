@@ -1,6 +1,6 @@
-import { getCodePoint } from "@ballerina/font";
 import classNames from "classnames";
 import React, { Fragment, StatelessComponent } from "react";
+import { getCodePoint } from "../../utils";
 import { SimplePoint } from "../../view-model/simple-point";
 
 export interface SVGCircleButtonProps {

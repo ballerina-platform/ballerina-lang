@@ -19,46 +19,58 @@ import ballerina/log;
 # Queue Receiver endpoint
 #
 # + consumerActions - handles all the caller actions related to the QueueReceiver endpoint
-# + config - configurations related to the QueueReceiver
+# + session - Session of the queue receiver
+# + messageSelector - The message selector for the queue receiver
+# + identifier - Unique identifier for the reciever
 public type QueueReceiver object {
 
     *AbstractListener;
 
     public QueueReceiverCaller consumerActions = new;
-    public QueueReceiverEndpointConfiguration config = {};
+    public Session? session;
+    public string messageSelector = "";
+    public string identifier = "";
 
     # Initializes the QueueReceiver endpoint
     #
-    # + c - Configurations related to the QueueReceiver endpoint
-    public function __init(QueueReceiverEndpointConfiguration c) {
-        self.config = c;
+    # + c - The JMS Session object or Configurations related to the receiver
+    # + queueName - Name of the queue
+    # + messageSelector - The message selector for the queue
+    # + identifier - Unique identifier for the reciever
+    public function __init(Session|ReceiverEndpointConfiguration c, string? queueName = (), string messageSelector = "",
+                           string identifier = "") {
         self.consumerActions.queueReceiver = self;
-        var session = c.session;
-        if (session is Session) {
-            var queueName = c.queueName;
-            if (queueName is string) {
-                self.createQueueReceiver(session, c.messageSelector);
-                log:printInfo("Message receiver created for queue " + queueName);
-            } else {
-                log:printInfo("Message receiver is not properly initialized for queue");
-            }
+        if (c is Session) {
+            self.session = c;
         } else {
-            log:printInfo("Message receiver is not properly initialized for queue");
+            Connection conn = new({
+                    initialContextFactory: c.initialContextFactory,
+                    providerUrl: c.providerUrl,
+                    connectionFactoryName: c.connectionFactoryName,
+                    properties: c.properties
+                });
+            self.session = new Session(conn, {
+                    acknowledgementMode: c.acknowledgementMode
+                });
+        }
+        if (queueName is string) {
+            self.createQueueReceiver(self.session, messageSelector, queueName);
+            log:printInfo("Message receiver created for queue " + queueName);
         }
     }
 
     # Binds the queue receiver endpoint to a service
     #
     # + serviceType - Type descriptor of the service to bind to
-    # + data - Service annotations
+    # + data - Name of the service
     # + return - Nil or error upon failure to register listener
-    public function __attach(service serviceType, map<any> data) returns error? {
-        return self.registerListener(serviceType, self.consumerActions, data);
+    public function __attach(service serviceType, string? name = ()) returns error? {
+        return self.registerListener(serviceType, self.consumerActions, name);
     }
 
-    extern function registerListener(service serviceType, QueueReceiverCaller actions, map<any> data) returns error?;
+    function registerListener(service serviceType, QueueReceiverCaller actions, string? name) returns error? = external;
 
-    extern function createQueueReceiver(Session session, string messageSelector, Destination? destination = ());
+    function createQueueReceiver(Session? session, string messageSelector, string|Destination dest) = external;
 
     # Starts the endpoint. Function is ignored by the receiver endpoint
     #
@@ -83,21 +95,7 @@ public type QueueReceiver object {
         return ();
     }
 
-    extern function closeQueueReceiver(QueueReceiverCaller actions);
-};
-
-# Configurations related to the QueueReceiver endpoint
-#
-# + session - JMS session object
-# + queueName - Name of the queue
-# + messageSelector - JMS selector statement
-# + identifier - unique identifier for the subscription
-public type QueueReceiverEndpointConfiguration record {
-    Session? session = ();
-    string? queueName = ();
-    string messageSelector = "";
-    string identifier = "";
-    !...
+    function closeQueueReceiver(QueueReceiverCaller actions) = external;
 };
 
 # Caller actions related to queue receiver endpoint.
@@ -111,52 +109,53 @@ public type QueueReceiverCaller client object {
     #
     # + message - JMS message to be acknowledged
     # + return - error upon failure to acknowledge the received message
-    public remote extern function acknowledge(Message message) returns error?;
+    public remote function acknowledge(Message message) returns error? = external;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error
-    public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public remote function receive(int timeoutInMilliSeconds = 0) returns Message|error? = external;
 
     # Synchronously receive a message from a given destination
     #
     # + destination - destination to subscribe to
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - Returns a message or () if the timeout exceeds, returns an error on JMS provider internal error
-    public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
-};
-
-remote function QueueReceiverCaller.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
-        error)? {
-    var queueReceiver = self.queueReceiver;
-    if (queueReceiver is QueueReceiver) {
-        var session = queueReceiver.config.session;
-        if (session is Session) {
-            validateQueue(destination);
-            queueReceiver.createQueueReceiver(session, queueReceiver.config.messageSelector,
-            destination = destination);
+    public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?
+    {
+        var queueReceiver = self.queueReceiver;
+        if (queueReceiver is QueueReceiver) {
+            var session = queueReceiver.session;
+            if (session is Session) {
+                validateQueue(destination);
+                queueReceiver.createQueueReceiver(session, queueReceiver.messageSelector, destination);
+            } else {
+                log:printInfo("Session is (), Message receiver is not properly initialized for queue " +
+                        destination.destinationName);
+            }
         } else {
-            log:printInfo("Session is (), Message receiver is not properly initialized for queue " +
-            destination.destinationName);
+            log:printInfo("Message receiver is not properly initialized for queue " + destination.destinationName);
         }
-    } else {
-         log:printInfo("Message receiver is not properly initialized for queue " + destination.destinationName);
+        var result = self->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+        self.queueReceiver.closeQueueReceiver(self);
+        return result;
     }
-    var result = self->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
-    self.queueReceiver.closeQueueReceiver(self);
-    return result;
-}
+};
 
 function validateQueue(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        map<any> errorDetail = { message: errorMessage };
+        map<anydata> errorDetail = {
+            message: errorMessage
+        };
         error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic queueReceiverConfigError;
     } else if (destination.destinationType != "queue") {
         string errorMessage = "Destination should should be a queue";
-        map<any> errorDetail = { message: errorMessage };
+        map<anydata> errorDetail = {
+            message: errorMessage
+        };
         error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic queueReceiverConfigError;
     }

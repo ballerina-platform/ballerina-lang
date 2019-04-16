@@ -70,16 +70,11 @@ service HelloWorldMessageListener = service {
 // Non-blocking client endpoint
 public type HelloWorldClient client object {
 
-    private grpc:Client grpcClient = new;
-    private grpc:ClientEndpointConfig config = {};
-    private string url;
+    private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
-        self.config = config ?: {};
-        self.url = url;
         // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(self.url, self.config);
+        grpc:Client c = new(url, config = config);
         error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;

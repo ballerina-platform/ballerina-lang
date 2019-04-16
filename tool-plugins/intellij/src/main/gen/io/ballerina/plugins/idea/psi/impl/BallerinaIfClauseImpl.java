@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaIfClauseImpl extends BallerinaCompositeElementImpl implements BallerinaIfClause {
+public class BallerinaIfClauseImpl extends ASTWrapperPsiElement implements BallerinaIfClause {
 
   public BallerinaIfClauseImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaIfClauseImpl extends BallerinaCompositeElementImpl impleme
   @Override
   @Nullable
   public BallerinaBlock getBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
+    return findChildByClass(BallerinaBlock.class);
   }
 
   @Override
   @Nullable
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
@@ -68,7 +69,7 @@ public class BallerinaIfClauseImpl extends BallerinaCompositeElementImpl impleme
   @Override
   @NotNull
   public PsiElement getIf() {
-    return notNullChild(findChildByType(IF));
+    return findNotNullChildByType(IF);
   }
 
 }

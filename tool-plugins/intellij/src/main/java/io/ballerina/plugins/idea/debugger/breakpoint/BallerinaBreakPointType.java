@@ -18,6 +18,7 @@ package io.ballerina.plugins.idea.debugger.breakpoint;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
@@ -26,7 +27,6 @@ import com.intellij.util.Processor;
 import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.breakpoints.XLineBreakpointType;
 import io.ballerina.plugins.idea.BallerinaFileType;
-import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,6 +37,7 @@ public class BallerinaBreakPointType extends XLineBreakpointType<BallerinaBreakp
 
     public static final String ID = "BallerinaLineBreakpoint";
     public static final String NAME = "Ballerina breakpoint";
+    private static final String BALLERINA_LINE_COMMENT_PREFIX = "//";
 
     protected BallerinaBreakPointType() {
         super(ID, NAME);
@@ -50,10 +51,8 @@ public class BallerinaBreakPointType extends XLineBreakpointType<BallerinaBreakp
 
     @Override
     public boolean canPutAt(@NotNull VirtualFile file, int line, @NotNull Project project) {
-        if (line < 0 || file.getFileType() != BallerinaFileType.INSTANCE) {
-            return false;
-        }
-        return isLineBreakpointAvailable(file, line, project);
+        return line >= 0 && file.getFileType() == BallerinaFileType.INSTANCE && isLineBreakpointAvailable(file, line,
+                project);
     }
 
     private static boolean isLineBreakpointAvailable(@NotNull VirtualFile file, int line, @NotNull Project project) {
@@ -63,6 +62,13 @@ public class BallerinaBreakPointType extends XLineBreakpointType<BallerinaBreakp
         }
         Checker canPutAtChecker = new Checker();
         XDebuggerUtil.getInstance().iterateLine(project, document, line, canPutAtChecker);
+
+        // Used to identify line comments, which cannot be correctly processed by the checker.
+        if (document.getText(new TextRange(document.getLineStartOffset(line), document.getLineEndOffset(line))).trim()
+                .startsWith(BALLERINA_LINE_COMMENT_PREFIX)) {
+            return false;
+        }
+
         return canPutAtChecker.isLineBreakpointAvailable();
     }
 
@@ -73,16 +79,11 @@ public class BallerinaBreakPointType extends XLineBreakpointType<BallerinaBreakp
         @Override
         public boolean process(@NotNull PsiElement element) {
             IElementType type = element.getNode().getElementType();
-            if (type == BallerinaTypes.LINE_COMMENT
-                    || type instanceof PsiWhiteSpace || element.getNode().getText().isEmpty()) {
-                myIsLineBreakpointAvailable = false;
-            } else {
-                myIsLineBreakpointAvailable = true;
-            }
+            myIsLineBreakpointAvailable = !(type instanceof PsiWhiteSpace) && !element.getNode().getText().isEmpty();
             return true;
         }
 
-        public boolean isLineBreakpointAvailable() {
+        boolean isLineBreakpointAvailable() {
             return myIsLineBreakpointAvailable;
         }
     }

@@ -17,15 +17,18 @@ package org.ballerinalang.langserver.command.testgen;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.ballerinalang.langserver.command.testgen.TestGenerator.TestFunctionGenerator;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -150,7 +153,7 @@ public class ValueSpaceGenerator {
         } else if (bType instanceof BUnionType) {
             // Check for union assignment int|string
             BUnionType bUnionType = (BUnionType) bType;
-            Set<BType> memberTypes = bUnionType.memberTypes;
+            Set<BType> memberTypes = bUnionType.getMemberTypes();
             if (!memberTypes.isEmpty()) {
                 return getValueSpaceByType(importsAcceptor, currentPkgId, memberTypes.stream().findFirst().get(),
                                            template);
@@ -170,6 +173,25 @@ public class ValueSpaceGenerator {
                 template[index] = template[index].replace(PLACE_HOLDER, "(" + String.join(", ", vSpace[index]) + ")");
             });
             return template;
+        } else if (bType instanceof BRecordType) {
+            BRecordType bRecordType = (BRecordType) bType;
+            List<BField> params = bRecordType.fields;
+            String[][] list = new String[template.length][params.size()];
+            IntStream.range(0, params.size()).forEach(paramIndex -> {
+                BField field = params.get(paramIndex);
+                String[] values = getValueSpaceByType(importsAcceptor, currentPkgId, field.type,
+                                                      createTemplateArray(template.length));
+                IntStream.range(0, values.length).forEach(valIndex -> {
+                    list[valIndex][paramIndex] = field.name + ": " + values[valIndex];
+                });
+            });
+
+            IntStream.range(0, template.length).forEach(index -> {
+                String paramsStr = String.join(", ", list[index]);
+                String newObjStr = "{" + paramsStr + "}";
+                template[index] = template[index].replace(PLACE_HOLDER, newObjStr);
+            });
+            return template;
         } else if (bType instanceof BObjectType && ((BObjectType) bType).tsymbol instanceof BObjectTypeSymbol) {
             BObjectTypeSymbol bStructSymbol = (BObjectTypeSymbol) ((BObjectType) bType).tsymbol;
             List<BVarSymbol> params = bStructSymbol.initializerFunc.symbol.params;
@@ -184,13 +206,7 @@ public class ValueSpaceGenerator {
             });
 
             IntStream.range(0, template.length).forEach(index -> {
-                String pkgPrefix = "";
-                if (!bStructSymbol.pkgID.equals(currentPkgId)) {
-                    pkgPrefix = bStructSymbol.pkgID.name.value + ":";
-                    if (importsAcceptor != null) {
-                        importsAcceptor.accept(bStructSymbol.pkgID.orgName.value, bStructSymbol.pkgID.name.value);
-                    }
-                }
+                String pkgPrefix = CommonUtil.getPackagePrefix(importsAcceptor, currentPkgId, bStructSymbol.pkgID);
                 String paramsStr = String.join(", ", list[index]);
                 String newObjStr = "new " + pkgPrefix + bStructSymbol.name.getValue() + "(" + paramsStr + ")";
                 template[index] = template[index].replace(PLACE_HOLDER, newObjStr);
@@ -275,6 +291,10 @@ public class ValueSpaceGenerator {
             case "byte":
                 String[] resultBlob = new String[]{"0"};
                 populateValueSpace(resultBlob, template, () -> String.valueOf("0"));
+                break;
+            case "error":
+                String[] resultErr = new String[]{"0"};
+                populateValueSpace(resultErr, template, () -> "error(\"\")");
                 break;
             default:
                 String[] result = new String[]{"()"};

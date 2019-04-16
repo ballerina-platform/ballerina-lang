@@ -20,11 +20,10 @@ type Person record {
 };
 
 // Assignable to Person type
-type Employee record {
+type Employee record {|
     string name;
     boolean intern;
-    !...
-};
+|};
 
 Person person1 = { name: "John" };
 Employee employee1 = { name: "John", intern: true };

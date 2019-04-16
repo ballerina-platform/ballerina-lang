@@ -6,7 +6,7 @@ listener http:MockListener echoEP  = new(9090);
 @http:ServiceConfig {basePath:"/globalvar"}
 service GlobalVar on echoEP {
 
-    string serviceVarFloat = <string> foo:glbVarFloat;
+    string serviceVarFloat = string.convert(foo:getGlbVarFloat());
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -14,9 +14,13 @@ service GlobalVar on echoEP {
     }
     resource function defineGlobalVar (http:Caller caller, http:Request req) {
         http:Response res = new;
-        json responseJson = {"glbVarInt":foo:glbVarInt, "glbVarString":foo:glbVarString, "glbVarFloat":foo:glbVarFloat};
+        json responseJson = {
+            "glbVarInt": foo:getGlbVarInt(),
+            "glbVarString": foo:getGlbVarString(),
+            "glbVarFloat": foo:getGlbVarFloat()
+        };
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -27,7 +31,7 @@ service GlobalVar on echoEP {
         http:Response res = new;
         json responseJson = {"serviceVarFloat": self.serviceVarFloat};
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -36,10 +40,10 @@ service GlobalVar on echoEP {
     }
     resource function changeGlobalVarAtResourceLevel (http:Caller caller, http:Request req) {
         http:Response res = new;
-        foo:glbVarFloatChange = 77.87;
-        json responseJson = {"glbVarFloatChange":foo:glbVarFloatChange};
+        foo:setGlbVarFloatChange(77.87);
+        json responseJson = { "glbVarFloatChange": foo:getGlbVarFloatChange() };
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -48,9 +52,9 @@ service GlobalVar on echoEP {
     }
     resource function getChangedGlobalVarAtResourceLevel (http:Caller caller, http:Request req) {
         http:Response res = new;
-        json responseJson = {"glbVarFloatChange":foo:glbVarFloatChange};
+        json responseJson = { "glbVarFloatChange": foo: getGlbVarFloatChange() };
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -60,14 +64,14 @@ service GlobalVar on echoEP {
     resource function getGlobalArraysAtResourceLevel (http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = {
-            "glbArrayElement":foo:glbArray[0],
-            "glbSealedArrayElement":foo:glbSealedArray[1],
-            "glbSealedArray2Element":foo:glbSealedArray2[2],
-            "glbSealed2DArrayElement":foo:glbSealed2DArray[0][0],
-            "glbSealed2DArray2Element":foo:glbSealed2DArray2[0][1]
+            "glbArrayElement": foo:getGlbArray()[0],
+            "glbSealedArrayElement": foo:getGlbSealedArray()[1],
+            "glbSealedArray2Element": foo:getGlbSealedArray2()[2],
+            "glbSealed2DArrayElement": foo:getGlbSealed2DArray()[0][0],
+            "glbSealed2DArray2Element": foo:getGlbSealed2DArray2()[0][1]
         };
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -80,9 +84,9 @@ service GlobalVarSecond on echoEP {
     }
     resource function getChangedGlobalVarAtResourceLevel (http:Caller caller, http:Request req) {
         http:Response res = new;
-        json responseJson = {"glbVarFloatChange":foo:glbVarFloatChange};
+        json responseJson = { "glbVarFloatChange": foo: getGlbVarFloatChange() };
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
 }

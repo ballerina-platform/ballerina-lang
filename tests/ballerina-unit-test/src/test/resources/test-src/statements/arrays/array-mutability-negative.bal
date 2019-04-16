@@ -20,11 +20,10 @@ type Person record {
 };
 
 // Assignable to Person type
-type Employee record {
+type Employee record {|
     string name = "";
     boolean intern = false;
-    !...
-};
+|};
 
 //  Negative scenarios
 function mismatchingCovariace() {
@@ -46,7 +45,7 @@ function mismatchingCovariace() {
 
     (int|Person?)[] x12 = [];
     (int|Person|boolean?)[] x13 = x12;
-    (int|Person)[] x14 = x12; // Compile Error
+    (int|Person)?[] x14 = x12; // Compile Error
 
     int[] x15 = [];
     int[3] x16 = x15; // Compile Error
@@ -82,7 +81,7 @@ function mismatchingCovariace2() {
 }
 
 function testUnionOfArrays2() {
-    (int|boolean)[] x1 = [0, 0, 0];
+    (int|boolean)?[] x1 = [0, 0, 0];
     int[]|boolean[] x2 = [0, 0, 0];
 
     int[] intArray = [];

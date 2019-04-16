@@ -33,7 +33,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
-import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +48,10 @@ import javax.jms.Message;
  * Get text content of the JMS Message.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jms",
+        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
         functionName = "getMapMessageContent",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Message", structPackage = "ballerina/jms"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.MESSAGE_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         returnType = {@ReturnType(type = TypeKind.MAP)},
         isPublic = true
 )
@@ -60,8 +62,9 @@ public class GetMapMessageContent extends AbstractBlockingAction {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> messageStruct = ((BMap<String, BValue>) context.getRefArgument(0));
-        Message jmsMessage = JMSUtils.getJMSMessage(messageStruct);
+        Message jmsMessage = JmsUtils.getJMSMessage(messageStruct);
         BMap<String, BValue> messageContent = new BMap<>();
 
         try {
@@ -82,7 +85,7 @@ public class GetMapMessageContent extends AbstractBlockingAction {
                     } else if (value instanceof byte[]) {
                         messageContent.put(key, new BValueArray((byte[]) value));
                     } else {
-                        log.error("Couldn't set invalid data type to map : " + value.getClass().getSimpleName());
+                        log.error("Couldn't set invalid data type to map : {}", value.getClass().getSimpleName());
                     }
                 }
             } else {

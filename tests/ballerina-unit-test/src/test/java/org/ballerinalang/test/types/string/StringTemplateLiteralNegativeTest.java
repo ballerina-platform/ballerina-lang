@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -44,25 +44,12 @@ public class StringTemplateLiteralNegativeTest {
     @Test(description = "Test string template literal syntax errors")
     public void testStringTemplateLiteralSyntaxNegativeCases() {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-syntax-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
         int index = 0;
-        BAssertUtil.validateError(resultNegative, index++,
-                "mismatched input '}'. expecting {'is', '?', '+', '-', '*', '/', '%', '==', '!=', '>', '<', '>=', " +
-                        "'<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<', ExpressionEnd}",
-                                  4, 71);
-        BAssertUtil.validateError(resultNegative, index++, "extraneous input '}'", 4, 72);
-        BAssertUtil.validateError(resultNegative, index++,
-                "mismatched input ';'. expecting {'[', '?', '|', Identifier}", 5, 13);
-        BAssertUtil.validateError(resultNegative, index++, "missing token ';' before '('", 8, 33);
-        BAssertUtil.validateError(resultNegative, index++, "mismatched input 'returns'. expecting {'[', '?', '|', " +
-                "Identifier}", 8, 36);
-        BAssertUtil.validateError(resultNegative, index++, "mismatched input '{'. expecting {'[', '?', '|', " +
-                                          "Identifier}",
-                8, 53);
-        BAssertUtil.validateError(resultNegative, index++, "invalid token '}'", 10, 36);
-        BAssertUtil.validateError(resultNegative, index++, "mismatched input '}'. expecting {'[', '?', '|', " +
-                                          "Identifier}",
-                10, 36);
-        BAssertUtil.validateError(resultNegative, index, "extraneous input '}'", 12, 1);
+        BAssertUtil.validateError(resultNegative, index++, "mismatched input ';'. expecting {'is', '}', '?', '+', " +
+                "'-', '*', '/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', " +
+                "'|', '?:', '->>', '..<'}", 4, 75);
+        BAssertUtil.validateError(resultNegative, index++, "token recognition error at: '\\l'", 10, 26);
+        BAssertUtil.validateError(resultNegative, index, "extraneous input 'lo $ {name}}'", 10, 28);
     }
 }

@@ -94,7 +94,7 @@ type RestrictedGrades record {
     int maths;
     int physics;
     int chemistry;
-    int...
+    int...;
 };
 
 

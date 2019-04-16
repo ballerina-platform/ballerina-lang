@@ -17,7 +17,7 @@ public type Person record {
     int id;
     string name;
     float salary;
-    string...
+    string...;
 };
 
 type Employee record {
@@ -26,12 +26,11 @@ type Employee record {
     float salary;
 };
 
-type ConstrainedEmp record {
+type ConstrainedEmp record {|
     int id;
     string name;
     float salary;
-    !...
-};
+|};
 
 type A record {
     int a;
@@ -137,8 +136,8 @@ public function cloneTable() returns (table<Employee>, table<Employee>, table<Em
     };
     table<Employee> x = a.clone();
     table<Employee> y = a.clone();
-    _ = a.add(e3);
-    _ = y.add(e3);
+    checkpanic a.add(e3);
+    checkpanic y.add(e3);
     return (a, x, y);
 }
 
@@ -199,9 +198,9 @@ public function cloneStringArray() returns (string[], string[], string[]) {
 }
 
 public function cloneUnionArray() returns (any[], any[], any[]) {
-    (int|string|float)[] a = [1, "EE", 12.3];
-    (int|string|float)[] x = a.clone();
-    (int|string|float)[] y = a.clone();
+    (int|string|float)?[] a = [1, "EE", 12.3];
+    (int|string|float)?[] x = a.clone();
+    (int|string|float)?[] y = a.clone();
     a[0] = 100;
     y[2] = 300.5;
     return (a, x, y);
@@ -213,15 +212,6 @@ public function cloneUnion() returns (any, any, any) {
     int|string|float y = a.clone();
     a = 100;
     y = 300.5;
-    return (a, x, y);
-}
-
-public function cloneConstrainedJSON() returns (json, json, json) {
-    json<ConstrainedEmp> a = { id: 1, name: "Jane", salary: 300.50 };
-    json<ConstrainedEmp> x = a.clone();
-    json<ConstrainedEmp> y = a.clone();
-    a.name = "Charlos";
-    y.salary = 400.5;
     return (a, x, y);
 }
 
@@ -348,7 +338,7 @@ public function cloneAnydata() returns (any, any, any) {
     return (a, x, y);
 }
 
-public function cloneFrozenAnydata() returns (any, any) {
+public function cloneFrozenAnydata() returns (any, any|error) {
     Person p = {id: 100, name: "Alex", salary: 300.5};
     (Person | error) r = p.freeze();
     (Person | error) q = r.clone();
@@ -362,11 +352,11 @@ public function cloneNonAnydata() returns (any, any|error) {
     return (x, q);
 }
 
-public function cloneLikeAnydata() returns (any, any) {
+public function cloneLikeAnydata() returns (any, any|error) {
     Employee p = {id: 100, name: "Alex", salary: 300.5};
     int[] q = [1, 2, 3];
     (any, any) x = (p, q);
-    any y = x.clone();
+    any|error y = x.clone();
     return (x, y);
 }
 
@@ -380,4 +370,62 @@ public function cloneNilAnydata() returns (any, any) {
     anydata x = ();
     anydata y = x.clone();
     return (x, y);
+}
+
+type MyError error<string, map<map<string>>>;
+
+string reason1 = "err reason 1";
+string reason2 = "err reason 2";
+string reason3 = "err reason 3";
+string reason4 = "err reason 4";
+string[*] reasonArray = [reason1, reason2, reason3, reason4];
+
+map<string> m1 = { one: "first" };
+map<string> m2 = { one: "first", two: "second" };
+
+error err1 = error(reason1);
+error err2 = error(reason2, { one: 1, two: "2" });
+MyError err3 = error(reason3, { m1: m1 });
+MyError err4 = error(reason4, { m1: m1, m2: m2 });
+
+public function testCloneArrayWithError() returns boolean {
+    error[*] errArray = [err1, err2, err3, err4];
+    error[4] clonedErrArray = errArray.clone();
+
+    boolean cloneSuccessful = errArray !== clonedErrArray;
+
+    foreach int i in 0 ... 3 {
+        cloneSuccessful = cloneSuccessful &&
+                            errArray[i].reason() == clonedErrArray[i].reason() &&
+                            errArray[i].reason() == reasonArray[i] &&
+                            errArray[i].detail() === clonedErrArray[i].detail();
+    }
+    return cloneSuccessful;
+}
+
+public function testCloneMapWithError() returns boolean {
+    map<error> errMap = {
+        e1: err1,
+        e2: err2,
+        e3: err3,
+        e4: err4
+    };
+
+    map<any> ma = {
+        one: 1,
+        two: "two",
+        errMap: errMap
+    };
+    map<error> errMapFromValue = <map<error>> ma.errMap;
+
+    map<any> clonedMap = <map<any>> ma.clone();
+
+    boolean cloneSuccessful = ma !== clonedMap && <int> ma.one == <int> clonedMap.one &&
+                                <string> ma.two == <string> clonedMap.two;
+
+    map<error> clonedErrorMap = <map<error>> clonedMap.errMap;
+    foreach (string, error) (key, value) in errMapFromValue {
+        cloneSuccessful = cloneSuccessful && value === clonedErrorMap[key];
+    }
+    return cloneSuccessful;
 }

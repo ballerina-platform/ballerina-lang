@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
-import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,14 +44,14 @@ import javax.jms.Topic;
 /**
  * Create Text JMS Message.
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "jms",
+@BallerinaFunction(orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
                    functionName = "createTopic",
-                   receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
-                                        structPackage = "ballerina/jms"),
+                   receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME,
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
                    args = { @Argument(name = "name", type = TypeKind.STRING) },
                    returnType = {
-                           @ReturnType(type = TypeKind.OBJECT, structPackage = "ballerina/jms",
-                                        structType = "Destination")
+                           @ReturnType(type = TypeKind.OBJECT, structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS,
+                                        structType = JmsConstants.DESTINATION_OBJ_NAME)
                    },
                    isPublic = true)
 public class CreateTopic extends AbstractBlockingAction {
@@ -63,16 +63,16 @@ public class CreateTopic extends AbstractBlockingAction {
 
         Topic jmsDestination;
         Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
-        Session session = BallerinaAdapter.getNativeObject(sessionBObject, Constants.JMS_SESSION, Session.class,
+        Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
                                                            context);
         String topicName = context.getStringArgument(0);
-        BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context, Constants.BALLERINA_PACKAGE_JMS,
-                                                              Constants.JMS_DESTINATION_STRUCT_NAME);
+        BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context, JmsConstants.BALLERINA_PACKAGE_JMS,
+                                                                           JmsConstants.JMS_DESTINATION_STRUCT_NAME);
         try {
             jmsDestination = session.createTopic(topicName);
-            bStruct.addNativeData(Constants.JMS_DESTINATION_OBJECT, jmsDestination);
-            bStruct.put(Constants.DESTINATION_NAME, new BString(jmsDestination.getTopicName()));
-            bStruct.put(Constants.DESTINATION_TYPE, new BString("topic"));
+            bStruct.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, jmsDestination);
+            bStruct.put(JmsConstants.DESTINATION_NAME, new BString(jmsDestination.getTopicName()));
+            bStruct.put(JmsConstants.DESTINATION_TYPE, new BString("topic"));
         } catch (JMSException e) {
             BallerinaAdapter.returnError("Failed to create topic destination.", context, e);
         }

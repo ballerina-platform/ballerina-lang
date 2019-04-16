@@ -33,7 +33,7 @@ import java.util.Stack;
  */
 public class TypeSignatureReader<T> {
 
-    public int createBTypeFromSig(TypeCreater<T> typeCreater, char[] chars, int index, Stack<T> typeStack) {
+    public int createBTypeFromSig(TypeCreator<T> typeCreator, char[] chars, int index, Stack<T> typeStack) {
         int nameIndex;
         char typeChar = chars[index];
         switch (typeChar) {
@@ -47,15 +47,7 @@ public class TypeSignatureReader<T> {
             case 'A':
             case 'N':
             case 'K':
-                typeStack.push(typeCreater.getBasicType(typeChar));
-                return index + 1;
-            case 'E':
-                index++;    // skip "("
-                index = createBTypeFromSig(typeCreater, chars, index + 1, typeStack);
-                T reasonType = typeStack.pop();
-                index = createBTypeFromSig(typeCreater, chars, index, typeStack);
-                T detailsType = typeStack.pop();
-                typeStack.push(typeCreater.getErrorType(reasonType, detailsType));
+                typeStack.push(typeCreator.getBasicType(typeChar));
                 return index + 1;
             case 'R':
                 index++;
@@ -64,21 +56,21 @@ public class TypeSignatureReader<T> {
                     nameIndex++;
                 }
                 String typeName = new String(Arrays.copyOfRange(chars, index, nameIndex));
-                typeStack.push(typeCreater.getBuiltinRefType(typeName));
+                typeStack.push(typeCreator.getBuiltinRefType(typeName));
                 return nameIndex + 1;
             case 'C':
-            case 'J':
             case 'T':
             case 'X':
             case 'D':
             case 'G':
             case 'Z':
+            case 'E':
                 nameIndex = index;
                 while (chars[nameIndex] != ';') {
                     nameIndex++;
                 }
                 String name = new String(Arrays.copyOfRange(chars, index, nameIndex + 1));
-                T type = getBTypeFromDescriptor(typeCreater, name);
+                T type = getBTypeFromDescriptor(typeCreator, name);
                 typeStack.push(type);
                 return nameIndex + 1;
             case '[':
@@ -90,21 +82,21 @@ public class TypeSignatureReader<T> {
                 }
 
                 int size = Integer.parseInt(String.valueOf(Arrays.copyOfRange(chars, index + 1, endIndex)));
-                index = createBTypeFromSig(typeCreater, chars, endIndex + 1, typeStack);
+                index = createBTypeFromSig(typeCreator, chars, endIndex + 1, typeStack);
                 T elemType = typeStack.pop();
-                typeStack.push(typeCreater.getArrayType(elemType, size));
+                typeStack.push(typeCreator.getArrayType(elemType, size));
 
                 return index;
             case 'M':
             case 'H':
             case 'Q':
-                index = createBTypeFromSig(typeCreater, chars, index + 1, typeStack);
+                index = createBTypeFromSig(typeCreator, chars, index + 1, typeStack);
                 T constraintType = typeStack.pop();
-                typeStack.push(typeCreater.getConstrainedType(typeChar, constraintType));
+                typeStack.push(typeCreator.getConstrainedType(typeChar, constraintType));
                 return index;
             case 'U':
                 index++;
-                index = createFunctionType(typeCreater, chars, index, typeStack);
+                index = createFunctionType(typeCreator, chars, index, typeStack);
                 return index + 1;
             case 'O':
             case 'P':
@@ -117,18 +109,18 @@ public class TypeSignatureReader<T> {
                 int memberCount = Integer.parseInt(new String(Arrays.copyOfRange(chars, index, nameIndex)));
                 index = nameIndex;
                 for (int i = 0; i < memberCount; i++) {
-                    index = createBTypeFromSig(typeCreater, chars, index + 1, typeStack) - 1;
+                    index = createBTypeFromSig(typeCreator, chars, index + 1, typeStack) - 1;
                     memberTypes.add(typeStack.pop());
                 }
 
-                typeStack.push(typeCreater.getCollectionType(typeChar, memberTypes));
+                typeStack.push(typeCreator.getCollectionType(typeChar, memberTypes));
                 return index + 1;
             default:
                 throw new IllegalArgumentException("unsupported base type char: " + typeChar);
         }
     }
 
-    public T getBTypeFromDescriptor(TypeCreater<T> typeCreater, String desc) {
+    public T getBTypeFromDescriptor(TypeCreator<T> typeCreator, String desc) {
         char ch = desc.charAt(0);
         switch (ch) {
             case 'I':
@@ -141,28 +133,28 @@ public class TypeSignatureReader<T> {
             case 'A':
             case 'N':
             case 'K':
-                return typeCreater.getBasicType(ch);
+                return typeCreator.getBasicType(ch);
             case 'R':
                 String typeName = desc.substring(1, desc.length() - 1);
-                return typeCreater.getBuiltinRefType(typeName);
+                return typeCreator.getBuiltinRefType(typeName);
             case 'M':
             case 'H':
             case 'Q':
-                T constraintType = getBTypeFromDescriptor(typeCreater, desc.substring(1));
-                return typeCreater.getConstrainedType(ch, constraintType);
+                T constraintType = getBTypeFromDescriptor(typeCreator, desc.substring(1));
+                return typeCreator.getConstrainedType(ch, constraintType);
             case 'C':
-            case 'J':
             case 'T':
             case 'X':
             case 'Z':
             case 'G':
             case 'D':
+            case 'E':
                 typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
 
                 if (parts.length == 1) {
-                    if (ch == 'J' || ch == 'D') {
-                        return typeCreater.getConstrainedType(ch, null);
+                    if (ch == 'D') {
+                        return typeCreator.getConstrainedType(ch, null);
                     }
                 }
 
@@ -176,8 +168,8 @@ public class TypeSignatureReader<T> {
                     name = parts[2];
                 }
 
-                constraintType = typeCreater.getRefType(ch, pkgPath, name);
-                return typeCreater.getConstrainedType(ch, constraintType);
+                constraintType = typeCreator.getRefType(ch, pkgPath, name);
+                return typeCreator.getConstrainedType(ch, constraintType);
             case '[':
                 int index = 1;
                 char[] size = null;
@@ -187,29 +179,28 @@ public class TypeSignatureReader<T> {
                     desc.getChars(1, index, size, 0);
                     index++;
                 }
-                T elemType = getBTypeFromDescriptor(typeCreater, desc.substring(index));
-                return typeCreater.getArrayType(elemType, Integer.parseInt(String.valueOf(size)));
+                T elemType = getBTypeFromDescriptor(typeCreator, desc.substring(index));
+                return typeCreator.getArrayType(elemType, Integer.parseInt(String.valueOf(size)));
 
             case 'U':
             case 'O':
             case 'P':
-            case 'E':
                 Stack<T> typeStack = new Stack<>();
-                createBTypeFromSig(typeCreater, desc.toCharArray(), 0, typeStack);
+                createBTypeFromSig(typeCreator, desc.toCharArray(), 0, typeStack);
                 return typeStack.pop();
             default:
                 throw new IllegalArgumentException("unsupported base type char: " + ch);
         }
     }
 
-    public int createFunctionType(TypeCreater<T> typeCreater, char[] chars, int index, Stack<T> typeStack) {
+    public int createFunctionType(TypeCreator<T> typeCreator, char[] chars, int index, Stack<T> typeStack) {
         // Skip the first parenthesis
         index++;
 
         // Read function parameters
         Stack<T> funcParamsStack = new Stack<>();
         while (chars[index] != ')' || chars[index + 1] != '(') {
-            index = createBTypeFromSig(typeCreater, chars, index, funcParamsStack);
+            index = createBTypeFromSig(typeCreator, chars, index, funcParamsStack);
         }
 
         // Read function return type.
@@ -220,11 +211,11 @@ public class TypeSignatureReader<T> {
             retType = null;
         } else {
             Stack<T> returnParamsStack = new Stack<>();
-            index = createBTypeFromSig(typeCreater, chars, index, returnParamsStack);
+            index = createBTypeFromSig(typeCreator, chars, index, returnParamsStack);
             retType = returnParamsStack.pop();
         }
 
-        typeStack.push(typeCreater.getFunctionType(funcParamsStack, retType));
+        typeStack.push(typeCreator.getFunctionType(funcParamsStack, retType));
         return index;
     }
 }

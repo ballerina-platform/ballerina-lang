@@ -59,6 +59,8 @@ public interface Struct {
      */
     long getIntField(String fieldName);
 
+    long getDefaultableIntField(String fieldName);
+
     /**
      * Returns value of a float field.
      *

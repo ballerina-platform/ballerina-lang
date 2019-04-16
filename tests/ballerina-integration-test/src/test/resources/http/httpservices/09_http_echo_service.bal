@@ -31,7 +31,7 @@ service echo3 on echoEP3 {
     resource function echo3 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -46,7 +46,7 @@ service echoOne2 on echoEP3 {
     resource function echoAbc (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -62,7 +62,7 @@ service echoDummy2 on echoEP4 {
     resource function echoDummy2 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -72,6 +72,6 @@ service echoDummy2 on echoEP4 {
     resource function echoOptions (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello Options");
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }

@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
+import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.JsonParser;
@@ -32,13 +33,11 @@ import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.DefaultValue;
@@ -47,23 +46,17 @@ import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParamDefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParameterAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.model.types.BTypes.getTypeFromName;
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.PARAMETERS_ATTRIBUTE;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE;
-import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.TAINT_TABLE;
 
 /**
  * Argument Parser class used to parse function args specified on the CLI.
@@ -83,7 +76,6 @@ public class ArgumentParser {
     private static final String NIL = "()";
     private static final String TRUE = "TRUE";
     private static final String FALSE = "FALSE";
-    private static final String BINARY_PREFIX = "0B";
     private static final String HEX_PREFIX = "0X";
 
     /**
@@ -104,14 +96,6 @@ public class ArgumentParser {
         int defaultableParamsCount = parameterAttributeInfo.defaultableParamsCount;
         int restParamCount = parameterAttributeInfo.restParamCount;
 
-        TaintTableAttributeInfo taintTableAttributeInfo =
-                (TaintTableAttributeInfo) entryFuncInfo.getAttributeInfo(TAINT_TABLE);
-        int totalParamCount = requiredParamsCount + defaultableParamsCount + restParamCount;
-        if (!MAIN_FUNCTION_NAME.equals(entryFuncInfo.getName())
-                && totalParamCount != 0 && taintTableAttributeInfo.rowCount - 1 != totalParamCount) {
-            throw new BLangUsageException("function with sensitive parameters cannot be invoked as the entry function");
-        }
-
         LocalVariableAttributeInfo localVariableAttributeInfo =
                 (LocalVariableAttributeInfo) entryFuncInfo.getAttributeInfo(LOCAL_VARIABLES_ATTRIBUTE);
         ParamDefaultValueAttributeInfo paramDefaultValueAttributeInfo =
@@ -130,13 +114,11 @@ public class ArgumentParser {
         }
 
         if (requiredAndRestArgs.length < requiredParamsCount) {
-            throw new BLangUsageException("insufficient arguments to call entry function '" + entryFuncInfo.getName()
-                                                  + "'");
+            throw new BLangUsageException("insufficient arguments to call the 'main' function");
         }
 
         if (requiredAndRestArgs.length > requiredParamsCount && restParamCount == 0) {
-            throw new BLangUsageException("too many arguments to call entry function '" + entryFuncInfo.getName()
-                                                  + "'");
+            throw new BLangUsageException("too many arguments to call the 'main' function");
         }
 
         // populate values specified for required params
@@ -220,25 +202,27 @@ public class ArgumentParser {
     }
 
     private static BValue getDefaultValue(BType type, DefaultValue value) {
-        switch (type.getTag()) {
-            case TypeTags.INT_TAG:
+        switch (value.getTypeDesc()) {
+            case TypeSignature.SIG_INT:
                 return new BInteger(value.getIntValue());
-            case TypeTags.STRING_TAG:
+            case TypeSignature.SIG_STRING:
                 return new BString(value.getStringValue());
-            case TypeTags.FLOAT_TAG:
+            case TypeSignature.SIG_FLOAT:
                 return new BFloat(value.getFloatValue());
-            case TypeTags.DECIMAL_TAG:
+            case TypeSignature.SIG_DECIMAL:
                 return new BDecimal(value.getDecimalValue());
-            case TypeTags.BOOLEAN_TAG:
+            case TypeSignature.SIG_BOOLEAN:
                 return new BBoolean(value.getBooleanValue());
-            case TypeTags.BYTE_TAG:
+            case TypeSignature.SIG_BYTE:
                 return new BByte(value.getByteValue());
+            case TypeSignature.SIG_NULL:
+                return null; // for optional defaultable types
             default: //shouldn't reach here
                 throw new BLangUsageException("unsupported type specified as defaultable param: " + type);
         }
     }
 
-    private static BValue getBValue(BType type, String value) {
+    public static BValue getBValue(BType type, String value) {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.ANY_TAG:
@@ -248,7 +232,7 @@ public class ArgumentParser {
             case TypeTags.FLOAT_TAG:
                 return new BFloat(getFloatValue(value));
             case TypeTags.DECIMAL_TAG:
-                return new BDecimal(getDecimalValue(value));
+                return getDecimalValue(value);
             case TypeTags.BOOLEAN_TAG:
                 return new BBoolean(getBooleanValue(value));
             case TypeTags.BYTE_TAG:
@@ -294,13 +278,6 @@ public class ArgumentParser {
                 }
             case TypeTags.UNION_TAG:
                 return parseUnionArg((BUnionType) type, value);
-            case TypeTags.TYPEDESC_TAG:
-                try {
-                    return new BTypeDescValue(getTypeFromName(value));
-                } catch (IllegalStateException e) {
-                    throw new BLangUsageException("invalid argument '" + value + "', unsupported/unknown typedesc "
-                                                          + "expected with entry function");
-                }
             default:
                 throw new BLangUsageException(UNSUPPORTED_TYPE_PREFIX + " '" + type + "'");
         }
@@ -308,9 +285,7 @@ public class ArgumentParser {
 
     private static long getIntegerValue(String argument) {
         try {
-            if (argument.toUpperCase().startsWith(BINARY_PREFIX)) {
-                return Long.parseLong(argument.toUpperCase().replace(BINARY_PREFIX, ""), 2);
-            } else if (argument.toUpperCase().startsWith(HEX_PREFIX)) {
+            if (argument.toUpperCase().startsWith(HEX_PREFIX)) {
                 return Long.parseLong(argument.toUpperCase().replace(HEX_PREFIX, ""), 16);
             }
             return Long.parseLong(argument);
@@ -327,9 +302,9 @@ public class ArgumentParser {
         }
     }
 
-    private static BigDecimal getDecimalValue(String argument) {
+    private static BDecimal getDecimalValue(String argument) {
         try {
-            return new BigDecimal(argument, MathContext.DECIMAL128);
+            return new BDecimal(argument);
         } catch (NumberFormatException e) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected decimal value");
         }
@@ -343,7 +318,7 @@ public class ArgumentParser {
         return Boolean.parseBoolean(argument);
     }
 
-    private static byte getByteValue(String argument) {
+    private static long getByteValue(String argument) {
         long longValue; // TODO: 7/4/18 Allow byte literals?
         try {
             longValue = Long.parseLong(argument);
@@ -353,7 +328,7 @@ public class ArgumentParser {
         if (!BVM.isByteLiteral(longValue)) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected byte value, found int");
         }
-        return (byte) longValue;
+        return longValue;
     }
 
     private static BNewArray getRestArgArray(BType type, int index, String[] args) {
@@ -379,12 +354,6 @@ public class ArgumentParser {
                         floatArrayArgs.add(i - index, getFloatValue(args[i]));
                     }
                     return floatArrayArgs;
-                case TypeTags.DECIMAL_TAG:
-                    BDecimalArray decimalArrayArgs = new BDecimalArray();
-                    for (int i = index; i < args.length; i++) {
-                        decimalArrayArgs.add(i - index, getDecimalValue(args[i]));
-                    }
-                    return decimalArrayArgs;
                 case TypeTags.BOOLEAN_TAG:
                     BValueArray booleanArrayArgs = new BValueArray(BTypes.typeBoolean);
                     for (int i = index; i < args.length; i++) {
@@ -394,7 +363,7 @@ public class ArgumentParser {
                 case TypeTags.BYTE_TAG:
                     BValueArray byteArrayArgs = new BValueArray(BTypes.typeByte);
                     for (int i = index; i < args.length; i++) {
-                        byteArrayArgs.add(i - index, getByteValue(args[i]));
+                        byteArrayArgs.add(i - index, (byte) getByteValue(args[i]));
                     }
                     return byteArrayArgs;
                 default:
@@ -475,6 +444,6 @@ public class ArgumentParser {
             }
         }
         throw new BLangUsageException("invalid argument '" + unionArg + "' specified for union type: "
-                                          + (type.isNullable() ? type.toString().replace("|null", "|()") : type));
+                                          + (type.isNilable() ? type.toString().replace("|null", "|()") : type));
     }
 }

@@ -1,22 +1,22 @@
 import ballerina/io;
 
-// Define an abstract object called 'Person'. It should only describe the 
-// type of each field and method.
+// Define an abstract object called `Person`. It should only contain the fields and the
+// method declarations.
 type Person abstract object {
     public int age;
     public string firstName;
     public string lastName;
 
-    // Function declarations can be within the object. But the function cannot 
+    // Method declarations can be within the object. But the method cannot
     // have a body.
     function getFullName() returns string;
 
 };
 
-// Define another abstract object called 'Employee', which references the 'Person' object.
+// Define another abstract object called `Employee`, which references the `Person` object.
 type Employee abstract object {
-    // Add a reference to the 'Person'. Note that only abstract objects can be referred.
-    // All the member fields and member methods will be copied from the 'Person' object.
+    // Add a reference to the `Person` object type. Note that only abstract objects can be referred.
+    // All the member fields and member methods will be copied from the `Person` object.
     *Person;    
     public float salary;
 
@@ -28,12 +28,12 @@ type Owner abstract object {
 };
 
 type Manager object {
-    // Type references can be chained, by adding a reference to the 'Employee' object which 
-    // again has a reference to the 'Employee' object. This will copy all the members from 
-    // the 'Employee' object. It will be same as those were defined within this 'Manager' object.
+    // Type references can be chained, by adding a reference to the `Employee` object which
+    // again has a reference to the `Employee` object. This will copy all the members from
+    // the `Employee` object. It will be same as defining each of those members within this object.
     *Employee;
 
-    // It is possible to have more than one type references as well.
+    // It is possible to have more than one type reference as well.
     *Owner;
 
     public string dpt;
@@ -54,7 +54,7 @@ type Manager object {
     }
 };
 
-// Member methods coming from the referenced type can also be defined outside of the object.
+// Member methods coming from the referenced type can also be defined outside the object.
 function Manager.getSalary() returns float {
         return self.salary;
 }

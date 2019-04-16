@@ -37,16 +37,16 @@
     "endColumn": 23,
     "endLine": 1
   },
-  "id": "bfbd43f1-7b92-4427-99d4-54bfeca70b78",
+  "id": "333adbef-25cb-4f14-b64e-753d756c2709",
   "orgName": {
-    "id": "3b8b350a-60f5-4049-802b-5a4736754dae",
+    "id": "3ee7b750-9756-4839-8b9e-8da873100471",
     "literal": false,
     "value": "ballerina",
     "kind": "Identifier",
     "valueWithBar": "ballerina"
   },
   "alias": {
-    "id": "c7c90b23-3834-4dd5-b513-be680dab43e5",
+    "id": "1ae6aa7d-6498-4647-be5d-20db8d09f607",
     "literal": false,
     "value": "http",
     "kind": "Identifier",
@@ -54,7 +54,7 @@
   },
   "packageName": [
     {
-      "id": "9d835e29-34eb-4662-8691-2045e919fd82",
+      "id": "a3394ff6-0195-4778-bfe3-085b5f682daf",
       "literal": false,
       "value": "http",
       "kind": "Identifier",
@@ -63,7 +63,7 @@
   ],
   "kind": "Import",
   "packageVersion": {
-    "id": "4e241a37-4ec8-4d6d-9876-67c491ffbeae",
+    "id": "ddbaefac-3fe2-41df-acc6-4d4cdeeccd20",
     "literal": false,
     "value": "",
     "kind": "Identifier",

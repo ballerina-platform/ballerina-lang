@@ -25,7 +25,6 @@ import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
@@ -96,14 +95,11 @@ public class TextDocumentFormatUtil {
         String path = file.toAbsolutePath().toString();
         String sourceRoot = LSCompilerUtil.getSourceRoot(file);
         String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, path);
-        String[] uriParts = path.split(Pattern.quote("/"));
-        String fileName = uriParts[uriParts.length - 1];
-        String[] breakFromPackage = path.split(packageName + File.separator);
+        String[] breakFromPackage = path.split(Pattern.quote(packageName + File.separator));
         String relativePath = breakFromPackage[breakFromPackage.length - 1];
 
         final BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
                 true, LSCustomErrorStrategy.class, false);
-        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();
@@ -118,11 +114,11 @@ public class TextDocumentFormatUtil {
         // else process normally
         if (isTestablePackage(relativePath)) {
             compilationUnit = bLangPackage.getTestablePkg().getCompilationUnits().stream().
-                    filter(compUnit -> ("tests/" + fileName).equals(compUnit.getName()))
+                    filter(compUnit -> (relativePath).equals(compUnit.getName()))
                     .findFirst().orElse(null);
         } else {
             compilationUnit = bLangPackage.getCompilationUnits().stream().
-                    filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().orElse(null);
+                    filter(compUnit -> relativePath.equals(compUnit.getName())).findFirst().orElse(null);
         }
 
         JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>(), new HashMap<>());
@@ -139,12 +135,12 @@ public class TextDocumentFormatUtil {
      *
      * @param node              Node to get the json representation
      * @param anonStructs       Map of anonymous structs
-     * @param symbolMetaInfoMap symbol meta information map
+     * @param visibleEPsByNode        Visible endpoints by node map
      * @return {@link JsonElement}          Json Representation of the node
      * @throws JSONGenerationException when Json error occurs
      */
     public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs,
-                                           Map<BLangNode, List<SymbolMetaInfo>> symbolMetaInfoMap)
+                                           Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode)
             throws JSONGenerationException {
         if (node == null) {
             return JsonNull.INSTANCE;
@@ -183,8 +179,8 @@ public class TextDocumentFormatUtil {
         nodeJson.addProperty("id", UUID.randomUUID().toString());
 
         // Add the visible endpoints for a given node
-        if (symbolMetaInfoMap.containsKey(node)) {
-            List<SymbolMetaInfo> endpointMetaList = symbolMetaInfoMap.get(node);
+        if (visibleEPsByNode.containsKey(node)) {
+            List<SymbolMetaInfo> endpointMetaList = visibleEPsByNode.get(node);
             JsonArray endpoints = new JsonArray();
             endpointMetaList.forEach(symbolMetaInfo -> endpoints.add(symbolMetaInfo.getJson()));
             nodeJson.add("VisibleEndpoints", endpoints);
@@ -226,7 +222,8 @@ public class TextDocumentFormatUtil {
             }
 
             /* Literal class - This class is escaped in backend to address cases like "ss\"" and 8.0 and null */
-            if (node.getKind() == NodeKind.LITERAL && "value".equals(jsonName)) {
+            if ((node.getKind() == NodeKind.LITERAL || node.getKind() == NodeKind.NUMERIC_LITERAL) &&
+                    "value".equals(jsonName)) {
                 if (prop instanceof String) {
                     nodeJson.addProperty(jsonName, '"' + StringEscapeUtils.escapeJava((String) prop) + '"');
                     nodeJson.addProperty(UNESCAPED_VALUE, String.valueOf(prop));
@@ -255,7 +252,7 @@ public class TextDocumentFormatUtil {
 
             /* Node classes */
             if (prop instanceof Node) {
-                nodeJson.add(jsonName, generateJSON((Node) prop, anonStructs, symbolMetaInfoMap));
+                nodeJson.add(jsonName, generateJSON((Node) prop, anonStructs, visibleEPsByNode));
             } else if (prop instanceof List) {
                 List listProp = (List) prop;
                 JsonArray listPropJson = new JsonArray();
@@ -269,17 +266,17 @@ public class TextDocumentFormatUtil {
                                 continue;
                             }
                         }
-                        listPropJson.add(generateJSON((Node) listPropItem, anonStructs, symbolMetaInfoMap));
+                        listPropJson.add(generateJSON((Node) listPropItem, anonStructs, visibleEPsByNode));
                     } else if (listPropItem instanceof BLangRecordVarRef.BLangRecordVarRefKeyValue) {
                         listPropJson.add(generateJSON(((BLangRecordVarRef.BLangRecordVarRefKeyValue) listPropItem)
-                                .getVariableName(), anonStructs, symbolMetaInfoMap));
+                                .getVariableName(), anonStructs, visibleEPsByNode));
                         listPropJson.add(generateJSON(((BLangRecordVarRef.BLangRecordVarRefKeyValue) listPropItem)
-                                .getBindingPattern(), anonStructs, symbolMetaInfoMap));
+                                .getBindingPattern(), anonStructs, visibleEPsByNode));
                     } else if (listPropItem instanceof BLangRecordVariable.BLangRecordVariableKeyValue) {
                         listPropJson.add(generateJSON(((BLangRecordVariable.BLangRecordVariableKeyValue) listPropItem)
-                                .getKey(), anonStructs, symbolMetaInfoMap));
+                                .getKey(), anonStructs, visibleEPsByNode));
                         listPropJson.add(generateJSON(((BLangRecordVariable.BLangRecordVariableKeyValue) listPropItem)
-                                .getValue(), anonStructs, symbolMetaInfoMap));
+                                .getValue(), anonStructs, visibleEPsByNode));
                     } else if (listPropItem instanceof String) {
                         listPropJson.add((String) listPropItem);
                     } else {

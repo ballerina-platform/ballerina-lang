@@ -44,7 +44,7 @@ public class BallerinaUnaryExpressionImpl extends BallerinaExpressionImpl implem
   @Override
   @Nullable
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
@@ -69,12 +69,6 @@ public class BallerinaUnaryExpressionImpl extends BallerinaExpressionImpl implem
   @Nullable
   public PsiElement getSub() {
     return findChildByType(SUB);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLengthof() {
-    return findChildByType(LENGTHOF);
   }
 
   @Override

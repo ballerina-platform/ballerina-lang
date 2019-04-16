@@ -14,13 +14,10 @@ jms:Session jmsSession = new(jmsConnection, {
     });
 
 // Initialize a queue sender.
-jms:QueueSender queueSender = new({
-        session: jmsSession,
-        queueName: "MyQueue"
-    });
+jms:QueueSender queueSender = new(jmsSession, queueName = "MyQueue");
 
 public function main() {
-    // Message is published within the transaction block.
+    // Message is published within the `transaction` block.
     transaction {
         // Create a text message.
         var msg = jmsSession.createTextMessage("Hello from Ballerina");

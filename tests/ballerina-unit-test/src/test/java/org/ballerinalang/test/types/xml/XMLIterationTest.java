@@ -16,15 +16,15 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -128,5 +128,21 @@ public class XMLIterationTest {
 
         retAuthors = ((BXMLSequence) returns[1]).value();
         Assert.assertEquals(((BXMLItem) retAuthors.getRefValue(0)).getTextValue().stringValue(), authors[1][0]);
+    }
+
+    @Test(description = "Test iterating over xml elements where some elements are characters")
+    public void testXMLCompoundCharacterSequenceIteration() {
+        BValue[] results = BRunUtil.invoke(result, "xmlSequenceIter");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+        String str = results[0].stringValue();
+        Assert.assertEquals(str, "<book>the book</book>\nb\ni\nt\n \no\nf\n \nt\ne\nx\nt\n✂\n✅\n");
+    }
+
+    @Test(description = "Test iterating over xml sequence where all elements are character items")
+    public void testXMLCharacterSequenceIteration() {
+        BValue[] results = BRunUtil.invoke(result, "xmlCharItemIter");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+        String str = results[0].stringValue();
+        Assert.assertEquals(str, "b\ni\nt\n \no\nf\n \nt\ne\nx\nt\n✂\n✅\n");
     }
 }

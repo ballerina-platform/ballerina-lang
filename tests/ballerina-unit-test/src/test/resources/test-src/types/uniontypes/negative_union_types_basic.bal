@@ -14,33 +14,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type ClosedFoo record {
+public type ClosedFoo record {|
     string var1;
-    !...
-};
+|};
 
 public type OpenFoo record {
     string var1;
 };
 
-public type ClosedBar record {
+public type ClosedBar record {|
     string var1 = "";
-    !...
-};
+|};
 
 public type OpenBar record {
     string var1 = "";
 };
 
-public type Bar2 record {
+public type Bar2 record {|
     int var1;
-    !...
-};
+|};
 
-public type Foo2 record {
+public type Foo2 record {|
     string var2;
-    !...
-};
+|};
 
 function testAmbiguousAssignment() {
     OpenBar|OpenFoo x1 = {name:"John", id:12}; // Ambiguous since both are open records

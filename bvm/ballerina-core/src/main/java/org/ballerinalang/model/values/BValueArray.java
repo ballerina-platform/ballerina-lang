@@ -37,10 +37,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
@@ -129,12 +130,16 @@ public class BValueArray extends BNewArray implements Serializable {
                 BTupleType tupleType = (BTupleType) type;
                 this.size = maxArraySize = tupleType.getTupleTypes().size();
                 refValues = (BRefType[]) newArrayInstance(BRefType.class);
-                AtomicInteger counter = new AtomicInteger(0);
-                tupleType.getTupleTypes().forEach(memType ->
-                        refValues[counter.getAndIncrement()] = memType.getEmptyValue());
+                List<BType> tupleTypes = tupleType.getTupleTypes();
+                // TODO: 2/19/19 Remove this loop. It unnecessarily populates a tuple when creating the array.
+                // This logic is however, needed for arrays of tuples.
+                for (int i = 0; i < tupleTypes.size(); i++) {
+                    refValues[i] = tupleTypes.get(i).getZeroValue();
+                }
             } else {
                 refValues = (BRefType[]) newArrayInstance(BRefType.class);
-                Arrays.fill(refValues, type.getEmptyValue());
+                Arrays.fill(refValues, type.getZeroValue());
+                setArrayElementType(type);
             }
         }
     }
@@ -156,6 +161,9 @@ public class BValueArray extends BNewArray implements Serializable {
             byteValues = (byte[]) newArrayInstance(Byte.TYPE);
         } else if (type.getTag() == TypeTags.FLOAT_TAG) {
             floatValues = (double[]) newArrayInstance(Double.TYPE);
+        } else if (type.getTag() == TypeTags.DECIMAL_TAG) {
+            refValues = (BRefType[]) newArrayInstance(BRefType.class);
+            Arrays.fill(refValues, type.getEmptyValue());
         } else if (type.getTag() == TypeTags.STRING_TAG) {
             stringValues = (String[]) newArrayInstance(String.class);
             Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
@@ -252,7 +260,7 @@ public class BValueArray extends BNewArray implements Serializable {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
         if (type.getTag() == TypeTags.TUPLE_TAG) {
 
             if (elementType != null && isBasicType(elementType)) {
@@ -267,7 +275,7 @@ public class BValueArray extends BNewArray implements Serializable {
                         memberType = BVM.resolveMatchingTypeForUnion(arrayValues[i], memberType);
                         ((BTupleType) type).getTupleTypes().set(i, memberType);
                     }
-                    arrayValues[i].stamp(memberType);
+                    arrayValues[i].stamp(memberType, unresolvedValues);
                 }
             }
         } else if (type.getTag() == TypeTags.JSON_TAG) {
@@ -281,21 +289,21 @@ public class BValueArray extends BNewArray implements Serializable {
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
                 if (arrayValues[i] != null) {
-                    arrayValues[i].stamp(BVM.resolveMatchingTypeForUnion(arrayValues[i], type));
+                    arrayValues[i].stamp(BVM.resolveMatchingTypeForUnion(arrayValues[i], type), unresolvedValues);
                 }
             }
             type = new BArrayType(type);
         } else if (type.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (BVM.checkIsLikeType(this, memberType)) {
-                    this.stamp(memberType);
+                if (BVM.checkIsLikeType(this, memberType, new ArrayList<>())) {
+                    this.stamp(memberType, unresolvedValues);
                     type = memberType;
                     break;
                 }
             }
         } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
             type = BVM.resolveMatchingTypeForUnion(this, type);
-            this.stamp(type);
+            this.stamp(type, unresolvedValues);
         } else {
             BType arrayElementType = ((BArrayType) type).getElementType();
 
@@ -318,7 +326,7 @@ public class BValueArray extends BNewArray implements Serializable {
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
                 if (arrayValues[i] != null) {
-                    arrayValues[i].stamp(arrayElementType);
+                    arrayValues[i].stamp(arrayElementType, unresolvedValues);
                 }
             }
         }
@@ -386,7 +394,7 @@ public class BValueArray extends BNewArray implements Serializable {
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
                 for (int i = 0; i < size; i++) {
-                    sj.add(Integer.toString(Byte.toUnsignedInt(byteValues[i])));
+                    sj.add(Long.toString(Byte.toUnsignedLong(byteValues[i])));
                 }
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
@@ -417,6 +425,8 @@ public class BValueArray extends BNewArray implements Serializable {
             if (refValues[i] != null) {
                 sj.add((refValues[i].getType().getTag() == TypeTags.STRING_TAG)
                         ? ("\"" + refValues[i] + "\"") : refValues[i].stringValue());
+            } else {
+                sj.add("()");
             }
         }
         return sj.toString();
@@ -450,7 +460,6 @@ public class BValueArray extends BNewArray implements Serializable {
         return byteValues.clone();
     }
 
-    @SuppressWarnings("unchecked")
     public String[] getStringArray() {
         return stringValues;
     }
@@ -523,9 +532,11 @@ public class BValueArray extends BNewArray implements Serializable {
                     break;
                 case TypeTags.STRING_TAG:
                     stringValues = Arrays.copyOf(stringValues, newLength);
+                    Arrays.fill(stringValues, size, stringValues.length - 1, BLangConstants.STRING_EMPTY_VALUE);
                     break;
                 default:
                     refValues = Arrays.copyOf(refValues, newLength);
+                    Arrays.fill(refValues, size, refValues.length - 1, elementType.getZeroValue());
                     break;
             }
         } else {
@@ -652,7 +663,7 @@ public class BValueArray extends BNewArray implements Serializable {
         if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
             byteValues = (byte[]) newArrayInstance(Byte.TYPE);
             for (int i = 0; i < this.size(); i++) {
-                byteValues[i] = ((BByte) arrayValues[i]).value();
+                byteValues[i] = ((BByte) arrayValues[i]).value().byteValue();
             }
         }
 

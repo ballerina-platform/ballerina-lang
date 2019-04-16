@@ -33,11 +33,11 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     http:Response httpResponse = new;
     if (result is http:Response) {
         httpResponse = result;
-    } else if (result is error) {
+    } else {
         io:println("Connection to the remote host failed : " + result.reason());
         return;
     }
-    string statusCode = <string> httpResponse.statusCode;
+    string statusCode = string.convert(httpResponse.statusCode);
     if (statusCode.hasPrefix("5")) {
         io:println("remote registry failed for url : " + url + "/" + querySearched);
     } else if (statusCode != "200") {
@@ -242,13 +242,16 @@ function getDateCreated(json jsonObj) returns string {
     string jsonTime = jsonObj.time.toString();
     var timeInMillis = int.convert(jsonTime);
     if (timeInMillis is int) {
-        time:Time timeStruct = new(timeInMillis, { zoneId: "UTC", zoneOffset: 0 });
-        string customTimeString = timeStruct.format("yyyy-MM-dd-E");
-        return customTimeString;
-    } else if (timeInMillis is error) {
+        time:Time timeRecord = { time: timeInMillis, zone: { id: "UTC", offset: 0 } };
+        var customTimeString = time:format(timeRecord, "yyyy-MM-dd-E");
+        if (customTimeString is string) {
+            return customTimeString;
+        } else {
+            panic customTimeString;
+        }
+    } else {
         panic timeInMillis;
     }
-    return "";
 }
 
 # This function invokes the method to search for modules.
@@ -264,7 +267,7 @@ public function main (string... args) {
             if (result is http:Client) {
                 httpEndpoint = result;
                 search(httpEndpoint, args[0], args[1], args[6]);
-            } else if (result is error) {
+            } else {
                 io:println("failed to resolve host : " + host + " with port " + port);
                 return;
             }

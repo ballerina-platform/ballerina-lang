@@ -26,14 +26,13 @@ type ValType record {
     byte ry?;
 };
 
-type ClosedValType record {
+type ClosedValType record {|
     int cri;
     float crf;
     string crs;
     boolean crb?;
     byte cry?;
-    !...
-};
+|};
 
 type Foo1 record {
     int a;
@@ -62,12 +61,11 @@ type Person object {
     }
 };
 
-type Employee record {
+type Employee record {|
     int id;
     string name;
     float salary;
-    !...
-};
+|};
 
 type Address record {
     string city;
@@ -81,13 +79,12 @@ type RefType record {
     Address ra?;
 };
 
-type ClosedRefType record {
+type ClosedRefType record {|
     json crj?;
     xml crx;
     Person crp;
     Address cra?;
-    !...
-};
+|};
 
 type Foo2 record {
     string s;

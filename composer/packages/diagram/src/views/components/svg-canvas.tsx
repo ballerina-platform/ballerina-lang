@@ -18,11 +18,11 @@ export const SvgCanvas: React.StatelessComponent<{
                     h: diagContext.diagramHeight,
                     w: diagContext.diagramWidth
                 };
-
+                const disabledOpacity = (diagContext.hasSyntaxErrors) ? 0.3 : 1;
                 const viewBox =  `0 0 ${bBox.w} ${bBox.h}`;
                 return (
                     <DiagramContext.Provider value={{ ...diagContext, overlayGroupRef }} >
-                        <div style={{ width: svgSize.w * zoom, height: svgSize.h * zoom }} >
+                        <div style={{ width: svgSize.w * zoom, height: svgSize.h * zoom, opacity: disabledOpacity }}>
                             <svg
                                 className="diagram-canvas"
                                 preserveAspectRatio="xMinYMin"

@@ -43,7 +43,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.util.BLangConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -60,7 +59,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -74,7 +72,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -133,6 +131,8 @@ import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 public class CommonUtil {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
+    public static final String MD_LINE_SEPARATOR = "  " + System.lineSeparator();
+
     public static final String LINE_SEPARATOR = System.lineSeparator();
 
     public static final String FILE_SEPARATOR = File.separator;
@@ -143,9 +143,13 @@ public class CommonUtil {
 
     public static final String BALLERINA_HOME;
 
+    public static final String PLAIN_TEXT_MARKUP_KIND = "plaintext";
+
+    public static final String MARKDOWN_MARKUP_KIND = "markdown";
+
     static {
         String debugLogStr = System.getProperty("ballerina.debugLog");
-        LS_DEBUG_ENABLED = debugLogStr != null && Boolean.parseBoolean(debugLogStr);
+        LS_DEBUG_ENABLED = Boolean.parseBoolean(debugLogStr);
         BALLERINA_HOME = System.getProperty("ballerina.home");
     }
 
@@ -156,20 +160,20 @@ public class CommonUtil {
      * Get the package URI to the given package name.
      *
      * @param pkgName        Name of the package that need the URI for
-     * @param currentPkgPath String URI of the current package
+     * @param pkgPath String URI of the current package
      * @param currentPkgName Name of the current package
      * @return String URI for the given path.
      */
-    public static String getPackageURI(String pkgName, String currentPkgPath, String currentPkgName) {
+    public static String getPackageURI(String pkgName, String pkgPath, String currentPkgName) {
         String newPackagePath;
         // If current package path is not null and current package is not default package continue,
         // else new package path is same as the current package path.
-        if (currentPkgPath != null && !currentPkgName.equals(".")) {
-            int indexOfCurrentPkgName = currentPkgPath.lastIndexOf(currentPkgName);
+        if (pkgPath != null && !currentPkgName.equals(".")) {
+            int indexOfCurrentPkgName = pkgPath.lastIndexOf(currentPkgName);
             if (indexOfCurrentPkgName >= 0) {
-                newPackagePath = currentPkgPath.substring(0, indexOfCurrentPkgName);
+                newPackagePath = pkgPath.substring(0, indexOfCurrentPkgName);
             } else {
-                newPackagePath = currentPkgPath;
+                newPackagePath = pkgPath;
             }
 
             if (pkgName.equals(".")) {
@@ -178,7 +182,7 @@ public class CommonUtil {
                 newPackagePath = Paths.get(newPackagePath, pkgName).toString();
             }
         } else {
-            newPackagePath = currentPkgPath;
+            newPackagePath = pkgPath;
         }
         return newPackagePath;
     }
@@ -364,8 +368,7 @@ public class CommonUtil {
      */
     public static String topLevelNodeInLine(TextDocumentIdentifier identifier, int cursorLine,
                                             WorkspaceDocumentManager docManager) {
-        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "object",
-                                                      "record");
+        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint");
         LSDocument document = new LSDocument(identifier.getUri());
 
         try {
@@ -378,13 +381,23 @@ public class CommonUtil {
                 List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
 
                 ListIterator<String> iterator = alphaNumericTokens.listIterator();
+                int tokenCounter = 0;
                 while (iterator.hasNext()) {
                     String topLevelKeyword = iterator.next();
-                    if (topLevelKeywords.contains(topLevelKeyword) &&
-                            (!iterator.hasNext() || !CONSTRUCTOR_FUNCTION_SUFFIX.equals(iterator.next()))) {
+
+                    boolean validTypeDef = (topLevelKeyword.equals(UtilSymbolKeys.RECORD_KEYWORD_KEY)
+                            || topLevelKeyword.equals(UtilSymbolKeys.OBJECT_KEYWORD_KEY))
+                            && tokenCounter > 1
+                            && alphaNumericTokens.get(tokenCounter - 2).equals("type");
+
+                    if (validTypeDef || (topLevelKeywords.contains(topLevelKeyword) &&
+                            (!iterator.hasNext() || !CONSTRUCTOR_FUNCTION_SUFFIX.equals(iterator.next())))) {
                         return topLevelKeyword;
                     }
+                    tokenCounter++;
                 }
+
+
             }
             return null;
         } catch (WorkspaceDocumentException e) {
@@ -436,10 +449,18 @@ public class CommonUtil {
         annotationItem.setInsertTextFormat(InsertTextFormat.Snippet);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
         annotationItem.setKind(CompletionItemKind.Property);
+        String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(pkg, ctx);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx);
         Optional currentPkgImport = imports.stream()
-                .filter(bLangImportPackage -> bLangImportPackage.symbol.pkgID.equals(packageID))
+                .filter(bLangImportPackage -> {
+                    String pkgName = bLangImportPackage.orgName + "/"
+                            + CommonUtil.getPackageNameComponentsCombined(bLangImportPackage);
+                    String evalPkgName = packageID.orgName + "/" + packageID.nameComps.stream()
+                            .map(Name::getValue).collect(Collectors.joining("."));
+                    return pkgName.equals(evalPkgName);
+                })
                 .findAny();
         // if the particular import statement not available we add the additional text edit to auto import
         if (!currentPkgImport.isPresent()) {
@@ -459,10 +480,20 @@ public class CommonUtil {
      */
     public static List<TextEdit> getAutoImportTextEdits(LSContext ctx, String orgName, String pkgName) {
         if (UtilSymbolKeys.BALLERINA_KW.equals(orgName) && UtilSymbolKeys.BUILTIN_KW.equals(pkgName)) {
-            return null;
+            return new ArrayList<>();
         }
+        String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(pkg, ctx);
+        if (relativePath == null || pkg == null) {
+            return new ArrayList<>();
+        }
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx);
+        for (BLangImportPackage importPackage : imports) {
+            if (importPackage.orgName.value.equals(orgName) && importPackage.alias.value.equals(pkgName)) {
+                return new ArrayList<>();
+            }
+        }
         Position start = new Position(0, 0);
         if (!imports.isEmpty()) {
             BLangImportPackage last = CommonUtil.getLastItem(imports);
@@ -502,6 +533,22 @@ public class CommonUtil {
         });
 
         return returnList;
+    }
+
+    /**
+     * Populate the given map with the completion item.
+     *
+     * @param map               ID to completion item map
+     * @param id                pkg id in index
+     * @param completionItem    completion item to populate
+     */
+    public static void populateIdCompletionMap(HashMap<Integer, ArrayList<CompletionItem>> map, int id,
+                                         CompletionItem completionItem) {
+        if (map.containsKey(id)) {
+            map.get(id).add(completionItem);
+        } else {
+            map.put(id, new ArrayList<>(Collections.singletonList(completionItem)));
+        }
     }
 
     /**
@@ -575,17 +622,21 @@ public class CommonUtil {
                 typeString = "[]";
                 break;
             case RECORD:
+            case MAP:
                 typeString = "{}";
                 break;
             case FINITE:
-                List<String> types = new ArrayList<>();
-                ((FiniteType) bType).getValueSpace().forEach(typeEntry -> types.add(typeEntry.toString()));
-                types.sort(Comparator.naturalOrder());
-                typeString = String.join("|", types);
+                List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).valueSpace);
+                String value = valueSpace.get(0).toString();
+                BType type = valueSpace.get(0).type;
+                typeString = value;
+                if (type.toString().equals("string")) {
+                    typeString = "\"" + typeString + "\"";
+                }
                 break;
             case UNION:
-                String[] typeNameComps = bType.toString().split(UtilSymbolKeys.PKG_DELIMITER_KEYWORD);
-                typeString = typeNameComps[typeNameComps.length - 1];
+                List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).getMemberTypes());
+                typeString = getDefaultValueForType(memberTypes.get(0));
                 break;
             case STREAM:
             default:
@@ -650,22 +701,30 @@ public class CommonUtil {
     /**
      * Get completion items list for struct fields.
      *
-     * @param structFields List of struct fields
+     * @param fields List of struct fields
      * @return {@link List}     List of completion items for the struct fields
      */
-    public static List<CompletionItem> getStructFieldCompletionItems(List<BField> structFields) {
+    public static List<CompletionItem> getRecordFieldCompletionItems(List<BField> fields) {
         List<CompletionItem> completionItems = new ArrayList<>();
-        structFields.forEach(bStructField -> {
-            StringBuilder insertText = new StringBuilder(bStructField.getName().getValue() + ": ");
-            if (bStructField.getType() instanceof BStructureType) {
+        fields.forEach(field -> {
+            BType fieldType = field.getType();
+            StringBuilder insertText = new StringBuilder(field.getName().getValue() + ": ");
+            if (fieldType instanceof BRecordType) {
                 insertText.append("{").append(LINE_SEPARATOR).append("\t${1}").append(LINE_SEPARATOR).append("}");
+            } else if (fieldType instanceof BArrayType) {
+                insertText.append("[").append("${1}").append("]");
+            } else if (fieldType.tsymbol != null && fieldType.tsymbol.name.getValue().equals("string")) {
+                insertText.append("\"").append("${1}").append("\"");
             } else {
-                insertText.append("${1:").append(getDefaultValueForType(bStructField.getType())).append("}");
+                insertText.append("${1:").append(getDefaultValueForType(field.getType())).append("}");
+                if (field.getType() instanceof BFiniteType || field.getType() instanceof BUnionType) {
+                    insertText.append(getFiniteAndUnionTypesComment(field.getType()));
+                }
             }
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText.toString());
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            fieldItem.setLabel(bStructField.getName().getValue());
+            fieldItem.setLabel(field.getName().getValue());
             fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
@@ -684,11 +743,16 @@ public class CommonUtil {
     public static CompletionItem getFillAllStructFieldsItem(List<BField> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
-        fields.forEach(bStructField -> {
+        for (int i = 0; i < fields.size(); i++) {
+            BField bStructField = fields.get(i);
             String defaultFieldEntry = bStructField.getName().getValue()
                     + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(bStructField.getType());
+            if (bStructField.getType() instanceof BFiniteType || bStructField.getType() instanceof BUnionType) {
+                defaultFieldEntry += (i < fields.size() - 1 ? "," : "") +
+                        getFiniteAndUnionTypesComment(bStructField.type);
+            }
             fieldEntries.add(defaultFieldEntry);
-        });
+        }
 
         String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
         String label = "Add All Attributes";
@@ -779,6 +843,12 @@ public class CommonUtil {
             SymbolInfo itrCount = getIterableOpSymbolInfo(Snippet.ITR_COUNT.get(), bType,
                     ItemResolverConstants.ITR_COUNT_LABEL, context);
             symbolInfoList.addAll(Arrays.asList(itrForEach, itrMap, itrFilter, itrCount));
+            
+            if (bType.tag == TypeTags.TABLE) {
+                SymbolInfo itrSelect = getIterableOpSymbolInfo(Snippet.ITR_SELECT.get(), bType,
+                        ItemResolverConstants.ITR_SELECT_LABEL, context);
+                symbolInfoList.add(itrSelect);
+            }
 
             if (aggregateFunctionsAllowed(bType)) {
                 SymbolInfo itrMin = getIterableOpSymbolInfo(Snippet.ITR_MIN.get(), bType,
@@ -832,6 +902,30 @@ public class CommonUtil {
                     ItemResolverConstants.BUILTIN_IS_INFINITE_LABEL, context);
             symbolInfoList.addAll(Arrays.asList(isNaN, isFinite, isInfinite));
         }
+        
+        if (bType.tag == TypeTags.ERROR) {
+            SymbolInfo detail = getIterableOpSymbolInfo(Snippet.BUILTIN_DETAIL.get(), bType,
+                    ItemResolverConstants.BUILTIN_DETAIL_LABEL, context);
+            SymbolInfo reason = getIterableOpSymbolInfo(Snippet.BUILTIN_REASON.get(), bType,
+                    ItemResolverConstants.BUILTIN_REASON_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(detail, reason));
+        }
+        
+        if (bType.tag == TypeTags.MAP) {
+            SymbolInfo hasKey = getIterableOpSymbolInfo(Snippet.BUILTIN_HAS_KEY.get(), bType,
+                    ItemResolverConstants.BUILTIN_HASKEY_LABEL, context);
+            SymbolInfo remove = getIterableOpSymbolInfo(Snippet.BUILTIN_REMOVE.get(), bType,
+                    ItemResolverConstants.BUILTIN_REMOVE_LABEL, context);
+            SymbolInfo clear = getIterableOpSymbolInfo(Snippet.BUILTIN_CLEAR.get(), bType,
+                    ItemResolverConstants.BUILTIN_CLEAR_LABEL, context);
+            SymbolInfo keys = getIterableOpSymbolInfo(Snippet.BUILTIN_KEYS.get(), bType,
+                    ItemResolverConstants.BUILTIN_KEYS_LABEL, context);
+            SymbolInfo values = getIterableOpSymbolInfo(Snippet.BUILTIN_VALUES.get(), bType,
+                    ItemResolverConstants.BUILTIN_GET_VALUES_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(hasKey, remove, clear, keys, values));
+        }
+        
+        
     }
 
     /**
@@ -864,11 +958,13 @@ public class CommonUtil {
      */
     public static List<BLangImportPackage> getCurrentFileImports(BLangPackage pkg, LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        return pkg.getImports().stream()
+        return getCurrentFileTopLevelNodes(pkg, ctx).stream()
+                .filter(topLevelNode -> topLevelNode instanceof BLangImportPackage)
+                .map(topLevelNode -> (BLangImportPackage) topLevelNode)
                 .filter(bLangImportPackage ->
                         bLangImportPackage.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
                         && !(bLangImportPackage.getOrgName().getValue().equals("ballerina")
-                        && bLangImportPackage.symbol.getName().getValue().equals("transaction")))
+                        && getPackageNameComponentsCombined(bLangImportPackage).equals("transaction")))
                 .collect(Collectors.toList());
     }
 
@@ -877,7 +973,6 @@ public class CommonUtil {
                 || "runtime".equals(symbol.getName().getValue())
                 || "transactions".equals(symbol.getName().getValue())
                 || symbol instanceof BAnnotationSymbol
-                || symbol instanceof BServiceSymbol
                 || symbol instanceof BOperatorSymbol
                 || symbolContainsInvalidChars(symbol));
     }
@@ -926,33 +1021,56 @@ public class CommonUtil {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get the package name components combined.
+     * 
+     * @param importPackage     BLangImportPackage node
+     * @return {@link String}   Combined package name
+     */
+    public static String getPackageNameComponentsCombined(BLangImportPackage importPackage) {
+        return String.join(".", importPackage.pkgNameComps.stream()
+                .map(id -> id.value)
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * Convert the Snippet to a plain text snippet by removing the place holders.
+     * 
+     * @param snippet           Snippet string to alter
+     * @return {@link String}   Converted Snippet
+     */
+    public static String getPlainTextSnippet(String snippet) {
+        return snippet
+                .replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
+                .replaceAll("(\\$\\{\\d\\})", "");
+    }
+
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
                                                       LSContext context) {
-        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
-        String signature = "";
+        String signature;
         SymbolInfo.CustomOperationSignature customOpSignature;
         SymbolInfo iterableOperation = new SymbolInfo();
         switch (operation.getLabel()) {
             case ItemResolverConstants.ITR_FOREACH_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                signature = operation.getString(isSnippet)
+                signature = operation.getString()
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
             case ItemResolverConstants.ITR_MAP_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                signature = operation.getString(isSnippet)
+                signature = operation.getString()
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
             case ItemResolverConstants.ITR_FILTER_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                signature = operation.getString(isSnippet)
+                signature = operation.getString()
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
             default: {
-                signature = operation.getString(isSnippet);
+                signature = operation.getString();
                 break;
             }
         }
@@ -965,12 +1083,11 @@ public class CommonUtil {
 
     private static String getIterableOpLambdaParam(BType bType, LSContext context) {
         String params = "";
-        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         PackageID currentPkgId = context.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
         if (bType instanceof BMapType) {
             BMapType bMapType = (BMapType) bType;
             String valueType = FunctionGenerator.generateTypeDefinition(null, currentPkgId, bMapType.constraint);
-            params = Snippet.ITR_ON_MAP_PARAMS.get().getString(isSnippet)
+            params = Snippet.ITR_ON_MAP_PARAMS.get().getString()
                     .replace(UtilSymbolKeys.ITR_OP_LAMBDA_KEY_REPLACE_TOKEN, "string")
                     .replace(UtilSymbolKeys.ITR_OP_LAMBDA_VALUE_REPLACE_TOKEN, valueType);
         } else if (bType instanceof BArrayType) {
@@ -978,9 +1095,9 @@ public class CommonUtil {
             String valueType = FunctionGenerator.generateTypeDefinition(null, currentPkgId, bArrayType.eType);
             params = valueType + " value";
         } else if (bType instanceof BJSONType) {
-            params = Snippet.ITR_ON_JSON_PARAMS.get().getString(isSnippet);
+            params = Snippet.ITR_ON_JSON_PARAMS.get().getString();
         } else if (bType instanceof BXMLType) {
-            params = Snippet.ITR_ON_XML_PARAMS.get().getString(isSnippet);
+            params = Snippet.ITR_ON_XML_PARAMS.get().getString();
         }
 
         return params;
@@ -1005,11 +1122,20 @@ public class CommonUtil {
     }
 
     private static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
-        return bSymbol.getName().getValue().contains(UtilSymbolKeys.LT_SYMBOL_KEY)
-                || bSymbol.getName().getValue().contains(UtilSymbolKeys.GT_SYMBOL_KEY)
-                || bSymbol.getName().getValue().contains(UtilSymbolKeys.DOLLAR_SYMBOL_KEY)
-                || bSymbol.getName().getValue().equals("main")
-                || bSymbol.getName().getValue().endsWith(".new");
+        String symbolName;
+        if (bSymbol.owner != null && bSymbol.owner.name != null
+                && bSymbol.name.value.startsWith(bSymbol.owner.name.value + ".")) {
+            symbolName = bSymbol.name.value.replace(bSymbol.owner.name.value + ".", "");
+        } else {
+            symbolName = bSymbol.getName().getValue();
+        }
+
+        return symbolName.contains(UtilSymbolKeys.LT_SYMBOL_KEY)
+                || symbolName.contains(UtilSymbolKeys.GT_SYMBOL_KEY)
+                || symbolName.contains(UtilSymbolKeys.DOLLAR_SYMBOL_KEY)
+                || symbolName.equals("main")
+                || symbolName.endsWith(".new")
+                || symbolName.startsWith("0");
     }
 
     private static boolean builtinLengthFunctionAllowed(BType bType) {
@@ -1214,7 +1340,7 @@ public class CommonUtil {
                 return template.replace("{%1}", mapDef);
             } else if (bType instanceof BUnionType) {
                 BUnionType bUnionType = (BUnionType) bType;
-                Set<BType> memberTypes = bUnionType.memberTypes;
+                Set<BType> memberTypes = bUnionType.getMemberTypes();
                 if (memberTypes.size() == 2 && memberTypes.stream().anyMatch(bType1 -> bType1 instanceof BNilType)) {
                     Optional<BType> type = memberTypes.stream()
                             .filter(bType1 -> !(bType1 instanceof BNilType)).findFirst();
@@ -1240,13 +1366,7 @@ public class CommonUtil {
                 for (BVarSymbol param : bStruct.initializerFunc.symbol.params) {
                     list.add(generateReturnValue(param.type.tsymbol, "{%1}"));
                 }
-                String pkgPrefix = "";
-                if (!bStruct.pkgID.equals(currentPkgId)) {
-                    pkgPrefix = bStruct.pkgID.name.value + ":";
-                    if (importsAcceptor != null) {
-                        importsAcceptor.accept(bStruct.pkgID.orgName.value, bStruct.pkgID.name.value);
-                    }
-                }
+                String pkgPrefix = getPackagePrefix(importsAcceptor, currentPkgId, bStruct.pkgID);
                 String paramsStr = String.join(", ", list);
                 String newObjStr = "new " + pkgPrefix + bStruct.name.getValue() + "(" + paramsStr + ")";
                 return template.replace("{%1}", newObjStr);
@@ -1353,7 +1473,7 @@ public class CommonUtil {
             } else if (bType instanceof BUnionType) {
                 // Check for union type assignment eg. int | string
                 List<String> list = new ArrayList<>();
-                Set<BType> memberTypes = ((BUnionType) bType).memberTypes;
+                Set<BType> memberTypes = ((BUnionType) bType).getMemberTypes();
                 if (memberTypes.size() == 2 && memberTypes.stream().anyMatch(bType1 -> bType1 instanceof BNilType)) {
                     Optional<BType> type = memberTypes.stream()
                             .filter(bType1 -> !(bType1 instanceof BNilType)).findFirst();
@@ -1405,18 +1525,8 @@ public class CommonUtil {
         private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor,
                                                      PackageID currentPkgId, BTypeSymbol tSymbol) {
             if (tSymbol != null) {
-                if (tSymbol instanceof BObjectTypeSymbol) {
-                    BObjectTypeSymbol objectType = (BObjectTypeSymbol) tSymbol;
-                    String pkgPrefix = "";
-                    if (!objectType.pkgID.equals(currentPkgId)) {
-                        pkgPrefix = objectType.pkgID.name.value + ":";
-                        if (importsAcceptor != null) {
-                            importsAcceptor.accept(objectType.pkgID.orgName.value, objectType.pkgID.name.value);
-                        }
-                    }
-                    return pkgPrefix + objectType.name.getValue();
-                }
-                return tSymbol.name.getValue();
+                String pkgPrefix = getPackagePrefix(importsAcceptor, currentPkgId, tSymbol.pkgID);
+                return pkgPrefix + tSymbol.name.getValue();
             }
             return "any";
         }
@@ -1508,6 +1618,35 @@ public class CommonUtil {
             return (parent != null && parent.parent != null)
                     ? lookupFunctionReturnType(functionName, parent.parent) : "any";
         }
+    }
+
+    public static String getPackagePrefix(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
+                                          PackageID typePkgId) {
+        String pkgPrefix = "";
+        if (!typePkgId.equals(currentPkgId) &&
+                !(typePkgId.orgName.value.equals("ballerina") && typePkgId.name.value.equals("builtin"))) {
+            pkgPrefix = typePkgId.name.value + ":";
+            if (importsAcceptor != null) {
+                importsAcceptor.accept(typePkgId.orgName.value, typePkgId.name.value);
+            }
+        }
+        return pkgPrefix;
+    }
+
+    private static String getFiniteAndUnionTypesComment(BType bType) {
+        if (bType instanceof BFiniteType) {
+            List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).valueSpace);
+            return " // Values allowed: " + valueSpace.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining("|"));
+        } else if (bType instanceof BUnionType) {
+            List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).getMemberTypes());
+            return " // Values allowed: " + memberTypes.stream()
+                    .map(BType::toString)
+                    .collect(Collectors.joining("|"));
+        }
+
+        return "";
     }
 
     /**

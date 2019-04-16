@@ -324,7 +324,7 @@ public class Generator {
         switch (bType.tag) {
             case TypeTags.UNION:
                 BUnionType union = (BUnionType) bType;
-                return extractLink(union.memberTypes);
+                return extractLink(union.getMemberTypes());
             case TypeTags.TUPLE:
                 BTupleType tuple = (BTupleType) bType;
                 return extractLink(tuple.tupleTypes);

@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -37,6 +38,7 @@ import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -95,6 +97,9 @@ public class TableUtils {
                     break;
                 case TypeTags.FLOAT_TAG:
                     stmt.setDouble(index, ((BFloat) constrainedType.get(fieldName)).floatValue());
+                    break;
+                case TypeTags.DECIMAL_TAG:
+                    stmt.setDouble(index, ((BDecimal) constrainedType.get(fieldName)).decimalValue().doubleValue());
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     stmt.setBoolean(index, ((BBoolean) constrainedType.get(fieldName)).booleanValue());
@@ -162,6 +167,13 @@ public class TableUtils {
             arrayData = new Boolean[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
                 arrayData[i] = ((BValueArray) value).getBoolean(i) > 0;
+            }
+            break;
+        case TypeTags.DECIMAL_TAG:
+            arrayLength = (int) ((BValueArray) value).size();
+            arrayData = new BigDecimal[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BValueArray) value).getRefValue(i).value();
             }
             break;
         default:

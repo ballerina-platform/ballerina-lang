@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaXmlNamespaceNameImpl extends BallerinaCompositeElementImpl implements BallerinaXmlNamespaceName {
+public class BallerinaXmlNamespaceNameImpl extends ASTWrapperPsiElement implements BallerinaXmlNamespaceName {
 
   public BallerinaXmlNamespaceNameImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaXmlNamespaceNameImpl extends BallerinaCompositeElementImpl
   @Override
   @NotNull
   public PsiElement getQuotedStringLiteral() {
-    return notNullChild(findChildByType(QUOTED_STRING_LITERAL));
+    return findNotNullChildByType(QUOTED_STRING_LITERAL);
   }
 
 }

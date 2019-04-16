@@ -18,16 +18,23 @@
 
 package org.ballerinalang.test.types.finite;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
 
 /**
  * Test finite type.
@@ -249,5 +256,102 @@ public class FiniteTypeTest {
         BValue[] returns = BRunUtil.invoke(result, "testTypeDefWithFunctions2");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), "Hello".length());
     }
-}
 
+    @Test
+    public void testFiniteTypeWithConstants() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeWithConstants");
+        Assert.assertTrue(returns[0] instanceof BInteger, "Type mismatch");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5, "Value mismatch");
+        Assert.assertTrue(returns[1] instanceof BString, "Type mismatch");
+        Assert.assertEquals(returns[1].stringValue(), "s", "Value mismatch");
+    }
+
+    @Test
+    public void testFiniteTypeWithNumericConstants() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeWithNumericConstants");
+        Assert.assertTrue(returns[0] instanceof BInteger, "Type mismatch");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5, "Value mismatch");
+        Assert.assertTrue(returns[1] instanceof BFloat, "Type mismatch");
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 5.0, "Value mismatch");
+    }
+
+    @Test
+    public void testAssigningIntLiteralToByteFiniteType() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssigningIntLiteralToByteFiniteType");
+        Assert.assertTrue(returns[0] instanceof BByte, "Type mismatch");
+        Assert.assertEquals(((BByte) returns[0]).intValue(), 5, "Value mismatch");
+    }
+
+    @Test
+    public void testAssigningIntLiteralToFloatFiniteType() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssigningIntLiteralToFloatFiniteType");
+        Assert.assertTrue(returns[0] instanceof BFloat, "Type mismatch");
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 5.0, "Value mismatch");
+    }
+
+    @Test
+    public void testAssigningIntLiteralToDecimalFiniteType() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssigningIntLiteralToDecimalFiniteType");
+        Assert.assertTrue(returns[0] instanceof BDecimal, "Type mismatch");
+        Assert.assertTrue(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5")) == 0, "Value mismatch");
+    }
+
+    @Test
+    public void testAssigningFloatLiteralToDecimalFiniteType() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssigningFloatLiteralToDecimalFiniteType");
+        Assert.assertTrue(returns[0] instanceof BDecimal, "Type mismatch");
+        Assert.assertTrue(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5.0")) == 0,
+                          "Value mismatch");
+    }
+
+    @Test
+    public void testDifferentPrecisionFloatAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testDifferentPrecisionFloatAssignment");
+        Assert.assertTrue(returns[0] instanceof BFloat, "Type mismatch");
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 5.0, "Value mismatch");
+    }
+
+    @Test
+    public void testDifferentPrecisionFloatConstantAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testDifferentPrecisionFloatConstantAssignment");
+        Assert.assertTrue(returns[0] instanceof BFloat, "Type mismatch");
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 5.0, "Value mismatch");
+    }
+
+    @Test
+    public void testDifferentPrecisionDecimalAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testDifferentPrecisionDecimalAssignment");
+        Assert.assertTrue(returns[0] instanceof BDecimal, "Type mismatch");
+        Assert.assertTrue(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5.0")) == 0,
+                          "Value mismatch");
+    }
+
+    @Test
+    public void testDifferentPrecisionDecimalConstantAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testDifferentPrecisionDecimalConstantAssignment");
+        Assert.assertTrue(returns[0] instanceof BDecimal, "Type mismatch");
+        Assert.assertTrue(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5")) == 0, "Value mismatch");
+    }
+
+    @Test(dataProvider = "assignmentToBroaderTypeFunctions")
+    public void testFiniteTypeAssignmentToBroaderType(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "assignmentToBroaderTypeFunctions")
+    public Object[][] assignmentToBroaderTypeFunctions() {
+        return new Object[][]{
+                {"testStringOnlyFiniteTypeAssignmentToTypeWithString"},
+                {"testIntOnlyFiniteTypeAssignmentToTypeWithInt"},
+                {"testFloatOnlyFiniteTypeAssignmentToTypeWithFloat"},
+                {"testBooleanOnlyFiniteTypeAssignmentToTypeWithBoolean"},
+                {"testByteOnlyFiniteTypeAssignmentToTypeWithByte"},
+                {"testFiniteTypeAssignmentToBroaderType"},
+                {"testFiniteTypeWithConstAssignmentToBroaderType"},
+                {"testFiniteTypeWithConstAndTypeAssignmentToBroaderType"},
+                {"testFiniteTypesAsUnionsAsBroaderTypes_1"},
+                {"testFiniteTypesAsUnionsAsBroaderTypes_2"}
+        };
+    }
+}

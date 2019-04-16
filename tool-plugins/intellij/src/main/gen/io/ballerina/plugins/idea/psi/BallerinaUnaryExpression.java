@@ -39,9 +39,6 @@ public interface BallerinaUnaryExpression extends BallerinaExpression {
   PsiElement getSub();
 
   @Nullable
-  PsiElement getLengthof();
-
-  @Nullable
   PsiElement getUntaint();
 
 }

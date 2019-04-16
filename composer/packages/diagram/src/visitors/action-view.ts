@@ -1,4 +1,5 @@
 import { ASTKindChecker, ASTNode, ASTUtil, Block, Visitor } from "@ballerina/ast-model";
+import { StmntViewState } from "../view-model/index";
 
 let actionView = false;
 
@@ -8,7 +9,11 @@ function isOrdinaryStatement(node: ASTNode): boolean {
         && !ASTKindChecker.isReturn(node)
         && !ASTKindChecker.isWhile(node)
         && !ASTKindChecker.isForeach(node)
+        && !ASTKindChecker.isWorkerSend(node)
+        && !ASTKindChecker.isWorkerSyncSend(node)
         && !ASTUtil.isWorker(node)
+        && !ASTUtil.isWorkerFuture(node)
+        && !ASTUtil.isWorkerReceive(node)
         && !ASTUtil.isActionInvocation(node);
 }
 
@@ -27,6 +32,10 @@ export const visitor: Visitor = {
                 if (!ASTUtil.isWorker(element)) {
                     hiddenSet = false;
                 }
+            }
+            const viewState = element.viewState as StmntViewState;
+            if (viewState.expandContext && actionView) {
+                viewState.expandContext = undefined;
             }
         });
     }

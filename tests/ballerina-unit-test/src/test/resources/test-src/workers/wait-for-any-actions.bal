@@ -114,10 +114,8 @@ function waitTest13() returns int {
     var result = trap wait f1 | f3;
     if (result is int) {
         return result;
-    } else if (result is error) {
-        return 0;
     } else {
-        return 1;
+        return 0;
     }
 }
 
@@ -236,10 +234,10 @@ function waitTest20() returns int|string|error {
     return result;
 }
 
-function waitTest21() returns int|error {
-    future<int|error> f1 = start addOrError(10, 12);
-    future<int> f2 = start add_panic1(55, 88);
-    int|error result = wait f1 | f2;
+function waitTest21() returns error? {
+    future<error> f1 = start funcWithErr();
+    future<()> f2 = start funcWithPanic();
+    error? result = wait f1 | f2;
     return result;
 }
 
@@ -369,4 +367,17 @@ function sError() returns error {
     error err = error("A hazardous error occured!!! Abort immediately!!" );
     runtime:sleep(2000);
     return err;
+}
+
+function funcWithErr() returns error {
+    error err = error("A hazardous error occurred!!!" );
+    return err;
+}
+
+function funcWithPanic() {
+    runtime:sleep(1500);
+    if (true) {
+        error err = error("A hazardous error occurred!!! Panic!!" );
+        panic err;
+    }
 }

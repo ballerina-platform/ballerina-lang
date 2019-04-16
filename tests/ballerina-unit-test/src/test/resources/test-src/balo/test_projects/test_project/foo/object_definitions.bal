@@ -80,15 +80,15 @@ public type Building object {
 
 };
 
-function Building.getNameOut() returns string {
+public function Building.getNameOut() returns string {
     return self.name;
 }
 
-function Building.getNameWrapperOutside1() returns string {
+public function Building.getNameWrapperOutside1() returns string {
     return self.getName();
 }
 
-function Building.getNameWrapperOutside2() returns string {
+public function Building.getNameWrapperOutside2() returns string {
     return self.getNameOut();
 }
 

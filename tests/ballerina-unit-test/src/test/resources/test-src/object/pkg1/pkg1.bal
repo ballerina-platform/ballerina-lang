@@ -12,11 +12,11 @@ public type Employee object {
 };
 
 
-function Employee.getName() returns (string) {
+public function Employee.getName() returns (string) {
     return self.name;
 }
 
-function Employee.getAge() returns (int) {
+private function Employee.getAge() returns (int) {
     return self.age;
 }
 

@@ -35,6 +35,7 @@ import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -186,10 +187,13 @@ public class BTestRunner {
         // compiled again.
         CompilerContext compilerContext =
                 BCompileUtil.createCompilerContext(sourceRoot, CompilerPhase.CODE_GEN, enableExpFeatures);
+        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
+        compilerContext.put(DiagnosticListener.class, listener);
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
             // compile
-            CompileResult compileResult = BCompileUtil.compileWithTests(compilerContext, sourcePackage.toString(),
-                CompilerPhase.CODE_GEN);
+            CompileResult compileResult = BCompileUtil.compileWithTests(compilerContext, listener,
+                                                                        sourcePackage.toString(),
+                                                                        CompilerPhase.CODE_GEN);
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
                 errStream.println(diagnostic.getKind().toString().toLowerCase(Locale.ENGLISH) + ":"

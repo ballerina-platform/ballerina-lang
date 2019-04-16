@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.filters;
 
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -31,9 +31,9 @@ import java.util.List;
 public abstract class AbstractSymbolFilter {
     /**
      * Filters the symbolInfo from the list based on a particular filter criteria.
+     *
      * @param completionContext - Completion operation context
      * @return {@link ArrayList}
      */
-    public abstract Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext
-                                                                                       completionContext);
+    public abstract Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSContext completionContext);
 }

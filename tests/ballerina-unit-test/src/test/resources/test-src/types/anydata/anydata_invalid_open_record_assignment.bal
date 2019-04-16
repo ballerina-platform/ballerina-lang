@@ -45,49 +45,49 @@ function testInvalidRecordAssignment() {
 type Foo record {
     int aa = 0;
     any a;
-    anydata...
+    anydata...;
 };
 
 type Foo1 record {
     int ca;
     Bar2 b = {};
-    anydata...
+    anydata...;
 };
 
 type Foo2 record {
     int ca;
     Bar|() b = ();
-    anydata...
+    anydata...;
 };
 
 type Foo3 record {
     int ca;
     function (string) returns boolean fp?;
-    anydata...
+    anydata...;
 };
 
 type Foo4 record {
     int ca;
     typedesc td;
-    anydata...
+    anydata...;
 };
 
 type Foo5 record {
     int ca;
     map<any> m = {};
-    anydata...
+    anydata...;
 };
 
 type Foo6 record {
     int ca;
     map<map<Foo2>> m = {};
-    anydata...
+    anydata...;
 };
 
 type Foo7 record {
     int ca;
     any[] ar = [];
-    anydata...
+    anydata...;
 };
 
 type Bar object {
@@ -96,5 +96,5 @@ type Bar object {
 
 type Bar2 record {
     int ra = 0;
-    any...
+    any...;
 };

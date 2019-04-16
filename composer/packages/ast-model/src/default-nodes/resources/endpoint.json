@@ -1,27 +1,37 @@
 {
-  "ws": [
-    {
-      "ws": " ",
-      "i": 150,
-      "text": "=",
-      "static": true
-    },
-    {
-      "ws": "",
-      "i": 155,
-      "text": ";",
-      "static": true
-    }
-  ],
   "position": {
     "startColumn": 5,
-    "startLine": 27,
+    "startLine": 24,
     "endColumn": 38,
-    "endLine": 27
+    "endLine": 24
   },
-  "id": "c8c67614-7209-4fff-bb70-def3f365c9f9",
+  "id": "6d97317e-f4b1-4199-9f46-4d946a1e0bcc",
   "variable": {
     "ws": [
+      {
+        "ws": " ",
+        "i": 148,
+        "text": "endpointName",
+        "static": false
+      },
+      {
+        "ws": " ",
+        "i": 150,
+        "text": "=",
+        "static": true
+      },
+      {
+        "ws": "",
+        "i": 155,
+        "text": ";",
+        "static": true
+      },
+      {
+        "ws": " ",
+        "i": 148,
+        "text": "endpointName",
+        "static": false
+      },
       {
         "ws": " ",
         "i": 150,
@@ -37,16 +47,16 @@
     ],
     "position": {
       "startColumn": 5,
-      "startLine": 27,
+      "startLine": 24,
       "endColumn": 38,
-      "endLine": 27
+      "endLine": 24
     },
-    "id": "e79b4211-64a3-4ddf-a958-ec80353070b3",
+    "id": "e1092aa3-06c0-4ac1-9fa1-5bf3d5afe519",
     "symbolType": [
       "object"
     ],
     "name": {
-      "id": "f3128556-f103-4ca2-a276-9ff09b80217e",
+      "id": "7333bda4-48a8-4180-ba92-24b88c6503ad",
       "literal": false,
       "value": "endpointName",
       "kind": "Identifier",
@@ -75,22 +85,29 @@
       ],
       "position": {
         "startColumn": 5,
-        "startLine": 27,
+        "startLine": 24,
         "endColumn": 16,
-        "endLine": 27
+        "endLine": 24
       },
-      "id": "5fcc0aa9-886d-488e-8427-817d5df113c3",
+      "id": "ea6bc687-e84b-4b2c-8b08-6fc0f2dd1b6e",
       "symbolType": [
         "object"
       ],
       "packageAlias": {
-        "id": "ef64dace-f055-4d32-9587-8cac3004561d",
+        "id": "d9dee402-1292-47b2-9622-de9365f797c6",
         "literal": false,
         "value": "http",
         "kind": "Identifier",
         "valueWithBar": "http"
       },
       "grouped": false,
+      "typeName": {
+        "id": "74758390-8db8-4439-a191-116b86680527",
+        "literal": false,
+        "value": "Client",
+        "kind": "Identifier",
+        "valueWithBar": "Client"
+      },
       "public": false,
       "private": false,
       "remote": false,
@@ -115,13 +132,6 @@
       "resource": false,
       "service": false,
       "constant": false,
-      "typeName": {
-        "id": "3545cbc6-6c34-4ea5-b1d7-31ee8ceef5ca",
-        "literal": false,
-        "value": "Client",
-        "kind": "Identifier",
-        "valueWithBar": "Client"
-      },
       "nullable": false,
       "kind": "UserDefinedType"
     },
@@ -129,12 +139,6 @@
     "annotationAttachments": [],
     "initialExpression": {
       "ws": [
-        {
-          "ws": " ",
-          "i": 148,
-          "text": "endpointName",
-          "static": false
-        },
         {
           "ws": " ",
           "i": 152,
@@ -156,11 +160,11 @@
       ],
       "position": {
         "startColumn": 32,
-        "startLine": 27,
+        "startLine": 24,
         "endColumn": 37,
-        "endLine": 27
+        "endLine": 24
       },
-      "id": "316e1be7-ccfa-4aef-988d-c19d831fca7d",
+      "id": "91cbeda2-46f2-4ba5-9f4d-db9b91846674",
       "symbolType": [
         "object"
       ],

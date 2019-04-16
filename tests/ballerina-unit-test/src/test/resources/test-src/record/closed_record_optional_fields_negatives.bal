@@ -16,20 +16,18 @@
 
 type CountryCode "LK"|"USA"|"UK";
 
-type Person record {
+type Person record {|
     string fname = "default";
     string lname?;
     int age? = 999;
     Address adrs;
-    !...
-};
+|};
 
-type Address record {
+type Address record {|
     string street;
     string city;
     CountryCode country;
-    !...
-};
+|};
 
 function testNonDefReqField() {
     Person p1 = {};

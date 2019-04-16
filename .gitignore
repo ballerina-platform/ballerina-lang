@@ -28,6 +28,13 @@ results
 velocity.log
 /composer/modules/web/dist-electron
 
+# gradle
+.gradle
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
 # mac
 .DS_Store
 

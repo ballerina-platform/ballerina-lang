@@ -49,18 +49,23 @@ public class Ready implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> webSocketConnector = (BMap<String, BValue>) context.getRefArgument(0);
-        WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) webSocketConnector
-                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-        boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
-                .booleanValue();
-        if (!isReady) {
-            WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), webSocketConnector);
-            context.setReturnValues();
-        } else {
-            context.setReturnValues(HttpUtil.getError(context, "Already started reading frames"));
+        try {
+            BMap<String, BValue> webSocketConnector = (BMap<String, BValue>) context.getRefArgument(0);
+            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) webSocketConnector
+                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+            boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
+                    .booleanValue();
+            if (!isReady) {
+                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), webSocketConnector);
+                context.setReturnValues();
+            } else {
+                context.setReturnValues(HttpUtil.getError(context, "Already started reading frames"));
+            }
+            callback.notifySuccess();
+        } catch (Exception e) {
+            context.setReturnValues(HttpUtil.getError(context, e));
+            callback.notifySuccess();
         }
-        callback.notifySuccess();
     }
 
     @Override

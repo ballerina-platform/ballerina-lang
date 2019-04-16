@@ -29,8 +29,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.Connection;
@@ -43,10 +43,11 @@ import javax.jms.Session;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jms",
+        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session", structPackage = "ballerina/jms"),
-        args = {@Argument(name = "connection", type = TypeKind.OBJECT, structType = "Connection")
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
+        args = {@Argument(name = "connection", type = TypeKind.OBJECT, structType = JmsConstants.CONNECTION_OBJ_NAME)
         }
 )
 public class InitEndpoint implements NativeCallableUnit {
@@ -55,16 +56,17 @@ public class InitEndpoint implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
         Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
 
-        Struct sessionConfig = sessionBObject.getStructField(Constants.SESSION_CONFIG);
+        Struct sessionConfig = sessionBObject.getStructField(JmsConstants.SESSION_CONFIG);
 
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> connectionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         Connection connection = BallerinaAdapter.getNativeObject(connectionBObject,
-                                                                   Constants.JMS_CONNECTION,
-                                                                   Connection.class,
-                                                                   context);
+                                                                 JmsConstants.JMS_CONNECTION,
+                                                                 Connection.class,
+                                                                 context);
 
-        Session session = JMSUtils.createSession(connection, sessionConfig);
-        sessionBObject.addNativeData(Constants.JMS_SESSION, session);
+        Session session = JmsUtils.createSession(connection, sessionConfig);
+        sessionBObject.addNativeData(JmsConstants.JMS_SESSION, session);
     }
 
     @Override

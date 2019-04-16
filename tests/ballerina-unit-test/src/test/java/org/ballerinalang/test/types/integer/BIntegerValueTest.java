@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.types.integer;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -81,24 +81,6 @@ public class BIntegerValueTest {
         Assert.assertEquals(intValue.intValue(), (-10), "Invalid int value returned.");
     }
 
-    @Test(description = "Test long(binary) value assignment")
-    public void testBinaryValue() {
-        BValue[] returns = BRunUtil.invoke(result, "testBinaryValue", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        BInteger intValue = (BInteger) returns[0];
-        Assert.assertEquals(intValue.intValue(), 10, "Invalid int value returned.");
-    }
-
-    @Test(description = "Test negative long(binary) value assignment")
-    public void testNegativeBinaryValue() {
-        BValue[] returns = BRunUtil.invoke(result, "testNegativeBinaryValue", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        BInteger intValue = (BInteger) returns[0];
-        Assert.assertEquals(intValue.intValue(), (-10), "Invalid int value returned.");
-    }
-
     @Test(description = "Test long value assignment from a value returned by function")
     public void testIntegerValueAssignmentByReturnValue() {
         BValue[] returns = BRunUtil.invoke(result, "testIntegerValueAssignmentByReturnValue", new BValue[]{});
@@ -133,7 +115,7 @@ public class BIntegerValueTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];
-        Assert.assertEquals(intValue.intValue(), 30, "Invalid int value returned.");
+        Assert.assertEquals(intValue.intValue(), 20, "Invalid int value returned.");
     }
 
     @Test(description = "Test long value Subtraction")

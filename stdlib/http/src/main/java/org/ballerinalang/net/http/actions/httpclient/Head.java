@@ -41,6 +41,7 @@ public class Head extends AbstractHTTPAction {
         // Execute the operation
         executeNonBlockingAction(dataContext, false);
     }
+
     @Override
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         HttpCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);

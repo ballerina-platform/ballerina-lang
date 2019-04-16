@@ -14,13 +14,13 @@ service sample on echoEP {
             sampleRequestCount = sampleRequestCount + 1;
         }
         http:Response res = new;
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     resource function getCount(http:Caller conn, http:Request req) {
         http:Response res = new;
         res.setTextPayload("count - " + sampleRequestCount);
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 }
 
@@ -47,7 +47,7 @@ service sample1 on echoEP {
             sample1MapVal.name = strVal + "7";
         }
        http:Response res = new;
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     resource function echo1(http:Caller conn, http:Request req) {
@@ -63,7 +63,7 @@ service sample1 on echoEP {
             sample1Price = sample1Price + 2;
         }
          http:Response res = new;
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     resource function echo2(http:Caller conn, http:Request req) {
@@ -79,7 +79,7 @@ service sample1 on echoEP {
             sample1FloatArr[0] = sample1FloatArr[0] + 1;
         }
         http:Response res = new;
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     resource function getResult(http:Caller conn, http:Request req) {
@@ -87,7 +87,7 @@ service sample1 on echoEP {
         var strVal = <string> sample1MapVal.name;
         res.setTextPayload(sample1FinalText + sample1RequestCount + sample1Price + sample1Person.age + sample1Person.address.line1
                              + sample1FloatArr[0] + sample1FloatArr[1] + strVal);
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 }
 
@@ -129,7 +129,7 @@ service sample2 on echoEP {
             sample2MapVal.name = strVal + "7";
         }
         http:Response res = new;
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     resource function echo1(http:Caller conn, http:Request req) {
@@ -146,7 +146,7 @@ service sample2 on echoEP {
             sample2Price = sample2Price + 2;
         }
         http:Response res = new;
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     resource function echo2(http:Caller conn, http:Request req) {
@@ -163,7 +163,7 @@ service sample2 on echoEP {
             floatArr1[0] = floatArr1[0] + 1;
         }
         http:Response res = new;
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     resource function getResult(http:Caller conn, http:Request req) {
@@ -171,7 +171,7 @@ service sample2 on echoEP {
         var strVal = <string> sample2MapVal.name;
         res.setTextPayload(finalText1 + sample2RequestCount + sample2Price + person1.age + person1.address.line1
                                 + floatArr1[0] + floatArr1[1] + strVal);
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 }
 
@@ -189,7 +189,7 @@ service sample3 on echoEP {
             panic err;
         }
         //http:Response res = new;
-        //_ = conn -> respond(res);
+        //checkpanic conn->respond(res);
     }
 
     resource function getMsg(http:Caller conn, http:Request req) {
@@ -199,7 +199,7 @@ service sample3 on echoEP {
             message = "modified by second resource";
         }
         res.setTextPayload(message);
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 }
 
@@ -213,8 +213,8 @@ service sample4 on echoEP {
        workerFunc(p);
 
         http:Response res = new;
-        res.setTextPayload(<string>p.age);
-        _ = conn -> respond(res);
+        res.setTextPayload(string.convert(p.age));
+        checkpanic conn->respond(res);
     }
 }
 

@@ -1,0 +1,133 @@
+/**
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+ 
+/*-------------------------------
+       API Designer Globals 
+--------------------------------*/
+
+@api-designer-base-light-color: @offWhite;
+@api-designer-base-dark-color: #1e1e1e;
+
+@api-designer-icon-font: "font-ballerina";
+@api-designer-font: @fontName, "@{api-designer-icon-font}";
+@api-designer-font-size: @fontSize;
+
+@light-api-designer-background-color: @api-designer-base-light-color;
+@dark-api-designer-background-color: @api-designer-base-dark-color;
+@light-api-designer-base-text-color: @dark-api-designer-background-color;
+@dark-api-designer-base-text-color: @light-api-designer-background-color;
+
+@api-designer-title-font-size: calc(@api-designer-font-size + 4px);
+
+/*--- Background Colors ---*/
+
+@light-api-designer-text-background-color: @white;
+@dark-api-designer-text-background-color: @white;
+
+/*--- Colors ---*/
+
+@light-api-designer-fill-method-text-color: @white;
+@dark-api-designer-fill-method-text-color: @white;
+@light-api-designer-resource-text-color: #111;
+@dark-api-designer-resource-text-color: #111;
+@light-api-designer-resource-text-hover-color: darken(@light-api-designer-resource-text-color, 3%);
+@dark-api-designer-resource-text-hover-color: darken(@dark-api-designer-resource-text-color, 3%);
+@light-api-designer-placeholder-text-color: #61affe;
+@dark-api-designer-placeholder-text-color: #61affe;
+@light-api-designer-inline-text-color: #888;
+@dark-api-designer-inline-text-color: #888;
+@light-api-designer-inline-text-hover-color: darken(@light-api-designer-inline-text-color, 3%);
+@dark-api-designer-inline-text-hover-color: darken(@dark-api-designer-inline-text-color, 3%);
+@light-api-designer-icon-text-color: #333;
+@dark-api-designer-icon-text-color: #333;
+@light-api-designer-icon-hover-color: #111;
+@dark-api-designer-icon-hover-color: #333;
+@light-api-designer-action-icon-color: #777;
+@dark-api-designer-action-icon-color: #999;
+@light-api-designer-action-icon-hover-color: darken(@light-api-designer-action-icon-color, 3%);
+@dark-api-designer-action-icon-hover-color: darken(@dark-api-designer-action-icon-color, 3%);
+@light-api-designer-border-color: #ddd;
+@dark-api-designer-border-color: #ccc;
+@light-api-designer-form-bg-color: #f9f9f9;
+@dark-api-designer-form-bg-color: #f9f9f9;
+
+/*-------------------------------
+           API Method Colors 
+--------------------------------*/
+
+@methods:     post          #00c378, 
+              get           #3498db, 
+              put           #ffb33e, 
+              delete        #f44336, 
+              patch         #EC407A, 
+              head          #8e44ad, 
+              options       #276dc4;
+
+/*-------------------------------
+             Table
+--------------------------------*/
+
+@light-api-designer-table-background-color: @offWhite;
+@dark-api-designer-table-background-color: #3a3a3a;
+@light-api-designer-table-text-color: @light-api-designer-base-text-color;
+@dark-api-designer-table-text-color: @dark-api-designer-base-text-color;
+
+@light-api-designer-table-header-background-color: @white;
+@dark-api-designer-table-header-background-color: #2c2c2c;
+@light-api-designer-table-header-text-color: @light-api-designer-base-text-color;
+@dark-api-designer-table-header-text-color: @dark-api-designer-base-text-color;
+
+/*-------------------------------
+              Forms
+--------------------------------*/
+
+@light-api-designer-form-background-color: @white;
+@dark-api-designer-form-background-color: #484848;
+
+@light-api-designer-form-button-background-color: #888;
+@dark-api-designer-form-button-background-color: #3e3e3e;
+@light-api-designer-form-button-hover-background-color: darken(@light-api-designer-form-button-background-color, 3%);
+@dark-api-designer-form-button-hover-background-color: darken(@dark-api-designer-form-button-background-color, 3%);
+@light-api-designer-form-button-text-color: @dark-api-designer-form-button-background-color;
+@dark-api-designer-form-button-text-color: @light-api-designer-form-button-background-color;
+
+@light-api-designer-form-border-color: @light-api-designer-form-button-background-color;
+@dark-api-designer-form-border-color: @dark-api-designer-form-button-background-color;
+
+/*-------------------------------
+            Operation
+--------------------------------*/
+
+@light-api-designer-operation-background-color: darken(@light-api-designer-background-color, 3%);
+@dark-api-designer-operation-background-color: #272727;
+@light-api-designer-operation-border-color: darken(@light-api-designer-operation-background-color, 3%);
+@dark-api-designer-operation-border-color: darken(@dark-api-designer-operation-background-color, 3%);
+
+@light-api-designer-operation-method-background-color: @white;
+@dark-api-designer-operation-method-background-color: transparent;
+
+@light-api-designer-add-operation-background-color: @white;
+@dark-api-designer-add-operation-background-color: #2c2c2c;
+@light-api-designer-add-resource-background-color: @light-api-designer-add-operation-background-color;
+@dark-api-designer-add-resource-background-color: @dark-api-designer-add-operation-background-color;
+
+@light-api-designer-operation-title-background-color: darken(@light-api-designer-operation-background-color, 2%);
+@dark-api-designer-operation-title-background-color: darken(@dark-api-designer-operation-background-color, 2%);
+@light-api-designer-operation-title-hover-background-color: darken(@light-api-designer-operation-title-background-color, 3%);
+@dark-api-designer-operation-title-hover-background-color: darken(@dark-api-designer-operation-title-background-color, 3%);

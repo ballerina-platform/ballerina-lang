@@ -18,11 +18,12 @@
 
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -43,14 +44,16 @@ public class OpenRecordNegativeTest {
     public void testInvalidRestField() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_negative.bal");
 
-        assertEquals(result.getErrorCount(), 5);
+        assertEquals(result.getErrorCount(), 7);
 
         String expectedErrMsg = "incompatible types: expected 'string', ";
         validateError(result, 0, expectedErrMsg + "found 'int'", 8, 45);
         validateError(result, 1, expectedErrMsg + "found 'boolean'", 8, 57);
-        validateError(result, 2, "invalid usage of record literal with type 'anydata'", 17, 36);
+        validateError(result, 2, "invalid literal for type 'anydata|error'", 17, 36);
         validateError(result, 3, "unknown type 'Animal'", 21, 5);
-        validateError(result, 4, "incompatible types: expected 'anydata', found 'Bar'", 30, 18);
+        validateError(result, 4, "incompatible types: expected 'anydata|error', found 'Bar'", 30, 18);
+        validateError(result, 5, "incompatible types: expected 'anydata', found 'error'", 44, 14);
+        validateError(result, 6, "incompatible types: expected 'anydata', found 'error'", 45, 14);
     }
 
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
@@ -65,8 +68,11 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test record literal with repeated keys")
     public void testDuplicatedKeysInRecordLiteral() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/open_record_duplicated_key.bal");
-        validateError(compileResult, 0, "invalid usage of record literal: " +
-                "duplicate key 'noOfChildren'", 8, 58);
+        Assert.assertEquals(compileResult.getErrorCount(), 3);
+        String duplicateKey = "invalid usage of record literal: duplicate key ";
+        validateError(compileResult, 0, duplicateKey + "'noOfChildren'", 13, 58);
+        validateError(compileResult, 1, duplicateKey + "'x'", 14, 41);
+        validateError(compileResult, 2, duplicateKey + "'x'", 15, 53);
     }
 
     @Test(description = "Test function invocation on a nil-able function pointer")
@@ -97,22 +103,13 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test uninitialized record access")
     public void testUninitRecordAccess() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_uninit_access.bal");
-        assertEquals(compileResult.getErrorCount(), 15);
+        assertEquals(compileResult.getErrorCount(), 6);
         int index = 0;
-        validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 22, 1);
-        validateError(compileResult, index++, "variable 'p' is not initialized", 27, 19);
-        validateError(compileResult, index++, "variable 'p' is not initialized", 28, 12);
-        validateError(compileResult, index++, "variable 'p' is not initialized", 30, 5);
-        validateError(compileResult, index++, "variable 'p' is not initialized", 31, 5);
-        validateError(compileResult, index++, "variable 'p' is not initialized", 33, 42);
-        validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 37, 12);
-        validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 38, 12);
-        validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 40, 5);
-        validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 41, 5);
-        validateError(compileResult, index++, "variable 'globalPerson' is not initialized", 43, 12);
-        validateError(compileResult, index++, "variable 'globalPerson' is not initialized", 44, 12);
-        validateError(compileResult, index++, "variable 'globalPerson' is not initialized", 46, 5);
-        validateError(compileResult, index++, "variable 'globalPerson' is not initialized", 47, 5);
-        validateError(compileResult, index, "variable 'p4' is not initialized", 67, 12);
+        validateError(compileResult, index++, "variable 'p' is not initialized", 24, 19);
+        validateError(compileResult, index++, "variable 'p' is not initialized", 25, 12);
+        validateError(compileResult, index++, "variable 'p' is not initialized", 27, 5);
+        validateError(compileResult, index++, "variable 'p' is not initialized", 28, 5);
+        validateError(compileResult, index++, "variable 'p' is not initialized", 30, 42);
+        validateError(compileResult, index, "variable 'p4' is not initialized", 52, 12);
     }
 }

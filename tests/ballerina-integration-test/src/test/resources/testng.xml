@@ -57,6 +57,8 @@
             <class name="org.ballerinalang.test.service.http.sample.HttpPipeliningTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpStatusCodeTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.CipherStrengthSSLTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.ResourceFunctionReturnTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPListenerActionsTestCase"/>
         </classes>
     </test>
 
@@ -74,6 +76,12 @@
         </groups>
         <classes>
             <class name="org.ballerinalang.test.channel.ChannelsResourcesTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-future-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.future.CancelledFuturesWithTrxTest"/>
         </classes>
     </test>
 
@@ -104,7 +112,6 @@
             <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
             <class name="org.ballerinalang.test.auth.AuthnWithMultipleProvidersTest" />
             <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
-            <class name="org.ballerinalang.test.auth.NoTokenPropagationTest"/>
             <class name="org.ballerinalang.test.auth.SecureClientWrongAuthProviderTest"/>
             <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
         </classes>
@@ -148,25 +155,31 @@
             <class name="org.ballerinalang.test.service.websocket.PushAndOnTextResourceTest"/>
             <class name="org.ballerinalang.test.service.websocket.WebSocketQueryAndPathParamSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websocket.WebSocketServiceNotFoundTest"/>
-            <class name="org.ballerinalang.test.service.websocket.WebSocketSimpleProxyTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketSimpleProxyTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketSslProxyTest"/>
             <class name="org.ballerinalang.test.service.websocket.OnBinaryContinuationTest"/>
             <class name="org.ballerinalang.test.service.websocket.MissingResourcesTest"/>
-            <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientCloseTest"/>
             <class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.IsOpenTest"/>
+            <class name="org.ballerinalang.test.service.websocket.SslEchoTest"/>
         </classes>
     </test>
 
     <test name="ballerina-grpc-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.service.grpc.sample.GrpcBaseTest"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingBasicTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.GrpcMutualSslWithCertsTest"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.InvalidServiceMethodTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>
@@ -178,6 +191,8 @@
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEnumTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ErrorServiceTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.BidiStreamingTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ErrorReturnServiceTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingOneofFieldTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>
@@ -209,22 +224,39 @@
     </test>
 
     <test name="ballerina-jms-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
-            <class name="org.ballerinalang.test.jms.JMSConnectorTestCase"/>
+            <class name="org.ballerinalang.test.jms.JmsConnectorTestCase"/>
         </classes>
     </test>
 
     <test name="ballerina-websub-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.service.websub.WebSubBaseTest"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubBaseTest"/>
             <!-- WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
                 "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
                 @BeforeClass in test classes which have @BeforeClass -->
-            <class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubCoreFunctionalityTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubContentTypeSupportTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubRedirectionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubCoreFunctionalityTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-websub-advanced-config-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.service.websub.advanced.WebSubAdvancedBaseTest"/>
+            <!-- DummyTestCase or any other test which does not have @BeforeClass and belongs to the
+                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
+                @BeforeClass in test classes which have @BeforeClass -->
+            <class name="org.ballerinalang.test.service.websub.advanced.WebSubDummyTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.advanced.WebSubSecureHubTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.advanced.WebSubPersistenceTestCase"/>
         </classes>
     </test>
 
@@ -237,6 +269,14 @@
         <classes>
             <class name="org.ballerinalang.test.socket.SocketBaseTest"/>
             <class name="org.ballerinalang.test.socket.SocketClientCallbackServiceTestCase"/>
+        </classes>
+    </test>
+
+    <test name="artemis-test" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons" />
+            <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest" />
+            <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest" />
         </classes>
     </test>
 </suite>

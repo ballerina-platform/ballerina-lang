@@ -21,17 +21,15 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -43,10 +41,16 @@ public class BIRBinaryWriter {
     private static final byte[] BIR_MAGIC = {(byte) 0xba, (byte) 0x10, (byte) 0xc0, (byte) 0xde};
     private static final int BIR_VERSION = 1;
 
-    private ConstantPool cp = new ConstantPool();
+    private final ConstantPool cp = new ConstantPool();
+    private final BIRNode.BIRPackage birPackage;
 
-    public byte[] write(BIRNode.BIRPackage birPackage) {
+    public BIRBinaryWriter(BIRNode.BIRPackage birPackage) {
+        this.birPackage = birPackage;
+    }
+
+    public byte[] serialize() {
         ByteBuf birbuf = Unpooled.buffer();
+        BIRTypeWriter typeWriter = new BIRTypeWriter(birbuf, cp);
 
         // Write the package details in the form of constant pool entry
         int orgCPIndex = addStringCPEntry(birPackage.org.value);
@@ -55,8 +59,14 @@ public class BIRBinaryWriter {
         int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         birbuf.writeInt(pkgIndex);
 
+        //Write import module declarations
+        writeImportModuleDecls(birbuf, birPackage.importModules);
+        // Write type defs
+        writeTypeDefs(birbuf, typeWriter, birPackage.typeDefs);
+        // Write global vars
+        writeGlobalVars(birbuf, typeWriter, birPackage.globalVars);
         // Write functions
-        writeFunctions(birbuf, birPackage.functions);
+        writeFunctions(birbuf, typeWriter, birPackage.functions);
 
         // Write the constant pool entries.
         // TODO Only one constant pool is available for now. This will change in future releases
@@ -65,7 +75,7 @@ public class BIRBinaryWriter {
         try (DataOutputStream dataOut = new DataOutputStream(baos)) {
             dataOut.write(BIR_MAGIC);
             dataOut.writeInt(BIR_VERSION);
-            writeCP(dataOut);
+            dataOut.write(cp.serialize());
             dataOut.write(birbuf.nioBuffer().array(), 0, birbuf.nioBuffer().limit());
             return baos.toByteArray();
         } catch (IOException e) {
@@ -75,12 +85,53 @@ public class BIRBinaryWriter {
 
     // private methods
 
-    private void writeFunctions(ByteBuf buf, List<BIRNode.BIRFunction> birFunctionList) {
-        buf.writeInt(birFunctionList.size());
-        birFunctionList.forEach(func -> writeFunction(buf, func));
+    private void writeImportModuleDecls(ByteBuf buf, List<BIRNode.BIRImportModule> birImpModList) {
+        buf.writeInt(birImpModList.size());
+        birImpModList.forEach(impMod -> {
+            buf.writeInt(addStringCPEntry(impMod.org.value));
+            buf.writeInt(addStringCPEntry(impMod.name.value));
+            buf.writeInt(addStringCPEntry(impMod.version.value));
+        });
     }
 
-    private void writeFunction(ByteBuf buf, BIRNode.BIRFunction birFunction) {
+    private void writeTypeDefs(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRTypeDefinition> birTypeDefList) {
+        buf.writeInt(birTypeDefList.size());
+        birTypeDefList.forEach(typeDef -> writeType(buf, typeWriter, typeDef));
+    }
+
+    private void writeGlobalVars(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRGlobalVariableDcl> birGlobalVars) {
+        buf.writeInt(birGlobalVars.size());
+        for (BIRGlobalVariableDcl birGlobalVar : birGlobalVars) {
+            buf.writeByte(birGlobalVar.kind.getValue());
+            // Name
+            buf.writeInt(addStringCPEntry(birGlobalVar.name.value));
+            // Visibility
+            buf.writeByte(birGlobalVar.visibility.value());
+
+            // Function type as a CP Index
+            birGlobalVar.type.accept(typeWriter);
+        }
+    }
+
+    private void writeType(ByteBuf buf, BIRTypeWriter typeWriter, BIRTypeDefinition typeDef) {
+        // Type name CP Index
+        buf.writeInt(addStringCPEntry(typeDef.name.value));
+        // Visibility
+        buf.writeByte(typeDef.visibility.value());
+        typeDef.type.accept(typeWriter);
+
+        int defType = typeDef.type.tag;
+        if (defType == TypeTags.OBJECT || defType == TypeTags.RECORD) {
+            writeFunctions(buf, typeWriter, typeDef.attachedFuncs);
+        }
+    }
+
+    private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRNode.BIRFunction> birFunctionList) {
+        buf.writeInt(birFunctionList.size());
+        birFunctionList.forEach(func -> writeFunction(buf, typeWriter, func));
+    }
+
+    private void writeFunction(ByteBuf buf, BIRTypeWriter typeWriter, BIRNode.BIRFunction birFunction) {
         // Function name CP Index
         buf.writeInt(addStringCPEntry(birFunction.name.value));
         // Function definition or a declaration
@@ -90,74 +141,28 @@ public class BIRBinaryWriter {
         buf.writeByte(birFunction.visibility.value());
 
         // Function type as a CP Index
-        buf.writeInt(addFuncSignature(birFunction.type));
+        birFunction.type.accept(typeWriter);
+
         // Arg count
         buf.writeInt(birFunction.argsCount);
         // Local variables
         buf.writeInt(birFunction.localVars.size());
         for (BIRNode.BIRVariableDcl localVar : birFunction.localVars) {
             buf.writeByte(localVar.kind.getValue());
-            buf.writeInt(addStringCPEntry(localVar.type.getDesc()));
+            localVar.type.accept(typeWriter);
             buf.writeInt(addStringCPEntry(localVar.name.value));
         }
 
-        // Write basic blocks
-        writeBasicBlocks(buf, birFunction.basicBlocks);
-    }
+        BIRInstructionWriter insWriter = new BIRInstructionWriter(buf, typeWriter, cp);
 
-    private void writeBasicBlocks(ByteBuf buf, List<BIRBasicBlock> birBBList) {
-        BIRInstructionWriter insWriter = new BIRInstructionWriter(buf, cp);
-        insWriter.writeBBs(birBBList);
+        // Write basic blocks
+        insWriter.writeBBs(birFunction.basicBlocks);
+
+        // Write error table
+        insWriter.writeErrorTable(birFunction.errorTable);
     }
 
     private int addStringCPEntry(String value) {
         return cp.addCPEntry(new StringCPEntry(value));
-    }
-
-    private void writeCP(DataOutputStream buf) throws IOException {
-        CPEntry[] cpEntries = cp.getConstPoolEntries();
-        // TODO The length should be available in the const-pool section header.
-        buf.writeInt(cpEntries.length);
-        for (CPEntry cpEntry : cpEntries) {
-            buf.writeByte(cpEntry.entryType.value);
-            switch (cpEntry.entryType) {
-                case CP_ENTRY_INTEGER:
-                    buf.writeLong(((IntegerCPEntry) cpEntry).value);
-                    break;
-                case CP_ENTRY_BOOLEAN:
-                    buf.writeBoolean(((CPEntry.BooleanCPEntry) cpEntry).value);
-                    break;
-                case CP_ENTRY_STRING:
-                    StringCPEntry stringCPEntry = (StringCPEntry) cpEntry;
-                    byte[] strBytes = stringCPEntry.value.getBytes(StandardCharsets.UTF_8);
-                    buf.writeInt(strBytes.length);
-                    buf.write(strBytes);
-                    break;
-                case CP_ENTRY_PACKAGE:
-                    PackageCPEntry pkgCPEntry = (PackageCPEntry) cpEntry;
-                    buf.writeInt(pkgCPEntry.orgNameCPIndex);
-                    buf.writeInt(pkgCPEntry.pkgNameCPIndex);
-                    buf.writeInt(pkgCPEntry.versionCPIndex);
-                    break;
-                default:
-                    throw new IllegalStateException("unsupported constant pool entry type: " +
-                                                    cpEntry.entryType.name());
-            }
-        }
-    }
-
-    private int addFuncSignature(BInvokableType funcType) {
-        String funcSig = generateFunctionSig(funcType.paramTypes, funcType.retType);
-        return this.cp.addCPEntry(new StringCPEntry(funcSig));
-    }
-
-    private String generateSig(List<BType> types) {
-        StringBuilder builder = new StringBuilder();
-        types.forEach(t -> builder.append(t.getDesc()));
-        return builder.toString();
-    }
-
-    private String generateFunctionSig(List<BType> paramTypes, BType retType) {
-        return "(" + generateSig(paramTypes) + ")(" + retType.getDesc() + ")";
     }
 }

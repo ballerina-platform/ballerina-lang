@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaRecordRestFieldDefinition extends BallerinaCompositeElement {
+public interface BallerinaRecordRestFieldDefinition extends PsiElement {
 
   @Nullable
   BallerinaSealedLiteral getSealedLiteral();
@@ -31,5 +31,8 @@ public interface BallerinaRecordRestFieldDefinition extends BallerinaCompositeEl
 
   @Nullable
   PsiElement getEllipsis();
+
+  @NotNull
+  PsiElement getSemicolon();
 
 }

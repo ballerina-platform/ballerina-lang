@@ -18,15 +18,10 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.stdlib.time.util.TimeUtils.STRUCT_TYPE_TIME;
 
 /**
  * Get the month value for the given time.
@@ -35,10 +30,7 @@ import static org.ballerinalang.stdlib.time.util.TimeUtils.STRUCT_TYPE_TIME;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "month",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina/time"),
-        returnType = {@ReturnType(type = TypeKind.INT)},
-        isPublic = true
+        functionName = "getMonth"
 )
 public class Month extends AbstractTimeFunction {
 

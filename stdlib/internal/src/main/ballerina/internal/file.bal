@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/time;
+
 # Reference to the file location.
 public type Path object {
     private string root;
@@ -23,83 +25,83 @@ public type Path object {
     }
 
     # Constructs the path.
-    extern function init(string r);
+    function init(string r) = external;
 
     # Retrieves the absolute path from the provided location.
     #
     # + return - Returns the absolute path reference or an error if the path cannot be derived
-    extern function toAbsolutePath() returns Path;
+    function toAbsolutePath() returns Path = external;
 
     # Retreives the absolute path from the provided location.
     #
     # + return - Returns the absolute path as a string
-    public extern function getPathValue() returns string;
+    public function getPathValue() returns string = external;
 
     # Retreives the name of the file from the provided location.
     #
     # + return - Returns the name of the file
-    public extern function getName() returns string;
+    public function getName() returns string = external;
 
     # Retreives the extension of the file from the provided location.
     #
     # + return - Returns the extension of the file. Empty string if no extension.
-    public extern function getExtension() returns string;
+    public function getExtension() returns string = external;
 
     # Check for existance of the file.
     #
     # + return - True if the file exists, else false
-    public extern function exists() returns boolean;
+    public function exists() returns boolean = external;
 
     # Returns the files of folders in the directory.
     #
     # + return - True if the given file path is a directory. It is false otherwise
-    public extern function list() returns Path[]|error;
+    public function list() returns Path[]|error = external;
 
     # Check if given file is a directory
     #
     # + return - True if directory, else false
-    public extern function isDirectory() returns boolean;
+    public function isDirectory() returns boolean = external;
 
     # Deletes a file/directory.
     #
     # + return - Error if the directory/file could not be deleted
-    public extern function delete() returns error?;
+    public function delete() returns error? = external;
 
     # Creates a directory.
     #
     # + return - Error if the directory could not be created
-    public extern function createDirectory() returns error?;
+    public function createDirectory() returns error? = external;
 
     # Creates a file.
     #
     # + return - Error if the file could not be created
-    public extern function createFile() returns error?;
+    public function createFile() returns error? = external;
 
     # Retrieves the last modified time of the file of directory.
     #
     # + return - Last modified time or an error if the path cannot be resolved
-    public extern function getModifiedTime() returns time:Time|error;
+    public function getModifiedTime() returns time:Time|error = external;
 
     # Copy file or directory to another path.
     #
     # + target - The location to copy file or directory
     # + return - Error if the file could not be copied
-    public extern function copyTo(@sensitive Path target) returns error?;
+    public function copyTo(@sensitive Path target) returns error? = external;
 
     # Move file or directory to another path.
     #
     # + target - The location to move file or directory
     # + return - Error if the file could not be moved
-    public extern function moveTo(@sensitive Path target) returns error?;
+    public function moveTo(@sensitive Path target) returns error? = external;
 
     # Get the enclosing parent directory.
     #
     # + return - Path of parent folder or error occurred while getting parent directory
-    public extern function getParentDirectory() returns Path|error;
+    public function getParentDirectory() returns Path|error = external;
 
     # Resolve given path.
     #
     # + paths - Paths to be resolved within the current path
     # + return - Resolved path
-    public extern function resolve(string... paths) returns Path;
+    public function resolve(string... paths) returns Path = external;
 };

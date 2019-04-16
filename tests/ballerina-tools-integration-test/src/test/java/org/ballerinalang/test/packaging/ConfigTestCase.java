@@ -109,6 +109,27 @@ public class ConfigTestCase extends BaseTest {
         clientLeecher.waitForText(2000);
     }
 
+    @Test(description = "Test running a ballerina file with the default config from the same directory")
+    public void testRunWithInvalidDefaultConfig() throws Exception {
+        Path sourcePath = Paths.get(balSourcePkgPath, "invalid");
+        String[] clientArgs = {"read_from_config.bal"};
+        LogLeecher clientLeecher = new LogLeecher("error: invalid toml syntax at ballerina.conf:4",
+                LogLeecher.LeecherType.ERROR);
+        balClient.runMain("run", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
+                sourcePath.toString());
+    }
+
+    @Test(description = "Test running a ballerina file by specifying an invalid config file path")
+    public void testRunWithInvalidConfig() throws Exception {
+        Path sourcePath = Paths.get(balSourcePkgPath, "invalid");
+        String confPath = (new File("src/test/resources/config/invalid/test.conf")).getAbsolutePath();
+        String[] clientArgs = {"--config", confPath, "read_from_config.bal"};
+        LogLeecher clientLeecher = new LogLeecher("error: invalid toml syntax at test.conf:5",
+                LogLeecher.LeecherType.ERROR);
+        balClient.runMain("run", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
+                sourcePath.toString());
+    }
+
     @AfterClass
     private void cleanup() throws Exception {
         PackagingTestUtils.deleteFiles(tempProjectDirectory);

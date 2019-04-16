@@ -1,0 +1,71 @@
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
+dependencies {
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+
+    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-utils')
+    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-runtime-api')
+    implementation project(':ballerina-time')
+    implementation project(':ballerina-task')
+    implementation project(':ballerina-io')
+    implementation project(':ballerina-reflect')
+    implementation project(':ballerina-math')
+    implementation project(':ballerina-crypto')
+    implementation project(':ballerina-config')
+    implementation project(':ballerina-config-api')
+    implementation project(':ballerina-internal')
+    implementation project(':ballerina-log-api')
+    implementation project(':ballerina-system')
+    implementation project(':ballerina-logging')
+    implementation project(':ballerina-launcher')
+
+    testImplementation 'org.slf4j:slf4j-jdk14:1.7.26'
+    testImplementation 'com.h2database:h2:1.4.198'
+    testImplementation 'org.testng:testng:6.13.1'
+    testImplementation 'org.apache.commons:commons-io:1.3.2'
+
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+}
+
+test {
+    minHeapSize = "256m"
+    maxHeapSize = "1g"
+
+    doFirst {
+        copy {
+            from "$buildDir/generated-balo/repo/ballerina"
+            into "$buildDir/lib/repo/ballerina"
+        }
+    }
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
+description = 'Ballerina - Streams'

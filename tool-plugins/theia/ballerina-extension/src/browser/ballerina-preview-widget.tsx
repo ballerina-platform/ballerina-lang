@@ -1,52 +1,53 @@
-import axios from "axios";
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { Widget } from '@theia/core/lib/browser/widgets/widget';
 import { injectable, postConstruct, inject } from 'inversify';
 import { EditorManager, TextEditor, EditorWidget, TextDocumentChangeEvent } from "@theia/editor/lib/browser";
 import { DisposableCollection } from '@theia/core/lib/common/disposable';
 import * as React from 'react';
-import * as lsp from 'vscode-languageserver-types';
 import { BALLERINA_LANGUAGE_ID } from '../common'
 
-import { BallerinaDiagram, BallerinaDiagramChangeEvent, ParserReply } from './diagram/ballerina-diagram'; 
+import { EditableDiagram, DiagramMode } from '@ballerina/diagram'; 
+import { BallerinaLangClient } from './ballerina-language-client';
+import { LanguageClientProvider } from '@theia/languages/lib/browser/language-client-provider';
 
-export function parseContent(content: String) : Promise<ParserReply> {
-    const parseOpts = {
-        content,
-        includePackageInfo: true,
-        includeProgramDir: true,
-        includeTree: true,
-    }
-    return axios.post(
-                    'https://parser.playground.preprod.ballerina.io/api/parser',
-                    parseOpts,
-                    { 
-                        headers: {
-                            'content-type': 'application/json; charset=utf-8',
-                        } 
-                    })
-                .then(response => response.data);
-}
+import '@ballerina/font/build/font/font-ballerina.css';
+import '@ballerina/distribution/build/themes/ballerina-default.css';
+import { ILanguageClient } from '@theia/languages/lib/browser';
 
 @injectable()
 export class BallerinaPreviewWidget extends ReactWidget {
 
     protected readonly toDisposePerCurrentEditor = new DisposableCollection();
+    protected langClient?: BallerinaLangClient;
+    protected currentEditor?: EditorWidget;
 
     constructor(
-        @inject(EditorManager) readonly editorManager: EditorManager
+        @inject(EditorManager) readonly editorManager: EditorManager,
+        @inject(LanguageClientProvider) readonly languageClientProvider: LanguageClientProvider
     ) {
         super();
         this.id = 'ballerina-preview-widget';
-        this.title.label = 'Ballerina Interaction';
+        this.title.label = 'Ballerina Diagram';
         this.title.closable = true;
         this.addClass('ballerina-preview');
+        // this is a workaround to fix styles until ballerina theme is fixed
+        const body = document.getElementsByTagName("body").item(0)
+        if (body) {
+            body.classList.add("diagram");
+        }
+        this.languageClientProvider.getLanguageClient(BALLERINA_LANGUAGE_ID)
+            .then((langClient) => {
+                this.langClient = new BallerinaLangClient(langClient as ILanguageClient, this.editorManager);
+                this.update();
+            });
     }
 
     @postConstruct()
     protected init(): void {
         this.update();
         this.toDispose.push(this.editorManager.onCurrentEditorChanged(this.onCurrentEditorChanged.bind(this)));
+        this.toDispose.push(this.editorManager.onCreated(this.onCurrentEditorChanged.bind(this)));
+        this.toDispose.push(this.editorManager.onActiveEditorChanged(this.onCurrentEditorChanged.bind(this)));
     }
 
     protected onResize(msg: Widget.ResizeMessage): void {
@@ -56,36 +57,26 @@ export class BallerinaPreviewWidget extends ReactWidget {
 
     protected onCurrentEditorChanged(editorWidget: EditorWidget | undefined): void {
         this.toDisposePerCurrentEditor.dispose();
-        if (editorWidget) {
-            const { editor } = editorWidget;
+        const currentEditor = editorWidget
+                    || this.editorManager.currentEditor
+                    || this.editorManager.activeEditor
+                    || this.editorManager.all.find(e => e.isVisible);
+        this.currentEditor = currentEditor;  
+        if (currentEditor) {
+            const { editor } = currentEditor;
             this.toDisposePerCurrentEditor.push(
-                editor.onDocumentContentChanged(event => this.onDocumentContentChanged(editor, event))
+                editor.onDocumentContentChanged(event => this.onDocumentContentChanged(editor, event)),
             );
-        }
-        this.update();
-        const currentEditor = this.getCurrentEditor();
-        if (currentEditor && currentEditor.document.languageId !== BALLERINA_LANGUAGE_ID) {
-            if (this.isVisible) {
-                this.hide();
+            this.update();
+            if (editor && editor.document.languageId !== BALLERINA_LANGUAGE_ID) {
+                if (this.isVisible) {
+                    this.hide();
+                }
+            } else if (this.isHidden) {
+                this.show();
             }
-        } else if (this.isHidden) {
-            this.show();
-        }
-    }
-
-    protected onChange(evt: BallerinaDiagramChangeEvent) {
-        const newContent = evt.newContent;
-        const currentEditor: TextEditor | undefined = this.getCurrentEditor();
-        if (currentEditor && currentEditor.document.languageId === BALLERINA_LANGUAGE_ID) {
-            const endLine = currentEditor.document.lineCount;
-            const endOffset = currentEditor.document.getLineContent(endLine).length;
-            const startPosition = lsp.Position.create(0,0);
-            const endPosition = lsp.Position.create(endLine, endOffset);
-            const editOperation: lsp.TextEdit = {
-                newText: newContent,
-                range: lsp.Range.create(startPosition, endPosition)
-            };
-            currentEditor.executeEdits([editOperation])
+        } else {
+            this.update();
         }
     }
 
@@ -94,7 +85,7 @@ export class BallerinaPreviewWidget extends ReactWidget {
     }
 
     protected render(): React.ReactNode {
-        const currentEditor = this.getCurrentEditor();
+        const { currentEditor } = this;
         if (!currentEditor) {
             return (
                 <div className="ballerina-preview">
@@ -104,7 +95,8 @@ export class BallerinaPreviewWidget extends ReactWidget {
                 </div>
             )
         }
-        if (currentEditor && currentEditor.document.languageId !== BALLERINA_LANGUAGE_ID) {
+        const { editor } = currentEditor;
+        if (editor && editor.document.languageId !== BALLERINA_LANGUAGE_ID) {
             return (
                 <div className="ballerina-preview">
                     <div>
@@ -114,24 +106,16 @@ export class BallerinaPreviewWidget extends ReactWidget {
             )
         }
         return <React.Fragment>
-                <div className='ballerina-editor design-view-container'>
-                    <BallerinaDiagram 
-                        content={currentEditor.document.getText()}
-                        parseContent={parseContent}
-                        onChange={this.onChange.bind(this)}
+                <div className='diagram'>
+                    {this.langClient && <EditableDiagram
+                        mode={DiagramMode.ACTION}
+                        docUri={editor.document.uri}
+                        zoom={1}
                         height={this.node.clientHeight}
                         width={this.node.clientWidth}
-                    />
+                        langClient={this.langClient as BallerinaLangClient}
+                    />}
                 </div>
             </React.Fragment>;
     }
-
-    protected getCurrentEditor(): TextEditor | undefined {
-        const activeEditor = this.editorManager.currentEditor;
-        if (activeEditor) {
-            return activeEditor.editor;
-        }
-        return undefined;
-    }
-
 }

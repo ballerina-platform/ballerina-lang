@@ -58,9 +58,9 @@ function createTable() returns (table<Employee>) {
     Employee e2 = { id: 2, name: "B", salary: 200.0 };
     Employee e3 = { id: 3, name: "C", salary: 300.0 };
 
-    _ = dt.add(e1);
-    _ = dt.add(e2);
-    _ = dt.add(e3);
+    checkpanic dt.add(e1);
+    checkpanic dt.add(e2);
+    checkpanic dt.add(e3);
 
     return dt;
 }

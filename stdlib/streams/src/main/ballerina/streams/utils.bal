@@ -16,18 +16,87 @@
 
 import ballerina/time;
 
-public function buildStreamEvent(any t, string streamName) returns StreamEvent[] {
+# Creates  `streams:StreamEvent` object array for a record `t` received by the stream denoted by the name `streamNme`.
+# + t - A record received by the stream `streamName`.
+# + streamName - Name of the stream to which the record `t` is received.
+# + return - Returns an array of streams:StreamEvents|()
+public function buildStreamEvent(any t, string streamName) returns StreamEvent?[] {
     EventType evntType = "CURRENT";
     var keyVals = <map<anydata>>map<anydata>.stamp(t.clone());
-    StreamEvent[] streamEvents = [new((streamName, keyVals), evntType, time:currentTime().time)];
+    StreamEvent event = new((streamName, keyVals), evntType, time:currentTime().time);
+    StreamEvent?[] streamEvents = [event];
     return streamEvents;
 }
 
+# Creates a RESET event from a given event.
+# + event - The event from which the reset event is created.
+# + return - A stream event of type streams:RESET.
 public function createResetStreamEvent(StreamEvent event) returns StreamEvent {
     StreamEvent resetStreamEvent = new(event.data, "RESET", event.timestamp);
     return resetStreamEvent;
 }
 
+# Get the stream event from any? field. This function can only be used only if we are sure that the `anyEvent` is a
+# streams:StreamEvent.
+# + anyEvent - The object from which, the stream event is extracted.
+# + return - Returns the extracted streams:StreamEvent object.
 public function getStreamEvent(any? anyEvent) returns StreamEvent {
     return <StreamEvent>anyEvent;
+}
+
+# Converts a given array of streams:StreamEvent objects to an array of `streams:SnapshottableStreamEvent`.
+# + events - The events to be coverted to snapshotable events.
+# + return - Returns the converted snapshotable events.
+public function toSnapshottableEvents(StreamEvent[]|any[]? events) returns SnapshottableStreamEvent?[] {
+    SnapshottableStreamEvent?[] evts = [];
+    if (events is StreamEvent[]) {
+        foreach StreamEvent e in events {
+            evts[evts.length()] = toSnapshottableEvent(e);
+        }
+    } else if (events is any[]) {
+        foreach var e in events {
+            if (e is StreamEvent) {
+                evts[evts.length()] = toSnapshottableEvent(e);
+            }
+        }
+    }
+    return evts;
+}
+
+# Converts a given array of snapshotable events to an array of `streams:StreamEvent` objects.
+# + events - Snapshotable events to be converted to `streams:StreamEvents`.
+# + return - Returns the converted `streams:StreamEvents` objects array.
+public function toStreamEvents(SnapshottableStreamEvent[]|any[]? events) returns StreamEvent?[] {
+    StreamEvent?[] evts = [];
+    if (events is SnapshottableStreamEvent[]) {
+        foreach SnapshottableStreamEvent e in events {
+            evts[evts.length()] = toStreamEvent(e);
+        }
+    } else if (events is any[]) {
+        foreach var e in events {
+            if (e is SnapshottableStreamEvent) {
+                evts[evts.length()] = toStreamEvent(e);
+            }
+        }
+    }
+    return evts;
+}
+
+# Convert a single `streams:StreamEvent` object to `streams:SnapshottableStreamEvent` object.
+# + event - The `streams:StreamEvent` object to be converted to snapshotable event.
+# + return - The converted `streams:SnapshottableStreamEvent` object.
+public function toSnapshottableEvent(StreamEvent event) returns SnapshottableStreamEvent {
+    return {
+        eventType: event.eventType,
+        timestamp: event.timestamp,
+        data: event.data
+    };
+}
+
+# Convert a single `streams:SnapshottableStreamEvent` object to `streams:StreamEvent` object.
+# + event - The `streams:SnapshottableStreamEvent` object to be converted to a stream event.
+# + return - The converted `streams:StreamEvent` object.
+public function toStreamEvent(SnapshottableStreamEvent event) returns StreamEvent {
+    StreamEvent se = new(event.data, event.eventType, event.timestamp);
+    return se;
 }

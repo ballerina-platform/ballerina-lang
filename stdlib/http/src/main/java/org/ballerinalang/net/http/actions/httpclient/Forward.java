@@ -32,6 +32,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Locale;
 
+import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAvailability;
 
 /**
  * {@code Forward} action can be used to invoke an http call with incoming request httpVerb.
@@ -63,11 +64,13 @@ public class Forward extends AbstractHTTPAction {
 
         if (HttpUtil.isEntityDataSourceAvailable(requestStruct)) {
             HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestStruct);
-            prepareOutboundRequest(context, path, outboundRequestMsg);
+            prepareOutboundRequest(context, path, outboundRequestMsg,
+                                   !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
             outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD,
                     BLangConnectorSPIUtil.toStruct(requestStruct).getStringField(HttpConstants.HTTP_REQUEST_METHOD));
         } else {
-            prepareOutboundRequest(context, path, outboundRequestMsg);
+            prepareOutboundRequest(context, path, outboundRequestMsg,
+                                   !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
             String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
             outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
         }

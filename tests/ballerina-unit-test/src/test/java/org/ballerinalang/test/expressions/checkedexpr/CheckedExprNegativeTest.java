@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.expressions.checkedexpr;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -32,17 +32,17 @@ public class CheckedExprNegativeTest {
     public void testSemanticErrors() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 5);
-        BAssertUtil.validateError(compile, 0, "invalid usage of the checked expression " +
+        Assert.assertEquals(compile.getErrorCount(), 5, compile.toString());
+        BAssertUtil.validateError(compile, 0, "invalid usage of the 'check' expression " +
                 "operator: no expression type is equivalent to error type", 11, 25);
-        BAssertUtil.validateError(compile, 1, "invalid usage of the checked expression " +
+        BAssertUtil.validateError(compile, 1, "invalid usage of the 'check' expression " +
                 "operator: all expression types are equivalent to error type", 16, 25);
-        BAssertUtil.validateError(compile, 2, "invalid usage of the checked expression " +
+        BAssertUtil.validateError(compile, 2, "invalid usage of the 'check' expression " +
                 "operator: all expression types are equivalent to error type", 30, 25);
-        BAssertUtil.validateError(compile, 3, "invalid usage of the checked expression " +
-                "operator: no expression type is equivalent to error type", 39, 25);
-        BAssertUtil.validateError(compile, 4, "invalid usage of the checked expression " +
-                "operator: no error type return in enclosing invokable", 49, 25);
+        BAssertUtil.validateError(compile, 3, "incompatible types: expected 'string|error'" +
+                                              ", found 'string|int'", 39, 25);
+        BAssertUtil.validateError(compile, 4, "invalid usage of the 'check' expression " +
+                "operator: no error type return in enclosing invokable", 49, 19);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class CheckedExprNegativeTest {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_within_resource_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 1);
-        BAssertUtil.validateError(compile, 0, "invalid usage of the checked expression " +
-                "operator: no error type return in enclosing invokable", 28, 28);
+        BAssertUtil.validateError(compile, 0, "invalid usage of the 'check' expression " +
+                "operator: no error type return in enclosing invokable", 28, 22);
     }
 }

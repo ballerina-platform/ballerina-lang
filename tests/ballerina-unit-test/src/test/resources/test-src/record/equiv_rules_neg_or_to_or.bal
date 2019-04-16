@@ -53,7 +53,7 @@ function testMismatchingRestField1() {
 type Person4 record {
     string name;
     int age;
-    any...
+    any...;
 };
 
 function testMismatchingRestField2() {

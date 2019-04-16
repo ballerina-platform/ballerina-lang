@@ -17,19 +17,19 @@ public type person object {
 };
 
 
-function person.getName() returns (string) {
+public function person.getName() returns (string) {
     return self.name;
 }
 
-function person.getAge() returns (int) {
+public function person.getAge() returns (int) {
     return self.age;
 }
 
-function person.getSSN() returns (string) {
+public function person.getSSN() returns (string) {
     return self.ssn;
 }
 
-function person.setSSN(string s) {
+public function person.setSSN(string s) {
     self.ssn = s;
 }
 
@@ -58,23 +58,23 @@ public type employee object {
     public function getEmployeeId() returns (int);
 };
 
-function employee.getName() returns (string) {
+public function employee.getName() returns (string) {
     return self.name;
 }
 
-function employee.getAge() returns (int) {
+public function employee.getAge() returns (int) {
     return self.age;
 }
 
-function employee.getSSN() returns (string) {
+public function employee.getSSN() returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee.setSSN(string s) {
+public function employee.setSSN(string s) {
     self.ssn = s;
 }
 
-function employee.getEmployeeId() returns (int) {
+public function employee.getEmployeeId() returns (int) {
     return self.employeeId;
 }
 
@@ -89,6 +89,6 @@ public type BarObj object {
     }
 };
 
-function BarObj.getName() returns (string) {
+public function BarObj.getName() returns (string) {
     return self.name;
 }

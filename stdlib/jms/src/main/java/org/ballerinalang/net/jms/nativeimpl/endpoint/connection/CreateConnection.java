@@ -27,8 +27,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.LoggingExceptionListener;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
@@ -42,9 +42,10 @@ import javax.jms.JMSException;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jms",
+        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
         functionName = "createConnection",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection", structPackage = "ballerina/jms"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.CONNECTION_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ConnectionConfiguration")
         },
         isPublic = true
@@ -54,16 +55,16 @@ public class CreateConnection implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
         Struct connectionBObject = BallerinaAdapter.getReceiverObject(context);
-        Struct connectionConfig = connectionBObject.getStructField(Constants.CONNECTION_CONFIG);
+        Struct connectionConfig = connectionBObject.getStructField(JmsConstants.CONNECTION_CONFIG);
 
-        Connection connection = JMSUtils.createConnection(connectionConfig);
+        Connection connection = JmsUtils.createConnection(connectionConfig);
         try {
             connection.setExceptionListener(new LoggingExceptionListener());
             connection.start();
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error occurred while starting connection.", context, e);
         }
-        connectionBObject.addNativeData(Constants.JMS_CONNECTION, connection);
+        connectionBObject.addNativeData(JmsConstants.JMS_CONNECTION, connection);
     }
 
     @Override

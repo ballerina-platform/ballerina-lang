@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.IntermediateCollectionType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.stream.Collectors;
@@ -52,6 +53,11 @@ public class BIntermediateCollectionType extends BType implements IntermediateCo
     @Override
     public TypeKind getKind() {
         return TypeKind.INTERMEDIATE_COLLECTION;
+    }
+
+    @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override

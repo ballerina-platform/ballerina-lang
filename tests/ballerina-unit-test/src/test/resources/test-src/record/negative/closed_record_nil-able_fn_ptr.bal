@@ -14,12 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person record {
+type Person record {|
     string fname = "";
     string lname = "";
     (function (string, string) returns string)? getName = ();
-    !...
-};
+|};
 
 function testNilableFuncPtrInvocation() {
     Person bob = {fname:"bob", lname:"white"};

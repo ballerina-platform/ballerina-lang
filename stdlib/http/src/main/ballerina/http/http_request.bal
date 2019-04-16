@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
 
@@ -27,6 +26,7 @@ import ballerina/mime;
 # + extraPathInfo - Additional information associated with the URL provided by the client
 # + cacheControl - The cache-control directives for the request. This needs to be explicitly initialized if intending
 #                  on utilizing HTTP caching.
+# + mutualSslHandshake - A record providing mutual ssl handshake results.
 public type Request object {
 
     public string rawPath = "";
@@ -35,43 +35,46 @@ public type Request object {
     public string userAgent = "";
     public string extraPathInfo = "";
     public RequestCacheControl? cacheControl = ();
+    public MutualSslHandshake? mutualSslHandshake = ();
 
     private mime:Entity entity;
     private boolean dirtyRequest;
+    boolean noEntityBody;
 
     public function __init() {
         self.dirtyRequest = false;
+        self.noEntityBody = false;
         self.entity = self.createNewEntity();
     }
 
     # Create a new `Entity` and link it with the request.
     #
     # + return - Newly created `Entity` that has been set to the request
-    extern function createNewEntity() returns mime:Entity;
+    function createNewEntity() returns mime:Entity = external;
 
     # Sets the provided `Entity` to the request.
     #
     # + e - The `Entity` to be set to the request
-    public extern function setEntity(mime:Entity e);
+    public function setEntity(mime:Entity e) = external;
 
     # Gets the query parameters of the request, as a map.
     #
     # + return - String map of query params
-    public extern function getQueryParams() returns map<string>;
+    public function getQueryParams() returns map<string> = external;
 
     # Gets the matrix parameters of the request.
     #
     # + path - Path to the location of matrix parameters
     # + return - A map of matrix paramters which can be found for the given path
-    public extern function getMatrixParams(string path) returns map<any>;
+    public function getMatrixParams(string path) returns map<any> = external;
 
     # Gets the `Entity` associated with the request.
     #
     # + return - The `Entity` of the request. An `error` is returned, if entity construction fails
-    public extern function getEntity() returns mime:Entity|error;
+    public function getEntity() returns mime:Entity|error = external;
 
     //Gets the `Entity` from the request without the body. This function is exposed only to be used internally.
-    extern function getEntityWithoutBody() returns mime:Entity;
+    function getEntityWithoutBody() returns mime:Entity = external;
 
     # Checks whether the requested header key exists in the header map.
     #
@@ -151,12 +154,6 @@ public type Request object {
     # + return - The `text` payload or `error` in case of errors
     public function getTextPayload() returns string|error;
 
-    # Gets the request payload as a `string`. Content type is not checked during payload construction which
-    # makes this different from `getTextPayload()` function.
-    #
-    # + return - The string representation of the message payload or `error` in case of errors
-    public function getPayloadAsString() returns string|error;
-
     # Gets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
     # `getBodyParts()`.
     #
@@ -168,7 +165,7 @@ public type Request object {
     # + return - The byte[] representation of the message payload or `error` in case of errors
     public function getBinaryPayload() returns byte[]|error;
 
-    # Gets the form parameters from the HTTP request as a `map`.
+    # Gets the form parameters from the HTTP request as a `map` when content type is application/x-www-form-urlencoded.
     #
     # + return - The map of form params or `error` in case of errors
     public function getFormParams() returns map<string>|error;
@@ -237,96 +234,112 @@ public type Request object {
 
     // For use within the module. Takes the Cache-Control header and parses it to a RequestCacheControl object.
     function parseCacheControlHeader();
+
+    # Check whether the entity body is present.
+    #
+    # + return - a boolean indicating entity body availability
+    function checkEntityBodyAvailability() returns boolean = external;
 };
 
 /////////////////////////////////
 /// Ballerina Implementations ///
 /////////////////////////////////
 
-function Request.hasHeader(string headerName) returns boolean {
+public function Request.hasHeader(string headerName) returns boolean {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.hasHeader(headerName);
 }
 
-function Request.getHeader(string headerName) returns string {
+public function Request.getHeader(string headerName) returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
 
-function Request.getHeaders(string headerName) returns string[] {
+public function Request.getHeaders(string headerName) returns string[] {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
 
-function Request.setHeader(string headerName, string headerValue) {
+public function Request.setHeader(string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(headerName, headerValue);
 }
 
-function Request.addHeader(string headerName, string headerValue) {
+public function Request.addHeader(string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.addHeader(headerName, headerValue);
 }
 
-function Request.removeHeader(string key) {
+public function Request.removeHeader(string key) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeHeader(key);
 }
 
-function Request.removeAllHeaders() {
+public function Request.removeAllHeaders() {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeAllHeaders();
 }
 
-function Request.getHeaderNames() returns string[] {
+public function Request.getHeaderNames() returns string[] {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaderNames();
 }
 
-function Request.expects100Continue() returns boolean {
+public function Request.expects100Continue() returns boolean {
     return self.hasHeader(EXPECT) ? self.getHeader(EXPECT) == "100-continue" : false;
 }
 
-function Request.setContentType(string contentType) returns error? {
+public function Request.setContentType(string contentType) returns error? {
     mime:Entity entity = self.getEntityWithoutBody();
     check entity.setContentType(contentType);
     return;
 }
 
-function Request.getContentType() returns string {
+public function Request.getContentType() returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getContentType();
 }
 
-function Request.getJsonPayload() returns json|error {
+public function Request.getJsonPayload() returns json|error {
     return self.getEntity()!getJson();
 }
 
-function Request.getXmlPayload() returns xml|error {
+public function Request.getXmlPayload() returns xml|error {
     return self.getEntity()!getXml();
 }
 
-function Request.getTextPayload() returns string|error {
+public function Request.getTextPayload() returns string|error {
     return self.getEntity()!getText();
 }
 
-function Request.getPayloadAsString() returns string|error {
-    return self.getEntity()!getBodyAsString();
-}
-
-function Request.getBinaryPayload() returns byte[]|error {
+public function Request.getBinaryPayload() returns byte[]|error {
     return self.getEntity()!getByteArray();
 }
 
-function Request.getByteChannel() returns io:ReadableByteChannel|error {
+public function Request.getByteChannel() returns io:ReadableByteChannel|error {
     return self.getEntity()!getByteChannel();
 }
 
-function Request.getBodyParts() returns mime:Entity[]|error {
+public function Request.getBodyParts() returns mime:Entity[]|error {
     return self.getEntity()!getBodyParts();
 }
 
-function Request.getFormParams() returns map<string>|error {
+public function Request.getFormParams() returns map<string>|error {
+    var mimeEntity = self.getEntity();
+    if (mimeEntity is mime:Entity) {
+        if (!mimeEntity.hasHeader(mime:CONTENT_TYPE)) {
+            string errorMessage = "Content type header is not available";
+            error typeError = error(mime:MIME_ERROR_CODE, { message : errorMessage });
+            return typeError;
+        }
+        if (!mime:APPLICATION_FORM_URLENCODED.equalsIgnoreCase(mimeEntity.getHeader(mime:CONTENT_TYPE))) {
+            string errorMessage = "Invalid content type : expected 'application/x-www-form-urlencoded'";
+            error typeError = error(mime:MIME_ERROR_CODE, { message : errorMessage });
+            return typeError;
+        }
+    } else {
+        return mimeEntity;
+    }
     var formData = self.getEntity()!getText();
     map<string> parameters = {};
     if (formData is string) {
@@ -346,55 +359,55 @@ function Request.getFormParams() returns map<string>|error {
                 entryIndex = entryIndex + 1;
             }
         }
-    } else if (formData is error) {
+    } else {
         return formData;
     }
     return parameters;
 }
 
-function Request.setJsonPayload(json payload, string contentType = "application/json") {
+public function Request.setJsonPayload(json payload, string contentType = "application/json") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setJson(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request.setXmlPayload(xml payload, string contentType = "application/xml") {
+public function Request.setXmlPayload(xml payload, string contentType = "application/xml") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setXml(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request.setTextPayload(string payload, string contentType = "text/plain") {
+public function Request.setTextPayload(string payload, string contentType = "text/plain") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setText(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request.setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
+public function Request.setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setByteArray(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request.setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
+public function Request.setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setBodyParts(bodyParts, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request.setFileAsPayload(string filePath, @sensitive string contentType = "application/octet-stream") {
+public function Request.setFileAsPayload(string filePath, @sensitive string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setFileAsEntityBody(filePath, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request.setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
+public function Request.setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setByteChannel(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request.setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload) {
+public function Request.setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload) {
     if (payload is string) {
         self.setTextPayload(payload);
     } else if (payload is xml) {
@@ -405,8 +418,29 @@ function Request.setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:E
         self.setBinaryPayload(payload);
     } else if (payload is io:ReadableByteChannel) {
         self.setByteChannel(payload);
-    } else if (payload is mime:Entity[]) {
+    } else {
         self.setBodyParts(payload);
     }
 }
 
+# A record for providing mutual ssl handshake results.
+#
+# + status - Status of the handshake.
+public type MutualSslHandshake record {|
+    MutualSslStatus status = ();
+|};
+
+# Defines the possible values for the mutual ssl status.
+#
+# `passed`: Mutual SSL handshake is succesful.
+# `failed`: Mutual SSL handshake has failed.
+public type MutualSslStatus PASSED | FAILED | ();
+
+# Mutual SSL handshake is succesful.
+public const PASSED = "passed";
+
+# Mutual SSL handshake has failed.
+public const FAILED = "failed";
+
+# Not a mutual ssl connection.
+public const NONE = ();

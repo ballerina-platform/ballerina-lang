@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.compiler.backend.llvm.NativeGen;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
@@ -71,6 +70,10 @@ public class BuildCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
     private boolean dumpLLVMIR;
+
+    @CommandLine.Option(names = {"--jvmTarget"}, hidden = true,
+            description = "compile Ballerina program to a jvm class")
+    private boolean jvmTarget;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -142,8 +145,9 @@ public class BuildCommand implements BLauncherCmd {
             } else if (Files.isDirectory(sourceRootPath)) { // If the source is a module from a project
                 // Checks if the source is a module and if its inside a project (with a .ballerina folder)
                 if (Files.isDirectory(resolvedFullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
-                    throw LauncherUtils.createLauncherException("did you mean to build the module ? If so build " +
-                                                                        "from the project folder");
+                    throw LauncherUtils.createLauncherException("you are trying to build a module that is not inside " +
+                            "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                            "project and then build the module.");
                 }
                 if (Files.isRegularFile(resolvedFullPath) && !sourcePath.toString().endsWith(BLANG_SRC_FILE_SUFFIX)) {
                     throw LauncherUtils.createLauncherException("only modules and " + BLANG_SRC_FILE_SUFFIX + " " +
@@ -177,8 +181,14 @@ public class BuildCommand implements BLauncherCmd {
                                                                     "directory or a file  with a \'"
                                                             + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
-            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-                    offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag);
+
+            if (jvmTarget) {
+                BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
+                        offline, lockEnabled, skiptests, experimentalFlag, dumpBIR);
+            } else {
+                BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
+                        offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag);
+            }
         }
         Runtime.getRuntime().exit(0);
     }
@@ -229,13 +239,6 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     private void genNativeBinary(Path projectDirPath, List<String> argList) {
-        if (argList == null || argList.size() != 1) {
-            throw LauncherUtils.createUsageExceptionWithHelp("no Ballerina program given");
-        }
-        String programName = argList.get(0);
-
-        // TODO Check whether we need to remove last slash from program name.
-        NativeGen.genBinaryExecutable(projectDirPath, programName, outputFileName,
-                offline, lockEnabled, dumpBIR, dumpLLVMIR);
+        throw LauncherUtils.createLauncherException("llvm native generation is not supported");
     }
 }

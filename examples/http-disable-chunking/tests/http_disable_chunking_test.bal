@@ -24,7 +24,7 @@ function testFunc() {
     var response = httpEndpoint->get("/chunkingSample");
     if (response is http:Response) {
         test:assertEquals(response.getJsonPayload(), response1);
-    } else if (response is error) {
+    } else {
         test:assertFail(msg = "Failed to call the endpoint:");
     }
 }

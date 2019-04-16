@@ -134,13 +134,16 @@ public class TableJSONDataSource implements JSONDataSource {
                 jsonObject.put(name, getBString(df.getString(index)));
                 break;
             case INT:
-                jsonObject.put(name, new BInteger(df.getInt(index)));
+                Long intVal = df.getInt(index);
+                jsonObject.put(name, intVal == null ? null : new BInteger(intVal));
                 break;
             case FLOAT:
-                jsonObject.put(name, new BFloat(df.getFloat(index)));
+                Double floatVal = df.getFloat(index);
+                jsonObject.put(name, floatVal == null ? null : new BFloat(floatVal));
                 break;
             case BOOLEAN:
-                jsonObject.put(name, new BBoolean(df.getBoolean(index)));
+                Boolean boolVal = df.getBoolean(index);
+                jsonObject.put(name, boolVal == null ? null : new BBoolean(boolVal));
                 break;
             case BLOB:
                 jsonObject.put(name, getBString(df.getBlob(index)));
@@ -149,7 +152,7 @@ public class TableJSONDataSource implements JSONDataSource {
                 jsonObject.put(name, getDataArray(df, index));
                 break;
             case JSON:
-                jsonObject.put(name, JsonParser.parse(df.getString(index)));
+                jsonObject.put(name, df.getString(index) == null ? null : JsonParser.parse(df.getString(index)));
                 break;
             case OBJECT:
             case RECORD:

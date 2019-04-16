@@ -55,7 +55,7 @@ export function genCheckKindUtilCode(modelNames: string[]) {
     return `
         // This is an auto-generated file. Do not edit.
         // Run 'BALLERINA_HOME="your/ballerina/home" npm run gen-ast-utils' to generate.
-        import { ASTNode } from "./ast-interfaces";
+        import * as Ballerina from "./ast-interfaces";
 
         export class ASTKindChecker {
             ${kindChecks.join("\n")}
@@ -177,7 +177,7 @@ function genVisitFunctionCode(nodeKind: string) {
 
 function genCheckKindFunctionCode(nodeKind: string) {
     return `
-        public static is${nodeKind}(node: ASTNode) {
+        public static is${nodeKind}(node: Ballerina.ASTNode): node is Ballerina.${nodeKind} {
             return node.kind === "${nodeKind}";
         }
     `;

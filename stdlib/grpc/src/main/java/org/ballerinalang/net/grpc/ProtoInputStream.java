@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static com.google.protobuf.CodedOutputStream.DEFAULT_BUFFER_SIZE;
-
 /**
  * Protobuf input stream.
  * <p>
@@ -104,10 +102,6 @@ class ProtoInputStream extends InputStream implements Drainable, KnownLength {
         int written;
         if (message != null) {
             written = message.getSerializedSize();
-
-            if (written > DEFAULT_BUFFER_SIZE) {
-                written = DEFAULT_BUFFER_SIZE;
-            }
             final CodedOutputStream codedOutput =
                     CodedOutputStream.newInstance(target, written);
             message.writeTo(codedOutput);

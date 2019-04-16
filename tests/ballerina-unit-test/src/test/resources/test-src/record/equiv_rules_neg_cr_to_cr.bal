@@ -14,27 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type AnotherPerson record {
+type AnotherPerson record {|
     string name;
     int age;
-    !...
-};
+|};
 
-type Person1 record {
+type Person1 record {|
     string name;
-    !...
-};
+|};
 
 function testMissingRequiredField1() {
     Person1 p = {name:"John"};
     AnotherPerson ap = p;
 }
 
-type Person2 record {
+type Person2 record {|
     string name;
     int age?;
-    !...
-};
+|};
 
 function testMissingRequiredField2() {
     Person2 p = {name:"John"};

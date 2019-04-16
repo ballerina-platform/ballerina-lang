@@ -50,13 +50,13 @@ public class BallerinaServiceConstructorExpressionImpl extends BallerinaExpressi
   @Override
   @Nullable
   public BallerinaServiceBody getServiceBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaServiceBody.class);
+    return findChildByClass(BallerinaServiceBody.class);
   }
 
   @Override
   @NotNull
   public PsiElement getService() {
-    return notNullChild(findChildByType(SERVICE));
+    return findNotNullChildByType(SERVICE);
   }
 
 }

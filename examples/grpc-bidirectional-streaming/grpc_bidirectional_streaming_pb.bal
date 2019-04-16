@@ -3,18 +3,13 @@ import ballerina/io;
 
 // Generated non-blocking client endpoint based on the service definition.
 public type ChatClient client object {
-    private grpc:Client grpcClient = new;
-    private grpc:ClientEndpointConfig config = {};
-    private string url;
+    private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
-        self.config = config ?: {};
-        self.url = url;
         // Initialize client endpoint.
-        grpc:Client c = new;
-        c.init(self.url, self.config);
+        grpc:Client c = new(url, config = config);
         error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR,
-                                                    getDescriptorMap());
+                                                            getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -22,11 +17,10 @@ public type ChatClient client object {
         }
     }
 
-
     remote function chat(service msgListener, grpc:Headers? headers = ())
-                                    returns (grpc:StreamingClient|error)  {
-        return self.grpcClient->streamingExecute("Chat/chat", msgListener,
-                                                    headers = headers);
+                        returns (grpc:StreamingClient|error)  {
+        return self.grpcClient->streamingExecute("Chat/chat",
+                                                msgListener, headers = headers);
     }
 };
 

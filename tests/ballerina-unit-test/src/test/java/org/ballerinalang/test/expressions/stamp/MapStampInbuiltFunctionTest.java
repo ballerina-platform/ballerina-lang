@@ -17,9 +17,6 @@
 */
 package org.ballerinalang.test.expressions.stamp;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BJSONType;
@@ -31,6 +28,9 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -530,8 +530,35 @@ public class MapStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
                             "incompatible stamp operation: 'map<string>' value cannot be stamped as " +
                                     "'EmployeeClosedRecord'");
+    }
+
+    @Test(description = "Test stamping to record when value has cyclic reference.")
+    public void testStampRecordToRecordWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testStampRecordToRecordWithCyclicValueReferences");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'Person' value has cyclic reference");
+    }
+
+    @Test(description = "Test stamping to map when value has cyclic reference.")
+    public void testStampRecordToMapWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testStampRecordToMapWithCyclicValueReferences");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'Person' value has cyclic reference");
+    }
+
+    @Test(description = "Test stamping to json when value has cyclic reference.")
+    public void testStampRecordToJsonWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testStampRecordToJsonWithCyclicValueReferences");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'Person' value has cyclic reference");
     }
 }

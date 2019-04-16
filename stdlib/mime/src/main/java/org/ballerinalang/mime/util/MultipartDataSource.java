@@ -21,6 +21,7 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -36,6 +37,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
@@ -221,8 +223,8 @@ public class MultipartDataSource implements BValue {
     }
 
     @Override
-    public void stamp(BType type) {
-
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
+        
     }
 
     @Override

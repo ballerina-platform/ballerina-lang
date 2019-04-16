@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -35,8 +35,8 @@ public class ObjectWithPrivateFieldsNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-private-fields-01-negative.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
 
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeAssertionError {\"message\":\"assertion error:" +
-                " expected 'userB', found 'org.foo:user'\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types:" +
+                " 'org.foo:user' cannot be cast to 'userB'\"}");
     }
 
     @Test(description = "Test private field access")
@@ -75,7 +75,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testPrivateObjAccess2() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/object", "private-field2");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 8);
+        Assert.assertEquals(compileResult.getErrorCount(), 7);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         String expectedErrMsg2 = "attempt to expose non-public symbol ";
 
@@ -84,9 +84,8 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateError(compileResult, 2, expectedErrMsg2 + "'PrivatePerson'", 42, 73);
         BAssertUtil.validateError(compileResult, 3, expectedErrMsg2 + "'FooFamily'", 16, 5);
         BAssertUtil.validateError(compileResult, 4, expectedErrMsg1 + "'FooFamily'", 5, 13);
-        BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'FooFamily'", 10, 13);
-        BAssertUtil.validateError(compileResult, 6, expectedErrMsg1 + "'address'", 15, 13);
-        BAssertUtil.validateError(compileResult, 7, "undefined field 'address' in object 'org.foo.baz:FooEmployee'",
+        BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'address'", 15, 13);
+        BAssertUtil.validateError(compileResult, 6, "undefined field 'address' in object 'org.foo.baz:FooEmployee'",
                 15, 13);
     }
 }

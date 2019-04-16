@@ -1,15 +1,6 @@
 Person? p1 = new;
 Person? p2 = new ();
 
-function test() {
-    Person? p3 = new;
-    Person? p4 = new();
-    Person? p5 = ();
-    p5 = new;
-    Person? p6 = ();
-    p6 = new ();
-}
-
 type Person object {
     public int age = 0;
 };
@@ -26,3 +17,17 @@ type Employee object {
         self.p6 = new();
     }
 };
+
+function getEmployeeInstance() returns Employee {
+    return new Employee();
+}
+
+function getPersonInstances() returns (Person?, Person?, Person?, Person?, Person?, Person?) {
+    Person? p3 = new;
+    Person? p4 = new();
+    Person? p5 = ();
+    p5 = new;
+    Person? p6 = ();
+    p6 = new ();
+    return (p1, p2, p3, p4, p5, p6);
+}

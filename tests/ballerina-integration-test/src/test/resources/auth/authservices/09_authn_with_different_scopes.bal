@@ -17,13 +17,15 @@
 import ballerina/http;
 
 http:AuthProvider jwtAuthProvider3 = {
-    scheme: "jwt",
-    issuer: "ballerina",
-    audience: "ballerina",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    scheme: http:JWT_AUTH,
+    config: {
+        issuer: "ballerina",
+        audience: ["ballerina"],
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 };
 
@@ -45,6 +47,6 @@ listener http:Listener listener09 = new(9100, config = {
 service echo9 on listener09 {
 
     resource function test9(http:Caller caller, http:Request req) {
-        _ = caller->respond(());
+        checkpanic caller->respond(());
     }
 }

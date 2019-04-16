@@ -48,6 +48,8 @@ public enum Snippet {
 
     DEF_SERVICE_WEBSUB(SnippetGenerator.getWebSubServiceDefSnippet()),
 
+    DEF_SERVICE_GRPC(SnippetGenerator.getGRPCServiceDefSnippet()),
+
     DEF_WORKER(SnippetGenerator.getWorkerDeclarationSnippet()),
 
     DEF_ERROR(SnippetGenerator.getErrorDefinitionSnippet()),
@@ -65,8 +67,6 @@ public enum Snippet {
     KW_CHECK(SnippetGenerator.getCheckKeywordSnippet()),
 
     KW_WAIT(SnippetGenerator.getWaitKeywordSnippet()),
-
-    KW_EXTERN(SnippetGenerator.getExternKeywordSnippet()),
 
     KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),
 
@@ -95,6 +95,10 @@ public enum Snippet {
 
     STMT_IF(SnippetGenerator.getIfStatementSnippet()),
 
+    STMT_ELSE_IF(SnippetGenerator.getElseIfStatementSnippet()),
+
+    STMT_ELSE(SnippetGenerator.getElseStatementSnippet()),
+
     STMT_LOCK(SnippetGenerator.getLockStatementSnippet()),
 
     STMT_MATCH(SnippetGenerator.getMatchStatementSnippet()),
@@ -122,6 +126,8 @@ public enum Snippet {
 
     ITR_COUNT(SnippetGenerator.getIterableCountSnippet()),
 
+    ITR_SELECT(SnippetGenerator.getIterableSelectSnippet()),
+
     ITR_MIN(SnippetGenerator.getIterableMinSnippet()),
 
     ITR_MAX(SnippetGenerator.getIterableMaxSnippet()),
@@ -141,6 +147,16 @@ public enum Snippet {
 
     BUILTIN_STAMP(SnippetGenerator.getBuiltinStampSnippet()),
 
+    BUILTIN_HAS_KEY(SnippetGenerator.getBuiltinHasKeySnippet()),
+
+    BUILTIN_REMOVE(SnippetGenerator.getBuiltinRemoveSnippet()),
+
+    BUILTIN_VALUES(SnippetGenerator.getBuiltinValuesSnippet()),
+
+    BUILTIN_KEYS(SnippetGenerator.getBuiltinKeysSnippet()),
+
+    BUILTIN_CLEAR(SnippetGenerator.getBuiltinClearSnippet()),
+
     BUILTIN_CONVERT(SnippetGenerator.getBuiltinConvertSnippet()),
 
     BUILTIN_IS_NAN(SnippetGenerator.getBuiltinIsNaNSnippet()),
@@ -148,6 +164,10 @@ public enum Snippet {
     BUILTIN_IS_FINITE(SnippetGenerator.getBuiltinIsFiniteSnippet()),
 
     BUILTIN_IS_INFINITE(SnippetGenerator.getBuiltinIsInFiniteSnippet()),
+
+    BUILTIN_DETAIL(SnippetGenerator.getBuiltinDetailSnippet()),
+
+    BUILTIN_REASON(SnippetGenerator.getBuiltinReasonSnippet()),
     
     // Iterable operators' lambda function parameters
     ITR_ON_MAP_PARAMS(SnippetGenerator.getIterableOnMapParamSnippet()),

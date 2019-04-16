@@ -1,0 +1,24 @@
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+dependencies {
+    implementation 'org.slf4j:slf4j-simple:1.7.22'
+    testCompile 'org.testng:testng:6.13.1'
+}
+
+description = 'Ballerina - Streaming - Siddhi Query API'
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
+spotbugsMain {
+    //TODO: remove
+    ignoreFailures true
+}
+
+spotbugsTest {
+    //TODO: remove
+    ignoreFailures true
+}

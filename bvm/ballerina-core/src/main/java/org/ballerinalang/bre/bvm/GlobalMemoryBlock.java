@@ -17,12 +17,14 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.BLangConstants;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -82,6 +84,11 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     @Override
     public BStructureType getType() {
         return structType;
+    }
+
+    @Override
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
+        
     }
 
     @Override

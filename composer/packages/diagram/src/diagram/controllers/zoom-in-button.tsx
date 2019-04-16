@@ -1,5 +1,5 @@
 import React, { StatelessComponent } from "react";
-import { Button, Icon } from "semantic-ui-react";
+import { Button, Icon, Popup } from "semantic-ui-react";
 import { DiagramContext } from "../diagram-context";
 
 export const ZoomInButton: StatelessComponent<{}> = () => {
@@ -7,13 +7,20 @@ export const ZoomInButton: StatelessComponent<{}> = () => {
         <DiagramContext.Consumer>
             {({ zoomIn, hasSyntaxErrors }) => {
                 return (
-                    <Button
-                        icon
-                        onClick={zoomIn}
-                        disabled={hasSyntaxErrors}
-                    >
-                        <Icon className="fw fw-zoom-in" title="Zoom In" />
-                    </Button>
+                    <Popup
+                        trigger={
+                            <Button
+                                icon
+                                onClick={zoomIn}
+                                disabled={hasSyntaxErrors}
+                            >
+                                <Icon className="fw fw-zoom-in" />
+                            </Button>
+                        }
+                        content="Zoom In"
+                        size="mini"
+                        inverted
+                    />
                 );
             }}
         </DiagramContext.Consumer>

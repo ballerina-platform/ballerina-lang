@@ -29,6 +29,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -108,34 +109,38 @@ public class TableIterator implements DataIterator {
     @Override
     public String getString(int columnIndex) {
         try {
-            return rs.getString(columnIndex);
+            String val = rs.getString(columnIndex);
+            return rs.wasNull() ? null : val;
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public long getInt(int columnIndex) {
+    public Long getInt(int columnIndex) {
         try {
-            return rs.getLong(columnIndex);
+            long val = rs.getLong(columnIndex);
+            return rs.wasNull() ? null : val;
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public double getFloat(int columnIndex) {
+    public Double getFloat(int columnIndex) {
         try {
-            return rs.getDouble(columnIndex);
+            double val = rs.getDouble(columnIndex);
+            return rs.wasNull() ? null : val;
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public boolean getBoolean(int columnIndex) {
+    public Boolean getBoolean(int columnIndex) {
         try {
-            return rs.getBoolean(columnIndex);
+            boolean val = rs.getBoolean(columnIndex);
+            return rs.wasNull() ? null : val;
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
@@ -145,8 +150,7 @@ public class TableIterator implements DataIterator {
     public String getBlob(int columnIndex) {
         try {
             Blob bValue = rs.getBlob(columnIndex);
-            byte[] bdata = bValue.getBytes(1, (int) bValue.length());
-            return new String(bdata);
+            return rs.wasNull() ? null : new String(bValue.getBytes(1, (int) bValue.length()));
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
@@ -157,7 +161,7 @@ public class TableIterator implements DataIterator {
         Object[] objArray = null;
         try {
             Struct data = (Struct) rs.getObject(columnIndex);
-            if (data != null) {
+            if (!rs.wasNull() && data != null) {
                 objArray = data.getAttributes();
             }
         } catch (SQLException e) {
@@ -206,6 +210,10 @@ public class TableIterator implements DataIterator {
                     case TypeTags.FLOAT_TAG:
                         double dValue = rs.getDouble(index);
                         value = new BFloat(dValue);
+                        break;
+                    case TypeTags.DECIMAL_TAG:
+                        BigDecimal decimalValue = rs.getBigDecimal(index);
+                        value = new BDecimal(decimalValue);
                         break;
                     case TypeTags.BOOLEAN_TAG:
                         boolean boolValue = rs.getBoolean(index);
@@ -312,11 +320,11 @@ public class TableIterator implements DataIterator {
             }
             return doubleDataArray;
         } else if ((firstNonNullElement instanceof BigDecimal)) {
-            BValueArray doubleDataArray = new BValueArray(BTypes.typeFloat);
+            BValueArray decimalDataArray = new BValueArray(BTypes.typeDecimal);
             for (int i = 0; i < dataArray.length; i++) {
-                doubleDataArray.add(i, ((BigDecimal) dataArray[i]).doubleValue());
+                decimalDataArray.add(i, new BDecimal((BigDecimal) dataArray[i]));
             }
-            return doubleDataArray;
+            return decimalDataArray;
         } else {
             return null;
         }
@@ -356,10 +364,9 @@ public class TableIterator implements DataIterator {
                 refValueArray.add(i, dataArray[i] != null ? new BFloat((Double) dataArray[i]) : null);
             }
         } else if (firstNonNullElement instanceof BigDecimal) {
-            refValueArray = createEmptyRefValueArray(BTypes.typeFloat, length);
+            refValueArray = createEmptyRefValueArray(BTypes.typeDecimal, length);
             for (int i = 0; i < length; i++) {
-                refValueArray
-                        .add(i, dataArray[i] != null ? new BFloat(((BigDecimal) dataArray[i]).doubleValue()) : null);
+                refValueArray.add(i, dataArray[i] != null ? new BDecimal((BigDecimal) dataArray[i]) : null);
             }
         }
         return refValueArray;

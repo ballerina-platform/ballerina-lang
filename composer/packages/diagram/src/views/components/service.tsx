@@ -1,10 +1,10 @@
 
 import { ASTUtil, Service as ServiceNode } from "@ballerina/ast-model";
-import { getCodePoint } from "@ballerina/font";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { DiagramContext } from "../../diagram/index";
+import { getCodePoint } from "../../utils";
 import { SimpleBBox, ViewState } from "../../view-model/index";
 import { EditableSVGText } from "./editable-svg-text";
 import { SourceLinkedLabel } from "./source-linked-label";

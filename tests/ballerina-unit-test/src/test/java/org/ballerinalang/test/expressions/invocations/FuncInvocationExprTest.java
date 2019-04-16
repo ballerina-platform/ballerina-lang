@@ -17,14 +17,13 @@
 */
 package org.ballerinalang.test.expressions.invocations;
 
-
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -136,9 +135,11 @@ public class FuncInvocationExprTest {
 
     @Test(description = "Test uanry statement with errors")
     public void testUnaryStmtNegativeCases() {
-        Assert.assertEquals(funcInvocationNegative.getErrorCount(), 2);
+        Assert.assertEquals(funcInvocationNegative.getErrorCount(), 3);
         BAssertUtil
                 .validateError(funcInvocationNegative, 0, "incompatible types: expected 'int', found 'string'", 3, 23);
         BAssertUtil.validateError(funcInvocationNegative, 1, "undefined function 'foo'", 11, 5);
+        BAssertUtil.validateError(funcInvocationNegative, 2, "function 'testMyFunc' can not have private visibility",
+                14, 1);
     }
 }

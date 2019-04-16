@@ -94,6 +94,25 @@ public class PackagingNegativeTestCase extends BaseTest {
                 new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
+    @Test(description = "Test pushing a package to central with a reserved org-name")
+    public void testPushWithAReservedOrgName() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("projectWithReservedOrg");
+        initProject(projectPath);
+
+        // Remove org-name from manifest
+        Path manifestFilePath = projectPath.resolve("Ballerina.toml");
+        if (Files.exists(manifestFilePath)) {
+            String content = "[project]\n org-name = \"ballerina\"\n version = \"0.0.2\"";
+            writeToFile(manifestFilePath, content);
+        }
+        String msg = "ballerina: invalid organization name: 'ballerina'. 'ballerina' and 'ballerinax' are reserved " +
+                "organization names that are used by Ballerina";
+
+        String[] clientArgs = {moduleName};
+        balClient.runMain("push", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
+    }
+
     @Test(description = "Test pushing a package to central without any content in the manifest")
     public void testPushWithoutManifest() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("projectWithoutManifest");
@@ -211,6 +230,15 @@ public class PackagingNegativeTestCase extends BaseTest {
         String msg = "no packages found";
         balClient.runMain("search", new String[0], envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Pull a non-existing module")
+    public void testPullNonExistingPackage() throws Exception {
+        String msg = "could not find module natasha/nomodule:*";
+        LogLeecher leecher = new LogLeecher(msg, LogLeecher.LeecherType.ERROR);
+        balClient.runMain("pull", new String[]{"natasha/nomodule"}, envVariables, new String[0],
+                new LogLeecher[]{leecher}, balServer.getServerHome());
+        leecher.waitForText(5000);
     }
 
     @Test(description = "Test install already installed package")

@@ -75,7 +75,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 
 DECIMAL_INTEGER_LITERAL = {DecimalNumeral}
 HEX_INTEGER_LITERAL = {HexNumeral}
-BINARY_INTEGER_LITERAL = {BinaryNumeral}
 
 DecimalNumeral = 0 | {NonZeroDigit} {Digits}?
 Digits = {Digit}+
@@ -90,10 +89,6 @@ DottedDecimalNumber = {DecimalNumeral} "." {Digits} | "." {Digits}
 
 HexDigits = {HexDigit}+
 HexDigit = [0-9a-fA-F]
-
-BinaryNumeral = 0 [bB] {BinaryDigits}
-BinaryDigits = {BinaryDigit}+
-BinaryDigit = [01]
 
 HexadecimalFloatingPointLiteral =  {HexIndicator} {HexFloatingPointNumber}
 HexIndicator = 0 [xX]
@@ -116,10 +111,10 @@ BOOLEAN_LITERAL = "true" | "false"
 // Note - Invalid escaped characters should be annotated at runtime.
 // This is done becuase otherwise the string wont be identified correctly.
 // Also the strings can either be enclosed in single or double quotes or no quotes at all.
-ESCAPE_SEQUENCE = \\ [btnfr\"'\\]
+ESCAPE_SEQUENCE = \\ [btnfr\"'\\] | {UnicodeEscape}
 STRING_CHARACTER =  [^\"] | {ESCAPE_SEQUENCE}
 STRING_CHARACTERS = {STRING_CHARACTER}+
-QUOTED_STRING_LITERAL = \" {STRING_CHARACTERS}? \"?
+QUOTED_STRING_LITERAL = \" {STRING_CHARACTERS}? \"
 
 SYMBOLIC_STRING_LITERAL =  \' {UNDELIMETERED_INITIAL_CHAR} {UNDELIMETERED_FOLLOWING_CHAR}*
 
@@ -172,10 +167,6 @@ STRING_TEMPLATE_LITERAL_END = "`"
 
 DEPRECATED = "deprecated"
 DEPRECATED_TEMPLATE_START = {DEPRECATED} {WHITE_SPACE}* {LEFT_BRACE}
-
-// Todo - Need to add spaces between braces?
-// Note - This is used in checkExpressionEnd() function.
-DOCUMENTATION_TEMPLATE_ATTRIBUTE_END = {RIGHT_BRACE} {RIGHT_BRACE}
 
 EXPRESSION_START = "{{"
 EXPRESSION_END = "}}"
@@ -254,20 +245,10 @@ RETURN_PARAMETER_DOCUMENTATION_START = {HASH} {DOCUMENTATION_SPACE}? {ADD} {DOCU
 DOCUMENTATION_SPACE = [ ]
 
 // MARKDOWN_DOCUMENTATION_MODE
-DEFINITION_REFERERNCE = {REFERENCE_TYPE} {DOCUMENTATION_SPACE}+
-REFERENCE_TYPE = {TYPE}|{SERVICE}|{VARIABLE}|{VAR}|{ANNOTATION}|{MODULE}|{FUNCTION}|{PARAMETER}
-MARKDOWN_DOCUMENTATION_TEXT = {DOCUMENTATION_TEXT_CHARACTER}+
+MARKDOWN_DOCUMENTATION_TEXT = ({DOCUMENTATION_TEXT_CHARACTER} | {DOCUMENTATION_ESCAPED_CHARACTERS})+
 DOCUMENTATION_TEXT_CHARACTER =  [^`\n] | '\\' {BACKTICK}
 DOCUMENTATION_ESCAPED_CHARACTERS = {DOCUMENTATION_SPACE}
 MARKDOWN_DOCUMENTATION_LINE_END = [\n]
-TYPE = "type"
-SERVICE = "service"
-VARIABLE = "variable"
-VAR = "var"
-ANNOTATION = "annotation"
-MODULE = "module"
-FUNCTION = "function"
-PARAMETER = "parameter"
 HASH = "#"
 ADD = "+"
 SUB = "-"
@@ -402,7 +383,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "join"                                      { return JOIN; }
     "json"                                      { return JSON; }
 
-    "lengthof"                                  { return LENGTHOF; }
     "limit"                                     { return LIMIT; }
     "listener"                                  { return LISTENER; }
     "lock"                                      { return LOCK; }
@@ -526,7 +506,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "order"                                     { return ORDER; }
     "where"                                     { return WHERE; }
     "followed"                                  { return FOLLOWED; }
-    "set"                                       { return SET; }
     "for"                                       { inSiddhiTimeScaleQuery = true; return FOR; }
     "window"                                    { return WINDOW; }
     "events"                                    { if(inSiddhiInsertQuery) { inSiddhiInsertQuery = false; return EVENTS; } return IDENTIFIER; }
@@ -562,7 +541,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {BOOLEAN_LITERAL}                           { return BOOLEAN_LITERAL; }
     {DECIMAL_INTEGER_LITERAL}                   { return DECIMAL_INTEGER_LITERAL; }
     {HEX_INTEGER_LITERAL}                       { return HEX_INTEGER_LITERAL; }
-    {BINARY_INTEGER_LITERAL}                    { return BINARY_INTEGER_LITERAL; }
     {QUOTED_STRING_LITERAL}                     { return QUOTED_STRING_LITERAL; }
     {SYMBOLIC_STRING_LITERAL}                   { return SYMBOLIC_STRING_LITERAL; }
 

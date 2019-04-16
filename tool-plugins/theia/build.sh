@@ -1,0 +1,1 @@
+docker build --build-arg ARG_GITHUB_TOKEN=${GITHUB_TOKEN} -t kavith/theia-ballerina:0.99.0-$(date +"%Y%m%d-%H%M") .

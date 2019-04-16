@@ -24,7 +24,6 @@ import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
@@ -47,6 +46,8 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
+import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.util.codegen.CallableUnitInfo.ChannelDetails;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
@@ -69,7 +70,6 @@ import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.WorkerSendInsAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
-import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -85,7 +85,7 @@ import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ProgramFileFormatException;
-import org.wso2.ballerinalang.compiler.TypeCreater;
+import org.wso2.ballerinalang.compiler.TypeCreator;
 import org.wso2.ballerinalang.compiler.TypeSignatureReader;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -171,10 +171,6 @@ public class PackageInfoReader {
             case CP_ENTRY_INTEGER:
                 long longVal = dataInStream.readLong();
                 return new IntegerCPEntry(longVal);
-
-            case CP_ENTRY_BYTE:
-                byte byteVal = dataInStream.readByte();
-                return new ByteCPEntry(byteVal);
 
             case CP_ENTRY_FLOAT:
                 double doubleVal = dataInStream.readDouble();
@@ -419,6 +415,10 @@ public class PackageInfoReader {
                     readRecordInfoEntry(packageInfo, typeDefInfo);
                     packageInfo.addTypeDefInfo(typeDefName, typeDefInfo);
                     break;
+                case TypeTags.ERROR_TAG:
+                    readErrorInfoEntry(packageInfo, typeDefInfo);
+                    packageInfo.addTypeDefInfo(typeDefName, typeDefInfo);
+                    break;
                 case TypeTags.FINITE_TYPE_TAG:
                     readFiniteTypeInfoEntry(packageInfo, typeDefInfo);
                     packageInfo.addTypeDefInfo(typeDefName, typeDefInfo);
@@ -528,6 +528,24 @@ public class PackageInfoReader {
         typeDefInfo.typeInfo = recordInfo;
     }
 
+    private void readErrorInfoEntry(PackageInfo packageInfo, TypeDefInfo typeDefInfo) throws IOException {
+        ErrorTypeInfo errorTypeInfo = new ErrorTypeInfo();
+
+        int reasonTypeCPIndex = dataInStream.readInt();
+        UTF8CPEntry reasonTypeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(reasonTypeCPIndex);
+        errorTypeInfo.setReasonFieldTypeSignature(reasonTypeSigUTF8Entry.getValue());
+
+        int detailTypeCPIndex = dataInStream.readInt();
+        UTF8CPEntry detailTypeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(detailTypeCPIndex);
+        errorTypeInfo.setDetailFieldTypeSignature(detailTypeSigUTF8Entry.getValue());
+
+        BErrorType errorType = new BErrorType(errorTypeInfo, typeDefInfo.name, packageInfo.getPkgPath());
+        errorTypeInfo.setType(errorType);
+
+        readAttributeInfoEntries(packageInfo, packageInfo, errorTypeInfo);
+        typeDefInfo.typeInfo = errorTypeInfo;
+    }
+
     private void readFiniteTypeInfoEntry(PackageInfo packageInfo, TypeDefInfo typeDefInfo) throws IOException {
         FiniteTypeInfo typeInfo = new FiniteTypeInfo();
 
@@ -621,11 +639,15 @@ public class PackageInfoReader {
         // Read and ignore flags
         dataInStream.readInt();
 
+        // Read memory index
         int globalMemIndex = dataInStream.readInt();
+
+        // Read identifier kind flag
+        boolean isIdentifierLiteral = dataInStream.readBoolean();
 
         BType type = getBTypeFromDescriptor(packageInfo, sigUTF8CPEntry.getValue());
         PackageVarInfo packageVarInfo = new PackageVarInfo(nameCPIndex, nameUTF8CPEntry.getValue(),
-                sigCPIndex, globalMemIndex, type);
+                sigCPIndex, globalMemIndex, type, isIdentifierLiteral);
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
@@ -700,7 +722,22 @@ public class PackageInfoReader {
         // Set worker send in channels
         WorkerSendInsAttributeInfo attributeInfo =
                 (WorkerSendInsAttributeInfo) functionInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS);
-        functionInfo.workerSendInChannels = attributeInfo.sendIns;
+        functionInfo.workerSendInChannels = new ChannelDetails[attributeInfo.sendIns.length];
+        if (functionInfo.workerSendInChannels.length == 0) {
+            return;
+        }
+        String currentWorkerName = functionInfo.defaultWorkerInfo.getWorkerName();
+        for (int i = 0; i < attributeInfo.sendIns.length; i++) {
+            String chnlName = attributeInfo.sendIns[i];
+
+            functionInfo.workerSendInChannels[i] = new ChannelDetails(chnlName, currentWorkerName
+                    .equals(BLangConstants.DEFAULT_WORKER_NAME), isChannelSend(chnlName, currentWorkerName));
+        }
+    }
+
+    //TODO remove below and pass these details from compiler
+    private boolean isChannelSend(String chnlName, String workerName) {
+        return chnlName.startsWith(workerName) && chnlName.split(workerName)[1].startsWith("->");
     }
 
     private void readWorkerData(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo) throws IOException {
@@ -777,7 +814,7 @@ public class PackageInfoReader {
     private BFunctionType getFunctionType(PackageInfo packageInfo, String sig) {
         char[] chars = sig.toCharArray();
         Stack<BType> typeStack = new Stack<>();
-        this.typeSigReader.createFunctionType(new RuntimeTypeCreater(packageInfo), chars, 0, typeStack);
+        this.typeSigReader.createFunctionType(new RuntimeTypeCreator(packageInfo), chars, 0, typeStack);
         return (BFunctionType) typeStack.pop();
     }
 
@@ -786,7 +823,7 @@ public class PackageInfoReader {
         Stack<BType> typeStack = new Stack<>();
         char[] chars = signature.toCharArray();
         while (index < chars.length) {
-            index = this.typeSigReader.createBTypeFromSig(new RuntimeTypeCreater(packageInfo), chars, index, typeStack);
+            index = this.typeSigReader.createBTypeFromSig(new RuntimeTypeCreator(packageInfo), chars, index, typeStack);
         }
 
         return typeStack.toArray(new BType[0]);
@@ -1054,11 +1091,13 @@ public class PackageInfoReader {
         int scopeStartLineNumber = dataInStream.readInt();
         int scopeEndLineNumber = dataInStream.readInt();
 
+        boolean isIdentifierLiteral = dataInStream.readBoolean();
+
         UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeSigCPIndex);
 
         BType type = getBTypeFromDescriptor(packageInfo, typeSigCPEntry.getValue());
         LocalVariableInfo localVariableInfo = new LocalVariableInfo(varNameCPEntry.getValue(), varNameCPIndex,
-                variableIndex, typeSigCPIndex, type, scopeStartLineNumber, scopeEndLineNumber);
+                variableIndex, typeSigCPIndex, type, scopeStartLineNumber, scopeEndLineNumber, isIdentifierLiteral);
         int attchmntIndexesLength = dataInStream.readShort();
         int[] attachmentIndexes = new int[attchmntIndexesLength];
         for (int i = 0; i < attchmntIndexesLength; i++) {
@@ -1135,7 +1174,6 @@ public class PackageInfoReader {
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
-                case InstructionCodes.BICONST:
                 case InstructionCodes.DCONST:
                 case InstructionCodes.BACONST:
                 case InstructionCodes.IMOVE:
@@ -1152,7 +1190,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.NEWSTRUCT:
-                case InstructionCodes.ITR_NEW:
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
@@ -1180,7 +1217,8 @@ public class PackageInfoReader {
                 case InstructionCodes.I2B:
                 case InstructionCodes.I2D:
                 case InstructionCodes.I2BI:
-                case InstructionCodes.BI2I:
+                case InstructionCodes.F2BI:
+                case InstructionCodes.D2BI:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
@@ -1205,11 +1243,6 @@ public class PackageInfoReader {
                 case InstructionCodes.XML2S:
                 case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.ARRAY2JSON:
-                case InstructionCodes.REASON:
-                case InstructionCodes.DETAIL:
-                case InstructionCodes.FREEZE:
-                case InstructionCodes.IS_FROZEN:
-                case InstructionCodes.CLONE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1284,11 +1317,8 @@ public class PackageInfoReader {
                 case InstructionCodes.FLE:
                 case InstructionCodes.DLE:
                 case InstructionCodes.IAND:
-                case InstructionCodes.BIAND:
                 case InstructionCodes.IOR:
-                case InstructionCodes.BIOR:
                 case InstructionCodes.IXOR:
-                case InstructionCodes.BIXOR:
                 case InstructionCodes.BILSHIFT:
                 case InstructionCodes.BIRSHIFT:
                 case InstructionCodes.IRSHIFT:
@@ -1301,12 +1331,9 @@ public class PackageInfoReader {
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.XMLLOAD:
-                case InstructionCodes.LENGTHOF:
-                case InstructionCodes.STAMP:
-                case InstructionCodes.CONVERT:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
-                case InstructionCodes.TYPE_ASSERTION:
+                case InstructionCodes.TYPE_CAST:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.ANY2T:
@@ -1416,9 +1443,12 @@ public class PackageInfoReader {
                     BType syncSendType = getParamTypes(packageInfo, syncSigCPEntry.getValue())[0];
                     int exprIndex = codeStream.readInt();
                     int syncSendIndex = codeStream.readInt();
+                    WorkerDataChannelInfo syncChannelInfo = syncChannelRefCPEntry.getWorkerDataChannelInfo();
+                    boolean channelSendInSameStrand =
+                            syncChannelInfo.getSource().equals(BLangConstants.DEFAULT_WORKER_NAME);
                     packageInfo.addInstruction(new Instruction.InstructionWRKSyncSend(opcode, syncChannelRefCPIndex,
-                            syncChannelRefCPEntry.getWorkerDataChannelInfo(), syncSigCPIndex, syncSendType, exprIndex
-                            , syncSendIndex));
+                            syncChannelInfo, syncSigCPIndex, syncSendType, exprIndex
+                            , syncSendIndex, channelSendInSameStrand));
                     break;
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:
@@ -1471,9 +1501,12 @@ public class PackageInfoReader {
                     int sigCPIndex = codeStream.readInt();
                     UTF8CPEntry sigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(sigCPIndex);
                     BType bType = getParamTypes(packageInfo, sigCPEntry.getValue())[0];
+                    WorkerDataChannelInfo dataChannelInfo = channelRefCPEntry.getWorkerDataChannelInfo();
+                    boolean channelInSameStrand =  opcode == InstructionCodes.WRKSEND ? dataChannelInfo.getSource()
+                            .equals(BLangConstants.DEFAULT_WORKER_NAME) : dataChannelInfo.getTarget()
+                            .equals(BLangConstants.DEFAULT_WORKER_NAME);
                     packageInfo.addInstruction(new InstructionWRKSendReceive(opcode, channelRefCPIndex,
-                            channelRefCPEntry.getWorkerDataChannelInfo(), sigCPIndex, bType,
-                            codeStream.readInt(), opcode == InstructionCodes.WRKSEND));
+                            dataChannelInfo, sigCPIndex, bType, codeStream.readInt(), channelInSameStrand));
                     break;
                 case InstructionCodes.CHNRECEIVE:
                     BType keyType = null;
@@ -1659,6 +1692,12 @@ public class PackageInfoReader {
             if (structInfo.typeTag == TypeTags.FINITE_TYPE_TAG) {
                 continue;
             }
+
+            if (structInfo.typeTag == TypeTags.ERROR_TAG) {
+                resolveErrorType(packageInfo, (ErrorTypeInfo) structInfo.typeInfo);
+                continue;
+            }
+
             StructureTypeInfo structureTypeInfo = (StructureTypeInfo) structInfo.typeInfo;
             StructFieldInfo[] fieldInfoEntries = structureTypeInfo.getFieldInfoEntries();
 
@@ -1704,10 +1743,17 @@ public class PackageInfoReader {
         }
     }
 
+    private void resolveErrorType(PackageInfo packageInfo, ErrorTypeInfo errorTypeInfo) {
+        errorTypeInfo.getType().reasonType = getBTypeFromDescriptor(packageInfo,
+                                                                    errorTypeInfo.getReasonFieldTypeSignature());
+        errorTypeInfo.getType().detailType = getBTypeFromDescriptor(packageInfo,
+                                                                    errorTypeInfo.getDetailFieldTypeSignature());
+    }
+
     private void setAttachedFunctions(PackageInfo packageInfo) {
         TypeDefInfo[] structInfoEntries = packageInfo.getTypeDefInfoEntries();
         for (TypeDefInfo structInfo : structInfoEntries) {
-            if (structInfo.typeTag == TypeTags.FINITE_TYPE_TAG) {
+            if (structInfo.typeTag == TypeTags.FINITE_TYPE_TAG || structInfo.typeTag == TypeTags.ERROR_TAG) {
                 continue;
             }
             StructureTypeInfo structureTypeInfo = (StructureTypeInfo) structInfo.typeInfo;
@@ -1753,8 +1799,8 @@ public class PackageInfoReader {
                 break;
             case TypeSignature.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) constantPool.getCPEntry(valueCPIndex);
-                defaultValue.setByteValue(byteCPEntry.getValue());
+                IntegerCPEntry byteEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
+                defaultValue.setByteValue(byteEntry.getValue());
                 break;
             case TypeSignature.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
@@ -1794,7 +1840,7 @@ public class PackageInfoReader {
                 value = new BInteger(intValue);
                 break;
             case TypeSignature.SIG_BYTE:
-                byte byteValue = defaultValue.getByteValue();
+                long byteValue = defaultValue.getByteValue();
                 value = new BByte(byteValue);
                 break;
             case TypeSignature.SIG_FLOAT:
@@ -1853,7 +1899,7 @@ public class PackageInfoReader {
     }
 
     private BType getBTypeFromDescriptor(PackageInfo packageInfo, String desc) {
-        return this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreater(packageInfo), desc);
+        return this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreator(packageInfo), desc);
     }
 
     private String getPackagePath(String orgName, String pkgName, String version) {
@@ -1878,11 +1924,11 @@ public class PackageInfoReader {
      *
      * @since 0.975.0
      */
-    private class RuntimeTypeCreater implements TypeCreater<BType> {
+    private class RuntimeTypeCreator implements TypeCreator<BType> {
 
         PackageInfo packageInfo;
 
-        public RuntimeTypeCreater(PackageInfo packageInfo) {
+        public RuntimeTypeCreator(PackageInfo packageInfo) {
             this.packageInfo = packageInfo;
         }
 
@@ -1946,11 +1992,6 @@ public class PackageInfoReader {
         @Override
         public BType getConstrainedType(char typeChar, BType constraint) {
             switch (typeChar) {
-                case 'J':
-                    if (constraint == null) {
-                        return BTypes.typeJSON;
-                    }
-                    return new BJSONType(constraint);
                 case 'D':
                     if (constraint == null) {
                         return BTypes.typeTable;

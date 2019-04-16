@@ -6,10 +6,10 @@
   "source": "annotation/source/resourceAnnotation1.bal",
   "items": [
     {
-      "label":"swagger:ResourceInfo",
+      "label":"openapi:ResourceInfo",
       "kind":"Property",
       "detail":"Annotation",
-      "insertText":"swagger:ResourceInfo {\n\t${1}\n}",
+      "insertText":"openapi:ResourceInfo {\n\t${1}\n}",
       "insertTextFormat":"Snippet",
       "additionalTextEdits":[
         {
@@ -23,15 +23,15 @@
               "character":0
             }
           },
-          "newText":"import ballerina/swagger;\n"
+          "newText":"import ballerina/openapi;\n"
         }
       ]
     },
     {
-      "label":"swagger:MultiResourceInfo",
+      "label":"openapi:MultiResourceInfo",
       "kind":"Property",
       "detail":"Annotation",
-      "insertText":"swagger:MultiResourceInfo {\n\t${1}\n}",
+      "insertText":"openapi:MultiResourceInfo {\n\t${1}\n}",
       "insertTextFormat":"Snippet",
       "additionalTextEdits":[
         {
@@ -45,7 +45,7 @@
               "character":0
             }
           },
-          "newText":"import ballerina/swagger;\n"
+          "newText":"import ballerina/openapi;\n"
         }
       ]
     },

@@ -1,0 +1,81 @@
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
+dependencies {
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-auth')
+    implementation project(':ballerina-file')
+    implementation project(':ballerina-io')
+    implementation project(':ballerina-log-api')
+    implementation project(':ballerina-math')
+    implementation project(':ballerina-reflect')
+    implementation project(':ballerina-time')
+    implementation project(':ballerina-cache')
+    implementation project(':ballerina-crypto')
+    implementation project(':ballerina-internal')
+    implementation project(':ballerina-logging')
+    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-mime')
+    implementation project(':ballerina-config')
+    implementation project(':ballerina-config-api')
+    implementation project(':ballerina-encoding')
+    implementation project(':ballerina-system')
+    implementation project(':ballerina-utils')
+    implementation project(':ballerina-task')
+    testCompile project(':ballerina-launcher')
+    testCompile 'org.slf4j:slf4j-simple:1.7.22'
+
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+
+    // transitive
+    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+
+    implementation 'io.netty:netty-codec-http:4.1.34.Final'
+    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.275'
+    implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
+    implementation 'org.apache.commons:commons-lang3:3.5'
+    implementation 'org.jvnet.mimepull:mimepull:1.9.7'
+    testCompile 'org.testng:testng:6.13.1'
+    testCompile project(path: ':ballerina-mime', configuration: 'tests')
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
+    testCompile project(':ballerina-http')
+}
+
+test {
+    doFirst {
+        copy {
+            from "$buildDir/generated-balo/repo/ballerina"
+            into "$buildDir/lib/repo/ballerina"
+        }
+    }
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
+description = 'Ballerina - Http/WS'

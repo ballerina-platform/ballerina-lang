@@ -19,11 +19,10 @@ type Age record {
     string format;
 };
 
-type Person record {
+type Person record {|
     string name;
     boolean married;
-    !...
-};
+|};
 
 function simpleDefinition() returns (string, boolean) {
     Person p = {name: "Peter", married: true};
@@ -121,25 +120,25 @@ function getAgeRecord() returns Age {
     return a;
 }
 
-function testRestParameter() returns map<any> {
+function testRestParameter() returns map<anydata|error> {
     PersonWithAge p = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE", other: getAgeRecord()};
     PersonWithAge {name, age: {age, format}, married, ...rest} = p;
     return rest;
 }
 
-function testNestedRestParameter() returns (map<any>, map<any>) {
+function testNestedRestParameter() returns (map<anydata|error>, map<anydata|error>) {
     PersonWithAge p = {name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE"};
     PersonWithAge {name, age: {age, format, ...rest1}, married, ...rest2} = p;
     return (rest1, rest2);
 }
 
-function testVariableAssignment() returns (string, int, string, boolean, map<any>) {
+function testVariableAssignment() returns (string, int, string, boolean, map<anydata|error>) {
     PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
     var {name: fName, age: {age, format}, married, ...rest} = person;
     return (fName, age, format, married, rest);
 }
 
-function testVariableAssignment2() returns (string, int, string, boolean, map<any>) {
+function testVariableAssignment2() returns (string, int, string, boolean, map<anydata|error>) {
     PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
     var {name: fName, age: {age, format}, married, ...rest} = person;
     fName = "James";
@@ -177,7 +176,7 @@ type Child record {
     (int, Age) yearAndAge;
 };
 
-function testRecordInsideTupleInsideRecord() returns (string[], string, map<any>) {
+function testRecordInsideTupleInsideRecord() returns (string[], string, map<anydata|error>) {
     (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
     (int, Age) yearAndAge2 = (1994, {age: 24, format: "X"});
     (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
@@ -203,7 +202,7 @@ function testRecordInsideTupleInsideRecord2() returns (string, int, int, string)
     return (name, yearInt, age, format);
 }
 
-function testRecordInsideTupleInsideRecordWithVar() returns (string[], string, map<any>) {
+function testRecordInsideTupleInsideRecordWithVar() returns (string[], string, map<anydata|error>) {
     (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
     (int, Age) yearAndAge2 = (1994, {age: 24, format: "X"});
     (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
@@ -257,14 +256,14 @@ type UnionRec1 record {
     string var1;
     string var2;
     string var3?;
-    int...
+    int...;
 };
 
 type UnionRec2 record {
     boolean var1;
     boolean var2;
     boolean var3;
-    float...
+    float...;
 };
 
 function testUnionRecordVariable() returns (string|boolean, string|boolean, string|boolean?, int|float?) {
@@ -288,4 +287,60 @@ function testIgnoreVariable() returns (string, int) {
     PersonWithAge p = {name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE"};
     PersonWithAge {name, age: {age, format: _, ...rest1}, married: _, ...rest2} = p;
     return (name, age);
+}
+
+function testRecordVariableWithOnlyRestParam() returns map<anydata|error> {
+    PersonWithAge p = { name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE" };
+    PersonWithAge { ...rest } = p;
+    return rest;
+}
+
+type Object object {
+    private int field;
+
+    public function __init() {
+        self.field = 12;
+    }
+
+    public function getField() returns int {
+        return self.field;
+    }
+};
+
+type IntRestRecord record {
+    string name;
+    boolean married;
+    int...;
+};
+
+type ObjectRestRecord record {
+    string name;
+    boolean married;
+    Object...;
+};
+
+function testRestParameterType() returns (boolean, boolean, boolean, boolean, boolean, boolean, boolean) {
+    IntRestRecord rec1 = { name: "A", married: true, age: 19, token: 200 };
+    IntRestRecord { name: name1, ...other1 } = rec1;
+    var { name: name2, ...other2 } = rec1;
+
+    ObjectRestRecord rec2 = { name: "A", married: true, extra: new };
+    ObjectRestRecord { name: name3, ...other3 } = rec2;
+    var { name: name4, ...other4 } = rec2;
+
+    IntRestRecord|ObjectRestRecord rec3 = rec1;
+    IntRestRecord|ObjectRestRecord { name: name5, ...other5 } = rec3;
+
+    map<string> stringMap = { a: "A", b: "B" };
+    map<string> { a, ...other6 } = stringMap;
+
+    any a1 = other1;
+    any a2 = other2;
+    any a3 = other3;
+    any a4 = other4;
+    any a5 = other5;
+    any a6 = other6;
+
+    return (a1 is map<anydata|error>, a2 is map<int>, a3 is map<any|error>, a4 is map<Object>, a5 is map<any|error>,
+                                                                    a5 is map<anydata>, a6 is map<anydata|error>);
 }

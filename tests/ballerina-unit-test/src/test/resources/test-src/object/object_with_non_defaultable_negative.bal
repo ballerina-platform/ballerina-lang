@@ -1,7 +1,4 @@
 
-public Person pp;
-public Employee ee;
-
 public function testObjectWithInterface () returns (int, string) {
     Person p;
     Employee e;

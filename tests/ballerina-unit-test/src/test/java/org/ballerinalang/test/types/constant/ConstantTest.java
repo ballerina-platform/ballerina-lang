@@ -18,15 +18,15 @@
 
 package org.ballerinalang.test.types.constant;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,6 +44,18 @@ public class ConstantTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/types/constant/constant.bal");
+    }
+
+    @Test
+    public void testNilWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilWithoutType");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void testNilWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilWithType");
+        Assert.assertNull(returns[0]);
     }
 
     @Test

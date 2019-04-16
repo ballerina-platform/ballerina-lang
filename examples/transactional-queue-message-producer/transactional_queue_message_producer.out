@@ -4,8 +4,8 @@
 $ ./broker
 
 # To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run transactional_queue_message_producer.bal
+# `.bal` file and use the `ballerina run --experimental` command (since transaction is an experimental feature).
+$ ballerina run --experimental transactional_queue_message_producer.bal
 ballerina: started HTTP/WS endpoint 172.17.0.1:40769
 2018-06-14 15:38:51,269 INFO  [ballerina/transactions] - Created transaction: 982a22d9-cb0f-4f41-aaed-1a9351702dbb
 2018-06-14 15:38:51,283 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: 982a22d9-cb0f-4f41-aaed-1a9351702dbb:1

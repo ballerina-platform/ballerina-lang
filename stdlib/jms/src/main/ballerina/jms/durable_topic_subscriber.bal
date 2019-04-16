@@ -19,25 +19,37 @@ import ballerina/log;
 # JMS DurableTopicSubscriber endpoint
 #
 # + consumerActions - Object that handles network operations related to the subscriber
-# + config - Used to store configurations related to JMS DurableTopicSubscriber
+# + session - Session of the topic subscriber
 public type DurableTopicSubscriber object {
 
     *AbstractListener;
 
     public DurableTopicSubscriberCaller consumerActions = new;
-    public DurableTopicSubscriberEndpointConfiguration config = {};
+    public Session? session;
 
-    # Initialize DurableTopicSubscriber endpoint
+    # Initialize DurableTopicSubscriber endpoint.
     #
-    # + c - Configurations related to the DurableTopicSubscriber endpoint
-    public function __init(DurableTopicSubscriberEndpointConfiguration c) {
-        self.config = c;
-        var session = c.session;
-        if (session is Session) {
-            var result = self.createSubscriber(session, c.messageSelector);
-            log:printInfo("Durable subscriber created for topic " + c.topicPattern);
+    # + c - The JMS Session object or Configurations related to the receiver
+    # + topicPattern - Name or the pattern of the topic subscription
+    # + messageSelector - JMS selector statement
+    # + identifier - Unique identifier for the subscription
+    public function __init(Session | ReceiverEndpointConfiguration c, string topicPattern, string identifier, string messageSelector = "") {
+        if (c is Session) {
+            self.session = c;
         } else {
-            log:printInfo("Session is (), Cannot create a subscriber without a session");
+            Connection conn = new({
+                initialContextFactory: c.initialContextFactory,
+                providerUrl: c.providerUrl,
+                connectionFactoryName: c.connectionFactoryName,
+                properties: c.properties
+            });
+            self.session = new Session(conn, {
+                acknowledgementMode: c.acknowledgementMode
+            });
+        }
+        var err = self.createSubscriber(self.session, topicPattern, identifier, messageSelector);
+        if (err is error) {
+            panic err;
         }
     }
 
@@ -46,14 +58,14 @@ public type DurableTopicSubscriber object {
     # + serviceType - Type descriptor of the service
     # + data - Service annotations
     # + return - Nil or error upon failure to register listener
-    public function __attach(service serviceType, map<any> data) returns error? {
-        return self.registerListener(serviceType, self.consumerActions, data);
+    public function __attach(service serviceType, string? name = ()) returns error? {
+        return self.registerListener(serviceType, self.consumerActions, name);
     }
 
-    extern function registerListener(service serviceType, DurableTopicSubscriberCaller actions,
-                                     map<any> data) returns error?;
+    function registerListener(service serviceType, DurableTopicSubscriberCaller actions, string? name) returns error? = external;
 
-    extern function createSubscriber(Session session, string messageSelector) returns error?;
+    function createSubscriber(Session? session, string topicPattern, string identifier, string messageSelector)
+        returns error? = external;
 
     # Starts the endpoint. Function is ignored by the subscriber endpoint
     #
@@ -76,21 +88,7 @@ public type DurableTopicSubscriber object {
         return self.closeSubscriber(self.consumerActions);
     }
 
-    extern function closeSubscriber(DurableTopicSubscriberCaller actions) returns error?;
-};
-
-# Configurations related to the durable topic subscriber endpoint
-#
-# + session - JMS Session object
-# + topicPattern - Name or the pattern of the topic subscription
-# + messageSelector - JMS selector statement
-# + identifier - Unique identifier for the subscription
-public type DurableTopicSubscriberEndpointConfiguration record {
-    Session? session = ();
-    string topicPattern = "";
-    string messageSelector = "";
-    string identifier = "";
-    !...
+    function closeSubscriber(DurableTopicSubscriberCaller actions) returns error? = external;
 };
 
 # Caller actions related to DurableTopicSubscriber endpoint
@@ -100,11 +98,11 @@ public type DurableTopicSubscriberCaller client object {
     #
     # + message - JMS message to be acknowledged
     # + return - Error upon failure to acknowledge the received message
-    public remote extern function acknowledge(Message message) returns error?;
+    public remote function acknowledge(Message message) returns error? = external;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received
     # + return - Returns a message or nil if the timeout exceeds, returns an error upon JMS provider internal error
-    public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public remote function receive(int timeoutInMilliSeconds = 0) returns Message|error? = external;
 };

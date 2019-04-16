@@ -56,7 +56,7 @@ public class PackagingTestCase extends BaseTest {
     private Map<String, String> envVariables;
 
     @BeforeClass()
-    public void setUp() throws BallerinaTestException, IOException {
+    public void setUp() throws IOException {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
         createSettingToml();
@@ -78,6 +78,8 @@ public class PackagingTestCase extends BaseTest {
     @Test(description = "Test pushing a package to central", dependsOnMethods = "testInitProject")
     public void testPush() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
+
+        // Get date and time of the module pushed.
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd-EE");
         datePushed = dtf.format(LocalDateTime.now());
 
@@ -133,25 +135,19 @@ public class PackagingTestCase extends BaseTest {
     }
 
     @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
-    public void testSearch() throws BallerinaTestException, IOException {
-        String[] clientArgs = {moduleName};
-        LogLeecher clientLeecherOne = new LogLeecher("Ballerina Central");
-        LogLeecher clientLeecherTwo = new LogLeecher("=================");
-        LogLeecher clientLeecherThree = new LogLeecher("|NAME            | DESCRIPTION                   | DATE     " +
-                                                               "      | VERSION |");
-        LogLeecher clientLeecherFour = new LogLeecher("|----------------| ------------------------------| " +
-                                                              "---------------| --------|");
-        LogLeecher clientLeecherFive = new LogLeecher("|integrationte...| Prints \"hello world\" to com...| " +
-                                                           datePushed + " | 0.0.1   |");
-        balClient.runMain("search", clientArgs, envVariables, new String[]{}, new LogLeecher[]{clientLeecherOne,
-                                  clientLeecherTwo, clientLeecherThree, clientLeecherFour, clientLeecherFive},
-                          balServer.getServerHome());
+    public void testSearch() throws BallerinaTestException {
+        String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
+                balServer.getServerHome(), false);
 
-        clientLeecherOne.waitForText(3000);
-        clientLeecherTwo.waitForText(1000);
-        clientLeecherThree.waitForText(1000);
-        clientLeecherFour.waitForText(1000);
-        clientLeecherFive.waitForText(1000);
+        // Check if the search results contains the following.
+        Assert.assertTrue(actualMsg.contains("Ballerina Central"));
+        Assert.assertTrue(actualMsg.contains("NAME"));
+        Assert.assertTrue(actualMsg.contains("DESCRIPTION"));
+        Assert.assertTrue(actualMsg.contains("DATE"));
+        Assert.assertTrue(actualMsg.contains("VERSION"));
+        Assert.assertTrue(actualMsg.contains("Prints \"hello world\""));
+        Assert.assertTrue(actualMsg.contains(datePushed));
+        Assert.assertTrue(actualMsg.contains("0.0.1"));
     }
 
     @Test(description = "Test push all packages in project to central")

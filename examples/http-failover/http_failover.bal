@@ -12,7 +12,7 @@ http:FailoverClient foBackendEP = new({
         intervalMillis: 5000,
         // Define a set of HTTP Clients that are targeted for failover.
         targets: [
-            { url: "http://localhost:3000/mock1" },
+            { url: "http://nonexistentEP/mock1" },
             { url: "http://localhost:8080/echo" },
             { url: "http://localhost:8080/mock" }
         ]
@@ -33,22 +33,21 @@ service failoverDemoService on new http:Listener(9090) {
 
         var backendResponse = foBackendEP->get("/", message = request);
 
-        // `is` operator is used to separate out union-type returns.
+        // The `is` operator is used to separate out union-type returns.
         // The type of `backendResponse` variable is the union of `http:Response` and `error`.
         // If a response is returned, `backendResponse` is treated as an `http:Response`
         // within the if-block and the normal process runs.
         // If the service returns an `error`, `backendResponse` is implicitly
         // converted to an `error` within the else block.
         if (backendResponse is http:Response) {
-
             var responseToCaller = caller->respond(backendResponse);
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendResponse is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-            response.setPayload(<string> backendResponse.detail().message);
+            response.setPayload(<string>backendResponse.detail().message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);

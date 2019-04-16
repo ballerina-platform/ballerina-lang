@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -23,15 +23,12 @@ import OpenApiVisualizer from "./api-designer/index";
 
 export default function renderAPIEditor(renderTarget: HTMLElement,
                                         oasJson: string, onOASChange: () => void , updateView: boolean) {
-    let openApiJson = JSON.parse(oasJson);
-
-    if (updateView) {
-        openApiJson = JSON.parse(openApiJson);
-    }
+    const openApiJson = JSON.parse(oasJson);
 
     const oasVisualizer = createElement(OpenApiVisualizer, {
         onDidChange: onOASChange,
         openApiJson
     });
+
     render(oasVisualizer, renderTarget);
 }

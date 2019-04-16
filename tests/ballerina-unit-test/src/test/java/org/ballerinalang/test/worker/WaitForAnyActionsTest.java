@@ -16,11 +16,11 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -184,7 +184,7 @@ public class WaitForAnyActionsTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
+            expectedExceptionsMessageRegExp = "error: A hazardous error occurred!!! Panic!! \\{\\}.*")
     public void waitTest21() {
         BRunUtil.invoke(result, "waitTest21", new BValue[0]);
     }
@@ -200,7 +200,7 @@ public class WaitForAnyActionsTest {
     public void waitTest23() {
         BValue[] vals = BRunUtil.invoke(result, "waitTest23", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(null, vals[0]);
+        Assert.assertEquals(vals[0], null);
     }
 
     @Test
@@ -208,6 +208,6 @@ public class WaitForAnyActionsTest {
         BValue[] vals = BRunUtil.invoke(result, "waitTest24", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertTrue(vals[0] instanceof BError);
-        Assert.assertEquals(((BError) vals[0]).reason, "A hazardous error occured!!! Abort immediately!!");
+        Assert.assertEquals(((BError) vals[0]).getReason(), "A hazardous error occured!!! Abort immediately!!");
     }
 }

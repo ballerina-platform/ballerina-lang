@@ -1,6 +1,6 @@
-import { getCodePoint } from "@ballerina/font";
 import classNames from "classnames";
 import React from "react";
+import { getCodePoint } from "../../utils";
 import { SimplePoint } from "../../view-model/simple-point";
 import { SVGDropDownMenuTrigger } from "./svg-dropdown-menu-trigger";
 

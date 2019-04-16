@@ -12,10 +12,7 @@ jms:Session jmsSession = new (jmsConnection, {
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     });
 
-jms:QueueSender queueSender = new({
-    session: jmsSession,
-    queueName: "MyQueue4"
-});
+jms:QueueSender queueSender = new(jmsSession, queueName = "MyQueue4");
 
 public function main () {
     // Create a Text message.

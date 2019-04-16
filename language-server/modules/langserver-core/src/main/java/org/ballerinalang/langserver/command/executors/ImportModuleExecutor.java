@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
@@ -48,7 +48,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEd
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class ImportModuleExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "IMPORT_MODULE";
+    public static final String COMMAND = "IMPORT_MODULE";
 
     /**
      * {@inheritDoc}
@@ -59,12 +59,12 @@ public class ImportModuleExecutor implements LSCommandExecutor {
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
-            if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_DOC_URI)) {
-                documentUri = (String) ((LinkedTreeMap) arg).get(ARG_VALUE);
+            if (((JsonObject) arg).get(ARG_KEY).getAsString().equals(CommandConstants.ARG_KEY_DOC_URI)) {
+                documentUri = ((JsonObject) arg).get(ARG_VALUE).getAsString();
                 textDocumentIdentifier.setUri(documentUri);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-            } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
-                context.put(ExecuteCommandKeys.PKG_NAME_KEY, (String) ((LinkedTreeMap) arg).get(ARG_VALUE));
+            } else if (((JsonObject) arg).get(ARG_KEY).getAsString().equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
+                context.put(ExecuteCommandKeys.PKG_NAME_KEY, ((JsonObject) arg).get(ARG_VALUE).getAsString());
             }
         }
 
@@ -78,7 +78,7 @@ public class ImportModuleExecutor implements LSCommandExecutor {
             } catch (LSCompilerException e) {
                 throw new LSCommandExecutorException("Couldn't compile the source", e);
             }
-            context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+//            context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, bLangPackage.symbol.getName().getValue());
             String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
             BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);

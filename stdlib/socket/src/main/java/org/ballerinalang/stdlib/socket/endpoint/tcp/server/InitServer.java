@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +35,9 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.nio.channels.ServerSocketChannel;
 
+import static org.ballerinalang.stdlib.socket.SocketConstants.CONFIG_FIELD_PORT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_CONFIG;
+import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
@@ -60,9 +62,11 @@ public class InitServer extends BlockingNativeCallableUnit {
             ServerSocketChannel serverSocket = ServerSocketChannel.open();
             serverSocket.configureBlocking(false);
             serverSocket.socket().setReuseAddress(true);
-            serviceEndpoint.addNativeData(SocketConstants.SERVER_SOCKET_KEY, serverSocket);
+            serviceEndpoint.addNativeData(SERVER_SOCKET_KEY, serverSocket);
             BMap<String, BValue> endpointConfig = (BMap<String, BValue>) context.getRefArgument(1);
-            serviceEndpoint.addNativeData(SocketConstants.LISTENER_CONFIG, endpointConfig);
+            serviceEndpoint.addNativeData(LISTENER_CONFIG, endpointConfig);
+            int port = (int) context.getIntArgument(0);
+            serviceEndpoint.addNativeData(CONFIG_FIELD_PORT, port);
         } catch (SocketException e) {
             context.setReturnValues(SocketUtils.createSocketError(context, "Unable to bind the socket port"));
             return;

@@ -1,0 +1,216 @@
+{
+    "result": [
+        {
+            "range": {
+                "start": {
+                    "line": 5,
+                    "character": 1
+                },
+                "end": {
+                    "line": 5,
+                    "character": 1
+                }
+            },
+            "command": {
+                "title": "Endpoint"
+            }
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 44,
+                    "character": 5
+                },
+                "end": {
+                    "line": 44,
+                    "character": 5
+                }
+            },
+            "command": {
+                "title": "Endpoint"
+            }
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 1
+                },
+                "end": {
+                    "line": 7,
+                    "character": 1
+                }
+            },
+            "command": {
+                "title": "Document This",
+                "command": "ADD_DOC",
+                "arguments": [
+                    {
+                        "argumentK": "node.type",
+                        "argumentV": "object"
+                    },
+                    {
+                        "argumentK": "node.line",
+                        "argumentV": "7"
+                    }
+                ]
+            }
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 11,
+                    "character": 1
+                },
+                "end": {
+                    "line": 11,
+                    "character": 1
+                }
+            },
+            "command": {
+                "title": "Document This",
+                "command": "ADD_DOC",
+                "arguments": [
+                    {
+                        "argumentK": "node.type",
+                        "argumentV": "record"
+                    },
+                    {
+                        "argumentK": "node.line",
+                        "argumentV": "11"
+                    }
+                ]
+            }
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 15,
+                    "character": 1
+                },
+                "end": {
+                    "line": 15,
+                    "character": 1
+                }
+            },
+            "command": {
+                "title": "Document This",
+                "command": "ADD_DOC",
+                "arguments": [
+                    {
+                        "argumentK": "node.type",
+                        "argumentV": "function"
+                    },
+                    {
+                        "argumentK": "node.line",
+                        "argumentV": "15"
+                    }
+                ]
+            }
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 19,
+                    "character": 1
+                },
+                "end": {
+                    "line": 19,
+                    "character": 1
+                }
+            },
+            "command": {
+                "title": "Document This",
+                "command": "ADD_DOC",
+                "arguments": [
+                    {
+                        "argumentK": "node.type",
+                        "argumentV": "function"
+                    },
+                    {
+                        "argumentK": "node.line",
+                        "argumentV": "19"
+                    }
+                ]
+            }
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 24,
+                    "character": 1
+                },
+                "end": {
+                    "line": 24,
+                    "character": 1
+                }
+            },
+            "command": {
+                "title": "Document This",
+                "command": "ADD_DOC",
+                "arguments": [
+                    {
+                        "argumentK": "node.type",
+                        "argumentV": "function"
+                    },
+                    {
+                        "argumentK": "node.line",
+                        "argumentV": "24"
+                    }
+                ]
+            }
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 28,
+                    "character": 1
+                },
+                "end": {
+                    "line": 28,
+                    "character": 1
+                }
+            },
+            "command": {
+                "title": "Preview Docs",
+                "command": "ballerina.showDocs",
+                "arguments": [
+                    {
+                        "argumentK": "function.name",
+                        "argumentV": "returnMap"
+                    }
+                ]
+            }
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 39,
+                    "character": 1
+                },
+                "end": {
+                    "line": 39,
+                    "character": 1
+                }
+            },
+            "command": {
+                "title": "Document This",
+                "command": "ADD_DOC",
+                "arguments": [
+                    {
+                        "argumentK": "node.type",
+                        "argumentV": "function"
+                    },
+                    {
+                        "argumentK": "node.line",
+                        "argumentV": "39"
+                    }
+                ]
+            }
+        }
+    ],
+    "id": {
+        "left": "324"
+    },
+    "jsonrpc": "2.0"
+}

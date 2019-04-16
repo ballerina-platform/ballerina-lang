@@ -1,27 +1,23 @@
 import ballerina/http;
 import ballerina/log;
-import ballerina/swagger;
+import ballerina/openapi;
 
-// Defines this endpoint as a selected endpoint for client generation
-@swagger:ClientEndpoint
-endpoint http:Listener helloEp {
-    port: 9090
-};
+@openapi:ClientEndpoint
+listener http:Listener helloEp = new(9090);
 
-// Enable the client code generation for this service
-@swagger:ClientConfig {
+@openapi:ClientConfig {
     generate: true
 }
 @http:ServiceConfig {
     basePath: "/sample"
 }
-service Hello bind helloEp {
+service Hello on helloEp {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/hello"
     }
-    hello(endpoint caller, http:Request req) {
+    resource function hello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello");
         var result = caller->respond(res);
@@ -30,3 +26,4 @@ service Hello bind helloEp {
         }
     }
 }
+

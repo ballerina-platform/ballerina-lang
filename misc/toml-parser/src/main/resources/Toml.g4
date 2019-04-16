@@ -77,14 +77,10 @@ escapeSeqChar : '\\"' | '\\\\' | '\\/' | '\\b' | '\\f'| '\\n' | '\\r' | '\\t';
 
 // Multiline Basic String
 
-mlBasicString : mlBasicStringDelim mlBasicBody mlBasicStringDelim;
-
-mlBasicStringDelim : QUOTATION_MARK QUOTATION_MARK QUOTATION_MARK;
-
-mlBasicBody : ( mlBasicChar | newline | ( '\\' ws newline ) )*;
-mlBasicChar : MLBASICUNESCAPED | escaped;
-
 MLBASICUNESCAPED :   '\u0020'..'\u005B' |'\u005D'..'\u10FF';
+mlBasicStringDelim : QUOTATION_MARK QUOTATION_MARK QUOTATION_MARK;
+mlBasicBody : (basicChar | newline | ('\\' ws newline))*;
+mlBasicString : mlBasicStringDelim mlBasicBody mlBasicStringDelim;
 
 // Literal String
 

@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.test.endpoint;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -58,6 +58,24 @@ public class ClientObjectTest {
         BValue[] returns = BRunUtil.invoke(remoteBasic, "test2");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "5");
+    }
+
+    @Test
+    public void testEndPointDeclInALoop() {
+        BValue[] result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInLoop");
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
+    }
+
+    @Test
+    public void testEndPointDeclInAIfStmtIfBlock() {
+        BValue[] result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatement");
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
+    }
+
+    @Test
+    public void testEndPointDeclInAIfStmtElseBlock() {
+        BValue[] result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatementElseBlock");
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
     }
 
     @Test
@@ -102,33 +120,17 @@ public class ClientObjectTest {
         BAssertUtil
                 .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an client object",
                         75, 9);
-        BAssertUtil.validateError(compileResult, errIdx++,
-                "client object declaration not allowed here, declare at the top of a function or at module level", 89,
-                9);
-        BAssertUtil.validateError(compileResult, errIdx++,
-                "client object declaration not allowed here, declare at the top of a function or at module level", 97,
-                9);
-
         BAssertUtil
                 .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
-                        112, 13);
+                        91, 13);
         BAssertUtil
                 .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
-                        120, 13);
-        BAssertUtil.validateError(compileResult, errIdx++,
-                "client object declaration not allowed here, declare at the top of a function or at module level", 126,
-                5);
-        BAssertUtil.validateError(compileResult, errIdx++,
-                "client object declaration not allowed here, declare at the top of a function or at module level", 134,
-                5);
-        BAssertUtil.validateError(compileResult, errIdx++, "variable 'ep' is not initialized", 142, 12);
-        BAssertUtil.validateError(compileResult, errIdx++, "variable 'ep' is not initialized", 149, 13);
+                        99, 13);
+        BAssertUtil.validateError(compileResult, errIdx++, "variable 'ep' is not initialized", 106, 12);
+        BAssertUtil.validateError(compileResult, errIdx++, "variable 'ep' is not initialized", 113, 13);
 
-        BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 154, 5);
-        BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 163, 5);
-        BAssertUtil
-                .validateError(compileResult, errIdx++, "client objects requires at least one remote function", 170, 5);
-
+        BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 118, 5);
+        BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 127, 5);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);
     }
 }

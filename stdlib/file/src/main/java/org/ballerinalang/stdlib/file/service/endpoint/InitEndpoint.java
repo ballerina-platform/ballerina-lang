@@ -51,6 +51,10 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         Struct serviceEndpointConfig = serviceEndpoint
                 .getStructField(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG);
         final String path = serviceEndpointConfig.getStringField(DirectoryListenerConstants.ANNOTATION_PATH);
+        if (path == null || path.isEmpty()) {
+            context.setReturnValues(FileUtils.createError(context, "'path' field is empty"));
+            return;
+        }
         final Path dirPath = Paths.get(path);
         if (Files.notExists(dirPath)) {
             context.setReturnValues(FileUtils.createError(context, "Folder does not exist: " + path));

@@ -1,0 +1,15 @@
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+dependencies {
+    implementation 'io.netty:netty-codec-http:4.1.34.Final'
+    implementation 'org.javassist:javassist:3.20.0-GA'
+    implementation 'org.testng:testng:6.13.1'
+    implementation 'org.apache.commons:commons-lang3:3.5'
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-runtime');
+    implementation project(':ballerina-lang');
+    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-backend-jvm')
+
+    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.275'
+}

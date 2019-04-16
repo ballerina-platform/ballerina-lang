@@ -21,7 +21,6 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.cpentries.WorkerInfoPool;
@@ -55,7 +54,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public int attachedToTypeCPIndex;
     public BType attachedToType;
     public BFunctionType funcType;
-    public String[] workerSendInChannels;
+    public ChannelDetails[] workerSendInChannels;
 
     protected Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
     
@@ -225,21 +224,6 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
 
-    @Deprecated
-    public AnnAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
-        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
-                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        if (attributeInfo == null || packageName == null || annotationName == null) {
-            return null;
-        }
-        for (AnnAttachmentInfo annotationInfo : attributeInfo.getAttachmentInfoEntries()) {
-            if (packageName.equals(annotationInfo.getPkgPath()) && annotationName.equals(annotationInfo.getName())) {
-                return annotationInfo;
-            }
-        }
-        return null;
-    }
-
     @Override
     public void addWorkerDataChannelInfo(WorkerDataChannelInfo workerDataChannelInfo) {
         dataChannelInfoMap.put(workerDataChannelInfo.getChannelName(), workerDataChannelInfo);
@@ -272,6 +256,26 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
         public WorkerInfo[] generalWorkers;
 
+    }
+
+    /**
+     * Channel details which has channel name and where it resides.
+     */
+    public static class ChannelDetails {
+        public String name;
+        public boolean channelInSameStrand;
+        public boolean send;
+
+        public ChannelDetails(String name, boolean channelInSameStrand, boolean send) {
+            this.name = name;
+            this.channelInSameStrand = channelInSameStrand;
+            this.send = send;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
     
 }

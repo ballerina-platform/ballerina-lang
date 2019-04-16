@@ -27,23 +27,29 @@ cd ${1}
 # Change skip tests based on argument
 if [ ${2} ]
 then
-    skipTest="--skiptests"
+    # skipTest="--skiptests"
+    exit 0
 fi
 
 # List of BBEs excluded from building
-exclude=("date-time"
-        "proto-to-ballerina"
-        "swagger-to-ballerina"
+exclude=("proto-to-ballerina"
+        "openapi-to-ballerina"
         "taint-checking"
         "websub-hub-client-sample"
         "websub-remote-hub-sample"
-        "counter-metrics"
         "config-api"
-        "log-api"
-        "secured-service-with-basic-auth"
         "testerina-function-mocks"
         "jms-queue-message-receiver-with-client-acknowledgment"
-        "gauge-metrics")
+        "jdbc-client-crud-operations"
+        "jdbc-client-batch-update"
+        "jdbc-client-call-procedures"
+        "streaming-big-dataset"
+        "docker-deployment"
+        "kubernetes-deployment"
+        "awslambda-deployment"
+        "openshift-deployment"
+        )
+
 packages=($( sed -n 's/.*"url": "\([^"]*\)"/\1/p' index.json ))
 echo `date "+%Y-%m-%d-%H:%M:%S"`" : Start building ${#packages[@]} Ballerina By Examples and ${#exclude[@]} will be skipped"
 
@@ -57,6 +63,6 @@ sh ../bin/ballerina init
 
 for package in "${packages[@]}"
 do
-  sh ../bin/ballerina build ${package} ${skipTest} || exit 1
+  sh ../bin/ballerina build ${package} ${skipTest} --experimental || exit 1
 done
 echo `date "+%Y-%m-%d-%H:%M:%S"`" : Ballerina By Examples built successfully!"

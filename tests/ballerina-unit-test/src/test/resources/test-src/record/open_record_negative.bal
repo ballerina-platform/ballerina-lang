@@ -1,7 +1,7 @@
 type Person record {
     string name = "";
     int age = 0;
-    string...
+    string...;
 };
 
 function invalidRestField() {
@@ -28,4 +28,19 @@ type Bar object {
 function testInvalidRestFieldAddition() {
     PersonA p = {};
     p.invField = new Bar();
+}
+
+type Baz record {
+    int a;
+    anydata...;
+};
+
+type MyError error<string, map<error>>;
+
+function testErrorAdditionForInvalidRestField() {
+    error e1 = error("test reason");
+    MyError e2 = error("test reason 2", { err: e1 });
+    Baz b = { a: 1 };
+    b.err1 = e1;
+    b.err2 = e2;
 }

@@ -25,8 +25,8 @@ function checkEqualityOfArraysOfDifferentTypes() returns boolean {
     string[2] b = ["", ""];
     boolean bool1 = a == b && !(a != b);
 
-    (float|int)[] c = [];
-    (boolean|xml)[] d = [];
+    (float|int)?[] c = [];
+    (boolean|xml)?[] d = [];
     boolean bool2 = c == d && !(c != d);
 
     return bool1 && bool2;
@@ -79,7 +79,7 @@ function checkEqualityWithJsonForIncompatibleType() returns boolean {
 }
 
 function checkEqualityWithJsonRecordMapForIncompatibleType() returns boolean {
-    json<EmployeeWithOptionalId> a = { name: "Em" };
+    json a = { name: "Em" };
     map<boolean> b = {};
     boolean equals = a == b && !(b != a);
 
@@ -120,6 +120,18 @@ function testEqualityWithNonAnydataType() returns boolean {
     return equals;
 }
 
+function testEqualityWithTable() {
+    table<ClosedDept> t1 = table{};
+    table<ClosedDept> t2 = table{};
+    table<EmployeeWithOptionalId> t3 = table{};
+
+    table<ClosedDept>|map<string> t4 = t1;
+    table<ClosedDept>|map<string> t5 = t2;
+
+    boolean b = t1 == t2;
+    b = t4 != t5;
+}
+
 type Employee record {
     string name;
     int id = 0;
@@ -130,19 +142,16 @@ type Person record {
     string id = "";
 };
 
-type ClosedDept record {
+type ClosedDept record {|
     string code;
-    !...
-};
+|};
 
-type EmployeeWithOptionalId record {
+type EmployeeWithOptionalId record {|
     string name;
     float id?;
-    !...
-};
+|};
 
-type PersonWithOptionalId record {
+type PersonWithOptionalId record {|
     string name;
     string id?;
-    !...
-};
+|};

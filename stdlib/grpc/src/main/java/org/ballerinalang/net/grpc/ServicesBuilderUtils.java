@@ -92,14 +92,14 @@ public class ServicesBuilderUtils {
 
             MethodDescriptor.MethodType methodType;
             ServerCallHandler serverCallHandler;
-            Map<String, Resource> resourceMap = new HashMap<>();
-            Resource mappedResource = null;
+            Map<String, ServiceResource> resourceMap = new HashMap<>();
+            ServiceResource mappedResource = null;
 
             for (Resource resource : service.getResources()) {
                 if (methodDescriptor.getName().equals(resource.getName())) {
-                    mappedResource = resource;
+                    mappedResource = new ServiceResource(resource);
                 }
-                resourceMap.put(resource.getName(), resource);
+                resourceMap.put(resource.getName(), new ServiceResource(resource));
             }
 
             if (methodDescriptor.toProto().getServerStreaming() && methodDescriptor.toProto().getClientStreaming()) {

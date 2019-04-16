@@ -36,6 +36,11 @@ public class BAnydataType extends BType {
     }
 
     @Override
+    public boolean isNilable() {
+        return true;
+    }
+
+    @Override
     public <V extends BValue> V getZeroValue() {
         return null;
     }

@@ -1,0 +1,30 @@
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+
+configurations {
+    balSource {
+        transitive false
+    }
+}
+
+task createBalo(type: JavaExec) {
+    def balFiles = file("src/main/ballerina/")
+    dependsOn createBalHome
+
+    // TODO: don't depend on name ,pass this as a prop form project
+    def loadBuiltinFromBalo = project.name == 'ballerina-builtin'
+
+    main 'org.ballerinalang.stdlib.utils.GenerateBalo'
+    classpath configurations.baloCreat
+    args(loadBuiltinFromBalo, balFiles, "$buildDir/generated-balo/repo/ballerina", "$buildDir")
+
+    inputs.dir(balFiles)
+    inputs.files(configurations.baloImplementation)
+    outputs.dir("$buildDir/generated-balo")
+    outputs.cacheIf { true }
+}
+
+artifacts.add('baloImplementation', file("$buildDir/generated-balo/")) {
+    builtBy('createBalo')
+}
+
+artifacts.add('balSource', file("src/main/ballerina/"))

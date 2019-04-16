@@ -94,7 +94,7 @@ type InvalidUnion record {
 };
 
 type InvalidUnionArrayElement record {
-    (int|string)[] val;
+    (int|string)?[] val;
 };
 
 type InvalidUnionArray record {
@@ -236,7 +236,7 @@ function testAssignNilToNonNillableField(string field, typedesc recordType) retu
             }
         }
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return errorMessage;
 }
 
@@ -332,7 +332,7 @@ function testAssignNullArrayToNonNillableWithNonNillableElements() returns strin
             }
         }
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return errorMessage;
 }
 
@@ -356,7 +356,7 @@ function testAssignNullArrayToNonNillableTypeWithNillableElements() returns stri
             }
         }
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return errorMessage;
 }
 
@@ -380,7 +380,7 @@ function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() re
             }
         }
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return errorMessage;
 }
 
@@ -404,7 +404,7 @@ function testAssignNullElementArrayToNillableTypeWithNonNillableElements() retur
             }
         }
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return errorMessage;
 }
 
@@ -426,7 +426,7 @@ function testAssignInvalidUnionArray() returns string {
             }
         }
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return message;
 }
 
@@ -448,7 +448,7 @@ function testAssignInvalidUnionArrayElement() returns string {
             }
         }
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return message;
 }
 
@@ -470,7 +470,7 @@ function testAssignInvalidUnionArray2() returns string {
             }
         }
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return message;
 }
 
@@ -504,6 +504,6 @@ function testAssignToInvalidUnionField(string field) returns string {
             }
         }
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return errorMessage;
 }

@@ -75,8 +75,8 @@
                 "url": "functional-iteration"
             },
             {
-                "name": "Functions as Entry Points",
-                "url": "functions-as-entry-points"
+                "name": "The Main Function",
+                "url": "the-main-function"
             }
         ]
     },
@@ -107,6 +107,14 @@
             {
                 "name": "Record Match",
                 "url": "record-match-statement"
+            },
+            {
+                "name": "Error Match",
+                "url": "error-match-statement"
+            },
+            {
+                "name": "Type Test Expression",
+                "url": "type-test-expression"
             },
             {
                 "name": "Type Guard",
@@ -173,10 +181,6 @@
             {
                 "name": "String Template Literal",
                 "url": "string-template"
-            },
-            {
-                "name": "Symbolic String Literal",
-                "url": "symbolic-string-literal"
             }
         ]
     },
@@ -187,6 +191,10 @@
         "samples": [{
                 "name": "Record",
                 "url": "records"
+            },
+            {
+                "name": "Anonymous Records",
+                "url": "anonymous-records"
             },
             {
                 "name": "Optional Fields",
@@ -211,8 +219,8 @@
                 "url": "object-initializer"
             },
             {
-                "name": "Member Functions",
-                "url": "object-member-functions"
+                "name": "Object Methods",
+                "url": "object-methods"
             },
             {
                 "name": "Object Assignability",
@@ -221,6 +229,10 @@
             {
                 "name": "Abstract Objects",
                 "url": "abstract-objects"
+            },
+            {
+                "name": "Anonymous Objects",
+                "url": "anonymous-objects"
             },
             {
                 "name": "Object Type Reference",
@@ -232,7 +244,12 @@
         "title": "Value/Type Operations",
         "column": 1,
         "category": "Language concepts",
-        "samples": [{
+        "samples": [
+            {
+                "name": "Compound Assignment Operators",
+                "url": "compound-assignment-operators"
+            },
+            {
                 "name": "Equality",
                 "url": "equality"
             },
@@ -245,12 +262,8 @@
                 "url": "type-conversion"
             },
             {
-                "name": "Explicitly Typed Expressions",
-                "url": "explicitly-typed-expressions"
-            },
-            {
-                "name": "Type Assertion",
-                "url": "type-assertion"
+                "name": "Type Cast",
+                "url": "type-cast"
             },
             {
                 "name": "Nil Lifting",
@@ -281,10 +294,6 @@
             {
                 "name": "JSON Arrays",
                 "url": "json-arrays"
-            },
-            {
-                "name": "Constrained JSON",
-                "url": "constrained-json"
             },
             {
                 "name": "JSON/Record/Map Conversion",
@@ -333,12 +342,20 @@
                 "url": "record-type-binding-pattern"
             },
             {
+                "name": "Error Type Binding Pattern",
+                "url": "error-type-binding-pattern"
+            },
+            {
                 "name": "Tuple Destructure Binding Pattern",
                 "url": "tuple-destructure-binding-pattern"
             },
             {
                 "name": "Record Destructure Binding Pattern",
                 "url": "record-destructure-binding-pattern"
+            },
+            {
+                "name": "Error Destructure Binding Pattern",
+                "url": "error-destructure-binding-pattern"
             }
         ]
     },
@@ -359,12 +376,16 @@
                 "url": "check"
             },
             {
-                "name": "Panic ",
+                "name": "Panic",
                 "url": "panic"
             },
             {
-                "name": "Trap Error",
-                "url": "trap-error"
+                "name": "Check Panic",
+                "url": "checkpanic"
+            },
+            {
+                "name": "Trap",
+                "url": "trap"
             }
         ]
     },
@@ -425,6 +446,10 @@
             {
                 "name": "XML I/O",
                 "url": "xml-io"
+            },
+            {
+                "name": "JSON to CSV Transform",
+                "url": "json-csv"
             }
         ]
     },
@@ -433,19 +458,19 @@
         "column": 3,
         "category": "Language concepts",
         "samples": [{
-                "name": "Date Time",
-                "url": "date-time"
+                "name": "Time",
+                "url": "time"
             },
             {
                 "name": "Caching",
                 "url": "cache"
             },
             {
-                "name": "Config ",
+                "name": "Config",
                 "url": "config-api"
             },
             {
-                "name": "Log ",
+                "name": "Log",
                 "url": "log-api"
             },
             {
@@ -453,16 +478,28 @@
                 "url": "math-functions"
             },
             {
-                "name": "String ",
+                "name": "String",
                 "url": "strings"
             },
             {
-                "name": "Task Timer",
-                "url": "task-timer"
+                "name": "File Path",
+                "url": "filepath"
             },
             {
-                "name": "Task Appointment",
-                "url": "task-appointment"
+                "name": "Task Scheduler Appointment",
+                "url": "task-scheduler-appointment"
+            },
+            {
+                "name": "Task Scheduler Timer",
+                "url": "task-scheduler-timer"
+            },
+            {
+                "name": "Task Service Appointment",
+                "url": "task-service-appointment"
+            },
+            {
+                "name": "Task Service Timer",
+                "url": "task-service-timer"
             }
         ]
     },
@@ -493,6 +530,10 @@
             {
                 "name": "Secured Client With OAuth2",
                 "url": "secured-client-with-oauth2"
+            },
+            {
+                "name": "Cryptographic Operations",
+                "url": "crypto"
             }
         ]
     },
@@ -545,6 +586,14 @@
             {
                 "name": "Kubernetes Deployment",
                 "url": "kubernetes-deployment"
+            },
+            {
+                "name": "OpenShift Deployment",
+                "url": "openshift-deployment"
+            },
+            {
+                "name": "AWS Lambda Deployment",
+                "url": "awslambda-deployment"
             }
         ]
     },
@@ -585,12 +634,12 @@
                 "url": "http-trace-logs"
             },
             {
-                "name": "Basic HTTPS Listener Client",
-                "url": "basic-https-listener-client"
-            },
-            {
                 "name": "HTTPS Listener",
                 "url": "https-listener"
+            },
+            {
+                "name": "Basic HTTPS Listener Client",
+                "url": "basic-https-listener-client"
             },
             {
                 "name": "Mutual SSL",
@@ -832,7 +881,7 @@
         ]
     },
  	{
-        "title": "Swagger",
+        "title": "OpenAPI",
         "column": 2,
         "category": "Working over the network",
         "samples": [{
@@ -840,12 +889,12 @@
                 "url": "client-generation"
             },
             {
-                "name": "Ballerina To Swagger",
-                "url": "ballerina-to-swagger"
+                "name": "Ballerina To OpenAPI",
+                "url": "ballerina-to-openapi"
             },
             {
-                "name": "Swagger To Ballerina",
-                "url": "swagger-to-ballerina"
+                "name": "OpenAPI To Ballerina",
+                "url": "openapi-to-ballerina"
             }
         ]
     },
@@ -871,7 +920,7 @@
             },
             {
                 "name": "Simple Durable Topic Subscriber",
-                "url": "jms-durable-topic-message-subscriber"
+                "url": "jms-simple-durable-topic-message-subscriber"
             },
             {
                 "name": "Queue Receiver",
@@ -899,7 +948,7 @@
             },
             {
                 "name": "Durable Topic Subscriber",
-                "url": "jms-simple-durable-topic-message-subscriber"
+                "url": "jms-durable-topic-message-subscriber"
             },
             {
                 "name": "Transactional Queue Producer",
@@ -916,6 +965,65 @@
         ]
     },
     {
+        "title": "NATS",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+            "name": "NATS Basic Example",
+            "url": "nats-basic-client"
+        }]
+    },
+    {
+        "title": "RabbitMQ",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+            "name": "RabbitMQ Simple Producer",
+            "url": "rabbitmq-simple-producer"
+        },
+          {
+            "name": "RabbitMQ Simple Consumer",
+            "url": "rabbitmq-simple-consumer"
+          }]
+    },
+    {
+        "title": "ActiveMQ Artemis",
+        "column": 2,
+        "category": "Working over the network",
+        "samples": [
+            {
+                "name": "Artemis ANYCAST consumer",
+                "url": "artemis-anycast-session-consumer"
+            },
+            {
+                "name": "Artemis ANYCAST producer",
+                "url": "artemis-anycast-session-producer"
+            },
+            {
+                "name": "Artemis Simple MULTICAST Consumer",
+                "url": "artemis-multicast-consumer"
+            },
+            {
+                "name": "Artemis Simple MULTICAST Producer",
+                "url": "artemis-multicast-producer"
+            }
+        ]
+    },
+    {
+        "title": "Socket",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "TCP Socket Basic Example",
+                "url": "tcp-socket-listener-client"
+            },
+            {
+                "name": "UDP Client Socket Basic Example",
+                "url": "udp-socket-client"
+            }
+        ]
+    },
+    {
         "title": "Streams",
         "column": 0,
         "category": "Experimental features",
@@ -924,20 +1032,24 @@
                 "url": "streams"
             },
             {
-                "name": "Join Mutiple Streams",
-                "url": "join-multiple-streams"
+              "name": "Simple Filtering",
+              "url": "simple-filtering"
+            },
+            {
+              "name": "Projection",
+              "url": "projection"
             },
             {
                 "name": "Temporal Aggregations",
                 "url": "temporal-aggregations-and-windows"
             },
             {
-                "name": "Identify Patterns",
-                "url": "identify-patterns"
+                "name": "Join Mutiple Streams",
+                "url": "join-multiple-streams"
             },
             {
-                "name": "Identify Trends",
-                "url": "identify-trends"
+              "name": "Join Tables and Streams",
+              "url": "join-tables-and-streams"
             }
         ]
     },

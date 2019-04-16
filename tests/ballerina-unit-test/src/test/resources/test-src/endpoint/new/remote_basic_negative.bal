@@ -27,7 +27,7 @@ public remote function test2(string value) {
 }
 
 // remote modifier not allowed in non-object attached functions
-public remote extern function test3(string value) returns int;
+public remote function test3(string value) returns int = external;
 
 
 type Foo client object {
@@ -81,27 +81,6 @@ type Bar object {
    }
 };
 
-function testFunc3() {
-    Bar b = new;
-    int i = 10;
-    if(i > 5) {
-        // endpoint declaration not allowed here, declare at the top of a function or at module level
-        Foo x = new;
-        var y = x->pqr("test");
-    }
-}
-
-function testFunc4() {
-    worker w1{
-        // endpoint declaration not allowed here, declare at the top of a function or at module level
-        Foo x = new;
-        var y = x->pqr("test");
-    }
-    worker w2 {
-        int i = 10;
-    }
-}
-
 // valid.
 Foo gep = new;
 
@@ -118,21 +97,6 @@ function testFunc6(Foo ep, string b) {
 
     // invalid remote function invocation syntax, use '->' operator
     var z = ep.pqr("test");
-}
-
-function testFunc7 (string s) {
-    string a = "abc";
-    // endpoint declaration not allowed here, declare at the top of a function or at module level
-    Foo ep = new;
-    var y = ep->pqr("test");
-}
-
-function testFunc8 (string s) {
-    Foo ep;
-    string a = "abc";
-    // endpoint declaration not allowed here, declare at the top of a function or at module level
-    Foo ep2 = new;
-    var y = ep2->pqr("test");
 }
 
 function testFunc9 (string s) returns boolean{
@@ -161,18 +125,6 @@ type Baz object {
 
     //a remote function in a non client object
     remote function action2(int i) {
-    }
-};
-
-// client objects requires at least one remote function
-type Bax client object {
-
-    function nonAction1(float f) returns string {
-        return "done";
-    }
-
-    function nonAction2(float f) returns string {
-        return "done";
     }
 };
 

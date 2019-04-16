@@ -51,8 +51,12 @@ public class WebSocketOpenConnectionInfo {
         return webSocketEndpoint;
     }
 
-    public WebSocketConnection getWebSocketConnection() {
-        return webSocketConnection;
+    public WebSocketConnection getWebSocketConnection() throws IllegalAccessException {
+        if (webSocketConnection != null) {
+            return webSocketConnection;
+        } else {
+            throw new IllegalAccessException("The WebSocket connection has not been made");
+        }
     }
 
     String getAggregateString() {

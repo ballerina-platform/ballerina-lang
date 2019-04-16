@@ -91,6 +91,10 @@ public abstract class BType implements BLangSymbol {
         return (pkgPath + ":" + typeName).hashCode();
     }
 
+    public boolean isNilable() {
+        return false;
+    }
+
     // Methods in BLangSymbol interface
 
     @Override

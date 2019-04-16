@@ -17,15 +17,16 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BVMScheduler;
-import org.ballerinalang.bre.bvm.SafeStrandCallback;
-import org.ballerinalang.bre.bvm.SafeStrandCallback.CallbackStatus;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.bre.bvm.Strand.State;
+import org.ballerinalang.bre.bvm.StrandCallback.CallbackStatus;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,7 +54,7 @@ public class BCallableFuture implements BFuture {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
     }
 
@@ -85,7 +86,7 @@ public class BCallableFuture implements BFuture {
 
     @Override
     public boolean isDone() {
-        return ((SafeStrandCallback) strand.respCallback).getStatus() != CallbackStatus.NOT_RETURNED;
+        return strand.respCallback.getStatus() != CallbackStatus.NOT_RETURNED;
     }
 
     @Override

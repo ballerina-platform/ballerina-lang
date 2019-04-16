@@ -24,6 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Testing the Http headers availability in pass-through scenarios.
@@ -46,5 +47,70 @@ public class HttpHeaderTestCases extends HttpBaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "product/id"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "{\"header1\":\"kkk\", \"header2\":\"jjj\"}");
+    }
+
+    @Test(description = "Test outbound request content-length header availability when nil is sent")
+    public void testOutboundNonEntityBodyGetRequestHeaders() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(servicePort, "product/nonEntityBodyGet"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "No Content size related header present");
+    }
+
+    @Test(description = "Test outbound request content-length header availability when nil is sent")
+    public void testOutboundEntityBodyGetRequestHeaders() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(servicePort, "product/entityBodyGet"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "Content-length header available");
+    }
+
+    @Test(description = "Test outbound request content-length header availability when request sent without body")
+    public void testOutboundEntityGetRequestHeaders() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(servicePort, "product/entityGet"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "No Content size related header present");
+    }
+
+    @Test(description = "Test outbound request content-length header availability when forwarding a GET request")
+    public void testOutboundForwardNoEntityBodyRequestHeaders() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(servicePort, "product/entityForward"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "No Content size related header present");
+    }
+
+    @Test(description = "Test outbound request content-length header availability when forwarding a POST request")
+    public void testOutboundForwardEntityBodyRequestHeaders() throws IOException {
+        HttpResponse response = HttpClientRequest.doPost(
+                serverInstance.getServiceURLHttp(servicePort, "product/entityForward"), "hello",
+                new HashMap<>());
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "Content-length header available");
+    }
+
+    @Test(description = "Test outbound request content-length header availability when using EXECUTE action")
+    public void testHeadersWithExecuteAction() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(servicePort, "product/entityExecute"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "Content-length header available");
+    }
+
+    @Test(description = "Test outbound request content-length header when using EXECUTE action without body")
+    public void testHeadersWithExecuteActionWithoutBody() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(servicePort, "product/noEntityExecute"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "No Content size related header present");
+    }
+
+    @Test(description = "Test converting Post payload to GET outbound call in passthrough")
+    public void testPassthruWithBody() throws IOException {
+        HttpResponse response = HttpClientRequest.doPost(
+                serverInstance.getServiceURLHttp(servicePort, "product/passthruGet"), "HelloWorld", new HashMap<>());
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "Content-length header available");
     }
 }

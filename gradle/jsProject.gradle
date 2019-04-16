@@ -1,0 +1,17 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+apply plugin: 'base'
+
+task npmInstall(type: Exec) {
+    inputs.file("package-lock.json")
+    outputs.dir("node_modules")
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine 'cmd', '/c', 'npm', 'install'
+    } else {
+        commandLine 'npm', 'install'
+    }
+}
+
+assemble {
+    dependsOn npmInstall
+}

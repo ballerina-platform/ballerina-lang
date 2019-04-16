@@ -324,7 +324,7 @@ type Person object {
 
 };
 
-function Person.externalAttachedFP() returns (function (float) returns (string)) {
+public function Person.externalAttachedFP() returns (function (float) returns (string)) {
      int b = 4;
      var foo = function (float w) returns (string) {
         string d = w + "T" + b + self.year + self.name + self.age;
@@ -523,7 +523,7 @@ function testByteAndBoolean() returns (function (int, byte) returns
     return function (int a, byte b) returns (function (byte, int, boolean) returns byte[][]) {
         boolean boo2 = false;
         return function (byte c, int f, boolean booF) returns (byte[][]) {
-            var value = <byte> f;
+            var value = trap <byte> f;
             if (value is byte) {
                 byte i = value;
                 byte[][] bArr = [];
@@ -649,3 +649,73 @@ function test29() returns (boolean, boolean, boolean, boolean, boolean, boolean,
     return (b10, b11, b20, b21, b30, b31, b40, b41);
 }
 
+function test30() returns int|string {
+    int|string x = 5;
+    var addFunc1 = function () {
+        if (x is int && x > 3) {
+            x = x + 1;
+        } else {
+            x = 0;
+        }
+    };
+    var y = addFunc1.call();
+    return x;
+}
+
+function test31() returns int|string {
+    int|string x = 5;
+    var func1 = function () {
+        if (x is int && x > 3) {
+            x = x + 1;
+            if (x > 5) {
+               x = x + 10;
+            }
+        } else {
+            x = 0;
+        }
+         var func2 = function () {
+            if (x is int && x > 5) {
+                x = x + 1;
+                var func3 = function () {
+                    if (x is int && x > 10) {
+                        x = x + 1;
+                    } else {
+                        x = 0;
+                    }
+                 };
+                 _ = func3.call();
+            } else {
+                x = 0;
+            }
+         };
+         _ = func2.call();
+    };
+    _ = func1.call();
+
+    if (x is int && x > 3) {
+        x = x + 10;
+        if (x > 25) {
+            x = x + 3;
+        }
+    } else {
+        x = 0;
+    }
+    return x;
+}
+
+public function laterInitCapture() returns string {
+    string a;
+    boolean test = true;
+    if test {
+        a = "a";
+    } else {
+        a = "b";
+    }
+
+    var bar = function () returns string {
+        a = a + "a";
+        return a;
+    };
+
+    return bar.call();
+}

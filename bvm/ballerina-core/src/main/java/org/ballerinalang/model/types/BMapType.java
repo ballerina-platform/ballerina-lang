@@ -18,7 +18,6 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -74,12 +73,12 @@ public class BMapType extends BType implements BIndexedType {
 
     @Override
     public <V extends BValue> V getZeroValue() {
-        return null;
+        return (V) new BMap(this);
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BMap<BString, V>();
+        return getZeroValue();
     }
 
     @Override

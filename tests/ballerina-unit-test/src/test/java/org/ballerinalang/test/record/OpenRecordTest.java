@@ -17,10 +17,6 @@
  */
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -28,6 +24,10 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -139,7 +139,7 @@ public class OpenRecordTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "getStruct");
         Assert.assertEquals(returns[0].stringValue(), "{name:\"aaa\", lname:\"\", adrs:{}, age:25, " +
                 "family:{spouse:\"\", noOfChildren:0, children:[]}, parent:{name:\"bbb\", lname:\"ccc\", " +
-                "adrs:{}, age:50, family:{spouse:\"\", noOfChildren:0, children:[]}, parent:null}}");
+                "adrs:{}, age:50, family:{spouse:\"\", noOfChildren:0, children:[]}, parent:()}}");
     }
 
     @Test
@@ -147,11 +147,11 @@ public class OpenRecordTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_literals.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
         Assert.assertEquals(returns[0].stringValue(), "{dptName:\"\", employees:[], manager:" +
-                "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:null}}");
+                "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:()}}");
 
         returns = BRunUtil.invoke(compileResult, "testStructLiteral2");
         Assert.assertEquals(returns[0].stringValue(),
-                            "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:null}");
+                            "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:()}");
     }
 
     @Test
@@ -165,7 +165,8 @@ public class OpenRecordTest {
 
     @Test(description = "Negative test to test attaching functions to record literal")
     public void testStructLiteralAttachedFunc() {
-        CompileResult result = BCompileUtil.compile("test-src/record/record_literal_with_attached_functions.bal");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/record/record_literal_with_attached_functions_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "cannot attach function 'getName' to record type 'Person'", 7, 1);
         BAssertUtil.validateError(result, 1, "undefined symbol 'self'", 8, 12);
@@ -186,19 +187,25 @@ public class OpenRecordTest {
         Assert.assertEquals(person.get("firstName").stringValue(), "John");
 
         Assert.assertEquals(person.stringValue(), "{name:\"Foo\", lname:\"\", adrs:{}, age:25, family:{spouse:\"\", " +
-                "noOfChildren:0, children:[]}, parent:null, mname:\"Bar\", height:5.9, firstName:\"John\"}");
+                "noOfChildren:0, children:[]}, parent:(), mname:\"Bar\", height:5.9, firstName:\"John\"}");
     }
 
-    @Test(description = "Test non-existent anydata rest field RHS access",
+    @Test
+    public void testAdditionOfErrorsForDefaultRestField() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAdditionOfErrorsForDefaultRestField");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test non-existent anydata or error rest field RHS access",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*cannot find key 'firstName'.*")
-    public void testAnydataRestFieldRHSAccess() {
-        BRunUtil.invoke(compileResult, "testAnydataRestFieldRHSAccess");
+    public void testAnydataOrErrorRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testAnydataOrErrorRestFieldRHSAccess");
     }
 
-    @Test(description = "Test non-existent anydata rest field RHS index-based access")
-    public void testAnydataRestFieldRHSIndexAccess() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnydataRestFieldRHSIndexAccess");
+    @Test(description = "Test non-existent anydata or error rest field RHS index-based access")
+    public void testAnydataOrErrorRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnydataOrErrorRestFieldRHSIndexAccess");
         Assert.assertNull(returns[0]);
     }
 
@@ -366,7 +373,7 @@ public class OpenRecordTest {
         BMap person = (BMap) returns[0];
         Assert.assertNull(person.get("lname"));
 
-        Assert.assertEquals(person.stringValue(), "{name:\"Foo\", age:25, lname:null}");
+        Assert.assertEquals(person.stringValue(), "{name:\"Foo\", age:25, lname:()}");
     }
 
     @Test(description = "Test record constrained rest field")
@@ -451,7 +458,7 @@ public class OpenRecordTest {
         BValueArray tup = (BValueArray) returns[0];
         Assert.assertEquals(((BFloat) tup.getRefValue(0)).floatValue(), 4.5);
         Assert.assertEquals(tup.getRefValue(1).stringValue(), "foo");
-        Assert.assertEquals(((BMap) tup.getRefValue(2)).getType().getName(), "Animal");
+        Assert.assertEquals(tup.getRefValue(2).getType().getName(), "Animal");
 
         Assert.assertNull(returns[1]);
     }
@@ -462,7 +469,7 @@ public class OpenRecordTest {
 
         BMap person = (BMap) returns[0];
         BValueArray pets = (BValueArray) person.get("pets");
-        Assert.assertEquals(pets.getType().toString(), "Animal[]");
+        Assert.assertEquals(pets.getType().toString(), "Animal|null[]");
         Assert.assertEquals(person.stringValue(),
                 "{name:\"Foo\", age:25, pets:[{kind:\"Cat\", name:\"Miaw\"}, {kind:\"Dog\", name:\"Woof\"}]}");
     }
@@ -479,7 +486,7 @@ public class OpenRecordTest {
         BValueArray tup = (BValueArray) returns[0];
 
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(tup.getType().toString(), "Animal[]");
+        Assert.assertEquals(tup.getType().toString(), "Animal|null[]");
         Assert.assertEquals(tup.stringValue(), "[{kind:\"Cat\", name:\"Miaw\"}, {kind:\"Dog\", name:\"Woof\"}]");
 
         Assert.assertNull(returns[1]);

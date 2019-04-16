@@ -19,9 +19,9 @@ package org.ballerinalang.test.utils.debug;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BVMExecutor;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -32,8 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
-
 /**
  * {@link DebuggerExecutor} represents executor class which runs the main program when debugging.
  *
@@ -43,16 +41,14 @@ public class DebuggerExecutor implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(DebuggerExecutor.class);
 
     private CompileResult result;
-    private String functionName;
     private String[] args;
     private TestDebugger debugger;
     private List<BreakPointDTO> breakPoints;
     private PackageInfo entryPkgInfo;
 
-    DebuggerExecutor(CompileResult result, String functionName, String[] args, TestDebugger debugger,
+    DebuggerExecutor(CompileResult result, String[] args, TestDebugger debugger,
                      List<BreakPointDTO> breakPoints) {
         this.result = result;
-        this.functionName = functionName;
         this.args = args;
         this.debugger = debugger;
         this.breakPoints = breakPoints;
@@ -62,7 +58,7 @@ public class DebuggerExecutor implements Runnable {
     private void init() {
         ProgramFile programFile = result.getProgFile();
 
-        if ((MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable())) {
+        if (!programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
 
@@ -91,7 +87,7 @@ public class DebuggerExecutor implements Runnable {
         }
 
         // Invoke package init function
-        FunctionInfo funcInfo = BLangProgramRunner.getEntryFunctionInfo(entryPkgInfo, functionName);
+        FunctionInfo funcInfo = BLangProgramRunner.getMainFunctionInfo(entryPkgInfo);
         try {
             BVMExecutor.executeEntryFunction(programFile, funcInfo, arrayArgs);
         } catch (Exception e) {

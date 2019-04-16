@@ -75,7 +75,7 @@ function Λάβετετοόνομα() (string) {
 For more detailed information, see "IdentifierLiteral" in the [Ballerina grammar definition](https://github.com/ballerinalang/ballerina/blob/master/docs/grammar/Ballerina.g4).
 
 ### Reserved names
-When naming Ballerina elements, Swagger files, program files, and packages, do **not** use the following terms for the name, as these terms are reserved in Ballerina:
+When naming Ballerina elements, OpenApi files, program files, and packages, do **not** use the following terms for the name, as these terms are reserved in Ballerina:
 
 - all
 - any

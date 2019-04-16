@@ -49,9 +49,9 @@ public class BMapBValueProvider implements SerializationBValueProvider<BMap> {
 
     @Override
     public BPacket toBValue(BMap bMap, BValueSerializer serializer) {
+        BValue value = serializer.toBValue(bMap.getType(), null);
         LinkedHashMap implMap = bMap.getMap();
         BValue serialized = serializer.toBValue(implMap, implMap.getClass());
-        BValue value = serializer.toBValue(bMap.getType(), null);
         return BPacket.from(typeName(), serialized).put(MAP_STORAGE_TYPE, value);
     }
 
@@ -59,9 +59,11 @@ public class BMapBValueProvider implements SerializationBValueProvider<BMap> {
     @SuppressWarnings("unchecked")
     public BMap toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
         BMap payload = (BMap<String, BValue>) packet.getValue();
-        HashMap deserializedMap = (HashMap) bValueDeserializer.deserialize(payload, HashMap.class);
         BType type = (BType) bValueDeserializer.deserialize(packet.get(MAP_STORAGE_TYPE), BType.class);
+        bValueDeserializer.addObjReference((BMap<String, BValue>) packet.get(MAP_STORAGE_TYPE), type);
         BMap bMap = new BMap(type);
+        bValueDeserializer.addObjReference(packet.toBMap(), bMap);
+        HashMap deserializedMap = (HashMap) bValueDeserializer.deserialize(payload, HashMap.class);
         bMap.getMap().putAll(deserializedMap);
         return bMap;
     }

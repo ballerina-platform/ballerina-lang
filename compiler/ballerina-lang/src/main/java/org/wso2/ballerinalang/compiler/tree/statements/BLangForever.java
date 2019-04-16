@@ -36,14 +36,11 @@ public class BLangForever extends BLangExpressionStmt implements ForeverNode {
     private List<StreamingQueryStatementNode> streamingQueryStatementNodeList = new ArrayList<>();
     private String siddhiQuery;
     private SymbolEnv env;
-    private boolean isSiddhiRuntimeEnabled = true;
+    private boolean isSiddhiRuntimeEnabled = false;
     public List<BLangSimpleVariable> params;
 
-    public BLangForever() {
-        String siddhiRuntimeEnabledProperty = System.getProperty("enable.siddhiRuntime");
-        if (siddhiRuntimeEnabledProperty != null) {
-            isSiddhiRuntimeEnabled = Boolean.parseBoolean(siddhiRuntimeEnabledProperty);
-        }
+    public BLangForever(boolean isSiddhiRuntimeEnabled) {
+        this.isSiddhiRuntimeEnabled = isSiddhiRuntimeEnabled;
     }
 
     @Override

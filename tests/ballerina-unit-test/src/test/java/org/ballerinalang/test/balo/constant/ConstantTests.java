@@ -17,16 +17,18 @@
  */
 package org.ballerinalang.test.balo.constant;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.balo.BaloCreator;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -215,7 +217,7 @@ public class ConstantTests {
     public void testByteTypeWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testByteTypeWithType");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 240);
+        Assert.assertEquals(((BByte) returns[0]).intValue(), 240);
     }
 
     @Test
@@ -236,7 +238,7 @@ public class ConstantTests {
     public void testDecimalTypeWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalTypeWithType");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
+        Assert.assertEquals(((BDecimal) returns[0]).floatValue(), 4.0);
     }
 
     @Test
@@ -260,5 +262,22 @@ public class ConstantTests {
         Assert.assertNotNull(returns[1]);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.0);
+    }
+
+    @Test
+    public void testNilWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilWithoutType");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void testNilWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilWithType");
+        Assert.assertNull(returns[0]);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "foo");
     }
 }

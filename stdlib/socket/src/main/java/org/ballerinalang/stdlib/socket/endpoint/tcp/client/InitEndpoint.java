@@ -37,16 +37,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.SocketException;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_SERVICE_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_CLOSE;
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_CONNECT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_ERROR;
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_READ_READY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
@@ -60,7 +56,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Client", structPackage = SOCKET_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
@@ -83,8 +79,9 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             clientEndpoint.addNativeData(IS_CLIENT, true);
             BMap<String, BValue> endpointConfig = (BMap<String, BValue>) context.getRefArgument(1);
             Map<String, Resource> resourceMap = null;
+            // Client has a callback service, so filter out resources for future dispatching.
             if (service != null) {
-                resourceMap = getResourceMap(service);
+                resourceMap = SocketUtils.getResourceRegistry(service);
             }
             clientEndpoint.addNativeData(SOCKET_SERVICE, new SocketService(socketChannel, resourceMap));
             clientEndpoint.addNativeData(CLIENT_CONFIG, endpointConfig);
@@ -97,38 +94,5 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         }
     }
 
-    private Map<String, Resource> getResourceMap(Service service) {
-        return getResourceRegistry(service);
-    }
 
-    private Map<String, Resource> getResourceRegistry(Service service) {
-        Map<String, Resource> registry = new HashMap<>(4);
-        byte resourceCount = 0;
-        for (Resource resource : service.getResources()) {
-            switch (resource.getName()) {
-                case RESOURCE_ON_CONNECT:
-                    registry.put(RESOURCE_ON_CONNECT, resource);
-                    resourceCount++;
-                    break;
-                case RESOURCE_ON_READ_READY:
-                    registry.put(RESOURCE_ON_READ_READY, resource);
-                    resourceCount++;
-                    break;
-                case RESOURCE_ON_ERROR:
-                    registry.put(RESOURCE_ON_ERROR, resource);
-                    resourceCount++;
-                    break;
-                case RESOURCE_ON_CLOSE:
-                    registry.put(RESOURCE_ON_CLOSE, resource);
-                    resourceCount++;
-                    break;
-                default:
-                    // Do nothing.
-            }
-            if (resourceCount == 4) {
-                break;
-            }
-        }
-        return registry;
-    }
 }

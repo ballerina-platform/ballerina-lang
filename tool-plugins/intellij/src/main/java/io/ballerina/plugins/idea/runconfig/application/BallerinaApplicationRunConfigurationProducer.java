@@ -17,6 +17,7 @@
 package io.ballerina.plugins.idea.runconfig.application;
 
 import com.intellij.psi.PsiFile;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import io.ballerina.plugins.idea.runconfig.BallerinaRunConfigurationProducerBase;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,6 +34,11 @@ public class BallerinaApplicationRunConfigurationProducer
     @NotNull
     @Override
     protected String getConfigurationName(@NotNull PsiFile file) {
-        return file.getName();
+        String packageName = BallerinaPsiImplUtil.getPackage(file);
+        if (!packageName.equals("")) {
+            return packageName + " module";
+        } else {
+            return file.getName();
+        }
     }
 }

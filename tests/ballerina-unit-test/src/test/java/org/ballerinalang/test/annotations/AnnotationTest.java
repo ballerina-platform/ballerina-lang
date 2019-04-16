@@ -16,13 +16,9 @@
  */
 package org.ballerinalang.test.annotations;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.util.codegen.AnnAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnAttributeValue;
-import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -32,97 +28,9 @@ import org.testng.annotations.Test;
  */
 public class AnnotationTest {
 
-    private CompileResult compileResult;
-
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile(this, "test-src/lang/annotations",
-                "lang.annotations.foo");
-    }
-
-    @Test(description = "Test function annotation", enabled = false)
-    public void testFunctionAnnotation() {
-        AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
-                .getEntryPackage().getFunctionInfo("foo")
-                .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        AnnAttachmentInfo[] attachmentInfos = annotationInfo.getAttachmentInfoEntries();
-
-        String attributeValue = attachmentInfos[0].getAttributeValue("value").getStringValue();
-        Assert.assertEquals(attributeValue, "This is a test function");
-
-        AnnAttributeValue firstElement = attachmentInfos[0].getAttributeValue("queryParamValue")
-                .getAttributeValueArray()[0];
-        attributeValue = firstElement.getAnnotationAttachmentValue()
-                .getAttributeValue("name").getStringValue();
-        Assert.assertEquals(attributeValue, "paramName3");
-
-        AnnAttributeValue secondElement = attachmentInfos[0].getAttributeValue("queryParamValue")
-                .getAttributeValueArray()[1];
-        attributeValue = secondElement.getAnnotationAttachmentValue()
-                .getAttributeValue("name").getStringValue();
-        Assert.assertEquals(attributeValue, "paramName2");
-
-        AnnAttributeValue thirdElement = attachmentInfos[0].getAttributeValue("queryParamValue")
-                .getAttributeValueArray()[2];
-        attributeValue = thirdElement.getAnnotationAttachmentValue()
-                .getAttributeValue("name").getStringValue();
-        Assert.assertEquals(attributeValue, "paramName");
-
-        Assert.assertEquals(attachmentInfos[1].getAttributeValue("value").getStringValue(),
-                "test @Args annotation");
-    }
-
-    @Test(description = "Test function parameter annotation", enabled = false)
-    public void testParameterAnnotation() {
-        AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
-                .getEntryPackage().getFunctionInfo("foo")
-                .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        AnnAttachmentInfo[] attachmentInfos = annotationInfo.getAttachmentInfoEntries();
-        // TODO ParamDef AnnAttachmentInfo are not available at AnnotationAttributeInfo
-        // String attributeValue = annottations[0].getAttribute("value").getLiteralValue().stringValue();
-        // Assert.assertEquals(attributeValue, "args: input parameter : type string");
-    }
-
-    @Test(description = "Test service annotation", enabled = false)
-    public void testServiceAnnotation() {
-        AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
-                .getEntryPackage().getServiceInfo("PizzaService")
-                .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        AnnAttachmentInfo[] attachmentInfos = annotationInfo.getAttachmentInfoEntries();
-        String attributeValue = attachmentInfos[0].getAttributeValue("value").getStringValue();
-        Assert.assertEquals(attributeValue, "Pizza service");
-    }
-
-    @Test(description = "Test resource annotation", enabled = false)
-    public void testResourceAnnotation() {
-        AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
-                .getEntryPackage().getServiceInfo("PizzaService").getResourceInfoEntries()[1]
-                .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        AnnAttachmentInfo[] attachmentInfos = annotationInfo.getAttachmentInfoEntries();
-
-        String attributeValue = attachmentInfos[0].getAttributeValue("value").getStringValue();
-        Assert.assertEquals(attributeValue, "Order pizza");
-
-        annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
-                .getEntryPackage().getServiceInfo("PizzaService").getResourceInfoEntries()[0]
-                .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        attachmentInfos = annotationInfo.getAttachmentInfoEntries();
-
-        attributeValue = attachmentInfos[0].getAttributeValue("value").getStringValue();
-        Assert.assertEquals(attributeValue, "Check order status");
-        // TODO ParamDef AnnAttachmentInfo are not available at AnnotationAttributeInfo
-        // String paramAnnotVal = orderPizzaResource.getParameterDefs()[0].getAnnotations()[0].getValue();
-        // Assert.assertEquals(paramAnnotVal, "input parameter for oderPizza resource");
-    }
-
-    @Test(description = "Test struct annotation", enabled = false)
-    public void testStructAnnotation() {
-        AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
-                .getEntryPackage().getStructInfo("Person")
-                .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        AnnAttachmentInfo[] attachmentInfos = annotationInfo.getAttachmentInfoEntries();
-        String attributeValue = attachmentInfos[0].getAttributeValue("value").getStringValue();
-        Assert.assertEquals(attributeValue, "User defined struct : Person");
+        BCompileUtil.compile(this, "test-src/lang/annotations", "lang.annotations.foo");
     }
 
     @Test(description = "Test constant annotation", enabled = false)
@@ -161,31 +69,6 @@ public class AnnotationTest {
 //        Assert.assertEquals(attributeValue, "first query param name");
     }
 
-    @Test(description = "Test annotation array", enabled = false)
-    public void testAnnotationArray() {
-        AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
-                .getEntryPackage().getFunctionInfo("foo")
-                .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        AnnAttachmentInfo[] attachmentInfos = annotationInfo.getAttachmentInfoEntries();
-
-        AnnAttributeValue[] annotationArray = attachmentInfos[0]
-                .getAttributeValue("queryParamValue").getAttributeValueArray();
-        Assert.assertEquals(annotationArray.length, 3, "Wrong annotation array length");
-
-        String attributeValue = annotationArray[2]
-                .getAnnotationAttachmentValue().getAttributeValue("name").getStringValue();
-        Assert.assertEquals(attributeValue, "paramName");
-
-        attributeValue = annotationArray[1]
-                .getAnnotationAttachmentValue().getAttributeValue("name").getStringValue();
-        Assert.assertEquals(attributeValue, "paramName2");
-
-        attributeValue = annotationArray[0]
-                .getAnnotationAttachmentValue().getAttributeValue("name").getStringValue();
-        Assert.assertEquals(attributeValue, "paramName3");
-
-    }
-
     @Test(description = "Test annotation attachment package valdation", enabled = false)
     public void testValidAnnoatationAttachmentPackage() {
         Assert.assertNotNull(BCompileUtil.compile(this, "test-src/lang/annotations",
@@ -204,7 +87,7 @@ public class AnnotationTest {
     public void testInvalidChildAnnotation() {
         CompileResult resNegative = BCompileUtil.compile("test-src/lang/annotations/invalid-child-annotation.bal");
         Assert.assertEquals(resNegative.getErrorCount(), 3);
-        BAssertUtil.validateError(resNegative, 0, "invalid usage of record literal with type 'anydata'", 1, 12);
+        BAssertUtil.validateError(resNegative, 0, "invalid literal for type 'anydata|error'", 1, 12);
         BAssertUtil.validateError(resNegative, 1, "missing non-defaultable required record field 'value'", 1, 6);
         BAssertUtil.validateError(resNegative, 2, "missing non-defaultable required record field 'prop'", 1, 6);
     }
@@ -352,39 +235,4 @@ public class AnnotationTest {
                 "incompatible types: expected 'string', found 'int'", 4, 15);
     }
 
-    @Test(description = "Test default values for annotation", enabled = false)
-    public void testDefaultValues() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lang/annotations/default-values.bal");
-        AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
-                .getEntryPackage().getFunctionInfo("foo")
-                .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        AnnAttachmentInfo[] attachmentInfos = annotationInfo.getAttachmentInfoEntries();
-
-        // check for default values for basic literal attributes
-        Assert.assertEquals(attachmentInfos[0].getAttributeValue("value").getStringValue(),
-                "Description of the service/function");
-
-        // check for default values for non-literal attributes
-        Assert.assertEquals(attachmentInfos[0].getAttributeValue("queryParamValue"), null);
-
-        // check for default values for nested annotations
-        AnnAttachmentInfo nestedArgAnnot = attachmentInfos[0]
-                .getAttributeValue("args").getAnnotationAttachmentValue();
-        Assert.assertEquals(nestedArgAnnot.getAttributeValue("value").getStringValue(),
-                "default value for 'Args' annotation in doc package");
-
-        // check for default values for nested annotations arrays
-        AnnAttachmentInfo nestedAnnot = attachmentInfos[0].getAttributeValue("queryParamValue2")
-                .getAttributeValueArray()[0]
-                .getAnnotationAttachmentValue();
-        Assert.assertEquals(nestedAnnot.getAttributeValue("name").getStringValue(), "default name");
-        Assert.assertEquals(nestedAnnot.getAttributeValue("value").getStringValue(), "default value");
-
-        // check for default values for a local annotations
-        Assert.assertEquals(attachmentInfos[1].getAttributeValue("value").getStringValue(),
-                "default value for local 'Args' annotation");
-
-        long status = attachmentInfos[3].getAttributeValue("status").getIntValue();
-        Assert.assertEquals(status, 200);
-    }
 }

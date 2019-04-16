@@ -3,7 +3,7 @@
 # `SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);`
 # + accessMode - read or write mode
 # + return - success or not
-function File.open (string accessMode) returns (boolean) {
+public function File.open (string accessMode) returns (boolean) {
     return true;
 }
 

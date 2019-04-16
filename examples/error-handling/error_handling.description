@@ -1,2 +1,2 @@
-// In Ballerina, error handling can be performed either by returning a value of type `error`, or by panic.
-// An `error` type in Ballerina should be structurally equivalent to the built-in `error` type.
+// In Ballerina, errors can be returned or can cause abrupt completion via panic.
+// This example demonstrates how errors can be returned, and how returned errors can be handled.

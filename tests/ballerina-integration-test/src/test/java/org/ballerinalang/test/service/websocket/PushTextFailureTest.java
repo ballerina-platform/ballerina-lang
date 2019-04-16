@@ -32,7 +32,6 @@ import java.net.URISyntaxException;
  *
  * @since 0.982.0
  */
-// Todo: Fix this test -- some issue with error not being returned always
 @Test(groups = {"websocket-test"})
 public class PushTextFailureTest extends WebSocketTestCommons {
 
@@ -47,7 +46,7 @@ public class PushTextFailureTest extends WebSocketTestCommons {
         serverInstance.addLogLeecher(logLeecher);
     }
 
-    @Test(description = "Checks for the log that is printed when pushText fails. T")
+    @Test(description = "Checks for the log that is printed when pushText fails.")
     public void pushTextFailure() throws BallerinaTestException, URISyntaxException, InterruptedException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
         client.handshake();

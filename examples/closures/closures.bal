@@ -2,11 +2,11 @@ import ballerina/io;
 
 int globalA = 5;
 
-// Basic example where an anonymous function with an 'if' block accesses its outer scope
+// Basic example where an anonymous function with an `if` block accesses its outer scope
 // variables.
 function basicClosure() returns (function (int) returns int) {
     int a = 3;
-    var foo =  function (int b) returns int {
+    var foo = function (int b) returns int {
         int c = 34;
         if (b == 3) {
             c = c + b + a + globalA;
@@ -22,9 +22,15 @@ function multilevelClosure() returns (function (int) returns int) {
     int a = 2;
     var func1 = function (int x) returns int {
         int b = 23;
+        // Variable `a` defined in the outer scope is modified.
+        // The original value of `a` will be changed to `10`.
+        a = a + 8;
         var func2 = function (int y) returns int {
             int c = 7;
             var func3 = function (int z) returns int {
+                // Variable `b` defined in function `func1` is modified.
+                // The original value of `b` will be changed to `24`.
+                b = b + 1;
                 return x + y + z + a + b + c;
             };
             return func3.call(8) + y + x;
@@ -34,7 +40,7 @@ function multilevelClosure() returns (function (int) returns int) {
     return func1;
 }
 
-// Example to represents how function pointers are passed with closures
+// Example to represent how function pointers are passed with closures
 // so that the inner scope anonymous function can access the outer scope variables.
 function functionPointers(int a) returns
                     (function (int) returns (function (int) returns int)) {
@@ -64,5 +70,4 @@ public function main() {
     var baz2 = baz1.call(5);
     int result3 = baz2.call(3);
     io:println("Answer: " + result3);
-
 }

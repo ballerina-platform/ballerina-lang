@@ -14,11 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person1 record {
+type Person1 record {|
     string name;
     int age;
-    !...
-};
+|};
 
 type AnotherPerson1 record {
     string name;
@@ -86,11 +85,10 @@ function testReqFieldToOptField() returns AnotherPerson4 {
 // Test for when the optional fields of RHS type correspond to optional fields of LHS type.
 // This is allowed.
 
-type Person2 record {
+type Person2 record {|
     string name;
     int age?;
-    !...
-};
+|};
 
 function testOptFieldToOptField1() returns AnotherPerson4 {
     Person2 p = {name:"John Doe", age:25};
@@ -113,13 +111,12 @@ function testOptFieldToOptField2() returns (AnotherPerson4, int) {
 // Test for when RHS type has additional fields than the LHS type.
 // This is allowed.
 
-type Person3 record {
+type Person3 record {|
     string name;
     int age;
     string address;
     float weight?;
-    !...
-};
+|};
 
 function testAdditionalFieldsToRest() returns AnotherPerson1 {
     Person3 p = {name:"John Doe", age:25, address:"Colombo, Sri Lanka", weight:70.0};

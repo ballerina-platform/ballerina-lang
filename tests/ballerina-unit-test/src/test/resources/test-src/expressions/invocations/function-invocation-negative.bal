@@ -10,3 +10,7 @@ function ambiguousFuncTest(int val) {
 function testUndefinedFunction() {
     foo();
 }
+
+private function testMyFunc() {
+
+}

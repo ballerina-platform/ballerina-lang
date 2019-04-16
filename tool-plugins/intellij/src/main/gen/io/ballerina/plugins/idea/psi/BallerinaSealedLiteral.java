@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaSealedLiteral extends BallerinaCompositeElement {
+public interface BallerinaSealedLiteral extends PsiElement {
 
   @NotNull
   PsiElement getEllipsis();

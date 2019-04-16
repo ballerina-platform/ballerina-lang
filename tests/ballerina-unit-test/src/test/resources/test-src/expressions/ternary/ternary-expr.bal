@@ -47,7 +47,7 @@ function test7 (string s) returns (int|error) {
 }
 
 function test8 (string s) returns (string) {
-    string x = string `hello {{s == "world" ? "world...!!" : "everyone..!"}}`;
+    string x = string `hello ${s == "world" ? "world...!!" : "everyone..!"}`;
     return x;
 }
 
@@ -97,4 +97,18 @@ function testNestedTernary5 (int value) returns (string, string) {
     string s1 = value > 50 ? "morethan50" : value > 30 ? value > 40 ? "morethan40" : "lessthan40" : value > 20 ? "morethan20" : "lessthan20";
     string s2 = value > 50 ? "morethan50" : (value > 30 ? (value > 40 ? "morethan40" : "lessthan40") : (value > 20 ? "morethan20" : "lessthan20"));
     return (s1, s2);
+}
+
+function testErrorInTernary() returns int|error {
+    int x = 8;
+    var result = x > 5 ? decrement(x) : increment(x);
+    return result;
+}
+
+function decrement(int i) returns error|int {
+    return i - 1;
+}
+
+function increment(int i) returns error|int {
+    return i + 1;
 }

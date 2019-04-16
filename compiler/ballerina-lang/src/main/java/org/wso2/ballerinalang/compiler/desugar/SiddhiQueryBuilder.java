@@ -344,7 +344,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
             String op = " == ";
             if (expr.rhsExpr instanceof BLangLiteral) {
                 BLangLiteral literal = (BLangLiteral) expr.rhsExpr;
-                if (literal.typeTag == TypeTags.NIL && literal.value == null) {
+                if (literal.type.tag == TypeTags.NIL && literal.value == null) {
                     op = " is "; // siddhi equivalent of '==' with null on rhs ( e.g. where e2 is null)
                 }
             }
@@ -358,7 +358,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         } else if (expr.opKind == OperatorKind.NOT_EQUAL) {
             if (expr.rhsExpr instanceof BLangLiteral) {
                 BLangLiteral literal = (BLangLiteral) expr.rhsExpr;
-                if (literal.typeTag == TypeTags.NIL && literal.value == null) {
+                if (literal.type.tag == TypeTags.NIL && literal.value == null) {
                     exprStack.pop();
                     expr.lhsExpr.accept(this);
                     expr.rhsExpr.accept(this);
@@ -433,7 +433,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     @Override
     public void visit(BLangLiteral bLangLiteral) {
         String literal = String.valueOf(bLangLiteral.value);
-        if (bLangLiteral.typeTag == TypeTags.STRING) {
+        if (bLangLiteral.type.tag == TypeTags.STRING) {
             literal = String.format("'%s'", literal);
         }
         exprStack.push(literal);

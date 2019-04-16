@@ -32,6 +32,18 @@ public class TCPSocketCallback implements CallableUnitCallback {
 
     private static final Logger log = LoggerFactory.getLogger(TCPSocketCallback.class);
 
+    private SocketService socketService;
+    private boolean executeFailureOnce = false;
+
+    public TCPSocketCallback(SocketService socketService) {
+        this.socketService = socketService;
+    }
+
+    public TCPSocketCallback(SocketService socketService, boolean executeFailureOnce) {
+        this.socketService = socketService;
+        this.executeFailureOnce = executeFailureOnce;
+    }
+
     @Override
     public void notifySuccess() {
         log.debug("Socket resource dispatch succeed.");
@@ -39,8 +51,15 @@ public class TCPSocketCallback implements CallableUnitCallback {
 
     @Override
     public void notifyFailure(BError error) {
+        String errorMsg = error.stringValue();
         if (log.isDebugEnabled()) {
-            log.debug("Socket resource dispatch failed: " + error.getDetails().stringValue());
+            log.debug("Socket resource dispatch failed: " + errorMsg);
+        }
+        if (!executeFailureOnce) {
+            // This is the first failure. Hence dispatching to onError.
+            SelectorDispatcher.invokeOnError(socketService, new TCPSocketCallback(socketService, true), error);
+        } else {
+            log.error("NotifyFailure hit twice, hence preventing error dispatching. Cause: " + errorMsg);
         }
     }
 }

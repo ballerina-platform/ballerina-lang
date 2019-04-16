@@ -33,6 +33,7 @@ public class Names {
     public static final Name DOT = new Name(".");
     public static final Name DEFAULT_PACKAGE = DOT;
     public static final Name BUILTIN_PACKAGE = new Name("builtin");
+    public static final Name UTILS_PACKAGE = new Name("utils");
     public static final Name BUILTIN_ORG = new Name("ballerina");
     public static final Name RUNTIME_PACKAGE = new Name("runtime");
     public static final Name TRANSACTION_ORG = new Name("ballerina");
@@ -43,8 +44,7 @@ public class Names {
     public static final Name INVALID = new Name("><");
     public static final Name GEN_VAR_PREFIX = new Name("_$$_");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
-    public static final Name ASSERTION_OP = new Name("(<type>)");
-    public static final Name CAST_OP = new Name("<<type>>");
+    public static final Name CAST_OP = new Name("<type>");
     public static final Name CONVERSION_OP = new Name("convert");
     public static final Name SERVICE = new Name("service");
     public static final Name ABSTRACT_LISTENER = new Name("AbstractListener");
@@ -63,6 +63,7 @@ public class Names {
 
     public static final Name BIR_BASIC_BLOCK_PREFIX = new Name("bb");
     public static final Name BIR_LOCAL_VAR_PREFIX = new Name("%");
+    public static final Name BIR_GLOBAL_VAR_PREFIX = new Name("#");
 
     // Names related to Endpoint SPI.
     public static final Name EP_SERVICE_GET_ENDPOINT = new Name("getEndpoint");

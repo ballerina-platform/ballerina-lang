@@ -30,13 +30,13 @@ WORKER      : 'worker' ;
 LISTENER    : 'listener' ;
 REMOTE      : 'remote' ;
 XMLNS       : 'xmlns' ;
-RETURNS     : 'returns';
-VERSION     : 'version';
-DEPRECATED  : 'deprecated';
-CHANNEL     : 'channel';
-ABSTRACT    : 'abstract';
-CLIENT      : 'client';
-CONST       : 'const';
+RETURNS     : 'returns' ;
+VERSION     : 'version' ;
+DEPRECATED  : 'deprecated' ;
+CHANNEL     : 'channel' ;
+ABSTRACT    : 'abstract' ;
+CLIENT      : 'client' ;
+CONST       : 'const' ;
 
 FROM        : 'from' { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
@@ -47,13 +47,8 @@ HAVING      : 'having' ;
 ORDER       : 'order' ;
 WHERE       : 'where' ;
 FOLLOWED    : 'followed' ;
-INTO        : 'into' ;
-SET         : 'set' ;
 FOR         : 'for' { inSiddhiTimeScaleQuery = true; } ;
 WINDOW      : 'window' ;
-QUERY       : 'query' ;
-EXPIRED     : 'expired' ;
-CURRENT     : 'current' ;
 EVENTS      : {inSiddhiInsertQuery}? 'events' { inSiddhiInsertQuery = false; } ;
 EVERY       : 'every' ;
 WITHIN      : 'within' { inSiddhiTimeScaleQuery = true; } ;
@@ -67,7 +62,6 @@ RIGHT       : 'right' ;
 LEFT        : 'left' ;
 FULL        : 'full' ;
 UNIDIRECTIONAL  : 'unidirectional' ;
-REDUCE      : 'reduce' ;
 SECOND      : {inSiddhiTimeScaleQuery}? 'second' { inSiddhiTimeScaleQuery = false; } ;
 MINUTE      : {inSiddhiTimeScaleQuery}? 'minute' { inSiddhiTimeScaleQuery = false; } ;
 HOUR        : {inSiddhiTimeScaleQuery}? 'hour' { inSiddhiTimeScaleQuery = false; } ;
@@ -131,7 +125,6 @@ ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
 COMMITTED   : 'committed' ;
 ABORTED     : 'aborted' ;
-LENGTHOF    : 'lengthof' ;
 WITH        : 'with' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
@@ -170,7 +163,7 @@ ADD     : '+' ;
 SUB     : '-' ;
 MUL     : '*' ;
 DIV     : '/' ;
-MOD     : '%';
+MOD     : '%' ;
 
 // Relational operators
 
@@ -232,10 +225,6 @@ HexIntegerLiteral
     :   HexNumeral
     ;
 
-BinaryIntegerLiteral
-    :   BinaryNumeral
-    ;
-
 fragment
 DecimalNumeral
     :   '0'
@@ -283,21 +272,6 @@ HexDigits
 fragment
 HexDigit
     :   [0-9a-fA-F]
-    ;
-
-fragment
-BinaryNumeral
-    :   '0' [bB] BinaryDigits
-    ;
-
-fragment
-BinaryDigits
-    :   BinaryDigit+
-    ;
-
-fragment
-BinaryDigit
-    :   [01]
     ;
 
 // §3.10.2 Floating-Point Literals
@@ -365,26 +339,6 @@ QuotedStringLiteral
     :   '"' StringCharacters? '"'
     ;
 
-SymbolicStringLiteral
-    :   '\'' (UndelimeteredInitialChar UndelimeteredFollowingChar*)
-    ;
-
-fragment
-UndelimeteredInitialChar
-    : [a-zA-Z_]
-    // Negates ASCII characters
-    // Negates unicode whitespace characters : 0x200E, 0x200F, 0x2028 and 0x2029
-    // Negates unicode characters with property Pattern_Syntax=True (http://unicode.org/reports/tr31/tr31-2.html#Pattern_Syntax)
-    // Negates unicode characters of category "Private Use" ranging from: 0xE000 .. 0xF8FF | 0xF0000 .. 0xFFFFD | 0x100000 .. 0x10FFFD
-    | ~ [\u0000-\u007F\uE000-\uF8FF\u200E\u200F\u2028\u2029\u00A1-\u00A7\u00A9\u00AB-\u00AC\u00AE\u00B0-\u00B1\u00B6-\u00B7\u00BB\u00BF\u00D7\u00F7\u2010-\u2027\u2030-\u205E\u2190-\u2BFF\u3001-\u3003\u3008-\u3020\u3030\uFD3E-\uFD3F\uFE45-\uFE46\uDB80-\uDBBF\uDBC0-\uDBFF\uDC00-\uDFFF]
-    ;
-
-fragment
-UndelimeteredFollowingChar
-    : UndelimeteredInitialChar
-    | DIGIT
-    ;
-
 fragment
 StringCharacters
     :   StringCharacter+
@@ -412,32 +366,32 @@ UnicodeEscape
 // Blob Literal
 
 Base16BlobLiteral
-    : 'base16' WS* BACKTICK HexGroup* WS* BACKTICK
+    :   'base16' WS* BACKTICK HexGroup* WS* BACKTICK
     ;
 
 fragment
 HexGroup
-    : WS* HexDigit WS* HexDigit
+    :   WS* HexDigit WS* HexDigit
     ;
 
 Base64BlobLiteral
-    : 'base64' WS* BACKTICK Base64Group* PaddedBase64Group? WS* BACKTICK
+    :   'base64' WS* BACKTICK Base64Group* PaddedBase64Group? WS* BACKTICK
     ;
 
 fragment
 Base64Group
-    : WS* Base64Char WS* Base64Char WS* Base64Char WS* Base64Char
+    :   WS* Base64Char WS* Base64Char WS* Base64Char WS* Base64Char
     ;
 
 fragment
 PaddedBase64Group
-    : WS* Base64Char WS* Base64Char WS* Base64Char WS* PaddingChar
-    | WS* Base64Char WS* Base64Char WS* PaddingChar WS* PaddingChar
+    :   WS* Base64Char WS* Base64Char WS* Base64Char WS* PaddingChar
+    |   WS* Base64Char WS* Base64Char WS* PaddingChar WS* PaddingChar
     ;
 
 fragment
 Base64Char
-    : [a-zA-Z0-9+/]
+    :   [a-zA-Z0-9+/]
     ;
 
 fragment
@@ -450,7 +404,7 @@ NullLiteral
     ;
 
 Identifier
-    :   ( Letter LetterOrDigit* )
+    :   (Letter LetterOrDigit*)
     |   IdentifierLiteral
     ;
 
@@ -503,9 +457,12 @@ ExpressionEnd
 
 // Whitespace and comments
 
-WS  :  [ \t]+ -> channel(HIDDEN)
+WS
+    :   [ \t]+ -> channel(HIDDEN)
     ;
-NEW_LINE  :  [\r\n\u000C]+ -> channel(HIDDEN)
+
+NEW_LINE
+    :   [\r\n\u000C]+ -> channel(HIDDEN)
     ;
 
 LINE_COMMENT
@@ -514,19 +471,19 @@ LINE_COMMENT
 
 fragment
 IdentifierLiteral
-    : '^"' IdentifierLiteralChar+ '"' ;
+    :   '^"' IdentifierLiteralChar+ '"' ;
 
 fragment
 IdentifierLiteralChar
-    : ~[|"\\\b\f\n\r\t]
-    | IdentifierLiteralEscapeSequence
+    :   ~[|"\\\b\f\n\r\t]
+    |   IdentifierLiteralEscapeSequence
     ;
 
 fragment
 IdentifierLiteralEscapeSequence
-    : '\\' [|"\\/]
-    | '\\\\' [btnfr]
-    | UnicodeEscape
+    :   '\\' [|"\\/]
+    |   '\\\\' [btnfr]
+    |   UnicodeEscape
     ;
 
 mode MARKDOWN_DOCUMENTATION;
@@ -682,10 +639,10 @@ XMLText
 
 fragment
 XMLTextChar
-    :    ~[<&`{}]
-    |    '\\' [`]
-    |    XML_WS
-    |    XMLEscapedSequence
+    :   ~[<&`{}]
+    |   '\\' [`]
+    |   XML_WS
+    |   XMLEscapedSequence
     ;
 
 fragment
@@ -776,8 +733,8 @@ XMLDoubleQuotedString
 
 fragment
 XMLDoubleQuotedStringChar
-    :    ~[<"{}\\]
-    |    XMLEscapedSequence
+    :   ~[<"{}\\]
+    |   XMLEscapedSequence
     ;
 
 
@@ -799,8 +756,8 @@ XMLSingleQuotedString
 
 fragment
 XMLSingleQuotedStringChar
-    :    ~[<'{}\\]
-    |    XMLEscapedSequence
+    :   ~[<'{}\\]
+    |   XMLEscapedSequence
     ;
 
 mode XML_PI;
@@ -820,13 +777,13 @@ XMLPITemplateText
 
 fragment
 XMLPITextFragment
-    :    XMLPIAllowedSequence? (XMLPIChar XMLPIAllowedSequence?)*
+    :   XMLPIAllowedSequence? (XMLPIChar XMLPIAllowedSequence?)*
     ;
 
 fragment
 XMLPIChar
-    :    ~[{}?>]
-    |    XMLEscapedSequence
+    :   ~[{}?>]
+    |   XMLEscapedSequence
     ;
 
 
@@ -854,7 +811,7 @@ XML_COMMENT_END
     ;
 
 XMLCommentText
-    :    XMLCommentTextFragment XML_COMMENT_END    -> popMode
+    :   XMLCommentTextFragment XML_COMMENT_END    -> popMode
     ;
 
 XMLCommentTemplateText
@@ -868,8 +825,8 @@ XMLCommentTextFragment
 
 fragment
 XMLCommentChar
-    :    ~[{}>\-]
-    |    XMLEscapedSequence
+    :   ~[{}>\-]
+    |   XMLEscapedSequence
     ;
 
 fragment
@@ -890,16 +847,16 @@ XMLCommentSpecialSequence
 mode TRIPLE_BACKTICK_INLINE_CODE;
 
 TripleBackTickInlineCodeEnd
-    : BACKTICK BACKTICK BACKTICK              -> popMode
+    :   BACKTICK BACKTICK BACKTICK              -> popMode
     ;
 
 TripleBackTickInlineCode
-    : TripleBackTickInlineCodeChar+
+    :   TripleBackTickInlineCodeChar+
     ;
 
 fragment
 TripleBackTickInlineCodeChar
-    :  ~[`]
+    :   ~[`]
     |   [`] ~[`]
     |   [`] [`] ~[`]
     ;
@@ -907,32 +864,32 @@ TripleBackTickInlineCodeChar
 mode DOUBLE_BACKTICK_INLINE_CODE;
 
 DoubleBackTickInlineCodeEnd
-    : BACKTICK BACKTICK                       -> popMode
+    :   BACKTICK BACKTICK                       -> popMode
     ;
 
 DoubleBackTickInlineCode
-    : DoubleBackTickInlineCodeChar+
+    :   DoubleBackTickInlineCodeChar+
     ;
 
 fragment
 DoubleBackTickInlineCodeChar
-    :  ~[`]
+    :   ~[`]
     |   [`] ~[`]
     ;
 
 mode SINGLE_BACKTICK_INLINE_CODE;
 
 SingleBackTickInlineCodeEnd
-    : BACKTICK                                -> popMode
+    :   BACKTICK                                -> popMode
     ;
 
 SingleBackTickInlineCode
-    : SingleBackTickInlineCodeChar+
+    :   SingleBackTickInlineCodeChar+
     ;
 
 fragment
 SingleBackTickInlineCodeChar
-    :  ~[`]
+    :   ~[`]
     ;
 
 // Todo - Remove after finalizing the new deprecated annotation
@@ -944,15 +901,15 @@ DeprecatedTemplateEnd
     ;
 
 SBDeprecatedInlineCodeStart
-    :  DeprecatedBackTick                                                     -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
+    :   DeprecatedBackTick                                                     -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
     ;
 
 DBDeprecatedInlineCodeStart
-    :  DeprecatedBackTick DeprecatedBackTick                                  -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
+    :   DeprecatedBackTick DeprecatedBackTick                                  -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
     ;
 
 TBDeprecatedInlineCodeStart
-    :  DeprecatedBackTick DeprecatedBackTick DeprecatedBackTick               -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
+    :   DeprecatedBackTick DeprecatedBackTick DeprecatedBackTick               -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
     ;
 
 DeprecatedTemplateText
@@ -980,8 +937,8 @@ DeprecatedEscapedSequence
 
 fragment
 DeprecatedValidCharSequence
-     :  '\\' ~'\\'
-     ;
+    :   '\\' ~'\\'
+    ;
 
 mode STRING_TEMPLATE;
 

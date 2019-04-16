@@ -6,10 +6,10 @@
   "source": "annotation/source/resourceAnnotation2.bal",
   "items": [
     {
-      "label":"swagger:ResourceInfo",
+      "label":"openapi:ResourceInfo",
       "detail":"Annotation",
       "sortText":"110",
-      "insertText":"swagger:ResourceInfo {\n\t${1}\n}",
+      "insertText":"openapi:ResourceInfo {\n\t${1}\n}",
       "insertTextFormat":"Snippet",
       "additionalTextEdits":[
         {
@@ -23,7 +23,7 @@
               "character":22
             }
           },
-          "newText":"import ballerina/swagger;\n"
+          "newText":"import ballerina/openapi;\n"
         }
       ]
     },

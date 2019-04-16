@@ -37,6 +37,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -70,6 +71,8 @@ import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_MESSAGE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
+import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
+import static org.ballerinalang.mime.util.MimeConstants.ONE_BYTE;
 import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.PRIMARY_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
@@ -524,8 +527,39 @@ public class MimeUtil {
         return isJSONContentType(entityRecord) && isJSONCompatible(value.getType());
     }
 
-    public static String validateContentType(String contentType) throws MimeTypeParseException {
-        MimeType mimeType = new MimeType(contentType);
-        return mimeType.getBaseType();
+    /**
+     * Validate the given Content-Type.
+     *
+     * @param contentType Content-Type value as a string
+     * @return true if the value is valid
+     */
+    public static Boolean isValidateContentType(String contentType) {
+        try {
+            new MimeType(contentType);
+        } catch (MimeTypeParseException e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Given a {@link HttpCarbonMessage}, returns the content length extracting from headers.
+     *
+     * @param httpCarbonMessage Represent the message
+     * @return length of the content
+     */
+    public static long extractContentLength(HttpCarbonMessage httpCarbonMessage) {
+        long contentLength = NO_CONTENT_LENGTH_FOUND;
+        String lengthStr = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
+        try {
+            contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
+            if (contentLength == NO_CONTENT_LENGTH_FOUND) {
+                //Read one byte to make sure the incoming stream has data
+                contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
+            }
+        } catch (NumberFormatException e) {
+            throw new BallerinaException("Invalid content length");
+        }
+        return contentLength;
     }
 }

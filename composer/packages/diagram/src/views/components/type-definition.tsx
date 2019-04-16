@@ -1,9 +1,9 @@
 
 import { ASTUtil, ObjectType, TypeDefinition as TypeDefinitionNode } from "@ballerina/ast-model";
-import { getCodePoint } from "@ballerina/font";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
+import { getCodePoint } from "../../utils";
 import { ViewState } from "../../view-model/index";
 
 const config: DiagramConfig = DiagramUtils.getConfig();

@@ -38,7 +38,7 @@ type Test object {
 # + accessMode - read or write mode
 # + accessMode - read or write mode
 # + successfuls - boolean `true` or `false`
-function File.open (string accessMode) returns (boolean) {
+public function File.open (string accessMode) returns (boolean) {
     boolean successful = false;
     return successful;
 }
@@ -90,7 +90,7 @@ service PizzaService on new http:Listener(9090) {
 
     resource function orderPizza(http:Caller conn, http:Request req) {
         http:Response res = new;
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 }
 

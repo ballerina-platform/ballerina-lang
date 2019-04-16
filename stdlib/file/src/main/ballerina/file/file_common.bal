@@ -18,13 +18,11 @@
 #
 # + name - Absolute file URI for triggerd event
 # + operation - Triggered event action. This can be create, delete or modify
-public type FileEvent record {
+public type FileEvent record {|
     string name;
     string operation;
-    !...
-};
+|};
 
-type FileError record {
+type FileError record {|
     string message = "";
-    !...
-};
+|};

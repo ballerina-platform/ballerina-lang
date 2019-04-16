@@ -32,10 +32,14 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Map;
+
+import static org.ballerinalang.bre.bvm.BVM.isByteLiteral;
 
 /**
  * Util Class for handling structs in Ballerina VM.
@@ -103,10 +107,14 @@ public class BLangVMStructs {
                 }
                 break;
             case TypeTags.BYTE_TAG:
-                if (value instanceof Byte) {
-                    return new BByte(((Byte) value));
-                } else if (value instanceof Integer) {
-                    return new BByte(((Integer) value).byteValue());
+                long longValue;
+                if (value instanceof Byte || value instanceof Integer || value instanceof Long) {
+                    longValue = ((Number) value).longValue();
+                    if (!isByteLiteral(longValue)) {
+                        throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                "'int' value '" + value + "' cannot be converted to 'byte'");
+                    }
+                    return new BByte(longValue);
                 } else if (value instanceof BByte) {
                     return (BByte) value;
                 }

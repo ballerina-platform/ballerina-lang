@@ -1,4 +1,0 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
-$ ballerina run --experimental identify_patterns.bal
-alertRoomAction function invoked for Room : 2 and the action : stop

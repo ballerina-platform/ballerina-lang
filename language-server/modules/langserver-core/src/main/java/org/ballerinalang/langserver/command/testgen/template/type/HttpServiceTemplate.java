@@ -88,14 +88,16 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
      */
     public void render(RendererOutput rendererOutput) throws TestGeneratorException {
         String filename = (isSecure) ? "httpsService.bal" : "httpService.bal";
+        String httpEndpoint = getSafeName("httpEndpoint");
         RendererOutput serviceOutput = new TemplateBasedRendererOutput(filename);
         serviceOutput.put(PlaceHolder.OTHER.get("testServiceFunctionName"), testServiceFunctionName);
         serviceOutput.put(PlaceHolder.OTHER.get("serviceUriStrName"), serviceUriStrName);
-        serviceOutput.put(PlaceHolder.OTHER.get("endpointName"), getSafeName("wsEndpoint"));
+        serviceOutput.put(PlaceHolder.OTHER.get("endpointName"), httpEndpoint);
 
         // Iterate through resources
         for (BLangFunction resource : resources) {
-            HttpResourceTemplate resTemplate = new HttpResourceTemplate(serviceUriStrName, serviceBasePath, resource);
+            HttpResourceTemplate resTemplate = new HttpResourceTemplate(serviceUriStrName, serviceBasePath, resource,
+                                                                        httpEndpoint);
             resTemplate.render(serviceOutput);
         }
 

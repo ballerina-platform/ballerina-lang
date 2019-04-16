@@ -15,25 +15,21 @@
 // under the License.
 
 import ballerina/cache;
-import ballerina/internal;
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
 
 # Represents a JWT Authenticator
 #
-# + jwtAuthProviderConfig - JWT authentication provider configurations
 public type JWTAuthProvider object {
 
     public JWTAuthProviderConfig jwtAuthProviderConfig;
-    private cache:Cache authCache;
 
     # Provides authentication based on the provided jwt token
     #
     # + jwtAuthProviderConfig - JWT authentication provider configurations
     public function __init(JWTAuthProviderConfig jwtAuthProviderConfig) {
         self.jwtAuthProviderConfig = jwtAuthProviderConfig;
-        self.authCache = new;
     }
 
     # Authenticate with a jwt token
@@ -42,19 +38,41 @@ public type JWTAuthProvider object {
     # + return - true if authentication is successful, false otherwise.
     #            If an error occur during authentication, the error will be returned.
     public function authenticate(string jwtToken) returns boolean|error {
-        if (self.authCache.hasKey(jwtToken)) {
+        if (self.jwtAuthProviderConfig.jwtCache.hasKey(jwtToken)) {
             var payload = self.authenticateFromCache(jwtToken);
-            if (payload is internal:JwtPayload) {
-                self.setAuthContext(payload, jwtToken);
+            if (payload is JwtPayload) {
+                check self.setAuthenticationContext(payload, jwtToken);
                 return true;
             } else {
                 return false;
             }
         }
 
-        var payload = internal:validate(jwtToken, self.jwtAuthProviderConfig);
-        if (payload is internal:JwtPayload) {
-            self.setAuthContext(payload, jwtToken);
+        JWTValidatorConfig jwtValidatorConfig = { clockSkew: self.jwtAuthProviderConfig.clockSkew };
+        var issuer = self.jwtAuthProviderConfig["issuer"];
+        if (issuer is string) {
+            jwtValidatorConfig.issuer = issuer;
+        }
+        var audience = self.jwtAuthProviderConfig["audience"];
+        if (audience is string[]) {
+            jwtValidatorConfig.audience = audience;
+        }
+        var trustStore = self.jwtAuthProviderConfig["trustStore"];
+        if (trustStore is crypto:TrustStore) {
+            jwtValidatorConfig.trustStore = trustStore;
+        }
+        var certificateAlias = self.jwtAuthProviderConfig["certificateAlias"];
+        if (certificateAlias is string) {
+            jwtValidatorConfig.certificateAlias = certificateAlias;
+        }
+        var validateCertificateConfig = self.jwtAuthProviderConfig["validateCertificate"];
+        if (validateCertificateConfig is boolean) {
+            jwtValidatorConfig.validateCertificate = validateCertificateConfig;
+        }
+
+        var payload = validateJwt(jwtToken, jwtValidatorConfig);
+        if (payload is JwtPayload) {
+            check self.setAuthenticationContext(payload, jwtToken);
             self.addToAuthenticationCache(jwtToken, payload.exp, payload);
             return true;
         } else {
@@ -62,50 +80,54 @@ public type JWTAuthProvider object {
         }
     }
 
-    function authenticateFromCache(string jwtToken) returns internal:JwtPayload|() {
-        var context = trap <CachedJWTAuthContext>self.authCache.get(jwtToken);
-        if (context is CachedJWTAuthContext) {
+    function authenticateFromCache(string jwtToken) returns JwtPayload|() {
+        var cachedJwt = trap <CachedJwt>self.jwtAuthProviderConfig.jwtCache.get(jwtToken);
+        if (cachedJwt is CachedJwt) {
             // convert to current time and check the expiry time
-            if (context.expiryTime > (time:currentTime().time / 1000)) {
-                internal:JwtPayload payload = context.jwtPayload;
+            if (cachedJwt.expiryTime > (time:currentTime().time / 1000)) {
+                JwtPayload payload = cachedJwt.jwtPayload;
                 log:printDebug(function() returns string {
                     return "Authenticate user :" + payload.sub + " from cache";
                 });
                 return payload;
+            } else {
+                self.jwtAuthProviderConfig.jwtCache.remove(jwtToken);
             }
         }
         return ();
     }
 
-    function addToAuthenticationCache(string jwtToken, int exp, internal:JwtPayload payload) {
-        CachedJWTAuthContext cachedContext = {jwtPayload : payload, expiryTime : exp};
-        self.authCache.put(jwtToken, cachedContext);
+    function addToAuthenticationCache(string jwtToken, int exp, JwtPayload payload) {
+        CachedJwt cachedJwt = {jwtPayload : payload, expiryTime : exp};
+        self.jwtAuthProviderConfig.jwtCache.put(jwtToken, cachedJwt);
         log:printDebug(function() returns string {
             return "Add authenticated user :" + payload.sub + " to the cache";
         });
     }
 
-    function setAuthContext(internal:JwtPayload jwtPayload, string jwtToken) {
-        runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-        userPrincipal.userId = jwtPayload.iss + ":" + jwtPayload.sub;
+    function setAuthenticationContext(JwtPayload jwtPayload, string jwtToken) returns error? {
+        runtime:Principal principal = runtime:getInvocationContext().principal;
+        principal.userId = jwtPayload.iss + ":" + jwtPayload.sub;
         // By default set sub as username.
-        userPrincipal.username = jwtPayload.sub;
-        userPrincipal.claims = jwtPayload.customClaims;
+        principal.username = jwtPayload.sub;
+        principal.claims = jwtPayload.customClaims;
         if (jwtPayload.customClaims.hasKey(SCOPES)) {
             var scopeString = jwtPayload.customClaims[SCOPES];
             if (scopeString is string) {
-                userPrincipal.scopes = scopeString.split(" ");
+                principal.scopes = scopeString.split(" ");
+            } else if (scopeString is json[]) {
+                principal.scopes = check string[].convert(scopeString);
             }
         }
         if (jwtPayload.customClaims.hasKey(USERNAME)) {
             var name = jwtPayload.customClaims[USERNAME];
             if (name is string) {
-                userPrincipal.username = name;
+                principal.username = name;
             }
         }
-        runtime:AuthContext authContext = runtime:getInvocationContext().authContext;
-        authContext.scheme = AUTH_TYPE_JWT;
-        authContext.authToken = jwtToken;
+        runtime:AuthenticationContext authenticationContext = runtime:getInvocationContext().authenticationContext;
+        authenticationContext.scheme = AUTH_TYPE_JWT;
+        authenticationContext.authToken = jwtToken;
     }
 
 };
@@ -120,21 +142,25 @@ const string AUTH_TYPE_JWT = "jwt";
 # + issuer - Identifier of the token issuer
 # + audience - Identifier of the token recipients
 # + clockSkew - Time in seconds to mitigate clock skew
+# + trustStore - Trust store used for signature verification
 # + certificateAlias - Token signed key alias
-# + trustStoreFilePath - Path to the trust store file
-# + trustStorePassword - Trust store password
-public type JWTAuthProviderConfig record {
-    string issuer = "";
-    string audience = "";
+# + validateCertificate - Validate public key certificate notBefore and notAfter periods
+# + jwtCache - Cache used to store parsed JWT information as CachedJwt
+public type JWTAuthProviderConfig record {|
+    string issuer?;
+    string[] audience?;
     int clockSkew = 0;
-    string certificateAlias = "";
-    string trustStoreFilePath = "";
-    string trustStorePassword = "";
-    !...
-};
+    crypto:TrustStore trustStore?;
+    string certificateAlias?;
+    boolean validateCertificate?;
+    cache:Cache jwtCache = new;
+|};
 
-type CachedJWTAuthContext record {
-    internal:JwtPayload jwtPayload;
+# Represents parsed and cached JWT
+#
+# + jwtPayload - Parsed JWT payload
+# + expiryTime - Expiry time of the JWT
+public type CachedJwt record {|
+    JwtPayload jwtPayload;
     int expiryTime;
-    !...
-};
+|};

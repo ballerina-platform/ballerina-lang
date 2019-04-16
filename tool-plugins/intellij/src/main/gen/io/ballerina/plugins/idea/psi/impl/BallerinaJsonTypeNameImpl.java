@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaJsonTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaJsonTypeName {
+public class BallerinaJsonTypeNameImpl extends ASTWrapperPsiElement implements BallerinaJsonTypeName {
 
   public BallerinaJsonTypeNameImpl(@NotNull ASTNode node) {
     super(node);
@@ -42,27 +43,9 @@ public class BallerinaJsonTypeNameImpl extends BallerinaCompositeElementImpl imp
   }
 
   @Override
-  @Nullable
-  public BallerinaNameReference getNameReference() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaNameReference.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getGt() {
-    return findChildByType(GT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLt() {
-    return findChildByType(LT);
-  }
-
-  @Override
   @NotNull
   public PsiElement getJson() {
-    return notNullChild(findChildByType(JSON));
+    return findNotNullChildByType(JSON);
   }
 
 }
