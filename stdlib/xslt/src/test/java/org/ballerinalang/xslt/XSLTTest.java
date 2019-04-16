@@ -18,27 +18,55 @@
 
 package org.ballerinalang.xslt;
 
-import org.testng.annotations.AfterClass;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.net.URISyntaxException;
+
+import static org.ballerinalang.stdlib.common.CommonTestUtils.getAbsoluteFilePath;
+
 
 /**
  * Class to test XSL transformation.
  */
 public class XSLTTest {
 
+    private CompileResult compileResult;
+
     @BeforeClass
     public void setup() {
+        compileResult = BCompileUtil.compileAndSetup("test-src/read-from-file.bal");
+    }
+
+    @Test(description = "Test hub start up and URL identification")
+    public void performXslt() throws URISyntaxException {
+        String xmlFilePath = "datafiles/cd_catalog.xml";
+        String xslFilePath = "datafiles/cd_catalog.xsl";
+
+        BValue[] args = {new BString(getAbsoluteFilePath(xmlFilePath)), new BString(getAbsoluteFilePath(xslFilePath))};
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "readFromFile", args);
+        Assert.assertNotNull(returns[0].stringValue());
+        System.out.println(returns[0].stringValue());
+//        Assert.assertEquals(returns[0].stringValue(), readFileContent(resourceToRead), "XML content mismatch.");
 
     }
 
     @Test(description = "Test hub start up and URL identification")
-    public void testHubStartUp() {
+    public void performXsltViaBallerina() throws URISyntaxException {
+        String xmlFilePath = "datafiles/cd_catalog_short.xml";
+        String xslFilePath = "datafiles/cd_catalog.xsl";
 
-    }
-
-    @AfterClass
-    public void tearDown() {
+        BValue[] args = {new BString(getAbsoluteFilePath(xmlFilePath)), new BString(getAbsoluteFilePath(xslFilePath))};
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "readFromFile", args);
+        Assert.assertNotNull(returns[0].stringValue());
+        System.out.println(returns[0].stringValue());
+//        Assert.assertEquals(returns[0].stringValue(), readFileContent(resourceToRead), "XML content mismatch.");
 
     }
 }
