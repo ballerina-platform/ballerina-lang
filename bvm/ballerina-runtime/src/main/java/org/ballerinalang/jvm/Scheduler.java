@@ -44,6 +44,7 @@ public class Scheduler {
     public FutureValue schedule(Object[] params, Function function) {
         FutureValue future = createFuture();
         params[0] = future.strand;
+        future.strand.frames = new Object[100];
         SchedulerItem item = new SchedulerItem(function, params, future);
         runnableList.add(item);
         return future;
@@ -57,6 +58,7 @@ public class Scheduler {
      */
     public FutureValue schedule(Object[] params, Consumer consumer) {
         FutureValue future = createFuture();
+        future.strand.frames = new Object[100];
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         runnableList.add(item);
@@ -95,8 +97,11 @@ public class Scheduler {
             item.future.isDone = true;
             ArrayList<SchedulerItem> blockedItems = blockedList.get(item.future.strand);
             if (blockedItems != null) {
-                item.future.strand.blocked = false;
-                blockedItems.forEach(strand -> runnableList.add(item));
+                blockedItems.forEach(blockedItem -> {
+                    blockedItem.future.strand.blocked = false;
+                    blockedItem.future.strand.yield = false;
+                    runnableList.add(blockedItem);
+                });
                 blockedList.remove(item.future.strand);
             }
         }

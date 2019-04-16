@@ -594,8 +594,7 @@ type InstructionGenerator object {
         self.generateVarStore(typeTestIns.lhsOp.variableDcl);
     }
 
-    function generateWaitIns(bir:Wait waitInst, TerminatorGenerator termGen, bir:Function func, int returnVarRefIndex, 
-        jvm:Label yieldLabel) {
+    function generateWaitIns(bir:Wait waitInst, bir:Function func, jvm:Label yieldLabel) {
         // TODO : need to fix to support multiple waits
         bir:VarRef? futureVal = waitInst.exprList[0];
         if (futureVal is bir:VarRef) {
@@ -627,9 +626,7 @@ type InstructionGenerator object {
         self.mv.visitVarInsn(ALOAD, 0);
         self.mv.visitInsn(ICONST_1);
         self.mv.visitFieldInsn(PUTFIELD, STRAND, "yield", "Z");
-        // return
-        termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
-        // self.mv.visitJumpInsn(GOTO, yieldLabel);
+        self.mv.visitJumpInsn(GOTO, yieldLabel);
         self.mv.visitLabel(label);
 
         // future.result = lhs

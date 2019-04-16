@@ -693,4 +693,10 @@ public class TypesTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
         Assert.assertEquals(returns[3].stringValue(), "february");
     }
+
+    @Test
+    public void testWait() {
+        BValue[] result = BRunUtil.invoke(compileResult, "waitTest");
+        Assert.assertEquals(result[0].stringValue(), "wait");
+    }
 }

@@ -210,7 +210,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                 instGen.generateTypeTestIns(inst);
             } else if (inst is bir:Wait) {
                 jvm:Label yieldLabel = labelGen.getLabel(funcName + "yield");
-                instGen.generateWaitIns(inst, termGen, func, returnVarRefIndex, yieldLabel);
+                instGen.generateWaitIns(inst, func, yieldLabel);
             } else {
                 error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
@@ -238,11 +238,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     localVarOffset);
         } else if (terminator is bir:AsyncCall) {
             termGen.genAsyncCallTerm(terminator, funcName);
-            // testing with yield
-            // mv.visitVarInsn(ALOAD, 0);
-            // mv.visitInsn(ICONST_1);
-            // mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
-            // termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
         } else if (terminator is bir:Branch) {
             termGen.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
@@ -983,7 +978,7 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         bir:BType bType = localVar.typeValue;
         var fieldName = localVar.name.value.replace("%","_");
-        generateField(cw, bType, fieldName);
+        generateField(cw, bType, fieldName, false);
         k = k + 1;
     }
 
@@ -1008,7 +1003,7 @@ function cleanupTypeName(string name) returns string {
     return name.replace("$","_");
 }
 
-function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName) {
+function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, boolean isPackage) {
     string typeSig;
     if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
         typeSig = "J";
@@ -1044,7 +1039,12 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName) {
         panic err;
     }
 
-    jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, fieldName, typeSig);
+    jvm:FieldVisitor fv;
+    if (isPackage) {
+        fv = cw.visitField(ACC_STATIC, fieldName, typeSig);
+    } else {
+        fv = cw.visitField(ACC_PROTECTED, fieldName, typeSig);
+    }
     fv.visitEnd();
 }
 

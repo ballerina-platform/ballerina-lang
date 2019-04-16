@@ -599,3 +599,14 @@ function testBooleanArrayToJsonAssignment() returns (json, json) {
     j[3] = true;
     return (j, j[1]);
 }
+
+function waitTest() returns string {
+   //future<()> p = start foo("abc", 7);
+   future<string> p2 = start foo2("wait");
+   future<string> p3 = acceptFuture(p2);
+
+   string result = wait p2;
+//    wait p;
+   
+   return result;
+}
