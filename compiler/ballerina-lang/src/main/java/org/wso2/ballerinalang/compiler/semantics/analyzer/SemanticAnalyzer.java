@@ -2258,6 +2258,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType annotType = annotationSymbol.attachedType.type;
         this.typeChecker.checkExpr(annAttachmentNode.expr, env,
                                    annotType.tag == TypeTags.ARRAY ? ((BArrayType) annotType).eType : annotType);
+
+        if (Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
+            checkConstantExpression(annAttachmentNode.expr);
+        }
     }
 
     private void validateAnnotationAttachmentCount(BLangNode node, List<BLangAnnotationAttachment> attachments) {

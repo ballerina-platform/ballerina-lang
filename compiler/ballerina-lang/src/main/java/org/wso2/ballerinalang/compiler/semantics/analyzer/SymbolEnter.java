@@ -281,6 +281,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (!isValidAnnotationType(type)) {
                 dlog.error(annotationNode.typeNode.pos, DiagnosticCode.ANNOTATION_INVALID_TYPE, type);
             }
+
+            if (annotationNode.flagSet.contains(Flag.CONSTANT)) {
+                if (!isAllowedConstantType(annotationSymbol, annotationNode.typeNode)) {
+                    dlog.error(annotationNode.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, type);
+                }
+            }
         }
 
         if (!annotationNode.flagSet.contains(Flag.CONSTANT) &&
@@ -1055,8 +1061,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private boolean isAllowedConstantType(BConstantSymbol symbol, BLangType typeNode) {
-        switch (symbol.literalValueType.tag) {
+    private boolean isAllowedConstantType(BSymbol symbol, BLangType typeNode) {
+        int typeTag = symbol.getKind() == SymbolKind.CONSTANT ?
+                ((BConstantSymbol) symbol).literalValueType.tag : typeNode.type.tag;
+
+        switch (typeTag) {
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
             case TypeTags.BYTE:
