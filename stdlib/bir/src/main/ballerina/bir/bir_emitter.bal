@@ -107,16 +107,15 @@ public type BirEmitter object {
         self.typeEmitter.emitType(bFunction.typeValue);
         println(" {");
         foreach var v in bFunction.localVars {
-            if (v is VariableDcl) {
-                self.typeEmitter.emitType(v.typeValue, tabs = tabs + "\t");
-                print(" ");
-                if (v.name.value == "%0") {
-                    print("%ret");
-                } else {
-                    print(v.name.value);
-                }
-                println("\t// ", v.kind);
+            VariableDcl varDecl = getVariableDcl(v);
+            self.typeEmitter.emitType(varDecl.typeValue, tabs = tabs + "\t");
+            print(" ");
+            if (varDecl.name.value == "%0") {
+                print("%ret");
+            } else {
+                print(varDecl.name.value);
             }
+            println("\t// ", varDecl.kind);
         }
         println();// empty line
         foreach var b in bFunction.basicBlocks {
@@ -336,10 +335,9 @@ type TypeEmitter object {
         }
         print("record { ");
         foreach var f in bRecordType.fields {
-            if (f is BRecordField) {
-                self.emitType(f.typeValue, tabs = tabs + "\t");
-                print(" ", f.name.value);
-            }
+            BRecordField recField = getRecordField(f);
+            self.emitType(recField.typeValue, tabs = tabs + "\t");
+            print(" ", recField.name.value);
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
         print("...");
@@ -364,13 +362,12 @@ type TypeEmitter object {
         // int pCount = bInvokableType.paramTypes.size(); 
         int i = 0;
         foreach var p in bInvokableType.paramTypes {
-            if (p is BType) {
-                if (i != 0) {
-                    print(", ");
-                }
-                self.emitType(p);
-                i = i + 1;
+            BType pType = getType(p);
+            if (i != 0) {
+                print(", ");
             }
+            self.emitType(pType);
+            i = i + 1;
         }
         print(") -> ");
         self.emitType(bInvokableType.retType);
@@ -387,14 +384,13 @@ type TypeEmitter object {
         int i = 0;
         string tabst = tabs;
         foreach var t in bUnionType.members {
-            if (t is BType) {
-                if (i != 0) {
-                    print(" | ");
-                    tabst = "";
-                }
-                self.emitType(t, tabs = tabst);
-                i = i + 1;
+            BType mType = getType(t);
+            if (i != 0) {
+                print(" | ");
+                tabst = "";
             }
+            self.emitType(mType, tabs = tabst);
+            i = i + 1;
         }
     }
 
@@ -402,13 +398,12 @@ type TypeEmitter object {
         int i = 0;
         print(tabs, "(");
         foreach var t in bUnionType.tupleTypes {
-            if (t is BType) {
-                if (i != 0) {
-                    print(", ");
-                }
-                self.emitType(t);
-                i = i + 1;
+            BType tType = getType(t);
+            if (i != 0) {
+                print(", ");
             }
+            self.emitType(tType);
+            i = i + 1;
         }
         print(")");
     }

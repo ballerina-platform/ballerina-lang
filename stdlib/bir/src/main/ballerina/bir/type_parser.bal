@@ -110,13 +110,9 @@ public type TypeParser object {
         } else if (typeTag == self.TYPE_TAG_JSON){
             return TYPE_JSON;
         } else if (typeTag == self.TYPE_TAG_SELF){
-            BType? stackElem = self.compositeStack[self.compositeStackI - 1];
-
-            if (stackElem is BType) {
-                int selfIndex = self.reader.readInt32();
-                Self t = {bType: stackElem};
-                return t;
-            }
+            int selfIndex = self.reader.readInt32();
+            Self t = {bType: getType(self.compositeStack[self.compositeStackI - 1])};
+            return t;
         }
         error err = error("Unknown type tag :" + typeTag);
         panic err;

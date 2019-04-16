@@ -516,18 +516,17 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
     mv.visitTypeInsn(ANEWARRAY, BTYPE);
     int i = 0;
     foreach var memberType in memberTypes {
-        if (memberType is bir:BType) {
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn(i);
-            mv.visitInsn(L2I);
+        bir:BType mType = getType(memberType);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(i);
+        mv.visitInsn(L2I);
 
-            // Load the member type
-            loadType(mv, memberType);
+        // Load the member type
+        loadType(mv, mType);
 
-            // Add the member to the array
-            mv.visitInsn(AASTORE);
-            i += 1;
-        }
+        // Add the member to the array
+        mv.visitInsn(AASTORE);
+        i += 1;
     }
 
     // initialize the union type using the members array
@@ -549,12 +548,11 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
    
     bir:BType?[] tupleTypes = bType.tupleTypes;
     foreach var tupleType in tupleTypes {
-        if (tupleType is bir:BType) {
-            mv.visitInsn(DUP);
-            loadType(mv, tupleType);
-            mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
-            mv.visitInsn(POP);
-        }
+        bir:BType tType = getType(tupleType);
+        mv.visitInsn(DUP);
+        loadType(mv, tType);
+        mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
+        mv.visitInsn(POP);
     }
     mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", io:sprintf("(L%s;)V",LIST), false);
     return;

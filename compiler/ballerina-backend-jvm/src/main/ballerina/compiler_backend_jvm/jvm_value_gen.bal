@@ -128,16 +128,15 @@ public type ObjectGenerator object {
             bir:BType?[] paramTypes = func.funcType.paramTypes;
             int j = 0;
             foreach var paramType in paramTypes {
-                if (paramType is bir:BType) {
-                    // load parameters
-                    mv.visitVarInsn(ALOAD, 3);
+                bir:BType pType = getType(paramType);
+                // load parameters
+                mv.visitVarInsn(ALOAD, 3);
 
-                    // load j'th parameter
-                    mv.visitLdcInsn(j);
-                    mv.visitInsn(L2I);
-                    mv.visitInsn(AALOAD);
-                    addUnboxInsn(mv, paramType);
-                }
+                // load j'th parameter
+                mv.visitLdcInsn(j);
+                mv.visitInsn(L2I);
+                mv.visitInsn(AALOAD);
+                addUnboxInsn(mv, pType);
                 j += 1;
             }
 

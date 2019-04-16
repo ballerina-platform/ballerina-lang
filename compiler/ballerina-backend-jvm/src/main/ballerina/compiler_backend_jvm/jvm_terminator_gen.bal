@@ -219,56 +219,52 @@ type TerminatorGenerator object {
     }
 
     function visitArg(bir:VarRef? arg) returns string {
-        if (arg is bir:VarRef) {
-            bir:BType bType = arg.typeValue;
-            int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(arg.variableDcl));
-            if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
-                self.mv.visitVarInsn(LLOAD, argIndex);
-                return "J";
-            } else if (bType is bir:BTypeFloat) {
-                self.mv.visitVarInsn(DLOAD, argIndex);
-                return "D";
-            } else if (bType is bir:BTypeString) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-                return "Ljava/lang/String;";
-            } else if (bType is bir:BTypeBoolean) {
-                self.mv.visitVarInsn(ILOAD, argIndex);
-                return "Z";
-            } else if (bType is bir:BArrayType ||
-                        bType is bir:BTupleType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-                return io:sprintf("L%s;", ARRAY_VALUE);
-            } else if (bType is bir:BRecordType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-                return io:sprintf("L%s;", MAP_VALUE);
-            } else if (bType is bir:BMapType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-                return io:sprintf("L%s;", MAP_VALUE);
-            } else if (bType is bir:BObjectType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-                return io:sprintf("L%s;", OBJECT_VALUE);
-            } else if (bType is bir:BFutureType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-                return io:sprintf("L%s;", FUTURE_VALUE);
-            } else if (bType is bir:BErrorType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-                return io:sprintf("L%s;", ERROR_VALUE);
-            } else if (bType is bir:BTypeAny ||
-                        bType is bir:BTypeAnyData ||
-                        bType is bir:BTypeNil ||
-                        bType is bir:BUnionType ||
-                        bType is bir:BJSONType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-                return io:sprintf("L%s;", OBJECT);
-            } else {
-                error err = error( "JVM generation is not supported for type " +
-                                                    io:sprintf("%s", arg.typeValue));
-                panic err;
-            }
+        bir:VarRef argRef = getVarRef(arg);
+        bir:BType bType = argRef.typeValue;
+        int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(argRef.variableDcl));
+        if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+            self.mv.visitVarInsn(LLOAD, argIndex);
+            return "J";
+        } else if (bType is bir:BTypeFloat) {
+            self.mv.visitVarInsn(DLOAD, argIndex);
+            return "D";
+        } else if (bType is bir:BTypeString) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            return "Ljava/lang/String;";
+        } else if (bType is bir:BTypeBoolean) {
+            self.mv.visitVarInsn(ILOAD, argIndex);
+            return "Z";
+        } else if (bType is bir:BArrayType ||
+                    bType is bir:BTupleType) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            return io:sprintf("L%s;", ARRAY_VALUE);
+        } else if (bType is bir:BRecordType) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            return io:sprintf("L%s;", MAP_VALUE);
+        } else if (bType is bir:BMapType) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            return io:sprintf("L%s;", MAP_VALUE);
+        } else if (bType is bir:BObjectType) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            return io:sprintf("L%s;", OBJECT_VALUE);
+        } else if (bType is bir:BFutureType) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            return io:sprintf("L%s;", FUTURE_VALUE);
+        } else if (bType is bir:BErrorType) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            return io:sprintf("L%s;", ERROR_VALUE);
+        } else if (bType is bir:BTypeAny ||
+                    bType is bir:BTypeAnyData ||
+                    bType is bir:BTypeNil ||
+                    bType is bir:BUnionType ||
+                    bType is bir:BJSONType) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            return io:sprintf("L%s;", OBJECT);
+        } else {
+            error err = error( "JVM generation is not supported for type " +
+                                                io:sprintf("%s", argRef.typeValue));
+            panic err;
         }
-
-        error nilVarRefErr = error("Expected 'bir:VarRef', but found '()'");
-        panic nilVarRefErr;
     }
 
     function genPanicIns(bir:Panic panicTerm) {
@@ -311,48 +307,47 @@ type TerminatorGenerator object {
         
         int paramIndex = 1;
         foreach var arg in callIns.args {
-            if (arg is bir:VarRef) {
-                self.mv.visitInsn(DUP);
-                self.mv.visitIntInsn(BIPUSH, paramIndex);
+            bir:VarRef argRef = getVarRef(arg);
+            self.mv.visitInsn(DUP);
+            self.mv.visitIntInsn(BIPUSH, paramIndex);
 
-                int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(arg.variableDcl));
-                bir:BType bType = arg.typeValue;
+            int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(argRef.variableDcl));
+            bir:BType bType = argRef.typeValue;
 
-                if (bType is bir:BTypeInt) {
-                    self.mv.visitVarInsn(LLOAD, argIndex);
-                } else if (bType is bir:BTypeFloat) {
-                    self.mv.visitVarInsn(DLOAD, argIndex);
-                } else if (bType is bir:BTypeString) {
-                    self.mv.visitVarInsn(ALOAD, argIndex);
-                } else if (bType is bir:BTypeBoolean) {
-                    self.mv.visitVarInsn(ILOAD, argIndex);
-                } else if (bType is bir:BTypeByte) {
-                    self.mv.visitVarInsn(ILOAD, argIndex);
-                } else if (bType is bir:BArrayType ||
-                            bType is bir:BTupleType) {
-                    self.mv.visitVarInsn(ALOAD, argIndex);
-                } else if (bType is bir:BRecordType) {
-                    self.mv.visitVarInsn(ALOAD, argIndex);
-                } else if (bType is bir:BMapType) {
-                    self.mv.visitVarInsn(ALOAD, argIndex);
-                } else if (bType is bir:BObjectType) {
-                    self.mv.visitVarInsn(ALOAD, argIndex);
-                } else if (bType is bir:BErrorType) {
-                    self.mv.visitVarInsn(ALOAD, argIndex);
-                } else if (bType is bir:BTypeAny ||
-                            bType is bir:BTypeAnyData ||
-                            bType is bir:BTypeNil ||
-                            bType is bir:BUnionType) {
-                    self.mv.visitVarInsn(ALOAD, argIndex);
-                } else {
-                    error err = error( "JVM generation is not supported for type " +
-                                                        io:sprintf("%s", arg.typeValue));
-                    panic err;
-                }
-                generateObjectCast(bType, self.mv);
-                self.mv.visitInsn(AASTORE);
-                paramIndex += 1;
+            if (bType is bir:BTypeInt) {
+                self.mv.visitVarInsn(LLOAD, argIndex);
+            } else if (bType is bir:BTypeFloat) {
+                self.mv.visitVarInsn(DLOAD, argIndex);
+            } else if (bType is bir:BTypeString) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BTypeBoolean) {
+                self.mv.visitVarInsn(ILOAD, argIndex);
+            } else if (bType is bir:BTypeByte) {
+                self.mv.visitVarInsn(ILOAD, argIndex);
+            } else if (bType is bir:BArrayType ||
+                        bType is bir:BTupleType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BRecordType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BMapType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BObjectType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BErrorType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BTypeAny ||
+                        bType is bir:BTypeAnyData ||
+                        bType is bir:BTypeNil ||
+                        bType is bir:BUnionType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else {
+                error err = error( "JVM generation is not supported for type " +
+                                                    io:sprintf("%s", argRef.typeValue));
+                panic err;
             }
+            generateObjectCast(bType, self.mv);
+            self.mv.visitInsn(AASTORE);
+            paramIndex += 1;
         }
 
         string lambdaName = "$" + funcName + "$lambda$" + self.lambdaIndex + "$";

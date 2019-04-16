@@ -460,14 +460,13 @@ function generateLambdaMethod(bir:AsyncCall callIns, jvm:ClassWriter cw, string 
     bir:BType?[] paramBTypes = [];
     int paramIndex = 1;
     foreach var paramType in paramTypes {
-        if (paramType is bir:VarRef) {
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitIntInsn(BIPUSH, paramIndex);
-            mv.visitInsn(AALOAD);
-            checkCastFromObject(paramType.typeValue, mv);
-            paramBTypes[paramIndex -1] = paramType.typeValue;
-            paramIndex += 1;
-        }
+        bir:VarRef ref = getVarRef(paramType);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitIntInsn(BIPUSH, paramIndex);
+        mv.visitInsn(AALOAD);
+        checkCastFromObject(ref.typeValue, mv);
+        paramBTypes[paramIndex -1] = ref.typeValue;
+        paramIndex += 1;
     }
 
     mv.visitMethodInsn(INVOKESTATIC, className, callIns.name.value, getMethodDesc(paramBTypes, returnType), false);
@@ -520,12 +519,8 @@ function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType) returns stri
     string desc = "(Lorg/ballerinalang/jvm/Strand;";
     int i = 0;
     while (i < paramTypes.length()) {
-        bir:BType? paramType = paramTypes[i];
-
-        if (paramType is bir:BType) {
-            desc = desc + getArgTypeSignature(paramType);
-        }
-
+        bir:BType paramType = getType(paramTypes[i]);
+        desc = desc + getArgTypeSignature(paramType);
         i += 1;
     }
     string returnType = generateReturnType(retType);
@@ -656,12 +651,11 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     // load and cast param values
     int paramIndex = 0;
     foreach var paramType in paramTypes {
-        if (paramType is bir:BType) {
-            mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, paramIndex + 1);
-            generateParamCast(paramIndex, paramType, mv);
-            mv.visitInsn(AASTORE);
-        }
+        bir:BType pType = getType(paramType);
+        mv.visitInsn(DUP);
+        mv.visitIntInsn(BIPUSH, paramIndex + 1);
+        generateParamCast(paramIndex, pType, mv);
+        mv.visitInsn(AASTORE);
         paramIndex += 1;
     }
 
@@ -741,12 +735,11 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
 
     int paramIndex = 1;
     foreach var paramType in paramTypes {
-        if (paramType is bir:BType) {
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitIntInsn(BIPUSH, paramIndex);
-            mv.visitInsn(AALOAD);
-            castFromString(paramType, mv);
-        }
+        bir:BType pType = getType(paramType);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitIntInsn(BIPUSH, paramIndex);
+        mv.visitInsn(AALOAD);
+        castFromString(pType, mv);
         paramIndex += 1;
     }
 
@@ -1120,6 +1113,24 @@ function getRecordField(bir:BRecordField? recordField) returns bir:BRecordField 
         return recordField;
     } else {
         error err = error("Invalid record field");
+        panic err;
+    }
+}
+
+function getVarRef(bir:VarRef? varRef) returns bir:VarRef {
+    if (varRef is bir:VarRef) {
+        return varRef;
+    } else {
+        error err = error("Invalid variable reference");
+        panic err;
+    }
+}
+
+function getType(bir:BType? bType) returns bir:BType {
+    if (bType is bir:BType) {
+        return bType;
+    } else {
+        error err = error("Invalid type");
         panic err;
     }
 }
