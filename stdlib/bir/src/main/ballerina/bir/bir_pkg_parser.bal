@@ -51,6 +51,7 @@ public type PackageParser object {
     public function parseFunction(TypeDef?[] typeDefs) returns Function {
         var name = self.reader.readStringCpRef();
         var isDeclaration = self.reader.readBoolean();
+        var isInterface = self.reader.readBoolean();
         var visibility = parseVisibility(self.reader);
         var typeTag = self.reader.readInt8();
         if (typeTag != self.typeParser.TYPE_TAG_INVOKABLE) {
@@ -76,6 +77,7 @@ public type PackageParser object {
         return {
             name: { value: name },
             isDeclaration: isDeclaration,
+            isInterface:isInterface,
             visibility: visibility,
             localVars: dcls,
             basicBlocks: basicBlocks,

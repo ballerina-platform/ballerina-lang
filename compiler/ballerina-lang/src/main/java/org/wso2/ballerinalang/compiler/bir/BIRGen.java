@@ -183,6 +183,7 @@ public class BIRGen extends BLangNodeVisitor {
         Name funcName = getFuncName(astFunc.symbol);
         BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type);
         birFunc.isDeclaration = Symbols.isNative(astFunc.symbol);
+        birFunc.isInterface = astFunc.interfaceFunction;
         birFunc.argsCount = astFunc.requiredParams.size() +
                             astFunc.defaultableParams.size() + (astFunc.restParam != null ? 1 : 0);
         if (astFunc.flagSet.contains(Flag.ATTACHED)) {
@@ -206,6 +207,11 @@ public class BIRGen extends BLangNodeVisitor {
         astFunc.defaultableParams.forEach(defaultableParam -> addParam(birFunc, defaultableParam.var));
         if (astFunc.restParam != null) {
             addParam(birFunc, astFunc.restParam);
+        }
+
+        if (birFunc.isInterface || birFunc.isDeclaration) {
+            this.env.clear();
+            return;
         }
 
         // Create the entry basic block
