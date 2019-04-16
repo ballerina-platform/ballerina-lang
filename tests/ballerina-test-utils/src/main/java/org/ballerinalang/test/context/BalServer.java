@@ -67,9 +67,7 @@ public class BalServer {
             serverZipFile = serverZipFile.replace("/", "\\");
         }
         String extractedBalDir = serverZipFile.substring(serverZipFile.lastIndexOf(fileSeparator) + 1, indexOfZip);
-        String baseDirProp = System.getProperty(Constant.SYSTEM_PROP_BASE_DIR, ".");
-        // TODO: Remove second branch once we move away from maven
-        String baseDir = baseDirProp.contains("build") ? baseDirProp : baseDirProp + File.separator + "target";
+        String baseDir = (System.getProperty("libdir", "."));
 
         extractDir = new File(baseDir).getAbsolutePath() +
                 File.separator + "ballerinatmp" + System.currentTimeMillis();

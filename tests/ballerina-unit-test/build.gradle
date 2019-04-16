@@ -26,10 +26,16 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.hsqldb:hsqldb'
     testCompile 'org.mockito:mockito-all'
+    testCompile 'org.testcontainers:testcontainers'
+    testCompile 'org.testcontainers:postgresql'
+    testCompile 'org.testcontainers:mysql'
+    testCompile 'mysql:mysql-connector-java'
+    testCompile 'org.postgresql:postgresql'
     testCompile 'io.netty:netty-transport'
     testCompile 'io.netty:netty-codec'
     testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty'
     testCompile 'org.apache.ws.commons.axiom:axiom-dom'
+    testCompile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     testCompile 'org.testng:testng'
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-runtime')
@@ -77,6 +83,7 @@ task createBre(type: org.gradle.api.tasks.Copy) {
 }
 
 test {
+    systemProperty "ballerina.home", "$buildDir"
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 
@@ -93,6 +100,8 @@ test {
 
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
     testCompile.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
     testCompile.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
 }

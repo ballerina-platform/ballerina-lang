@@ -22,8 +22,10 @@ dependencies {
     implementation project(':ballerina-websub')
     implementation project(':ballerina-jms')
     implementation project(':ballerina-grpc')
+    implementation project(':ballerina-filepath')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-activemq-artemis')
+    implementation project(':ballerina-rabbitmq')
     implementation project(':ballerina-nats')
     implementation project(':ballerina-launcher')
 
@@ -67,7 +69,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 
-    dist 'com.h2database:h2:1.4.197'
+    dist 'com.h2database:h2:1.4.199'
     dist 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.6.0'
     dist 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.3.0'
     dist 'commons-io:commons-io:2.6'
@@ -87,11 +89,24 @@ CopySpec copyResourceSpec = copySpec {
     into("resources")
 }
 
+// Fix for windows class path too long issue
+task pathingJar(type: Jar) {
+    appendix = "pathing"
+    doFirst {
+        manifest {
+            attributes "Class-Path": sourceSets.main.runtimeClasspath.files.collect {
+                it.toURL().toString().replaceFirst("file:/", "/")
+            }.join(' ')
+        }
+    }
+}
+
 task generateIndex(type: JavaExec) {
+    dependsOn pathingJar
     outputs.dir("$buildDir/lib/tools/lang-server/resources")
     outputs.cacheIf { true }
     systemProperty("ballerina.home", "$buildDir")
-    classpath = sourceSets.main.runtimeClasspath
+    classpath = files(pathingJar.archivePath) + sourceSets.main.output
     main = 'org.ballerinalang.langserver.index.tools.IndexGenerator'
 
     // Uncomment the following to run the index generator in the debug mode while build
@@ -99,6 +114,8 @@ task generateIndex(type: JavaExec) {
 }
 
 task createZip(type: Zip) {
+    dependsOn createBalHome
+    dependsOn generateIndex
     with copyJarSpec
     with copyResourceSpec
 }
@@ -108,8 +125,6 @@ artifacts {
 }
 
 build {
-    dependsOn createBalHome
-    dependsOn generateIndex
     dependsOn createZip
 }
 

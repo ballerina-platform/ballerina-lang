@@ -96,6 +96,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeDefInfo;
@@ -108,6 +109,7 @@ import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
+import org.ballerinalang.util.codegen.cpentries.MapCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
@@ -304,6 +306,7 @@ public class BVM {
                 case InstructionCodes.RGLOAD:
                 case InstructionCodes.MAPLOAD:
                 case InstructionCodes.JSONLOAD:
+                case InstructionCodes.MCONST:
                     execLoadOpcodes(strand, sf, opcode, operands);
                     break;
 
@@ -1463,6 +1466,13 @@ public class BVM {
                 j = operands[1];
                 k = operands[2];
                 sf.refRegs[k] = JSONUtils.getElement(sf.refRegs[i], sf.stringRegs[j]);
+                break;
+            case InstructionCodes.MCONST:
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                PackageInfo packageInfoEntry = ctx.programFile.getPackageInfoEntries()[pkgIndex];
+                sf.refRegs[j] = ((MapCPEntry) packageInfoEntry.getConstPoolEntries()[i]).getBMap();
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -4327,15 +4337,15 @@ public class BVM {
     private static void handleMapStore(Strand ctx, BMap<String, BRefType> bMap, String fieldName,
                                        BRefType<?> value) {
         BType mapType = bMap.getType();
+        BType valuesType = value == null ? BTypes.typeNull : value.getType();
 
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                if (!isValidMapInsertion(mapType, value)) {
+                if (!checkIsType(value, ((BMapType) mapType).getConstrainedType())) {
                     BType expType = ((BMapType) mapType).getConstrainedType();
                     throw new BLangMapStoreException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
-                                                     BLangExceptionHelper
-                                                             .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
-                                                                              expType, value.getType()));
+                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                                    expType, valuesType));
                 }
                 insertToMap(ctx, bMap, fieldName, value);
                 break;
@@ -4347,7 +4357,7 @@ public class BVM {
                     throw new BLangMapStoreException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                                                      BLangExceptionHelper.getErrorMessage(
                                                              RuntimeErrors.INVALID_OBJECT_FIELD_ADDITION, fieldName,
-                                                             objFieldType, value.getType()));
+                                                             objFieldType, valuesType));
                 }
                 insertToMap(ctx, bMap, fieldName, value);
                 break;
@@ -4375,7 +4385,7 @@ public class BVM {
                     throw new BLangMapStoreException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                                                      BLangExceptionHelper.getErrorMessage(
                                                              RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName,
-                                                             recFieldType, value.getType()));
+                                                             recFieldType, valuesType));
                 }
 
                 insertToMap(ctx, bMap, fieldName, value);
@@ -4400,19 +4410,6 @@ public class BVM {
             ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), errMessage + e.getDetail()));
             handleError(ctx);
         }
-    }
-
-    private static boolean isValidMapInsertion(BType mapType, BValue value) {
-        if (value == null) {
-            return true;
-        }
-
-        BType constraintType = ((BMapType) mapType).getConstrainedType();
-        if (constraintType == BTypes.typeAny || constraintType.equals(value.getType())) {
-            return true;
-        }
-
-        return checkIsType(value, constraintType);
     }
 
     public static boolean isAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {

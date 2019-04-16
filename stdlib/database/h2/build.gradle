@@ -48,6 +48,7 @@ dependencies {
     testCompile project(':ballerina-time')
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-transactions')
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-cache')
     testCompile 'org.testng:testng'
@@ -71,6 +72,12 @@ test {
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 description = 'Ballerina - h2'

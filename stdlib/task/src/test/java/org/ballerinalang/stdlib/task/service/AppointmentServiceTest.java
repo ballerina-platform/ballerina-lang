@@ -74,4 +74,13 @@ public class AppointmentServiceTest {
     public void testInvalidAppointmentData() {
         BCompileUtil.compileAndSetup("listener/appointment/invalid_appointment_data.bal");
     }
+
+    @Test(
+            description = "Test invalid appointmentData crecord type",
+            expectedExceptions = java.lang.IllegalStateException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: expected .*, found .*"
+    )
+    public void testInvalidAppointmentDataRecordType() {
+        BCompileUtil.compileAndSetup("listener/appointment/invalid_appointment_data_record.bal");
+    }
 }

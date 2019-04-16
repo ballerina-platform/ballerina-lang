@@ -54,6 +54,7 @@ public class ItemResolverConstants {
     public static final String SERVICE = "service/http";
     public static final String SERVICE_WEBSOCKET = "service/webSocket";
     public static final String SERVICE_WEBSUB = "service/webSub";
+    public static final String SERVICE_GRPC = "service/gRPC";
     public static final String ANNOTATION = "annotation";
     public static final String XMLNS = "xmlns";
     public static final String RESOURCE = "resource";

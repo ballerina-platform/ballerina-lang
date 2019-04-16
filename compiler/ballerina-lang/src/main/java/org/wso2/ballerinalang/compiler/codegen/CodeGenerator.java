@@ -106,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -176,6 +177,7 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.ConstantInfo;
+import org.wso2.ballerinalang.programfile.ConstantValue;
 import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
 import org.wso2.ballerinalang.programfile.ErrorTypeInfo;
@@ -187,6 +189,7 @@ import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
+import org.wso2.ballerinalang.programfile.KeyInfo;
 import org.wso2.ballerinalang.programfile.LabelTypeInfo;
 import org.wso2.ballerinalang.programfile.LineNumberInfo;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
@@ -220,6 +223,7 @@ import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.MapCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
@@ -243,6 +247,7 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -903,11 +908,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangLocalVarRef localVarRef) {
         if (localVarRef.regIndex != null && (localVarRef.regIndex.isLHSIndex || localVarRef.regIndex.isVarIndex)) {
             emit(getOpcode(localVarRef.type.tag, InstructionCodes.IMOVE),
-                    localVarRef.varSymbol.varIndex, localVarRef.regIndex);
+                    ((BVarSymbol) localVarRef.varSymbol).varIndex, localVarRef.regIndex);
             return;
         }
 
-        localVarRef.regIndex = localVarRef.varSymbol.varIndex;
+        localVarRef.regIndex = ((BVarSymbol) localVarRef.varSymbol).varIndex;
     }
 
     @Override
@@ -933,7 +938,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         BSymbol ownerSymbol = packageVarRef.symbol.owner;
         pkgSymbol = (BPackageSymbol) ownerSymbol;
 
-        Operand gvIndex = packageVarRef.varSymbol.varIndex;
+        Operand gvIndex = ((BVarSymbol) packageVarRef.varSymbol).varIndex;
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
         if (varAssignment) {
             int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGSTORE);
@@ -943,6 +948,22 @@ public class CodeGenerator extends BLangNodeVisitor {
             packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
             emit(opcode, getOperand(pkgRefCPIndex), gvIndex, packageVarRef.regIndex);
         }
+    }
+
+    @Override
+    public void visit(BLangConstRef constRef) {
+        BPackageSymbol pkgSymbol;
+        BConstantSymbol constantSymbol = (BConstantSymbol) constRef.symbol;
+        pkgSymbol = (BPackageSymbol) constantSymbol.owner;
+
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
+
+        // Calculate registry index for the reference.
+        constRef.regIndex = calcAndGetExprRegIndex(constRef);
+
+        // Emit MCONST instruction.
+        emit(InstructionCodes.MCONST, getOperand(pkgRefCPIndex), getOperand(constantSymbol.cpEntryIndex),
+                constRef.regIndex);
     }
 
     @Override
@@ -2064,24 +2085,163 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void createConstantInfo(BLangConstant constant) {
         BConstantSymbol constantSymbol = constant.symbol;
-        int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
-        int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
-        int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
 
-        ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, finiteTypeSigCPIndex, valueTypeSigCPIndex,
-                constantSymbol.flags);
+        // Add the constant name to the CP and get index.
+        int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
+
+        // Create a new constant info object.
+        ConstantInfo constantInfo = new ConstantInfo(constantSymbol.name.value, constantNameCPIndex);
+        constantInfo.flags = constantSymbol.flags;
+
+        // Add the constant info to the package info.
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
-        BLangLiteral literal = new BLangLiteral();
-        literal.pos = constant.pos;
-        literal.value = ((BLangLiteral) constant.value).value;
-        literal.type = ((BLangLiteral) constant.value).type;
+        // Add the finite type to the CP and get index.
+        int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
+        // Add the value type to the CP and get index.
+        int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
 
-        DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(literal);
-        constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
+        // Get the value of the constant.
+        BLangExpression value = (BLangExpression) constant.value;
+
+        if (value.getKind() == NodeKind.LITERAL || value.getKind() == NodeKind.NUMERIC_LITERAL) {
+            // Create a new constant value object.
+            ConstantValue constantValue = createSimpleLiteralInfo((BLangLiteral) constant.value);
+            constantValue.finiteTypeSigCPIndex = finiteTypeSigCPIndex;
+            constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
+            constantValue.literalValueTypeTag = value.type.tag;
+
+            constantInfo.isSimpleLiteral = true;
+            constantInfo.constantValue = constantValue;
+        } else {
+            // Get key-value info.
+            ConstantValue constantValue = new ConstantValue();
+            constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.literalValue);
+
+            // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as well.
+            for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
+                KeyInfo keyInfo = entry.getKey();
+                keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
+            }
+
+            // Create a new MapCPEntry.
+            MapCPEntry mapCPEntry = new MapCPEntry(constantSymbol, constantValue.constantValueMap);
+
+            // Add the MapCPEntry to the constant pool and get the index.
+            constantSymbol.cpEntryIndex = currentPkgInfo.addCPEntry(mapCPEntry);
+            constantValue.valueCPEntryIndex = constantSymbol.cpEntryIndex;
+
+            // Set the value type (record type). This is needed when recreating the record literal.
+            constantInfo.valueTypeSigCPIndex = valueTypeSigCPIndex;
+            // Set the constant value to the constant info.
+            constantInfo.constantValue = constantValue;
+        }
 
         // Add documentation attributes.
         addDocAttachmentAttrInfo(constant.symbol.markdownDocumentation, constantInfo);
+    }
+
+    private ConstantValue createSimpleLiteralInfo(BLangLiteral literalValue) {
+        ConstantValue constantValue = new ConstantValue();
+        switch (literalValue.type.tag) {
+            case TypeTags.BOOLEAN:
+                constantValue.booleanValue = (Boolean) literalValue.value;
+                break;
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+                constantValue.valueCPEntryIndex =
+                        currentPkgInfo.addCPEntry(new IntegerCPEntry((Long) literalValue.value));
+                break;
+            case TypeTags.FLOAT:
+                constantValue.valueCPEntryIndex =
+                        currentPkgInfo.addCPEntry(new FloatCPEntry((Double) literalValue.value));
+                break;
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+                constantValue.valueCPEntryIndex =
+                        currentPkgInfo.addCPEntry(new UTF8CPEntry((String) literalValue.value));
+                break;
+            case TypeTags.NIL:
+                break;
+            default:
+                throw new RuntimeException("unexpected type tag: " + literalValue.type.tag);
+        }
+        return constantValue;
+    }
+
+    private Map<KeyInfo, ConstantValue> createMapLiteralInfo(BLangRecordLiteral expression) {
+
+        Map<KeyInfo, ConstantValue> constantValueMap = new HashMap<>();
+
+        // Iterate through key-value pairs.
+        for (BLangRecordKeyValue keyValue : expression.keyValuePairs) {
+
+            // Get the key. Key will always be a literal.
+            String key = ((BLangLiteral) keyValue.key.expr).value.toString();
+            BLangExpression valueExpr = keyValue.valueExpr;
+            if (valueExpr.getKind() == NodeKind.LITERAL || valueExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                BLangLiteral literal = (BLangLiteral) valueExpr;
+
+                // Add the literal type descriptor to the CP and get the index.
+                int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, literal.type.getDesc());
+
+                // Create a new constant value object.
+                ConstantValue constantValue = createSimpleLiteralInfo(literal);
+                constantValue.literalValueTypeTag = literal.type.tag;
+                constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
+                constantValue.isSimpleLiteral = true;
+
+                // Add the `key` and `constantValue` pair to the map.
+                constantValueMap.put(new KeyInfo(key), constantValue);
+            } else if (valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                // Create a new constant value.
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) valueExpr);
+                constantValue.recordLiteralSigCPIndex = addUTF8CPEntry(currentPkgInfo, valueExpr.type.getDesc());
+
+                // Add the `key` and `constantValue` pair to the map.
+                constantValueMap.put(new KeyInfo(key), constantValue);
+
+                // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as
+                // well.
+                for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
+                    KeyInfo keyInfo = entry.getKey();
+                    keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
+                }
+                // Create a new MapCPEntry.
+                MapCPEntry mapCPEntry = new MapCPEntry(null, constantValue.constantValueMap);
+
+                // Add the MapCPEntry to the CP and get the index.
+                constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(mapCPEntry);
+            } else if (valueExpr.getKind() == NodeKind.CONSTANT_REF) {
+                BConstantSymbol symbol = (BConstantSymbol) ((BLangConstRef) valueExpr).symbol;
+                // Get the literal value.
+                Object literalValue = symbol.literalValue;
+
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) literalValue);
+                constantValue.recordLiteralSigCPIndex = addUTF8CPEntry(currentPkgInfo, valueExpr.type.getDesc());
+                constantValue.isConstRef = true;
+
+                // Add the `key` and `constantValue` pair to the map.
+                constantValueMap.put(new KeyInfo(key), constantValue);
+
+                // Iterate through the `constantValueMap` and set the `cpIndex` of the keys.
+                for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
+                    KeyInfo keyInfo = entry.getKey();
+                    keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
+                }
+
+                // Create a new MapCPEntry.
+                MapCPEntry mapCPEntry = new MapCPEntry(symbol, constantValue.constantValueMap);
+
+                // Add the MapCPEntry to the CP and get the index.
+                constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(mapCPEntry);
+            } else {
+                throw new RuntimeException("unexpected node kind");
+            }
+        }
+        return constantValueMap;
     }
 
     private void createPackageVarInfo(BLangSimpleVariable varNode) {

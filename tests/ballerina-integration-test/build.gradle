@@ -20,6 +20,7 @@ dependencies {
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-system')
     implementation project(':ballerina-io')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-grpc')
@@ -94,14 +95,13 @@ dependencies {
 }
 
 test {
-    // make usre ballerina zip is built before test run
+    // make sure ballerina zip is built before test run
     dependsOn (":ballerina:build")
-    // TODO: Refactor integration tests to run task asynchronously
-    mustRunAfter ':ballerina-unit-test:test'
-    mustRunAfter ':examples-test:test'
     
     maxParallelForks = 1
+    forkEvery=100
     systemProperty 'basedir', "$buildDir"
+    systemProperty 'libdir', "$buildDir"
     systemProperty 'server.zip', configurations.ballerina.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
     systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'

@@ -17,10 +17,11 @@ import ballerina/grpc;
 import ballerina/io;
 import ballerina/runtime;
 
-int total = 0;
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
+boolean respReceived = false;
+boolean eofReceived = false;
 
-function testUnaryNonBlockingClient() returns int {
+function testUnaryNonBlockingClient() returns boolean {
     // Client endpoint configuration
     HelloWorldClient helloWorldEp = new ("http://localhost:9100");
     // Executing unary non-blocking call registering server message listener.
@@ -28,23 +29,26 @@ function testUnaryNonBlockingClient() returns int {
     if (result is error) {
         string msg = io:sprintf(ERROR_MSG_FORMAT, result.reason(), <string>result.detail().message);
         io:println(msg);
-        return total;
+        return false;
     } else {
         io:println("Connected successfully");
     }
 
     int waitCount = 0;
-    while(total < 2) {
+    while(true) {
+        if (respReceived && eofReceived) {
+            break;
+        }
         runtime:sleep(1000);
-        io:println("msg count: ", total);
+        io:println("response received: ", respReceived);
+        io:println("EOF received: ", eofReceived);
         if (waitCount > 10) {
             break;
         }
         waitCount += 1;
     }
-    io:println("Client got response successfully.");
-    io:println("responses count: " + total);
-    return total;
+    io:println("Response received: " + (respReceived && eofReceived));
+    return (respReceived && eofReceived);
 }
 
 // Server Message Listener.
@@ -53,7 +57,7 @@ service HelloWorldMessageListener = service {
     // Resource registered to receive server messages
     resource function onMessage(string message) {
         io:println("Response received from server: " + message);
-        total = total + 1;
+        respReceived = true;
     }
 
     // Resource registered to receive server error messages
@@ -65,7 +69,7 @@ service HelloWorldMessageListener = service {
     // Resource registered to receive server completed message.
     resource function onComplete() {
         io:println("Server Complete Sending Response.");
-        total = total + 1;
+        eofReceived = true;
     }
 };
 

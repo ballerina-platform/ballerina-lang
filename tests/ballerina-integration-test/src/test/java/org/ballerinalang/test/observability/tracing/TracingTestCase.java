@@ -46,7 +46,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class TracingTestCase extends BaseTest {
     private static BServerInstance serverInstance;
 
-    private static final String BASEDIR = System.getProperty("basedir");
+    private static final String LIBDIR = System.getProperty("libdir");
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
             "resources" + File.separator + "observability" + File.separator + "tracing" + File.separator;
     private static final String TEST_NATIVES_JAR = "observability-test-natives.jar";
@@ -62,10 +62,8 @@ public class TracingTestCase extends BaseTest {
 
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
                 + DEST_FUNCTIONS_JAR));
-        // TODO: Remove use of "target" directory once maven build is removed
-        String baseDir = BASEDIR.contains("build") ? BASEDIR : BASEDIR + File.separator + "target";
         FileUtils.copyDirectoryToDirectory(
-                new File(baseDir + File.separator + "lib" + File.separator + "repo" +
+                new File(LIBDIR + File.separator + "lib" + File.separator + "repo" +
                         File.separator + "ballerina" + File.separator + "testobserve"),
                 new File(serverInstance.getServerHome()
                         + File.separator + "lib" + File.separator + "repo" + File.separator + "ballerina"));

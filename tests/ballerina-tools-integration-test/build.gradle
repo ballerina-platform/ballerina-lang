@@ -27,12 +27,11 @@ dependencies {
 }
 
 test {
+    exclude "**/*"
+    maxParallelForks = 1
+    forkEvery=100
     // make sure ballerina tools zip is built before test run
-    dependsOn ":ballerina-tools:build"
-    // TODO: Refactor integration tests to run task asynchronously
-    mustRunAfter ':ballerina-unit-test:test'
-    mustRunAfter ':examples-test:test'
-    mustRunAfter ':ballerina-integration-test:test'
+    dependsOn = [":ballerina-tools:build", ":ballerina-integration-test:test", ":examples-test:test"]
 
     systemProperty 'project.build.directory', "$buildDir"
     systemProperty 'server.zip', configurations.ballerinaTools.asPath

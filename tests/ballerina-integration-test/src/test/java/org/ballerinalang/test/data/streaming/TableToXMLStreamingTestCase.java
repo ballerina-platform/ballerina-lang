@@ -31,7 +31,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -63,13 +62,9 @@ public class TableToXMLStreamingTestCase extends BaseTest {
     }
 
     private void setUpDatabase() throws SQLException {
-        // TODO: Remove use of "target" directory once maven build is removed
-        String baseDir = System.getProperty("basedir");
-        String dbDirectory = Paths.get(baseDir.contains("build") ? baseDir : "target", "tempdb")
-                .toAbsolutePath().toString() + File.separator;
         String dbScriptPath = Paths
                 .get("data", "streaming", "datafiles", "streaming_test_data.sql").toString();
-        testDatabase = new FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScriptPath, dbDirectory,
+        testDatabase = new FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScriptPath, SQLDBUtils.DB_DIRECTORY,
                 "STREAMING_XML_TEST_DB");
         insertDummyData(testDatabase.getJDBCUrl(), testDatabase.getUsername(), testDatabase.getPassword());
     }

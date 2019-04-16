@@ -13,4 +13,32 @@ npmBuild {
 
     outputs.dir("$buildDir/packages/distribution/build")
     outputs.cacheIf { true }
+    doFirst {
+        exec {
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', 'npm', 'run', 'build'
+            } else {
+                commandLine 'npm', 'run', 'build'
+            }
+        }
+    }
+}
+
+task test() {
+    onlyIf {
+        !assemble.state.upToDate
+    }
+    doFirst {
+        exec {
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', 'npm', 'run', 'test'
+            } else {
+                commandLine 'npm', 'run', 'test'
+            }
+        }
+    }
+}
+
+build {
+    dependsOn test
 }

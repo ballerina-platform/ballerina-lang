@@ -21,3 +21,21 @@ function intFloatAdd(int a, float b) returns (float) {
 function floatIntAdd(float a, int b) returns (float) {
     return a + b;
 }
+
+function xmlXmlAdd() returns (xml) {
+    xml a = xml `abc`;
+    xml b = xml `def`;
+    return a + b;
+}
+
+function xmlStringAdd() returns (xml) {
+    xml a = xml `abc`;
+    string b = "def";
+    return a + b;
+}
+
+function stringXmlAdd() returns (xml) {
+    string a = "def";
+    xml b = xml `abc`;
+    return a + b;
+}

@@ -17,8 +17,11 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BType;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -28,20 +31,70 @@ import java.util.Map;
  */
 public abstract class AbstractObjectValue implements ObjectValue {
 
-    private BType type;
+    private BObjectType type;
 
-    public AbstractObjectValue(BType type) {
+    private final HashMap<String, Object> nativeData = new HashMap<>();
+
+    public AbstractObjectValue(BObjectType type) {
         this.type = type;
     }
 
-    public abstract Object call(String funcName, Object... args);
+    @Override
+    public abstract Object call(Strand strand, String funcName, Object... args);
 
+    @Override
     public abstract Object get(String fieldName);
 
+    @Override
     public abstract void set(String fieldName, Object value);
 
     @Override
-    public BType getType() {
+    public void addNativeData(String key, Object data) {
+        this.nativeData.put(key, data);
+    }
+
+    @Override
+    public Object getNativeData(String key) {
+        return this.nativeData.get(key);
+    }
+
+    @Override
+    public long getIntValue(String fieldName) {
+        return (long) get(fieldName);
+    }
+
+    @Override
+    public double getFloatValue(String fieldName) {
+        return (double) get(fieldName);
+    }
+
+    @Override
+    public String getStringValue(String fieldName) {
+        return (String) get(fieldName);
+    }
+
+    @Override
+    public boolean getBooleanValue(String fieldName) {
+        return (boolean) get(fieldName);
+    }
+
+    @Override
+    public MapValue getMapValue(String fieldName) {
+        return (MapValue) get(fieldName);
+    }
+
+    @Override
+    public ObjectValue getObjectValue(String fieldName) {
+        return (ObjectValue) get(fieldName);
+    }
+
+    @Override
+    public ArrayValue getArrayValue(String fieldName) {
+        return (ArrayValue) get(fieldName);
+    }
+
+    @Override
+    public BObjectType getType() {
         return type;
     }
 

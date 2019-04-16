@@ -17,8 +17,10 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +33,7 @@ import java.util.Map;
 public class ErrorValue extends RuntimeException implements RefValue {
 
     private static final long serialVersionUID = 1L;
-    private final BType type;
+    private final BErrorType type;
     private final String reason;
     private final Object details;
 
@@ -43,7 +45,7 @@ public class ErrorValue extends RuntimeException implements RefValue {
     }
 
     @Override
-    public BType getType() {
+    public BErrorType getType() {
         return type;
     }
 
@@ -56,6 +58,11 @@ public class ErrorValue extends RuntimeException implements RefValue {
     public Object copy(Map<Object, Object> refs) {
         // Error values are immutable and frozen, copy give same value.
         return this;
+    }
+
+    @Override
+    public void attemptFreeze(Status freezeStatus) {
+        // do nothing, since error types are always frozen
     }
 
     @Override

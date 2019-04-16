@@ -452,6 +452,27 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
+            <!-- ballerina-filepath -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-filepath</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-filepath</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-filepath</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
             <!-- ballerina-http -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -573,6 +594,27 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-activemq-artemis</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-rabbitmq -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-rabbitmq</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-rabbitmq</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-rabbitmq</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -1050,7 +1092,7 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-codegen</artifactId>
+                <artifactId>ballerina-client-generator</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -1274,6 +1316,7 @@
                 <artifactId>netty-resolver</artifactId>
                 <version>${netty.version}</version>
             </dependency>
+            <!-- This dependency is required for WebSocket Compression -->
             <dependency>
                 <groupId>com.jcraft</groupId>
                 <artifactId>jzlib</artifactId>
@@ -1607,11 +1650,6 @@
             </dependency>
             <!-- JMS connector dependencies -->
             <dependency>
-                <groupId>org.wso2.transport.jms</groupId>
-                <artifactId>transport-jms</artifactId>
-                <version>${wso2.transport.jms.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>javax.jms</groupId>
                 <artifactId>javax.jms-api</artifactId>
                 <version>${javax.jms.version}</version>
@@ -1620,11 +1658,6 @@
                 <groupId>org.bytedeco.javacpp-presets</groupId>
                 <artifactId>llvm-platform</artifactId>
                 <version>${javacpp.llvm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.andes.wso2</groupId>
-                <artifactId>andes-client</artifactId>
-                <version>${andes.client.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.securevault</groupId>
@@ -1669,6 +1702,13 @@
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
                 <version>${asm.version}</version>
+            </dependency>
+
+            <!--RabbitMQ dependencies -->
+            <dependency>
+                <groupId>com.rabbitmq</groupId>
+                <artifactId>amqp-client</artifactId>
+                <version>${rabbitmq.version}</version>
             </dependency>
 
             <!--Artemis dependencies -->
@@ -1824,6 +1864,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
@@ -1832,6 +1873,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1841,6 +1883,7 @@
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
                 <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
@@ -1854,6 +1897,7 @@
                 <module>cli/ballerina-packerina</module>
                 <!--<module>compiler/ballerina-backend-llvm</module>-->
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
+                <module>compiler/ballerina-backend-jvm</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1923,6 +1967,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/filepath</module>
                 <module>stdlib/utils</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
@@ -1933,6 +1978,7 @@
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
                 <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
@@ -2013,6 +2059,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -2022,6 +2069,7 @@
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
                 <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
@@ -2373,6 +2421,9 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
+                        <configuration>
+                            <quiet>true</quiet>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
@@ -2517,10 +2568,8 @@
         <hdrhistogram.version>2.1.11</hdrhistogram.version>
 
         <!-- JMS Connector -->
-        <wso2.transport.jms.version>6.0.51</wso2.transport.jms.version>
         <javax.jms.version>2.0.1</javax.jms.version>
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
-        <andes.client.version>3.2.87</andes.client.version>
         <wso2.securevault.version>1.1.2</wso2.securevault.version>
 
         <!-- Artemis connector -->
@@ -2532,6 +2581,9 @@
 
         <!-- Nats Connector -->
         <nats.version>2.1.0</nats.version>
+
+        <!-- RabbitMQ Connector -->
+        <rabbitmq.version>5.6.0</rabbitmq.version>
 
         <file.transport.version>6.0.55</file.transport.version>
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>

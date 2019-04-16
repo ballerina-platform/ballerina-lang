@@ -319,6 +319,7 @@
                 <configuration>
                     <argLine>${jacoco.agent.argLine}</argLine>
                     <systemPropertyVariables>
+                        <libdir>${basedir}/target</libdir>
                         <server.zip>
                             ${basedir}/../../distribution/zip/ballerina/target/ballerina-${project.version}.zip
                         </server.zip>
