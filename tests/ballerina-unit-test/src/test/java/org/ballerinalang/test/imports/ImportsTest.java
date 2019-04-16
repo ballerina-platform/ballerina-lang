@@ -32,8 +32,17 @@ public class ImportsTest {
 
     @Test(description = "Test self import")
     public void testSelfImport() {
-        CompileResult result = BCompileUtil.compile("test-src/imports", "foo");
+        CompileResult result = BCompileUtil.compile("test-src/imports/self-import", "foo");
         assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "module self import not allowed", 2, 1);
+        validateError(result, 0, "cyclic module imports detected 'foo -> foo'", 2, 1);
+    }
+
+    @Test(description = "Test cyclic imports")
+    public void testCyclicImports() {
+        CompileResult result = BCompileUtil.compile("test-src/imports/cyclic-imports", "abc");
+        assertEquals(result.getErrorCount(), 3);
+        validateError(result, 0, "cyclic module imports detected 'def -> ghi -> def'", 2, 1);
+        validateError(result, 1, "cyclic module imports detected 'abc -> def -> ghi -> jkl -> abc'", 2, 1);
+        validateError(result, 2, "cyclic module imports detected 'abc -> def -> ghi -> abc'", 3, 1);
     }
 }
