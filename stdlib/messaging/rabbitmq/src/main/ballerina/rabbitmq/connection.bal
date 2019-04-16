@@ -39,7 +39,7 @@ public type Connection object {
 
     # Extern function called to initialize the RabbitMQ `Connection`.
     #
-    # + connectionConfig - Holds the connection parameters required to initialize the `Connection`.
+    # + connectionConfiguration - Holds the connection parameters required to initialize the `Connection`.
     private function createConnection(ConnectionConfiguration connectionConfiguration) = external;
 };
 
