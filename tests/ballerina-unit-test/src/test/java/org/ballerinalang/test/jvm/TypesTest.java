@@ -699,4 +699,11 @@ public class TypesTest {
         BValue[] result = BRunUtil.invoke(compileResult, "waitTest");
         Assert.assertEquals(result[0].stringValue(), "wait");
     }
+
+    public void testWaitOnSame() {
+        BValue[] result = BRunUtil.invoke(compileResult, "waitOnSame");
+        Assert.assertEquals(result[0].stringValue(), "wait1");
+        Assert.assertEquals(result[0].stringValue(), "wait2");
+        Assert.assertEquals(result[0].stringValue(), "00112233");
+    }
 }

@@ -319,6 +319,8 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void createWait(BLangWaitExpr waitExpr) {
+
+        BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         // This only supports wait for single future and alternate wait
         List<BIROperand> exprList = new ArrayList<>();
 
@@ -333,7 +335,10 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
 
-        emit(new BIRNonTerminator.Wait(waitExpr.pos, exprList, lhsOp));
+        this.env.enclBB.terminator = new BIRTerminator.Wait(waitExpr.pos, exprList, lhsOp);
+
+        this.env.enclFunc.basicBlocks.add(thenBB);
+        this.env.enclBB = thenBB;
     }
 
     private void createCall(BLangInvocation invocationExpr, boolean isVirtual) {

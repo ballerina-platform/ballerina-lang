@@ -29,6 +29,7 @@ public enum InstructionKind {
     BRANCH((byte) 3),
     RETURN((byte) 4),
     ASYNC_CALL((byte) 5),
+    WAIT((byte) 6),
 
     // Non-terminating instructions
     MOVE((byte) 20),
@@ -47,7 +48,6 @@ public enum InstructionKind {
     OBJECT_STORE((byte) 33),
     OBJECT_LOAD((byte) 34),
     PANIC((byte) 35),
-    WAIT((byte) 36),
 
     // Binary expression related instructions.
     ADD((byte) 50),

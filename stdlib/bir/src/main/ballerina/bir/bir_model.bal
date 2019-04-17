@@ -96,13 +96,12 @@ public const INS_KIND_IS_LIKE = "IS_LIKE";
 public const INS_KIND_TYPE_TEST = "TYPE_TEST";
 public const INS_KIND_OBJECT_STORE = "OBJECT_STORE";
 public const INS_KIND_OBJECT_LOAD = "OBJECT_LOAD";
-public const INS_KIND_WAIT = "WAIT";
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST | 
                                 INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
                                 INS_KIND_MAP_LOAD | INS_KIND_ARRAY_LOAD | INS_KIND_TYPE_CAST | INS_KIND_IS_LIKE |
                                 INS_KIND_TYPE_TEST | BinaryOpInstructionKind | INS_KIND_OBJECT_STORE |
-                                INS_KIND_OBJECT_LOAD|INS_KIND_WAIT;
+                                INS_KIND_OBJECT_LOAD;
 
 
 public const TERMINATOR_GOTO = "GOTO";
@@ -111,9 +110,10 @@ public const TERMINATOR_ASYNC_CALL = "ASYNC_CALL";
 public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
 public const TERMINATOR_PANIC = "PANIC";
+public const TERMINATOR_WAIT = "WAIT";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
-                                |TERMINATOR_PANIC;
+                                |TERMINATOR_PANIC|TERMINATOR_WAIT;
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -370,7 +370,7 @@ public type BinaryOp record {|
 |};
 
 public type Wait record {|
-    InstructionKind kind;
+    TerminatorKind kind;
     VarRef lhsOp;
     VarRef?[] exprList;
 |};

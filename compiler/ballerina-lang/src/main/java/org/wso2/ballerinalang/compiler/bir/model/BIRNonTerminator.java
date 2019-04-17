@@ -20,8 +20,6 @@ package org.wso2.ballerinalang.compiler.bir.model;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.util.List;
-
 /**
  * A non-terminating instruction.
  * <p>
@@ -326,29 +324,6 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             this.type = type;
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
-        }
-
-        @Override
-        public void accept(BIRVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
-    /**
-     * A wait instruction.
-     * <p>
-     * e.g., wait w1|w2;
-     *
-     * @since 0.995.0
-     */
-    public static class Wait extends BIRNonTerminator {
-        public List<BIROperand> exprList;
-        public BIROperand lhsOp;
-
-        public Wait(DiagnosticPos pos, List<BIROperand> exprList, BIROperand lhsOp) {
-            super(pos, InstructionKind.WAIT);
-            this.exprList = exprList;
-            this.lhsOp = lhsOp;
         }
 
         @Override

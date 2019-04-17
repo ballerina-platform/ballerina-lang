@@ -208,9 +208,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                 }
             } else if (inst is bir:TypeTest) {
                 instGen.generateTypeTestIns(inst);
-            } else if (inst is bir:Wait) {
-                jvm:Label yieldLabel = labelGen.getLabel(funcName + "yield");
-                instGen.generateWaitIns(inst, func, yieldLabel);
             } else {
                 error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
@@ -244,6 +241,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             termGen.genReturnTerm(terminator, returnVarRefIndex, func);
         } else if (terminator is bir:Panic) {
             termGen.genPanicIns(terminator);
+        } else if (terminator is bir:Wait) {
+            termGen.generateWaitIns(terminator, funcName);
         }
         // set next error entry after visiting current error entry.
         if (isTrapped) {
