@@ -1,6 +1,5 @@
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
-
 configurations {
     balRuntime
 }
@@ -37,7 +36,7 @@ dependencies {
     testCompile 'org.apache.ws.commons.axiom:axiom-dom'
     testCompile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     testCompile 'org.testng:testng'
-    testCompile project(':ballerina-test-utils')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-runtime')
 
     balRuntime project(':ballerina-runtime')
