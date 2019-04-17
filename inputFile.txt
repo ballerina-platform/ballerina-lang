@@ -1,3 +1,3 @@
-function m(){
-int a = b;
+function m() {
+int a = b + -{};
 }

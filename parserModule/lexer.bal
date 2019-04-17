@@ -44,23 +44,23 @@ const int COMPOUND_MUL = 39;
 const int COMPOUND_DIV = 40;
 const int MOD = 41;
 const int NOT = 42;
-const int REF_EQUAL = 43;
-const int REF_NOT_EQUAL = 44;
-const int GT = 45;
-const int GT_EQUAL = 46;
-const int COMPOUND_RIGHT_SHIFT = 47;
-const int COMPOUND_LOGICAL_SHIFT = 48;
-const int LT = 49;
-const int LT_EQUAL = 50;
-const int LARROW = 51;
-const int COMPOUND_LEFT_SHIFT = 52;
+const int REF_NOT_EQUAL = 43;
+const int GT = 44;
+const int GT_EQUAL = 45;
+const int COMPOUND_RIGHT_SHIFT = 46;
+const int COMPOUND_LOGICAL_SHIFT = 47;
+const int LT = 48;
+const int LT_EQUAL = 49;
+const int LARROW = 50;
+const int COMPOUND_LEFT_SHIFT = 51;
+const int NOT_EQUAL = 52;
 string[] tokenNames = ["LBRACE", "RBRACE", "LPAREN", "RPAREN", "ADD", "ASSIGN", "SEMICOLON", "IDENTIFIER", "EQUALITY",
 "EOF", "NUMBER", "EQUAL", "REF_EQUAL", "STRING_LITERAL", "DOUBLE_QUOTE", "FUNCTION", "INT", "STRING",
 "SUB", "DIV", "MUL","LEXER_ERROR_TOKEN","COLON","PARSER_ERROR_TOKEN","COMMA",
 "DOT","RANGE","ELLIPSIS","HALF_OPEN_RANGE","LEFT_BRACKET","RIGHT_BRACKET","QUESTION_MARK","ELVIS","HASH",
 "EQUAL_GT","COMPOUND_ADD","RARROW","COMPOUND_SUB","SYNCRARROW","COMPOUND_MUL","COMPOUND_DIV","MOD",
-"GT","GT_EQUAL","COMPOUND_RIGHT_SHIFT","COMPOUND_LOGICAL_SHIFT",
-"LT","LT_EQUAL","LARROW","COMPOUND_LEFT_SHIFT"];
+"NOT","REF_NOT_EQUAL","GT","GT_EQUAL","COMPOUND_RIGHT_SHIFT","COMPOUND_LOGICAL_SHIFT",
+"LT","LT_EQUAL","LARROW","COMPOUND_LEFT_SHIFT","NOT_EQUAL"];
 
 int position = 0;
 int lineNum = 1;
@@ -286,7 +286,7 @@ public type Lexer object {
 						currChar = self.nextLexeme();
 						position += 1;
 						tokenIndex += 1;
-						return { tokenType: COMPOUND_RIGHT_SHIFTL, text: ">>=", startPos: position - 2 , endPos:position,
+						return { tokenType: COMPOUND_RIGHT_SHIFT, text: ">>=", startPos: position - 2 , endPos:position,
 							lineNumber: lineNum, index: tokenIndex, whiteSpace: getWhiteSpace() };
 					}else if (self.buffer.lookAhead() == ">"){
 						if (self.buffer.lookAhead() == "=") {

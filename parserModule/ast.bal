@@ -19,10 +19,11 @@ const RECORD_KEY_VALUE_NODE = "recordKeyValueNode";
 const RECORD_KEY_NODE = "recordKeyNode";
 const TUPLE_LITERAL_NODE = "tupleLiteralNode";
 const EMPTY_TUPLE_LITERAL_NODE = "emptyTupleLiteralNode";
+const UNARY_EXPRESSION_NODE = "unaryExpressionNode";
 
 type NodeKind PACKAGE_NODE|FUNCTION_NODE|STATEMENT_NODE|VAR_DEF_STATEMENT_NODE|VAR_DEC_STATEMENT_NODE|EXPRESSION_NODE|
 BINARY_EXP_NODE|IDENTIFIER_NODE|VAR_REF_NODE | FN_SIGNATURE_NODE | BLOCK_NODE | INTEGER_LITERAL | QUO_STRING_LITERAL |
-ERROR_NODE | RECORD_LITERAL_NODE | RECORD_KEY_VALUE_NODE | RECORD_KEY_NODE | TUPLE_LITERAL_NODE | EMPTY_TUPLE_LITERAL_NODE;
+ERROR_NODE | RECORD_LITERAL_NODE | RECORD_KEY_VALUE_NODE | RECORD_KEY_NODE | TUPLE_LITERAL_NODE | EMPTY_TUPLE_LITERAL_NODE | UNARY_EXPRESSION_NODE;
 
 const INT_TYPE = "int";
 const STRING_TYPE = "string";
@@ -36,8 +37,18 @@ const MULTIPLICATION_OP = "*";
 const ERROR_OP = "invalidOperator";
 const COLON_OP = ":";
 const COMMA_OP = ",";
+const MOD_OP = "%";
+const LT_EQUAL_OP = "<=";
+const GT_EQUAL_OP = ">=";
+const GT_OP = ">";
+const LT_OP = "<";
+const EQUAL_OP = "==";
+const NOT_EQUAL_OP = "!=";
+const REF_EQUAL_OP = "===";
+const REF_NOT_EQUAL_OP = "!==";
 
-type OperatorKind PLUS_OP|MINUS_OP|DIVISION_OP|MULTIPLICATION_OP|ERROR_OP|COLON_OP |COMMA_OP;
+type OperatorKind PLUS_OP|MINUS_OP|DIVISION_OP|MULTIPLICATION_OP|ERROR_OP|COLON_OP |COMMA_OP |
+MOD_OP | LT_EQUAL_OP | GT_EQUAL_OP | GT_OP | LT_OP | EQUAL_OP | NOT_EQUAL_OP | REF_EQUAL_OP | REF_NOT_EQUAL_OP ;
 
 type Node record {
     NodeKind nodeKind;
@@ -85,13 +96,19 @@ type VariableDefinitionStatementNode record {
     ExpressionNode? expression;
 };
 
-type ExpressionNode BinaryExpressionNode | SimpleLiteral | VarRefIdentifier | RecordLiteralNode | TupleLiteralNode;
+type ExpressionNode BinaryExpressionNode | SimpleLiteral | VarRefIdentifier | RecordLiteralNode | TupleLiteralNode | UnaryExpressionNode ;
 
 type BinaryExpressionNode record {
     *Node;
     OperatorKind operatorKind;
     ExpressionNode leftExpr;
     ExpressionNode rightExpr;
+};
+
+type UnaryExpressionNode record {
+   *Node;
+    OperatorKind operatorKind;
+    ExpressionNode uExpression;
 };
 
 type IdentifierNode record {
