@@ -43,7 +43,14 @@ install:
 
 script:
   - if [ "$BUILD_TYPE" = "MAVEN" ]; then mvn install -B -V -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN; fi
-  - if [ "$BUILD_TYPE" = "GRADLE" ]; then ./gradlew build --info --stacktrace -scan; fi
+  - |
+    if [ "$BUILD_TYPE" = "GRADLE" ]; then
+      # printloop to prevent travis killing the process when no log for 10m
+      while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+      ./gradlew build --console=plain --stacktrace -scan;
+      # Killing background sleep loop
+      kill %1
+    fi
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
