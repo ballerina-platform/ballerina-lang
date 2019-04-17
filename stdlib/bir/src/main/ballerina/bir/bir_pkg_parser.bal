@@ -37,6 +37,17 @@ public type PackageParser object {
         return dcl;
     }
 
+    function parseFunctions(TypeDef?[] typeDefs) returns Function?[] {
+        var numFuncs = self.reader.readInt32();
+        Function?[] funcs = [];
+        int i = 0;
+        while (i < numFuncs) {
+            funcs[i] = self.parseFunction(typeDefs);
+            i += 1;
+        }
+        return funcs;
+    }
+
     public function parseFunction(TypeDef?[] typeDefs) returns Function {
         var name = self.reader.readStringCpRef();
         var isDeclaration = self.reader.readBoolean();
@@ -79,20 +90,14 @@ public type PackageParser object {
         ImportModule[] importModules = self.parseImportMods();
         TypeDef?[] typeDefs = self.parseTypeDefs();
         GlobalVariableDcl?[] globalVars = self.parseGlobalVars();
-        var numFuncs = self.reader.readInt32();
-        Function?[] funcs = [];
-        int i = 0;
-        while (i < numFuncs) {
-            funcs[i] = self.parseFunction(typeDefs);
-            i += 1;
-        }
 
-       //BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, globalVars:globalVars,
-       //                             functions: funcs, name: {value: pkgId.name}, org: {value: pkgId.org},
-       //                             versionValue: {value: pkgId.modVersion}});
-       //emitter.emitPackage();
+        // Parse type def bodies after parsing global vars.
+        // This is done avoid cyclic dependencies.
+        self.parseTypeDefBodies(typeDefs);
 
-        return { importModules : importModules, 
+        Function?[] funcs = self.parseFunctions(typeDefs);
+
+        return { importModules : importModules,
                     typeDefs : typeDefs, 
                     globalVars : globalVars, 
                     functions : funcs,
@@ -149,23 +154,23 @@ public type PackageParser object {
         return typeDefs;
     }
 
+    function parseTypeDefBodies(TypeDef?[] typeDefs) {
+        int numTypeDefs = typeDefs.length();
+
+        foreach var typeDef in typeDefs {
+            BType typeValue = typeDef.typeValue;
+            if (typeValue is BObjectType || typeValue is BRecordType) {
+                typeDef.attachedFuncs = self.parseFunctions(typeDefs);
+            }
+        }
+    }
+
     function parseTypeDef() returns TypeDef {
         string name = self.reader.readStringCpRef();
         Visibility visibility = parseVisibility(self.reader);
         var bType = self.typeParser.parseType();
-        Function?[]? attachedFuncs = ();
-        if (bType is BObjectType || bType is BRecordType) {
-            Function?[] funcs = [];
-            var numFuncs = self.reader.readInt32();
-            int i = 0;
-            while (i < numFuncs) {
-                funcs[i] = self.parseFunction([]);
-                i += 1;
-            }
-            attachedFuncs = funcs;
-        }
 
-        return { name: { value: name }, visibility: visibility, typeValue: bType, attachedFuncs: attachedFuncs };
+        return { name: { value: name }, visibility: visibility, typeValue: bType, attachedFuncs: () };
     }
 
     function parseGlobalVars() returns GlobalVariableDcl?[] {       

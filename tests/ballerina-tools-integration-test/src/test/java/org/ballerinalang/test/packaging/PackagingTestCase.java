@@ -71,8 +71,8 @@ public class PackagingTestCase extends BaseTest {
 
         String[] clientArgsForInit = {"-i"};
         String[] options = {"\n", orgName + "\n", "\n", "m\n", moduleName + "\n", "f\n"};
-        balClient.runMain("init", clientArgsForInit, envVariables, options,
-                new LogLeecher[]{}, projectPath.toString());
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
+                projectPath.toString());
     }
 
     @Test(description = "Test pushing a package to central", dependsOnMethods = "testInitProject")
@@ -108,8 +108,8 @@ public class PackagingTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("initProject");
         String[] clientArgs = {moduleName};
 
-        balClient.runMain("install", clientArgs, envVariables, new String[]{},
-                new LogLeecher[]{}, projectPath.toString());
+        balClient.runMain("install", clientArgs, envVariables, new String[]{}, new LogLeecher[]{},
+                projectPath.toString());
 
         Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, moduleName, "0.0.1");
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath)));
@@ -117,7 +117,7 @@ public class PackagingTestCase extends BaseTest {
     }
 
     @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
-    public void testPull() throws Exception {
+    public void testPull() {
         Path dirPath = Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
                                  ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME,
                                  orgName, moduleName, "0.0.1");

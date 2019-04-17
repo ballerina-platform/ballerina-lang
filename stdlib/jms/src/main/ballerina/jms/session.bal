@@ -19,11 +19,13 @@
 # + config - Used to store configurations related to a JMS session
 public type Session object {
 
-    public SessionConfiguration config;
+    private SessionConfiguration config;
+    private Connection conn;
 
     # Default constructor of the JMS session
     public function __init(Connection connection, SessionConfiguration c) {
         self.config = c;
+        self.conn = connection;
         self.initEndpoint(connection);
     }
 

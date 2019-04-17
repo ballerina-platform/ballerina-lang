@@ -354,4 +354,11 @@ public class FiniteTypeTest {
                 {"testFiniteTypesAsUnionsAsBroaderTypes_2"}
         };
     }
+
+    @Test(description = "Test finite type where float/decimal discriminated literals as members")
+    public void testFiniteTypeWithDiscriminatedMembers() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithDiscriminatedMembers");
+        Assert.assertEquals(((BFloat) returns[0]), new BFloat(1.0));
+        Assert.assertEquals(((BDecimal) returns[1]), new BDecimal("1.0"));
+    }
 }

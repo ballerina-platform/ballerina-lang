@@ -18,8 +18,8 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BAttachedFunction;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BFiniteType;
 import org.ballerinalang.jvm.types.BFunctionType;
@@ -412,14 +412,14 @@ public class TypeChecker {
             }
         }
 
-        BAttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
-        BAttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
-        for (BAttachedFunction lhsFunc : lhsFuncs) {
+        AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
+        AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
+        for (AttachedFunction lhsFunc : lhsFuncs) {
             if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
                 continue;
             }
 
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
+            AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null) {
                 return false;
             }
@@ -443,9 +443,9 @@ public class TypeChecker {
             }
         }
 
-        BAttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
-        BAttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
-        for (BAttachedFunction lhsFunc : lhsFuncs) {
+        AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
+        AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
+        for (AttachedFunction lhsFunc : lhsFuncs) {
             if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
                 continue;
             }
@@ -454,14 +454,14 @@ public class TypeChecker {
                 return false;
             }
 
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
+            AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null || !Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
                 return false;
             }
         }
 
         // Check for private attached function in RHS type
-        for (BAttachedFunction rhsFunc : rhsFuncs) {
+        for (AttachedFunction rhsFunc : rhsFuncs) {
             if (!Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
                 return false;
             }
@@ -470,8 +470,8 @@ public class TypeChecker {
         return true;
     }
 
-    private static BAttachedFunction getMatchingInvokableType(BAttachedFunction[] rhsFuncs, BAttachedFunction lhsFunc,
-                                                              List<TypePair> unresolvedTypes) {
+    private static AttachedFunction getMatchingInvokableType(AttachedFunction[] rhsFuncs, AttachedFunction lhsFunc,
+                                                             List<TypePair> unresolvedTypes) {
         return Arrays.stream(rhsFuncs).filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
                 .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.type, lhsFunc.type, unresolvedTypes))
                 .findFirst().orElse(null);
