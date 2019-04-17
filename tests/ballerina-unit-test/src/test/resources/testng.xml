@@ -114,7 +114,6 @@ under the License.
             </class>
             <class name="org.ballerinalang.test.object.AnonymousObjectTest" />
             <class name="org.ballerinalang.test.object.ObjectEquivalencyNegativeTest" />
-            <class name="org.ballerinalang.test.object.ObjectEquivalencyNegativeTest" />
         </classes>
     </test>
 </suite>
