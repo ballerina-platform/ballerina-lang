@@ -205,12 +205,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
 
+        // Add the current package node's ID to the imported package list. This is used to identify cyclic module
+        // imports.
         importedPackages.add(pkgNode.packageID);
 
         defineConstructs(pkgNode, pkgEnv);
         pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv,
                                                                                    pkgNode.imports));
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
+
+        // After we have visited a package node, we need to remove it from the imports list.
+        importedPackages.remove(pkgNode.packageID);
     }
 
     private void defineConstructs(BLangPackage pkgNode, SymbolEnv pkgEnv) {
