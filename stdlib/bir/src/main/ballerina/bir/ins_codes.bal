@@ -46,6 +46,8 @@ public const int INS_NEW_XML_SEQ = 40;
 public const int INS_NEW_XML_QNAME = 41;
 public const int INS_XML_SEQ_STORE = 42;
 public const int INS_XML_SEQ_LOAD = 43;
+public const int INS_XML_ATTRIBUTE_LOAD = 44;
+public const int INS_XML_ATTRIBUTE_STORE = 45;
 
 // Binary expression related instructions.
 public const int INS_ADD = 50;

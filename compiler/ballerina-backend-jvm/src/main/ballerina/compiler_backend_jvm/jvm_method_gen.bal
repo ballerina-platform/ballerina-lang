@@ -219,6 +219,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     instGen.generateObjectStoreIns(inst);
                 } else if (inst.kind == bir:INS_KIND_OBJECT_LOAD) {
                     instGen.generateObjectLoadIns(inst);
+                } else if (inst.kind == bir:INS_KIND_XML_ATTRIBUTE_STORE) {
+                    instGen.generateXMLAttrStoreIns(inst);
                 } else {
                     error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                     panic err;

@@ -15,6 +15,6 @@
 // under the License.
 
 function testXML() returns xml {
-    xml x = xml `<foo><bar1>hello1</bar1><bar2>hello2</bar2></foo>`;
+    xml x = xml `<foo a="hello world"><bar1>hello1</bar1><bar2>hello2</bar2></foo>`;
     return x;
 }

@@ -104,6 +104,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -842,11 +843,6 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangXMLAttribute xmlAttribute) {
-        throw new AssertionError();
-    }
-
-    @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(xmlElementLiteral.type, this.env.nextLocalVarId(names),
                 VarScope.FUNCTION, VarKind.TEMP);
@@ -881,9 +877,13 @@ public class BIRGen extends BLangNodeVisitor {
                 toVarRef, startTagNameIndex, endTagNameIndex, defaultNsURIIndex);
         emit(newXMLElement);
 
+        this.env.targetOperand = toVarRef;
         // TODO: Add namespaces decelerations visible to this element.
 
-        // TODO: Add attributes
+        // Add attributes
+        xmlElementLiteral.attributes.forEach(attribute -> {
+            attribute.accept(this);
+        });
 
         // Add children
         xmlElementLiteral.modifiedChildren.forEach(child -> {
@@ -893,6 +893,19 @@ public class BIRGen extends BLangNodeVisitor {
         });
 
         this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangXMLAttribute attribute) {
+        BIROperand xmlVarRef = this.env.targetOperand;
+
+        attribute.name.accept(this);
+        BIROperand attrNameOp = this.env.targetOperand;
+
+        attribute.value.accept(this);
+        BIROperand attrValueOp = this.env.targetOperand;
+        emit(new BIRNonTerminator.FieldAccess(attribute.pos, InstructionKind.XML_ATTRIBUTE_STORE, xmlVarRef, attrNameOp,
+                attrValueOp));
     }
 
     @Override

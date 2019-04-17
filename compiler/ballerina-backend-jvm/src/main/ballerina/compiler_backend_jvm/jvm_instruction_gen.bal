@@ -670,6 +670,24 @@ type InstructionGenerator object {
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "addChildren", io:sprintf("(L%s;)V", XML_VALUE),
                                         false);
     }
+
+    function generateXMLAttrStoreIns(bir:FieldAccess xmlAttrStoreIns) {
+        // visit xml_ref
+        self.generateVarLoad(xmlAttrStoreIns.lhsOp.variableDcl);
+        bir:BType varRefType = xmlAttrStoreIns.lhsOp.variableDcl.typeValue;
+
+        // visit attribute name expr
+        self.generateVarLoad(xmlAttrStoreIns.keyOp.variableDcl);
+
+        // visit attribute value expr
+        bir:BType valueType = xmlAttrStoreIns.rhsOp.variableDcl.typeValue;
+        self.generateVarLoad(xmlAttrStoreIns.rhsOp.variableDcl);
+        addBoxInsn(self.mv, valueType);
+
+        // invoke setAttribute() method
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "setAttribute",
+                io:sprintf("(L%s;L%s;)V", XML_QNAME, STRING_VALUE), false);
+    }
 };
 
 function addBoxInsn(jvm:MethodVisitor mv, bir:BType bType) {

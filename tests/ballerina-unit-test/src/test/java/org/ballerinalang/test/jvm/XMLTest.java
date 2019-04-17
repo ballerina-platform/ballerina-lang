@@ -42,6 +42,7 @@ public class XMLTest {
     @Test
     public void testInt1() {
         BValue[] result = BRunUtil.invoke(compileResult, "testXML", new BValue[] {});
-        Assert.assertEquals(result[0].stringValue(), "<foo><bar1>hello1</bar1><bar2>hello2</bar2></foo>");
+        Assert.assertEquals(result[0].stringValue(),
+                "<foo a=\"hello world\"><bar1>hello1</bar1><bar2>hello2</bar2></foo>");
     }
 }

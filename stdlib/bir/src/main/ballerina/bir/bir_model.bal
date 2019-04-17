@@ -102,6 +102,7 @@ public const INS_KIND_NEW_XML_COMMENT = "NEW_XML_COMMENT";
 public const INS_KIND_NEW_XML_PI = "NEW_XML_PI";
 public const INS_KIND_NEW_XML_QNAME = "NEW_XML_QNAME";
 public const INS_KIND_XML_SEQ_STORE = "XML_SEQ_STORE";
+public const INS_KIND_XML_ATTRIBUTE_STORE = "XML_ATTRIBUTE_STORE";
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
                                 INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
@@ -109,7 +110,7 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_TYPE_TEST | BinaryOpInstructionKind | INS_KIND_OBJECT_STORE |
                                 INS_KIND_OBJECT_LOAD | INS_KIND_NEW_XML_ELEMENT | INS_KIND_NEW_XML_QNAME |
                                 INS_KIND_XML_SEQ_STORE | INS_KIND_NEW_XML_TEXT| INS_KIND_NEW_XML_COMMENT |
-                                INS_KIND_NEW_XML_PI;
+                                INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE;
 
 
 public const TERMINATOR_GOTO = "GOTO";

@@ -208,6 +208,13 @@ public type FuncBodyParser object {
             var rhsOp = self.parseVarRef();
             XMLSeqStore xmlSeqStore = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return xmlSeqStore;
+        } else if (kindTag == INS_XML_ATTRIBUTE_STORE) {
+            kind = INS_KIND_XML_ATTRIBUTE_STORE;
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess xmlAttrStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return xmlAttrStore;
         } else {
             return self.parseBinaryOpInstruction(kindTag);
         }
