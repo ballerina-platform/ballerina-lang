@@ -14,8 +14,8 @@ http:ServiceSecureSocket secureSocket = {
 };
 
 listener http:Listener apiListener = new(port, config = {
-        auth: {
-            authnHandlers: [basicAuthnHandler]
-        },
-        secureSocket: secureSocket
-    });
+    auth: {
+        authnHandlers: [basicAuthnHandler]
+    },
+    secureSocket: secureSocket
+});
