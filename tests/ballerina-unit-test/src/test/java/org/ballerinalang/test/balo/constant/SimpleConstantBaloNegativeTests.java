@@ -29,13 +29,14 @@ import org.testng.annotations.Test;
 /**
  * Negative test cases for reading constants.
  */
-public class ConstantNegativeTests {
+public class SimpleConstantBaloNegativeTests {
 
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project_negative", "testorg", "foo");
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project_negative", "testorg",
+                "simple_literal");
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/constant-negative.bal");
     }
 
@@ -55,11 +56,11 @@ public class ConstantNegativeTests {
                 offset += 7, 28);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '240', found 'int'",
                 offset += 9, 26);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0', found 'float'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0f', found 'float'",
                 offset += 9, 27);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '2.0', found 'float'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '2.0f', found 'float'",
                 offset += 7, 30);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0', found 'float'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0d', found 'float'",
                 offset += 9, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ballerina is awesome', found" +
                 " 'string'", offset += 9, 28);

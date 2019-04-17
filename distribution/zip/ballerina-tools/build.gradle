@@ -23,6 +23,12 @@ configurations {
     docerina
     bin
     balSource
+    zip
+    balo
+    resourceFiles
+    staticFiles
+    balx
+    unzipped
 }
 
 dependencies {
@@ -48,24 +54,38 @@ dependencies {
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':ballerina-backend-llvm')
     dist project(':ballerina-backend-jvm')
-    dist project(':language-server:language-server-compiler');
-    dist project(':ballerina-packerina');
+    dist project(':language-server:language-server-compiler')
+    dist project(':ballerina-packerina')
     dist project(':protobuf-ballerina')
-    dist project(':openapi-ballerina:openapi-to-ballerina-generator');
-    docerina project(':docerina-gradle-plugin');
+    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
+    dist project(':docerina')
+    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
+    docerina project(':docerina-gradle-plugin')
 
-    toolsZip project(path: ':language-server:language-server-core', configuration: 'dist');
-    tools project(':language-server:language-server-stdio-launcher');
-    tools project(':language-server:language-server-core');
-    balSource project(path: ':ballerina', configuration: 'source');
-    distBal project(path: ':ballerina', configuration: 'balo');
-    dist project(path: ':ballerina', configuration: 'jar');
-    bin project(path: ':ballerina', configuration: 'bin');
+    toolsZip project(path: ':language-server:language-server-core', configuration: 'dist')
+    tools project(':language-server:language-server-stdio-launcher')
+    tools project(':language-server:language-server-core')
+    balSource project(path: ':ballerina', configuration: 'source')
+    distBal project(path: ':ballerina', configuration: 'balo')
+    dist project(path: ':ballerina', configuration: 'jar')
+    bin project(path: ':ballerina', configuration: 'bin')
+    staticFiles project(path: ':ballerina', configuration: 'staticFiles')
+    resourceFiles project(path: ':ballerina', configuration: 'resourceFiles')
 
+    distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
+    balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
+
+    distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-jvm', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-bir', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
+
+    balSource project(path: ':ballerina-bir', configuration: 'balSource')
+    balSource project(path: ':ballerina-jvm', configuration: 'balSource')
+    balSource project(path: ':ballerina-llvm', configuration: 'balSource')
+
+    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
 }
 
 
@@ -80,6 +100,34 @@ def copyBaloSpec = {
     path -> copySpec {
         from configurations.distBal
         into(path + 'lib')
+    }
+}
+
+def copyBalxSpec = {
+    path -> copySpec {
+        from configurations.balx
+        into(path + 'lib/balx')
+    }
+}
+
+def copyStaticSpec = {
+    path -> copySpec {
+        from configurations.staticFiles
+        into(path)
+    }
+}
+
+def copyResourceSpec = {
+    path -> copySpec {
+        from configurations.resourceFiles
+        into("$path/bre")
+    }
+}
+
+def copySrcBaloSpec = {
+    path -> copySpec {
+        from configurations.balSource.files
+        into("$path/src")
     }
 }
 
@@ -146,21 +194,35 @@ task extractLibs(type: Copy) {
     into path
 }
 
+// Fix for windows class path too long issue
+task pathingJar(type: Jar) {
+    appendix = "pathing"
+    doFirst {
+        manifest {
+            attributes "Class-Path": configurations.docerina.files.collect {
+                it.toURL().toString().replaceFirst("file:/", "/")
+            }.join(' ')
+        }
+    }
+}
+
 task generateDocs(type: JavaExec) {
+    dependsOn pathingJar
     dependsOn extractLibs
+    dependsOn ':docerina-gradle-plugin:build'
     inputs.dir("$buildDir/ballerina/");
     outputs.dir("$buildDir/api-docs")
+    outputs.cacheIf { true }
 
     systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
     systemProperty("BALLERINA_DEV_LOAD_BUILTIN_FROM_SOURCE", true)
-
-    classpath = configurations.docerina
+    
+    classpath = files(pathingJar.archivePath)
     main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
 
     def libs = "$buildDir/ballerina/"
     args("$libs", "$buildDir/api-docs")
 }
-
 
 task createApiDocsZip(type: Zip) {
     from generateDocs.outputs.files
@@ -171,6 +233,7 @@ task createZip(type: Zip) {
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
     with copyBaloSpec(basePath)
+    with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
     with copyToolsSpec(basePath)
     with copyToolsZipSpec(basePath)
@@ -178,25 +241,60 @@ task createZip(type: Zip) {
     with copyBallerinaZipSpec(basePath)
     with examplesSpec(basePath)
     with apiDocsSpec(basePath)
+    with copyStaticSpec(basePath)
+    with copyResourceSpec(basePath)
+    with copySrcBaloSpec(basePath)
 }
 
 task updateBalHome(type: Copy) {
     def installDir = ""
     with copyJarSpec(installDir)
     with copyBaloSpec(installDir)
+    with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
     with copyToolsSpec(installDir)
     with copyToolsZipSpec(installDir)
     with copyToolsBin(installDir)
     with copyBallerinaZipSpec(installDir)
-    // TODO: uncomment after caching is fixed for apiDocs
-    //  with apiDocsSpec(installDir)
+    with apiDocsSpec(installDir)
     with examplesSpec(installDir)
+    with copyStaticSpec(installDir)
+    with copyResourceSpec(installDir)
+    with copySrcBaloSpec(installDir)
     into System.getenv('BAL_HOME')
 }
 
+task createDistribution(type: Copy) {
+    def filePath = "$buildDir/extracted-distributions/${project.name}-${project.version}"
+    file(filePath).mkdirs()
+    with copyJarSpec("")
+    with copyBaloSpec("")
+    with copyBalxSpec("")
+    with copyBinSpec("")
+    with copyToolsSpec("")
+    with copyToolsZipSpec("")
+    with copyToolsBin("")
+    with copyBallerinaZipSpec("")
+    with apiDocsSpec("")
+    with examplesSpec("")
+    with copyStaticSpec("")
+    with copyResourceSpec("")
+    with copySrcBaloSpec("")
+    destinationDir=file(filePath)
+}
+
 build {
+    // To make sure language server zip is ready before building pack
+    dependsOn ':language-server:language-server-core:build'
     dependsOn createZip
+    dependsOn createDistribution
+    finalizedBy ':ballerina-tools-integration-test:test'
+}
+
+artifacts {
+    balo configurations.distBal.files
+    zip file: file("$buildDir/distributions/${project.name}-${project.version}.zip"), builtBy: createZip
+    unzipped file: file("$buildDir/extracted-distributions/${project.name}-${project.version}"), builtBy: createDistribution
 }
 
 // This section makes sure that checkstyle/spotbug runs when dist is build.

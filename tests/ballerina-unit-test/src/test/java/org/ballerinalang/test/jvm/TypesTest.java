@@ -42,10 +42,12 @@ import org.testng.annotations.Test;
 public class TypesTest {
 
     private CompileResult compileResult;
+    private CompileResult objectsResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/jvm/types.bal");
+        objectsResult = BCompileUtil.compile("test-src/jvm/objects.bal");
     }
 
     @Test
@@ -270,10 +272,10 @@ public class TypesTest {
     public void testNestedJsonInit() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNestedJsonInit");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"aaa\", \"age\":25, " +
-                "\"parent\":{\"name\":\"bbb\", \"age\":50}, \"address\":{\"city\":\"Colombo\", " +
-                "\"country\":\"SriLanka\"}, " +
-                "\"array\":[1, 5, 7]}");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"name\":\"aaa\", \"age\":25, " +
+                        "\"parent\":{\"name\":\"bbb\", \"age\":50}, \"address\":{\"city\":\"Colombo\", " +
+                        "\"country\":\"SriLanka\"}, " + "\"array\":[1, 5, 7]}");
     }
 
     @Test
@@ -522,7 +524,7 @@ public class TypesTest {
         Assert.assertEquals(returns[0].stringValue(), "b");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*failed to get element from json: array index out of " +
                     "range: index: 5, size: 3.*")
     public void testGetArrayOutofBoundElement() {
@@ -639,5 +641,68 @@ public class TypesTest {
         BValue[] result = BRunUtil.invoke(compileResult, "futuresTest");
         Assert.assertTrue(result[0].stringValue().equals("0") || result[0].stringValue().equals("100") ||
                 result[0].stringValue().equals("200"));
+    }
+
+    @Test
+    public void testBasicStructAsObject() {
+        BValue[] returns = BRunUtil.invoke(objectsResult, "testSimpleObjectAsStruct");
+
+        Assert.assertEquals(returns.length, 4);
+
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BInteger.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(returns[1].stringValue(), "sample name");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
+        Assert.assertEquals(returns[3].stringValue(), "february");
+    }
+
+    @Test
+    public void testBasicStructAsObjectWithJustNew() {
+        BValue[] returns = BRunUtil.invoke(objectsResult, "testSimpleObjectAsStructWithNew");
+
+        Assert.assertEquals(returns.length, 4);
+
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BInteger.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(returns[1].stringValue(), "sample name");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
+        Assert.assertEquals(returns[3].stringValue(), "february");
+    }
+
+    @Test
+    public void testUserInitFunction() {
+        BValue[] returns = BRunUtil.invoke(objectsResult, "testUserInitFunction");
+
+        Assert.assertEquals(returns.length, 4);
+
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BInteger.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(returns[1].stringValue(), "sample name");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
+        Assert.assertEquals(returns[3].stringValue(), "february");
+    }
+
+    @Test
+    public void testSelfReferencingRecord() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingRecord");
+        Assert.assertEquals((result[0]).stringValue(), "{a:2, f:{a:1}}");
+    }
+
+    @Test
+    public void testSelfReferencingObject() {
+        BValue[] result = BRunUtil.invoke(objectsResult, "testSelfReferencingObject");
+        Assert.assertEquals((result[0]).stringValue(), "{a:3, f:()}");
     }
 }

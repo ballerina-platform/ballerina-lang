@@ -96,6 +96,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeDefInfo;
@@ -108,6 +109,7 @@ import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
+import org.ballerinalang.util.codegen.cpentries.MapCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
@@ -304,6 +306,7 @@ public class BVM {
                 case InstructionCodes.RGLOAD:
                 case InstructionCodes.MAPLOAD:
                 case InstructionCodes.JSONLOAD:
+                case InstructionCodes.MCONST:
                     execLoadOpcodes(strand, sf, opcode, operands);
                     break;
 
@@ -1463,6 +1466,13 @@ public class BVM {
                 j = operands[1];
                 k = operands[2];
                 sf.refRegs[k] = JSONUtils.getElement(sf.refRegs[i], sf.stringRegs[j]);
+                break;
+            case InstructionCodes.MCONST:
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                PackageInfo packageInfoEntry = ctx.programFile.getPackageInfoEntries()[pkgIndex];
+                sf.refRegs[j] = ((MapCPEntry) packageInfoEntry.getConstPoolEntries()[i]).getBMap();
                 break;
             default:
                 throw new UnsupportedOperationException();

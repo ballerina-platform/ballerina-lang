@@ -15,18 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+package org.ballerinalang.test.balo.constant;
 
-package org.ballerinalang.test.types.constant;
-
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.balo.BaloCreator;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -35,15 +35,16 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 
 /**
- * Constant test cases.
+ * Test cases for reading constants.
  */
-public class ConstantTest {
+public class SimpleConstantInBaloTest {
 
-    private static CompileResult compileResult;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/constant/constant.bal");
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+        compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/simple-literal-constant.bal");
     }
 
     @Test
@@ -71,7 +72,6 @@ public class ConstantTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
-
 
     @Test
     public void testConstWithTypeAsParam() {
@@ -171,7 +171,6 @@ public class ConstantTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-
     @Test
     public void testEqualityWithConstWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testEqualityWithConstWithType");
@@ -243,15 +242,6 @@ public class ConstantTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
     }
 
-    @Test
-    public void testFloatAsFiniteType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatAsFiniteType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.0);
-    }
-
     // Note - Decimal without type cannot be specified.
     @Test
     public void testDecimalWithType() {
@@ -273,6 +263,15 @@ public class ConstantTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStringWithoutType");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina rocks");
+    }
+
+    @Test
+    public void testFloatAsFiniteType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatAsFiniteType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.0);
     }
 
     @Test
@@ -332,14 +331,6 @@ public class ConstantTest {
     }
 
     @Test
-    public void testDecimalConstInUnion() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConstInUnion");
-        Assert.assertNotNull(returns[0]);
-        BigDecimal expected = new BigDecimal(50.0, MathContext.DECIMAL128);
-        Assert.assertEquals(((BDecimal) returns[0]).decimalValue().compareTo(expected), 0);
-    }
-
-    @Test
     public void testStringConstInUnion() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstInUnion");
         Assert.assertNotNull(returns[0]);
@@ -372,14 +363,6 @@ public class ConstantTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConstInTuple");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
-    }
-
-    @Test
-    public void testDecimalConstInTuple() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConstInTuple");
-        Assert.assertNotNull(returns[0]);
-        BigDecimal expected = new BigDecimal(50.0, MathContext.DECIMAL128);
-        Assert.assertEquals(((BDecimal) returns[0]).decimalValue().compareTo(expected), 0);
     }
 
     @Test
@@ -422,5 +405,40 @@ public class ConstantTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testLabeling");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    }
+
+    @Test
+    public void testBooleanConcat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConcat");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "true rocks");
+    }
+
+    @Test
+    public void testIntConcat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntConcat");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "24 rocks");
+    }
+
+    @Test
+    public void testByteConcat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testByteConcat");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "12 rocks");
+    }
+
+    @Test
+    public void testFloatConcat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConcat");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "25.5 rocks");
+    }
+
+    @Test
+    public void testDecimalConcat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConcat");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "25.5 rocks");
     }
 }

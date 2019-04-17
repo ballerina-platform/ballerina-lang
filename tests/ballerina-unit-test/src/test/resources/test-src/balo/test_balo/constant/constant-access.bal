@@ -1,5 +1,7 @@
 import testorg/foo version v1;
 
+// -----------------------------------------------------------
+
 type Ballerina "Ballerina";
 
 function testAccessConstantWithoutType() returns Ballerina {
@@ -16,106 +18,28 @@ function testAccessConstantWithType() returns Colombo {
     return foo:constAddress;
 }
 
+// -----------------------------------------------------------
+
 type AB "A"|"B";
 
 function testAccessFiniteType() returns foo:AB {
     return foo:getA();
 }
 
- function testReturnFiniteType() returns AB {
-     return foo:getA(); // Valid because this is same as `return "A";`
- }
+function testReturnFiniteType() returns AB {
+    return foo:getA(); // Valid because this is same as `return "A";`
+}
 
-function testAccessTypeWithContInDef() returns foo:CD {
-    foo:CD c = "C";
-    return c;
+function testAccessTypeWithContInDef() returns foo:XY {
+    foo:XY x = "X";
+    return x;
 }
 
 // -----------------------------------------------------------
 
-function testConstInMapKey() returns string {
-    string key = foo:KEY;
-    map<string> m = { key: "value" };
-    return m.key;
-}
+foo:XY test = "X";
 
-function testConstInMapValue() returns string {
-    string value = foo:VALUE;
-    map<string> m = { "key": value };
-    return m.key;
-}
-
-function testConstInJsonKey() returns json {
-    string key = foo:KEY;
-    json j = { key: "value" };
-    return j.key;
-}
-
-function testConstInJsonValue() returns json {
-    string value = foo:VALUE;
-    json j = { "key": value };
-    return j.key;
-}
-
-// -----------------------------------------------------------
-
-function testBooleanConstInUnion() returns any {
-    boolean|int v = foo:booleanWithType;
-    return v;
-}
-
-function testIntConstInUnion() returns any {
-    int|boolean v = foo:intWithType;
-    return v;
-}
-
-function testByteConstInUnion() returns any {
-    byte|boolean v = foo:byteWithType;
-    return v;
-}
-
-function testFloatConstInUnion() returns any {
-    float|boolean v = foo:floatWithType;
-    return v;
-}
-
-function testStringConstInUnion() returns any {
-    string|boolean v = foo:stringWithType;
-    return v;
-}
-
-// -----------------------------------------------------------
-
-function testBooleanConstInTuple() returns boolean {
-    (boolean, int) v = (foo:booleanWithType, 1);
-    return v[0];
-}
-
-function testIntConstInTuple() returns int {
-    (int, boolean) v = (foo:intWithType, true);
-    return v[0];
-}
-
-function testByteConstInTuple() returns byte {
-    (byte, boolean) v = (foo:byteWithType, true);
-    return v[0];
-}
-
-function testFloatConstInTuple() returns float {
-    (float, boolean) v = (foo:floatWithType, true);
-    return v[0];
-}
-
-function testStringConstInTuple() returns string {
-    (string, boolean) v = (foo:stringWithType, true);
-    return v[0];
-}
-
-// -----------------------------------------------------------
-
-foo:CD test = "C";
-
-function testTypeFromAnotherPackage() returns foo:CD {
+function testTypeFromAnotherPackage() returns foo:XY {
     return test;
 }
 
@@ -214,7 +138,7 @@ function testFloatTypeWithoutType() returns FloatTypeWithoutType {
 type DecimalTypeWithType foo:decimalWithType;
 
 function testDecimalTypeWithType() returns DecimalTypeWithType {
-    DecimalTypeWithType t = 4.0;
+    DecimalTypeWithType t = 50.0;
     return t;
 }
 
@@ -232,23 +156,4 @@ type StringTypeWithoutType foo:stringWithoutType;
 function testStringTypeWithoutType() returns StringTypeWithoutType {
     StringTypeWithoutType t = "Ballerina rocks";
     return t;
-}
-
-// -----------------------------------------------------------
-
-function testFloatAsFiniteType() returns (foo:FiniteFloatType, foo:FiniteFloatType) {
-    foo:FiniteFloatType f1 = 2.0;
-    foo:FiniteFloatType f2 = 4.0;
-
-    return (f1, f2);
-}
-
-// -----------------------------------------------------------
-
-function testNilWithoutType() returns () {
-    return foo:NilWithoutType;
-}
-
-function testNilWithType() returns () {
-    return foo:NilWithType;
 }

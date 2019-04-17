@@ -86,17 +86,16 @@ public class JBallerinaInMemoryClassLoader {
         private final Map<String, byte[]> jarFiles;
 
         InMemoryURLStreamHandler(Map<String, byte[]> jarFiles) {
-
             this.jarFiles = jarFiles;
         }
 
         @Override
         protected URLConnection openConnection(URL url) throws IOException {
-
-            final byte[] data = jarFiles.get(url.getFile());
+            String className = getClassName(url);
+            final byte[] data = jarFiles.get(className);
 
             if (data == null) {
-                throw new FileNotFoundException(url.getFile());
+                throw new FileNotFoundException(className);
             }
 
             return new URLConnection(url) {
@@ -110,6 +109,19 @@ public class JBallerinaInMemoryClassLoader {
                     return new ByteArrayInputStream(data);
                 }
             };
+        }
+
+        private String getClassName(URL url) {
+            String fileName = url.getFile();
+            if (!fileName.endsWith(".class")) {
+                return fileName;
+            }
+
+            // get the fully qualified class name, by removing the '.class' suffix
+            fileName = fileName.substring(0, fileName.length() - 6);
+
+            fileName = fileName.replace('.', '_');
+            return fileName + ".class";
         }
     }
 }
