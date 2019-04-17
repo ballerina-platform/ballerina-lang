@@ -1,10 +1,6 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
 
-configurations {
-    commonBackend
-}
-
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
@@ -17,6 +13,10 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
     implementation 'org.testng:testng'
+}
+
+configurations {
+    commonBackend
 }
 
 jar {
@@ -34,42 +34,42 @@ jar {
 shadowJar {
     configurations = [project.configurations.runtimeClasspath]
     dependencies {
-        exclude('org.slf4j:slf4j-api')
-        exclude('org.apache.commons:commons-lang3')
-        exclude('org.wso2.transport.http:org.wso2.transport.http.netty')
-        exclude('org.wso2.eclipse.osgi:org.eclipse.osgi')
-        exclude('org.wso2.eclipse.osgi:org.eclipse.osgi.services')
-        exclude('org.slf4j:slf4j-log4j12')
-        exclude('org.slf4j:slf4j-simple')
-        exclude('org.codehaus.woodstox:woodstox-core-asl')
-        exclude('org.codehaus.woodstox:stax2-api')
-        exclude('io.netty:netty-common')
-        exclude('io.netty:netty-buffer')
-        exclude('io.netty:netty-transport')
-        exclude('io.netty:netty-handler')
-        exclude('io.netty:netty-codec')
-        exclude('io.netty:netty-handler-proxy')
-        exclude('io.netty:netty-codec-socks')
-        exclude('io.netty:netty-codec-http2')
-        exclude('io.netty:netty-resolver')
-        exclude('commons-pool.wso2:commons-pool')
-        exclude('commons-pool:commons-pool')
-        exclude('org.wso2.orbit.org.yaml:snakeyaml')
-        exclude('org.bouncycastle:bcprov-jdk15on')
-        exclude('org.bouncycastle:bcpkix-jdk15on')
-        exclude('io.netty:netty-tcnative-boringssl-static')
-        exclude('org.testng:testng')
-        exclude('com.beust:jcommander')
-        exclude('io.netty:netty-codec-http')
-        exclude('io.netty:netty-transport-native-unix-common')
+        exclude(dependency('org.slf4j:slf4j-api'))
+        exclude(dependency('org.apache.commons:commons-lang3'))
+        exclude(dependency('org.wso2.transport.http:org.wso2.transport.http.netty'))
+        exclude(dependency('org.wso2.eclipse.osgi:org.eclipse.osgi'))
+        exclude(dependency('org.wso2.eclipse.osgi:org.eclipse.osgi.services'))
+        exclude(dependency('org.slf4j:slf4j-log4j12'))
+        exclude(dependency('org.slf4j:slf4j-simple'))
+        exclude(dependency('org.codehaus.woodstox:woodstox-core-asl'))
+        exclude(dependency('org.codehaus.woodstox:stax2-api'))
+        exclude(dependency('io.netty:netty-common'))
+        exclude(dependency('io.netty:netty-buffer'))
+        exclude(dependency('io.netty:netty-transport'))
+        exclude(dependency('io.netty:netty-handler'))
+        exclude(dependency('io.netty:netty-codec'))
+        exclude(dependency('io.netty:netty-handler-proxy'))
+        exclude(dependency('io.netty:netty-codec-socks'))
+        exclude(dependency('io.netty:netty-codec-http2'))
+        exclude(dependency('io.netty:netty-resolver'))
+        exclude(dependency('commons-pool.wso2:commons-pool'))
+        exclude(dependency('commons-pool:commons-pool'))
+        exclude(dependency('org.wso2.orbit.org.yaml:snakeyaml'))
+        exclude(dependency('org.bouncycastle:bcprov-jdk15on'))
+        exclude(dependency('org.bouncycastle:bcpkix-jdk15on'))
+        exclude(dependency('io.netty:netty-tcnative-boringssl-static'))
+        exclude(dependency('org.testng:testng'))
+        exclude(dependency('com.beust:jcommander'))
+        exclude(dependency('io.netty:netty-codec-http'))
+        exclude(dependency('io.netty:netty-transport-native-unix-common'))
         exclude('META-INF/*.SF')
         exclude('META-INF/*.DSA')
         exclude('META-INF/*.RSA')
     }
 }
 
-build.dependsOn shadowJar
-
 artifacts {
     commonBackend file: file('src/main/ballerina/httpService/common_backend.bal')
 }
+
+build.dependsOn shadowJar
