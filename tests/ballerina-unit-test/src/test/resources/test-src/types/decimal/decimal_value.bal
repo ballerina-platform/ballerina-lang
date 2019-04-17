@@ -152,3 +152,20 @@ function testPositivelySignedLiteralAssignment() returns (decimal, decimal, deci
     decimal d5 = d1 + d4;
     return (d1, d2, d5);
 }
+
+// Test decimal inference for map literal context
+function testDecimalInferenceInMapContext() returns map<decimal> {
+    map<decimal> md = { a: 33.3d, b: 33.3, c: 0.1, d: 1, e: 10000000000000000000000.123 };
+    return md;
+}
+
+// Test decimal inference for binary expressions of literals
+function decimalInferenceInLiterals() returns (decimal, decimal, decimal, decimal, decimal) {
+    decimal a = 1.0/2.0;
+    decimal b = 1.0+2.0;
+    decimal c = 1.0 - 2.0;
+    decimal d = 1.0 * 2.0;
+    decimal k = 10000.0001;
+    decimal e = 1.0/2.0/1.0 + 1.0*0.005 + k;
+    return (a, b, c, d, e);
+}

@@ -30,7 +30,6 @@ import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
-import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -80,7 +79,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -287,8 +285,6 @@ public class BLangPackageBuilder {
 
     private Stack<MarkdownDocumentationNode> markdownDocumentationStack = new Stack<>();
 
-    private Stack<DeprecatedNode> deprecatedAttachmentStack = new Stack<>();
-
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
 
     private Stack<IfNode> ifElseStatementStack = new Stack<>();
@@ -490,15 +486,11 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                          boolean exprAvailable, boolean deprecatedDocExit,
-                          int annotCount, boolean isPrivate, boolean isPublic) {
+    void addObjectFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean exprAvailable,
+                                int annotCount, boolean isPrivate, boolean isPublic) {
         BLangSimpleVariable field = addSimpleVar(pos, ws, identifier, exprAvailable, annotCount);
 
         attachAnnotations(field, annotCount);
-        if (deprecatedDocExit) {
-            attachDeprecatedNode(field);
-        }
 
         if (isPublic) {
             field.flagSet.add(Flag.PUBLIC);
@@ -644,11 +636,12 @@ public class BLangPackageBuilder {
         this.varListStack.push(new ArrayList<>());
     }
 
-    void startFunctionDef(int annotCount) {
+    void startFunctionDef(int annotCount, boolean isLambda) {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
         attachAnnotations(functionNode, annotCount);
-        attachMarkdownDocumentations(functionNode);
-        attachDeprecatedNode(functionNode);
+        if (!isLambda) {
+            attachMarkdownDocumentations(functionNode);
+        }
         this.invokableNodeStack.push(functionNode);
     }
 
@@ -920,7 +913,7 @@ public class BLangPackageBuilder {
 
     void startLambdaFunctionDef(PackageID pkgID) {
         // Passing zero for annotation count as Lambdas can't have annotations.
-        startFunctionDef(0);
+        startFunctionDef(0, true);
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.setName(createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         lambdaFunction.addFlag(Flag.LAMBDA);
@@ -1606,10 +1599,6 @@ public class BLangPackageBuilder {
             function.flagSet.add(Flag.ATTACHED);
         }
 
-        if (!function.deprecatedAttachments.isEmpty()) {
-            function.flagSet.add(Flag.DEPRECATED);
-        }
-
         this.compUnit.addTopLevelNode(function);
     }
 
@@ -1759,7 +1748,6 @@ public class BLangPackageBuilder {
             constantNode.flagSet.add(Flag.PUBLIC);
         }
         attachMarkdownDocumentations(constantNode);
-        attachDeprecatedNode(constantNode);
         this.compUnit.addTopLevelNode(constantNode);
 
         // Check whether the value is a literal. If it is not a literal, it is an invalid case. So we don't need to
@@ -1814,7 +1802,6 @@ public class BLangPackageBuilder {
 
         attachAnnotations(var);
         attachMarkdownDocumentations(var);
-        attachDeprecatedNode(var);
 
         this.compUnit.addTopLevelNode(var);
     }
@@ -1966,14 +1953,13 @@ public class BLangPackageBuilder {
         typeDefinition.addWS(ws);
         Collections.reverse(markdownDocumentationStack);
         attachMarkdownDocumentations(typeDefinition);
-        attachDeprecatedNode(typeDefinition);
         attachAnnotations(typeDefinition);
         this.compUnit.addTopLevelNode(typeDefinition);
     }
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,
                                       boolean remoteFunc, boolean resourceFunc, boolean nativeFunc, boolean bodyExists,
-                                      boolean markdownDocPresent, boolean deprecatedDocPresent, int annCount) {
+                                      boolean markdownDocPresent, int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.pos = pos;
         function.addWS(ws);
@@ -2012,13 +1998,6 @@ public class BLangPackageBuilder {
         attachAnnotations(function, annCount);
         if (markdownDocPresent) {
             attachMarkdownDocumentations(function);
-        }
-        if (deprecatedDocPresent) {
-            attachDeprecatedNode(function);
-        }
-
-        if (!function.deprecatedAttachments.isEmpty()) {
-            function.flagSet.add(Flag.DEPRECATED);
         }
 
         BLangObjectTypeNode objectNode = (BLangObjectTypeNode) this.typeNodeStack.peek();
@@ -2079,10 +2058,6 @@ public class BLangPackageBuilder {
 
         function.attachedOuterFunction = true;
 
-        if (!function.deprecatedAttachments.isEmpty()) {
-            function.flagSet.add(Flag.DEPRECATED);
-        }
-
         this.compUnit.addTopLevelNode(function);
     }
 
@@ -2091,7 +2066,6 @@ public class BLangPackageBuilder {
         annotNode.pos = pos;
         attachAnnotations(annotNode);
         attachMarkdownDocumentations(annotNode);
-        attachDeprecatedNode(annotNode);
         this.annotationStack.add(annotNode);
     }
 
@@ -2185,18 +2159,6 @@ public class BLangPackageBuilder {
         returnParameter.addReturnParameterDocumentationLine(description);
     }
 
-    void createDeprecatedNode(DiagnosticPos pos,
-                              Set<Whitespace> ws,
-                              String content) {
-        BLangDeprecatedNode deprecatedNode = (BLangDeprecatedNode) TreeBuilder.createDeprecatedNode();
-
-        deprecatedNode.pos = pos;
-        deprecatedNode.addWS(ws);
-
-        deprecatedNode.documentationText = content;
-        deprecatedAttachmentStack.push(deprecatedNode);
-    }
-
     void startAnnotationAttachment(DiagnosticPos currentPos) {
         BLangAnnotationAttachment annotAttachmentNode =
                 (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
@@ -2229,12 +2191,6 @@ public class BLangPackageBuilder {
     private void attachMarkdownDocumentations(DocumentableNode documentableNode) {
         if (!markdownDocumentationStack.empty()) {
             documentableNode.setMarkdownDocumentationAttachment(markdownDocumentationStack.pop());
-        }
-    }
-
-    private void attachDeprecatedNode(DocumentableNode documentableNode) {
-        if (!deprecatedAttachmentStack.empty()) {
-            documentableNode.addDeprecatedAttachment(deprecatedAttachmentStack.pop());
         }
     }
 
@@ -2674,7 +2630,6 @@ public class BLangPackageBuilder {
         serviceNode.pos = pos;
         attachAnnotations(serviceNode);
         attachMarkdownDocumentations(serviceNode);
-        attachDeprecatedNode(serviceNode);
         serviceNodeStack.push(serviceNode);
     }
 

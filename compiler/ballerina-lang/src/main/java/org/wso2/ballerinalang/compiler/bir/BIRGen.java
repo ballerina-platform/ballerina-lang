@@ -38,11 +38,14 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -62,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -89,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -175,7 +180,8 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangFunction astFunc) {
         Visibility visibility = getVisibility(astFunc.symbol);
         BInvokableType type = astFunc.symbol.getType();
-        BIRFunction birFunc = new BIRFunction(astFunc.pos, astFunc.symbol.name, visibility, type);
+        Name funcName = getFuncName(astFunc.symbol);
+        BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type);
         birFunc.isDeclaration = Symbols.isNative(astFunc.symbol);
         birFunc.argsCount = astFunc.requiredParams.size() +
                             astFunc.defaultableParams.size() + (astFunc.restParam != null ? 1 : 0);
@@ -216,6 +222,16 @@ public class BIRGen extends BLangNodeVisitor {
         // Rearrange error entries.
         birFunc.errorTable.sort(Comparator.comparing(o -> o.trapBB.id.value));
         this.env.clear();
+    }
+
+    private Name getFuncName(BInvokableSymbol symbol) {
+        if (symbol.receiverSymbol == null) {
+            return symbol.name;
+        }
+
+        int offset = symbol.receiverSymbol.type.tsymbol.name.value.length() + 1;
+        String attachedFuncName = symbol.name.value;
+        return names.fromString(attachedFuncName.substring(offset, attachedFuncName.length()));
     }
 
     private void addParam(BIRFunction birFunc, BLangVariable requiredParam) {
@@ -337,16 +353,14 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         // TODO: make vCall a new instruction to avoid package id in vCall
-        if (!invocationExpr.async) {
-            this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos,
-                    InstructionKind.CALL, isVirtual, invocationExpr.symbol.pkgID,
-                    names.fromString(invocationExpr.name.value), args, lhsOp, thenBB);
+        Name funcName = getFuncName((BInvokableSymbol) invocationExpr.symbol);
+        if (invocationExpr.async) {
+            this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
+                    isVirtual, invocationExpr.symbol.pkgID, funcName, args, lhsOp, thenBB);
         } else {
-            this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos,
-                    InstructionKind.ASYNC_CALL, isVirtual, invocationExpr.symbol.pkgID,
-                    names.fromString(invocationExpr.name.value), args, lhsOp, thenBB);
+            this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
+                    invocationExpr.symbol.pkgID, funcName, args, lhsOp, thenBB);
         }
-
 
         this.env.enclBB = thenBB;
     }
@@ -542,9 +556,8 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
-        emit(new BIRNonTerminator.NewInstance(connectorInitExpr.pos,
-                                              typeDefs.get(connectorInitExpr.type.tsymbol),
-                                              toVarRef));
+        BTypeSymbol objectTypeSymbol = getObjectTypeSymbol(connectorInitExpr.type);
+        emit(new BIRNonTerminator.NewInstance(connectorInitExpr.pos, typeDefs.get(objectTypeSymbol), toVarRef));
         this.env.targetOperand = toVarRef;
     }
 
@@ -769,6 +782,20 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangIsAssignableExpr assignableExpr) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.booleanType, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        assignableExpr.lhsExpr.accept(this);
+        BIROperand exprIndex = this.env.targetOperand;
+
+        emit(new BIRNonTerminator.TypeTest(assignableExpr.pos, assignableExpr.targetType, toVarRef, exprIndex));
+        this.env.targetOperand = toVarRef;
+    }
+
     // private methods
 
     private void genIntermediateErrorEntries(BIRBasicBlock thenBB) {
@@ -966,4 +993,13 @@ public class BIRGen extends BLangNodeVisitor {
         this.varAssignment = variableStore;
     }
 
+    private BTypeSymbol getObjectTypeSymbol(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .filter(t -> t.tag == TypeTags.OBJECT)
+                    .findFirst()
+                    .orElse(symTable.noType).tsymbol;
+        }
+        return type.tsymbol;
+    }
 }

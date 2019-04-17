@@ -40,7 +40,7 @@ import java.sql.Statement;
  */
 public class SQLDBUtils {
 
-    public static final String DB_DIRECTORY = "./target/tempdb/";
+    public static final String DB_DIRECTORY = System.getProperty("libdir") + File.separator + "tempdb" + File.separator;
     private static final Logger LOG = LoggerFactory.getLogger(SQLDBUtils.class);
 
     /**

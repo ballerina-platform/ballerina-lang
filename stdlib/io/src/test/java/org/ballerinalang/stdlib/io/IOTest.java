@@ -37,6 +37,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -319,6 +320,25 @@ public class IOTest {
         Assert.assertNull(result[0]);
 
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "closeWritableChannel");
+    }
+
+    @Test(description = "Test double byte unicode write function in ballerina/io package")
+    public void testWriteHigherUnicodeRangeJsonCharacters() {
+        String sourceToWrite = currentDirectoryPath + "/unicode.json";
+        //Will initialize the channel
+        BValue[] args = { new BString(sourceToWrite), new BString("UTF-8") };
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "initWritableChannel", args);
+        BValue[] result = BRunUtil.invokeStateful(characterInputOutputProgramFile, "writeJsonWithHigherUnicodeRange");
+        //Assert if there's no error return
+        Assert.assertNull(result[0]);
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "closeWritableChannel");
+        try {
+            String content = "{\"loop\":\"É\"}";
+            Assert.assertEquals(content,
+                    new String(Files.readAllBytes(Paths.get(sourceToWrite)), StandardCharsets.UTF_8).trim());
+        } catch (IOException e) {
+            Assert.fail("Unable to read from file", e);
+        }
     }
 
     @Test(description = "Test 'writeXml' function in ballerina/io package")

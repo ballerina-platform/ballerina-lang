@@ -952,13 +952,16 @@ public class Types {
         expr.impConversionExpr = implicitConversionExpr;
     }
 
-    public BSymbol getCastOperator(BType sourceType, BType targetType) {
+    public BSymbol getCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
-
-        return targetType.accept(castVisitor, sourceType);
+        BSymbol bSymbol = symResolver.resolveTypeCastOperator(expr, sourceType, targetType);
+        if (bSymbol != null && bSymbol != symTable.notFoundSymbol) {
+            return bSymbol;
+        }
+        return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
     }
 
     public BSymbol getConversionOperator(BType sourceType, BType targetType) {
@@ -973,7 +976,7 @@ public class Types {
         return symResolver.resolveOperator(Names.CAST_OP, Lists.of(sourceType, targetType));
     }
 
-    BSymbol getTypeCastOperator(BLangTypeConversionExpr conversionExpr, BType sourceType, BType targetType) {
+    BSymbol getTypeCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
@@ -988,13 +991,13 @@ public class Types {
 
         if (isAssignable(targetType, sourceType)) {
             if (isValueType(sourceType)) {
-                setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
+                setImplicitCastExpr(expr, sourceType, symTable.anyType);
             }
             return symResolver.createTypeCastSymbol(sourceType, targetType);
         }
 
         if (containsNumericType(targetType)) {
-            BSymbol symbol = symResolver.getNumericConversionOrCastSymbol(conversionExpr, sourceType, targetType);
+            BSymbol symbol = symResolver.getNumericConversionOrCastSymbol(expr, sourceType, targetType);
             if (symbol != symTable.notFoundSymbol) {
                 return symbol;
             }
@@ -1036,7 +1039,7 @@ public class Types {
 
         if (validTypeCast) {
             if (isValueType(sourceType)) {
-                setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
+                setImplicitCastExpr(expr, sourceType, symTable.anyType);
             }
             return symResolver.createTypeCastSymbol(sourceType, targetType);
         }
