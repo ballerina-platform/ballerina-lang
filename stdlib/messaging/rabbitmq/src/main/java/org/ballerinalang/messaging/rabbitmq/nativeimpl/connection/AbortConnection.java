@@ -54,7 +54,12 @@ public class AbortConnection extends BlockingNativeCallableUnit {
         BValue timeout = context.getNullableRefArgument(3);
         Connection connection = RabbitMQUtils.getNativeObject(connectionBObject,
                 RabbitMQConstants.CONNECTION_NATIVE_OBJECT, Connection.class, context);
-        ConnectionUtils.handleAbortConnection(connection, closeCode, closeMessage, timeout);
+        try {
+            ConnectionUtils.handleAbortConnection(connection, closeCode, closeMessage, timeout);
+        } catch (ArithmeticException exception) {
+            RabbitMQUtils.returnError(RabbitMQConstants.ABORT_CONNECTION_ERROR + exception.getMessage(),
+                    context, exception);
+        }
         connectionBObject.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, null);
     }
 }

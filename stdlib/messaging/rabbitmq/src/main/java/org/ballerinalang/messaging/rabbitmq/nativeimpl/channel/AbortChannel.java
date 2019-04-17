@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 )
 public class AbortChannel extends BlockingNativeCallableUnit {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Close.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbortChannel.class);
 
     @Override
     public void execute(Context context) {

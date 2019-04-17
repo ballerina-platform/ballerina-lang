@@ -30,6 +30,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import java.io.IOException;
+
 /**
  * Closes a RabbitMQ Connection.
  *
@@ -53,7 +55,12 @@ public class Close extends BlockingNativeCallableUnit {
         BValue timeout = context.getNullableRefArgument(3);
         Connection connection = RabbitMQUtils.getNativeObject(connectionBObject,
                 RabbitMQConstants.CONNECTION_NATIVE_OBJECT, Connection.class, context);
-        ConnectionUtils.handleCloseConnection(connection, closeCode, closeMessage, timeout, context);
+        try {
+            ConnectionUtils.handleCloseConnection(connection, closeCode, closeMessage, timeout);
+        } catch (IOException | ArithmeticException exception) {
+            RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
+                    context, exception);
+        }
         connectionBObject.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, null);
     }
 }

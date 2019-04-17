@@ -28,7 +28,7 @@ public type Connection object {
     # It waits with a provided timeout for all the close operations to complete.
     # When timeout is reached the socket is forced to close.
     #
-    # + closeCode - The close code (See under "Reply Codes" in the AMQP specification).
+    # + closeCode - The close code (See under "Reply Codes" in the AMQP 0-9-1 specification).
     # + closeMessage - A message indicating the reason for closing the connection.
     # + timeout - Timeout (in milliseconds) for completing all the close-related operations, use -1 for infinity.
     # + return - An `error` if an I/O problem is encountered.
@@ -39,7 +39,7 @@ public type Connection object {
     # the socket is forced to close.
     # Any encountered exceptions in the close operations are silently discarded.
     #
-    # + closeCode - The close code (See under "Reply Codes" in the AMQP specification).
+    # + closeCode - The close code (See under "Reply Codes" in the AMQP 0-9-1 specification).
     # + closeMessage - A message indicating the reason for closing the connection.
     # + timeout - Timeout (in milliseconds) for completing all the close-related operations, use -1 for infinity.
     # + return - An `error` if an I/O problem is encountered.

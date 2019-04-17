@@ -18,7 +18,6 @@
 
 package org.ballerinalang.messaging.rabbitmq.util;
 
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import org.ballerinalang.bre.Context;
@@ -31,7 +30,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -62,6 +60,7 @@ public class ChannelUtils {
      * @param channel      RabbitMQ Channel object.
      * @param closeMessage The close code (See under "Reply Codes" in the AMQP specification).
      * @param closeCode    A message indicating the reason for closing the channel.
+     * @param context      Context.
      */
     public static void handleAbortChannel(Channel channel, BValue closeCode, BValue closeMessage, Context context) {
         boolean validCloseCode = closeCode instanceof BInteger;
@@ -77,6 +76,7 @@ public class ChannelUtils {
      * Aborts the channel.
      *
      * @param channel RabbitMQ Channel object.
+     * @param context Context.
      */
     public static void abort(Channel channel, Context context) {
         try {
@@ -127,6 +127,7 @@ public class ChannelUtils {
      * Closes the channel.
      *
      * @param channel RabbitMQ Channel object.
+     * @param context Context.
      */
     public static void close(Channel channel, Context context) {
         try {
@@ -143,6 +144,7 @@ public class ChannelUtils {
      * @param channel      RabbitMQ Channel object.
      * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
      * @param closeMessage A message indicating the reason for closing the connection.
+     * @param context      Context.
      */
     public static void close(Channel channel, int closeCode, String closeMessage, Context context) {
         try {
@@ -176,7 +178,6 @@ public class ChannelUtils {
      * @param durable    True if we are declaring a durable queue (the queue will survive a server restart).
      * @param exclusive  True if we are declaring an exclusive queue (restricted to this connection).
      * @param autoDelete True if we are declaring an autodelete queue (server will delete it when no longer in use).
-     * @param arguments  Other properties (construction arguments) for the queue.
      */
     public static void queueDeclare(Channel channel, String queueName, boolean durable, boolean exclusive,
                                     boolean autoDelete) {
@@ -232,9 +233,9 @@ public class ChannelUtils {
      * @param message    The message body.
      * @param exchange   The name of the exchange.
      */
-    public static void basicPublish(Channel channel, String routingKey, String message, String exchange) {
+    public static void basicPublish(Channel channel, String routingKey, byte[] message, String exchange) {
         try {
-            channel.basicPublish(exchange, routingKey, null, message.getBytes("UTF-8"));
+            channel.basicPublish(exchange, routingKey, null, message);
         } catch (Exception e) {
             String errorMessage = "An error occurred while publishing the message to a queue ";
             throw new BallerinaException(errorMessage + e.getMessage(), e);

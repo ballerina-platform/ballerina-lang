@@ -20,7 +20,6 @@ package org.ballerinalang.messaging.rabbitmq.util;
 
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.values.BInteger;
@@ -101,31 +100,26 @@ public class ConnectionUtils {
      *                     operations, use -1 for infinity.
      * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
      * @param closeMessage A message indicating the reason for closing the connection.
-     * @param context      Context.
+     * @throws IOException If an I/O problem is encountered.
      */
     public static void handleCloseConnection(Connection connection, BValue closeCode, BValue closeMessage,
-                                             BValue timeout, Context context) {
+                                             BValue timeout) throws IOException {
         boolean validTimeout = timeout instanceof BInteger;
         boolean validCloseCode = (closeCode instanceof BInteger) && (closeMessage instanceof BString);
-        if (!validTimeout && !validCloseCode) {
-            closeConnection(connection, context);
-        } else if (validTimeout && validCloseCode) {
-            closeConnection(connection,
+        if (validTimeout && validCloseCode) {
+            close(connection,
                     Math.toIntExact(((BInteger) closeCode).intValue()),
                     closeMessage.stringValue(),
-                    Math.toIntExact(((BInteger) timeout).intValue()),
-                    context);
-        } else if (validTimeout && !validCloseCode) {
-            closeConnection(connection,
-                    Math.toIntExact(((BInteger) timeout).intValue()),
-                    context);
-        } else if (!validTimeout && validCloseCode) {
-            closeConnection(connection,
+                    Math.toIntExact(((BInteger) timeout).intValue()));
+        } else if (validTimeout) {
+            close(connection,
+                    Math.toIntExact(((BInteger) timeout).intValue()));
+        } else if (validCloseCode) {
+            close(connection,
                     Math.toIntExact(((BInteger) closeCode).intValue()),
-                    closeMessage.stringValue(),
-                    context);
+                    closeMessage.stringValue());
         } else {
-            throw new BallerinaException("Error in closing the connection");
+            close(connection);
         }
     }
 
@@ -142,22 +136,20 @@ public class ConnectionUtils {
                                              BValue timeout) {
         boolean validTimeout = timeout instanceof BInteger;
         boolean validCloseCode = (closeCode instanceof BInteger) && (closeMessage instanceof BString);
-        if (!validTimeout && !validCloseCode) {
-            abortConnection(connection);
-        } else if (validTimeout && validCloseCode) {
+        if (validTimeout && validCloseCode) {
             abortConnection(connection,
                     Math.toIntExact(((BInteger) closeCode).intValue()),
                     closeMessage.stringValue(),
                     Math.toIntExact(((BInteger) timeout).intValue()));
-        } else if (validTimeout && !validCloseCode) {
+        } else if (validTimeout) {
             abortConnection(connection,
                     Math.toIntExact(((BInteger) timeout).intValue()));
-        } else if (!validTimeout && validCloseCode) {
+        } else if (validCloseCode) {
             abortConnection(connection,
                     Math.toIntExact(((BInteger) closeCode).intValue()),
                     closeMessage.stringValue());
         } else {
-            throw new BallerinaException("Error in closing the connection");
+            abortConnection(connection);
         }
     }
 
@@ -165,32 +157,20 @@ public class ConnectionUtils {
      * Closes the connection.
      *
      * @param connection RabbitMQ Connection object.
-     * @param context    Context.
+     * @throws IOException If an I/O problem is encountered.
      */
-    private static void closeConnection(Connection connection, Context context) {
-        try {
-            connection.close();
-        } catch (IOException exception) {
-            LOGGER.error(RabbitMQConstants.CLOSE_CONNECTION_ERROR, exception);
-            RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
-                    context, exception);
-        }
+    private static void close(Connection connection) throws IOException {
+        connection.close();
     }
 
     /**
      * Closes the connection.
      *
      * @param connection RabbitMQ Connection object.
-     * @param context    Context.
+     * @throws IOException If an I/O problem is encountered.
      */
-    private static void closeConnection(Connection connection, int closeCode, String closeMessage, Context context) {
-        try {
-            connection.close(closeCode, closeMessage);
-        } catch (IOException exception) {
-            LOGGER.error(RabbitMQConstants.CLOSE_CONNECTION_ERROR, exception);
-            RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
-                    context, exception);
-        }
+    private static void close(Connection connection, int closeCode, String closeMessage) throws IOException {
+        connection.close(closeCode, closeMessage);
     }
 
     /**
@@ -198,33 +178,21 @@ public class ConnectionUtils {
      *
      * @param connection RabbitMQ Connection object.
      * @param timeout    Timeout (in milliseconds) for completing all the close-related operations, use -1 for infinity.
-     * @param context    Context.
+     * @throws IOException If an I/O problem is encountered.
      */
-    private static void closeConnection(Connection connection, int timeout, Context context) {
-        try {
-            connection.close(timeout);
-        } catch (IOException exception) {
-            LOGGER.error(RabbitMQConstants.CLOSE_CONNECTION_ERROR, exception);
-            RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
-                    context, exception);
-        }
+    private static void close(Connection connection, int timeout) throws IOException {
+        connection.close(timeout);
     }
 
     /**
      * Closes the connection.
      *
      * @param connection RabbitMQ Connection object.
-     * @param context    Context.
+     * @throws IOException If an I/O problem is encountered.
      */
-    private static void closeConnection(Connection connection, int closeCode, String closeMessage, int timeout,
-                                        Context context) {
-        try {
-            connection.close(closeCode, closeMessage, timeout);
-        } catch (IOException exception) {
-            LOGGER.error(RabbitMQConstants.CLOSE_CONNECTION_ERROR, exception);
-            RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
-                    context, exception);
-        }
+    private static void close(Connection connection, int closeCode, String closeMessage, int timeout)
+            throws IOException {
+        connection.close(closeCode, closeMessage, timeout);
     }
 
     /**

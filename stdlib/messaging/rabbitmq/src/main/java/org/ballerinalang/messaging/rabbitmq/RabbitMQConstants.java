@@ -34,16 +34,17 @@ public class RabbitMQConstants {
             + ORG_NAME_SEPARATOR + RABBITMQ;
 
     // Error constant fields
-    public static final String RABBITMQ_ERROR_RECORD = "RabbitMQError";
-    public static final String RABBITMQ_ERROR_CODE = "{ballerina/rabbitmq}RabbitMQError";
+    static final String RABBITMQ_ERROR_RECORD = "RabbitMQError";
+    static final String RABBITMQ_ERROR_CODE = "{ballerina/rabbitmq}RabbitMQError";
 
     // Connection errors
-    public static final String CLOSE_CONNECTION_ERROR = "An error occurred while closing the connection ";
-    public static final String CREATE_CONNECTION_ERROR = "An error occurred while connecting to the broker";
+    public static final String CLOSE_CONNECTION_ERROR = "An error occurred while closing the connection: ";
+    public static final String ABORT_CONNECTION_ERROR = "An error occurred while aborting the connection: ";
+    public static final String CREATE_CONNECTION_ERROR = "An error occurred while connecting to the broker: ";
 
     // Channel errors
-    public static final String CLOSE_CHANNEL_ERROR = "An error occurred while closing the channel";
-    public static final String ABORT_CHANNEL_ERROR = "An error occurred while aborting the channel";
+    public static final String CLOSE_CHANNEL_ERROR = "An error occurred while closing the channel: ";
+    public static final String ABORT_CHANNEL_ERROR = "An error occurred while aborting the channel: ";
 
     // Connection constant fields
     public static final String CONNECTION_OBJECT = "Connection";
@@ -63,6 +64,7 @@ public class RabbitMQConstants {
     public static final String QUEUE_CONFIG = "queueConfig";
     public static final String CHANNEL_LISTENER_OBJECT = "ChannelListener";
     public static final String SERVICE_CONFIG = "ServiceConfig";
+    public static final String CHAR_SET = "UTF-8";
 
     // Channel constant fields
     public static final String CHANNEL_OBJECT = "Channel";
@@ -78,4 +80,7 @@ public class RabbitMQConstants {
     public static final String ALIAS_EXCHANGE_NAME = "exchangeName";
     public static final String ALIAS_EXCHANGE_TYPE = "exchangeType";
     public static final String ALIAS_EXCHANGE_DURABLE = "durable";
+
+    private RabbitMQConstants(){
+    }
 }
