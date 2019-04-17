@@ -651,3 +651,14 @@ function waitAgain() returns string {
 function append(string str) {
     waitMultimple = waitMultimple + str;
 }
+
+public type Foo record {
+    int a = 3;
+    Foo? f = ();
+};
+
+public function testSelfReferencingRecord() returns Foo {
+    Foo f1 = {a:1};
+    Foo f2 = {a:2, f:f1};
+    return f2;
+}

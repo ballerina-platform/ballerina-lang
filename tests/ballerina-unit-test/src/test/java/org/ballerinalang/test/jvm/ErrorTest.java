@@ -117,4 +117,9 @@ public class ErrorTest {
         Assert.assertEquals(bError.getReason(), "reason foo 2");
         Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "int value");
     }
+
+    @Test(enabled = false)
+    public void testSelfReferencingObject() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingError");
+    }
 }

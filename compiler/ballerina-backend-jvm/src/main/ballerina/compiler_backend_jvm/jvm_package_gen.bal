@@ -46,6 +46,8 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     string orgName = module.org.value;
     string moduleName = module.name.value;
 
+    string pkgName = getPackageName(orgName, moduleName);
+
     // TODO: need to get bal source file name for class name mapping
     string moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName, untaint moduleName);
 
@@ -59,12 +61,12 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     generateFrameClasses(module, pkgEntries);
 
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
-    generateDefaultConstructor(cw);
+    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
+    generateDefaultConstructor(cw, VALUE_CREATOR);
 
     generateUserDefinedTypeFields(cw, module.typeDefs);
 
-    string pkgName = getPackageName(orgName, moduleName);
+    generateValueCreatorMethods(cw, module.typeDefs, pkgName);
 
     // populate global variable to class name mapping and generate them
     foreach var globalVar in module.globalVars {
@@ -111,10 +113,12 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     generateFrameClasses(module, pkgEntries);
 
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
-    generateDefaultConstructor(cw);
+    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
+    generateDefaultConstructor(cw, VALUE_CREATOR);
 
     generateUserDefinedTypeFields(cw, module.typeDefs);
+
+    generateValueCreatorMethods(cw, module.typeDefs, pkgName);
 
     // generate global variables
     foreach var globalVar in module.globalVars {
@@ -122,7 +126,6 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
             generatePackageVariable(globalVar, cw);
         }
     }
-
     bir:Function? mainFunc = getMainFunc(module.functions);
     if (mainFunc is bir:Function) {
         generateMainMethod(mainFunc, cw, module);

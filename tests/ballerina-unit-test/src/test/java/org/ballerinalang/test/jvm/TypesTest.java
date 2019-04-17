@@ -700,10 +700,23 @@ public class TypesTest {
         Assert.assertEquals(result[0].stringValue(), "wait");
     }
 
+    @Test
     public void testWaitOnSame() {
         BValue[] result = BRunUtil.invoke(compileResult, "waitOnSame");
         Assert.assertEquals(result[0].stringValue(), "wait1");
-        Assert.assertEquals(result[0].stringValue(), "wait2");
-        Assert.assertEquals(result[0].stringValue(), "00112233");
+        Assert.assertEquals(result[1].stringValue(), "wait2");
+        Assert.assertEquals(result[2].stringValue(), "00112233");
+    }
+
+    @Test
+    public void testSelfReferencingRecord() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingRecord");
+        Assert.assertEquals((result[0]).stringValue(), "{a:2, f:{a:1}}");
+    }
+
+    @Test
+    public void testSelfReferencingObject() {
+        BValue[] result = BRunUtil.invoke(objectsResult, "testSelfReferencingObject");
+        Assert.assertEquals((result[0]).stringValue(), "{a:3, f:()}");
     }
 }

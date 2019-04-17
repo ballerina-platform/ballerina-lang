@@ -673,4 +673,4 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
         error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
         panic err;
     }
-    }
+}
