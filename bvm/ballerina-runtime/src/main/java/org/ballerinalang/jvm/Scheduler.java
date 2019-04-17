@@ -44,7 +44,6 @@ public class Scheduler {
     public FutureValue schedule(Object[] params, Function function) {
         FutureValue future = createFuture();
         params[0] = future.strand;
-        future.strand.frames = new Object[100];
         SchedulerItem item = new SchedulerItem(function, params, future);
         runnableList.add(item);
         return future;
@@ -58,7 +57,6 @@ public class Scheduler {
      */
     public FutureValue schedule(Object[] params, Consumer consumer) {
         FutureValue future = createFuture();
-        future.strand.frames = new Object[100];
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         runnableList.add(item);
@@ -109,7 +107,9 @@ public class Scheduler {
 
     private FutureValue createFuture() {
         Strand newStrand = new Strand(this);
-        return new FutureValue(newStrand);
+        FutureValue future = new FutureValue(newStrand);
+        future.strand.frames = new Object[100];
+        return future;
     }
 }
 
