@@ -649,6 +649,21 @@ type InstructionGenerator object {
         self.generateVarStore(newXMLText.lhsOp.variableDcl);
     }
 
+    function generateNewXMLCommentIns(bir:NewXMLComment newXMLComment) {
+        self.generateVarLoad(newXMLComment.textOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLComment",
+                io:sprintf("(L%s;)L%s;", STRING_VALUE, XML_VALUE), false);
+        self.generateVarStore(newXMLComment.lhsOp.variableDcl);
+    }
+
+    function generateNewXMLProcIns(bir:NewXMLPI newXMLPI) {
+        self.generateVarLoad(newXMLPI.targetOp.variableDcl);
+        self.generateVarLoad(newXMLPI.dataOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLProcessingInstruction",
+                io:sprintf("(L%s;L%s;)L%s;", STRING_VALUE, STRING_VALUE, XML_VALUE), false);
+        self.generateVarStore(newXMLPI.lhsOp.variableDcl);
+    }
+
     function generateXMLStoreIns(bir:XMLSeqStore xmlStoreIns) {
         self.generateVarLoad(xmlStoreIns.lhsOp.variableDcl);
         self.generateVarLoad(xmlStoreIns.rhsOp.variableDcl);

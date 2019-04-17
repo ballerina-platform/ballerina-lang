@@ -174,6 +174,25 @@ public type FuncBodyParser object {
             NewXMLElement newXMLElement = {kind:kind, lhsOp:lhsOp, startTagOp:startTagOp, endTagOp:endTagOp, 
                                            defaultNsURIOp:defaultNsURIOp};
             return newXMLElement;
+        } else if (kindTag == INS_NEW_XML_TEXT) {
+            kind = INS_KIND_NEW_XML_TEXT;
+            var lhsOp = self.parseVarRef();
+            var textOp = self.parseVarRef();
+            NewXMLText newXMLText = {kind:kind, lhsOp:lhsOp, textOp:textOp};
+            return newXMLText;
+        } else if (kindTag == INS_NEW_XML_COMMENT) {
+            kind = INS_KIND_NEW_XML_COMMENT;
+            var lhsOp = self.parseVarRef();
+            var textOp = self.parseVarRef();
+            NewXMLComment newXMLComment = {kind:kind, lhsOp:lhsOp, textOp:textOp};
+            return newXMLComment;
+        } else if (kindTag == INS_NEW_XML_PI) {
+            kind = INS_KIND_NEW_XML_PI;
+            var lhsOp = self.parseVarRef();
+            var dataOp = self.parseVarRef();
+            var targetOp = self.parseVarRef();
+            NewXMLPI newXMLPI = {kind:kind, lhsOp:lhsOp, dataOp:dataOp, targetOp:targetOp};
+            return newXMLPI;
         } else if (kindTag == INS_NEW_XML_QNAME) {
             kind = INS_KIND_NEW_XML_QNAME;
             var lhsOp = self.parseVarRef();
@@ -183,12 +202,6 @@ public type FuncBodyParser object {
             NewXMLQName newXMLQName = {kind:kind, lhsOp:lhsOp, localnameOp:localnameOp, nsURIOp:nsURIOp, 
                                        prefixOp:prefixOp};
             return newXMLQName;
-        } else if (kindTag == INS_NEW_XML_TEXT) {
-            kind = INS_KIND_NEW_XML_TEXT;
-            var lhsOp = self.parseVarRef();
-            var textOp = self.parseVarRef();
-            NewXMLText newXMLText = {kind:kind, lhsOp:lhsOp, textOp:textOp};
-            return newXMLText;
         } else if (kindTag == INS_XML_SEQ_STORE) {
             kind = INS_KIND_XML_SEQ_STORE;
             var lhsOp = self.parseVarRef();
@@ -199,7 +212,7 @@ public type FuncBodyParser object {
             return self.parseBinaryOpInstruction(kindTag);
         }
     }
-    
+
     public function parseTerminator() returns Terminator {
         var kindTag = self.reader.readInt8();
         if (kindTag == INS_BRANCH){

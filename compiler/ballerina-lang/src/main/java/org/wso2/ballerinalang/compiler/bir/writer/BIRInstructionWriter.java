@@ -25,7 +25,9 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLSeqStore;
@@ -296,6 +298,21 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(xmlAddChild.kind.getValue());
         xmlAddChild.lhsOp.accept(this);
         xmlAddChild.rhsOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewXMLComment newXMLComment) {
+        buf.writeByte(newXMLComment.kind.getValue());
+        newXMLComment.lhsOp.accept(this);
+        newXMLComment.textOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewXMLProcIns newXMLProcIns) {
+        buf.writeByte(newXMLProcIns.kind.getValue());
+        newXMLProcIns.lhsOp.accept(this);
+        newXMLProcIns.dataOp.accept(this);
+        newXMLProcIns.targetOp.accept(this);
     }
 
     // private methods

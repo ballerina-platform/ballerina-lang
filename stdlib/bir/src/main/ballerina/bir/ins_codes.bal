@@ -39,10 +39,13 @@ public const int INS_OBJECT_LOAD = 34;
 public const int INS_PANIC = 35;
 
 public const int INS_NEW_XML_ELEMENT = 36;
-public const int INS_NEW_XML_QNAME = 37;
-public const int INS_NEW_XML_TEXT = 38;
-public const int INS_XML_SEQ_STORE = 39;
-public const int INS_XML_SEQ_LOAD = 40;
+public const int INS_NEW_XML_TEXT = 37;
+public const int INS_NEW_XML_COMMENT = 38;
+public const int INS_NEW_XML_PI = 39;
+public const int INS_NEW_XML_SEQ = 40;
+public const int INS_NEW_XML_QNAME = 41;
+public const int INS_XML_SEQ_STORE = 42;
+public const int INS_XML_SEQ_LOAD = 43;
 
 // Binary expression related instructions.
 public const int INS_ADD = 50;

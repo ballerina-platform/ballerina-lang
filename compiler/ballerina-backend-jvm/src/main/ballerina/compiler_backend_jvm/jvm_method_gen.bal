@@ -230,7 +230,16 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             } else if (inst is bir:NewXMLElement) {
                 instGen.generateNewXMLElementIns(inst);
             } else if (inst is bir:NewXMLText) {
-                instGen.generateNewXMLTextIns(inst);
+                if (inst.kind == bir:INS_KIND_NEW_XML_TEXT) {
+                    instGen.generateNewXMLTextIns(inst);
+                } else if (inst.kind == bir:INS_KIND_NEW_XML_COMMENT) {
+                    instGen.generateNewXMLCommentIns(inst);
+                } else {
+                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
+                    panic err;
+                }
+            } else if (inst is bir:NewXMLPI) {
+                instGen.generateNewXMLProcIns(inst);
             } else {
                 error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;

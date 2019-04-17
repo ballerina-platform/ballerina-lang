@@ -97,8 +97,10 @@ public const INS_KIND_TYPE_TEST = "TYPE_TEST";
 public const INS_KIND_OBJECT_STORE = "OBJECT_STORE";
 public const INS_KIND_OBJECT_LOAD = "OBJECT_LOAD";
 public const INS_KIND_NEW_XML_ELEMENT = "NEW_XML_ELEMENT";
+public const INS_KIND_NEW_XML_TEXT = "NEW_XML_TEXT";
+public const INS_KIND_NEW_XML_COMMENT = "NEW_XML_COMMENT";
+public const INS_KIND_NEW_XML_PI = "NEW_XML_PI";
 public const INS_KIND_NEW_XML_QNAME = "NEW_XML_QNAME";
-public const INS_KIND_NEW_XML_TEXT = "NEW_XML_QNAME";
 public const INS_KIND_XML_SEQ_STORE = "XML_SEQ_STORE";
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
@@ -106,7 +108,8 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_MAP_LOAD | INS_KIND_ARRAY_LOAD | INS_KIND_TYPE_CAST | INS_KIND_IS_LIKE |
                                 INS_KIND_TYPE_TEST | BinaryOpInstructionKind | INS_KIND_OBJECT_STORE |
                                 INS_KIND_OBJECT_LOAD | INS_KIND_NEW_XML_ELEMENT | INS_KIND_NEW_XML_QNAME |
-                                INS_KIND_XML_SEQ_STORE;
+                                INS_KIND_XML_SEQ_STORE | INS_KIND_NEW_XML_TEXT| INS_KIND_NEW_XML_COMMENT |
+                                INS_KIND_NEW_XML_PI;
 
 
 public const TERMINATOR_GOTO = "GOTO";
@@ -442,4 +445,17 @@ public type NewXMLText record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef textOp;
+|};
+
+public type NewXMLComment record {|
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef textOp;
+|};
+
+public type NewXMLPI record {|
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef dataOp;
+    VarRef targetOp;
 |};

@@ -358,7 +358,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
-     * New XML element instruction
+     * New XML element instruction.
      * <p>
      * e.g.: {@code <foo>content</foo>}
      * 
@@ -386,7 +386,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
-     * New XML QName instruction
+     * New XML QName instruction.
      * <p>
      * e.g.: '{@code ns0:foo}' or '{@code {http://nsuri/}foo}'
      * 
@@ -414,7 +414,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
-     * New XML text instruction
+     * New XML text instruction.
      * 
      * @since 0.995.0
      */
@@ -424,6 +424,50 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
 
         public NewXMLText(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp) {
             super(pos, InstructionKind.NEW_XML_TEXT);
+            this.lhsOp = lhsOp;
+            this.textOp = textOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML text instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLProcIns extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand dataOp;
+        public BIROperand targetOp;
+
+        public NewXMLProcIns(DiagnosticPos pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp) {
+            super(pos, InstructionKind.NEW_XML_PI);
+            this.lhsOp = lhsOp;
+            this.dataOp = dataOp;
+            this.targetOp = targetOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML comment instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLComment extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand textOp;
+
+        public NewXMLComment(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp) {
+            super(pos, InstructionKind.NEW_XML_COMMENT);
             this.lhsOp = lhsOp;
             this.textOp = textOp;
         }

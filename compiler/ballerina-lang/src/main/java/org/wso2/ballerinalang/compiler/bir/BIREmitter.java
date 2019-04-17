@@ -24,7 +24,9 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.IsLike;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
@@ -314,6 +316,26 @@ public class BIREmitter extends BIRVisitor {
         xmlAddChild.lhsOp.accept(this);
         sb.append(" = ").append(xmlAddChild.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         xmlAddChild.rhsOp.accept(this);
+        sb.append(";\n");
+    }
+
+    @Override
+    public void visit(NewXMLComment newXMLComment) {
+        sb.append("\t\t");
+        newXMLComment.lhsOp.accept(this);
+        sb.append(" = ").append(newXMLComment.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        newXMLComment.textOp.accept(this);
+        sb.append(";\n");
+    }
+
+    @Override
+    public void visit(NewXMLProcIns newXMLProcIns) {
+        sb.append("\t\t");
+        newXMLProcIns.lhsOp.accept(this);
+        sb.append(" = ").append(newXMLProcIns.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        newXMLProcIns.dataOp.accept(this);
+        sb.append(" ");
+        newXMLProcIns.targetOp.accept(this);
         sb.append(";\n");
     }
 

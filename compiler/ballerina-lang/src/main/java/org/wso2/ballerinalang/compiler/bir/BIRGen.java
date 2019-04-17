@@ -913,17 +913,42 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        throw new AssertionError();
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(xmlCommentLiteral.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        xmlCommentLiteral.concatExpr.accept(this);
+        BIROperand xmlCommentIndex = this.env.targetOperand;
+
+        BIRNonTerminator.NewXMLComment newXMLComment =
+                new BIRNonTerminator.NewXMLComment(xmlCommentLiteral.pos, toVarRef, xmlCommentIndex);
+        emit(newXMLComment);
+        this.env.targetOperand = toVarRef;
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-        throw new AssertionError();
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(xmlProcInsLiteral.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        xmlProcInsLiteral.dataConcatExpr.accept(this);
+        BIROperand dataIndex = this.env.targetOperand;
+
+        xmlProcInsLiteral.target.accept(this);
+        BIROperand targetIndex = this.env.targetOperand;
+
+        BIRNonTerminator.NewXMLProcIns newXMLProcIns =
+                new BIRNonTerminator.NewXMLProcIns(xmlProcInsLiteral.pos, toVarRef, dataIndex, targetIndex);
+        emit(newXMLProcIns);
+        this.env.targetOperand = toVarRef;
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        throw new AssertionError();
+        xmlQuotedString.concatExpr.accept(this);
     }
 
     // private methods
