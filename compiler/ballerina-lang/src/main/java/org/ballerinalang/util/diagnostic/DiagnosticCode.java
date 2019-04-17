@@ -27,7 +27,6 @@ public enum DiagnosticCode {
     UNDEFINED_MODULE("undefined.module"),
     CYCLIC_MODULE_IMPORTS_DETECTED("cyclic.module.imports.detected"),
     UNUSED_IMPORT_MODULE("unused.import.module"),
-    SELF_IMPORT_NOT_ALLOWED("self.import.not.allowed"),
     MODULE_NOT_FOUND("module.not.found"),
     REDECLARED_IMPORT_MODULE("redeclared.import.module"),
     INVALID_MODULE_DECLARATION("invalid.module.declaration"),
