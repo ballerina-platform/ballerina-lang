@@ -299,14 +299,13 @@ type TerminatorGenerator object {
     
     function genAsyncCallTerm(bir:AsyncCall callIns, string funcName) {
 
-        //create a object array of args
+        // Load the scheduler from strand
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
+
+        //create an object array of args
         self.mv.visitIntInsn(BIPUSH, callIns.args.length() + 1);
         self.mv.visitTypeInsn(ANEWARRAY, OBJECT);
-        self.mv.visitInsn(DUP);
-
-        self.mv.visitInsn(ICONST_0);
-        self.mv.visitVarInsn(ALOAD, 0);
-        self.mv.visitInsn(AASTORE);
         
         int paramIndex = 1;
         foreach var arg in callIns.args {
@@ -355,12 +354,23 @@ type TerminatorGenerator object {
         string lambdaName = "$" + funcName + "$lambda$" + self.lambdaIndex + "$";
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         string methodClass = lookupFullQualifiedClassName(currentPackageName + funcName);
-        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName);
+        bir:BType futureType = callIns.lhsOp.typeValue;
+        bir:BType returnType = ();
+        if (futureType is bir:BFutureType) {
+            returnType = futureType.returnType;
+        }
+        boolean isVoid = returnType is bir:BTypeNil;
+        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid);
         lambdas[lambdaName] = (callIns, methodClass);
         self.lambdaIndex += 1;
         
-        self.mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "schedule", 
-            io:sprintf("([L%s;Ljava/util/function/Function;)L%s;", OBJECT, FUTURE_VALUE), false);
+        if (isVoid) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
+             io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
+        } else {
+             self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
+            io:sprintf("([L%s;L%s;)L%s;", OBJECT, FUNCTION, FUTURE_VALUE), false);
+        }
 
         // store return
         bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp.variableDcl;

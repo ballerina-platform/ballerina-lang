@@ -429,13 +429,26 @@ type InstructionGenerator object {
         }
 
         string valueDesc;
-        if (varRefType is bir:BArrayType && varRefType.eType is bir:BTypeByte) {
-            self.mv.visitInsn(L2I);
-            self.mv.visitInsn(I2B);
-            valueDesc = "B";
+        if (varRefType is bir:BArrayType) {
+            if (varRefType.eType is bir:BTypeByte) {
+                self.mv.visitInsn(L2I);
+                self.mv.visitInsn(I2B);
+                valueDesc = "B";
+            } else if (varRefType.eType is bir:BTypeInt) {
+                valueDesc = "J";
+            } else if (varRefType.eType is bir:BTypeString) {
+                valueDesc = io:sprintf("L%s;", STRING_VALUE);
+            } else if (varRefType.eType is bir:BTypeBoolean) {
+                valueDesc = "Z";
+            } else if (varRefType.eType is bir:BTypeFloat) {
+                valueDesc = "D";
+            } else {
+                valueDesc = io:sprintf("L%s;", OBJECT);
+            }
         } else {
-            valueDesc = getTypeDesc(inst.rhsOp.variableDcl.typeValue);
+            valueDesc = io:sprintf("L%s;", OBJECT);
         }
+
         self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
     }
 
@@ -458,7 +471,7 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE),
                                         false);
         } else if (bType is bir:BTypeBoolean) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getBoolean", "(J)J", false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getBoolean", "(J)Z", false);
         } else if (bType is bir:BTypeByte) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getByte", "(J)B", false);
         } else if (bType is bir:BTypeFloat) {
@@ -591,8 +604,22 @@ type InstructionGenerator object {
         self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
         loadType(self.mv, objectNewIns.typeDef.typeValue);
-        self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+        self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
         self.generateVarStore(objectNewIns.lhsOp.variableDcl);
+
+        // todo : check if this is a new service object creation and process its annotation
+        boolean isServiceType = false;
+
+        if (isServiceType) {
+            string varName = "#0";
+            string pkgClassName = lookupFullQualifiedClassName(self.currentPackageName + varName);
+            self.mv.visitFieldInsn(GETSTATIC, pkgClassName, varName, io:sprintf("L%s;", MAP_VALUE));
+            loadType(self.mv, objectNewIns.typeDef.typeValue);
+            self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+            self.mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processObjectAnnotations",
+                                        io:sprintf("(L%s;L%s;)V", MAP_VALUE, OBJECT_TYPE), false);
+        }
     }
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {

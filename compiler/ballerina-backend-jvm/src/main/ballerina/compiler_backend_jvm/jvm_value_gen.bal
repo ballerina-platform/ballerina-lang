@@ -55,7 +55,7 @@ public type ObjectGenerator object {
             self.createObjectMethods(cw, attachedFuncs);
         }
 
-        self.createInit(cw);
+        self.createObjectInit(cw);
         self.createCallMethod(cw, objectType.attachedFunctions, className);
         self.createGetMethod(cw, fields, className);
         self.createSetMethod(cw, fields, className);
@@ -80,8 +80,8 @@ public type ObjectGenerator object {
         }
     }
 
-    private function createInit(jvm:ClassWriter cw) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", BTYPE), (), ());
+    private function createObjectInit(jvm:ClassWriter cw) {
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), (), ());
         mv.visitCode();
 
         // load super
@@ -89,7 +89,7 @@ public type ObjectGenerator object {
         // load type
         mv.visitVarInsn(ALOAD, 1);
         // invoke super(type);
-        mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(5, 5);
@@ -105,11 +105,11 @@ public type ObjectGenerator object {
         jvm:Label defaultCaseLabel = new jvm:Label();
 
         // sort the fields before generating switch case
-        NodeSorter sorter = new(self.currentObjectType);
+        NodeSorter sorter = new();
         sorter.sortByHash(funcs);
 
-        jvm:Label[] labels = self.createLabelsforSwitch(mv, funcNameRegIndex, funcs, defaultCaseLabel);
-        jvm:Label[] targetLabels = self.createLabelsForEqualCheck(mv, funcNameRegIndex, funcs, labels, 
+        jvm:Label[] labels = createLabelsforSwitch(mv, funcNameRegIndex, funcs, defaultCaseLabel);
+        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, funcNameRegIndex, funcs, labels,
                 defaultCaseLabel);
 
         // case body
@@ -142,7 +142,7 @@ public type ObjectGenerator object {
             // use index access, since retType can be nil.
             bir:BType? retType = func.funcType["retType"];
             string methodSig = getMethodDesc(paramTypes, retType);
-            mv.visitMethodInsn(INVOKEVIRTUAL, className, getName(func, self.currentObjectType), methodSig, false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, className, getName(func), methodSig, false);
 
             if (retType is () || retType is bir:BTypeNil) {
                 mv.visitInsn(ACONST_NULL);
@@ -154,7 +154,7 @@ public type ObjectGenerator object {
             i += 1;
         }
 
-        self.createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex);
+        createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex);
         mv.visitMaxs(funcs.length() + 10, funcs.length() + 10);
         mv.visitEnd();
     }
@@ -168,11 +168,11 @@ public type ObjectGenerator object {
         jvm:Label defaultCaseLabel = new jvm:Label();
 
         // sort the fields before generating switch case
-        NodeSorter sorter = new(self.currentObjectType);
+        NodeSorter sorter = new();
         sorter.sortByHash(fields);
 
-        jvm:Label[] labels = self.createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
-        jvm:Label[] targetLabels = self.createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels, 
+        jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
+        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels,
                 defaultCaseLabel);
 
         int i = 0;
@@ -187,7 +187,7 @@ public type ObjectGenerator object {
             i += 1;
         }
 
-        self.createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
+        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
         mv.visitMaxs(fields.length() + 10, fields.length() + 10);
         mv.visitEnd();
     }
@@ -202,11 +202,11 @@ public type ObjectGenerator object {
         jvm:Label defaultCaseLabel = new jvm:Label();
 
         // sort the fields before generating switch case
-        NodeSorter sorter = new(self.currentObjectType);
+        NodeSorter sorter = new();
         sorter.sortByHash(fields);
 
-        jvm:Label[] labels = self.createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
-        jvm:Label[] targetLabels = self.createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels, 
+        jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
+        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels,
                 defaultCaseLabel);
 
         // case body
@@ -223,70 +223,9 @@ public type ObjectGenerator object {
             i += 1;
         }
 
-        self.createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
+        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
         mv.visitMaxs(fields.length() + 10, fields.length() + 10);
         mv.visitEnd();
-    }
-
-    private function createLabelsforSwitch(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes, 
-            jvm:Label defaultCaseLabel) returns jvm:Label[] {
-        mv.visitVarInsn(ALOAD, nameRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
-
-        // Create labels for the cases
-        int i = 0;
-        jvm:Label[] labels = [];
-        int[] hashCodes = [];
-        foreach var node in nodes {
-            if (node is NamedNode) {
-                labels[i] = new jvm:Label();
-                hashCodes[i] = getName(node, self.currentObjectType).hashCode();
-                i += 1;
-            }
-        }
-        mv.visitLookupSwitchInsn(defaultCaseLabel, hashCodes, labels);
-        return labels;
-    }
-
-    private function createDefaultCase(jvm:MethodVisitor mv, jvm:Label defaultCaseLabel, int nameRegIndex) {
-        mv.visitLabel(defaultCaseLabel);
-        mv.visitTypeInsn(NEW, BLANG_RUNTIME_EXCEPTION);
-        mv.visitInsn(DUP);
-
-        // Create error message
-        mv.visitTypeInsn(NEW, STRING_BUILDER);
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn("No such field or method: ");
-        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, "<init>", io:sprintf("(L%s;)V", STRING_VALUE), false);
-        mv.visitVarInsn(ALOAD, nameRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append", io:sprintf("(L%s;)L%s;", STRING_VALUE, STRING_BUILDER), false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "toString", io:sprintf("()L%s;", STRING_VALUE), false);
-
-        mv.visitMethodInsn(INVOKESPECIAL, BLANG_RUNTIME_EXCEPTION, "<init>",
-                io:sprintf("(L%s;)V", STRING_VALUE), false);
-        mv.visitInsn(ATHROW);
-    }
-
-    private function createLabelsForEqualCheck(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes,
-            jvm:Label[] labels, jvm:Label defaultCaseLabel) returns jvm:Label[] {
-        jvm:Label[] targetLabels = [];
-        int i = 0;
-        foreach var node in nodes {
-            if (node is NamedNode) {
-                mv.visitLabel(labels[i]);
-                mv.visitVarInsn(ALOAD, nameRegIndex);
-                mv.visitLdcInsn(getName(node, self.currentObjectType));
-                mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
-                        io:sprintf("(L%s;)Z", OBJECT), false);
-                jvm:Label targetLabel = new jvm:Label();
-                mv.visitJumpInsn(IFNE, targetLabel);
-                mv.visitJumpInsn(GOTO, defaultCaseLabel);
-                targetLabels[i] = targetLabel;
-                i += 1;
-            }
-        }
-
-        return targetLabels;
     }
 
     private function getFunction(bir:BAttachedFunction? func) returns bir:BAttachedFunction {
@@ -300,7 +239,68 @@ public type ObjectGenerator object {
 
 };
 
-function getName(any node, bir:BObjectType? objectType) returns string {
+function createLabelsforSwitch(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes,
+        jvm:Label defaultCaseLabel) returns jvm:Label[] {
+    mv.visitVarInsn(ALOAD, nameRegIndex);
+    mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
+
+    // Create labels for the cases
+    int i = 0;
+    jvm:Label[] labels = [];
+    int[] hashCodes = [];
+    foreach var node in nodes {
+        if (node is NamedNode) {
+            labels[i] = new jvm:Label();
+            hashCodes[i] = getName(node).hashCode();
+            i += 1;
+        }
+    }
+    mv.visitLookupSwitchInsn(defaultCaseLabel, hashCodes, labels);
+    return labels;
+}
+
+function createDefaultCase(jvm:MethodVisitor mv, jvm:Label defaultCaseLabel, int nameRegIndex) {
+    mv.visitLabel(defaultCaseLabel);
+    mv.visitTypeInsn(NEW, BLANG_RUNTIME_EXCEPTION);
+    mv.visitInsn(DUP);
+
+    // Create error message
+    mv.visitTypeInsn(NEW, STRING_BUILDER);
+    mv.visitInsn(DUP);
+    mv.visitLdcInsn("No such field or method: ");
+    mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, "<init>", io:sprintf("(L%s;)V", STRING_VALUE), false);
+    mv.visitVarInsn(ALOAD, nameRegIndex);
+    mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append", io:sprintf("(L%s;)L%s;", STRING_VALUE, STRING_BUILDER), false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "toString", io:sprintf("()L%s;", STRING_VALUE), false);
+
+    mv.visitMethodInsn(INVOKESPECIAL, BLANG_RUNTIME_EXCEPTION, "<init>",
+            io:sprintf("(L%s;)V", STRING_VALUE), false);
+    mv.visitInsn(ATHROW);
+}
+
+function createLabelsForEqualCheck(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes,
+        jvm:Label[] labels, jvm:Label defaultCaseLabel) returns jvm:Label[] {
+    jvm:Label[] targetLabels = [];
+    int i = 0;
+    foreach var node in nodes {
+        if (node is NamedNode) {
+            mv.visitLabel(labels[i]);
+            mv.visitVarInsn(ALOAD, nameRegIndex);
+            mv.visitLdcInsn(getName(node));
+            mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
+                    io:sprintf("(L%s;)Z", OBJECT), false);
+            jvm:Label targetLabel = new jvm:Label();
+            mv.visitJumpInsn(IFNE, targetLabel);
+            mv.visitJumpInsn(GOTO, defaultCaseLabel);
+            targetLabels[i] = targetLabel;
+            i += 1;
+        }
+    }
+
+    return targetLabels;
+}
+
+function getName(any node) returns string {
     if (node is NamedNode) {
         return node.name.value;
     } else {
@@ -316,12 +316,6 @@ type NamedNode record {
 };
 
 type NodeSorter object {
-
-    private bir:BObjectType? currentObjectType;
-
-    function __init(bir:BObjectType? currentObjectType) {
-        self.currentObjectType = currentObjectType;
-    }
 
     function sortByHash(NamedNode?[] arr) {
         self.quickSort(arr, 0, arr.length() - 1);
@@ -355,7 +349,7 @@ type NodeSorter object {
     }
 
     private function getHash(any node) returns int {
-        return getName(node, self.currentObjectType).hashCode();
+        return getName(node).hashCode();
     }
 
     private function swap(NamedNode?[] arr, int i, int j) {

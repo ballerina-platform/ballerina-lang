@@ -59,8 +59,7 @@ public class ProtoMessageTestCase {
     @BeforeClass
     private void setup() throws Exception {
         compilerFile = ProtoDescriptorUtils.getProtocCompiler();
-        Path resourceDir = Paths.get(new File(ProtoMessageTestCase.class.getProtectionDomain().getCodeSource()
-                .getLocation().toURI().getPath()).getAbsolutePath());
+        Path resourceDir = Paths.get("src", "test", "resources").toAbsolutePath();
         Path protoPath = resourceDir.resolve(Paths.get("grpc", "tool", "testMessage.proto"));
         //read message descriptor from proto file.
         readMessageDescriptor(protoPath);
