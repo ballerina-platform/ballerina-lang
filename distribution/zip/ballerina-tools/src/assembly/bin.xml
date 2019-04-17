@@ -123,13 +123,6 @@
             <includes>
                 <include>org.ballerinalang:ballerina-bir:jar</include>
 
-                <!-- LLVM related jars-->
-                <include>org.ballerinalang:ballerina-llvm:jar</include>
-                <include>org.ballerinalang:ballerina-backend-llvm:jar</include>
-                <include>org.bytedeco.javacpp-presets:llvm-platform:jar</include>
-                <include>org.bytedeco.javacpp-presets:llvm:jar</include>
-                <include>org.bytedeco:javacpp:jar</include>
-
                 <!-- JVM Target related jars-->
                 <include>org.ballerinalang:ballerina-jvm:jar</include>
                 <include>org.ballerinalang:ballerina-backend-jvm:jar</include>
@@ -145,7 +138,7 @@
                 <include>org.ballerinalang:language-server-compiler:jar</include>
                 <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:protobuf-ballerina:jar</include>
-                <include>org.ballerinalang:ballerina-codegen:jar</include>
+                <include>org.ballerinalang:ballerina-client-generator:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
                 <include>com.fasterxml.jackson.core:jackson-databind</include>
                 <include>com.fasterxml.jackson.core:jackson-core</include>

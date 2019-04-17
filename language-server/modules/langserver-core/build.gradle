@@ -30,8 +30,10 @@ dependencies {
     implementation project(':ballerina-websub')
     implementation project(':ballerina-jms')
     implementation project(':ballerina-grpc')
+    implementation project(':ballerina-filepath')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-activemq-artemis')
+    implementation project(':ballerina-rabbitmq')
     implementation project(':ballerina-nats')
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.1'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.1'

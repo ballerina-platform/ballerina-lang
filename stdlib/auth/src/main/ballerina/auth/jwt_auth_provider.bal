@@ -41,7 +41,7 @@ public type JWTAuthProvider object {
         if (self.jwtAuthProviderConfig.jwtCache.hasKey(jwtToken)) {
             var payload = self.authenticateFromCache(jwtToken);
             if (payload is JwtPayload) {
-                self.setAuthenticationContext(payload, jwtToken);
+                check self.setAuthenticationContext(payload, jwtToken);
                 return true;
             } else {
                 return false;
@@ -72,7 +72,7 @@ public type JWTAuthProvider object {
 
         var payload = validateJwt(jwtToken, jwtValidatorConfig);
         if (payload is JwtPayload) {
-            self.setAuthenticationContext(payload, jwtToken);
+            check self.setAuthenticationContext(payload, jwtToken);
             self.addToAuthenticationCache(jwtToken, payload.exp, payload);
             return true;
         } else {
@@ -105,7 +105,7 @@ public type JWTAuthProvider object {
         });
     }
 
-    function setAuthenticationContext(JwtPayload jwtPayload, string jwtToken) {
+    function setAuthenticationContext(JwtPayload jwtPayload, string jwtToken) returns error? {
         runtime:Principal principal = runtime:getInvocationContext().principal;
         principal.userId = jwtPayload.iss + ":" + jwtPayload.sub;
         // By default set sub as username.
@@ -115,6 +115,8 @@ public type JWTAuthProvider object {
             var scopeString = jwtPayload.customClaims[SCOPES];
             if (scopeString is string) {
                 principal.scopes = scopeString.split(" ");
+            } else if (scopeString is json[]) {
+                principal.scopes = check string[].convert(scopeString);
             }
         }
         if (jwtPayload.customClaims.hasKey(USERNAME)) {

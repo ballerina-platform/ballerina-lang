@@ -423,6 +423,21 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get gRPC Service Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getGRPCServiceDefSnippet() {
+        ImmutablePair<String, String> grpcImport = new ImmutablePair<>("ballerina", "grpc");
+        String snippet = "service ${1:serviceName} on new grpc:Listener(9092) {" + CommonUtil.LINE_SEPARATOR +
+                "\tresource function ${2:newResource}(grpc:Caller caller, ${3:string} request) {" +
+                CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" +
+                CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.SERVICE_GRPC, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET, grpcImport);
+    }
+
+    /**
      * Get Panic Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

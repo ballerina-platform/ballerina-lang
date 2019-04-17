@@ -452,6 +452,27 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
+            <!-- ballerina-filepath -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-filepath</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-filepath</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-filepath</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
             <!-- ballerina-http -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -573,6 +594,27 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-activemq-artemis</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-rabbitmq -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-rabbitmq</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-rabbitmq</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-rabbitmq</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -1050,7 +1092,7 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-codegen</artifactId>
+                <artifactId>ballerina-client-generator</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -1656,6 +1698,13 @@
                 <version>${asm.version}</version>
             </dependency>
 
+            <!--RabbitMQ dependencies -->
+            <dependency>
+                <groupId>com.rabbitmq</groupId>
+                <artifactId>amqp-client</artifactId>
+                <version>${rabbitmq.version}</version>
+            </dependency>
+
             <!--Artemis dependencies -->
             <dependency>
                 <groupId>org.apache.activemq</groupId>
@@ -1803,6 +1852,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
@@ -1811,6 +1861,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1820,6 +1871,7 @@
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
                 <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
@@ -1833,6 +1885,7 @@
                 <module>cli/ballerina-packerina</module>
                 <!--<module>compiler/ballerina-backend-llvm</module>-->
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
+                <module>compiler/ballerina-backend-jvm</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1902,6 +1955,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/filepath</module>
                 <module>stdlib/utils</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
@@ -1912,6 +1966,7 @@
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
                 <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
@@ -1992,6 +2047,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -2001,6 +2057,7 @@
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
                 <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
@@ -2514,6 +2571,9 @@
 
         <!-- Nats Connector -->
         <nats.version>2.1.0</nats.version>
+
+        <!-- RabbitMQ Connector -->
+        <rabbitmq.version>5.6.0</rabbitmq.version>
 
         <file.transport.version>6.0.55</file.transport.version>
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>

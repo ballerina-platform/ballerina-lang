@@ -173,7 +173,8 @@ public class RequestNativeFunctionNegativeTest {
         Assert.assertNotNull(returnVals[0]);
         Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
                             "{message:\"Error occurred while extracting xml data from entity : Unexpected character " +
-                                    "'b' (code 98) in prolog; expected '<'\n at [row,col {unknown-source}]: [1,1]\"}");
+                                    "'b' (code 98) in prolog; expected '<'" + System.lineSeparator() +
+                                    " at [row,col {unknown-source}]: [1,1]\"}");
     }
 
     @Test

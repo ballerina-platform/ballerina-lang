@@ -105,6 +105,7 @@
                 <include>org.ballerinalang:ballerina-crypto:jar</include>
                 <include>org.ballerinalang:ballerina-encoding:jar</include>
                 <include>org.ballerinalang:ballerina-file:jar</include>
+                <include>org.ballerinalang:ballerina-filepath:jar</include>
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
                 <include>org.ballerinalang:ballerina-h2:jar</include>
                 <include>org.ballerinalang:ballerina-http:jar</include>
@@ -113,6 +114,7 @@
                 <include>org.ballerinalang:ballerina-socket:jar</include>
                 <include>org.ballerinalang:ballerina-jms:jar</include>
                 <include>org.ballerinalang:ballerina-activemq-artemis:jar</include>
+                <include>org.ballerinalang:ballerina-rabbitmq:jar</include>
                 <include>org.ballerinalang:ballerina-log-api:jar</include>
                 <include>org.ballerinalang:ballerina-math:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>
@@ -199,6 +201,9 @@
                 <include>org.apache.geronimo.specs:geronimo-json_1.0_spec</include>
                 <include>io.netty:netty-transport-native-epoll</include>
                 <include>io.netty:netty-transport-native-kqueue</include>
+
+                <!-- RabbitMQ connector dependencies -->
+                <include>com.rabbitmq:amqp-client:jar</include>
 
                 <!-- Observability Dependencies -->
                 <include>org.ballerinalang:ballerina-jaeger-extension:jar</include>
