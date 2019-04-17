@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -90,10 +91,17 @@ public class SingleBalBuildWithSiddhiRuntimeTestCase extends BaseTest {
     @Test(description = "Test building a bal file without the siddhiruntime flag")
     public void testBuildingWithoutSiddhiRuntime() throws Exception {
         String[] clientArgs = {"--experimental", Paths.get("sourcePkg", "main.bal").toString()};
-        LogLeecher[] clientLeecher = {new LogLeecher("error: .::main.bal:22:16: undefined symbol 'e1'",
-                                                     LogLeecher.LeecherType.ERROR)};
-        balClient.runMain("build", clientArgs, envVariables, new String[]{},
-                          clientLeecher, tempProjectDirectory.toString());
+        String errOutput = balClient.runMainAndReadStdOut("build", clientArgs, new HashMap<>(),
+                                                  tempProjectDirectory.toString(), true);
+        Assert.assertEquals(errOutput, "error: .::main.bal:22:16: undefined symbol 'e1'\n" +
+                                       "error: .::main.bal:23:13: undefined symbol 'e2'\n" +
+                                       "error: .::main.bal:20:19: undefined symbol 'e1'\n" +
+                                       "error: .::main.bal:20:30: undefined symbol 'temp'\n" +
+                                       "error: .::main.bal:21:26: undefined symbol 'e2'\n" +
+                                       "error: .::main.bal:21:51: undefined symbol 'temp'\n" +
+                                       "error: .::main.bal:24:9: fields defined in select clause, incompatible with " +
+                                       "output fields in type 'TempDiffInfo', expected '[initialTemp, peakTemp]' " +
+                                       "but found '[peakTemp, initialTemp]'");
         Path generatedBalx = tempProjectDirectory.resolve("main.balx");
         Assert.assertFalse(Files.exists(generatedBalx));
     }
