@@ -12,8 +12,9 @@ dependencies {
 	implementation project(':ballerina-log-api')
 	implementation project(':ballerina-runtime-api')
 	implementation project(':ballerina-launcher')
-    implementation project(':ballerina-utils')
-	testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    implementation project(':ballerina-utils')    
+    implementation 'commons-io:commons-io'
+
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
@@ -22,11 +23,10 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-
-    implementation 'commons-io:commons-io:2.6'
-
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.26'
-    testCompile 'org.testng:testng:6.13.1'
+    
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'org.testng:testng'
 }
 
 description = 'Ballerina - Internal'
@@ -41,6 +41,6 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
-    systemProperty "java.util.logging.config.file", "$buildDir/logging.properties"
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 }

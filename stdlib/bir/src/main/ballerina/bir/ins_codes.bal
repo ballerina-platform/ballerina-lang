@@ -34,7 +34,9 @@ public const int INS_TYPE_CAST = 29;
 public const int INS_IS_LIKE = 30;
 public const int INS_TYPE_TEST = 31;
 public const int INS_NEW_INST = 32;
-public const int INS_PANIC = 33;
+public const int INS_OBJECT_STORE = 33;
+public const int INS_OBJECT_LOAD = 34;
+public const int INS_PANIC = 35;
 
 // Binary expression related instructions.
 public const int INS_ADD = 50;

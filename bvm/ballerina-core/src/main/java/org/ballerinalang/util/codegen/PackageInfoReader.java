@@ -302,7 +302,10 @@ public class PackageInfoReader {
 
             boolean isSimpleLiteral = dataInStream.readBoolean();
             if (isSimpleLiteral) {
-                bValueMap = readSimpleLiteral(constantPool, valueMap, keyCPEntry);
+                BMap<String, BRefType> tempMap = readSimpleLiteral(constantPool, valueMap, keyCPEntry);
+                for (String key : tempMap.keys()) {
+                    bValueMap.put(key, tempMap.get(key));
+                }
             } else {
                 // This situation occurs for any nested record literal. This is the index of the constant pool entry
                 // which contains the corresponding MapCPEntry.

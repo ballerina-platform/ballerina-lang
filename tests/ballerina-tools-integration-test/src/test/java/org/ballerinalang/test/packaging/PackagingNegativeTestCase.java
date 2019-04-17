@@ -47,7 +47,7 @@ public class PackagingNegativeTestCase extends BaseTest {
     private Map<String, String> envVariables;
 
     @BeforeClass()
-    public void setUp() throws BallerinaTestException, IOException {
+    public void setUp() throws IOException {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-negative-project-");
         moduleName = moduleName + PackagingTestUtils.randomModuleName(10);
