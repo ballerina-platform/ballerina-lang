@@ -2575,7 +2575,7 @@
         <!-- Artemis connector -->
         <artemis.version>2.7.0</artemis.version>
         <beanutils.version>1.9.3</beanutils.version>
-        <jboss.version>3.3.2.Final</jboss.version>
+        <jboss.version>3.4.0.Final</jboss.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <geronimo-json.version>1.0-alpha-1</geronimo-json.version>
 
