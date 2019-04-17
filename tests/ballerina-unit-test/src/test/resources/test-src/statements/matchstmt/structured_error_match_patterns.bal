@@ -49,7 +49,7 @@ type Foo record {
 };
 
 type ER1 error <string, Foo>;
-type ER2 error <string, map<any>>;
+type ER2 error <string, map<anydata>>;
 
 function testBasicErrorMatch4() returns string[] {
     ER1 er1 = error("Error 1", { fatal: true, message: 1 });

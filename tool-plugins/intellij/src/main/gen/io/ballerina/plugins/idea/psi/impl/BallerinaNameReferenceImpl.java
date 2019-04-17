@@ -24,15 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import io.ballerina.plugins.idea.stubs.BallerinaNameReferenceStub;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
-import com.intellij.psi.stubs.IStubElementType;
 
-public class BallerinaNameReferenceImpl extends BallerinaNamedElementImpl<BallerinaNameReferenceStub> implements BallerinaNameReference {
-
-  public BallerinaNameReferenceImpl(@NotNull BallerinaNameReferenceStub stub, @NotNull IStubElementType type) {
-    super(stub, type);
-  }
+public class BallerinaNameReferenceImpl extends ASTWrapperPsiElement implements BallerinaNameReference {
 
   public BallerinaNameReferenceImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,27 +45,13 @@ public class BallerinaNameReferenceImpl extends BallerinaNamedElementImpl<Baller
   @Override
   @Nullable
   public BallerinaPackageReference getPackageReference() {
-    return PsiTreeUtil.getStubChildOfType(this, BallerinaPackageReference.class);
+    return findChildByClass(BallerinaPackageReference.class);
   }
 
   @Override
   @NotNull
   public PsiElement getIdentifier() {
-    return notNullChild(findChildByType(IDENTIFIER));
-  }
-
-  @Nullable
-  public BallerinaNameReference getQualifier() {
-    return BallerinaPsiImplUtil.getQualifier(this);
-  }
-
-  @Nullable
-  public BallerinaTypeName resolveType() {
-    return BallerinaPsiImplUtil.resolveType(this);
-  }
-
-  public boolean isInLocalPackage() {
-    return BallerinaPsiImplUtil.isInLocalPackage(this);
+    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

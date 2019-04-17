@@ -44,7 +44,7 @@ public class BallerinaRecordLiteralExpressionImpl extends BallerinaExpressionImp
   @Override
   @NotNull
   public BallerinaRecordLiteral getRecordLiteral() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaRecordLiteral.class));
+    return findNotNullChildByClass(BallerinaRecordLiteral.class);
   }
 
 }

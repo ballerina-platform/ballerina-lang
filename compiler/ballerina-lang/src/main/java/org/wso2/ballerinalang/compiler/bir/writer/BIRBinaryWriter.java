@@ -21,11 +21,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -65,6 +65,8 @@ public class BIRBinaryWriter {
         writeTypeDefs(birbuf, typeWriter, birPackage.typeDefs);
         // Write global vars
         writeGlobalVars(birbuf, typeWriter, birPackage.globalVars);
+        // Write type def bodies
+        writeTypeDefBodies(birbuf, typeWriter, birPackage.typeDefs);
         // Write functions
         writeFunctions(birbuf, typeWriter, birPackage.functions);
 
@@ -94,9 +96,28 @@ public class BIRBinaryWriter {
         });
     }
 
+    /**
+     * Write the type definitions. Only the container will be written, to avoid
+     * cyclic dependencies with global vars.
+     * 
+     * @param buf ByteBuf
+     * @param typeWriter Type writer
+     * @param birTypeDefList Type definitions list
+     */
     private void writeTypeDefs(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRTypeDefinition> birTypeDefList) {
         buf.writeInt(birTypeDefList.size());
         birTypeDefList.forEach(typeDef -> writeType(buf, typeWriter, typeDef));
+    }
+
+    /**
+     * Write the body of the type definitions.
+     * 
+     * @param buf ByteBuf
+     * @param typeWriter Type writer
+     * @param birTypeDefList Type definitions list
+     */
+    private void writeTypeDefBodies(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRTypeDefinition> birTypeDefList) {
+        birTypeDefList.forEach(typeDef -> writeAttachedFuncs(buf, typeWriter, typeDef));
     }
 
     private void writeGlobalVars(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRGlobalVariableDcl> birGlobalVars) {
@@ -113,16 +134,19 @@ public class BIRBinaryWriter {
         }
     }
 
+    private void writeAttachedFuncs(ByteBuf buf, BIRTypeWriter typeWriter, BIRTypeDefinition typeDef) {
+        int defType = typeDef.type.tag;
+        if (defType == TypeTags.OBJECT || defType == TypeTags.RECORD) {
+            writeFunctions(buf, typeWriter, typeDef.attachedFuncs);
+        }
+    }
+
     private void writeType(ByteBuf buf, BIRTypeWriter typeWriter, BIRTypeDefinition typeDef) {
         // Type name CP Index
         buf.writeInt(addStringCPEntry(typeDef.name.value));
         // Visibility
         buf.writeByte(typeDef.visibility.value());
         typeDef.type.accept(typeWriter);
-
-        if (typeDef.attachedFuncs != null) {
-            writeFunctions(buf, typeWriter, typeDef.attachedFuncs);
-        }
     }
 
     private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRNode.BIRFunction> birFunctionList) {
@@ -152,13 +176,13 @@ public class BIRBinaryWriter {
             buf.writeInt(addStringCPEntry(localVar.name.value));
         }
 
-        // Write basic blocks
-        writeBasicBlocks(buf, typeWriter, birFunction.basicBlocks);
-    }
-
-    private void writeBasicBlocks(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRBasicBlock> birBBList) {
         BIRInstructionWriter insWriter = new BIRInstructionWriter(buf, typeWriter, cp);
-        insWriter.writeBBs(birBBList);
+
+        // Write basic blocks
+        insWriter.writeBBs(birFunction.basicBlocks);
+
+        // Write error table
+        insWriter.writeErrorTable(birFunction.errorTable);
     }
 
     private int addStringCPEntry(String value) {

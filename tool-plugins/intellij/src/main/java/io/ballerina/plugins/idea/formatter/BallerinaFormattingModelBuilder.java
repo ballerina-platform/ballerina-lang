@@ -215,7 +215,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.SELECT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SEMICOLON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE_BODY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SET;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SIMPLE_LITERAL_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SIMPLE_TYPE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SIMPLE_VARIABLE_REFERENCE;
@@ -395,7 +394,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(ORDER).spaceIf(true)
                 .around(WHERE).spaceIf(true)
                 .around(FOLLOWED).spaceIf(true)
-                .around(SET).spaceIf(true)
                 .around(FOR).spaceIf(true)
                 .around(WINDOW).spaceIf(true)
                 .around(EVENTS).spaceIf(true)

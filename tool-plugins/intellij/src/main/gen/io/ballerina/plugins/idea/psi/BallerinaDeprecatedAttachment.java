@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaDeprecatedAttachment extends BallerinaCompositeElement {
+public interface BallerinaDeprecatedAttachment extends PsiElement {
 
   @Nullable
   BallerinaDeprecatedText getDeprecatedText();

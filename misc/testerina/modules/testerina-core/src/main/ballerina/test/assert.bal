@@ -70,7 +70,7 @@ public function assertFalse(boolean condition, string msg = "Assertion Failed!")
 # + msg - Assertion error message
 public function assertEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = false;
-    if (actual is anydata && expected is anydata) {
+    if (actual is anydata|error && expected is anydata|error) {
         isEqual = actual == expected;
     } else {
         isEqual = actual === expected;
@@ -91,7 +91,7 @@ public function assertEquals(any|error actual, any|error expected, string msg = 
 # + msg - Assertion error message
 public function assertNotEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = false;
-    if (actual is anydata && expected is anydata) {
+    if (actual is anydata|error && expected is anydata|error) {
         isEqual = actual == expected;
     } else {
         isEqual = actual === expected;

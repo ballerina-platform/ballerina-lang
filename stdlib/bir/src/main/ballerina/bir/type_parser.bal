@@ -60,6 +60,10 @@ public type TypeParser object {
     public int TYPE_TAG_CHANNEL = TYPE_TAG_BYTE_ARRAY + 1;
 
     public int TYPE_TAG_SERVICE = TYPE_TAG_OBJECT;
+    public int TYPE_TAG_SELF = 50;
+
+    BType[] compositeStack = [];
+    int compositeStackI = 0;
 
     public function __init(BirChannelReader reader) {
         self.reader = reader;
@@ -103,6 +107,12 @@ public type TypeParser object {
             return self.parseErrorType();
         } else if (typeTag == self.TYPE_TAG_FUTURE){
             return self.parseFutureType();
+        } else if (typeTag == self.TYPE_TAG_JSON){
+            return TYPE_JSON;
+        } else if (typeTag == self.TYPE_TAG_SELF){
+            int selfIndex = self.reader.readInt32();
+            Self t = {bType: self.compositeStack[self.compositeStackI - 1]};
+            return t;
         }
         error err = error("Unknown type tag :" + typeTag);
         panic err;
@@ -153,9 +163,15 @@ public type TypeParser object {
     }
 
     function parseObjectType() returns BObjectType {
-        return { name: { value: self.reader.readStringCpRef() },
-            fields: self.parseObjectFields(),
-            attachedFunctions:self.parseObjectAttachedFunctions() };
+        BObjectType obj = { name: { value: self.reader.readStringCpRef() },
+            fields: [],
+            attachedFunctions: [] };
+        self.compositeStack[self.compositeStackI] = obj;
+        self.compositeStackI = self.compositeStackI + 1;
+        obj.fields = self.parseObjectFields();
+        obj.attachedFunctions = self.parseObjectAttachedFunctions();
+        return obj;
+
     }
 
     function parseObjectAttachedFunctions() returns BAttachedFunction?[] {
@@ -195,7 +211,12 @@ public type TypeParser object {
     }
 
     function parseErrorType() returns BErrorType {
-        return {reasonType:self.parseType(), detailType:self.parseType()};
+        BErrorType err = {reasonType:TYPE_ANYDATA, detailType:TYPE_ANYDATA};
+        self.compositeStack[self.compositeStackI] = err;
+        self.compositeStackI = self.compositeStackI + 1;
+        err.reasonType = self.parseType();
+        err.detailType = self.parseType();
+        return err;
     }
 
     function parseTypes() returns BType[] {

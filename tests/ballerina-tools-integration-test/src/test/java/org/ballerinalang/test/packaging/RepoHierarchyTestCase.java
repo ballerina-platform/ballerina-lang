@@ -50,9 +50,9 @@ public class RepoHierarchyTestCase extends BaseTest {
     public void setUp() throws IOException {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-repo-hierarchy-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-repo-hierarchy-project-");
-        
-        String projectPath = (new File("src/test/resources/repohierarchy")).getAbsolutePath();
-        FileUtils.copyDirectory(Paths.get(projectPath).toFile(), tempProjectDirectory.toFile());
+
+        FileUtils.copyDirectory(new File(getClass().getClassLoader().getResource("repohierarchy")
+                .getPath()), tempProjectDirectory.toFile());
         envVariables = addEnvVariables(TestUtils.getEnvVariables());
     }
     
@@ -67,8 +67,8 @@ public class RepoHierarchyTestCase extends BaseTest {
         
         String[] clientArgsForInit = {"-i"};
         String[] options = {"\n", ORG_NAME + "\n", VERSION + "\n", "f\n"};
-        balClient.runMain("init", clientArgsForInit, envVariables, options,
-                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{clientLeecher},
+                tempProjectDirectory.toString());
     }
     
     /**
@@ -79,8 +79,8 @@ public class RepoHierarchyTestCase extends BaseTest {
     public void testInstallingModuleA() throws BallerinaTestException {
         String[] clientArgs = {"a"};
     
-        balClient.runMain("install", clientArgs, envVariables, new String[]{},
-                new LogLeecher[]{}, tempProjectDirectory.toString());
+        balClient.runMain("install", clientArgs, envVariables, new String[]{}, new LogLeecher[]{},
+                tempProjectDirectory.toString());
     
         Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "a", VERSION);
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath)));
@@ -95,8 +95,8 @@ public class RepoHierarchyTestCase extends BaseTest {
     public void testInstallingModuleB() throws BallerinaTestException {
         String[] clientArgs = {"b"};
         
-        balClient.runMain("install", clientArgs, envVariables, new String[]{},
-                new LogLeecher[]{}, tempProjectDirectory.toString());
+        balClient.runMain("install", clientArgs, envVariables, new String[]{}, new LogLeecher[]{},
+                tempProjectDirectory.toString());
         
         Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "b", VERSION);
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath)));

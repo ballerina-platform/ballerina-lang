@@ -26,21 +26,22 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgementHandler;
 
 /**
  * {@code Send} is the send action implementation of the JMS Connector.
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "jms",
+@BallerinaFunction(orgName = JmsConstants.BALLERINA,
+                   packageName = JmsConstants.JMS,
                    functionName = "acknowledge",
                    receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "DurableTopicSubscriberCaller",
-                                        structPackage = "ballerina/jms"),
+                                        structType = JmsConstants.DURABLE_TOPIC_SUBSCRIBER_CALLER_OBJ_NAME,
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
                    args = {
                            @Argument(name = "message",
                                      type = TypeKind.OBJECT,
-                                     structType = "Message")
+                                     structType = JmsConstants.MESSAGE_OBJ_NAME)
                    },
                    isPublic = true
 )

@@ -29,14 +29,14 @@ map<record{}[]> data = {
         {
             long_name: "1823",
             short_name: "1823",
-            types: [
+            types: <string[]> [
                 "street_number"
             ]
         },
         {
             long_name: "CMW",
             short_name: "CMW",
-            types: [
+            types: <string[]> [
                 "postal_code_suffix"
             ]
         }

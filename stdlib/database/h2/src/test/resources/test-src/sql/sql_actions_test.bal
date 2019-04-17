@@ -358,7 +358,7 @@ function testArrayofQueryParameters() returns string {
     int[] intDataArray = [1, 4343];
     string[] stringDataArray = ["A", "B"];
     float[] doubleArray = [233.4, 433.4];
-    decimal[] decimalArray = [1233.4, 1433.4];
+    decimal[] decimalArray = [1233.4d, 1433.4d];
     sql:Parameter para0 = { sqlType: sql:TYPE_VARCHAR, value: "Johhhn" };
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: intDataArray };
     sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: stringDataArray };
@@ -726,6 +726,27 @@ function testBatchUpdate() returns int[] {
 
     var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
+    int[] updateCount = getBatchUpdateCount(ret);
+    checkpanic testDB.stop();
+    return updateCount;
+}
+
+function testBatchUpdateSingleValParamArray() returns int[] {
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+
+    string[] parameters1 = ["Harry"];
+
+    string[] parameters2 = ["Ron"];
+
+    string[][] arrayofParamArrays = [parameters1, parameters2];
+
+    var ret = testDB->batchUpdate("Insert into Customers (firstName) values (?)", ...arrayofParamArrays);
     int[] updateCount = getBatchUpdateCount(ret);
     checkpanic testDB.stop();
     return updateCount;
@@ -1121,10 +1142,10 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
-            retVal = { "Error": string.convert(jsonConversionResult.detail().message) };
+            retVal = { "Error": <string> jsonConversionResult.detail().message };
         }
     } else {
-        retVal = { "Error": string.convert(tableOrError.detail().message) };
+        retVal = { "Error": <string> tableOrError.detail().message };
     }
     return retVal;
 }
@@ -1136,11 +1157,11 @@ function getXMLConversionResult(table<record {}>|error tableOrError) returns xml
         if (xmlConversionResult is xml) {
             retVal = xmlConversionResult;
         } else {
-            string errorXML = string.convert(xmlConversionResult.detail().message);
+            string errorXML = <string> xmlConversionResult.detail().message;
             retVal = xml `<Error>{{errorXML}}</Error>`;
         }
     } else {
-        string errorXML = string.convert(tableOrError.detail().message);
+        string errorXML = <string> tableOrError.detail().message;
         retVal = xml `<Error>{{errorXML}}</Error>`;
     }
     return retVal;

@@ -59,7 +59,7 @@ public class AbstractObjectTest {
         BAssertUtil.validateError(negativeResult, index++, "cannot find function signature for function 'getName' in " +
                 "object 'Bar'", 87, 1);
         BAssertUtil.validateError(negativeResult, index,
-                "extern function: 'getName' not allowed in abstract object 'Person7'", 93, 5);
+                                  "external function: 'getName' not allowed in abstract object 'Person7'", 93, 5);
     }
 
     @Test

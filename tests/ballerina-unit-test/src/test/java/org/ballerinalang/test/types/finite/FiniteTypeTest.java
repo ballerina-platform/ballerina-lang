@@ -19,6 +19,7 @@
 package org.ballerinalang.test.types.finite;
 
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -277,29 +278,30 @@ public class FiniteTypeTest {
     @Test
     public void testAssigningIntLiteralToByteFiniteType() {
         BValue[] returns = BRunUtil.invoke(result, "testAssigningIntLiteralToByteFiniteType");
-        Assert.assertTrue(returns[0] instanceof BInteger, "Type mismatch");
-        Assert.assertEquals(((BInteger) returns[0]).byteValue(), 5, "Value mismatch");
+        Assert.assertTrue(returns[0] instanceof BByte, "Type mismatch");
+        Assert.assertEquals(((BByte) returns[0]).intValue(), 5, "Value mismatch");
     }
 
     @Test
     public void testAssigningIntLiteralToFloatFiniteType() {
         BValue[] returns = BRunUtil.invoke(result, "testAssigningIntLiteralToFloatFiniteType");
-        Assert.assertTrue(returns[0] instanceof BInteger, "Type mismatch");
-        Assert.assertEquals(((BInteger) returns[0]).floatValue(), 5.0, "Value mismatch");
+        Assert.assertTrue(returns[0] instanceof BFloat, "Type mismatch");
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 5.0, "Value mismatch");
     }
 
     @Test
     public void testAssigningIntLiteralToDecimalFiniteType() {
         BValue[] returns = BRunUtil.invoke(result, "testAssigningIntLiteralToDecimalFiniteType");
-        Assert.assertTrue(returns[0] instanceof BInteger, "Type mismatch");
-        Assert.assertTrue(((BInteger) returns[0]).decimalValue().compareTo(new BigDecimal("5")) == 0, "Value mismatch");
+        Assert.assertTrue(returns[0] instanceof BDecimal, "Type mismatch");
+        Assert.assertTrue(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5")) == 0, "Value mismatch");
     }
 
     @Test
     public void testAssigningFloatLiteralToDecimalFiniteType() {
         BValue[] returns = BRunUtil.invoke(result, "testAssigningFloatLiteralToDecimalFiniteType");
-        Assert.assertTrue(returns[0] instanceof BFloat, "Type mismatch");
-        Assert.assertTrue(((BFloat) returns[0]).decimalValue().compareTo(new BigDecimal("5.0")) == 0, "Value mismatch");
+        Assert.assertTrue(returns[0] instanceof BDecimal, "Type mismatch");
+        Assert.assertTrue(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5.0")) == 0,
+                          "Value mismatch");
     }
 
     @Test
@@ -319,8 +321,9 @@ public class FiniteTypeTest {
     @Test
     public void testDifferentPrecisionDecimalAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testDifferentPrecisionDecimalAssignment");
-        Assert.assertTrue(returns[0] instanceof BFloat, "Type mismatch");
-        Assert.assertTrue(((BFloat) returns[0]).decimalValue().compareTo(new BigDecimal("5.0")) == 0, "Value mismatch");
+        Assert.assertTrue(returns[0] instanceof BDecimal, "Type mismatch");
+        Assert.assertTrue(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5.0")) == 0,
+                          "Value mismatch");
     }
 
     @Test
@@ -350,5 +353,12 @@ public class FiniteTypeTest {
                 {"testFiniteTypesAsUnionsAsBroaderTypes_1"},
                 {"testFiniteTypesAsUnionsAsBroaderTypes_2"}
         };
+    }
+
+    @Test(description = "Test finite type where float/decimal discriminated literals as members")
+    public void testFiniteTypeWithDiscriminatedMembers() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithDiscriminatedMembers");
+        Assert.assertEquals(((BFloat) returns[0]), new BFloat(1.0));
+        Assert.assertEquals(((BDecimal) returns[1]), new BDecimal("1.0"));
     }
 }

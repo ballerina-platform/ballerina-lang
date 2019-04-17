@@ -609,12 +609,6 @@
       ]
     },
     {
-      "label":"ballerina/builtin",
-      "kind":"Module",
-      "detail":"Package",
-      "insertText":"builtin"
-    },
-    {
       "label":"ballerina/math",
       "kind":"Module",
       "detail":"Package",

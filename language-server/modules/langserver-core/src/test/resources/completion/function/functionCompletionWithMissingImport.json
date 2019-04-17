@@ -12,7 +12,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n"
+          "value": "markdown**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n  \n**Return**  \nballerina/io:ReadableByteChannel"
         }
       },
       "sortText": "121",
@@ -41,7 +41,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a WritableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n- _append_  \n    Append to end of file.  \nDefault Value: false"
+          "value": "markdown**Package:** _ballerina/io_  \n  \nRetrieves a WritableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n- _append_  \n    Append to end of file.  \nDefault Value: false  \n  \n**Return**  \nballerina/io:WritableByteChannel"
         }
       },
       "sortText": "121",
@@ -70,7 +70,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nCreates an in-memory channel which will reference stream of bytes.\n  \n  \n---    \n**Parameters**  \n- _content_  \n    Content which should be exposed as channel  \n"
+          "value": "markdown**Package:** _ballerina/io_  \n  \nCreates an in-memory channel which will reference stream of bytes.\n  \n  \n---    \n**Parameters**  \n- _content_  \n    Content which should be exposed as channel  \n  \n  \n**Return**  \nballerina/io:ReadableByteChannel"
         }
       },
       "sortText": "121",
@@ -99,11 +99,11 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record seperator (i.e comma or tab)  \nDefault Value: ,  \n- _charset_  \n    Encoding characters in the file represents  \nDefault Value: UTF-8  \n- _skipHeaders_  \n    Number of headers which should be skipped  \nDefault Value: 0"
+          "value": "markdown**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record seperator (i.e comma or tab)  \nDefault Value: ,  \n- _charset_  \n    Encoding characters in the file represents  \nDefault Value: UTF-8  \n- _skipHeaders_  \n    Number of headers which should be skipped  \nDefault Value: 0  \n  \n**Return**  \nballerina/io:ReadableCSVChannel"
         }
       },
       "sortText": "121",
-      "insertText": "openReadableCsvFile(${1:path}, fieldSeparator \u003d ${4:,}, charset \u003d ${5:\"UTF-8\"}, skipHeaders \u003d ${6:0})",
+      "insertText": "openReadableCsvFile(${1:path}, fieldSeparator \u003d ${2:,}, charset \u003d ${3:\"UTF-8\"}, skipHeaders \u003d ${4:0})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -128,11 +128,11 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a writable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record seperator (i.e comma or tab)  \nDefault Value: ,  \n- _charset_  \n    Encoding characters in the file represents  \nDefault Value: UTF-8  \n- _skipHeaders_  \n    Number of headers which should be skipped  \nDefault Value: 0"
+          "value": "markdown**Package:** _ballerina/io_  \n  \nRetrieves a writable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record seperator (i.e comma or tab)  \nDefault Value: ,  \n- _charset_  \n    Encoding characters in the file represents  \nDefault Value: UTF-8  \n- _skipHeaders_  \n    Number of headers which should be skipped  \nDefault Value: 0  \n  \n**Return**  \nballerina/io:WritableCSVChannel"
         }
       },
       "sortText": "121",
-      "insertText": "openWritableCsvFile(${1:path}, fieldSeparator \u003d ${4:,}, charset \u003d ${5:\"UTF-8\"}, skipHeaders \u003d ${6:0})",
+      "insertText": "openWritableCsvFile(${1:path}, fieldSeparator \u003d ${2:,}, charset \u003d ${3:\"UTF-8\"}, skipHeaders \u003d ${4:0})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -215,7 +215,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n   b              boolean\n   B              boolean (ALL_CAPS)\n   d              int\n   f              float\n   x              hex\n   X              HEX (ALL_CAPS)\n   s              string (This specifier is applicable for any of the supported types in Ballerina.\n                  These values will be converted to their string representation.)\n  \n  \n---    \n**Parameters**  \n- _format_  \n    A format string  \n  \n- _args_  \n    Arguments referenced by the format specifiers in the format string.  \n"
+          "value": "markdown**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n   b              boolean\n   B              boolean (ALL_CAPS)\n   d              int\n   f              float\n   x              hex\n   X              HEX (ALL_CAPS)\n   s              string (This specifier is applicable for any of the supported types in Ballerina.\n                  These values will be converted to their string representation.)\n  \n  \n---    \n**Parameters**  \n- _format_  \n    A format string  \n  \n- _args_  \n    Arguments referenced by the format specifiers in the format string.  \n  \n  \n**Return**  \nstring"
         }
       },
       "sortText": "121",
@@ -244,7 +244,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nReturns the input read from STDIN.\n  \n  \n---    \n**Parameters**  \n- _a_  \n    Any value to be printed  \n"
+          "value": "markdown**Package:** _ballerina/io_  \n  \nReturns the input read from STDIN.\n  \n  \n---    \n**Parameters**  \n- _a_  \n    Any value to be printed  \n  \n  \n**Return**  \nstring"
         }
       },
       "sortText": "121",
@@ -272,6 +272,7 @@
       "detail": "BType",
       "sortText": "171",
       "insertText": "IOError",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -297,6 +298,7 @@
       },
       "sortText": "171",
       "insertText": "ReadableByteChannel",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -322,6 +324,7 @@
       },
       "sortText": "171",
       "insertText": "ReadableCharacterChannel",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -347,6 +350,7 @@
       },
       "sortText": "171",
       "insertText": "ReadableCSVChannel",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -372,6 +376,7 @@
       },
       "sortText": "171",
       "insertText": "ReadableDataChannel",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -397,6 +402,7 @@
       },
       "sortText": "171",
       "insertText": "ReadableTextRecordChannel",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -422,6 +428,7 @@
       },
       "sortText": "171",
       "insertText": "StringReader",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -447,6 +454,7 @@
       },
       "sortText": "171",
       "insertText": "WritableByteChannel",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -472,6 +480,7 @@
       },
       "sortText": "171",
       "insertText": "WritableCharacterChannel",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -497,6 +506,7 @@
       },
       "sortText": "171",
       "insertText": "WritableCSVChannel",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -522,6 +532,7 @@
       },
       "sortText": "171",
       "insertText": "WritableDataChannel",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -547,6 +558,7 @@
       },
       "sortText": "171",
       "insertText": "WritableTextRecordChannel",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -572,6 +584,7 @@
       },
       "sortText": "171",
       "insertText": "Format",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -597,6 +610,7 @@
       },
       "sortText": "171",
       "insertText": "Separator",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -619,6 +633,7 @@
       "detail": "BType",
       "sortText": "171",
       "insertText": "Mode",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -644,6 +659,7 @@
       },
       "sortText": "171",
       "insertText": "ByteOrder",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {

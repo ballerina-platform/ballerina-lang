@@ -706,6 +706,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BInvokableType sourceType = (BInvokableType) funcNode.symbol.type;
+
+        // If the function definition specifies the function to be an external function, but the function declaration
+        // does not, set the external flag for the declaration.
+        int flags = Flags.asMask(funcNode.flagSet);
+        if ((flags & Flags.NATIVE) != (funcNode.symbol.flags & Flags.NATIVE) &&
+                (flags & Flags.NATIVE) == Flags.NATIVE) {
+            Set<Flag> symFlags = funcNode.symbol.getFlags();
+            symFlags.add(Flag.NATIVE);
+            funcNode.symbol.flags = Flags.asMask(symFlags);
+        }
         //this was used earlier to one to one match object declaration with definitions for attached functions
         // keeping this commented as we may need uncomment this later.
         //        int flags = Flags.asMask(funcNode.flagSet);
@@ -840,27 +850,40 @@ public class SymbolEnter extends BLangNodeVisitor {
         constant.symbol = constantSymbol;
 
         // Note - This is checked and error is logged in semantic analyzer.
-        if (((BLangExpression) constant.value).getKind() != NodeKind.LITERAL &&
-                ((BLangExpression) constant.value).getKind() != NodeKind.NUMERIC_LITERAL) {
+        if (!isValidConstantExpression((BLangExpression) constant.value)) {
             if (symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
                 env.scope.define(constantSymbol.name, constantSymbol);
             }
             return;
         }
 
-        // Visit the associated type definition. This will set the type of the type definition.
-        defineNode(constant.associatedTypeDefinition, env);
-
-        // Get the type of the associated type definition and set it as the type of the symbol. This is needed to
-        // resolve the types of any type definition which uses the constant in type node.
-        constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-        constantSymbol.literalValue = ((BLangLiteral) constant.value).value;
-        constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).type.tag;
-        constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
-
         // Note - constant.typeNode.type will be resolved in a `resolveConstantTypeNode()` later since at this
         // point we might not be able to resolve the type properly because type definitions in the package are not yet
         // visited.
+
+        NodeKind nodeKind = ((BLangExpression) constant.value).getKind();
+
+        if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
+            // Visit the associated type definition. This will set the type of the type definition.
+            defineNode(constant.associatedTypeDefinition, env);
+
+            // Get the type of the associated type definition and set it as the type of the symbol. This is needed to
+            // resolve the types of any type definition which uses the constant in type node.
+            constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
+
+            BLangLiteral literal = (BLangLiteral) constant.value;
+            constantSymbol.literalValue = literal.value;
+            constantSymbol.literalValueTypeTag = literal.type.tag;
+        } else if (nodeKind == NodeKind.RECORD_LITERAL_EXPR) {
+            // We need to update the symbol type to noType here. Then it will be updated properly when
+            // resolving the type node in resolveConstantTypeNode().
+            if (constant.typeNode != null) {
+                constant.symbol.type = symTable.noType;
+            }
+            constantSymbol.literalValue = constant.value;
+        }
+
+        constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
         // Add the symbol to the enclosing scope.
         if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
@@ -980,6 +1003,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * Checks whether the given expression type is allowed as an expression in a constant.
+     *
+     * @param expression the expression which needs to be checked
+     * @return {@code true} if the given expression is allowed, {@code false} otherwise.
+     */
+    boolean isValidConstantExpression(BLangExpression expression) {
+        switch (expression.getKind()) {
+            case LITERAL:
+            case NUMERIC_LITERAL:
+            case RECORD_LITERAL_EXPR:
+                return true;
+        }
+        return false;
+    }
 
     // Private methods
 
@@ -997,13 +1035,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                 constant.symbol.literalValueType = symTable.getTypeFromTag(constant.symbol.literalValueTypeTag);
             }
 
-            if (!isAllowedConstantType(constant.symbol)) {
+            if (isAllowedConstantType(constant.symbol, constant.typeNode)) {
+                continue;
+            }
+            // Constant might not have a typeNode.
+            if (constant.typeNode != null) {
                 dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, constant.typeNode);
             }
         }
     }
 
-    private boolean isAllowedConstantType(BConstantSymbol symbol) {
+    private boolean isAllowedConstantType(BConstantSymbol symbol, BLangType typeNode) {
         switch (symbol.literalValueType.tag) {
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
@@ -1013,8 +1055,30 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.STRING:
             case TypeTags.NIL:
                 return true;
+            case TypeTags.MAP:
+                return isAllowedMapConstraintType(typeNode);
         }
         return false;
+    }
+
+    private boolean isAllowedMapConstraintType(BLangType typeNode) {
+        switch (typeNode.type.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+            case TypeTags.NIL:
+                return true;
+            case TypeTags.MAP:
+                return isAllowedMapConstraintType(((BLangConstrainedType) typeNode).constraint);
+            default:
+                dlog.error(typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, typeNode);
+                break;
+        }
+        // Return true anyway since otherwise there will be two errors logged for this.
+        return true;
     }
 
     private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {
@@ -1117,9 +1181,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                                         .orElse(symTable.stringType);
             BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                                         .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
-                                        .orElse(symTable.mapType);
+                                        .orElse(symTable.pureTypeConstrainedMap);
 
-            if (reasonType == symTable.stringType && detailType == symTable.mapType) {
+            if (reasonType == symTable.stringType && detailType == symTable.pureTypeConstrainedMap) {
                 typeDef.symbol.type = symTable.errorType;
                 continue;
             }
@@ -1170,7 +1234,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     recordType.restFieldType = symTable.noType;
                     continue;
                 }
-                recordType.restFieldType = symTable.anydataType;
+                recordType.restFieldType = symTable.pureType;
                 continue;
             }
 
@@ -1301,6 +1365,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void defineTypeNarrowedSymbol(DiagnosticPos pos, SymbolEnv targetEnv, BVarSymbol symbol, BType type) {
+        if (symbol.owner.tag == SymTag.PACKAGE) {
+            // Avoid defining shadowed symbol for global vars, since the type is not narrowed.
+            return;
+        }
+
         BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv);
         varSymbol.owner = symbol.owner;
         varSymbol.originalSymbol = symbol;

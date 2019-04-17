@@ -70,12 +70,12 @@ public class FormattingNodeTree {
                         annotationWS.addProperty(FormattingConstants.WS, whiteSpace);
                     } else if (isPublic && text.equals("annotation")) {
                         annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals("<")) {
+                    } else if (text.equals(Tokens.LESS_THAN)) {
                         annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                         ++attachPointCounter;
-                    } else if (text.equals(",")) {
+                    } else if (text.equals(Tokens.COMMA)) {
                         annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    } else if (text.equals(">")) {
+                    } else if (text.equals(Tokens.GREATER_THAN)) {
                         annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                         attachPointCounter = 0;
                     } else {
@@ -86,7 +86,7 @@ public class FormattingNodeTree {
                             annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                             ++attachPointCounter;
                         } else {
-                            if (text.equals(";")) {
+                            if (text.equals(Tokens.SEMICOLON)) {
                                 annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                             } else {
                                 annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
@@ -177,7 +177,8 @@ public class FormattingNodeTree {
             for (JsonElement item : ws) {
                 JsonObject wsItem = item.getAsJsonObject();
                 String text = wsItem.get(FormattingConstants.TEXT).getAsString();
-                if (text.equals(",") && this.noHeightAvailable(wsItem.get(FormattingConstants.WS).getAsString())) {
+                if (text.equals(Tokens.COMMA)
+                        && this.noHeightAvailable(wsItem.get(FormattingConstants.WS).getAsString())) {
                     wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                 }
             }
@@ -226,7 +227,7 @@ public class FormattingNodeTree {
                     JsonObject wsItem = ws.get(i).getAsJsonObject();
                     if (this.noHeightAvailable(wsItem.get(FormattingConstants.WS).getAsString())) {
                         String text = wsItem.get(FormattingConstants.TEXT).getAsString();
-                        if (text.equals("(") && i == 0) {
+                        if (text.equals(Tokens.OPENING_PARENTHESES) && i == 0) {
                             // Update grouped opening parentheses whitespace.
                             if (node.has(FormattingConstants.GROUPED) &&
                                     node.get(FormattingConstants.GROUPED).getAsBoolean()) {
@@ -346,20 +347,20 @@ public class FormattingNodeTree {
                 JsonObject arrowExprWS = wsItem.getAsJsonObject();
                 if (this.noHeightAvailable(arrowExprWS.get(FormattingConstants.WS).getAsString())) {
                     String text = arrowExprWS.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals("(")) {
+                    if (text.equals(Tokens.OPENING_PARENTHESES)) {
                         arrowExprWS.addProperty(FormattingConstants.WS,
                                 this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
                     }
 
-                    if (text.equals(",")) {
+                    if (text.equals(Tokens.COMMA)) {
                         arrowExprWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
 
-                    if (text.equals(")")) {
+                    if (text.equals(Tokens.CLOSING_PARENTHESES)) {
                         arrowExprWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
 
-                    if (text.equals("=>")) {
+                    if (text.equals(Tokens.EQUAL_GT)) {
                         arrowExprWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
                 }
@@ -780,7 +781,7 @@ public class FormattingNodeTree {
                     String text = currentWS.get(FormattingConstants.TEXT).getAsString();
                     if (text.equals(compoundOperator)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals(";")) {
+                    } else if (text.equals(Tokens.SEMICOLON)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -833,9 +834,9 @@ public class FormattingNodeTree {
                                     this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
                                             + indentation);
                         }
-                    } else if (text.equals("=")) {
+                    } else if (text.equals(Tokens.EQUAL)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals(";")) {
+                    } else if (text.equals(Tokens.SEMICOLON)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     } else {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
@@ -891,7 +892,7 @@ public class FormattingNodeTree {
                 JsonObject wsItem = item.getAsJsonObject();
                 if (this.noHeightAvailable(wsItem.get(FormattingConstants.WS).getAsString())) {
                     String text = wsItem.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals("<") || text.equals(">")) {
+                    if (text.equals(Tokens.LESS_THAN) || text.equals(Tokens.GREATER_THAN)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -1065,7 +1066,8 @@ public class FormattingNodeTree {
                     if (text.equals("error")) {
                         currentWS.addProperty(FormattingConstants.WS,
                                 this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
-                    } else if (text.equals("(") || text.equals(",") || text.equals(")")) {
+                    } else if (text.equals(Tokens.OPENING_PARENTHESES) || text.equals(Tokens.COMMA)
+                            || text.equals(Tokens.CLOSING_PARENTHESES)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -1107,9 +1109,9 @@ public class FormattingNodeTree {
                 JsonObject currentWS = wsItem.getAsJsonObject();
                 if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                     String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals("=")) {
+                    if (text.equals(Tokens.EQUAL)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals(";")) {
+                    } else if (text.equals(Tokens.SEMICOLON)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -1160,7 +1162,8 @@ public class FormattingNodeTree {
                         } else {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                         }
-                    } else if (text.equals("<") || text.equals(",") || text.equals(">") || text.equals("?")) {
+                    } else if (text.equals(Tokens.LESS_THAN) || text.equals(Tokens.COMMA)
+                            || text.equals(Tokens.GREATER_THAN) || text.equals(Tokens.QUESTION_MARK)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -1208,9 +1211,10 @@ public class FormattingNodeTree {
                     String text = currentWS.get(FormattingConstants.TEXT).getAsString();
                     if (text.equals("error")) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals("(")) {
+                    } else if (text.equals(Tokens.OPENING_PARENTHESES)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals(",") || text.equals(")") || text.equals(";")) {
+                    } else if (text.equals(Tokens.COMMA) || text.equals(Tokens.CLOSING_PARENTHESES)
+                            || text.equals(Tokens.SEMICOLON)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     } else {
                         if (reasonWSUpdated) {
@@ -1271,9 +1275,9 @@ public class FormattingNodeTree {
                         currentWS.addProperty(FormattingConstants.WS,
                                 this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
                                         + indentation);
-                    } else if (text.equals("(")) {
+                    } else if (text.equals(Tokens.OPENING_PARENTHESES)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals(",") || text.equals(")")) {
+                    } else if (text.equals(Tokens.COMMA) || text.equals(Tokens.CLOSING_PARENTHESES)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -1436,12 +1440,12 @@ public class FormattingNodeTree {
                     }
 
                     // Update whitespace for the opening parentheses.
-                    if (text.equals("(")) {
+                    if (text.equals(Tokens.OPENING_PARENTHESES)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
 
                     // Update whitespace for the param separator.
-                    if (text.equals(",")) {
+                    if (text.equals(Tokens.COMMA)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
 
@@ -1451,17 +1455,17 @@ public class FormattingNodeTree {
                     }
 
                     // Update whitespace for the closing parentheses.
-                    if (text.equals(")")) {
+                    if (text.equals(Tokens.CLOSING_PARENTHESES)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
 
                     // Update the whitespace for opening bracket.
-                    if (text.equals("{")) {
+                    if (text.equals(Tokens.OPENING_BRACE)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
 
                     // Update the whitespace for closing bracket.
-                    if (text.equals("}")) {
+                    if (text.equals(Tokens.CLOSING_BRACE)) {
                         if (node.has(FormattingConstants.BODY) &&
                                 node.getAsJsonObject(FormattingConstants.BODY).has(FormattingConstants.STATEMENTS) &&
                                 node.getAsJsonObject(FormattingConstants.BODY)
@@ -1529,9 +1533,9 @@ public class FormattingNodeTree {
                         currentWS.addProperty(FormattingConstants.WS,
                                 this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
                                         + indentation);
-                    } else if (text.equals("{")) {
+                    } else if (text.equals(Tokens.OPENING_BRACE)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals("}")) {
+                    } else if (text.equals(Tokens.CLOSING_BRACE)) {
                         currentWS.addProperty(FormattingConstants.WS,
                                 FormattingConstants.NEW_LINE + indentation);
                     }
@@ -1580,14 +1584,15 @@ public class FormattingNodeTree {
                     this.getWhiteSpaceCount(indentWithParentIndentation));
 
             // Preserve the new lines and characters available in node's whitespaces.
-            this.preserveHeight(ws, indentWithParentIndentation);
+            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
+                    ? indentWithParentIndentation : indentation);
 
             boolean differentFirstKeyword = false;
             for (JsonElement wsItem : ws) {
                 JsonObject currentWS = wsItem.getAsJsonObject();
                 String text = currentWS.get(FormattingConstants.TEXT).getAsString();
                 if (text.equals("public") || text.equals("private") || text.equals("remote")
-                        || text.equals("extern") || text.equals("worker") || text.equals("resource")) {
+                        || text.equals("worker") || text.equals("resource")) {
                     if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                         if (differentFirstKeyword) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
@@ -1636,23 +1641,23 @@ public class FormattingNodeTree {
 
                             functionWS.addProperty(FormattingConstants.WS, whiteSpace);
                         }
-                    } else if (wsText.equals("(")) {
+                    } else if (wsText.equals(Tokens.OPENING_PARENTHESES)) {
                         if (!isLambda) {
                             functionWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                         }
-                    } else if (wsText.equals(",")) {
+                    } else if (wsText.equals(Tokens.COMMA)) {
                         functionWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    } else if (wsText.equals("=>")) {
+                    } else if (wsText.equals(Tokens.EQUAL_GT)) {
                         functionWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (wsText.equals(")")) {
+                    } else if (wsText.equals(Tokens.CLOSING_PARENTHESES)) {
                         functionWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     } else if (wsText.equals("returns")) {
                         // Update whitespace for returns keyword.
                         functionWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (wsText.equals("{")) {
+                    } else if (wsText.equals(Tokens.OPENING_BRACE)) {
                         // Update whitespaces for the opening brace.
                         functionWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (wsText.equals("}")) {
+                    } else if (wsText.equals(Tokens.CLOSING_BRACE)) {
                         // Update whitespaces for closing brace of the function.
                         if (node.has(FormattingConstants.BODY)
                                 && node.getAsJsonObject(FormattingConstants.BODY)
@@ -1661,18 +1666,16 @@ public class FormattingNodeTree {
                                 && node.getAsJsonArray("workers").size() <= 0) {
 
                             if (this.noHeightAvailable(functionWS.get(FormattingConstants.WS).getAsString())) {
-                                functionWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
-                                        indentWithParentIndentation + FormattingConstants.NEW_LINE +
-                                        indentWithParentIndentation);
+                                functionWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                             }
                         } else if (this.noHeightAvailable(functionWS.get(FormattingConstants.WS).getAsString())) {
                             functionWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
                                     indentWithParentIndentation);
                         }
-                    }
-
-                    if (wsText.equals(";")) {
+                    } else if (wsText.equals(Tokens.SEMICOLON)) {
                         functionWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else if (wsText.equals(Tokens.EQUAL) || wsText.equals("external")) {
+                        functionWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
                 }
             }
@@ -1764,11 +1767,10 @@ public class FormattingNodeTree {
             boolean returnKeywordExists = node.has("returnKeywordExists") &&
                     node.get("returnKeywordExists").getAsBoolean();
             String indentation = this.getIndentation(formatConfig, true);
-            String indentWithParentIndentation = this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT)
-                    .getAsInt()) + this.getWhiteSpaces(formatConfig.get(FormattingConstants.INDENTED_START_COLUMN)
-                    .getAsInt());
+            String indentWithParentIndentation = this.getParentIndentation(formatConfig);
 
-            this.preserveHeight(ws, indentWithParentIndentation);
+            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
+                    ? indentWithParentIndentation : indentation);
 
             // Update whitespace for function keyword or parentheses.
             JsonObject firstKeywordWS = ws.get(0).getAsJsonObject();
@@ -1832,7 +1834,7 @@ public class FormattingNodeTree {
                     String text = functionTypeWS.get(FormattingConstants.TEXT).getAsString();
 
                     // Update whitespace for parameter separator and closing parentheses.
-                    if (text.equals(",")) {
+                    if (text.equals(Tokens.COMMA)) {
                         functionTypeWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
 
@@ -2006,7 +2008,7 @@ public class FormattingNodeTree {
 
             // Update closing brace whitespace
             JsonObject closingBraceWS = ws.get(ws.size() - 1).getAsJsonObject();
-            modifyBlockBody(node, indentWithParentIndentation, closingBraceWS, FormattingConstants.BODY);
+            modifyBlockClosingBrace(node, indentWithParentIndentation, closingBraceWS, FormattingConstants.BODY, false);
 
             if (node.has("elseStatement")
                     && !node.getAsJsonObject("elseStatement").get("kind").getAsString().equals("Block")) {
@@ -2076,7 +2078,7 @@ public class FormattingNodeTree {
                 JsonObject currentWS = wsItem.getAsJsonObject();
                 if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                     String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals("[") || text.equals("]")) {
+                    if (text.equals(Tokens.OPENING_BRACKET) || text.equals(Tokens.CLOSING_BRACKET)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -2156,16 +2158,16 @@ public class FormattingNodeTree {
                                     + indentation);
                         }
                         isAsync = true;
-                    } else if (text.equals(".") || text.equals("->")) {
+                    } else if (text.equals(".") || text.equals(Tokens.RIGHT_ARROW)) {
                         invocationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                         isActionOrFieldInvocation = true;
-                    } else if (text.equals("(")) {
+                    } else if (text.equals(Tokens.OPENING_PARENTHESES)) {
                         invocationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    } else if (text.equals(",")) {
+                    } else if (text.equals(Tokens.COMMA)) {
                         invocationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    } else if (text.equals(")")) {
+                    } else if (text.equals(Tokens.CLOSING_PARENTHESES)) {
                         invocationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    } else if (text.equals(":")) {
+                    } else if (text.equals(Tokens.COLON)) {
                         // Handle colon whitespaces.
                         invocationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
 
@@ -2191,7 +2193,7 @@ public class FormattingNodeTree {
                             identifierWhitespace.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                         }
                     } else if (identifierWhitespace == null &&
-                            !ws.get(i + 1).getAsJsonObject().get("text").getAsString().equals(":")) {
+                            !ws.get(i + 1).getAsJsonObject().get("text").getAsString().equals(Tokens.COLON)) {
                         if (isAsync || isCheck) {
                             invocationWS.addProperty(FormattingConstants.WS,
                                     FormattingConstants.SINGLE_SPACE);
@@ -2356,8 +2358,41 @@ public class FormattingNodeTree {
      * @param node {JsonObject} node as json object
      */
     public void formatLockNode(JsonObject node) {
-        // TODO: fix formatting for lock node.
-        this.skipFormatting(node, true);
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+
+            String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+
+            // Preserve new lines added by the user.
+            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
+                    ? indentationOfParent : indentation);
+
+            // Iterate and format whitespaces of the node.
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals("lock")) {
+                        currentWS.addProperty(FormattingConstants.WS,
+                                this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                        + indentation);
+                    } else if (text.equals(Tokens.OPENING_BRACE)) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    } else if (text.equals(Tokens.CLOSING_BRACE)) {
+                        modifyBlockClosingBrace(node, indentation, currentWS, FormattingConstants.BODY, true);
+                    }
+                }
+            }
+
+            // Handle the formatting for body.
+            if (node.has(FormattingConstants.BODY)) {
+                node.getAsJsonObject(FormattingConstants.BODY).add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(1, 0, this.getWhiteSpaceCount(indentation),
+                                true, this.getWhiteSpaceCount(indentation), true));
+            }
+        }
     }
 
     /**
@@ -2388,12 +2423,12 @@ public class FormattingNodeTree {
                     }
 
                     // Update opening bracket whitespace.
-                    if (text.equals("{")) {
+                    if (text.equals(Tokens.OPENING_BRACE)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
 
                     // Update opening bracket whitespace.
-                    if (text.equals("}")) {
+                    if (text.equals(Tokens.CLOSING_BRACE)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE + indentation);
                     }
                 }
@@ -2449,17 +2484,17 @@ public class FormattingNodeTree {
                     String text = wsItem.get(FormattingConstants.TEXT).getAsString();
 
                     // Update the => whitespace.
-                    if (text.equals("=>")) {
+                    if (text.equals(Tokens.EQUAL_GT)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
 
                     // Update the opening brace whitespace.
-                    if (text.equals("{")) {
+                    if (text.equals(Tokens.OPENING_BRACE)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
 
                     // Update the closing brace whitespace.
-                    if (text.equals("}")) {
+                    if (text.equals(Tokens.CLOSING_BRACE)) {
                         if (node.has("statement") && node.getAsJsonObject("statement")
                                 .has(FormattingConstants.STATEMENTS) && node.getAsJsonObject("statement")
                                 .getAsJsonArray(FormattingConstants.STATEMENTS).size() <= 0) {
@@ -2512,17 +2547,17 @@ public class FormattingNodeTree {
                     String text = wsItem.get(FormattingConstants.TEXT).getAsString();
 
                     // Update the => whitespace.
-                    if (text.equals("=>")) {
+                    if (text.equals(Tokens.EQUAL_GT)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
 
                     // Update the opening brace whitespace.
-                    if (text.equals("{")) {
+                    if (text.equals(Tokens.OPENING_BRACE)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
 
                     // Update the closing brace whitespace.
-                    if (text.equals("}")) {
+                    if (text.equals(Tokens.CLOSING_BRACE)) {
                         if (node.has("statement") && node.getAsJsonObject("statement")
                                 .has(FormattingConstants.STATEMENTS) && node.getAsJsonObject("statement")
                                 .getAsJsonArray(FormattingConstants.STATEMENTS).size() <= 0) {
@@ -2619,9 +2654,9 @@ public class FormattingNodeTree {
                     JsonObject currentWS = wsItem.getAsJsonObject();
                     String text = currentWS.get(FormattingConstants.TEXT).getAsString();
                     if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
-                        if (text.equals("{")) {
+                        if (text.equals(Tokens.OPENING_BRACE)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                        } else if (text.equals("}")) {
+                        } else if (text.equals(Tokens.CLOSING_BRACE)) {
                             if (node.getAsJsonArray(FormattingConstants.FIELDS).size() <= 0
                                     && node.getAsJsonArray("functions").size() <= 0) {
                                 currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE
@@ -2662,7 +2697,7 @@ public class FormattingNodeTree {
                                         + indentation);
                     } else if (text.equals("by")) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals(",")) {
+                    } else if (text.equals(Tokens.COMMA)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -2774,7 +2809,7 @@ public class FormattingNodeTree {
                         currentWS.addProperty(FormattingConstants.WS,
                                 this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
                                         + indentation);
-                    } else if (text.equals(";")) {
+                    } else if (text.equals(Tokens.SEMICOLON)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -2861,7 +2896,7 @@ public class FormattingNodeTree {
                 JsonObject currentWS = wsItem.getAsJsonObject();
 
                 // Update whitespace for opening brace.
-                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("{")
+                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.OPENING_BRACE)
                         && this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                     if (isExpression) {
                         currentWS.addProperty(FormattingConstants.WS,
@@ -2873,7 +2908,7 @@ public class FormattingNodeTree {
                 }
 
                 // Update whitespace for closing brace.
-                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("}")
+                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.CLOSING_BRACE)
                         && this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                     if (isExpression) {
                         if (node.has("keyValuePairs")
@@ -2891,8 +2926,8 @@ public class FormattingNodeTree {
                 }
 
                 // Update whitespaces for the key value pair separator , or ;.
-                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(",") ||
-                        currentWS.get(FormattingConstants.TEXT).getAsString().equals(";")) {
+                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.COMMA) ||
+                        currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.SEMICOLON)) {
                     currentWS.addProperty(FormattingConstants.WS,
                             FormattingConstants.EMPTY_SPACE);
                 }
@@ -3000,7 +3035,7 @@ public class FormattingNodeTree {
                             } else {
                                 currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                             }
-                        } else if (text.equals("{")) {
+                        } else if (text.equals(Tokens.OPENING_BRACE)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         } else if (text.equals("|")) {
                             if (firstPipeVisited) {
@@ -3015,9 +3050,9 @@ public class FormattingNodeTree {
                                 currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                                 firstPipeVisited = true;
                             }
-                        } else if (text.equals("...")) {
+                        } else if (text.equals(Tokens.ELLIPSIS)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                        } else if (text.equals("}")) {
+                        } else if (text.equals(Tokens.CLOSING_BRACE)) {
                             if (isSealed) {
                                 currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                             } else {
@@ -3087,7 +3122,7 @@ public class FormattingNodeTree {
                 JsonObject currentWS = wsItem.getAsJsonObject();
                 if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                     String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals("{")) {
+                    if (text.equals(Tokens.OPENING_BRACE)) {
                         if (frontedWithKeyword || node.has("typeNode")) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         } else {
@@ -3097,9 +3132,9 @@ public class FormattingNodeTree {
                                             + this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT)
                                             .getAsInt()) + indentation);
                         }
-                    } else if (text.equals("}")) {
+                    } else if (text.equals(Tokens.CLOSING_BRACE)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    } else if (text.equals(",")) {
+                    } else if (text.equals(Tokens.COMMA)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -3324,7 +3359,7 @@ public class FormattingNodeTree {
                                         + indentation);
                     } else if (text.equals("*")) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals(",")) {
+                    } else if (text.equals(Tokens.COMMA)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -3549,17 +3584,17 @@ public class FormattingNodeTree {
                 JsonObject currentWS = wsItem.getAsJsonObject();
                 if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                     String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals("=>")) {
+                    if (text.equals(Tokens.EQUAL_GT)) {
                         currentWS.addProperty(FormattingConstants.WS,
                                 this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
                                         + indentation);
-                    } else if (text.equals("(")) {
+                    } else if (text.equals(Tokens.OPENING_PARENTHESES)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals(")")) {
+                    } else if (text.equals(Tokens.CLOSING_PARENTHESES)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    } else if (text.equals("{")) {
+                    } else if (text.equals(Tokens.OPENING_BRACE)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals("}")) {
+                    } else if (text.equals(Tokens.CLOSING_BRACE)) {
                         currentWS.addProperty(FormattingConstants.WS,
                                 this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
                                         + indentation);
@@ -3844,7 +3879,7 @@ public class FormattingNodeTree {
                     }
                 }
 
-                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(",")) {
+                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.COMMA)) {
                     if (openBracesCount == 1) {
                         if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
@@ -3861,8 +3896,8 @@ public class FormattingNodeTree {
                 }
 
                 // Update whitespace for opening brace or bracket.
-                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("{") ||
-                        currentWS.get(FormattingConstants.TEXT).getAsString().equals("[")) {
+                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.OPENING_BRACE) ||
+                        currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.OPENING_BRACKET)) {
                     if (openBracesCount > 0) {
                         if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE + indentation);
@@ -3877,7 +3912,7 @@ public class FormattingNodeTree {
                 }
 
                 // Update whitespace for closing brace.
-                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("}")) {
+                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.CLOSING_BRACE)) {
                     if (openBracesCount == 1) {
                         if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                             if (node.has("dataRows")
@@ -3902,7 +3937,7 @@ public class FormattingNodeTree {
                 }
 
                 // Update whitespace for closing bracket.
-                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("]")) {
+                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.CLOSING_BRACKET)) {
                     if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                         if (node.has("dataRows")
                                 && node.getAsJsonArray("dataRows").size() <= 0) {
@@ -3917,8 +3952,8 @@ public class FormattingNodeTree {
                 }
 
 
-                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("{")
-                        || currentWS.get(FormattingConstants.TEXT).getAsString().equals("[")) {
+                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.OPENING_BRACE)
+                        || currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.OPENING_BRACKET)) {
                     if (openBracesCount > 0) {
                         openBracesCount++;
                     } else {
@@ -3926,8 +3961,8 @@ public class FormattingNodeTree {
                     }
                 }
 
-                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("}")
-                        || currentWS.get(FormattingConstants.TEXT).getAsString().equals("]")) {
+                if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.CLOSING_BRACE)
+                        || currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.CLOSING_BRACKET)) {
                     if (openBracesCount > 1) {
                         openBracesCount--;
                     }
@@ -4064,7 +4099,7 @@ public class FormattingNodeTree {
                 JsonObject currentWS = wsItem.getAsJsonObject();
                 if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                     String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals("?") || text.equals(":")) {
+                    if (text.equals(Tokens.QUESTION_MARK) || text.equals(Tokens.COLON)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
                 }
@@ -4124,15 +4159,15 @@ public class FormattingNodeTree {
                         isRetryBody = true;
                     }
 
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("{")) {
+                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.OPENING_BRACE)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
 
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("}")) {
+                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.CLOSING_BRACE)) {
                         if (isRetryBody) {
-                            modifyBlockBody(node, indentation, currentWS, "onRetryBody");
+                            modifyBlockClosingBrace(node, indentation, currentWS, "onRetryBody", false);
                         } else {
-                            modifyBlockBody(node, indentation, currentWS, "transactionBody");
+                            modifyBlockClosingBrace(node, indentation, currentWS, "transactionBody", false);
                         }
                     }
 
@@ -4144,11 +4179,11 @@ public class FormattingNodeTree {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
 
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("=")) {
+                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.EQUAL)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
 
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(",")) {
+                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.COMMA)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
 
@@ -4485,13 +4520,13 @@ public class FormattingNodeTree {
                     }
 
                     // Update opening bracket whitespace.
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("{")) {
+                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.OPENING_BRACE)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         isEnum = false;
                     }
 
                     // Update the closing bracket whitespaces.
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("}")) {
+                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.CLOSING_BRACE)) {
                         if (node.has("typeNode")
                                 && node.getAsJsonObject("typeNode")
                                 .getAsJsonArray(FormattingConstants.FIELDS).size() <= 0) {
@@ -4503,7 +4538,7 @@ public class FormattingNodeTree {
                     }
 
                     // Update the semicolon whitespace.
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(";")) {
+                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.SEMICOLON)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -4623,7 +4658,7 @@ public class FormattingNodeTree {
                     JsonObject currentWS = wsItem.getAsJsonObject();
                     if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                         // Update opening parentheses whitespace.
-                        if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("(")) {
+                        if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.OPENING_PARENTHESES)) {
                             currentWS.addProperty(FormattingConstants.WS,
                                     this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
                                             indentation);
@@ -4635,7 +4670,7 @@ public class FormattingNodeTree {
                         }
 
                         // Update closing parentheses whitespace.
-                        if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(")")) {
+                        if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.CLOSING_PARENTHESES)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                         }
                     }
@@ -4706,10 +4741,11 @@ public class FormattingNodeTree {
                                             .getAsInt()) + indentation + this.getWhiteSpaces(formatConfig
                                             .get(FormattingConstants.SPACE_COUNT).getAsInt()));
                         } else {
-                            if (text.equals(":")) {
+                            if (text.equals(Tokens.COLON)) {
                                 currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                                 isPackageAliasExist = true;
-                            } else if (text.equals("?") || (text.equals(")") && isGrouped)) {
+                            } else if (text.equals(Tokens.QUESTION_MARK) || (text.equals(Tokens.CLOSING_PARENTHESES)
+                                    && isGrouped)) {
                                 currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                             } else {
                                 if (isPackageAliasExist) {
@@ -4797,23 +4833,16 @@ public class FormattingNodeTree {
                                             .getAsInt()) + indentation);
                         }
 
-                        if (text.equals("=")) {
+                        if (text.equals(Tokens.EQUAL)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         }
 
-                        if (text.equals(";")) {
+                        if (text.equals(Tokens.SEMICOLON)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                         }
                     }
                 }
             }
-
-            // Update whitespaces for semicolon.
-//            if (this.noHeightAvailable(node.getAsJsonArray(FormattingConstants.WS).get(0)
-//                    .getAsJsonObject().get(FormattingConstants.WS).getAsString())) {
-//                node.getAsJsonArray(FormattingConstants.WS).get(0).getAsJsonObject()
-//                        .addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-//            }
         }
     }
 
@@ -4877,16 +4906,17 @@ public class FormattingNodeTree {
                             } else {
                                 currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                             }
-                        } else if (text.equals(";") || text.equals("?") || text.equals(",")) {
+                        } else if (text.equals(Tokens.SEMICOLON) || text.equals(Tokens.QUESTION_MARK)
+                                || text.equals(Tokens.COMMA)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                        } else if (text.equals("{")) {
+                        } else if (text.equals(Tokens.OPENING_BRACE)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                        } else if (text.equals("}")) {
+                        } else if (text.equals(Tokens.CLOSING_BRACE)) {
                             currentWS.addProperty(FormattingConstants.WS,
                                     FormattingConstants.NEW_LINE + indentation);
-                        } else if (text.equals("...")) {
+                        } else if (text.equals(Tokens.ELLIPSIS)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                        } else if (text.equals("=")) {
+                        } else if (text.equals(Tokens.EQUAL)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         } else {
                             if (node.has(FormattingConstants.IS_ANON_TYPE)
@@ -4958,17 +4988,7 @@ public class FormattingNodeTree {
                         } else {
                             if (!(node.has("annotationAttachments")
                                     && node.getAsJsonArray("annotationAttachments").size() > 0)) {
-                                typeFormatConfig = this.getFormattingConfig(
-                                        formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt(),
-                                        formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt(),
-                                        formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(),
-                                        formatConfig.get(FormattingConstants.DO_INDENT).getAsBoolean(),
-                                        this.getWhiteSpaceCount(
-                                                formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
-                                                        .getAsBoolean() ? indentWithParentIndentation : indentation),
-                                        formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
-                                                .getAsBoolean());
-                                typeNode.add(FormattingConstants.FORMATTING_CONFIG, typeFormatConfig);
+                                typeNode.add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
                             }
                         }
                     }
@@ -5036,9 +5056,9 @@ public class FormattingNodeTree {
                 JsonObject currentWS = wsItem.getAsJsonObject();
                 if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                     String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals("wait") || text.equals("{")) {
+                    if (text.equals("wait") || text.equals(Tokens.OPENING_BRACE)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals("}") || text.equals(",")) {
+                    } else if (text.equals(Tokens.CLOSING_BRACE) || text.equals(Tokens.COMMA)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -5122,13 +5142,13 @@ public class FormattingNodeTree {
 
             // Update closing brace whitespace.
             JsonObject closingBraceWS = ws.get(ws.size() - 1).getAsJsonObject();
-            modifyBlockBody(node, indentation, closingBraceWS, FormattingConstants.BODY);
+            modifyBlockClosingBrace(node, indentation, closingBraceWS, FormattingConstants.BODY, true);
 
             // Update condition whitespace.
             if (node.has("condition")) {
                 JsonObject whileCondition = node.getAsJsonObject("condition");
                 JsonObject whileConditionFormatConfig = this.getFormattingConfig(0, 1,
-                        0, false, this.getWhiteSpaceCount(indentation), false);
+                        0, false, this.getWhiteSpaceCount(indentation), true);
                 whileCondition.add(FormattingConstants.FORMATTING_CONFIG, whileConditionFormatConfig);
             }
         }
@@ -5223,8 +5243,7 @@ public class FormattingNodeTree {
                     && node.getAsJsonArray("endpointNodes").size() <= 0) {
 
                 if (this.noHeightAvailable(closingBrace.get(FormattingConstants.WS).getAsString())) {
-                    closingBrace.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE
-                            + indentation + FormattingConstants.NEW_LINE + indentation);
+                    closingBrace.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                 }
             } else if (this.noHeightAvailable(ws.get(ws.size() - 1).getAsJsonObject()
                     .get(FormattingConstants.WS).getAsString())) {
@@ -5261,10 +5280,10 @@ public class FormattingNodeTree {
                 JsonObject currentWS = wsItem.getAsJsonObject();
                 if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                     String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals("<-")) {
+                    if (text.equals(Tokens.LEFT_ARROW)) {
                         currentWS.addProperty(FormattingConstants.WS,
                                 this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
-                    } else if (text.equals(",")) {
+                    } else if (text.equals(Tokens.COMMA)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     } else {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
@@ -5298,9 +5317,9 @@ public class FormattingNodeTree {
                 JsonObject currentWS = wsItem.getAsJsonObject();
                 if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                     String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals("->")) {
+                    if (text.equals(Tokens.RIGHT_ARROW)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals(";") || text.equals(",")) {
+                    } else if (text.equals(Tokens.SEMICOLON) || text.equals(Tokens.COMMA)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     } else {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
@@ -5465,19 +5484,20 @@ public class FormattingNodeTree {
         }
     }
 
-    private void modifyBlockBody(JsonObject node, String indentation, JsonObject closingBraceWS, String block) {
+    private void modifyBlockClosingBrace(JsonObject node, String indentation, JsonObject closingBraceWS, String block,
+                                         boolean isSingleLineBlock) {
         if (node.has(block)
-                && node.getAsJsonObject(block).getAsJsonArray(
-                FormattingConstants.STATEMENTS).size() <= 0) {
-            if (this.noHeightAvailable(closingBraceWS
-                    .get(FormattingConstants.WS).getAsString())) {
+                && node.getAsJsonObject(block).getAsJsonArray(FormattingConstants.STATEMENTS).size() <= 0
+                && this.noHeightAvailable(closingBraceWS.get(FormattingConstants.WS).getAsString())) {
+            if (!isSingleLineBlock) {
                 closingBraceWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE + indentation
                         + FormattingConstants.NEW_LINE + indentation);
+            } else {
+                closingBraceWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
             }
         } else if (this.noHeightAvailable(closingBraceWS.get(FormattingConstants.WS)
                 .getAsString())) {
-            closingBraceWS.addProperty(FormattingConstants.WS,
-                    FormattingConstants.NEW_LINE + indentation);
+            closingBraceWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE + indentation);
         }
     }
 

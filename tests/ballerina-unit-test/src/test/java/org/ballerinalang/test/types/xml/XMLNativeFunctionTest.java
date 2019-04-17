@@ -1361,7 +1361,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns.length, 2);
 
         Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
 
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[1].stringValue(),
@@ -1458,5 +1458,14 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[1] instanceof BMap);
         Assert.assertEquals(returns[1].getType().getTag(), TypeTags.JSON_TAG);
         Assert.assertEquals(returns[1].stringValue(), "{}");
+    }
+
+    @Test
+    public void testXMLCharacterLiteralLength() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLLength");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 1);
     }
 }

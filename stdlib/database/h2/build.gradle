@@ -48,11 +48,12 @@ dependencies {
     testCompile project(':ballerina-time')
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-transactions')
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-cache')
-    testCompile 'org.testng:testng:6.13.1'
-    testCompile 'org.slf4j:slf4j-simple:1.7.22'
-    testCompile 'com.h2database:h2:1.4.198'
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-simple'
+    testCompile 'com.h2database:h2'
 }
 
 test {
@@ -69,8 +70,14 @@ test {
         suites 'src/test/resources/testng.xml'
     }
     systemProperty "ballerina.home", "$buildDir"
-    systemProperty "java.util.logging.config.file", "$buildDir/logging.properties"
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 description = 'Ballerina - h2'

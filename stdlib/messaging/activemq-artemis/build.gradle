@@ -8,8 +8,7 @@ dependencies {
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-launcher')
-
-    implementation 'org.apache.activemq:artemis-core-client:2.6.3'
+    implementation 'org.apache.activemq:artemis-core-client'
 
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')

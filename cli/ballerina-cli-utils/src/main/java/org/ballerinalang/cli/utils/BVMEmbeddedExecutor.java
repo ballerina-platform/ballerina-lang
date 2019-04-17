@@ -87,7 +87,7 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
      */
     private EmbeddedExecutorError createEmbeddedExecutorError(BError bError) {
         EmbeddedExecutorError error = new EmbeddedExecutorError();
-        error.setMessage(bError.reason);
+        error.setMessage(bError.getReason());
         BError cause = bError.cause;
         if (cause != null) {
             error.setCause(createEmbeddedExecutorError(cause));

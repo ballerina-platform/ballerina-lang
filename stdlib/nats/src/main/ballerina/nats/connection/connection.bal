@@ -24,5 +24,10 @@ public type Connection object {
         self.init(config);
     }
 
-    extern function init(ConnectionConfig config);
+    function init(ConnectionConfig config) = external;
+
+    # Close a given connection.
+    #
+    # + return - () or error if unable to complete close operation.
+    public function close() returns error? = external;
 };

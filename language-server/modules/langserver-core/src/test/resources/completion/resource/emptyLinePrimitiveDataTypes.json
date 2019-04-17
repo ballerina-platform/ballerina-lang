@@ -865,15 +865,6 @@
       ]
     },
     {
-      "label": "ballerina/builtin",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "builtin",
-      "additionalTextEdits": [
-      ]
-    },
-    {
       "label": "ballerina/math",
       "kind": "Module",
       "detail": "Package",

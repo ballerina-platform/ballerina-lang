@@ -132,8 +132,21 @@ type InstructionGenerator object {
         jvm:Label label1 = new;
         jvm:Label label2 = new;
 
-        self.mv.visitInsn(LCMP);
-        self.mv.visitJumpInsn(IFNE, label1);
+        // It is assumed that both operands are of same type
+        bir:BType opType = binaryIns.rhsOp1.variableDcl.typeValue;
+        if (opType is bir:BTypeInt) {
+            self.mv.visitInsn(LCMP);
+            self.mv.visitJumpInsn(IFNE, label1);
+        } else if (opType is bir:BTypeFloat ||
+                    opType is bir:BTypeString ||
+                    opType is bir:BTypeBoolean ||
+                    opType is bir:BTypeByte ) {
+            error err = error( "equal operator is not supported for type " +
+                    io:sprintf("%s", opType));
+            panic err;
+        } else {
+            self.mv.visitJumpInsn(IF_ACMPNE, label1);
+        }
 
         self.mv.visitInsn(ICONST_1);
         self.mv.visitJumpInsn(GOTO, label2);
@@ -305,6 +318,7 @@ type InstructionGenerator object {
     function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
         // visit map_ref
         self.generateVarLoad(mapStoreIns.lhsOp.variableDcl);
+        bir:BType varRefType = mapStoreIns.lhsOp.variableDcl.typeValue;
 
         // visit key_expr
         self.generateVarLoad(mapStoreIns.keyOp.variableDcl);
@@ -314,29 +328,76 @@ type InstructionGenerator object {
         self.generateVarLoad(mapStoreIns.rhsOp.variableDcl);
         addBoxInsn(self.mv, valueType);
 
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "put",
-                io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), false);
+        if (varRefType is bir:BJSONType) {
+            self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setElement",
+                    io:sprintf("(L%s;L%s;L%s;)V", OBJECT, STRING_VALUE, OBJECT), false);
+        } else {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "put",
+                    io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), false);
 
-        // emit a pop, since we are not using the return value from the map.put()
-        self.mv.visitInsn(POP);
+            // emit a pop, since we are not using the return value from the map.put()
+            self.mv.visitInsn(POP);
+        }
     }
 
-    function generateMapLoadIns(bir:FieldAccess mapStoreIns) {
+    function generateMapLoadIns(bir:FieldAccess mapLoadIns) {
         // visit map_ref
-        self.generateVarLoad(mapStoreIns.rhsOp.variableDcl);
-
-        addUnboxInsn(self.mv, mapStoreIns.rhsOp.variableDcl.typeValue);
+        self.generateVarLoad(mapLoadIns.rhsOp.variableDcl);
+        bir:BType varRefType = mapLoadIns.rhsOp.variableDcl.typeValue;
+        addUnboxInsn(self.mv, varRefType);
 
         // visit key_expr
-        self.generateVarLoad(mapStoreIns.keyOp.variableDcl);
+        self.generateVarLoad(mapLoadIns.keyOp.variableDcl);
 
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "get",
-                io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
+        if (varRefType is bir:BJSONType) {
+            self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+            self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
+                    io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
+        } else {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "get",
+                    io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
+        }
 
         // store in the target reg
-        bir:BType targetType = mapStoreIns.lhsOp.variableDcl.typeValue;
+        bir:BType targetType = mapLoadIns.lhsOp.variableDcl.typeValue;
         addUnboxInsn(self.mv, targetType);
-        self.generateVarStore(mapStoreIns.lhsOp.variableDcl);
+        self.generateVarStore(mapLoadIns.lhsOp.variableDcl);
+    }
+
+    function generateObjectLoadIns(bir:FieldAccess objectLoadIns) {
+        // visit object_ref
+        self.generateVarLoad(objectLoadIns.rhsOp.variableDcl);
+        bir:BType varRefType = objectLoadIns.rhsOp.variableDcl.typeValue;
+
+        // visit key_expr
+        self.generateVarLoad(objectLoadIns.keyOp.variableDcl);
+
+        // invoke get() method, and unbox if needed
+        self.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "get",
+                io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT), true);
+        bir:BType targetType = objectLoadIns.lhsOp.variableDcl.typeValue;
+        addUnboxInsn(self.mv, targetType);
+
+        // store in the target reg
+        self.generateVarStore(objectLoadIns.lhsOp.variableDcl);
+    }
+
+    function generateObjectStoreIns(bir:FieldAccess objectStoreIns) {
+        // visit object_ref
+        self.generateVarLoad(objectStoreIns.lhsOp.variableDcl);
+        bir:BType varRefType = objectStoreIns.lhsOp.variableDcl.typeValue;
+
+        // visit key_expr
+        self.generateVarLoad(objectStoreIns.keyOp.variableDcl);
+
+        // visit value_expr
+        bir:BType valueType = objectStoreIns.rhsOp.variableDcl.typeValue;
+        self.generateVarLoad(objectStoreIns.rhsOp.variableDcl);
+        addBoxInsn(self.mv, valueType);
+
+        // invoke set() method
+        self.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "set",
+                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), true);
     }
 
     # Generate a new instance of an array value
@@ -345,16 +406,9 @@ type InstructionGenerator object {
     function generateArrayNewIns(bir:NewArray inst) {
         self.mv.visitTypeInsn(NEW, ARRAY_VALUE);
         self.mv.visitInsn(DUP);
-        bir:BType arrayType = inst.typeValue;
-        if (arrayType is bir:BArrayType) {
-            loadType(self.mv, arrayType.eType);
-            self.generateVarLoad(inst.sizeOp.variableDcl);
-            self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
-        } else if (arrayType is bir:BTupleType) {
-            loadType(self.mv, arrayType);
-            self.generateVarLoad(inst.sizeOp.variableDcl);
-            self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
-        }
+        loadType(self.mv, inst.typeValue);
+        self.generateVarLoad(inst.sizeOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
         self.generateVarStore(inst.lhsOp.variableDcl);
     }
 
@@ -364,18 +418,37 @@ type InstructionGenerator object {
     function generateArrayStoreIns(bir:FieldAccess inst) {
         self.generateVarLoad(inst.lhsOp.variableDcl);
         self.generateVarLoad(inst.keyOp.variableDcl);
-        bir:BType valueType = inst.rhsOp.variableDcl.typeValue;
         self.generateVarLoad(inst.rhsOp.variableDcl);
 
         bir:BType varRefType = inst.lhsOp.variableDcl.typeValue;
-        string valueDesc;
-        if (varRefType is bir:BArrayType && varRefType.eType is bir:BTypeByte) {
-            self.mv.visitInsn(L2I);
-            self.mv.visitInsn(I2B);
-            valueDesc = "B";
-        } else {
-            valueDesc = getTypeDesc(valueType);
+        if (varRefType is bir:BJSONType ||
+                (varRefType is bir:BArrayType && varRefType.eType  is bir:BJSONType)) {
+            self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setArrayElement",
+                    io:sprintf("(L%s;JL%s;)V", OBJECT, OBJECT), false);
+            return;
         }
+
+        string valueDesc;
+        if (varRefType is bir:BArrayType) {
+            if (varRefType.eType is bir:BTypeByte) {
+                self.mv.visitInsn(L2I);
+                self.mv.visitInsn(I2B);
+                valueDesc = "B";
+            } else if (varRefType.eType is bir:BTypeInt) {
+                valueDesc = "J";
+            } else if (varRefType.eType is bir:BTypeString) {
+                valueDesc = io:sprintf("L%s;", STRING_VALUE);
+            } else if (varRefType.eType is bir:BTypeBoolean) {
+                valueDesc = "Z";
+            } else if (varRefType.eType is bir:BTypeFloat) {
+                valueDesc = "D";
+            } else {
+                valueDesc = io:sprintf("L%s;", OBJECT);
+            }
+        } else {
+            valueDesc = io:sprintf("L%s;", OBJECT);
+        }
+
         self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
     }
 
@@ -386,16 +459,22 @@ type InstructionGenerator object {
         self.generateVarLoad(inst.rhsOp.variableDcl);
         self.generateVarLoad(inst.keyOp.variableDcl);
         bir:BType bType = inst.lhsOp.variableDcl.typeValue;
-        if (bType is bir:BTypeInt) {
+
+        bir:BType varRefType = inst.rhsOp.variableDcl.typeValue;
+        if (varRefType is bir:BJSONType ||
+                (varRefType is bir:BArrayType && varRefType.eType  is bir:BJSONType)) {
+            self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getArrayElement",
+                        io:sprintf("(L%s;J)L%s;", OBJECT, OBJECT), false);
+        } else if (bType is bir:BTypeInt) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getInt", "(J)J", false);
         } else if (bType is bir:BTypeString) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE),
                                         false);
         } else if (bType is bir:BTypeBoolean) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getBoolean", "(J)J", false);
-        } else if (bType == "byte") {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getBoolean", "(J)Z", false);
+        } else if (bType is bir:BTypeByte) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getByte", "(J)B", false);
-        } else if (bType == "float") {
+        } else if (bType is bir:BTypeFloat) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getFloat", "(J)D", false);
         } else if (bType is bir:BRecordType) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
@@ -413,96 +492,93 @@ type InstructionGenerator object {
         self.generateVarLoad(newErrorIns.reasonOp.variableDcl);
         self.generateVarLoad(newErrorIns.detailsOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>",
-                           io:sprintf("(L%s;L%s;)V", STRING_VALUE, REF_VALUE), false);
+                           io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
         self.generateVarStore(newErrorIns.lhsOp.variableDcl);
     }
 
-    function generateVarLoad(bir:VariableDcl varDcl) {
+    private function generateVarLoad(bir:VariableDcl varDcl) {
         bir:BType bType = varDcl.typeValue;
 
-        if (varDcl.kind == "GLOBAL") {
+        if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
             string varName = varDcl.name.value;
             string className = lookupFullQualifiedClassName(self.currentPackageName + varName);
+            string typeSig = getTypeDesc(bType);
+            self.mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
+            return;
+        } else if (varDcl.kind == bir:VAR_KIND_SELF) {
+            self.mv.visitVarInsn(ALOAD, 0);
+            return;
+        }
 
-            if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
-                self.mv.visitFieldInsn(GETSTATIC, className, varName, "J");
-            } else if (bType is bir:BMapType) {
-                self.mv.visitFieldInsn(GETSTATIC, className, varName, io:sprintf("L%s;", MAP_VALUE));
-            } else {
-                error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
-                panic err;
-            }
+        int valueIndex = self.getJVMIndexOfVarRef(varDcl);
+        if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+            self.mv.visitVarInsn(LLOAD, valueIndex);
+        } else if (bType is bir:BTypeFloat) {
+            self.mv.visitVarInsn(DLOAD, valueIndex);
+        } else if (bType is bir:BTypeBoolean) {
+            self.mv.visitVarInsn(ILOAD, valueIndex);
+        } else if (bType is bir:BArrayType ||
+                    bType is bir:BTypeString ||
+                    bType is bir:BMapType ||
+                    bType is bir:BTypeAny ||
+                    bType is bir:BTypeAnyData ||
+                    bType is bir:BTypeNil ||
+                    bType is bir:BUnionType ||
+                    bType is bir:BTupleType ||
+                    bType is bir:BRecordType ||
+                    bType is bir:BErrorType ||
+                    bType is bir:BJSONType ||
+                    bType is bir:BFutureType ||
+                    bType is bir:BObjectType) {
+            self.mv.visitVarInsn(ALOAD, valueIndex);
         } else {
-            int valueIndex = self.getJVMIndexOfVarRef(varDcl);
-            if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
-                self.mv.visitVarInsn(LLOAD, valueIndex);
-            } else if (bType is bir:BTypeFloat) {
-                self.mv.visitVarInsn(DLOAD, valueIndex);
-            } else if (bType is bir:BTypeBoolean) {
-                self.mv.visitVarInsn(ILOAD, valueIndex);
-            } else if (bType is bir:BArrayType ||
-                          bType is bir:BTypeString ||
-                          bType is bir:BMapType ||
-                          bType is bir:BTypeAny ||
-                          bType is bir:BTypeAnyData ||
-                          bType is bir:BTypeNil ||
-                          bType is bir:BUnionType ||
-                          bType is bir:BTupleType ||
-                          bType is bir:BRecordType ||
-                          bType is bir:BErrorType) {
-                self.mv.visitVarInsn(ALOAD, valueIndex);
-            } else {
-                error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
-                panic err;
-            }
+            error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
+            panic err;
         }
     }
 
-    function generateVarStore(bir:VariableDcl varDcl) {
+    private function generateVarStore(bir:VariableDcl varDcl) {
         bir:BType bType = varDcl.typeValue;
 
         if (varDcl.kind == "GLOBAL") {
             string varName = varDcl.name.value;
             string className = lookupFullQualifiedClassName(self.currentPackageName + varName);
+            string typeSig = getTypeDesc(bType);
+            self.mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
+            return;
+        }
 
-            if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
-                self.mv.visitFieldInsn(PUTSTATIC, className, varName, "J");
-            } else if (bType is bir:BMapType) {
-                self.mv.visitFieldInsn(PUTSTATIC, className, varName, io:sprintf("L%s;", MAP_VALUE));
-            } else {
-                error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
-                panic err;
-            }
+        int valueIndex = self.getJVMIndexOfVarRef(varDcl);
+        if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+            self.mv.visitVarInsn(LSTORE, valueIndex);
+        } else if (bType is bir:BTypeFloat) {
+            self.mv.visitVarInsn(DSTORE, valueIndex);
+        } else if (bType is bir:BTypeBoolean) {
+            self.mv.visitVarInsn(ISTORE, valueIndex);
+        } else if (bType is bir:BArrayType ||
+                        bType is bir:BTypeString ||
+                        bType is bir:BMapType ||
+                        bType is bir:BTypeAny ||
+                        bType is bir:BTypeAnyData ||
+                        bType is bir:BTypeNil ||
+                        bType is bir:BUnionType ||
+                        bType is bir:BTupleType ||
+                        bType is bir:BRecordType ||
+                        bType is bir:BErrorType ||
+                        bType is bir:BJSONType ||
+                        bType is bir:BFutureType ||
+                        bType is bir:BObjectType) {
+            self.mv.visitVarInsn(ASTORE, valueIndex);
         } else {
-            int valueIndex = self.getJVMIndexOfVarRef(varDcl);
-            if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
-                self.mv.visitVarInsn(LSTORE, valueIndex);
-            } else if (bType is bir:BTypeFloat) {
-                self.mv.visitVarInsn(DSTORE, valueIndex);
-            } else if (bType is bir:BTypeBoolean) {
-                self.mv.visitVarInsn(ISTORE, valueIndex);
-            } else if (bType is bir:BArrayType ||
-                            bType is bir:BTypeString ||
-                            bType is bir:BMapType ||
-                            bType is bir:BTypeAny ||
-                            bType is bir:BTypeAnyData ||
-                            bType is bir:BTypeNil ||
-                            bType is bir:BUnionType ||
-                            bType is bir:BTupleType ||
-                            bType is bir:BRecordType ||
-                            bType is bir:BErrorType) {
-                self.mv.visitVarInsn(ASTORE, valueIndex);
-            } else {
-                error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
-                panic err;
-            }
+            error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
+            panic err;
         }
     }
 
     function generateCastIns(bir:TypeCast typeCastIns) {
         // load source value
         self.generateVarLoad(typeCastIns.rhsOp.variableDcl);
-        generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+        generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
         self.generateVarStore(typeCastIns.lhsOp.variableDcl);
     }
 
@@ -516,6 +592,29 @@ type InstructionGenerator object {
         self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
                 io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE, OBJECT), false);
         self.generateVarStore(typeTestIns.lhsOp.variableDcl);
+    }
+
+    function generateObjectNewIns(bir:NewInstance objectNewIns) {
+        string className = self.currentPackageName + cleanupTypeName(objectNewIns.typeDef.name.value);
+        self.mv.visitTypeInsn(NEW, className);
+        self.mv.visitInsn(DUP);
+        loadType(self.mv, objectNewIns.typeDef.typeValue);
+        self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+        self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
+        self.generateVarStore(objectNewIns.lhsOp.variableDcl);
+
+        // todo : check if this is a new service object creation and process its annotation
+        boolean isServiceType = false;
+
+        if (isServiceType) {
+            string varName = "#0";
+            string pkgClassName = lookupFullQualifiedClassName(self.currentPackageName + varName);
+            self.mv.visitFieldInsn(GETSTATIC, pkgClassName, varName, io:sprintf("L%s;", MAP_VALUE));
+            loadType(self.mv, objectNewIns.typeDef.typeValue);
+            self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+            self.mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processObjectAnnotations",
+                                        io:sprintf("(L%s;L%s;)V", MAP_VALUE, OBJECT_TYPE), false);
+        }
     }
 };
 

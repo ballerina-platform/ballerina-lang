@@ -184,6 +184,8 @@ public class DefinitionTest {
                 {"defRecord1.json", "record"},
                 {"defError1.json", "error"},
                 {"defWaitExpression1.json", "waitexpression"},
+                {"defExpressionConnectorInit.json", "expression"},
+                {"defExpressionNamedArgs.json", "expression"},
         };
     }
     

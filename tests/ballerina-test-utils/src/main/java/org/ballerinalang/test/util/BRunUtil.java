@@ -19,16 +19,26 @@ package org.ballerinalang.test.util;
 
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
+import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BObjectType;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -46,7 +56,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Utility methods for run Ballerina functions.
@@ -212,12 +225,7 @@ public class BRunUtil {
      * @return return values of the function
      */
     public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args) {
-        BValue[] response;
-        if (BCompileUtil.jBallerinaTestsEnabled()) {
-            response = invokeOnJBallerina(compileResult, functionName, args);
-        } else {
-            response = invokeFunction(compileResult, functionName, args);
-        }
+        BValue[] response = invokeFunction(compileResult, functionName, args);
         return spreadToBValueArray(response);
     }
 
@@ -251,7 +259,6 @@ public class BRunUtil {
         Class<?>[] jvmParamTypes = new Class[bvmParamTypes.size() + 1];
         Object[] jvmArgs = new Object[bvmParamTypes.size() + 1];
         jvmParamTypes[0] = Strand.class;
-        jvmArgs[0] = new Strand();
 
         for (int i = 0; i < bvmParamTypes.size(); i++) {
             org.wso2.ballerinalang.compiler.semantics.model.types.BType type = bvmParamTypes.get(i);
@@ -286,8 +293,25 @@ public class BRunUtil {
 
         try {
             Method method = clazz.getDeclaredMethod(functionName, jvmParamTypes);
-            jvmResult = method.invoke(null, jvmArgs);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            Function<Object[], Object> func = a -> {
+                try {
+                    return method.invoke(null, a);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+                } catch (InvocationTargetException e) {
+                    Throwable t = e.getTargetException();
+                    if (t instanceof BLangRuntimeException) {
+                        throw (BLangRuntimeException) t;
+                    }
+                    throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+                }
+            };
+
+            Scheduler scheduler = new Scheduler();
+            FutureValue futureValue = scheduler.schedule(jvmArgs, func);
+            scheduler.execute();
+            jvmResult = futureValue.result;
+        } catch (NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
         }
 
@@ -310,7 +334,7 @@ public class BRunUtil {
                 org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 BValueArray array = (BValueArray) value;
-                ArrayValue jvmArray = new ArrayValue(getJVMType(arrayType.eType));
+                ArrayValue jvmArray = new ArrayValue(getJVMType(arrayType));
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.eType.tag) {
                         case TypeTags.INT_TAG:
@@ -351,6 +375,11 @@ public class BRunUtil {
                 return org.ballerinalang.jvm.types.BTypes.typeString;
             case TypeTags.FLOAT_TAG:
                 return org.ballerinalang.jvm.types.BTypes.typeFloat;
+            case TypeTags.ARRAY_TAG:
+                org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
+                        (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
+                org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());
+                return new org.ballerinalang.jvm.types.BArrayType(elementType);
             default:
                 throw new RuntimeException("Function argument for type '" + type + "' is not supported");
         }
@@ -377,7 +406,7 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
                 org.ballerinalang.jvm.types.BArrayType arrayType = (org.ballerinalang.jvm.types.BArrayType) type;
 
-                ArrayValue array = ((ArrayValue) value);
+                ArrayValue array = (ArrayValue) value;
                 BValueArray bvmArray = new BValueArray(getBVMType(arrayType.getElementType()));
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.getElementType().getTag()) {
@@ -388,7 +417,7 @@ public class BRunUtil {
                             bvmArray.add(i, array.getByte(i));
                             break;
                         case TypeTags.BOOLEAN_TAG:
-                            bvmArray.add(i, array.getBoolean(i));
+                            bvmArray.add(i, array.getBoolean(i) ? 1 : 0);
                             break;
                         case TypeTags.STRING_TAG:
                             bvmArray.add(i, array.getString(i));
@@ -403,12 +432,29 @@ public class BRunUtil {
                 }
                 return bvmArray;
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
+            case org.ballerinalang.jvm.types.TypeTags.JSON_TAG:
+            case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
                 MapValue jvmMap = (MapValue) value;
                 BMap bmap = new BMap(getBVMType(jvmMap.getType()));
                 for (Object key : jvmMap.keySet()) {
                     bmap.put(key, getBVMValue(jvmMap.get(key)));
                 }
                 return bmap;
+            case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
+                ErrorValue errorValue = (ErrorValue) value;
+                BRefType<?> details = getBVMValue(errorValue.getDetails());
+                return new BError(getBVMType(errorValue.getType()), errorValue.getReason(), details);
+            case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
+                return null;
+            case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
+                ObjectValue jvmObject = (ObjectValue) value;
+                org.ballerinalang.jvm.types.BObjectType jvmObjectType = jvmObject.getType();
+                BMap<String, BRefType<?>> bvmObject = new BMap<>(getBVMType(jvmObjectType));
+
+                for (String key : jvmObjectType.getFields().keySet()) {
+                    bvmObject.put(key, getBVMValue(jvmObject.get(key)));
+                }
+                return bvmObject;
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
@@ -440,8 +486,30 @@ public class BRunUtil {
                 return BTypes.typeAny;
             case org.ballerinalang.jvm.types.TypeTags.ANYDATA_TAG:
                 return BTypes.typeAnydata;
+            case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
+                return BTypes.typeError;
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
-                return BTypes.typeMap;
+                org.ballerinalang.jvm.types.BRecordType recordType = (org.ballerinalang.jvm.types.BRecordType) jvmType;
+                BRecordType bvmRecordType =
+                        new BRecordType(null, recordType.getName(), recordType.getPackagePath(), recordType.flags);
+                return bvmRecordType;
+            case org.ballerinalang.jvm.types.TypeTags.JSON_TAG:
+                return BTypes.typeJSON;
+            case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
+                org.ballerinalang.jvm.types.BMapType mapType = (org.ballerinalang.jvm.types.BMapType) jvmType;
+                return new BMapType(getBVMType(mapType.getConstrainedType()));
+            case org.ballerinalang.jvm.types.TypeTags.UNION_TAG:
+                return BTypes.typePureType;
+            case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
+                org.ballerinalang.jvm.types.BObjectType objectType = (org.ballerinalang.jvm.types.BObjectType) jvmType;
+                BObjectType bvmObjectType =
+                        new BObjectType(null, objectType.getName(), objectType.getPackagePath(), objectType.flags);
+                Map<String, BField> fields = new HashMap<>();
+                for (org.ballerinalang.jvm.types.BField field : objectType.getFields().values()) {
+                    fields.put(field.name, new BField(getBVMType(field.type), field.name, field.flags));
+                }
+                bvmObjectType.setFields(fields);
+                return bvmObjectType;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }
@@ -469,6 +537,10 @@ public class BRunUtil {
      * @return return values of the function
      */
     public static BValue[] invokeFunction(CompileResult compileResult, String functionName, BValue[] args) {
+        if (BCompileUtil.jBallerinaTestsEnabled()) {
+            return invokeOnJBallerina(compileResult, functionName, args);
+        }
+
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException(compileResult.toString());
         }
@@ -481,7 +553,6 @@ public class BRunUtil {
         if (functionInfo == null) {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
-
 
         return BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
     }

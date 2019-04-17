@@ -362,6 +362,6 @@ function getParticipantId(string transactionBlockId) returns string {
     return participantId;
 }
 
-extern function getAvailablePort() returns int;
+function getAvailablePort() returns int = external;
 
-extern function getHostAddress() returns string;
+function getHostAddress() returns string = external;

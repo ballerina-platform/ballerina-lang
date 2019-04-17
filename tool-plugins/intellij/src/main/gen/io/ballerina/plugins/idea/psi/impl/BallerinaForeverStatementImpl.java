@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaForeverStatementImpl extends BallerinaCompositeElementImpl implements BallerinaForeverStatement {
+public class BallerinaForeverStatementImpl extends ASTWrapperPsiElement implements BallerinaForeverStatement {
 
   public BallerinaForeverStatementImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaForeverStatementImpl extends BallerinaCompositeElementImpl
   @Override
   @Nullable
   public BallerinaForeverStatementBody getForeverStatementBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaForeverStatementBody.class);
+    return findChildByClass(BallerinaForeverStatementBody.class);
   }
 
   @Override
@@ -62,7 +63,7 @@ public class BallerinaForeverStatementImpl extends BallerinaCompositeElementImpl
   @Override
   @NotNull
   public PsiElement getForever() {
-    return notNullChild(findChildByType(FOREVER));
+    return findNotNullChildByType(FOREVER);
   }
 
 }

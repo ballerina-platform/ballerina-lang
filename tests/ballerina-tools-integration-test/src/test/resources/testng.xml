@@ -27,6 +27,7 @@
         <classes>
             <class name="org.ballerinalang.test.packaging.ConfigTestCase"/>
             <class name="org.ballerinalang.test.packaging.DocGenTestCase"/>
+            <class name="org.ballerinalang.test.packaging.ExecuteTestsNegativeTestCase"/>
             <class name="org.ballerinalang.test.packaging.ImportModuleTestCase"/>
             <class name="org.ballerinalang.test.packaging.ListDependencyTestCase"/>
             <class name="org.ballerinalang.test.packaging.RepoHierarchyTestCase"/>
@@ -39,7 +40,7 @@
             <class name="org.ballerinalang.test.packaging.RunTopLevelBalInProjectTestCase"/>
             <class name="org.ballerinalang.test.packaging.SingleBalBuildTestCase"/>
             <class name="org.ballerinalang.test.packaging.TestExecutionTestCase"/>
-            <class name="org.ballerinalang.test.grpc.ServicePackagingTestCase"/>
+            <!-- <class name="org.ballerinalang.test.grpc.ServicePackagingTestCase"/> -->
         </classes>
     </test>
 

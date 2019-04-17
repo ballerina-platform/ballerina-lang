@@ -16,6 +16,8 @@ dependencies {
     implementation project(':ballerina-sql')
     implementation project(':ballerina-h2')
     implementation project(":ballerina-launcher")
+    implementation 'io.ballerina.messaging:broker-core'
+    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
@@ -43,11 +45,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
 
-    implementation 'io.ballerina.messaging:broker-core:0.970.5'
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.275'
-
-    testCompile 'org.slf4j:slf4j-simple:1.7.22'
-    testCompile 'org.testng:testng:6.13.1'
+    testCompile 'org.slf4j:slf4j-simple'
+    testCompile 'org.testng:testng'
 }
 
 test {

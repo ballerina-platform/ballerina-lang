@@ -117,3 +117,23 @@ function testXMLStartTag() returns (xml, xml, xml, xml) {
     xml x4 = xml `<_-foo id="hello ${ 3 + 6 / 3}" >hello</_-foo>`;
     return (x1, x2, x3, x4);
 }
+
+function testXMLLiteralWithEscapeSequence() returns (xml, string[], int, any[]) {
+    xml x1 = xml `hello &lt; &gt; &amp;`;
+    int i = 0;
+    string[] strs = [];
+    foreach string|xml e in x1 {
+        if e is string {
+            strs[i] = e;
+            i += 1;
+        }
+    }
+
+    any[] elements = [];
+    i = 0;
+    foreach var e in x1.elements() {
+        elements[i] = e;
+        i += 1;
+    }
+    return (x1, strs, x1.elements().length(), elements);
+}

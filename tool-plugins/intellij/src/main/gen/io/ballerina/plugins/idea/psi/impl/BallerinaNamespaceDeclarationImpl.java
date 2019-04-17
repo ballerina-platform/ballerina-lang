@@ -24,15 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import io.ballerina.plugins.idea.stubs.BallerinaNamespaceDeclarationStub;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
-import com.intellij.psi.stubs.IStubElementType;
 
-public class BallerinaNamespaceDeclarationImpl extends BallerinaNamedElementImpl<BallerinaNamespaceDeclarationStub> implements BallerinaNamespaceDeclaration {
-
-  public BallerinaNamespaceDeclarationImpl(@NotNull BallerinaNamespaceDeclarationStub stub, @NotNull IStubElementType type) {
-    super(stub, type);
-  }
+public class BallerinaNamespaceDeclarationImpl extends ASTWrapperPsiElement implements BallerinaNamespaceDeclaration {
 
   public BallerinaNamespaceDeclarationImpl(@NotNull ASTNode node) {
     super(node);
@@ -74,7 +69,7 @@ public class BallerinaNamespaceDeclarationImpl extends BallerinaNamedElementImpl
   @Override
   @NotNull
   public PsiElement getXmlns() {
-    return notNullChild(findChildByType(XMLNS));
+    return findNotNullChildByType(XMLNS);
   }
 
 }

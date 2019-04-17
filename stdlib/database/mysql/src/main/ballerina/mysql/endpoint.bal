@@ -127,4 +127,4 @@ public type Client client object {
     }
 };
 
-extern function createClient(ClientEndpointConfig config, sql:PoolOptions globalPoolOptions) returns sql:Client;
+function createClient(ClientEndpointConfig config, sql:PoolOptions globalPoolOptions) returns sql:Client = external;

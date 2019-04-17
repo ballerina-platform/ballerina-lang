@@ -40,8 +40,8 @@ public type Listener object {
         return self.stop();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.register(s, name);
     }
 
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
@@ -56,19 +56,20 @@ public type Listener object {
     # + c - Configurations for HTTP service endpoints
     public function init(ServiceEndpointConfiguration c);
 
-    public extern function initEndpoint() returns error?;
+    public function initEndpoint() returns error? = external;
 
     # Gets invoked when attaching a service to the endpoint.
     #
     # + s - The service that needs to be attached
+    # + name - Name of the service
     # + return - An `error` if there is any error occured during the service attachment process or else nil
-    extern function register(service s, map<any> annotationData) returns error?;
+    function register(service s, string? name) returns error? = external;
 
     # Starts the registered service.
-    extern function start();
+    function start() = external;
 
     # Stops the registered service.
-    extern function stop();
+    function stop() = external;
 };
 
 public function Listener.init(ServiceEndpointConfiguration c) {
@@ -380,8 +381,8 @@ public type WebSocketListener object {
         return self.httpEndpoint.stop();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.httpEndpoint.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.httpEndpoint.register(s, name);
     }
 
 

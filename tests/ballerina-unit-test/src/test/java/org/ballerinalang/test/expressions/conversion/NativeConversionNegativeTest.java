@@ -59,7 +59,7 @@ public class NativeConversionNegativeTest {
 
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible convert operation: 'json' value cannot be converted as 'Person'");
     }
 
@@ -67,7 +67,7 @@ public class NativeConversionNegativeTest {
     public void testEmptyJSONtoStructWithoutDefaults() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyJSONtoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible convert operation: 'json' value cannot be converted as "
                 + "'StructWithoutDefaults'");
     }
@@ -76,7 +76,7 @@ public class NativeConversionNegativeTest {
     public void testEmptyMaptoStructWithDefaults() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible convert operation: 'map' value cannot be converted as "
                 + "'StructWithDefaults'");
     }
@@ -85,7 +85,7 @@ public class NativeConversionNegativeTest {
     public void testEmptyMaptoStructWithoutDefaults() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible convert operation: 'map' value cannot be converted as "
                 + "'StructWithoutDefaults'");
     }
@@ -93,7 +93,7 @@ public class NativeConversionNegativeTest {
     @Test(description = "Test performing an invalid tuple conversion")
     public void testTupleConversionFail() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testTupleConversionFail");
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible convert operation: '(T1,T1)' value cannot be converted as '(T1," 
                 + "T2)'");
     }
@@ -102,7 +102,7 @@ public class NativeConversionNegativeTest {
     public void testArrayToJsonFail() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testArrayToJsonFail");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible convert operation: 'TX[]' value cannot be converted as 'json'");
     }
 
@@ -139,7 +139,7 @@ public class NativeConversionNegativeTest {
     public void testIncompatibleImplicitConversion() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testIncompatibleImplicitConversion");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible convert operation: 'string' value 'abjd' cannot be converted as "
                 + "'int'");
     }
@@ -149,7 +149,7 @@ public class NativeConversionNegativeTest {
         BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToRecordWithCyclicValueReferences");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
                             "'Manager' value has cyclic reference");
     }
 
@@ -158,7 +158,7 @@ public class NativeConversionNegativeTest {
         BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToMapWithCyclicValueReferences");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
                             "'Manager' value has cyclic reference");
     }
 
@@ -167,7 +167,7 @@ public class NativeConversionNegativeTest {
         BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToJsonWithCyclicValueReferences");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
                             "'Manager' value has cyclic reference");
     }
 }

@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaVariableDefinitionStatementWithoutAssignment extends BallerinaCompositeElement {
+public interface BallerinaVariableDefinitionStatementWithoutAssignment extends PsiElement {
 
   @NotNull
   BallerinaTypeName getTypeName();

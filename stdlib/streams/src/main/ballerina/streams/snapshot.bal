@@ -49,12 +49,12 @@ map<boolean> loadedStates = {};
 # Native function to deserialize a serialized snapshot.
 # + str - A `string` of serialized content.
 # + return - A deserialized `map<any>` state.
-extern function deserialize(string str) returns map<any>;
+function deserialize(string str) returns map<any> = external;
 
 # Native function to serialize a snapshot.
 # + data - A `map<any>` state to be serialized.
 # + return - A `string` of serialized state.
-extern function serialize(map<any> data) returns string;
+function serialize(map<any> data) returns string = external;
 
 # Function to read given number of characters from an io:ReadableCharacterChannel.
 # + rch - A `ReadableCharacterChannel` instance.

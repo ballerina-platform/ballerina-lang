@@ -50,7 +50,7 @@ public class BallerinaBinaryAndExpressionImpl extends BallerinaBinaryExpressionI
   @Override
   @NotNull
   public PsiElement getAnd() {
-    return notNullChild(findChildByType(AND));
+    return findNotNullChildByType(AND);
   }
 
 }

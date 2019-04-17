@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRestRefBindingPatternImpl extends BallerinaCompositeElementImpl implements BallerinaRestRefBindingPattern {
+public class BallerinaRestRefBindingPatternImpl extends ASTWrapperPsiElement implements BallerinaRestRefBindingPattern {
 
   public BallerinaRestRefBindingPatternImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaRestRefBindingPatternImpl extends BallerinaCompositeElemen
   @Override
   @Nullable
   public BallerinaSealedLiteral getSealedLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaSealedLiteral.class);
+    return findChildByClass(BallerinaSealedLiteral.class);
   }
 
   @Override
   @Nullable
   public BallerinaVariableReference getVariableReference() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class);
+    return findChildByClass(BallerinaVariableReference.class);
   }
 
   @Override

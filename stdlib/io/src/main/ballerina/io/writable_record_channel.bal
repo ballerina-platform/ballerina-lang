@@ -36,17 +36,17 @@ public type WritableTextRecordChannel object {
     # + fieldSeparator - Field separator which will separate between fields
     # + recordSeparator - Record separator which will separate between records
     # + fmt - Format which will be used to represent the type of record i.e csv
-    extern function init(WritableCharacterChannel cChannel, string fieldSeparator,
-                         string recordSeparator, string fmt);
+    function init(WritableCharacterChannel cChannel, string fieldSeparator,
+                  string recordSeparator, string fmt) = external;
 
     # Writes records to a given output resource.
 
     # + textRecord - List of fields to be written
     # + return - An error if the records could not be written properly
-    public extern function write(string[] textRecord) returns error?;
+    public function write(string[] textRecord) returns error? = external;
 
     # Closes a given record channel.
 
     # + return - An error if the record channel could not be closed properly
-    public extern function close() returns error?;
+    public function close() returns error? = external;
 };

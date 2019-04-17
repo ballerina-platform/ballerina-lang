@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -43,8 +44,8 @@ import java.util.stream.Stream;
 public class BMainInstance implements BMain {
     private static final Logger log = LoggerFactory.getLogger(BMainInstance.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
+    private String agentArgs = "";
     private BalServer balServer;
-    private String agentArgs;
 
     public BMainInstance(BalServer balServer) throws BallerinaTestException {
         this.balServer = balServer;
@@ -181,6 +182,9 @@ public class BMainInstance implements BMain {
             return;
         }
         javaOpts = agentArgs + javaOpts;
+        if ("".equals(javaOpts)) {
+            return;
+        }
         envProperties.put(JAVA_OPTS, javaOpts);
     }
 
@@ -264,7 +268,7 @@ public class BMainInstance implements BMain {
      * @throws BallerinaTestException if starting services failed or if an error occurs when reading the stdout
      */
     public String runMainAndReadStdOut(String command, String[] args, String commandDir) throws BallerinaTestException {
-        return runMainAndReadStdOut(command, args, new HashMap<>(), commandDir);
+        return runMainAndReadStdOut(command, args, new HashMap<>(), commandDir, false);
     }
 
     /**
@@ -274,11 +278,12 @@ public class BMainInstance implements BMain {
      * @param args          command line arguments to pass when executing the sh or bat file
      * @param envProperties environmental properties to be appended to the environment
      * @param commandDir    where to execute the command
+     * @param readErrStream whether to read the error stream or input stream
      * @return logs printed to std out
      * @throws BallerinaTestException if starting services failed or if an error occurs when reading the stdout
      */
     public String runMainAndReadStdOut(String command, String[] args, Map<String, String> envProperties,
-                                       String commandDir) throws BallerinaTestException {
+                                       String commandDir, boolean readErrStream) throws BallerinaTestException {
         String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
         try {
@@ -303,7 +308,8 @@ public class BMainInstance implements BMain {
             Thread.sleep(5000);
 
             String output = "";
-            try (InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
+            InputStream inputStream = readErrStream ? process.getErrorStream() : process.getInputStream();
+            try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                  BufferedReader buffer = new BufferedReader(inputStreamReader)) {
                 output = buffer.lines().collect(Collectors.joining("\n"));
             } catch (Exception e) {

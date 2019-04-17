@@ -145,7 +145,7 @@
                 <include>org.ballerinalang:language-server-compiler:jar</include>
                 <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:protobuf-ballerina:jar</include>
-                <include>org.ballerinalang:ballerina-codegen:jar</include>
+                <include>org.ballerinalang:ballerina-client-generator:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
                 <include>com.fasterxml.jackson.core:jackson-databind</include>
                 <include>com.fasterxml.jackson.core:jackson-core</include>

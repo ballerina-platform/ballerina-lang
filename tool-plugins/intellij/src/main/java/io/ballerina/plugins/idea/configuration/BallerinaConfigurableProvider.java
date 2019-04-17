@@ -22,8 +22,6 @@ import com.intellij.openapi.options.ConfigurableProvider;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.openapi.project.Project;
-import io.ballerina.plugins.idea.codeinsight.imports.BallerinaAutoImportConfigurable;
-import io.ballerina.plugins.idea.codeinsight.recursivesearch.BallerinaRecursiveReferenceSearchConfigurable;
 import io.ballerina.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerConfigurable;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.Nls;
@@ -48,16 +46,11 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
         //        Configurable projectSettingsConfigurable = new BallerinaProjectSettingsConfigurable(myProject);
         Configurable librariesConfigurable = new BallerinaLibrariesConfigurableProvider(myProject).createConfigurable();
         Configurable sdkConfigurable = BallerinaSdkService.getInstance(myProject).createSdkConfigurable();
-        Configurable autoImportConfigurable = new BallerinaAutoImportConfigurable(myProject, false);
         Configurable semanticAnalyzerConfigurable = new BallerinaSemanticAnalyzerConfigurable(myProject, false);
-        Configurable recursiveReferenceSearchConfigurable = new BallerinaRecursiveReferenceSearchConfigurable
-                (myProject, false);
         BallerinaCompositeConfigurable configurableWithSDK = new BallerinaCompositeConfigurable(sdkConfigurable,
-                librariesConfigurable, autoImportConfigurable, semanticAnalyzerConfigurable,
-                recursiveReferenceSearchConfigurable);
-        BallerinaCompositeConfigurable configurableWithoutSDK = new BallerinaCompositeConfigurable
-                (librariesConfigurable, autoImportConfigurable, semanticAnalyzerConfigurable,
-                        recursiveReferenceSearchConfigurable);
+                librariesConfigurable, semanticAnalyzerConfigurable);
+        BallerinaCompositeConfigurable configurableWithoutSDK = new BallerinaCompositeConfigurable(
+                librariesConfigurable, semanticAnalyzerConfigurable);
 
         return sdkConfigurable != null ? configurableWithSDK : configurableWithoutSDK;
     }

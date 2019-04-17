@@ -139,6 +139,7 @@ public class BValueArray extends BNewArray implements Serializable {
             } else {
                 refValues = (BRefType[]) newArrayInstance(BRefType.class);
                 Arrays.fill(refValues, type.getZeroValue());
+                setArrayElementType(type);
             }
         }
     }

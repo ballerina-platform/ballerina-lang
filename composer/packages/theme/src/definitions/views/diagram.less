@@ -149,6 +149,13 @@
                         font-size: @diagram-statement-font-size;
                         .expander {
                             visibility: hidden;
+                            .circle {
+                                fill: ~"@{@{color}-diagram-expanded-func-frame-color}";
+                                cursor: pointer;
+                            }
+                            text {
+                                cursor: pointer;
+                            }
                         }
                     }
                     .statement:hover > .expander {

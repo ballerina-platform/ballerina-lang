@@ -46,7 +46,7 @@ boolean hubPersistenceEnabled = false;
 # + hubServiceListener - The `http:Listener` to which the service is attached
 function startHubService(http:Listener hubServiceListener) {
     // TODO : handle errors
-    checkpanic hubServiceListener.__attach(hubService, {});
+    checkpanic hubServiceListener.__attach(hubService);
     checkpanic hubServiceListener.__start();
 }
 

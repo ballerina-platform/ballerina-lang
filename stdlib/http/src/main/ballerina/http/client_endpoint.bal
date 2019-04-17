@@ -244,10 +244,11 @@ public type ClientEndpointConfig record {|
     AuthConfig? auth = ();
 |};
 
-extern function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
-                                        returns Client;
 
-# Provides configurations for controlling the retry behaviour in failure scenarios.
+function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
+                    returns Client = external;
+
+# Provides configurations for controlling the retrying behavior in failure scenarios.
 #
 # + count - Number of retry attempts before giving up
 # + interval - Retry interval in milliseconds
@@ -318,7 +319,7 @@ public type ProxyConfig record {|
     string password = "";
 |};
 
-# AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.
+# The `AuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.
 #
 # + scheme - Authentication scheme
 # + config - Configuration related to the selected authenticator.
@@ -327,7 +328,7 @@ public type AuthConfig record {|
     BasicAuthConfig|OAuth2AuthConfig|JwtAuthConfig config?;
 |};
 
-# BasicAuthConfig record can be used to configure Basic Authentication used by the HTTP endpoint.
+# The `BasicAuthConfig` record can be used to configure Basic Authentication used by the HTTP endpoint.
 #
 # + username - Username for Basic authentication
 # + password - Password for Basic authentication
@@ -336,32 +337,104 @@ public type BasicAuthConfig record {|
     string password;
 |};
 
-# OAuth2AuthConfig record can be used to configure OAuth2 based authentication used by the HTTP endpoint.
+# The `OAuth2AuthConfig` record can be used to configure OAuth2 based authentication used by the HTTP endpoint.
 #
-# + accessToken - Access token for OAuth2 authentication
-# + refreshToken - Refresh token for OAuth2 authentication
-# + refreshUrl - Refresh token URL for OAuth2 authentication
-# + consumerKey - Consumer key for OAuth2 authentication
-# + consumerSecret - Consumer secret for OAuth2 authentication
-# + tokenUrl - Token URL for OAuth2 authentication
-# + clientId - Clietnt ID for OAuth2 authentication
-# + clientSecret - Client secret for OAuth2 authentication
-# + credentialBearer - How client authentication is sent to refresh access token (AuthHeaderBearer, PostBodyBearer)
-# + scopes - Scope of the access request
+# + grantType - OAuth2 grant type
+# + config - Configurations for the given grant type
 public type OAuth2AuthConfig record {|
-    string accessToken = "";
-    string refreshToken = "";
-    string refreshUrl = "";
-    string consumerKey = "";
-    string consumerSecret = "";
-    string tokenUrl = "";
-    string clientId = "";
-    string clientSecret = "";
-    string[] scopes = [];
+    OAuth2GrantType grantType;
+    ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig config;
+|};
+
+# The `ClientCredentialsGrantConfig` record can be used to configue OAuth2 client credentials grant type.
+#
+# + tokenUrl - Token URL for the authorization server
+# + clientId - Client ID for the client credentials grant authentication
+# + clientSecret - Client secret for the client credentials grant authentication
+# + scopes - Scope of the access request
+# + clockSkew - Clock skew in seconds
+# + retryRequest - Retry the request if the initial request returns a 401 response
+# + credentialBearer - How authentication credentials are sent to the authorization server
+public type ClientCredentialsGrantConfig record {|
+    string tokenUrl;
+    string clientId;
+    string clientSecret;
+    string[] scopes?;
+    int clockSkew = 0;
+    boolean retryRequest = true;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
 |};
 
-# JwtAuthConfig record can be used to configure JWT based authentication used by the HTTP endpoint.
+# The `PasswordGrantConfig` record can be used to configue OAuth2 password grant type
+#
+# + tokenUrl - Token URL for the authorization server
+# + username - Username for password grant authentication
+# + password - Password for password grant authentication
+# + clientId - Client ID for password grant authentication
+# + clientSecret - Client secret for password grant authentication
+# + scopes - Scope of the access request
+# + refreshConfig - Configurations for refreshing the access token
+# + clockSkew - Clock skew in seconds
+# + retryRequest - Retry the request if the initial request returns a 401 response
+# + credentialBearer - How authentication credentials are sent to the authorization server
+public type PasswordGrantConfig record {|
+    string tokenUrl;
+    string username;
+    string password;
+    string clientId?;
+    string clientSecret?;
+    string[] scopes?;
+    RefreshConfig refreshConfig?;
+    int clockSkew = 0;
+    boolean retryRequest = true;
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+|};
+
+# The `DirectTokenConfig` record configures the access token directly.
+#
+# + accessToken - Access token for the authorization server
+# + refreshConfig - Configurations for refreshing the access token
+# + clockSkew - Clock skew in seconds
+# + retryRequest - Retry the request if the initial request returns a 401 response
+# + credentialBearer - How authentication credentials are sent to the authorization server
+public type DirectTokenConfig record {|
+    string accessToken?;
+    DirectTokenRefreshConfig refreshConfig?;
+    int clockSkew = 0;
+    boolean retryRequest = true;
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+|};
+
+# The `RefreshConfig` record can be used to pass the configurations for refreshing the access token of password grant type.
+#
+# + refreshUrl - Refresh token URL for the refresh token server
+# + scopes - Scope of the access request
+# + credentialBearer - How authentication credentials are sent to the authorization server
+public type RefreshConfig record {|
+    string refreshUrl;
+    string[] scopes?;
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+|};
+
+# The `DirectTokenRefreshConfig` record passes the configurations for refreshing the access token for 
+# the grant type of the direct token grant type.
+#
+# + refreshUrl - Refresh token URL for the refresh token server
+# + refreshToken - Refresh token for the refresh token server
+# + clientId - Client ID for authentication with the authorization server
+# + clientSecret - Client secret for authentication with the authorization server
+# + scopes - Scope of the access request
+# + credentialBearer - How authentication credentials are sent to the authorization server
+public type DirectTokenRefreshConfig record {|
+    string refreshUrl;
+    string refreshToken;
+    string clientId;
+    string clientSecret;
+    string[] scopes?;
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+|};
+
+# The `JwtAuthConfig` record can be used to configure JWT based authentication used by the HTTP endpoint.
 #
 # + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
 public type JwtAuthConfig record {|

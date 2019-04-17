@@ -180,7 +180,7 @@ public class BuildCommand implements BLauncherCmd {
 
             if (jvmTarget) {
                 BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-                        offline, lockEnabled, skiptests, experimentalFlag);
+                        offline, lockEnabled, skiptests, experimentalFlag, dumpBIR);
             } else {
                 BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                         offline, lockEnabled, skiptests, experimentalFlag);
@@ -228,10 +228,6 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-    }
-
-    @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
     }
 
     private void genNativeBinary(Path projectDirPath, List<String> argList) {

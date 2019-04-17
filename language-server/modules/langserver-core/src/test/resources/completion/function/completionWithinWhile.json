@@ -118,25 +118,36 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "worker",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "190",
+      "insertText": "worker ${1:name} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testDb",
       "kind": "Variable",
       "detail": "ballerina/h2:Client",
       "sortText": "110",
-      "insertText": "testDb"
+      "insertText": "testDb",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "channel",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "channel"
+      "insertText": "channel",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "conf",
       "kind": "Variable",
       "detail": "ballerina/h2:InMemoryConfig",
       "sortText": "110",
-      "insertText": "conf"
+      "insertText": "conf",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "initiateNestedTransactionInRemote(string nestingMethod)(string)",
@@ -157,7 +168,8 @@
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "xml"
+      "insertText": "xml",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table\u003c$anonType$builtin$8\u003e)",
@@ -166,7 +178,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _joinTable_  \n    The table which is joined with \u0027fromTable\u0027  \n  \n- _parameters_  \n    liternal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n"
+          "value": "markdown**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _joinTable_  \n    The table which is joined with \u0027fromTable\u0027  \n  \n- _parameters_  \n    liternal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable"
         }
       },
       "sortText": "120",
@@ -181,14 +193,16 @@
         "left": "TableConfig represents properties used during table initialization.\n"
       },
       "sortText": "170",
-      "insertText": "TableConfig"
+      "insertText": "TableConfig",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "byte",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "byte"
+      "insertText": "byte",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table\u003c$anonType$builtin$10\u003e)",
@@ -197,7 +211,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _parameters_  \n    literal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n"
+          "value": "markdown**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _parameters_  \n    literal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable"
         }
       },
       "sortText": "120",
@@ -223,70 +237,80 @@
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "stream"
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "AbstractListener",
       "kind": "Class",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "AbstractListener"
+      "insertText": "AbstractListener",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "map",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "map"
+      "insertText": "map",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "table",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "table"
+      "insertText": "table",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "anydata",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "anydata"
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "a",
       "kind": "Variable",
       "detail": "int",
       "sortText": "110",
-      "insertText": "a"
+      "insertText": "a",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "b",
       "kind": "Variable",
       "detail": "int",
       "sortText": "110",
-      "insertText": "b"
+      "insertText": "b",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "future",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "future"
+      "insertText": "future",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "typedesc",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "typedesc"
+      "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "float",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "float"
+      "insertText": "float",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "divideNumbers(int a, int b)(int|error)",
@@ -307,42 +331,48 @@
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "null"
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "decimal",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "decimal"
+      "insertText": "decimal",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "string",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "string"
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "error",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "error"
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "json",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "json"
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "checkValue",
       "kind": "Variable",
       "detail": "int",
       "sortText": "110",
-      "insertText": "checkValue"
+      "insertText": "checkValue",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "functionForkJoin()(int)",
@@ -363,63 +393,72 @@
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "any"
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "int",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "int"
+      "insertText": "int",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "args",
       "kind": "Variable",
       "detail": "string[]",
       "sortText": "110",
-      "insertText": "args"
+      "insertText": "args",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "boolean",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "boolean"
+      "insertText": "boolean",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "service",
       "kind": "Keyword",
       "detail": "BType",
       "sortText": "170",
-      "insertText": "service"
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/h2",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "h2"
+      "insertText": "h2",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/io",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "io"
+      "insertText": "io",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/http",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "http"
+      "insertText": "http",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/log",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "log"
+      "insertText": "log",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/transactions",
@@ -427,6 +466,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "transactions",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -449,6 +489,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "websub",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -471,6 +512,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "grpc",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -493,6 +535,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "reflect",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -515,6 +558,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "time",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -537,6 +581,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "test",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -559,6 +604,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "runtime",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -576,33 +622,12 @@
       ]
     },
     {
-      "label": "ballerina/openapi",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "openapi",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 4,
-              "character": 0
-            },
-            "end": {
-              "line": 4,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/openapi;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/file",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
       "insertText": "file",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -625,6 +650,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "sql",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -647,6 +673,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "internal",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -664,11 +691,35 @@
       ]
     },
     {
+      "label": "ballerina/nats",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "nats",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 0
+            },
+            "end": {
+              "line": 4,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/nats;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/mysql",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
       "insertText": "mysql",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -691,6 +742,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "encoding",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -713,6 +765,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "mime",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -735,6 +788,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "task",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -757,6 +811,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "crypto",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -779,6 +834,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "artemis",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -801,6 +857,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "utils",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -823,6 +880,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "cache",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -845,6 +903,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "auth",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -867,6 +926,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "jms",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -889,6 +949,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "system",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -906,12 +967,26 @@
       ]
     },
     {
-      "label": "ballerina/builtin",
+      "label": "ballerina/openapi",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "builtin",
+      "insertText": "openapi",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 0
+            },
+            "end": {
+              "line": 4,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/openapi;\n"
+        }
       ]
     },
     {
@@ -920,6 +995,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "math",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
@@ -942,6 +1018,7 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "config",
+      "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {

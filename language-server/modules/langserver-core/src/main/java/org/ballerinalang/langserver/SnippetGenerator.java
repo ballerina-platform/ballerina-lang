@@ -116,16 +116,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Extern Keyword Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getExternKeywordSnippet() {
-        return new SnippetBlock(ItemResolverConstants.EXTERN_KEYWORD, "extern ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
-    }
-
-    /**
      * Get Import Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -433,6 +423,21 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get gRPC Service Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getGRPCServiceDefSnippet() {
+        ImmutablePair<String, String> grpcImport = new ImmutablePair<>("ballerina", "grpc");
+        String snippet = "service ${1:serviceName} on new grpc:Listener(9092) {" + CommonUtil.LINE_SEPARATOR +
+                "\tresource function ${2:newResource}(grpc:Caller caller, ${3:string} request) {" +
+                CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" +
+                CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.SERVICE_GRPC, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET, grpcImport);
+    }
+
+    /**
      * Get Panic Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -552,7 +557,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableMapSnippet() {
-        String snippet = "map(function(%params%) returns (any) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+        String snippet = "map(function (%params%) returns any {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "})";
 
         return new SnippetBlock(ItemResolverConstants.ITR_MAP_LABEL, snippet, "", SnippetType.SNIPPET);
@@ -622,6 +627,51 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getBuiltinStampSnippet() {
         return new SnippetBlock(ItemResolverConstants.BUILTIN_STAMP_LABEL, "stamp(${1})", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get hasKey Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinHasKeySnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_HASKEY_LABEL, "hasKey(${1})", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get remove Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinRemoveSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_REMOVE_LABEL, "remove(${1})", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get values Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinValuesSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_GET_VALUES_LABEL, "values()", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get keys Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinKeysSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_KEYS_LABEL, "keys()", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get clear Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinClearSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CLEAR_LABEL, "clear()", "", SnippetType.SNIPPET);
     }
 
     /**

@@ -50,7 +50,7 @@ public class BallerinaBitwiseShiftExpressionImpl extends BallerinaExpressionImpl
   @Override
   @NotNull
   public BallerinaShiftExpression getShiftExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaShiftExpression.class));
+    return findNotNullChildByClass(BallerinaShiftExpression.class);
   }
 
 }

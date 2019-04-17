@@ -41,6 +41,7 @@ public type TypeDef record {
 public type Function record {|
     int argsCount = 0;
     BasicBlock?[] basicBlocks = [];
+    ErrorEntry?[] errorEntries = [];
     boolean isDeclaration = false;
     VariableDcl?[] localVars = [];
     Name name = {};
@@ -52,6 +53,11 @@ public type BasicBlock record {|
     Name id = {};
     Instruction?[] instructions = [];
     Terminator terminator = {kind:"RETURN"};
+|};
+
+public type ErrorEntry record {|
+    BasicBlock trapBB;
+    VarRef errorOp;
 |};
 
 public type Name record {|
@@ -88,10 +94,14 @@ public const INS_KIND_NEW_ERROR = "NEW_ERROR";
 public const INS_KIND_TYPE_CAST = "TYPE_CAST";
 public const INS_KIND_IS_LIKE = "IS_LIKE";
 public const INS_KIND_TYPE_TEST = "TYPE_TEST";
+public const INS_KIND_OBJECT_STORE = "OBJECT_STORE";
+public const INS_KIND_OBJECT_LOAD = "OBJECT_LOAD";
 
-public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|INS_KIND_NEW_INST|INS_KIND_MAP_STORE|INS_KIND_NEW_ARRAY
-                                |INS_KIND_NEW_ERROR|INS_KIND_ARRAY_STORE|INS_KIND_MAP_LOAD|INS_KIND_ARRAY_LOAD
-                                |INS_KIND_TYPE_CAST|INS_KIND_IS_LIKE|INS_KIND_TYPE_TEST|BinaryOpInstructionKind;
+public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST | 
+                                INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
+                                INS_KIND_MAP_LOAD | INS_KIND_ARRAY_LOAD | INS_KIND_TYPE_CAST | INS_KIND_IS_LIKE |
+                                INS_KIND_TYPE_TEST | BinaryOpInstructionKind | INS_KIND_OBJECT_STORE |
+                                INS_KIND_OBJECT_LOAD;
 
 
 public const TERMINATOR_GOTO = "GOTO";
@@ -99,19 +109,31 @@ public const TERMINATOR_CALL = "CALL";
 public const TERMINATOR_ASYNC_CALL = "ASYNC_CALL";
 public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
+public const TERMINATOR_PANIC = "PANIC";
 
-public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL;
-
+public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
+                                |TERMINATOR_PANIC;
 
 //TODO try to make below details meta
-public type LocalVarKind "LOCAL";
-public type TempVarKind "TEMP";
-public type ReturnVarKind "RETURN";
-public type ArgVarKind "ARG";
-public type GlobalVarKind "GLOBAL";
+public const VAR_KIND_LOCAL = "LOCAL";
+public type LocalVarKind VAR_KIND_LOCAL;
 
+public const VAR_KIND_TEMP = "TEMP";
+public type TempVarKind VAR_KIND_TEMP;
 
-public type VarKind LocalVarKind | TempVarKind | ReturnVarKind | ArgVarKind | GlobalVarKind;
+public const VAR_KIND_RETURN = "RETURN";
+public type ReturnVarKind VAR_KIND_RETURN;
+
+public const VAR_KIND_ARG = "ARG";
+public type ArgVarKind VAR_KIND_ARG;
+
+public const VAR_KIND_GLOBAL = "GLOBAL";
+public type GlobalVarKind VAR_KIND_GLOBAL;
+
+public const VAR_KIND_SELF = "SELF";
+public type SelfVarKind VAR_KIND_SELF;
+
+public type VarKind LocalVarKind | TempVarKind | ReturnVarKind | ArgVarKind | GlobalVarKind | SelfVarKind;
 
 
 public const VAR_SCOPE_GLOBAL = "GLOBAL_SCOPE";
@@ -169,6 +191,9 @@ public type BTypeString TYPE_STRING;
 public const TYPE_BYTE = "byte";
 public type BTypeByte TYPE_BYTE;
 
+public const TYPE_JSON = "json";
+public type BJSONType TYPE_JSON;
+
 public type BArrayType record {|
     ArrayState state;
     BType eType;
@@ -194,6 +219,10 @@ public type BObjectType record {|
     Name name = {};
     BObjectField?[] fields = [];
     BAttachedFunction?[] attachedFunctions = [];
+|};
+
+public type Self record {|
+    BType bType;
 |};
 
 public type BAttachedFunction record {|
@@ -229,7 +258,7 @@ public type BFutureType record {|
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone | BFutureType;
+                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self;
 
 public type ModuleID record {|
     string org = "";
@@ -287,6 +316,13 @@ public type NewArray record {|
     BType typeValue;
 |};
 
+public type NewError record {|
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef reasonOp;
+    VarRef detailsOp;
+|};
+
 public type FieldAccess record {|
     InstructionKind kind;
     VarRef lhsOp;
@@ -338,6 +374,7 @@ public type Call record {|
     VarRef? lhsOp;
     ModuleID pkgID;
     Name name;
+    boolean isVirtual;
     BasicBlock thenBB;
 |};
 
@@ -366,9 +403,7 @@ public type Return record {|
     TerminatorKind kind;
 |};
 
-public type NewError record {|
-    InstructionKind kind;
-    VarRef lhsOp;
-    VarRef reasonOp;
-    VarRef detailsOp;
+public type Panic record {|
+    TerminatorKind kind;
+    VarRef errorOp;
 |};

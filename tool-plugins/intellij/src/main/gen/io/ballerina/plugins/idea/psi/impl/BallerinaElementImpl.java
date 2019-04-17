@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaElementImpl extends BallerinaCompositeElementImpl implements BallerinaElement {
+public class BallerinaElementImpl extends ASTWrapperPsiElement implements BallerinaElement {
 
   public BallerinaElementImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,25 +45,25 @@ public class BallerinaElementImpl extends BallerinaCompositeElementImpl implemen
   @Override
   @Nullable
   public BallerinaCloseTag getCloseTag() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCloseTag.class);
+    return findChildByClass(BallerinaCloseTag.class);
   }
 
   @Override
   @Nullable
   public BallerinaContent getContent() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaContent.class);
+    return findChildByClass(BallerinaContent.class);
   }
 
   @Override
   @Nullable
   public BallerinaEmptyTag getEmptyTag() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaEmptyTag.class);
+    return findChildByClass(BallerinaEmptyTag.class);
   }
 
   @Override
   @Nullable
   public BallerinaStartTag getStartTag() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaStartTag.class);
+    return findChildByClass(BallerinaStartTag.class);
   }
 
 }
