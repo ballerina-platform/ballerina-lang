@@ -4,7 +4,7 @@
 $ ./broker
 
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run jms_durable_topic_message_subscriber.bal
 # The JMS subscriber runs as a Ballerina service and listens to the subscribed topic.
 Initiating service(s) in 'jms_durable_topic_message_subscriber.bal'

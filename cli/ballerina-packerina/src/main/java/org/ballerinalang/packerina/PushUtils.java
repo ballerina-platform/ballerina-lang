@@ -133,7 +133,7 @@ public class PushUtils {
         // Always build if the flag is not given
         if (!noBuild) {
             BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, false,
-                    enableExperimentalFeatures);
+                    enableExperimentalFeatures, false);
         } else if (Files.notExists(pkgPathFromPrjtDir)) {
             // If --no-build is given, first check if the module artifact exists. If it does not exist prompt the user
             // to run "ballerina push" without the --no-build flag
