@@ -90,8 +90,10 @@ public class SingleBalBuildWithSiddhiRuntimeTestCase extends BaseTest {
     @Test(description = "Test building a bal file without the siddhiruntime flag")
     public void testBuildingWithoutSiddhiRuntime() throws Exception {
         String[] clientArgs = {"--experimental", Paths.get("sourcePkg", "main.bal").toString()};
+        LogLeecher[] clientLeecher = {new LogLeecher("error: .::main.bal:22:16: undefined symbol 'e1'",
+                                                     LogLeecher.LeecherType.ERROR)};
         balClient.runMain("build", clientArgs, envVariables, new String[]{},
-                          new LogLeecher[]{}, tempProjectDirectory.toString());
+                          clientLeecher, tempProjectDirectory.toString());
         Path generatedBalx = tempProjectDirectory.resolve("main.balx");
         Assert.assertFalse(Files.exists(generatedBalx));
     }
