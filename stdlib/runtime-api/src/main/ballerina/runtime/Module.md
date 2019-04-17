@@ -27,42 +27,42 @@ import ballerina/runtime;
 // Set data to the Invocation Context.
 
 // Set the username as ‘tom’.
-runtime:getInvocationContext().userPrincipal.username = "tom";
+runtime:getInvocationContext().principal.username = "tom";
 
 // Set claims.
-map claims = { email: "tom@ballerina.com", org: "wso2" };
-runtime:getInvocationContext().userPrincipal.claims = claims;
+map<any> claims = { email: "tom@ballerina.com", org: "wso2" };
+runtime:getInvocationContext().principal.claims = claims;
 
 // Set scopes.
 string[] scopes = ["email", "profile"];
-runtime:getInvocationContext().userPrincipal.scopes = scopes;
+runtime:getInvocationContext().principal.scopes = scopes;
 
 // Set auth scheme.
-runtime:getInvocationContext().authContext.scheme = "jwt";
+runtime:getInvocationContext().authenticationContext.scheme = "jwt";
 
 // Set auth token.
-runtime:getInvocationContext().authContext.authToken = "abc.pqr.xyz";
+runtime:getInvocationContext().authenticationContext.authToken = "abc.pqr.xyz";
 
 // Retrieve data from the invocation context.
 
 // Retrieve user name.
-string userName = runtime:getInvocationContext().userPrincipal.username;
+string userName = runtime:getInvocationContext().principal.username;
 io:println(userName);
 
 // Retrieve claims.
-map retrievedClaims = <map>runtime:getInvocationContext().userPrincipal.claims;
+map<any> retrievedClaims = runtime:getInvocationContext().principal.claims;
 io:println(retrievedClaims);
 
 // Retrieve scopes.
-string[] retrievedScopes = runtime:getInvocationContext().userPrincipal.scopes;
+string[] retrievedScopes = runtime:getInvocationContext().principal.scopes;
 io:println(retrievedScopes);
 
 // retrieve auth scheme.
-string authScheme = runtime:getInvocationContext().authContext.scheme;
+string authScheme = runtime:getInvocationContext().authenticationContext.scheme;
 io:println(authScheme);
 
 // Retrieve auth token.
-string token = runtime:getInvocationContext().authContext.authToken;
+string token = runtime:getInvocationContext().authenticationContext.authToken;
 io:println(token);
 ```
 
