@@ -361,7 +361,7 @@ public class LauncherUtils {
         BLangProgramRunner.resumeStates(programFile);
         listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
 
-        if (!programFile.isServiceEPAvailable()) {
+        if (exitCode != 0 || !programFile.isServiceEPAvailable()) {
             try {
                 ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
                 ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(10000, TimeUnit.MILLISECONDS);
