@@ -2452,7 +2452,7 @@
         <maven.assembly.plugin.version>2.6</maven.assembly.plugin.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
-        <maven.checkstyle.version>8.18</maven.checkstyle.version>
+        <maven.checkstyle.version>8.19</maven.checkstyle.version>
         <maven.clean.plugin.version>3.1.0</maven.clean.plugin.version>
         <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
         <maven.dependency.plugin.version>3.1.1</maven.dependency.plugin.version>
