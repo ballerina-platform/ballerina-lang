@@ -38,8 +38,8 @@ import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.awaitility.Awaitility.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.given;
 
 /**
  * This class tests introducing custom/specific webhooks, extending the WebSub Subscriber Service.
