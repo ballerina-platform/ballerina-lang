@@ -218,6 +218,7 @@ public type BRecordType record {|
 
 public type BObjectType record {|
     Name name = {};
+    boolean isAbstract = false;
     BObjectField?[] fields = [];
     BAttachedFunction?[] attachedFunctions = [];
 |};

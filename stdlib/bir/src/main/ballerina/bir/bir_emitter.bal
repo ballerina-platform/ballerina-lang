@@ -72,8 +72,10 @@ public type BirEmitter object {
     function emitTypeDef(TypeDef bTypeDef) {
         string visibility =  bTypeDef.visibility;
         print(visibility.toLower(), " type ", bTypeDef.name.value, " ");
-        if (bTypeDef.typeValue is BObjectType){
-            println("{");
+        var typeValue = bTypeDef.typeValue;
+        if (typeValue is BObjectType){
+            emitObjectTypeWithFields(typeValue, self.typeEmitter, "");
+            println();
             self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
             print("}");
         } else {
@@ -332,10 +334,10 @@ type TypeEmitter object {
         if (bRecordType.sealed) {
             print("sealed ");
         }
-        print("record { ");
+        println("record { ");
         foreach var f in bRecordType.fields {
             self.emitType(f.typeValue, tabs = tabs + "\t");
-            print(" ", f.name.value);
+            println(" ", f.name.value, ";");
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
         print("...");
@@ -343,15 +345,7 @@ type TypeEmitter object {
     }
 
     function emitObjectType(BObjectType bObjectType, string tabs) {
-        print(tabs, "object {");
-        foreach var f in bObjectType.fields {
-            if (f is BObjectField){
-                string visibility = f.visibility;
-                print(tabs + "\t", visibility.toLower(), " ");
-                self.emitType(f.typeValue);
-                print(" ", f.name.value);
-            }
-        }
+        emitObjectTypeWithFields(bObjectType, self, tabs);
         print(tabs, "}");
     }
 
@@ -423,6 +417,18 @@ type TypeEmitter object {
         print("}");
     }
 };
+
+function emitObjectTypeWithFields(BObjectType bObjectType, TypeEmitter typeEmitter, string tabs) {
+    println(tabs, bObjectType.isAbstract ? "abstract " : "", "object {");
+    foreach var f in bObjectType.fields {
+        if (f is BObjectField){
+            string visibility = f.visibility;
+            print(tabs + "\t", visibility.toLower(), " ");
+            typeEmitter.emitType(f.typeValue);
+            println(" ", f.name.value, ";");
+        }
+    }
+}
 
 
 function println(any... vals) {
