@@ -27,9 +27,7 @@ public type JarFile record {|
 public type JavaClass record {|
     string sourceFileName;
     string moduleClass;
-    bir:TypeDef?[] typeDefs = [];
     bir:Function?[] functions = [];
-    map<(bir:AsyncCall,string)> lambdaCalls = {};
 |};
 
 bir:BIRContext currentBIRContext = new;

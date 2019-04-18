@@ -139,6 +139,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRTerminator.AsyncCall birAsyncCall) {
+        writePosition(birAsyncCall.pos);
         buf.writeByte(birAsyncCall.kind.getValue());
         PackageID calleePkg = birAsyncCall.calleePkg;
         int orgCPIndex = addStringCPEntry(calleePkg.orgName.value);
@@ -211,6 +212,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.NewInstance newInstance) {
+        writePosition(newInstance.pos);
         buf.writeByte(newInstance.kind.getValue());
         buf.writeInt(newInstance.def.index);
         newInstance.lhsOp.accept(this);

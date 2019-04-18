@@ -263,7 +263,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         j += 1;
     }
 
-    string frameName = getFrameClassName(currentPackageName, currentPackageName, attachedType);
+    string frameName = getFrameClassName(currentPackageName, funcName, attachedType);
     mv.visitLabel(resumeLable);
     mv.visitVarInsn(ALOAD, localVarOffset);
     mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "frames", "[Ljava/lang/Object;");
@@ -680,9 +680,8 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     } else {
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
             io:sprintf("([L%s;L%s;)L%s;", OBJECT, FUNCTION, FUTURE_VALUE), false);
+        mv.visitInsn(DUP);
     }
-    
-    mv.visitInsn(DUP);
 
     mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
     mv.visitInsn(DUP);
@@ -960,30 +959,30 @@ type BalToJVMIndexMap object {
     }
 };
 
-function generateFrameClasses(bir:Package pkg, JavaClass class, map<byte[]> pkgEntries) {
+function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
 
-    foreach var func in class.functions {
-        generateFrameClassForFunction(pkgName, class.sourceFileName, func, pkgEntries);
+    foreach var func in pkg.functions {
+        generateFrameClassForFunction(pkgName, func, pkgEntries);
     }
-
-    foreach var typeDef in class.typeDefs {
+    
+    foreach var typeDef in pkg.typeDefs {
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs is bir:Function?[]) {
             foreach var func in attachedFuncs {
-                generateFrameClassForFunction(pkgName, class.sourceFileName, func, pkgEntries,
+                generateFrameClassForFunction(pkgName, func, pkgEntries,
                                               attachedType=typeDef.typeValue);
             }
         }
     }
 }
 
-function generateFrameClassForFunction (string pkgName, string sourceFileName, bir:Function? func, 
+function generateFrameClassForFunction (string pkgName, bir:Function? func, 
                                         map<byte[]> pkgEntries, bir:BType? attachedType = ()) {
     bir:Function currentFunc = getFunction(untaint func);
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visitSource(sourceFileName);
+    cw.visitSource(currentFunc.pos.sourceFileName);
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, (), OBJECT, ());
     generateDefaultConstructor(cw);
 

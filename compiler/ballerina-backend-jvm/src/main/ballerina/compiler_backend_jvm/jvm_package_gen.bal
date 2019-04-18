@@ -49,27 +49,25 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     string sourceFileName = module.name.value;
     
     string initClass = getModuleLevelClassName(untaint orgName, untaint moduleName, INIT_CLASS_NAME);
-    map<JavaClass> jvmClassMap = generateJavaClassMap(module, pkgName, initClass, untaint lambdas);
+    map<JavaClass> jvmClassMap = getFilteredJavaClassMap(module, pkgName, initClass, untaint lambdas);
 
     // generate object value classes
     ObjectGenerator objGen = new(module);
-
+    objGen.generateValueClasses(module.typeDefs, pkgEntries);
+    generateFrameClasses(module, pkgEntries);
     foreach var (moduleClass, v) in jvmClassMap {
         boolean isInitClass = false;
         if (moduleClass == initClass) {
             isInitClass = true;
         }
-        objGen.generateValueClasses(v.typeDefs, pkgEntries);
-        generateFrameClasses(module, v, pkgEntries);
-
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
         cw.visitSource(v.sourceFileName);
 
         generateDefaultConstructor(cw);
-        generateUserDefinedTypeFields(cw, v.typeDefs);
         // populate global variable to class name mapping and generate them
         if (isInitClass) {
+            generateUserDefinedTypeFields(cw, module.typeDefs);
             foreach var globalVar in module.globalVars {
                 if (globalVar is bir:GlobalVariableDcl) {
                     generatePackageVariable(globalVar, cw);
@@ -79,6 +77,10 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
         // generate methods
         foreach var func in v.functions {
             generateMethod(getFunction(func), cw, module);
+        }
+        // generate lambdas
+        foreach var (name, call) in lambdas {
+            generateLambdaMethod(call[0], cw, call[1], name);
         }
         cw.visitEnd();
         byte[] classContent = cw.toByteArray();
@@ -94,10 +96,12 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     string pkgName = getPackageName(orgName, moduleName);
     
     string initClass = getModuleLevelClassName(untaint orgName, untaint moduleName, INIT_CLASS_NAME);
-    map<JavaClass> jvmClassMap = generateJavaClassMap(module, pkgName, initClass, untaint lambdas);
+    map<JavaClass> jvmClassMap = getFilteredJavaClassMap(module, pkgName, initClass, untaint lambdas);
 
     // generate object value classes
     ObjectGenerator objGen = new(module);
+    objGen.generateValueClasses(module.typeDefs, pkgEntries);
+    generateFrameClasses(module, pkgEntries);
     bir:Function? mainFunc = getMainFunc(module.functions);
     string mainClass = "";
     if (mainFunc is bir:Function) {
@@ -109,17 +113,15 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
         if (moduleClass == initClass) {
             isInitClass = true;
         }
-        objGen.generateValueClasses(v.typeDefs, pkgEntries);
-        generateFrameClasses(module, v, pkgEntries);
 
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visitSource(v.sourceFileName);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
 
         generateDefaultConstructor(cw);
-        generateUserDefinedTypeFields(cw, v.typeDefs);
         // populate global variable to class name mapping and generate them
         if (isInitClass) {
+            generateUserDefinedTypeFields(cw, module.typeDefs);
             foreach var globalVar in module.globalVars {
                 if (globalVar is bir:GlobalVariableDcl) {
                     generatePackageVariable(globalVar, cw);
@@ -135,7 +137,8 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
             generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
             manifestEntries["Main-Class"] = moduleClass;
         }
-        foreach var (name, call) in v.lambdaCalls {
+        // generate lambdas
+        foreach var (name, call) in lambdas {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
         cw.visitEnd();
@@ -195,7 +198,7 @@ function cleanupName(string name) returns string {
 # + module - The module
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
-function generateJavaClassMap(bir:Package module, string pkgName, string initClass,
+function getFilteredJavaClassMap(bir:Package module, string pkgName, string initClass,
                               map<(bir:AsyncCall,string)> lambdaCalls) returns map<JavaClass> {
     
     string orgName = module.org.value;
@@ -221,36 +224,6 @@ function generateJavaClassMap(bir:Package module, string pkgName, string initCla
                 jvmClassMap[moduleClass] = class;
             }
             fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
-        }
-    }
-    // filter out type definitions.
-    foreach var typeDef in module.typeDefs {
-        string? balFileName = typeDef.pos.sourceFileName;
-        if (balFileName is string) {
-            string moduleClass = getClassNameForSourceFile(balFileName, orgName, moduleName, pkgName);
-            var javaClass = jvmClassMap[moduleClass];
-            if (javaClass is JavaClass) {
-                javaClass.typeDefs[javaClass.typeDefs.length()] = typeDef;
-            } else {
-                JavaClass class = {sourceFileName:balFileName, moduleClass:moduleClass};
-                class.typeDefs[0] = typeDef;
-                jvmClassMap[moduleClass] = class;
-            }
-        }
-    }
-    // filter out lambda calls.
-    foreach var (k,v) in lambdaCalls {
-        string? balFileName = v[0].pos.sourceFileName;
-        if (balFileName is string) {
-            string moduleClass = getClassNameForSourceFile(balFileName, orgName, moduleName, pkgName);
-            var javaClass = jvmClassMap[moduleClass];
-            if (javaClass is JavaClass) {
-                javaClass.lambdaCalls[k] = (v[0], v[1]);
-            } else {
-                JavaClass class = {sourceFileName:balFileName, moduleClass:moduleClass};
-                class.lambdaCalls[k] = (v[0], v[1]);
-                jvmClassMap[moduleClass] = class;
-            }
         }
     }
     return jvmClassMap;
