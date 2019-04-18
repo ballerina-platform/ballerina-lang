@@ -124,8 +124,7 @@ public class ErrorTest {
     }
 
     private String getPrintableStackTrace(ErrorValue errorValue) {
-        StackTraceElement[] stackTrace = errorValue.getStackTrace();
-        StackTraceElement[] stackWithoutJavaTests = Arrays.copyOf(stackTrace, stackTrace.length - 35);
+        StackTraceElement[] stackWithoutJavaTests = Arrays.copyOf(errorValue.getStackTrace(), 2);
         return BLangVMErrors.getPrintableStackTrace(BLangVMErrors.getErrorMessage(errorValue),
                                                     stackWithoutJavaTests);
     }
