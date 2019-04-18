@@ -20,7 +20,7 @@ import ballerina/http;
 auth:ConfigAuthStoreProvider basicAuthProvider04 = new;
 http:BasicAuthnHandler basicAuthnHandler04 = new(basicAuthProvider04);
 
-listener http:Listener listener04 = new(9093, config = {
+listener http:Listener listener04 = new(9095, config = {
     auth: {
         authnHandlers: [basicAuthnHandler04]
     },
@@ -36,7 +36,7 @@ listener http:Listener listener04 = new(9093, config = {
     basePath: "/echo",
     auth: {
         enabled: true,
-        scopes: ["scope2"]
+        scopes: ["scope4"]
     }
 }
 service echo04 on listener04 {
@@ -45,14 +45,6 @@ service echo04 on listener04 {
         methods: ["GET"]
     }
     resource function test(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
-    }
-
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/path/{id}"
-    }
-    resource function path(http:Caller caller, http:Request req, string id) {
         checkpanic caller->respond(());
     }
 }

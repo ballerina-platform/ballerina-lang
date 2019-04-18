@@ -32,93 +32,275 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class AuthzConfigInheritanceTest extends AuthBaseTest {
 
-    private final int servicePort = 9091;
+    private final int servicePort1 = 9091;
+    private final int servicePort2 = 9092;
+    private final int servicePort3 = 9093;
 
-    @Test(description = "Service level valid scopes and resource level valid scopes test case")
-    public void testValidAuthHeaders1() throws Exception {
+    @Test(description = "Listener - valid scopes, service - valid scopes and resource - valid scopes")
+    public void testValidScopesAtListener1() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test1"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo1/test1"),
                 headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
 
-    @Test(description = "Service level valid scopes and resource level invalid scopes test case")
-    public void testValidAuthHeaders2() throws Exception {
+    @Test(description = "Listener - valid scopes, service - valid scopes and resource - invalid scopes")
+    public void testValidScopesAtListener2() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test2"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo1/test2"),
                 headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }
 
-    @Test(description = "Service level valid scopes and resource level scopes not given test case")
-    public void testValidAuthHeaders3() throws Exception {
+    @Test(description = "Listener - valid scopes, service - valid scopes and resource - scopes not given")
+    public void testValidScopesAtListener3() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test3"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo1/test3"),
                 headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
 
-    @Test(description = "Service level invalid scopes and resource level valid scopes test case")
-    public void testValidAuthHeaders4() throws Exception {
+    @Test(description = "Listener - valid scopes, service - invalid scopes and resource - valid scopes")
+    public void testValidScopesAtListener4() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test1"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo2/test1"),
                 headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
 
-    @Test(description = "Service level invalid scopes and resource level invalid scopes test case")
-    public void testValidAuthHeaders5() throws Exception {
+    @Test(description = "Listener - valid scopes, service - invalid scopes and resource - invalid scopes")
+    public void testValidScopesAtListener5() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test2"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo2/test2"),
                 headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }
 
-    @Test(description = "Service level invalid scopes and resource level scopes not given test case")
-    public void testValidAuthHeaders6() throws Exception {
+    @Test(description = "Listener - valid scopes, service - invalid scopes and resource - scopes not given")
+    public void testValidScopesAtListener6() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test3"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo2/test3"),
                 headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }
 
-    @Test(description = "Service level scopes not given and resource level valid scopes test case")
-    public void testValidAuthHeaders7() throws Exception {
+    @Test(description = "Listener - valid scopes, service - scopes not given and resource - valid scopes")
+    public void testValidScopesAtListener7() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo3/test1"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo3/test1"),
                 headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
 
-    @Test(description = "Service level scopes not given and resource level invalid scopes test case")
-    public void testValidAuthHeaders8() throws Exception {
+    @Test(description = "Listener - valid scopes, service - scopes not given and resource - invalid scopes")
+    public void testValidScopesAtListener8() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo3/test2"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo3/test2"),
                 headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }
 
-    @Test(description = "Service level scopes not given and resource level scopes not given test case")
-    public void testValidAuthHeaders9() throws Exception {
+    @Test(description = "Listener - valid scopes, service - scopes not given and resource - scopes not given")
+    public void testValidScopesAtListener9() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo3/test3"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo3/test3"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - invalid scopes, service - valid scopes and resource - valid scopes")
+    public void testInValidScopesAtListener1() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo1/test1"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - invalid scopes, service - valid scopes and resource - invalid scopes")
+    public void testInValidScopesAtListener2() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo1/test2"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - invalid scopes, service - valid scopes and resource - scopes not given")
+    public void testInValidScopesAtListener3() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo1/test3"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - invalid scopes, service - invalid scopes and resource - valid scopes")
+    public void testInValidScopesAtListener4() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo2/test1"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - invalid scopes, service - invalid scopes and resource - invalid scopes")
+    public void testInValidScopesAtListener5() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo2/test2"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - invalid scopes, service - invalid scopes and resource - scopes not given")
+    public void testInValidScopesAtListener6() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo2/test3"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - invalid scopes, service - scopes not given and resource - valid scopes")
+    public void testInValidScopesAtListener7() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo3/test1"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - invalid scopes, service - scopes not given and resource - invalid scopes")
+    public void testInValidScopesAtListener8() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo3/test2"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - invalid scopes, service - scopes not given and resource - scopes not given")
+    public void testInValidScopesAtListener9() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo3/test3"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - scopes not given, service - valid scopes and resource - valid scopes")
+    public void testNotGivenScopesAtListener1() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo1/test1"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - scopes not given, service - valid scopes and resource - invalid scopes")
+    public void testNotGivenScopesAtListener2() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo1/test2"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - scopes not given, service - valid scopes and resource - scopes not given")
+    public void testNotGivenScopesAtListener3() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo1/test3"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - scopes not given, service - invalid scopes and resource - valid scopes")
+    public void testNotGivenScopesAtListener4() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo2/test1"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - scopes not given, service - invalid scopes and resource - invalid scopes")
+    public void testNotGivenScopesAtListener5() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo2/test2"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - scopes not given, service - invalid scopes and resource - scopes not given")
+    public void testNotGivenScopesAtListener6() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo2/test3"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - scopes not given, service - scopes not given and resource - valid scopes")
+    public void testNotGivenScopesAtListener7() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo3/test1"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - scopes not given, service - scopes not given and resource - invalid scopes")
+    public void testNotGivenScopesAtListener8() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo3/test2"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    @Test(description = "Listener - scopes not given, service - scopes not given and resource - scopes not given")
+    public void testNotGivenScopesAtListener9() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo3/test3"),
                 headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");

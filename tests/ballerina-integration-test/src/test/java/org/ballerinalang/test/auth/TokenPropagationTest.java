@@ -36,7 +36,7 @@ public class TokenPropagationTest extends AuthBaseTest {
     public void testTokenPropagationWithBasicAuthInbound() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9101, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9103, "passthrough"),
                 headers, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
@@ -46,7 +46,7 @@ public class TokenPropagationTest extends AuthBaseTest {
     public void testWithoutTokenPropagation() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9099, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9101, "passthrough"),
                 headers, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
@@ -63,7 +63,7 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
                 "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9103, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9105, "passthrough"),
                 headers, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
@@ -80,7 +80,7 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
                 "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9105, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9107, "passthrough"),
                 headers, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
@@ -97,7 +97,7 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
                 "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9107, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9109, "passthrough"),
                 headers, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");

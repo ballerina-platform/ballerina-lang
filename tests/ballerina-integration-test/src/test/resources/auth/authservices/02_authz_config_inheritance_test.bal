@@ -20,10 +20,35 @@ import ballerina/http;
 auth:ConfigAuthStoreProvider basicAuthProvider02 = new;
 http:BasicAuthnHandler basicAuthnHandler02 = new(basicAuthProvider02);
 
-listener http:Listener listener02 = new(9091, config = {
+listener http:Listener listener02_1 = new(9091, config = {
     auth: {
         authnHandlers: [basicAuthnHandler02],
         scopes: ["scope1"]
+    },
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
+});
+
+listener http:Listener listener02_2 = new(9092, config = {
+    auth: {
+        authnHandlers: [basicAuthnHandler02],
+        scopes: ["scope4"]
+    },
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
+});
+
+listener http:Listener listener02_3 = new(9093, config = {
+    auth: {
+        authnHandlers: [basicAuthnHandler02]
     },
     secureSocket: {
         keyStore: {
@@ -40,7 +65,7 @@ listener http:Listener listener02 = new(9091, config = {
         scopes: ["scope3"]
     }
 }
-service echo02_1 on listener02 {
+service echo02_1 on listener02_1, listener02_2, listener02_3 {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -83,7 +108,7 @@ service echo02_1 on listener02 {
         scopes: ["scope4"]
     }
 }
-service echo02_2 on listener02 {
+service echo02_2 on listener02_1, listener02_2, listener02_3 {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -125,7 +150,7 @@ service echo02_2 on listener02 {
         enabled: true
     }
 }
-service echo02_3 on listener02 {
+service echo02_3 on listener02_1, listener02_2, listener02_3 {
 
     @http:ResourceConfig {
         methods: ["GET"],

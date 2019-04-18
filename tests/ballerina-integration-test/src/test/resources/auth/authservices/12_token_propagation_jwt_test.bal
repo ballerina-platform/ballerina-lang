@@ -29,7 +29,7 @@ auth:JWTAuthProvider jwtAuthProvider12_1 = new({
 
 http:JwtAuthnHandler jwtAuthnHandler12_1 = new(jwtAuthProvider12_1);
 
-listener http:Listener listener12_1 = new(9103, config = {
+listener http:Listener listener12_1 = new(9105, config = {
     auth: {
         authnHandlers: [jwtAuthnHandler12_1]
     },
@@ -41,7 +41,7 @@ listener http:Listener listener12_1 = new(9103, config = {
     }
 });
 
-http:Client nyseEP12 = new("https://localhost:9104", config = {
+http:Client nyseEP12 = new("https://localhost:9106", config = {
     auth: {
         scheme: http:JWT_AUTH
     }
@@ -80,7 +80,7 @@ auth:JWTAuthProvider jwtAuthProvider12_2 = new({
 
 http:JwtAuthnHandler jwtAuthnHandler12_2 = new(jwtAuthProvider12_2);
 
-listener http:Listener listener12_2 = new(9104, config = {
+listener http:Listener listener12_2 = new(9106, config = {
     auth: {
         authnHandlers: [jwtAuthnHandler12_2]
     },

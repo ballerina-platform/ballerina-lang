@@ -34,8 +34,8 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class LdapAuthStoreTest extends AuthBaseTest {
 
-    private final int servicePort = 9109;
-    private final int authzServicePort = 9110;
+    private final int servicePort = 9111;
+    private final int authzServicePort = 9112;
 
     @Test(description = "Test authenticate and authorize request against ldap auth store")
     public void testAuthenticationWithInvalidCredentials() throws Exception {

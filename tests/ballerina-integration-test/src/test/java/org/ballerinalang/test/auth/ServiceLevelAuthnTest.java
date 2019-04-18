@@ -32,9 +32,39 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class ServiceLevelAuthnTest extends AuthBaseTest {
 
-    private final int servicePort = 9093;
-    private final int servicePortForExpiredCertificateTest = 9097;
-    private final int servicePortForExpiredCertificateTestWithNoExpiryValidation = 9098;
+    private final int servicePort = 9095;
+    private final int servicePortForExpiredCertificateTest = 9099;
+    private final int servicePortForExpiredCertificateTestWithNoExpiryValidation = 9100;
+
+    @Test(description = "Authn and authz success test case")
+    public void testAuthSuccessWithServiceLevelConfigs() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Basic aXN1cnU6eHh4");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Authn success and authz failure test case")
+    public void testAuthzFailureWithServiceLevelConfigs() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    @Test(description = "Authn and authz failure test case")
+    public void testAuthFailureWithServiceLevelConfigs() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+    }
 
     @Test(description = "Auth with JWT signed with expired trusted certificate")
     public void testAuthnWithJWTSignedWithExpiredTrustedCertificate() throws Exception {
