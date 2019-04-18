@@ -105,6 +105,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRTerminator.Wait waitEntry) {
+        writePosition(waitEntry.pos);
         buf.writeByte(waitEntry.kind.getValue());
         buf.writeInt(waitEntry.exprList.size());
         for (BIROperand expr : waitEntry.exprList) {

@@ -56,25 +56,23 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     objGen.generateValueClasses(module.typeDefs, pkgEntries);
     generateFrameClasses(module, pkgEntries);
     foreach var (moduleClass, v) in jvmClassMap {
-        boolean isInitClass = false;
-        if (moduleClass == initClass) {
-            isInitClass = true;
-        }
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
-        cw.visitSource(v.sourceFileName);
-
-        generateDefaultConstructor(cw, VALUE_CREATOR);
-        // populate global variable to class name mapping and generate them
-        if (isInitClass) {
+        if (moduleClass == initClass) {
+            cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
+            generateDefaultConstructor(cw, VALUE_CREATOR);
             generateUserDefinedTypeFields(cw, module.typeDefs);
             generateValueCreatorMethods(cw, module.typeDefs, pkgName);
+            // populate global variable to class name mapping and generate them
             foreach var globalVar in module.globalVars {
                 if (globalVar is bir:GlobalVariableDcl) {
                     generatePackageVariable(globalVar, cw);
                 }
             }
+        } else {
+            cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
+            generateDefaultConstructor(cw, OBJECT);
         }
+        cw.visitSource(v.sourceFileName);
         // generate methods
         foreach var func in v.functions {
             generateMethod(getFunction(func), cw, module);
@@ -110,20 +108,13 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
                                             cleanupFileName(mainFunc.pos.sourceFileName));
     }
     foreach var (moduleClass, v) in jvmClassMap {
-        boolean isInitClass = false;
-        if (moduleClass == initClass) {
-            isInitClass = true;
-        }
-
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        cw.visitSource(v.sourceFileName);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
-
-        generateDefaultConstructor(cw, VALUE_CREATOR);
-        // populate global variable to class name mapping and generate them
-        if (isInitClass) {
+        if (moduleClass == initClass) {
+            cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
+            generateDefaultConstructor(cw, VALUE_CREATOR);
             generateUserDefinedTypeFields(cw, module.typeDefs);
             generateValueCreatorMethods(cw, module.typeDefs, pkgName);
+            // populate global variable to class name mapping and generate them
             foreach var globalVar in module.globalVars {
                 if (globalVar is bir:GlobalVariableDcl) {
                     generatePackageVariable(globalVar, cw);
@@ -134,7 +125,11 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
                 generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
                 manifestEntries["Main-Class"] = moduleClass;
             }
+        } else {
+            cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
+            generateDefaultConstructor(cw, OBJECT);
         }
+        cw.visitSource(v.sourceFileName);
         // generate methods
         foreach var func in v.functions {
             generateMethod(getFunction(func), cw, module);
