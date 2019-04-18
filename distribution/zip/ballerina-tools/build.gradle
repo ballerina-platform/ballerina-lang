@@ -229,7 +229,7 @@ task createApiDocsZip(type: Zip) {
     archiveName "ballerina-api-docs-${project.version}.zip"
 }
 
-task createZip(type: Zip) {
+task createZip(type: Zip, dependsOn: ':language-server:language-server-core:build') {
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
     with copyBaloSpec(basePath)
@@ -264,7 +264,7 @@ task updateBalHome(type: Copy) {
     into System.getenv('BAL_HOME')
 }
 
-task createDistribution(type: Copy) {
+task createDistribution(type: Copy, dependsOn: ':language-server:language-server-core:build') {
     def filePath = "$buildDir/extracted-distributions/${project.name}-${project.version}"
     file(filePath).mkdirs()
     with copyJarSpec("")
@@ -284,8 +284,6 @@ task createDistribution(type: Copy) {
 }
 
 build {
-    // To make sure language server zip is ready before building pack
-    dependsOn ':language-server:language-server-core:build'
     dependsOn createZip
     dependsOn createDistribution
     finalizedBy ':ballerina-tools-integration-test:test'
