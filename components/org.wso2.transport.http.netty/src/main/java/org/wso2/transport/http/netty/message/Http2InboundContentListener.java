@@ -40,7 +40,7 @@ public class Http2InboundContentListener implements Listener {
     @Override
     public void onAdd(HttpContent httpContent) {
         if (!appConsumeRequired && resumeRead.get()) {
-            LOG.warn("HTTP/2 inbound onAdd updateLocalFlowController {} ", httpContent.content().readableBytes());
+//            LOG.warn("HTTP/2 inbound onAdd updateLocalFlowController {} ", httpContent.content().readableBytes());
             updateLocalFlowController(httpContent.content().readableBytes());
         }
     }
@@ -53,7 +53,7 @@ public class Http2InboundContentListener implements Listener {
     @Override
     public void onRemove(HttpContent httpContent) {
         if (appConsumeRequired && resumeRead.get()) {
-            LOG.warn("HTTP/2 inbound onRemove updateLocalFlowController {} ", httpContent.content().readableBytes());
+//            LOG.warn("HTTP/2 inbound onRemove updateLocalFlowController {} ", httpContent.content().readableBytes());
             updateLocalFlowController(httpContent.content().readableBytes());
         }
     }
@@ -68,7 +68,7 @@ public class Http2InboundContentListener implements Listener {
 
     //Always gets called from ballerina thread
     void stopByteConsumption() {
-        LOG.warn("Stop byte consumption");
+//        LOG.warn("Stop byte consumption");
         if (resumeRead.get()) {
             resumeRead.set(false);
         }
@@ -76,8 +76,8 @@ public class Http2InboundContentListener implements Listener {
 
     //Always gets called from I/O thread. TODO:If this is true then there's no need for eventloop execute here.
     void resumeByteConsumption() {
-        LOG.warn("In thread {}. Resume byte consumption. Unconsumed bytes: {}", Thread.currentThread().getName(),
-                 getUnConsumedBytes());
+//        LOG.warn("In thread {}. Resume byte consumption. Unconsumed bytes: {}", Thread.currentThread().getName(),
+//                 getUnConsumedBytes());
         resumeRead.set(true);
         channelHandlerContext.channel().eventLoop().execute(() -> updateLocalFlowController(getUnConsumedBytes()));
     }
@@ -88,7 +88,7 @@ public class Http2InboundContentListener implements Listener {
             try {
                 boolean windowUpdateSent = http2LocalFlowController.consumeBytes(getHttp2Stream(), consumedBytes);
                 if (windowUpdateSent) {
-                    LOG.warn("windowUpdateSent {} and flushed {} bytes", windowUpdateSent, consumedBytes);
+//                    LOG.warn("windowUpdateSent {} and flushed {} bytes", windowUpdateSent, consumedBytes);
                     channelHandlerContext.flush();
                 }
             } catch (Http2Exception e) {

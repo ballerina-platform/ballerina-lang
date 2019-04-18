@@ -40,6 +40,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
@@ -56,7 +57,6 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_X_FORWARDED_FOR;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.validatePromisedStreamState;
-import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
 
 /**
  * State between start and end of outbound response or push response entity body write.
@@ -77,12 +77,14 @@ public class SendingEntityBody implements ListenerState {
     private final HttpCarbonMessage inboundRequestMsg;
     private final Calendar inboundRequestArrivalTime;
     private final int originalStreamId;
+    private final Http2OutboundRespListener http2OutboundRespListener;
 
     private Long contentLength = 0L;
     private String remoteAddress;
 
     SendingEntityBody(Http2OutboundRespListener http2OutboundRespListener,
                       Http2MessageStateContext http2MessageStateContext) {
+        this.http2OutboundRespListener = http2OutboundRespListener;
         this.http2MessageStateContext = http2MessageStateContext;
         this.ctx = http2OutboundRespListener.getChannelHandlerContext();
         this.serverChannelInitializer = http2OutboundRespListener.getServerChannelInitializer();
@@ -145,8 +147,10 @@ public class SendingEntityBody implements ListenerState {
             if (!trailers.isEmpty()) {
                 Http2Headers http2Trailers = HttpConversionUtil.toHttp2Headers(trailers, true);
                 // Write trailing headers.
-                writeHttp2Headers(ctx, encoder, outboundRespStatusFuture, streamId, http2Trailers, true);
+                Http2StateUtil.writeHttp2ResponseHeaders(ctx, encoder, outboundRespStatusFuture, streamId,
+                                                         http2Trailers, true, http2OutboundRespListener);
             }
+            http2OutboundRespListener.removeDefaultResponseWriter();
             http2MessageStateContext
                     .setListenerState(new ResponseCompleted(http2OutboundRespListener, http2MessageStateContext));
         } else {
@@ -164,7 +168,7 @@ public class SendingEntityBody implements ListenerState {
         if (endStream) {
             Util.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, channelFuture);
         } else {
-            Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture);
+            Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture, http2OutboundRespListener);
         }
     }
 

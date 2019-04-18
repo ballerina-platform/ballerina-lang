@@ -48,6 +48,7 @@ import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
@@ -649,13 +650,15 @@ public class Util {
      * @param channelFuture            the channel future related to response write operation
      */
     public static void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
-                                                       ChannelFuture channelFuture) {
+                                                       ChannelFuture channelFuture,
+                                                       Http2OutboundRespListener http2OutboundRespListener) {
         channelFuture.addListener(writeOperationPromise -> {
             Throwable throwable = writeOperationPromise.cause();
             if (throwable != null) {
                 if (throwable instanceof ClosedChannelException) {
                     throwable = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
                 }
+                http2OutboundRespListener.removeDefaultResponseWriter();
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             }
         });

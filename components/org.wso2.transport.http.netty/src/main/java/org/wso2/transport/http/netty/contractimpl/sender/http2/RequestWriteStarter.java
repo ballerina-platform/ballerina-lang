@@ -22,8 +22,8 @@ package org.wso2.transport.http.netty.contractimpl.sender.http2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.DefaultBackPressureListener;
-import org.wso2.transport.http.netty.message.Http2PassthroughBackPressureListener;
 import org.wso2.transport.http.netty.message.Http2InboundContentListener;
+import org.wso2.transport.http.netty.message.Http2PassthroughBackPressureListener;
 import org.wso2.transport.http.netty.message.Listener;
 
 /**

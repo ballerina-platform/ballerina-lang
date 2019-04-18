@@ -88,10 +88,10 @@ public class Http2StateUtil {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
                 outboundRespFuture.setHttpConnectorListener(new Http2OutboundRespListener(
-                        http2SourceHandler.getServerChannelInitializer(), httpRequestMsg,
-                        http2SourceHandler.getChannelHandlerContext(), http2SourceHandler.getConnection(),
-                        http2SourceHandler.getEncoder(), streamId, http2SourceHandler.getServerName(),
-                        http2SourceHandler.getRemoteAddress()));
+                    http2SourceHandler.getServerChannelInitializer(), httpRequestMsg,
+                    http2SourceHandler.getChannelHandlerContext(), http2SourceHandler.getConnection(),
+                    http2SourceHandler.getEncoder(), streamId, http2SourceHandler.getServerName(),
+                    http2SourceHandler.getRemoteAddress(), http2SourceHandler.getServerRemoteFlowControlListener()));
                 http2SourceHandler.getServerConnectorFuture().notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 LOG.error("Error while notifying listeners", e);
@@ -146,14 +146,15 @@ public class Http2StateUtil {
      * @param endStream                is this the end of stream
      * @throws Http2Exception throws if a protocol-related error occurred
      */
-    public static void writeHttp2Headers(ChannelHandlerContext ctx, Http2ConnectionEncoder encoder,
-                                         HttpResponseFuture outboundRespStatusFuture, int streamId,
-                                         Http2Headers http2Headers, boolean endStream) throws Http2Exception {
+    public static void writeHttp2ResponseHeaders(ChannelHandlerContext ctx, Http2ConnectionEncoder encoder,
+                                                 HttpResponseFuture outboundRespStatusFuture, int streamId,
+                                                 Http2Headers http2Headers, boolean endStream,
+                                                 Http2OutboundRespListener respListener) throws Http2Exception {
         ChannelFuture channelFuture = encoder.writeHeaders(
-                ctx, streamId, http2Headers, 0, endStream, ctx.newPromise());
+            ctx, streamId, http2Headers, 0, endStream, ctx.newPromise());
         encoder.flowController().writePendingBytes();
         ctx.flush();
-        Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture);
+        Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture, respListener);
     }
 
     /**

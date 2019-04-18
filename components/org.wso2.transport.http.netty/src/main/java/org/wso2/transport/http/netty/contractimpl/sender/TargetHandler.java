@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.contractimpl.Http2RemoteFlowControlListener;
+import org.wso2.transport.http.netty.contractimpl.ClientRemoteFlowControlListener;
 import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
@@ -176,7 +176,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                                                                             targetChannel.getHttpRoute(),
                                                                             upgradedHttp2ClientChannel);
         upgradedHttp2ClientChannel.getConnection().remote().flowController().listener(
-            new Http2RemoteFlowControlListener(upgradedHttp2ClientChannel));
+            new ClientRemoteFlowControlListener(upgradedHttp2ClientChannel));
     }
 
     public void closeChannel(ChannelHandlerContext ctx) {

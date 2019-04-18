@@ -23,26 +23,26 @@ import io.netty.handler.codec.http2.Http2RemoteFlowController;
 import io.netty.handler.codec.http2.Http2Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
-import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Http/2 remote flow control listener.
+ * Server remote flow control listener.
  */
-public final class Http2RemoteFlowControlListener implements Http2RemoteFlowController.Listener {
-    private static final Logger LOG = LoggerFactory.getLogger(Http2RemoteFlowControlListener.class);
-    private Http2ClientChannel http2ClientChannel;
+public class ServerRemoteFlowControlListener implements Http2RemoteFlowController.Listener {
+    private static final Logger LOG = LoggerFactory.getLogger(ServerRemoteFlowControlListener.class);
     private Http2RemoteFlowController http2RemoteFlowController;
+    private ConcurrentHashMap<Integer, Http2OutboundRespListener.ResponseWriter> responseWriters =
+        new ConcurrentHashMap<>();
 
-    public Http2RemoteFlowControlListener(Http2ClientChannel http2ClientChannel) {
-        this.http2ClientChannel = http2ClientChannel;
-        this.http2RemoteFlowController = http2ClientChannel.getConnection().remote().flowController();
+    public ServerRemoteFlowControlListener(Http2RemoteFlowController http2RemoteFlowController) {
+        this.http2RemoteFlowController = http2RemoteFlowController;
     }
 
     @Override
     public void writabilityChanged(Http2Stream stream) {
-        OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(stream.id());
-        if (outboundMsgHolder == null) {
+        Http2OutboundRespListener.ResponseWriter responseWriter = responseWriters.get(stream.id());
+        if (responseWriter == null) {
             return;
         }
         //Netty flow controller methods should only be called from an I/O thread.
@@ -51,14 +51,24 @@ public final class Http2RemoteFlowControlListener implements Http2RemoteFlowCont
                 LOG.debug("In thread {}. Stream {} is writable. State {} ", Thread.currentThread().getName(),
                           stream.id(), stream.state());
             }
-            outboundMsgHolder.setStreamWritable(true);
-            outboundMsgHolder.getBackPressureObservable().notifyWritable();
+            responseWriter.setStreamWritable(true);
+            responseWriter.getBackPressureObservable().notifyWritable();
         } else {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("In thread {}. Stream {} is not writable. State {}. ", Thread.currentThread().getName(),
                           stream.id(), stream.state());
             }
-            outboundMsgHolder.setStreamWritable(false);
+            responseWriter.setStreamWritable(false);
+        }
+    }
+
+    void addResponseWriter(Http2OutboundRespListener.ResponseWriter responseWriter) {
+        responseWriters.put(responseWriter.getStreamId(), responseWriter);
+    }
+
+    void removeResponseWriter(Http2OutboundRespListener.ResponseWriter responseWriter) {
+        if (responseWriter != null) {
+            responseWriters.remove(responseWriter.getStreamId(), responseWriter);
         }
     }
 }

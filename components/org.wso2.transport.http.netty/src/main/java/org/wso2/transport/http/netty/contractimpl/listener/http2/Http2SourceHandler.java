@@ -28,12 +28,14 @@ import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
+import io.netty.handler.codec.http2.Http2RemoteFlowController;
 import io.netty.util.internal.PlatformDependent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contractimpl.ServerRemoteFlowControlListener;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.listener.states.http2.ReceivingHeaders;
@@ -70,6 +72,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     private String serverName;
     private String remoteAddress;
     private Map<String, GenericObjectPool> targetChannelPool; //Keeps only h1 target channels
+    private ServerRemoteFlowControlListener serverRemoteFlowControlListener;
 
     Http2SourceHandler(HttpServerChannelInitializer serverChannelInitializer, Http2ConnectionEncoder encoder,
                        String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture,
@@ -81,6 +84,13 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         this.conn = conn;
         this.serverName = serverName;
         this.targetChannelPool = new ConcurrentHashMap<>();
+        setRemoteFlowController();
+    }
+
+    private void setRemoteFlowController() {
+        Http2RemoteFlowController remoteFlowController = this.conn.remote().flowController();
+        serverRemoteFlowControlListener = new ServerRemoteFlowControlListener(remoteFlowController);
+        remoteFlowController.listener(serverRemoteFlowControlListener);
     }
 
     @Override
@@ -212,5 +222,9 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     public ChannelHandlerContext getInboundChannelContext() {
         return ctx;
+    }
+
+    public ServerRemoteFlowControlListener getServerRemoteFlowControlListener() {
+        return serverRemoteFlowControlListener;
     }
 }
