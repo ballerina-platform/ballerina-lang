@@ -100,7 +100,6 @@ test {
     dependsOn (":ballerina:build")
     
     maxParallelForks = 1
-    forkEvery=100
     systemProperty 'basedir', "$buildDir"
     systemProperty 'libdir', "$buildDir"
     systemProperty 'server.zip', configurations.ballerina.asPath
