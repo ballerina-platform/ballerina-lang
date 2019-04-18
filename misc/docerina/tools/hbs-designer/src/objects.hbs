@@ -16,7 +16,9 @@
 <body>
   <div class="ui grid">
     <div class="navi-wrapper two wide column">
-      <img class="logo" src="../../images/ballerina-logo.png">
+      <a href="../../index.html">
+        <img class="logo" src="../../images/ballerina-logo.png">
+      </a>
       <div class="primary-list">
         {{#if all.modules}}
         <ul>
@@ -54,6 +56,19 @@
         {{/if}}
         <div class="ui divider"></div>
       </div>
+       <div class="primary-list">
+        <h3>All Modules</h3>
+        {{#if all.modules}}
+            <ul>
+              {{#each all.modules}}
+              <li>
+                <a href="../index.html">{{id}}</a>
+              </li>
+              {{/each}}
+            </ul>
+        {{/if}}
+        <div class="ui divider"></div>
+      </div>
     </div>
 
     <div class="fourteen wide column content-wrapper">
@@ -64,30 +79,50 @@
       <p>{{obj.description}}</p>
 
       <div class="constants">
-        {{!-- <table class="ui table">
-          <thead>
-            <tr>
-              <th>{{obj.label_field_name}}</th>
-              <th>{{obj.label_data_type}}</th>
-              <th>{{obj.label_default_value}}</th>
-              <th>{{obj.label_description}}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#if obj}}
-            {{#obj}}
-            {{#each fields}}
-            <tr>
-              <td>{{field_name}}</td>
-              <td>{{data_type}}</td>
-              <td>{{default_value}}</td>
-              <td>{{description}}</td>
-            </tr>
+        {{#if obj.method}}
+          {{#each obj.method}}
+          <p><b>{{method_type}}</b>{{method_params}}<b>{{label_return}}</b>{{return_params}}</p>
+          {{/each}}
+        {{/if}}
+        {{#if all.constants}}
+            {{#each constants}}
+            {{#if method}}
+            {{#each method}}
+                <p>{{obj.method_type}} {{obj.method_params}}</p>
             {{/each}}
-            {{/obj}}
             {{/if}}
-          </tbody> --}}
-        </table>
+            {{/each}}
+            {{/if}}
+
+        <div class="ui divider"></div>
+        {{#if obj.method}}
+          {{#each obj.method}}
+            <h3>{{method_type}}{{method_params}}</h3>
+            <p>{{description}}</p>
+            <table class="ui table">
+              <thead>
+                <tr>
+                  <th>{{param_name_label}}</th>
+                  <th>{{data_type_label}}</th>
+                  <th>{{default_value_label}}</th>
+                  <th>{{description_label}}</th>
+                </tr>
+              </thead>
+              {{#if fields}}
+                {{#each fields}}
+                <tbody>
+                  <tr>
+                    <td>{{param_name}}</td>
+                    <td>{{data_type}}</td>
+                    <td>{{default_value}}</td>
+                    <td>{{description}}</td>
+                  </tr>
+                </tbody>
+                {{/each}}
+                {{/if}}
+              </table>
+            {{/each}}
+          {{/if}}
       </div>
       <div class="ui divider"></div>
     </div>

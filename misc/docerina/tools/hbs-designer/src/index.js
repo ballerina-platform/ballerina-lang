@@ -55,11 +55,9 @@ function buildClients(modId, clients) {
 function buildFunctions(modId, functions) {
     const functionsHBS = fs.readFileSync(path.join(__dirname, "functions.hbs")).toString();
     const functionsTemplate = Handlebars.compile(functionsHBS);
-    functions.forEach((func) => {
-        const funcOutDir = path.join(outPath, modId, 'functions');
-        fs.ensureDirSync(funcOutDir);
-        fs.writeFileSync(path.join(funcOutDir, clnt.name + ".html"), functionsTemplate({ func, all: data }));
-    });
+    const funcOutDir = path.join(outPath, modId, 'functions');
+    fs.ensureDirSync(funcOutDir);
+    fs.writeFileSync(path.join(funcOutDir, "functions.html"), functionsTemplate({ functions, all: data }));
 }
 
 

@@ -24,20 +24,20 @@
         <div class="secondary-list">
           <h4>All Modules</h4>
 
-          {{#if all.modules}}
+          {{!-- {{#if all.modules}}1 --}}
             <ul>
-              {{#each all.modules}}
+              {{#each modules}}
               <li>
                 <a href="{{id}}/index.html">{{id}}</a>
               </li>
               {{/each}}
             </ul>
-          {{/if}}
+          {{!-- {{/if}} --}}
         <div class="ui divider"></div>
           {{#if modules}}
           <div class="module-list">
             {{#each modules}}
-            <div class="module-title">
+            <div class="module-title truncate">
               <a href="{{id}}/index.html">{{id}}</a>
             </div>
             <div class="module-desc">{{description}}</div>
@@ -121,7 +121,7 @@
         {{#if constructs}}
           {{#each constructs.records}}
           <tr>
-            <td class="module-title records"><a href="records/{{name}}.html">{{name}}</a></td>
+            <td class="module-title truncate records" id ="{{name}}"><a href="records/{{name}}.html">{{name}}</a></td>
             <td class="module-desc">{{description}}</td>
           </tr>
           {{/each}}
@@ -136,11 +136,43 @@
         {{#if constructs}}
           {{#each constructs.objects}}
           <tr>
-            <td class="module-title objects"><a href="objects/{{name}}.html">{{name}}</a></td>
+            <td class="module-title truncate objects" id ="{{name}}"><a href="objects/{{name}}.html">{{name}}</a></td>
             <td class="module-desc">{{description}}</td>
           </tr>
           {{/each}}
         {{/if}}
       </table>
+
+      <div class="ui divider"></div>
+      <h3><a name="clients">Clients</a></h3>
+      <div class="ui divider"></div>
+
+      <table> 
+        {{#if constructs}}
+          {{#each constructs.clients}}
+          <tr>
+            <td class="module-title truncate clients" id ="{{name}}"><a href="clients/{{name}}.html">{{name}}</a></td>
+            <td class="module-desc">{{description}}</td>
+          </tr>
+          {{/each}}
+        {{/if}}
+      </table>
+
+      <div class="ui divider"></div>
+      <h3><a name="functions">Functions</a></h3>
+      <div class="ui divider"></div>
+
+      <table> 
+        {{#if constructs}}
+          {{#each constructs.functions}}
+          <tr>
+            <td class="module-title truncate functions" id ="{{name}}"><a href="functions/functions.html">{{name}}</a></td>
+            <td class="module-desc">{{description}}</td>
+          </tr>
+          {{/each}}
+        {{/if}}
+      </table>
+
+      
   </div>
 </body>

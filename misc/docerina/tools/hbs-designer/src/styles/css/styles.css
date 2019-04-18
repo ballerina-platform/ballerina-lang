@@ -8,7 +8,6 @@ body p {
 }
 body a {
   color: #333;
-  font-weight: 600;
 }
 body .ui.grid {
   width: 100%;
@@ -27,7 +26,7 @@ body .ui.grid .navi-wrapper .logo {
   margin: 30px 20px;
 }
 body .ui.grid .navi-wrapper:hover {
-  overflow-y: scroll ;
+  overflow-y: scroll;
   position: inherit;
 }
 body .ui.grid .navi-wrapper .search input {
@@ -62,10 +61,9 @@ body .ui.grid .navi-wrapper .primary-list ul li a:hover {
   font-weight: 600;
 }
 body .ui.grid .content-wrapper {
-  padding: 46px 500px 12px 43px!important;
+  padding: 45px 630px 12px 43px !important;
   margin: 0;
   height: 100vh;
-  text-align: justify;
   overflow-y: hidden;
   position: fixed;
   font-size: 16px;
@@ -73,11 +71,25 @@ body .ui.grid .content-wrapper {
 body .ui.grid .content-wrapper .ui.table,
 body .ui.grid .content-wrapper .ui.table tr td {
   border: 0 !important;
+  vertical-align: top;
+}
+body .ui.grid .content-wrapper .ui.table th,
+body .ui.grid .content-wrapper .ui.table tr td th {
+  background: none;
+  padding: 10px 0;
+}
+body .ui.grid .content-wrapper .ui.table tr,
+body .ui.grid .content-wrapper .ui.table tr td tr {
+  padding: 10px 0;
 }
 body .ui.grid .content-wrapper .ui.table tr td:first-child,
 body .ui.grid .content-wrapper .ui.table tr td tr td:first-child {
   width: 120px;
   vertical-align: top;
+}
+body .ui.grid .content-wrapper .ui.table td,
+body .ui.grid .content-wrapper .ui.table tr td td {
+  word-break: break-all;
 }
 body .ui.grid .content-wrapper .breadcrumb a {
   color: #aaa;
@@ -94,36 +106,105 @@ body .ui.grid .content-wrapper code {
   color: #ea8792;
   font-style: italic;
 }
+body .ui.grid .content-wrapper .modules {
+  color: #0d4d84;
+}
+body .ui.grid .content-wrapper .modules a {
+  color: #0d4d84;
+}
 body .ui.grid .content-wrapper .records {
+  text-transform: capitalize;
   color: #2c9ea1;
 }
 body .ui.grid .content-wrapper .records a {
   color: #2c9ea1;
 }
 body .ui.grid .content-wrapper .objects {
+  text-transform: capitalize;
   color: #93bd54;
 }
 body .ui.grid .content-wrapper .objects a {
   color: #93bd54;
 }
+body .ui.grid .content-wrapper .functions {
+  color: #ad448e;
+  text-transform: capitalize;
+}
+body .ui.grid .content-wrapper .functions a {
+  color: #ad448e;
+}
+body .ui.grid .content-wrapper .clients {
+  color: #068000;
+  text-transform: capitalize;
+}
+body .ui.grid .content-wrapper .clients a {
+  color: #068000;
+}
 body .ui.grid .content-wrapper .constants {
   margin-top: 20px;
-  margin-left: 20px;
+}
+body .ui.grid .content-wrapper .constants h3 {
+  display: inline-block;
+  margin: 0;
+  line-height: 22px !important;
+}
+body .ui.grid .content-wrapper .constants h3 p {
+  display: inline-block;
+  margin: 0;
+  line-height: 22px !important;
+}
+body .ui.grid .content-wrapper .constants .method-wrapper .method-span {
+  width: auto;
+  display: inline-block;
+  vertical-align: top;
+}
+body .ui.grid .content-wrapper .constants .method-wrapper .method-span .ui.table tr td:first-child {
+  width: 180px !important;
+  vertical-align: top;
+}
+body .ui.grid .content-wrapper .constants .method-wrapper .method-span .ui.table tr td {
+  padding: 10px 0 !important;
+}
+body .ui.grid .content-wrapper .constants .method-wrapper .method-span .method-table-header {
+  max-width: 180px;
+  width: 180px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 20px;
+}
+body .ui.grid .content-wrapper .constants .method-wrapper .method-type-wrapper .method-title {
+  line-height: 20px;
+  word-wrap: break-word;
+  margin: 60px 0 10px;
+  border-bottom: 1px solid #ababab;
+  padding-bottom: 8px;
+}
+body .ui.grid .content-wrapper .constants .method-wrapper .method-type-wrapper .method-title p {
+  font-weight: 600;
 }
 body .ui.grid .content-wrapper .constants p {
-  line-height: 28px;
+  display: inline;
+  color: #333;
 }
 body .ui.grid .content-wrapper .constants .column {
-  margin: 0 ;
+  margin: 0;
   padding: 10px;
 }
 body .ui.grid .content-wrapper .module-title {
   margin-bottom: 10px;
-  word-wrap: break-word;
-  font-weight: 600;
+  font-weight: 300;
   height: auto;
   padding: 0;
   vertical-align: top;
+}
+body .ui.grid .content-wrapper .truncate {
+  max-width: 220px;
+  width: 220px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 20px;
 }
 body .ui.grid .content-wrapper .module-desc {
   margin-left: 10px;
@@ -131,5 +212,6 @@ body .ui.grid .content-wrapper .module-desc {
   margin-bottom: 10px;
   padding: 0;
   height: auto;
-  padding-bottom: 20px;
+  padding-bottom: 12px;
+  color: #555;
 }

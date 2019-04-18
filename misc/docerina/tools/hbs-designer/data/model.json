@@ -18,7 +18,7 @@
         },
         {
             "id": "http",
-            "description": "This module provides an implementation for connecting and interacting with HTTP, HTTP2, and WebSocket endpoints.",
+            "description": "This module provides an implementation for connecting and interacting withhttp, HTTP2, and WebSocket endpoints.",
             "constructs": {
                 "records": [
                     {
@@ -26,10 +26,10 @@
                         "description": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": [
                             {
                                 "field_name": "scheme",
@@ -116,10 +116,10 @@
                         "description": "Configuration for authentication providers.",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": [
                             {
                                 "field_name": "scheme",
@@ -218,10 +218,10 @@
                         "description": "Can be used for enabling/disabling authentication in an HTTP service",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -234,10 +234,10 @@
                         "description": "Represents a discrete sub-part of the time window (Bucket).",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -250,10 +250,10 @@
                         "description": "Provides a set of configurations for controlling the caching behaviour of the endpoint.",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -266,10 +266,10 @@
                         "description": "Provides a set of configurations for controlling the behaviour of the Circuit Breaker.",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -282,10 +282,10 @@
                         "description": "Derived set of configurations from the `CircuitBreakerConfig`.",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -297,10 +297,10 @@
                         "name": "CircuitHealth",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "description": "Maintains the health of the Circuit Breaker.",
                         "fields": {
                             "field_name": "enabled",
@@ -313,10 +313,10 @@
                         "name": "ClientEndpointConfig",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "description": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.",
                         "fields": {
                             "field_name": "enabled",
@@ -329,10 +329,10 @@
                         "name": "CompressionConfig",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "description": "A record for providing configurations for content compression.",
                         "fields": {
                             "field_name": "enabled",
@@ -342,14 +342,14 @@
                         }
                     },
                     {
-                        "name": "ConnectionThrottling",
+                        "name": "ConnectionThroTling",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
-                        "description": "Provides configurations for throttling connections of the endpoint.",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
+                        "description": "Provides configurations for throTling connections of the endpoint.",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -361,10 +361,10 @@
                         "name": "CorsConfig",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "description": "Configurations for CORS support.",
                         "fields": {
                             "field_name": "enabled",
@@ -377,10 +377,10 @@
                         "name": "FailoverClientEndpointConfiguration",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "description": "Provides a set of HTTP related configurations and failover related configurations.",
                         "fields": {
                             "field_name": "enabled",
@@ -393,10 +393,10 @@
                         "name": "FailoverConfig",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "description": "Provides a set of configurations for controlling the failover behaviour of the endpoint.",
                         "fields": {
                             "field_name": "enabled",
@@ -409,10 +409,10 @@
                         "name": "FailoverInferredConfig",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "description": "Inferred failover configurations passed into the failover client.",
                         "fields": {
                             "field_name": "enabled",
@@ -425,10 +425,10 @@
                         "name": "FollowRedirects",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "description": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.",
                         "fields": {
                             "field_name": "enabled",
@@ -441,10 +441,10 @@
                         "name": "HttpResourceConfig",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "description": "Configuration for an HTTP resource.",
                         "fields": {
                             "field_name": "enabled",
@@ -457,11 +457,11 @@
                         "name": "HttpServiceConfig",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
-                        "description": "Contains the configurations for an HTTP service.",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
+                        "description": "Contains the configurations for an Http service.",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -473,10 +473,10 @@
                         "name": "HttpTimeoutError",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "description": "Defines a timeout error occurred during service invocation.",
                         "fields": {
                             "field_name": "enabled",
@@ -489,10 +489,10 @@
                         "name": "KeyStore",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "description": "A record for providing key store related configurations.",
                         "fields": {
                             "field_name": "enabled",
@@ -505,10 +505,10 @@
                         "name": "ListenerauthConfig",
                         "label": "record",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "description": "Configures the authentication scheme for a service or a resource.",
                         "fields": {
                             "field_name": "enabled",
@@ -524,17 +524,21 @@
                         "description": "Representation of the Http Auth Handler Registry.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "method": [
                             {
                                 "method_type": "add",
-                                "method_params": "(string id, http:HttpAuthnHandler authnHandler)",
+                                "method_params": "(string id, Http:HttpAuthnHandler authnHandler)",
                                 "label_return": "",
                                 "return_params": "",
                                 "description": "Add an HttpAuthnHandler to HttpAuthHandlerRegistry",
+                                "param_name_label": "Param Name",
+                                "data_type_label": "Data Type",
+                                "default_value_label": "Default Value",
+                                "description_label": "Description",
                                 "fields": [
                                     {
                                         "param_name": "id",
@@ -544,7 +548,7 @@
                                     },
                                     {
                                         "param_name": "authnHandler",
-                                        "data_type": "http:HttpAuthnHandler",
+                                        "data_type": "Http:HttpAuthnHandler",
                                         "default_value": "",
                                         "description": "HttpAuthnHandler instance"
                                     }
@@ -556,13 +560,17 @@
                                 "label_return": "returns",
                                 "return_params": "(HttpAuthnHandler)",
                                 "description": "Retrieves an HttpAuthnHandler from HttpAuthHandlerRegistry which corresponds to the given id",
+                                "param_name_label": "Param Name",
+                                "data_type_label": "Data Type",
+                                "default_value_label": "Default Value",
+                                "description_label": "Description",
                                 "fields": {
                                     "param_name": "id",
                                     "data_type": "string",
                                     "default_value": "",
                                     "description": "Auth provider id",
                                     "Return Type": "HttpAuthnHandler",
-                                    "return_description":"HttpAuthnHandler instance or nil if not found"
+                                    "return_description": "HttpAuthnHandler instance or nil if not found"
                                 }
                             },
                             {
@@ -571,21 +579,42 @@
                                 "label_return": "returns",
                                 "return_params": "(map<HttpAuthnHandler>)",
                                 "description": "Retrieve the HttpAuthnHandler map",
+                                "param_name_label": "Param Name",
+                                "data_type_label": "Data Type",
+                                "default_value_label": "Default Value",
+                                "description_label": "Description",
                                 "fields": {
                                     "param_name": "",
                                     "data_type": "",
                                     "default_value": "",
                                     "description": "",
                                     "Return Type": "map",
-                                    "return_description":"map of HttpAuthnHandler"
+                                    "return_description": "map of HttpAuthnHandler"
                                 }
                             },
                             {
-                                "method_type": "",
-                                "method_params": "",
+                                "method_type": "remove",
+                                "method_params": "(string id)",
                                 "label_return": "",
                                 "return_params": "",
-                                "description": "Add an HttpAuthnHandler to HttpAuthHandlerRegistry",
+                                "description": "Removes a specific authn handler from the HttpAuthnHandler map",
+                                "param_name_label": "Param Name",
+                                "data_type_label": "Data Type",
+                                "default_value_label": "Default Value",
+                                "description_label": "Description",
+                                "fields": {
+                                    "param_name": "id",
+                                    "data_type": "string",
+                                    "default_value": "",
+                                    "description": ""
+                                }
+                            },
+                            {
+                                "method_type": "clear",
+                                "method_params": "()",
+                                "label_return": "",
+                                "return_params": "",
+                                "description": "Removes all authn handler from the HttpAuthnHandler map",
                                 "fields": {
                                     "param_name": "enabled",
                                     "data_type": "boolean",
@@ -600,10 +629,10 @@
                         "description": "Representation of the Authentication filter.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -616,10 +645,10 @@
                         "description": "Representation of Authentication handler chain",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -632,10 +661,10 @@
                         "description": "Representation of the Authorization filter",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -648,10 +677,10 @@
                         "description": "A Circuit Breaker implementation which can be used to gracefully handle network failures.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -661,13 +690,13 @@
                     },
                     {
                         "name": "Filter",
-                        "description": "Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object.",
+                        "description": "Representation of a Http Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -680,10 +709,10 @@
                         "description": "Representation of request filter Context.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -693,13 +722,13 @@
                     },
                     {
                         "name": "HttpAuthnHandler",
-                        "description": "Representation of Authentication handler for HTTP traffic.",
+                        "description": "Representation of Authentication handler for Http traffic.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -709,13 +738,13 @@
                     },
                     {
                         "name": "HttpAuthzHandler",
-                        "description": "Representation of Authorization Handler for HTTP",
+                        "description": "Representation of Authorization Handler for Http",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -725,13 +754,13 @@
                     },
                     {
                         "name": "HttpBasicAuthnHandler",
-                        "description": "Defines Basic Auth handler for HTTP traffic.",
+                        "description": "Defines Basic Auth handler for Http traffic.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -744,10 +773,10 @@
                         "description": "",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -757,13 +786,13 @@
                     },
                     {
                         "name": "HttpFuture",
-                        "description": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission. This can be used as a reference to fetch the results of the submission.",
+                        "description": "Represents a 'future' that returns as a result of an asynchronous Http request submission. This can be used as a reference to fetch the results of the submission.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -773,13 +802,13 @@
                     },
                     {
                         "name": "HttpJwtAuthnHandler",
-                        "description": "Representation of JWT Auth handler for HTTP traffic",
+                        "description": "Representation of JWT Auth handler for Http traffic",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -789,13 +818,13 @@
                     },
                     {
                         "name": "Listener",
-                        "description": "This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to remote callers. The Listener is responsible for initializing the endpoint using the provided configurations.",
+                        "description": "This is used for creating Http server endpoints. An Http server endpoint is capable of responding to remote callers. The Listener is responsible for initializing the endpoint using the provided configurations.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -808,10 +837,10 @@
                         "description": "Implementation of round robin load balancing strategy.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -824,10 +853,10 @@
                         "description": "LoadBalancerRule provides a required interfaces to implement different algorithms.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -840,10 +869,10 @@
                         "description": "Mock server endpoint which does not open a listening port.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -853,13 +882,13 @@
                     },
                     {
                         "name": "PushPromise",
-                        "description": "Represents an HTTP/2 PUSH_PROMISE frame.",
+                        "description": "Represents an Http/2 PUSH_PROMISE frame.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -869,13 +898,13 @@
                     },
                     {
                         "name": "Request",
-                        "description": "Represents an HTTP request.",
+                        "description": "Represents an Http request.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -888,10 +917,10 @@
                         "description": "Configures cache control directives for a Request.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -901,13 +930,13 @@
                     },
                     {
                         "name": "Response",
-                        "description": "Represents an HTTP response.",
+                        "description": "Represents an Http response.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -920,10 +949,10 @@
                         "description": "Configures cache control directives for a Response.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -936,10 +965,10 @@
                         "description": "Represents a WebSocket service endpoint.",
                         "label": "object",
                         "type": "public type",
-                        "label_field_name": "Field Name",
-                        "label_data_type": "Date Type",
-                        "label_default_value": "Default Value",
-                        "label_description": "Description",
+                        "field_name_label": "Field Name",
+                        "data_type_label": "Date Type",
+                        "default_value_label": "Default Value",
+                        "description_label": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -948,8 +977,1590 @@
                         }
                     }
                 ],
-                "clients": [],
-                "functions": [],
+                "clients": [
+                    {
+                        "name": " Client",
+                        "description": "The Http client provides the capability for initiating contact with a remote Http service. The API it provides includes functions for the standard Http methods, forwarding a received request and sending requests using custom Http verbs.",
+                        "fields": [
+                            {
+                                "field_name_label": "Field Name",
+                                "data_type_label": "Data Type",
+                                "default_value_label": "Default Value",
+                                "description_label": "Description",
+                                "attributes": [
+                                    {
+                                        "field_name": "config",
+                                        "data_type": "Http:ClientEndpointConfig",
+                                        "default_value": "{}",
+                                        "description": "The configurations associated with the client"
+                                    },
+                                    {
+                                        "field_name": "HttpClient",
+                                        "data_type": "Http:Client",
+                                        "default_value": "",
+                                        "description": "Chain of different Http clients which provides the capability for initiating contact with a remote Http service in resilient manner"
+                                    }
+                                ]
+                            }
+                        ],
+                        "method": [
+                            {
+                                "method_type": "post",
+                                "method_params": "(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "The post() function can be used to send Http POST requests to Http endpoints.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "",
+                                                        "description": "An HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "head",
+                                "method_params": "(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "The head() function can be used to send HTTP HEAD requests to HTTP endpoints.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "",
+                                                        "description": "An HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "put",
+                                "method_params": "(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "The put() function can be used to send HTTP PUT requests to HTTP endpoints.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "",
+                                                        "description": "An HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "execute",
+                                "method_params": "(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "Invokes an HTTP call with the specified HTTP verb.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "",
+                                                        "description": "An HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "get",
+                                "method_params": "(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "The get() function can be used to send HTTP GET requests to HTTP endpoints.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "",
+                                                        "description": "An HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "options",
+                                "method_params": "(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "The options() function can be used to send HTTP OPTIONS requests to HTTP endpoints.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "",
+                                                        "description": "An HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "forward",
+                                "method_params": "(string path, http:Request request)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "The forward() function can be used to invoke an HTTP call with inbound request's HTTP verb",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "request",
+                                                        "data_type": "http:Request",
+                                                        "default_value": "",
+                                                        "description": "An HTTP inbound request message"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "submit",
+                                "method_params": "(string HTTPVerb, string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(HttpFuture | error<>)",
+                                "description": "Submits an HTTP request to a service with the specified HTTP verb. The submit() function does not give out a Response as the result, rather it returns an HTTPFuture which can be used to do further interactions with the endpoint.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "HttpVerb",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "The HTTP verb value"
+                                                    },
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "",
+                                                        "description": "An HTTP outbound request message or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "httpFuture | error<>",
+                                                "description": "An HTTPFuture that represents an asynchronous service invocation, or an error if the submission fails"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "getResponse",
+                                "method_params": "(http:HttpFuture httpFuture)",
+                                "label_return": "returns",
+                                "return_params": "(HttpFuture | error<>)",
+                                "description": "This just pass the request to actual network call.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "httpFuture",
+                                                        "data_type": "http:HttpFuture",
+                                                        "default_value": "",
+                                                        "description": "The HttpFuture relates to a previous asynchronous invocation"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "An HTTP response message, or an error if the invocation fails"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "hasPromise",
+                                "method_params": "(http:HttpFuture httpFuture)",
+                                "label_return": "returns",
+                                "return_params": "(boolean)",
+                                "description": "This just pass the request to actual network call.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "httpFuture",
+                                                        "data_type": "http:HttpFuture",
+                                                        "default_value": "",
+                                                        "description": "The HttpFuture relates to a previous asynchronous invocation"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "boolean",
+                                                "description": "A boolean that represents whether a PushPromise exists"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "getNextPromise",
+                                "method_params": "(http:HttpFuture httpFuture)",
+                                "label_return": "returns",
+                                "return_params": "(PushPromise | error<>)",
+                                "description": "This just pass the request to actual network call.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "httpFuture",
+                                                        "data_type": "http:HttpFuture",
+                                                        "default_value": "",
+                                                        "description": "The HttpFuture relates to a previous asynchronous invocation"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "PushPromise | error<>",
+                                                "description": "An HTTP Push Promise message, or an error if the invocation fails"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "getPromisedResponse",
+                                "method_params": "(http:PushPromise promise)",
+                                "label_return": "returns",
+                                "return_params": "(responce | error<>)",
+                                "description": "This just pass the request to actual network call",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "promise",
+                                                        "data_type": "http:PushPromise",
+                                                        "default_value": "",
+                                                        "description": "The related PushPromise"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "A promised HTTP Response message, or an error if the invocation fails"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "rejectPromise",
+                                "method_params": "(string httpVerb, string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(HttpFuture | error<>)",
+                                "description": "Submits an HTTP request to a service with the specified HTTP verb. The submit() function does not give out a Response as the result, rather it returns an HTTPFuture which can be used to do further interactions with the endpoint.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "promise",
+                                                        "data_type": "http:PushPromise",
+                                                        "default_value": "",
+                                                        "description": "The Push Promise to be rejected"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name": "FailoverClient",
+                        "description": "An HTTP client endpoint which provides failover support over multiple HTTP clients.",
+                        "fields": [
+                            {
+                                "field_name_label": "Field Name",
+                                "data_type_label": "Data Type",
+                                "default_value_label": "Default Value",
+                                "description_label": "Description",
+                                "attributes": [
+                                    {
+                                        "field_name": "failoverClientConfig",
+                                        "data_type": "http:FailoverClientEndpointConfiguration",
+                                        "default_value": "{}",
+                                        "description": "The configurations for the failover client endpoint"
+                                    },
+                                    {
+                                        "field_name": "failoverInferredConfig",
+                                        "data_type": "http:FailoverInferredConfig",
+                                        "default_value": "",
+                                        "description": "Configurations derived from FailoverConfig"
+                                    },
+                                    {
+                                        "field_name": "succeededEndpointIndex",
+                                        "data_type": "int",
+                                        "default_value": "",
+                                        "description": "Index of the CallerActions[] array which given a successful response"
+                                    }
+                                ]
+                            }
+                        ],
+                        "method": [
+                            {
+                                "method_type": "post",
+                                "method_params": "(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "The POST remote function implementation of the Failover Connector.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "",
+                                                        "description": "HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response or an error if failed to fulfill the request"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "head",
+                                "method_params": "(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "TThe HEAD remote function implementation of the Failover Connector.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "null",
+                                                        "description": "An optional HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "patch",
+                                "method_params": "(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "The PATCH remote function implementation of the Failover Connector.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "",
+                                                        "description": "An HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "put",
+                                "method_params": "(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "The PUT remote function implementation of the Failover Connector.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "",
+                                                        "description": "An HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "options",
+                                "method_params": "(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "The OPTIONS remote function implementation of the Failover Connector.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "null",
+                                                        "description": "An optional HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "forward",
+                                "method_params": "(string path, http:Request request)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "Invokes an HTTP call using the incoming request's HTTP method.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "request",
+                                                        "data_type": "http:Request",
+                                                        "default_value": "",
+                                                        "description": "An HTTP request"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "execute",
+                                "method_params": "(string httpVerb, string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "Invokes an HTTP call with the specified HTTP method.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "httpVerb",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "HTTP method to be used for the request"
+                                                    },
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "",
+                                                        "description": "An HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "delete",
+                                "method_params": "(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(HTTPFuture | error<>)",
+                                "description": "The DELETE remote function implementation of the Failover Connector.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "",
+                                                        "description": "An HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "httpFuture | error<>",
+                                                "description": "An httpFuture that represents an asynchronous service invocation, or an error if the submission fails"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "get",
+                                "method_params": "(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(HttpFuture | error<>)",
+                                "description": "The GET remote function implementation of the Failover Connector.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "Resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "null",
+                                                        "description": "An optional HTTP request or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "An HTTP response message, or an error if the invocation fails"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "submit",
+                                "method_params": "(string httpVerb, string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]? message)",
+                                "label_return": "returns",
+                                "return_params": "(HttpFuture | error<>)",
+                                "description": "Submits an HTTP request to a service with the specified HTTP verb. The submit() function does not return a Response as the result, rather it returns an HttpFuture which can be used for subsequent interactions with the HTTP endpoint.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "httpVerb",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "The HTTP verb value"
+                                                    },
+                                                    {
+                                                        "field_name": "path",
+                                                        "data_type": "string",
+                                                        "default_value": "",
+                                                        "description": "The resource path"
+                                                    },
+                                                    {
+                                                        "field_name": "message",
+                                                        "data_type": "http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]?",
+                                                        "default_value": "",
+                                                        "description": "An HTTP outbound request message or any payload of type string, xml, json, byte[], io:ReadableByteChannel or mime:Entity[]"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "HttpFuture | error<>",
+                                                "description": "An HttpFuture that represents an asynchronous service invocation, or an error if the submission fails"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "getResponse",
+                                "method_params": "(http:HttpFuture httpFuture)",
+                                "label_return": "returns",
+                                "return_params": "(error<>)",
+                                "description": "Retrieves the Response for a previously submitted request.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "httpFuture",
+                                                        "data_type": "http:HttpFuture",
+                                                        "default_value": "",
+                                                        "description": "The HttpFuture related to a previous asynchronous invocation"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "error<>",
+                                                "description": "An HTTP response message, or an error if the invocation fails"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "hasPromise",
+                                "method_params": "(http:HttpFuture httpFuture)",
+                                "label_return": "returns",
+                                "return_params": "(boolean)",
+                                "description": "Checks whether a PushPromise exists for a previously submitted request.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "httpFuture",
+                                                        "data_type": "http:PushPromise",
+                                                        "default_value": "",
+                                                        "description": "The HttpFuture relates to a previous asynchronous invocation"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "boolean",
+                                                "description": "A boolean that represents whether a PushPromise exists"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "getNextPromise",
+                                "method_params": "(http:HttpFuture httpFuture)",
+                                "label_return": "returns",
+                                "return_params": "(PushPromise | error<>)",
+                                "description": "Retrieves the next available PushPromise for a previously submitted request.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "httpFuture",
+                                                        "data_type": "http:HttpFuture",
+                                                        "default_value": "",
+                                                        "description": "The HttpFuture relates to a previous asynchronous invocation"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                            "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "PushPromise | error<>",
+                                                "description": "An HTTP Push Promise message, or an error if the invocation fails"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "getPromisedResponse",
+                                "method_params": "(http:PushPromise promise)",
+                                "label_return": "returns",
+                                "return_params": "(Response | error<>)",
+                                "description": "Retrieves the promised server push Response message.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "promise",
+                                                        "data_type": "http:PushPromise",
+                                                        "default_value": "",
+                                                        "description": "The related PushPromise"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                            "returns": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "return_type_label": "Return Types",
+                                                "return_description_label": "Description",
+                                                "return_type": "Response | error<>",
+                                                "description": "A promised HTTP Response message, or an error if the invocation fails"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "rejectPromise",
+                                "method_params": "(http:PushPromise promise)",
+                                "label_return": "",
+                                "return_params": "",
+                                "description": "Rejects a PushPromise. When a PushPromise is rejected, there is no chance of fetching a promised response using the rejected promise.",
+                                "params": [
+                                    {
+                                        "fields": [
+                                            {
+                                                "param_name_label": "Parameter Name",
+                                                "data_type_label": "Data Type",
+                                                "default_value_label": "Default Value",
+                                                "description_label": "Description",
+                                                "attributes": [
+                                                    {
+                                                        "field_name": "promise",
+                                                        "data_type": "http:PushPromise",
+                                                        "default_value": "",
+                                                        "description": "The Push Promise to be rejected"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name": "HttpCachingClient",
+                        "description": "An HTTP caching client implementation which takes an HttpActions instance and wraps it with an HTTP caching layer."
+                    },
+                    {
+                        "name": "HttpCaller",
+                        "description": "Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, forward() and execute() functions are provided. More complex and specific endpoint types can be created by wrapping this generic HTTP actions implementation."
+                    },
+                    {
+                        "name": "HttpClient",
+                        "description": "Provides the HTTP remote functions for interacting with an HTTP server. Apart from the standard HTTP methods, forward() and execute() functions are provided. More complex and specific endpoint types can be created by wrapping this generic HTTP remote functions implementation."
+                    },
+                    {
+                        "name": "HttpSecureClient",
+                        "description": "Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication schemes configured in the HTTP client endpoint to secure the HTTP requests."
+                    },
+                    {
+                        "name": "LoadBalanceClient",
+                        "description": "LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients."
+                    },
+                    {
+                        "name": "RedirectClient",
+                        "description": "Provides redirect functionality for HTTP client remote functions."
+                    },
+                    {
+                        "name": "RetryClient",
+                        "description": "Provides the HTTP remote functions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client to provide retrying over HTTP requests."
+                    },
+                    {
+                        "name": "WebSocketCaller",
+                        "description": "Represents a WebSocket caller."
+                    },
+                    {
+                        "name": "WebSocketClient",
+                        "description": "Represents a WebSocket client endpoint."
+                    }
+                ],
+                "functions": [
+                    {
+                        "name": "createHttpCachingClient",
+                        "function_params": "(string url, http:ClientEndpointConfig config, HTTP:CacheConfig cacheConfig)",
+                        "description": "Creates an HTTP client capable of caching HTTP responses.",
+                        "return_type": "Client | error<>",
+                        "return_label": "Return",
+                        "function_type_label": "public function",
+                        "params": [
+                            {
+                                "fields": [
+                                    {
+                                        "param_name_label": "Parameter Name",
+                                        "data_type_label": "Data Type",
+                                        "default_value_label": "Default Value",
+                                        "description_label": "Description",
+                                        "attributes": [
+                                            {
+                                                "field_name": "url",
+                                                "data_type": "string",
+                                                "default_value": "",
+                                                "description": "The URL of the HTTP endpoint to connect to"
+                                            },
+                                            {
+                                                "field_name": "config",
+                                                "data_type": "http:ClientEndpointConfig",
+                                                "default_value": "",
+                                                "description": "The configurations for the client endpoint associated with the caching client"
+                                            },
+                                            {
+                                                "field_name": "cacheConfig",
+                                                "data_type": "http:CacheConfig",
+                                                "default_value": "",
+                                                "description": "The configurations for the HTTP cache to be used with the caching client"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "returns": [
+                            {
+                                "fields": [
+                                    {
+                                        "return_type_label": "Return Types",
+                                        "return_description_label": "Description",
+                                        "return_type": "Client | error<>",
+                                        "description": "An HttpCachingClient instance which wraps the base Client with a caching layer"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name": "createHttpSecureClient",
+                        "function_params": "(string url, http:ClientEndpointConfig config)",
+                        "description": "Creates an HTTP client capable of securing HTTP requests with authentication.",
+                        "return_type": "Client | error<>",
+                        "return_label": "Return",
+                        "function_type_label": "public function",
+                        "params": [
+                            {
+                                "fields": [
+                                    {
+                                        "param_name_label": "Parameter Name",
+                                        "data_type_label": "Data Type",
+                                        "default_value_label": "Default Value",
+                                        "description_label": "Description",
+                                        "attributes": [
+                                            {
+                                                "field_name": "url",
+                                                "data_type": "string",
+                                                "default_value": "",
+                                                "description": "Base URL"
+                                            },
+                                            {
+                                                "field_name": "config",
+                                                "data_type": "http:ClientEndpointConfig",
+                                                "default_value": "",
+                                                "description": "Client endpoint configurations"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "returns": [
+                            {
+                                "fields": [
+                                    {
+                                        "return_type_label": "Return Types",
+                                        "return_description_label": "Description",
+                                        "return_type": "string | error<>",
+                                        "description": "The string Value of the decoded url or an error that occured during decoding"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name": "decode",
+                        "function_params": "(string url, string charset)",
+                        "description": "Decodes the given URL.",
+                        "return_type": "string | error<>",
+                        "return_label": "Return",
+                        "function_type_label": "public function",
+                        "params": [
+                            {
+                                "fields": [
+                                    {
+                                        "param_name_label": "Parameter Name",
+                                        "data_type_label": "Data Type",
+                                        "default_value_label": "Default Value",
+                                        "description_label": "Description",
+                                        "attributes": [
+                                            {
+                                                "field_name": "url",
+                                                "data_type": "string",
+                                                "default_value": "",
+                                                "description": "URL to be encoded"
+                                            },
+                                            {
+                                                "field_name": "charset",
+                                                "data_type": "string",
+                                                "default_value": "",
+                                                "description": "Charactor set that URL to be encoded in"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "returns": [
+                            {
+                                "fields": [
+                                    {
+                                        "return_type_label": "Return Types",
+                                        "return_description_label": "Description",
+                                        "return_type": "string | error<>",
+                                        "description": "The string Value of the decoded url or an error that occured during decoding"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name": "encode",
+                        "function_params": "(string url, string charset)",
+                        "description": "Encodes the given URL.",
+                        "return_type": "string | error<>",
+                        "return_label": "Return",
+                        "function_type_label": "public function",
+                        "params": [
+                            {
+                                "fields": [
+                                    {
+                                        "param_name_label": "Parameter Name",
+                                        "data_type_label": "Data Type",
+                                        "default_value_label": "Default Value",
+                                        "description_label": "Description",
+                                        "attributes": [
+                                            {
+                                                "field_name": "url",
+                                                "data_type": "string",
+                                                "default_value": "",
+                                                "description": "URL to be encoded"
+                                            },
+                                            {
+                                                "field_name": "charset",
+                                                "data_type": "string",
+                                                "default_value": "",
+                                                "description": "Charactor set that URL to be encoded in"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "returns": [
+                            {
+                                "fields": [
+                                    {
+                                        "return_type_label": "Return Types",
+                                        "return_description_label": "Description",
+                                        "return_type": "string | error<>",
+                                        "description": "The string Value of the encoded url or an error that occured during encoding"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name": "invokeEndpoint",
+                        "function_params": "(string path, http:Request outRequest, FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|NONE requestAction, http:Client httpClient)",
+                        "description": "The HEAD remote function implementation of the Circuit Breaker. This wraps the head() function of the underlying HTTP remote function provider.",
+                        "return_type": "Response | error<>",
+                        "return_label": "Return",
+                        "function_type_label": "public function",
+                        "params": [
+                            {
+                                "fields": [
+                                    {
+                                        "param_name_label": "Parameter Name",
+                                        "data_type_label": "Data Type",
+                                        "default_value_label": "Default Value",
+                                        "description_label": "Description",
+                                        "attributes": [
+                                            {
+                                                "field_name": "path",
+                                                "data_type": "string",
+                                                "default_value": "",
+                                                "description": "Resource path"
+                                            },
+                                            {
+                                                "field_name": "outRequest",
+                                                "data_type": "http:Request",
+                                                "default_value": "",
+                                                "description": "A Request struct"
+                                            },
+                                            {
+                                                "field_name": "requestAction",
+                                                "data_type": "FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|NONE",
+                                                "default_value": "",
+                                                "description": "HttpOperation related to the request"
+                                            },
+                                            {
+                                                "field_name": "httpClient",
+                                                "data_type": "http:Client",
+                                                "default_value": "",
+                                                "description": "HTTP client which uses to call the relavant functions"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "returns": [
+                            {
+                                "fields": [
+                                    {
+                                        "return_type_label": "Return Types",
+                                        "return_description_label": "Description",
+                                        "return_type": "Response | error<>",
+                                        "description": "The response for the request or an error if failed to establish communication with the upstream server"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name": "parseHeader",
+                        "function_params": "(string headerValue)",
+                        "description": "Parses the given header value to extract its value and parameter map.",
+                        "return_type": "((string,map<any>) | error<>",
+                        "return_label": "Return",
+                        "function_type_label": "public function",
+                        "params": [
+                            {
+                                "fields": [
+                                    {
+                                        "param_name_label": "Parameter Name",
+                                        "data_type_label": "Data Type",
+                                        "default_value_label": "Default Value",
+                                        "description_label": "Description",
+                                        "attributes": [
+                                            {
+                                                "field_name": "headerValue",
+                                                "data_type": "string",
+                                                "default_value": "",
+                                                "description": "The header value"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "returns": [
+                            {
+                                "fields": [
+                                    {
+                                        "return_type_label": "Return Types",
+                                        "return_description_label": "Description",
+                                        "return_type": "(string,map) | error<>",
+                                        "description": "Returns a tuple containing the value and its parameter map"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
                 "listeners": [],
                 "constants": [],
                 "annotations": [],

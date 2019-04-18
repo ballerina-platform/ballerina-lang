@@ -16,7 +16,9 @@
 <body>
   <div class="ui grid">
     <div class="navi-wrapper two wide column">
-      <img class="logo" src="../../images/ballerina-logo.png">
+      <a href="../../index.html">
+        <img class="logo" src="../../images/ballerina-logo.png">
+      </a>
       <div class="primary-list">
         {{#if all.modules}}
         <ul>
@@ -53,6 +55,19 @@
         {{/if}}
         <div class="ui divider"></div>
       </div>
+       <div class="primary-list">
+        <h3>All Modules</h3>
+        {{#if all.modules}}
+            <ul>
+              {{#each all.modules}}
+              <li>
+                <a href="../index.html">{{id}}</a>
+              </li>
+              {{/each}}
+            </ul>
+        {{/if}}
+        <div class="ui divider"></div>
+      </div>
     </div>
 
     <div class="fourteen wide column content-wrapper">
@@ -66,10 +81,10 @@
         <table class="ui table">
           <thead>
             <tr>
-              <th>{{rec.label_field_name}}</th>
-              <th>{{rec.label_data_type}}</th>
-              <th>{{rec.label_default_value}}</th>
-              <th>{{rec.label_description}}</th>
+              <th>{{rec.field_name_label}}</th>
+              <th>{{rec.data_type_label}}</th>
+              <th>{{rec.default_value_label}}</th>
+              <th>{{rec.description_label}}</th>
             </tr>
           </thead>
           <tbody>
