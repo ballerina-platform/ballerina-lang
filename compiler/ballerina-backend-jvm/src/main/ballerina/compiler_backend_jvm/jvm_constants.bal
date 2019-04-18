@@ -230,6 +230,7 @@ const string STRAND = "org/ballerinalang/jvm/Strand";
 const string FUNCTION = "java/util/function/Function";
 const string CONSUMER = "java/util/function/Consumer";
 const string STRING_BUILDER = "java/lang/StringBuilder";
+const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";

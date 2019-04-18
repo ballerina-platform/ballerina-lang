@@ -43,7 +43,8 @@ dependencies {
     implementation project(':ballerina-observability')
     implementation project(':ballerina-activemq-artemis')
     implementation project(':observability-test-utils')
-    implementation project(':ballerina-test-utils')
+    implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
+
 
     implementation 'io.netty:netty-tcnative-boringssl-static'
     implementation 'io.netty:netty-tcnative-boringssl-static'

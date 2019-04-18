@@ -100,6 +100,15 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(birBranch.falseBB.id.value);
     }
 
+    public void visit(BIRTerminator.Wait waitEntry) {
+        buf.writeByte(waitEntry.kind.getValue());
+        buf.writeInt(waitEntry.exprList.size());
+        for (BIROperand expr : waitEntry.exprList) {
+            expr.accept(this);
+        }
+        waitEntry.lhsOp.accept(this);
+    }
+
 
     // Non-terminating instructions
 

@@ -29,6 +29,7 @@ public enum InstructionKind {
     BRANCH((byte) 3),
     RETURN((byte) 4),
     ASYNC_CALL((byte) 5),
+    WAIT((byte) 6),
 
     // Non-terminating instructions
     MOVE((byte) 20),

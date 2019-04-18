@@ -2,12 +2,12 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
-    implementation "com.github.jknack:handlebars:4.0.6"
+    implementation "com.github.jknack:handlebars"
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-core')
-    testCompile 'org.testng:testng:6.13.1'
+    testCompile 'org.testng:testng'
 }
 
 description = 'Ballerina - Swagger Tooling - Client Generator'
