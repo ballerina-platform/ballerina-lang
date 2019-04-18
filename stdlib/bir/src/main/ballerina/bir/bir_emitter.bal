@@ -105,7 +105,7 @@ public type BirEmitter object {
         string visibility =  bFunction.visibility;
         print(tabs, visibility.toLower(), " function ", bFunction.name.value, " ");
         self.typeEmitter.emitType(bFunction.typeValue);
-        println(" {\t// ", bFunction.isDeclaration ? "extern" : "", bFunction.isInterface ? "interface" : "");
+        println(" {", bFunction.isDeclaration ? "\t// extern" : bFunction.isInterface ? "\t// interface" : "");
         foreach var v in bFunction.localVars {
             self.typeEmitter.emitType(v.typeValue, tabs = tabs + "\t");
             print(" ");
