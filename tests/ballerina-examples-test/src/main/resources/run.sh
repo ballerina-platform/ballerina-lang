@@ -48,6 +48,7 @@ exclude=("proto-to-ballerina"
         "kubernetes-deployment"
         "awslambda-deployment"
         "openshift-deployment"
+        "grpc-server-streaming"
         )
 
 packages=($( sed -n 's/.*"url": "\([^"]*\)"/\1/p' index.json ))
