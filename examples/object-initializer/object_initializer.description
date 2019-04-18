@@ -1,1 +1,4 @@
-// In Ballerina, objects can have a constructor that can be used to initialize the object.
+// In Ballerina, objects can have a method named `__init()` which is used to initialize the object when creating a
+// new object. This method can have parameters as in any other method. However, the return type of the `__init()` method
+// should be a subtype of `error|()` which includes `()`. If an explicit definition for the `__init()` method
+// is not specified, there will be an implicit `__init()` method which does not accept any parameters and returns `()`.
