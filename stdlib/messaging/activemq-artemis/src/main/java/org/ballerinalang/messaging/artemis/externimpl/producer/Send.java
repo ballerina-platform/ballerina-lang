@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
+import org.ballerinalang.messaging.artemis.ArtemisTransactionContext;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -60,7 +61,12 @@ public class Send implements NativeCallableUnit {
             BMap<String, BValue> data = (BMap<String, BValue>) context.getRefArgument(1);
             ClientProducer producer = (ClientProducer) producerObj.getNativeData(ArtemisConstants.ARTEMIS_PRODUCER);
             ClientMessage message = (ClientMessage) data.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
+            ArtemisTransactionContext transactionContext =
+                    (ArtemisTransactionContext) producerObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
             producer.send(message, message1 -> callableUnitCallback.notifySuccess());
+            if (transactionContext != null) {
+                transactionContext.handleTransactionBlock(context);
+            }
         } catch (ActiveMQException e) {
             context.setReturnValues(ArtemisUtils.getError(context, e));
             callableUnitCallback.notifySuccess();

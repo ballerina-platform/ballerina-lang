@@ -17,17 +17,19 @@
 # Represents ActiveMQ Artemis Producer.
 public type Producer client object {
     private Session session;
-    private boolean anonymousSession = false;
 
-    public function __init(Session | URLConfiguration sesssionOrURLConfig, string addressName,
+    public function __init(Session | EndpointConfiguration sesssionOrEndpointConfig, string addressName,
                            AddressConfiguration? addressConfig = (), int rate = -1) {
-        if (sesssionOrURLConfig is Session) {
-            self.session = sesssionOrURLConfig;
+        if (sesssionOrEndpointConfig is Session) {
+            self.session = sesssionOrEndpointConfig;
         } else {
-            Connection connection = new("tcp://" + sesssionOrURLConfig.host + ":" + sesssionOrURLConfig.port);
-            self.session = new(connection, config = { username: sesssionOrURLConfig["username"],
-                    password: sesssionOrURLConfig["password"] });
-            self.anonymousSession = true;
+            Connection connection = new("tcp://" + sesssionOrEndpointConfig.host + ":"
+                                            + sesssionOrEndpointConfig.port);
+            self.session = new(connection, config = { username: sesssionOrEndpointConfig["username"],
+                    password: sesssionOrEndpointConfig["password"], 
+                    autoCommitSends: false,
+                    autoCommitAcks:  false });
+            self.session.anonymousSession = true;
         }
         AddressConfiguration configuration = {
 

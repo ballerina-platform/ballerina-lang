@@ -32,7 +32,7 @@ public type ArtemisError record {|
 # + port - The port
 # + username - The username
 # + password - The password
-public type URLConfiguration record {|
+public type EndpointConfiguration record {|
     string host;
     int port;
     string username?;

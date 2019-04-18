@@ -17,50 +17,65 @@
  *
  */
 
-package org.ballerinalang.messaging.artemis.externimpl.message;
+package org.ballerinalang.messaging.artemis.externimpl.consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisTransactionContext;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
 /**
- * Extern function to acknowledge an Artemis message.
+ * Extern function for the blocking receive operation.
  *
  * @since 0.995
  */
 
 @BallerinaFunction(
         orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
-        functionName = "acknowledge",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.MESSAGE_OBJ,
+        functionName = "receive",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.CONSUMER_OBJ,
                              structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        args = {
+                @Argument(name = "timeoutInMilliSeconds", type = TypeKind.INT)
+        },
         isPublic = true
 )
-public class Acknowledge extends BlockingNativeCallableUnit {
+public class Receive extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> messageObj = (BMap<String, BValue>) context.getRefArgument(0);
-        ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
+        BMap<String, BValue> consumerObj = (BMap<String, BValue>) context.getRefArgument(0);
+        long timeInMilliSeconds = context.getIntArgument(0);
+        ClientConsumer consumer = (ClientConsumer) consumerObj.getNativeData(ArtemisConstants.ARTEMIS_CONSUMER);
         ArtemisTransactionContext transactionContext =
-                (ArtemisTransactionContext) messageObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
+                (ArtemisTransactionContext) consumerObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
+        boolean autoAck = (boolean) consumerObj.getNativeData(ArtemisConstants.ARTEMIS_AUTO_ACK);
         try {
-            message.acknowledge();
-            if (transactionContext != null) {
-                transactionContext.handleTransactionBlock(context);
+            ClientMessage clientMessage = consumer.receive(timeInMilliSeconds);
+            BMap<String, BValue> messageObj = BLangConnectorSPIUtil.createBStruct(
+                    context, ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS, ArtemisConstants.MESSAGE_OBJ);
+            messageObj.addNativeData(ArtemisConstants.ARTEMIS_MESSAGE, clientMessage);
+            if (autoAck) {
+                clientMessage.acknowledge();
+                if (transactionContext != null) {
+                    transactionContext.handleTransactionBlock(context);
+                }
             }
+            context.setReturnValues(messageObj);
         } catch (ActiveMQException e) {
-            context.setReturnValues(ArtemisUtils.getError(context, "Error on acknowledging the message"));
+            context.setReturnValues(ArtemisUtils.getError(context, e));
         }
     }
 }

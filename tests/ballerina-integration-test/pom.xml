@@ -173,6 +173,31 @@
             <artifactId>ballerina-crypto</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-task</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-math</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-encoding</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-reflect</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-auth</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- balo dependencies -->
         <dependency>
@@ -258,6 +283,41 @@
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-task</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-math</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-encoding</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-reflect</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-auth</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -337,6 +397,7 @@
                         </hsqldb.jar>
                         <project.build.directory>${project.build.directory}</project.build.directory>
                         <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
+                        <java.util.logging.manager>org.ballerinalang.logging.BLogManager</java.util.logging.manager>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
