@@ -81,6 +81,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
     private boolean experimentalFlag;
 
+    @CommandLine.Option(names = {"--config"}, description = "path to the configuration file")
+    private String configFilePath;
+
     @CommandLine.Option(names = "--siddhiruntime", description = "enable siddhi runtime for stream processing")
     private boolean siddhiRuntimeFlag;
 
@@ -182,6 +185,10 @@ public class BuildCommand implements BLauncherCmd {
                                                             + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
 
+            // Load the configuration file. If no config file is given then the default config file i.e.
+            // "ballerina.conf" in the source root path is taken.
+            LauncherUtils.loadConfigurations(sourceRootPath, configFilePath);
+
             if (jvmTarget) {
                 BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                         offline, lockEnabled, skiptests, experimentalFlag, dumpBIR);
@@ -232,10 +239,6 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-    }
-
-    @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
     }
 
     private void genNativeBinary(Path projectDirPath, List<String> argList) {

@@ -142,6 +142,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRTerminator.Wait birWait) {
+        throw new AssertionError();
+    }
+
     public void visit(TypeTest birTypeTest) {
         throw new AssertionError();
     }

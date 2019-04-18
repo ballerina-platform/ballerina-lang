@@ -7,7 +7,7 @@ dependencies {
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-http')
     implementation project(':ballerina-launcher')
-    implementation project(':ballerina-test-utils')
+    implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
     implementation 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'

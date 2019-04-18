@@ -551,10 +551,10 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         if (bType.bType is bir:BErrorType) {
             // Todo: Handle for recursive user defined error types.
             mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
-            return;
+        } else {
+            loadType(mv, bType.bType);
         }
-        error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType.bType));
-        panic err;
+        return;
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;

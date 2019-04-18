@@ -24,8 +24,8 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-utils')
-    implementation 'io.nats:java-nats-streaming:2.1.0'
-    implementation 'io.nats:jnats:2.1.0'
+    implementation 'io.nats:java-nats-streaming'
+    implementation 'io.nats:jnats'
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')

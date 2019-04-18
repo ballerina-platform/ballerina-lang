@@ -19,6 +19,7 @@ public const int INS_CALL = 2;
 public const int INS_BRANCH = 3;
 public const int INS_RETURN = 4;
 public const int INS_ASYNC_CALL = 5;
+public const int INS_WAIT = 6;
 
 // Non-terminating instructions
 public const int INS_MOVE = 20;
