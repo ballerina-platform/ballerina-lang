@@ -110,9 +110,10 @@ public const TERMINATOR_ASYNC_CALL = "ASYNC_CALL";
 public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
 public const TERMINATOR_PANIC = "PANIC";
+public const TERMINATOR_WAIT = "WAIT";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
-                                |TERMINATOR_PANIC;
+                                |TERMINATOR_PANIC|TERMINATOR_WAIT;
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -366,6 +367,12 @@ public type BinaryOp record {|
     VarRef lhsOp;
     VarRef rhsOp1;
     VarRef rhsOp2;
+|};
+
+public type Wait record {|
+    TerminatorKind kind;
+    VarRef lhsOp;
+    VarRef?[] exprList;
 |};
 
 public type Call record {|
