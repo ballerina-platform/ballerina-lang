@@ -96,12 +96,13 @@ public const INS_KIND_IS_LIKE = "IS_LIKE";
 public const INS_KIND_TYPE_TEST = "TYPE_TEST";
 public const INS_KIND_OBJECT_STORE = "OBJECT_STORE";
 public const INS_KIND_OBJECT_LOAD = "OBJECT_LOAD";
+public const INS_KIND_FP_LOAD = "FP_LOAD";
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST | 
                                 INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
                                 INS_KIND_MAP_LOAD | INS_KIND_ARRAY_LOAD | INS_KIND_TYPE_CAST | INS_KIND_IS_LIKE |
                                 INS_KIND_TYPE_TEST | BinaryOpInstructionKind | INS_KIND_OBJECT_STORE |
-                                INS_KIND_OBJECT_LOAD;
+                                INS_KIND_OBJECT_LOAD | INS_KIND_FP_LOAD;
 
 
 public const TERMINATOR_GOTO = "GOTO";
@@ -321,6 +322,13 @@ public type NewError record {|
     VarRef lhsOp;
     VarRef reasonOp;
     VarRef detailsOp;
+|};
+
+public type FPLoad record {|
+    InstructionKind kind;
+    VarRef lhsOp;
+    ModuleID pkgID;
+    Name name;
 |};
 
 public type FieldAccess record {|
