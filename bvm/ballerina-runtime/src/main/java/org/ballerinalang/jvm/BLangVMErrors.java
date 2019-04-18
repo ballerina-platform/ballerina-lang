@@ -33,7 +33,7 @@ public class BLangVMErrors {
         return getPrintableStackTrace(getErrorMessage(error), error.getStackTrace());
     }
 
-    private static String getPrintableStackTrace(String errorMsg, StackTraceElement[] stackTrace) {
+    public static String getPrintableStackTrace(String errorMsg, StackTraceElement[] stackTrace) {
         StringBuilder sb = new StringBuilder();
         sb.append(errorMsg).append("\n\tat ");
         // Append function/action/resource name with package path (if any)
@@ -61,7 +61,7 @@ public class BLangVMErrors {
         return sb.toString();
     }
 
-    private static String getErrorMessage(ErrorValue errorValue) {
+    public static String getErrorMessage(ErrorValue errorValue) {
         String errorMsg = "";
         boolean reasonAdded = false;
         String reason = errorValue.getReason();
