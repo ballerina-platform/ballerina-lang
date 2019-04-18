@@ -65,14 +65,17 @@ public function toStreamEvents(SnapshottableStreamEvent[]|any[]? events) returns
     return evts;
 }
 
+// todo: add the eventId
 public function toSnapshottableEvent(StreamEvent event) returns SnapshottableStreamEvent {
     return {
         eventType: event.eventType,
         timestamp: event.timestamp,
-        data: event.data
+        data: event.data,
+        streamName: event.streamName
     };
 }
 
+// todo: add the eventId
 public function toStreamEvent(SnapshottableStreamEvent event) returns StreamEvent {
     StreamEvent se = new(event.data, event.eventType, event.timestamp);
     return se;

@@ -14,26 +14,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/system;
+
 public type StreamEvent object {
     public EventType eventType;
     public int timestamp;
     public map<anydata> data = {};
+    public string streamName;
+    public string eventId;
 
     public function __init((string, map<anydata>)|map<anydata> eventData, EventType eventType, int timestamp) {
         self.eventType = eventType;
         self.timestamp = timestamp;
+        self.streamName = "";
+        self.eventId = system:uuid();
         if (eventData is (string, map<anydata>)) {
+            self.streamName = eventData[0];
             foreach var (k, v) in eventData[1] {
                 self.data[eventData[0] + DELIMITER + k] = v;
             }
         }
         else if (eventData is map<anydata>) {
             self.data = eventData;
+            string key = (eventData.length() > 0) ? eventData.keys()[0] : "";
+            self.streamName = key.split("\\.")[0];
         }
     }
 
     public function copy() returns StreamEvent {
         StreamEvent clone = new(self.cloneData(), self.eventType, self.timestamp);
+        clone.eventId = self.eventId;
         return clone;
     }
 
@@ -48,6 +58,14 @@ public type StreamEvent object {
         self.data[k] = val;
     }
 
+    public function getStreamName() returns string {
+        return self.streamName;
+    }
+
+    public function getEventId() returns string {
+        return self.eventId;
+    }
+
     function cloneData() returns map<anydata> {
         map<anydata> dataClone = {};
         foreach var (k, v) in self.data {
@@ -56,16 +74,12 @@ public type StreamEvent object {
         return dataClone;
     }
 
-    function getStreamName() returns string {
-        string key = (self.data.length() > 0) ? self.data.keys()[0] : "";
-        return key.split("\\.")[0];
-    }
-
 };
 
 public type SnapshottableStreamEvent record {
     EventType eventType = "CURRENT";
     int timestamp = 0;
     map<anydata> data = {};
+    string streamName = "";
     !...;
 };
