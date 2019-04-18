@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.FileUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
@@ -63,6 +62,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
+import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -570,28 +570,18 @@ public class BCompileUtil {
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         byte[] compiledJar = JVMCodeGen.generateJarBinary(false, bLangPackage, context, packageName);
         JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
-        String entryClassName = FileUtils.cleanupFileExtension(packageName).replace('.', '_');
-        entryClassName = getQualifiedClassName(bLangPackage.packageID.orgName.value, packageName, entryClassName);
-        Class<?> clazz = classLoader.loadClass(entryClassName);
-
-        // invoke the init function
+        String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                                                               packageName, MODULE_INIT_CLASS_NAME);
+        Class<?> initClazz = classLoader.loadClass(initClassName);
         String funcName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).initFunction);
         try {
-            Method method = clazz.getDeclaredMethod(funcName, Strand.class);
+            Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
             method.invoke(null, new Strand(new Scheduler()));
         } catch (Exception e) {
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         }
-
-        compileResult.setEntryClass(clazz);
+        compileResult.setClassLoader(classLoader);
         return compileResult;
-    }
-
-    private static String getQualifiedClassName(String orgName, String packageName, String className) {
-        if (!Names.ANON_ORG.value.equals(orgName) && !Names.DEFAULT_PACKAGE.value.equals(packageName)) {
-            return orgName + "." + packageName.replace('.', '_') + "." + className.replace('.', '_');
-        }
-        return className;
     }
 
     private static CompileResult compileOnJBallerina(String sourceFilePath) {
