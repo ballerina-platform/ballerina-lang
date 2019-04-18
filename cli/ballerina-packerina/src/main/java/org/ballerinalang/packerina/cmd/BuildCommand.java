@@ -81,6 +81,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
     private boolean experimentalFlag;
 
+    @CommandLine.Option(names = {"--config"}, description = "path to the configuration file")
+    private String configFilePath;
+
     public void execute() {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -177,6 +180,10 @@ public class BuildCommand implements BLauncherCmd {
                                                                     "directory or a file  with a \'"
                                                             + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
+
+            // Load the configuration file. If no config file is given then the default config file i.e.
+            // "ballerina.conf" in the source root path is taken.
+            LauncherUtils.loadConfigurations(sourceRootPath, configFilePath);
 
             if (jvmTarget) {
                 BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
