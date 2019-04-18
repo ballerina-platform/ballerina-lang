@@ -15,6 +15,8 @@
 // under the License.
 
 function testXML() returns xml {
-    xml x = xml `<foo a="hello world"><bar1>hello1</bar1><bar2>hello2</bar2></foo>`;
+    xmlns "http://wso2.com/" as ns0;
+
+    xml x = xml `<ns0:foo a="hello world" xmlns:ns1="http://ballerinalang.org/"><ns1:bar1>hello1</ns1:bar1><bar2>hello2</bar2></ns0:foo>`;
     return x;
 }

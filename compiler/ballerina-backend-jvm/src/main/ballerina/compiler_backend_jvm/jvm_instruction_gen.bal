@@ -674,15 +674,12 @@ type InstructionGenerator object {
     function generateXMLAttrStoreIns(bir:FieldAccess xmlAttrStoreIns) {
         // visit xml_ref
         self.generateVarLoad(xmlAttrStoreIns.lhsOp.variableDcl);
-        bir:BType varRefType = xmlAttrStoreIns.lhsOp.variableDcl.typeValue;
 
         // visit attribute name expr
         self.generateVarLoad(xmlAttrStoreIns.keyOp.variableDcl);
 
         // visit attribute value expr
-        bir:BType valueType = xmlAttrStoreIns.rhsOp.variableDcl.typeValue;
         self.generateVarLoad(xmlAttrStoreIns.rhsOp.variableDcl);
-        addBoxInsn(self.mv, valueType);
 
         // invoke setAttribute() method
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "setAttribute",

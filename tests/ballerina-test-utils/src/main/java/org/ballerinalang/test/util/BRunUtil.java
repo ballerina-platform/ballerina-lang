@@ -522,6 +522,8 @@ public class BRunUtil {
                 }
                 bvmObjectType.setFields(fields);
                 return bvmObjectType;
+            case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
+                return BTypes.typeXML;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }
