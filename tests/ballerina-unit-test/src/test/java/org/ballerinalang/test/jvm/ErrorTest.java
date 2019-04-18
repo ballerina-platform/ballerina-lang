@@ -123,6 +123,11 @@ public class ErrorTest {
         Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "int value");
     }
 
+    @Test(enabled = false)
+    public void testSelfReferencingObject() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingError");
+    }
+
     private String getPrintableStackTrace(ErrorValue errorValue) {
         StackTraceElement[] stackWithoutJavaTests = Arrays.copyOf(errorValue.getStackTrace(), 2);
         return BLangVMErrors.getPrintableStackTrace(BLangVMErrors.getErrorMessage(errorValue),

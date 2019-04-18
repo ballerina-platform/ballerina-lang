@@ -230,6 +230,7 @@ const string STRAND = "org/ballerinalang/jvm/Strand";
 const string FUNCTION = "java/util/function/Function";
 const string CONSUMER = "java/util/function/Consumer";
 const string STRING_BUILDER = "java/lang/StringBuilder";
+const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -258,5 +259,6 @@ const string TYPES_ERROR =  "typeError";
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
 
-// Name of the class to which the types will be added as static fields.
+// code generation related constants.
 const string INIT_CLASS_NAME = "___init";
+const string BAL_EXTENSION = ".bal";

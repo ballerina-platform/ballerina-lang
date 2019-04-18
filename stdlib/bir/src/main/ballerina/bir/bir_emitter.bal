@@ -289,7 +289,43 @@ type TerminalEmitter object {
         } else if (term is Panic) {
             print(tabs, "panic ");
             self.opEmitter.emitOp(term.errorOp);
+            println(";"); 
+        } else if (term is Wait) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            int i = 0;
+            foreach var expr in term.exprList {
+                if (i != 0) {
+                    print("|");
+                }
+                if (expr is VarRef) {
+                    self.opEmitter.emitOp(expr);
+                }
+                i = i + 1;
+            }
             println(";");
+        } else if (term is AsyncCall) {
+          print(tabs);
+          VarRef? lhsOp = term.lhsOp;
+          if (lhsOp is VarRef) {
+              self.opEmitter.emitOp(lhsOp);
+              print(" = ");
+          }
+          print(" START ");
+          print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
+          int i = 0;
+          foreach var arg in term.args {
+              if (arg is VarRef) {
+                  if (i != 0) {
+                      print(", ");
+                  }
+                  self.opEmitter.emitOp(arg);
+                  i = i + 1;
+              }
+          }
+          println(") -> ", term.thenBB.id.value, ";");
         } else { //if (term is Return) {
             println(tabs, "return;");
         }

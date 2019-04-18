@@ -315,4 +315,20 @@ public class BIREmitter extends BIRVisitor {
         }
         sb.append(line);
     }
+
+    public void visit(BIRTerminator.Wait wait) {
+        sb.append("\t\t");
+        wait.lhsOp.accept(this);
+        sb.append(" = ");
+        sb.append(wait.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        int i = 0;
+        for (BIROperand expr : wait.exprList) {
+            if (i != 0) {
+                sb.append("|");
+            }
+            expr.accept(this);
+            i++;
+        }
+        sb.append(";\n");
+    }
 }

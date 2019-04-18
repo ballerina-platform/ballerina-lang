@@ -64,10 +64,11 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
         cw.visitSource(v.sourceFileName);
 
-        generateDefaultConstructor(cw);
+        generateDefaultConstructor(cw, VALUE_CREATOR);
         // populate global variable to class name mapping and generate them
         if (isInitClass) {
             generateUserDefinedTypeFields(cw, module.typeDefs);
+            generateValueCreatorMethods(cw, module.typeDefs, pkgName);
             foreach var globalVar in module.globalVars {
                 if (globalVar is bir:GlobalVariableDcl) {
                     generatePackageVariable(globalVar, cw);
@@ -118,25 +119,27 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
         cw.visitSource(v.sourceFileName);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
 
-        generateDefaultConstructor(cw);
+        generateDefaultConstructor(cw, VALUE_CREATOR);
         // populate global variable to class name mapping and generate them
         if (isInitClass) {
             generateUserDefinedTypeFields(cw, module.typeDefs);
+            generateValueCreatorMethods(cw, module.typeDefs, pkgName);
             foreach var globalVar in module.globalVars {
                 if (globalVar is bir:GlobalVariableDcl) {
                     generatePackageVariable(globalVar, cw);
                 }
+            }
+            if (mainFunc is bir:Function) {
+                generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
+                generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
+                manifestEntries["Main-Class"] = moduleClass;
             }
         }
         // generate methods
         foreach var func in v.functions {
             generateMethod(getFunction(func), cw, module);
         }
-        if (isInitClass && mainFunc is bir:Function) {
-            generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
-            generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
-            manifestEntries["Main-Class"] = moduleClass;
-        }
+        
         // generate lambdas
         foreach var (name, call) in lambdas {
             generateLambdaMethod(call[0], cw, call[1], name);
@@ -150,7 +153,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWriter cw) {
     string varName = globalVar.name.value;
     bir:BType bType = globalVar.typeValue;
-    generateField(cw, bType, varName);
+    generateField(cw, bType, varName, true);
 }
 
 function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) returns bir:Package {

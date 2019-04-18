@@ -357,6 +357,59 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
+    function generateWaitIns(bir:Wait waitInst, string funcName) {
+        // TODO : need to fix to support multiple waits
+        bir:VarRef? futureVal = waitInst.exprList[0];
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+        if (futureVal is bir:VarRef) {
+            generateVarLoad(self.mv, futureVal.variableDcl, currentPackageName, 
+                self.getJVMIndexOfVarRef(futureVal.variableDcl));
+        }
+
+        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "isDone", "Z");
+        jvm:Label label = new;
+        self.mv.visitJumpInsn(IFNE, label);
+        jvm:Label label2 = new;
+        self.mv.visitLabel(label2);
+        // strand.blocked = true
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitFieldInsn(PUTFIELD, STRAND, "blocked", "Z");
+
+        // strand.blockedOn = future.strand
+        self.mv.visitVarInsn(ALOAD, 0);
+        if (futureVal is bir:VarRef) {
+            bir:VariableDcl? varDecl = futureVal.variableDcl;
+            if (varDecl is bir:VariableDcl) {
+                generateVarLoad(self.mv, varDecl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(varDecl));
+            }  
+        }
+        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
+        self.mv.visitFieldInsn(PUTFIELD, STRAND, "blockedOn", io:sprintf("L%s;", STRAND));
+
+        // strand.yield = true
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitFieldInsn(PUTFIELD, STRAND, "yield", "Z");
+        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
+        self.mv.visitJumpInsn(GOTO, yieldLabel);
+        self.mv.visitLabel(label);
+
+        // future.result = lhs
+        if (futureVal is bir:VarRef) {
+            bir:VariableDcl? varDecl = futureVal.variableDcl;
+            if (varDecl is bir:VariableDcl) {
+                generateVarLoad(self.mv, varDecl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(varDecl));
+            }  
+        }
+        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
+        checkCastFromObject(waitInst.lhsOp.typeValue, self.mv);
+        generateVarStore(self.mv, waitInst.lhsOp.variableDcl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(waitInst.lhsOp.variableDcl));
+    }
+
     function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {
         return self.indexMap.getIndex(varDcl);
     }
