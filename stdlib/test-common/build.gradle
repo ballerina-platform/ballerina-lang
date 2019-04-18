@@ -1,7 +1,7 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation 'commons-logging:commons-logging:1.1.1'
+    implementation 'commons-logging:commons-logging'
     implementation project(":ballerina-logging")
     implementation project(":ballerina-launcher")
     implementation project(':ballerina-lang')
