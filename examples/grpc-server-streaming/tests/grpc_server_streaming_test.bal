@@ -21,7 +21,10 @@ function testServerStreamingService() {
     }
 
     int waitCount = 0;
-    while(!completed && (responseMsgs.length() < 3)) {
+    while(true) {
+        if (completed && (responseMsgs.length() == 3)) {
+            break;
+        }
         io:println(responseMsgs);
         runtime:sleep(1000);
         if (waitCount > 10) {

@@ -28,7 +28,6 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -38,7 +37,6 @@ import java.lang.reflect.InvocationTargetException;
  *
  * @since 0.995.0
  */
-@Ignore
 public class ErrorTest {
 
     private CompileResult compileResult;
@@ -118,5 +116,10 @@ public class ErrorTest {
         bError = (BError) result[0];
         Assert.assertEquals(bError.getReason(), "reason foo 2");
         Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "int value");
+    }
+
+    @Test(enabled = false)
+    public void testSelfReferencingObject() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingError");
     }
 }

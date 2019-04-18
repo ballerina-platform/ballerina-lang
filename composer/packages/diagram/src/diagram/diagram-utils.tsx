@@ -15,6 +15,11 @@ svg.appendChild(textElement);
 document.body.appendChild(svg);
 
 const ellipsesLength = getEllipsesLength();
+
+interface CalcTextLengthOptions {
+    bold: boolean;
+}
+
 export class DiagramUtils {
 
     public static getComponents(nodeArray: any): React.ReactNode[] {
@@ -46,10 +51,12 @@ export class DiagramUtils {
         minWidth = DefaultConfig.statement.width,
         maxWidth = DefaultConfig.statement.maxWidth,
         paddingLeft = DefaultConfig.statement.padding.left,
-        paddingRight = DefaultConfig.statement.padding.right) {
+        paddingRight = DefaultConfig.statement.padding.right, isBold = false) {
         text = text.trim();
         text = text.replace(/\/\/.*$/gm, "");
         text = text.trim();
+        textElement.style.fontWeight = isBold ? "bold" : "";
+
         textElement.innerHTML = _.escape(text);
 
         let labelWidth = textElement.getComputedTextLength();
@@ -83,6 +90,15 @@ export class DiagramUtils {
             text,
             w: width,
         };
+    }
+
+    public static calcTextLength(text: string, options: CalcTextLengthOptions) {
+        textElement.style.fontWeight = options.bold ? "bold" : "";
+        const escaped = _.escape(text);
+        textElement.innerHTML = escaped;
+        const length = textElement.getSubStringLength(0, escaped.length);
+        textElement.style.fontWeight = "";
+        return length;
     }
 
     /**
