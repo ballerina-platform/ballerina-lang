@@ -23,7 +23,7 @@ import ballerina/time;
 #
 public type JWTAuthProvider object {
 
-    public JWTAuthProviderConfig jwtAuthProviderConfig;
+    JWTAuthProviderConfig jwtAuthProviderConfig;
 
     # Provides authentication based on the provided jwt token
     #
