@@ -60,6 +60,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -336,6 +337,11 @@ public class XMLUtils {
     public static BXML<?> createXMLText(String content) {
         // Remove carriage return on windows environments to eliminate additional &#xd; being added
         content = content.replace("\r\n", "\n");
+        // &gt; &lt; and &amp; in XML literal in Ballerina lang maps to >, <, and & in XML infoset.
+        content = content
+                .replace("&gt;", ">")
+                .replace("&lt;", "<")
+                .replace("&amp;", "&");
 
         OMText omText = OM_FACTORY.createOMText(content);
         return new BXMLItem(omText);
@@ -428,7 +434,7 @@ public class XMLUtils {
             return false;
         }
 
-        for (int i = 0; i < xmlSequenceOne.size(); i++) {
+        for (int i = 0; i < xmlSequenceOne.value().size(); i++) {
             if (!isEqual((BXML<?>) xmlSequenceOne.value().getRefValue(i), (BXML<?>) xmlSequenceTwo.value().
                     getRefValue(i))) {
                 return false;

@@ -313,11 +313,6 @@ public class GrpcCmd implements BLauncherCmd {
         this.parentCmdParser = parentCmdParser;
     }
     
-    @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
-    
-    }
-    
     private List<String> readProperties(ClassLoader classLoader) {
         String fileName;
         List<String> protoFilesList = new ArrayList<>();

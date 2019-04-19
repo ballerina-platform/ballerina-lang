@@ -67,7 +67,7 @@ public class BalServer {
             serverZipFile = serverZipFile.replace("/", "\\");
         }
         String extractedBalDir = serverZipFile.substring(serverZipFile.lastIndexOf(fileSeparator) + 1, indexOfZip);
-        String baseDir = (System.getProperty(Constant.SYSTEM_PROP_BASE_DIR, ".")) + File.separator + "target";
+        String baseDir = (System.getProperty("libdir", "."));
 
         extractDir = new File(baseDir).getAbsolutePath() +
                 File.separator + "ballerinatmp" + System.currentTimeMillis();

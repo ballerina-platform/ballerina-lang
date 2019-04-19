@@ -207,6 +207,20 @@ public class ErrorTest {
     }
 
     @Test
+    public void testUnspecifiedErrorDetailFrozenness() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnspecifiedErrorDetailFrozenness");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testErrorDetailCloneAndFreeze() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorDetailCloneAndFreeze");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
     public void testErrorNegative() {
         Assert.assertEquals(negativeCompileResult.getErrorCount(), 10);
         BAssertUtil.validateError(negativeCompileResult, 0,
@@ -220,7 +234,7 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, 4, "invalid error detail type 'boolean'," +
                 " expected a subtype of 'record { }' or 'map<anydata|error>'", 41, 36);
         BAssertUtil.validateError(negativeCompileResult, 5,
-                                  "invalid error reason type '1.0', expected a subtype of 'string'", 44, 7);
+                                  "invalid error reason type '1.0f', expected a subtype of 'string'", 44, 7);
         BAssertUtil.validateError(negativeCompileResult, 6,
                                   "invalid error reason type 'boolean', expected a subtype of 'string'", 47, 11);
         BAssertUtil.validateError(negativeCompileResult, 7, "self referenced variable 'e3'", 53, 22);

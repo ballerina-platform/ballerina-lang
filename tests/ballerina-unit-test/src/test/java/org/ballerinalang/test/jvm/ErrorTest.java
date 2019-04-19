@@ -63,8 +63,8 @@ public class ErrorTest {
         BValue[] result = BRunUtil.invoke(compileResult, "testTrap", new BValue[] { new BInteger(0) });
         Assert.assertTrue(result[0] instanceof BError);
         BError bError = (BError) result[0];
-        Assert.assertEquals(bError.reason, "reason foo 2");
-        Assert.assertEquals(((BMap) bError.details).get("message").stringValue(), "int value");
+        Assert.assertEquals(bError.getReason(), "reason foo 2");
+        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "int value");
     }
 
     @Test(description = "Test handle errors of nested function calls with single trap")
@@ -73,15 +73,15 @@ public class ErrorTest {
         BValue[] result = BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap",
                                           new BValue[] { new BInteger(0) });
         BError bError = (BError) result[0];
-        Assert.assertEquals(bError.reason, "reason bar 1");
-        Assert.assertEquals(((BMap) bError.details).get("message").stringValue(), "bar");
+        Assert.assertEquals(bError.getReason(), "reason bar 1");
+        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "bar");
 
         // Run with non zero integer input
         result = BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap",
                                           new BValue[] { new BInteger(1) });
         bError = (BError) result[0];
-        Assert.assertEquals(bError.reason, "reason foo 2");
-        Assert.assertEquals(((BMap) bError.details).get("message").stringValue(), "int value");
+        Assert.assertEquals(bError.getReason(), "reason foo 2");
+        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "int value");
     }
 
     @Test(description = "Test handle errors of nested function calls with trap expression for each function call")
@@ -90,15 +90,15 @@ public class ErrorTest {
         BValue[] result = BRunUtil.invoke(compileResult, "testNestedCallsWithAllTraps",
                                           new BValue[] { new BInteger(0) });
         BError bError = (BError) result[0];
-        Assert.assertEquals(bError.reason, "reason foo 1");
-        Assert.assertEquals(((BMap) bError.details).get("message").stringValue(), "foo");
+        Assert.assertEquals(bError.getReason(), "reason foo 1");
+        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "foo");
 
         // Run with non zero integer input
         result = BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap",
                                  new BValue[] { new BInteger(1) });
         bError = (BError) result[0];
-        Assert.assertEquals(bError.reason, "reason foo 2");
-        Assert.assertEquals(((BMap) bError.details).get("message").stringValue(), "int value");
+        Assert.assertEquals(bError.getReason(), "reason foo 2");
+        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "int value");
     }
 
     @Test(description = "Test handle errors of nested function calls with trap expression for some function calls")
@@ -107,14 +107,19 @@ public class ErrorTest {
         BValue[] result = BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap",
                                           new BValue[] { new BInteger(0) });
         BError bError = (BError) result[0];
-        Assert.assertEquals(bError.reason, "reason bar 1");
-        Assert.assertEquals(((BMap) bError.details).get("message").stringValue(), "bar");
+        Assert.assertEquals(bError.getReason(), "reason bar 1");
+        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "bar");
 
         // Run with non zero integer input
         result = BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap",
                                  new BValue[] { new BInteger(1) });
         bError = (BError) result[0];
-        Assert.assertEquals(bError.reason, "reason foo 2");
-        Assert.assertEquals(((BMap) bError.details).get("message").stringValue(), "int value");
+        Assert.assertEquals(bError.getReason(), "reason foo 2");
+        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "int value");
+    }
+
+    @Test(enabled = false)
+    public void testSelfReferencingObject() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingError");
     }
 }

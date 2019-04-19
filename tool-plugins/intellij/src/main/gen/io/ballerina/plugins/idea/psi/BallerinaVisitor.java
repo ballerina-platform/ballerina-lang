@@ -716,14 +716,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitSetAssignmentClause(@NotNull BallerinaSetAssignmentClause o) {
-    visitPsiElement(o);
-  }
-
-  public void visitSetClause(@NotNull BallerinaSetClause o) {
-    visitPsiElement(o);
-  }
-
   public void visitShiftExpression(@NotNull BallerinaShiftExpression o) {
     visitPsiElement(o);
   }

@@ -264,6 +264,14 @@ public class SQLActionsTest {
     }
 
     @Test(groups = CONNECTOR_TEST)
+    public void testBatchUpdateSingleValParamArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateSingleValParamArray");
+        BValueArray retValue = (BValueArray) returns[0];
+        Assert.assertEquals(retValue.getInt(0), 1);
+        Assert.assertEquals(retValue.getInt(1), 1);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
     public void testBatchUpdateWithValues() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithValues");
         BValueArray retValue = (BValueArray) returns[0];

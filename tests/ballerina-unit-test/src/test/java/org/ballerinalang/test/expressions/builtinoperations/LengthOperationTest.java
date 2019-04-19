@@ -255,7 +255,7 @@ public class LengthOperationTest {
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
         int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 4;
+        int expected = 16;
         Assert.assertEquals(actual, expected);
     }
 

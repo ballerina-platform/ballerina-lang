@@ -101,7 +101,7 @@ public final class BFunctionCompletionItemBuilder {
         String pkgID = bInvokableSymbol.pkgID.toString();
 
         MarkdownDocAttachment markdownDocAttachment = bInvokableSymbol.getMarkdownDocAttachment();
-        String description = markdownDocAttachment.description;
+        String description = markdownDocAttachment.description == null ? "" : markdownDocAttachment.description;
         List<MarkdownDocAttachment.Parameter> parameters = markdownDocAttachment.parameters;
         List<BVarSymbol> defaultParams = bInvokableSymbol.getDefaultableParameters();
 
@@ -130,9 +130,9 @@ public final class BFunctionCompletionItemBuilder {
         if (!(bInvokableSymbol.retType instanceof BNilType)
                 && bInvokableSymbol.retType != null
                 && bInvokableSymbol.retType.tsymbol != null) {
-            documentation = CommonUtil.MARKDOWN_MARKUP_KIND + documentation + CommonUtil.MD_LINE_SEPARATOR
+            documentation = documentation + CommonUtil.MD_LINE_SEPARATOR
                     + CommonUtil.MD_LINE_SEPARATOR + "**Return**" + CommonUtil.MD_LINE_SEPARATOR
-                    + bInvokableSymbol.retType.tsymbol.toString();
+                    + bInvokableSymbol.retType.toString();
         }
         docMarkupContent.setValue(documentation);
 
@@ -190,8 +190,8 @@ public final class BFunctionCompletionItemBuilder {
             }
             for (int itr = 0; itr < defaultParameterDefs.size(); itr++) {
                 signature.append(getParameterSignature(defaultParameterDefs.get(itr), true));
-                insertText.append(getParameterInsertText(defaultParameterDefs.get(itr), true,
-                                                         defaultParameterDefs.size() + itr + 1));
+                insertText.append(getParameterInsertText(defaultParameterDefs.get(itr), true, 
+                        parameterDefs.size() + itr + 1));
 
                 if (itr < defaultParameterDefs.size() - 1) {
                     signature.append(", ");

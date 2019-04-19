@@ -46,6 +46,8 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     string orgName = module.org.value;
     string moduleName = module.name.value;
 
+    string pkgName = getPackageName(orgName, moduleName);
+
     // TODO: need to get bal source file name for class name mapping
     string moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName, untaint moduleName);
 
@@ -53,18 +55,18 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     typeOwnerClass = moduleClass;
 
     // generate object value classes
-    ObjectGenerator objGen = new();
+    ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, pkgEntries);
 
     generateFrameClasses(module, pkgEntries);
 
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
-    generateDefaultConstructor(cw);
+    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
+    generateDefaultConstructor(cw, VALUE_CREATOR);
 
     generateUserDefinedTypeFields(cw, module.typeDefs);
 
-    string pkgName = getPackageName(orgName, moduleName);
+    generateValueCreatorMethods(cw, module.typeDefs, pkgName);
 
     // populate global variable to class name mapping and generate them
     foreach var globalVar in module.globalVars {
@@ -95,42 +97,39 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     string orgName = module.org.value;
     string moduleName = module.name.value;
-
     string moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName, untaint sourceFileName);
+    string pkgName = getPackageName(orgName, moduleName);
+
+    // generate class name mappings for functions and global vars
+    generateClassNameMappings(module, pkgName, moduleClass);
 
     // TODO: remove once the package init class is introduced
     typeOwnerClass = moduleClass;
 
     // generate object value classes
-    ObjectGenerator objGen = new();
+    ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, pkgEntries);
 
     generateFrameClasses(module, pkgEntries);
 
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
-    generateDefaultConstructor(cw);
+    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
+    generateDefaultConstructor(cw, VALUE_CREATOR);
 
     generateUserDefinedTypeFields(cw, module.typeDefs);
 
-    string pkgName = getPackageName(orgName, moduleName);
+    generateValueCreatorMethods(cw, module.typeDefs, pkgName);
 
-    // populate global variable to class name mapping and generate them
+    // generate global variables
     foreach var globalVar in module.globalVars {
         if (globalVar is bir:GlobalVariableDcl) {
-            fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
             generatePackageVariable(globalVar, cw);
         }
     }
-
-    // populate function to class name mapping
-    foreach var func in module.functions {
-        fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
-    }
-
     bir:Function? mainFunc = getMainFunc(module.functions);
     if (mainFunc is bir:Function) {
         generateMainMethod(mainFunc, cw, module);
+        generateLambdaForMain(mainFunc, cw, module);
         manifestEntries["Main-Class"] = getMainClassName(orgName, moduleName, sourceFileName);
     }
 
@@ -149,10 +148,24 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     pkgEntries[moduleClass + ".class"] = classContent;
 }
 
+function generateClassNameMappings(bir:Package module, string pkgName, string moduleClass) {
+    // populate global variable to class name mapping
+    foreach var globalVar in module.globalVars {
+        if (globalVar is bir:GlobalVariableDcl) {
+            fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
+        }
+    }
+
+    // populate function to class name mapping
+    foreach var func in module.functions {
+        fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
+    }
+}
+
 function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWriter cw) {
     string varName = globalVar.name.value;
     bir:BType bType = globalVar.typeValue;
-    generateField(cw, bType, varName);
+    generateField(cw, bType, varName, true);
 }
 
 function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) returns bir:Package {
@@ -162,31 +175,24 @@ function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) 
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
-    string name = sourceFileName;
-
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        name = orgName + "/" + moduleName + "/" + sourceFileName;
+        return orgName + "/" + cleanupName(moduleName) + "/" + cleanupName(sourceFileName);
     }
-    return name;
+    return cleanupName(sourceFileName);
 }
 
 function getMainClassName(string orgName, string moduleName, string sourceFileName) returns string {
-    string name = sourceFileName;
-
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        name = orgName + "." + moduleName + "." + sourceFileName;
+        return orgName + "." + cleanupName(moduleName) + "." + cleanupName(sourceFileName);
     }
-    return name;
+    return cleanupName(sourceFileName);
 }
 
 function getPackageName(string orgName, string moduleName) returns string {
-    string name = "";
-
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        name = orgName + "/" + moduleName + "/";
+        return orgName + "/" + cleanupName(moduleName) + "/";
     }
-
-    return name;
+    return "";
 }
 
 function getPackageAndFunctionName(string key) returns (string, string) {
@@ -195,4 +201,8 @@ function getPackageAndFunctionName(string key) returns (string, string) {
     string functionName = key.substring(index + 1, key.length());
 
     return (pkgName, functionName);
+}
+
+function cleanupName(string name) returns string {
+    return name.replace(".","_");
 }

@@ -34,23 +34,23 @@ public type HttpJwtAuthnHandler object {
     #
     # + req - `Request` instance
     # + return - true if can be authenticated, else false
-    public function canHandle (Request req) returns (boolean);
+    public function canHandle(Request req) returns boolean;
 
     # Authenticates the incoming request using JWT authentication
     #
     # + req - `Request` instance
     # + return - true if authenticated successfully, else false
-    public function handle (Request req) returns (boolean);
+    public function handle(Request req) returns boolean;
 };
 
-public function HttpJwtAuthnHandler.canHandle(Request req) returns (boolean) {
+public function HttpJwtAuthnHandler.canHandle(Request req) returns boolean {
     string authHeader = "";
     var headerValue = trap req.getHeader(AUTH_HEADER);
     if (headerValue is string) {
         authHeader = headerValue;
     } else {
         string reason = headerValue.reason();
-        log:printDebug(function() returns string {
+        log:printDebug(function () returns string {
             return "Error in retrieving header " + AUTH_HEADER + ": " + reason;
         });
         return false;
@@ -68,7 +68,7 @@ public function HttpJwtAuthnHandler.canHandle(Request req) returns (boolean) {
     return false;
 }
 
-public function HttpJwtAuthnHandler.handle (Request req) returns (boolean) {
+public function HttpJwtAuthnHandler.handle(Request req) returns boolean {
     string jwtToken = extractJWTToken(req);
     var authenticated = self.jwtAuthenticator.authenticate(jwtToken);
     if (authenticated is boolean) {
@@ -83,7 +83,7 @@ public function HttpJwtAuthnHandler.handle (Request req) returns (boolean) {
 #
 # + req - `Request` instance
 # + return - Extracted JWT string
-function extractJWTToken (Request req) returns (string) {
+function extractJWTToken(Request req) returns string {
     string authHeader = req.getHeader(AUTH_HEADER);
     string[] authHeaderComponents = authHeader.split(" ");
     return authHeaderComponents[1];

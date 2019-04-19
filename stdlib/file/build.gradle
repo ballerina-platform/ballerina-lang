@@ -6,14 +6,14 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':lib-creator')
-    implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
+    implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system'
 
     testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-runtime-api')
-    testCompile 'org.awaitility:awaitility:3.0.0'
-    testCompile 'org.testng:testng:6.13.1'
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
+    testCompile 'org.awaitility:awaitility'
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-jdk14'
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')

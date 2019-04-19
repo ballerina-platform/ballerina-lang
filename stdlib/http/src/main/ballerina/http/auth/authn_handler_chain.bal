@@ -22,6 +22,7 @@ import ballerina/log;
 #
 # + authHandlerRegistry - `AuthHandlerRegistry` instance
 public type AuthnHandlerChain object {
+
     private AuthHandlerRegistry authHandlerRegistry;
 
     public function __init(AuthHandlerRegistry authHandlerRegistry) {
@@ -32,21 +33,21 @@ public type AuthnHandlerChain object {
     #
     # + req - `Request` instance
     # + return - true if authenticated successfully, else false
-    public function handle (Request req) returns (boolean);
+    public function handle(Request req) returns boolean;
 
     # Tries to authenticate against a specifc sub set of the authentication handlers, using the given array of auth provider ids
     #
     # + authProviderIds - array of auth provider ids
     # + req - `Request` instance
     # + return - true if authenticated successfully, else false
-    public function handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean);
+    public function handleWithSpecificAuthnHandlers(string[] authProviderIds, Request req) returns boolean;
 };
 
-public function AuthnHandlerChain.handle (Request req) returns (boolean) {
+public function AuthnHandlerChain.handle(Request req) returns boolean {
     foreach var (currentAuthProviderType, currentAuthHandler) in self.authHandlerRegistry.getAll() {
         HttpAuthnHandler authnHandler = currentAuthHandler;
         if (authnHandler.canHandle(req)) {
-            log:printDebug(function() returns string {
+            log:printDebug(function () returns string {
                 return "Trying to authenticate with the auth provider: " + currentAuthProviderType;
             });
             boolean authnSuccessful = authnHandler.handle(req);
@@ -61,12 +62,13 @@ public function AuthnHandlerChain.handle (Request req) returns (boolean) {
     return false;
 }
 
-public function AuthnHandlerChain.handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean) {
+public function AuthnHandlerChain.handleWithSpecificAuthnHandlers(string[] authProviderIds, Request req)
+                                      returns boolean {
     foreach var authProviderId in authProviderIds {
-        var authnHandler =  self.authHandlerRegistry.get(authProviderId);
+        var authnHandler = self.authHandlerRegistry.get(authProviderId);
         if (authnHandler is HttpAuthnHandler) {
             if (authnHandler.canHandle(req)) {
-                log:printDebug(function() returns string {
+                log:printDebug(function () returns string {
                     return "Trying to authenticate with the auth provider: " + authProviderId;
                 });
                 boolean authnSuccessful = authnHandler.handle(req);
