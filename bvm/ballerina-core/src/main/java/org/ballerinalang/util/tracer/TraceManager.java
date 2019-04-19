@@ -78,8 +78,8 @@ public class TraceManager {
         Map<String, String> carrierMap = new HashMap<>();
         Tracer tracer = tracerStore.getTracer(serviceName);
         if (tracer != null && span != null) {
-            TextMapAdapter requestInjector = new TextMapAdapter(carrierMap);
-            tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
+            TextMapAdapter textMapAdapter = new TextMapAdapter(carrierMap);
+            tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, textMapAdapter);
         }
         return carrierMap;
     }
