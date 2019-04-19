@@ -105,7 +105,7 @@ public type PackageParser object {
                     functions : funcs,
                     name : { value: pkgId.name }, 
                     org : { value: pkgId.org }, 
-                    versionValue : { value: pkgId.modVersion }};
+                    versionValue : { value: pkgId.modVersion } };
     }
 
     function getBasicBlocks(FuncBodyParser bodyParser) returns BasicBlock?[] {

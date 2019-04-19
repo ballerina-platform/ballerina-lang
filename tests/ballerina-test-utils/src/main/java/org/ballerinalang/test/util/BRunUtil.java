@@ -247,7 +247,7 @@ public class BRunUtil {
     /**
      * This method handles the input arguments and output result mapping between BVM types, values to JVM types, values.
      *
-     * @param compileResult the class instance to be used to invoke methods
+     * @param compileResult CompileResult instance
      * @param function function model instance from BIR model
      * @param functionName name of the function to be invoked
      * @param bvmArgs input arguments to be used with function invocation

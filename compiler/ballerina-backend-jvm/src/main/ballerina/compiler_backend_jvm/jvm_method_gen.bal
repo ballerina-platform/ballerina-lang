@@ -48,7 +48,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
-        generateInitFunctionInvocation(module, mv, localVarOffset);
+        generateInitFunctionInvocation(module, mv);
         generateUserDefinedTypes(mv, module.typeDefs);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
@@ -910,18 +910,21 @@ function getModuleInitFuncName(bir:Package module) returns string {
     }
 }
 
-function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv, int localVarOffset) {
+function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
     foreach var mod in pkg.importModules {
         bir:Package importedPkg = lookupModule(mod, currentBIRContext);
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
             string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
-                                                                INIT_CLASS_NAME);
-            mv.visitVarInsn(ALOAD, localVarOffset);
+                                                                importedPkg.name.value);
+            mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
             mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                    "(Lorg/ballerinalang/jvm/Strand;)V", false);
+                    "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;", false);
+            mv.visitInsn(POP);
         }
-        generateInitFunctionInvocation(importedPkg, mv, localVarOffset);
+        generateInitFunctionInvocation(importedPkg, mv);
     }
 }
 
@@ -974,7 +977,7 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
     foreach var func in pkg.functions {
         generateFrameClassForFunction(pkgName, func, pkgEntries);
     }
-    
+
     foreach var typeDef in pkg.typeDefs {
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs is bir:Function?[]) {
