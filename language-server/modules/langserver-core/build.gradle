@@ -70,6 +70,11 @@ dependencies {
     baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-nats', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-activemq-artemis', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 
     dependency 'com.h2database:h2:1.4.199'
@@ -113,7 +118,7 @@ task generateIndex(type: JavaExec) {
     main = 'org.ballerinalang.langserver.index.tools.IndexGenerator'
 
     // Uncomment the following to run the index generator in the debug mode while build
-    // debug = true
+     debug = true
 }
 
 task createZip(type: Zip) {
