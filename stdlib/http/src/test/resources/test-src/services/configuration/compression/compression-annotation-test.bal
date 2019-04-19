@@ -11,7 +11,7 @@ service autoCompress on mockEP {
     resource function test1 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Hello World!!!");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -24,7 +24,7 @@ service autoCompressWithContentType on mockEP {
     resource function test1 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Hello World!!!");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -37,7 +37,7 @@ service alwaysCompress on mockEP {
     resource function test2 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Hello World!!!");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -50,7 +50,7 @@ service alwaysCompressWithContentType on mockEP {
     resource function test2 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({ test: "testValue" }, contentType = "application/json");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -63,7 +63,7 @@ service neverCompress on mockEP {
     resource function test3 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Hello World!!!");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -76,7 +76,7 @@ service neverCompressWithContentType on mockEP {
     resource function test3 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Hello World!!!");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -90,7 +90,7 @@ service userOverridenValue on mockEP {
         http:Response res = new;
         res.setTextPayload("Hello World!!!");
         res.setHeader("content-encoding", "deflate");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -103,7 +103,7 @@ service autoCompressWithInCompatibleContentType on mockEP {
     resource function test1 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({ test: "testValue" }, contentType = "application/json");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -116,6 +116,6 @@ service alwaysCompressWithEmptyContentType on mockEP {
     resource function test1 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Hello World!!!");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

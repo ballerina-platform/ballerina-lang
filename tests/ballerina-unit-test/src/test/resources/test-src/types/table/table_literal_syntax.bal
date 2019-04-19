@@ -57,14 +57,14 @@ table<Person> tGlobal = table{};
 function testTableDefaultValueForLocalVariable() returns (int) {
     table<Person> t1 = table {};
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
-    _ = t1.add(p1);
+    checkpanic t1.add(p1);
     int count = t1.count();
     return count;
 }
 
 function testTableDefaultValueForGlobalVariable() returns (int) {
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
-    _ = tGlobal.add(p1);
+    checkpanic tGlobal.add(p1);
     int count = tGlobal.count();
     return count;
 }
@@ -72,7 +72,7 @@ function testTableDefaultValueForGlobalVariable() returns (int) {
 function testTableAddOnUnconstrainedTable() returns (int) {
     table<Person> t1 = table {};
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
-    _ = t1.add(p1);
+    checkpanic t1.add(p1);
     int count = t1.count();
     return count;
 }
@@ -84,8 +84,8 @@ function testTableAddOnConstrainedTable() returns (int) {
 
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
     Person p2 = { id: 2, age: 30, salary: 300.50, name: "jane", married: true };
-    _ = t1.add(p1);
-    _ = t1.add(p2);
+    checkpanic t1.add(p1);
+    checkpanic t1.add(p2);
     int count = t1.count();
     return count;
 }
@@ -122,8 +122,8 @@ function testTableLiteralDataAndAdd() returns (int) {
         [p1, p2, p3]
     };
 
-    _ = t1.add(p4);
-    _ = t1.add(p5);
+    checkpanic t1.add(p4);
+    checkpanic t1.add(p5);
 
     int count = t1.count();
     return count;
@@ -141,8 +141,8 @@ function testTableLiteralDataAndAdd2() returns (int) {
         ]
     };
 
-    _ = t1.add(p4);
-    _ = t1.add(p5);
+    checkpanic t1.add(p4);
+    checkpanic t1.add(p5);
 
     int count = t1.count();
     return count;
@@ -189,8 +189,8 @@ function testTableLiteralDataAndAddWithKey() returns (int) {
         ]
     };
 
-    _ = t1.add(p4);
-    _ = t1.add(p5);
+    checkpanic t1.add(p4);
+    checkpanic t1.add(p5);
 
     int count = t1.count();
     return count;
@@ -203,13 +203,13 @@ function testTableAddWhileIterating() returns (int, int) {
 
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
     Person p2 = { id: 2, age: 30, salary: 350.50, name: "jane", married: true };
-    _ = t1.add(p1);
+    checkpanic t1.add(p1);
 
     int loopVariable = 0;
 
     while(t1.hasNext()) {
         loopVariable = loopVariable + 1;
-        _ = t1.add(p2);
+        error? e = t1.add(p2);
         any data = t1.getNext();
     }
     int count = t1.count();
@@ -223,8 +223,8 @@ function testTableStringPrimaryKey() returns int {
 
     Subject s1 = { name: "Maths", moduleCount: 10 };
     Subject s2 = { name: "Science", moduleCount: 5 };
-    _ = t1.add(s1);
-    _ = t1.add(s2);
+    checkpanic t1.add(s1);
+    checkpanic t1.add(s2);
 
     int count = t1.count();
     return t1.count();
@@ -238,7 +238,7 @@ function testTableWithDifferentDataTypes() returns (int, int, decimal, xml, json
     json j = { city: "London", country: "UK" };
     xml x = xml `<role>Manager</role>`;
     Data d1 = { id: 10, salary: 1000.45, address: j, role: x  };
-    _ = t1.add(d1);
+    checkpanic t1.add(d1);
 
     int i = 0;
     decimal d = 0;
@@ -269,7 +269,7 @@ function testArrayData() returns (int, int[], string[], float[], boolean[], byte
 
     ArrayData d1 = { id: 10, intArr: iArr, strArr: sArr, floatArr: fArr, boolArr: bArr, byteArr: byteArrVal,
                      decimalArr: dArr };
-    _ = t1.add(d1);
+    checkpanic t1.add(d1);
 
     int i = 0;
     int[] retiArr;

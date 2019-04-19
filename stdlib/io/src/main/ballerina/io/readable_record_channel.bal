@@ -37,21 +37,21 @@ public type ReadableTextRecordChannel object {
     # + fieldSeparator - Field separator which will separate between fields
     # + recordSeparator - Record separator which will separate between records
     # + fmt - Format which will be used to represent the type of record i.e csv
-    extern function init(ReadableCharacterChannel characterChannel,
-                         string fieldSeparator, string recordSeparator, string fmt);
+    function init(ReadableCharacterChannel characterChannel,
+                  string fieldSeparator, string recordSeparator, string fmt) = external;
 
     # Checks whether there's a record left to be read.
     #
     # + return - True if there's a record left to be read
-    public extern function hasNext() returns boolean;
+    public function hasNext() returns boolean = external;
 
     # Get next record from the input/output resource.
     #
     # + return - Set of fields included in the record or an error
-    public extern function getNext() returns @tainted string[]|error;
+    public function getNext() returns @tainted string[]|error = external;
 
     # Closes a given record channel.
     #
     # + return - An error if the record channel could not be closed properly
-    public extern function close() returns error?;
+    public function close() returns error? = external;
 };

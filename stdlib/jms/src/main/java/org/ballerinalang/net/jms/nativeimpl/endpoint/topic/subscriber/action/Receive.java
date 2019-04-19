@@ -27,25 +27,26 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler;
 
 /**
  * {@code Receive} is the receive action implementation of the JMS topic subscriber connector.
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "jms",
+@BallerinaFunction(orgName = JmsConstants.BALLERINA,
+                   packageName = JmsConstants.JMS,
                    functionName = "receive",
                    receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "TopicSubscriberCaller",
-                                        structPackage = "ballerina/jms"),
+                                        structType = JmsConstants.TOPIC_SUBSCRIBER_CALLER_OBJ_NAME,
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
                    args = {
                            @Argument(name = "timeInMilliSeconds",
                                      type = TypeKind.INT)
                    },
                    returnType = {
                            @ReturnType(type = TypeKind.OBJECT,
-                                       structPackage = "ballerina/jms",
-                                       structType = "Message")
+                                       structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS,
+                                       structType = JmsConstants.MESSAGE_OBJ_NAME)
                    },
                    isPublic = true
 )

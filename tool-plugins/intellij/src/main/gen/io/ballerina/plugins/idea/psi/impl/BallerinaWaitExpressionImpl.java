@@ -44,19 +44,19 @@ public class BallerinaWaitExpressionImpl extends BallerinaExpressionImpl impleme
   @Override
   @Nullable
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @Nullable
   public BallerinaWaitForCollection getWaitForCollection() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWaitForCollection.class);
+    return findChildByClass(BallerinaWaitForCollection.class);
   }
 
   @Override
   @NotNull
   public PsiElement getWait() {
-    return notNullChild(findChildByType(WAIT));
+    return findNotNullChildByType(WAIT);
   }
 
 }

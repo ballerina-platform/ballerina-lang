@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
+import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.JsonParser;
@@ -48,8 +49,6 @@ import org.ballerinalang.util.codegen.attributes.ParameterAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -203,19 +202,21 @@ public class ArgumentParser {
     }
 
     private static BValue getDefaultValue(BType type, DefaultValue value) {
-        switch (type.getTag()) {
-            case TypeTags.INT_TAG:
+        switch (value.getTypeDesc()) {
+            case TypeSignature.SIG_INT:
                 return new BInteger(value.getIntValue());
-            case TypeTags.STRING_TAG:
+            case TypeSignature.SIG_STRING:
                 return new BString(value.getStringValue());
-            case TypeTags.FLOAT_TAG:
+            case TypeSignature.SIG_FLOAT:
                 return new BFloat(value.getFloatValue());
-            case TypeTags.DECIMAL_TAG:
+            case TypeSignature.SIG_DECIMAL:
                 return new BDecimal(value.getDecimalValue());
-            case TypeTags.BOOLEAN_TAG:
+            case TypeSignature.SIG_BOOLEAN:
                 return new BBoolean(value.getBooleanValue());
-            case TypeTags.BYTE_TAG:
+            case TypeSignature.SIG_BYTE:
                 return new BByte(value.getByteValue());
+            case TypeSignature.SIG_NULL:
+                return null; // for optional defaultable types
             default: //shouldn't reach here
                 throw new BLangUsageException("unsupported type specified as defaultable param: " + type);
         }
@@ -231,7 +232,7 @@ public class ArgumentParser {
             case TypeTags.FLOAT_TAG:
                 return new BFloat(getFloatValue(value));
             case TypeTags.DECIMAL_TAG:
-                return new BDecimal(getDecimalValue(value));
+                return getDecimalValue(value);
             case TypeTags.BOOLEAN_TAG:
                 return new BBoolean(getBooleanValue(value));
             case TypeTags.BYTE_TAG:
@@ -301,9 +302,9 @@ public class ArgumentParser {
         }
     }
 
-    private static BigDecimal getDecimalValue(String argument) {
+    private static BDecimal getDecimalValue(String argument) {
         try {
-            return new BigDecimal(argument, MathContext.DECIMAL128);
+            return new BDecimal(argument);
         } catch (NumberFormatException e) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected decimal value");
         }

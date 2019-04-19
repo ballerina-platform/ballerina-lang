@@ -46,7 +46,12 @@ public enum VarKind {
     /**
      * User-defined global variable.
      */
-    GLOBAL((byte) 5);
+    GLOBAL((byte) 5),
+
+    /**
+     * self referencing variable.
+     */
+    SELF((byte) 6);
 
     byte value;
 

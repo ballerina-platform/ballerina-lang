@@ -18,61 +18,61 @@
 #
 # + value - Value to be cloned
 # + return - Clone of the given value
-extern function clone(anydata value) returns anydata;
+function clone(any value) returns anydata|error = external;
 
 # Stamp the value to given type.
 #
 # + stampType - Type to be stamped
 # + value - Value to be stamped
 # + return - Stamped value
-extern function stamp(typedesc stampType, anydata value) returns anydata;
+function stamp(typedesc stampType, any value) returns anydata|error = external;
 
 # Convert value to given type which can be stampable.
 #
 # + convertType - Type to be converted
 # + value - Value to be converted
 # + return - Converted value
-extern function convert(typedesc convertType, anydata value) returns anydata;
+function convert(typedesc convertType, any value) returns anydata|error = external;
 
 # Convert simple value to given type.
 #
 # + convertType - Type to be converted
 # + value - Value to be converted
 # + return - Converted value
-extern function simpleValueConvert(typedesc convertType, anydata value) returns anydata;
+function simpleValueConvert(typedesc convertType, any value) returns anydata|error = external;
 
 # Freeze a given value.
 #
 # + value - Value to be frozen
 # + return - Frozen value
-extern function freeze(anydata value) returns anydata;
+function freeze(anydata value) returns anydata|error = external;
 
 # Check freeze status of given value.
 #
 # + value - Value to check freeze status
 # + return - True for a frozen value
-extern function isFrozen(anydata value) returns boolean;
+function isFrozen(anydata value) returns boolean = external;
 
 # Get the reason phrase of an error value.
 #
 # + value - Error value
 # + return - Reason phrase
-extern function reason(error value) returns string;
+function reason(error value) returns string = external;
 
 # Get error details of an error value.
 #
 # + value - Error value
 # + return - Error detail
-extern function detail(error value) returns anydata;
+function detail(error value) returns anydata = external;
 
 # Get a new Iterator
 #
-# + collection - Data collection
-# + iterator - Iterator for the given data
-extern function iterate(any data) returns any;
+# + data - Data collection
+# + return - Iterator for the given data
+function iterate(any data) returns any = external;
 
 # Get length of given value.
 #
 # + value - Value to get the length
 # + return - Length of the given value
-extern function length(anydata value) returns int;
+function length(anydata value) returns int = external;

@@ -27,7 +27,7 @@ public remote function test2(string value) {
 }
 
 // remote modifier not allowed in non-object attached functions
-public remote extern function test3(string value) returns int;
+public remote function test3(string value) returns int = external;
 
 
 type Foo client object {

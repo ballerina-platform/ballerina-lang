@@ -159,7 +159,7 @@ function testToJson() returns json {
     var result = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
     json retVal = getJsonConversionResult(result);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }
 
@@ -174,7 +174,7 @@ function testToJsonComplexTypes() returns json {
 
     var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1", ());
     json retVal = getJsonConversionResult(result);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }
 
@@ -189,7 +189,7 @@ function testToJsonComplexTypesNil() returns json {
 
     var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 2", ());
     json retVal = getJsonConversionResult(result);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }
 
@@ -205,7 +205,7 @@ function testToXml() returns xml {
     var result = testDB->select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 1", ());
     xml retVal = getXMLConversionResult(result);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }
 
@@ -221,7 +221,7 @@ function testToXmlComplexTypes() returns xml {
     var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1", ());
 
     xml retVal = getXMLConversionResult(result);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }
 
@@ -237,7 +237,7 @@ function testToXmlComplexTypesNil() returns xml {
     var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 2", ());
 
     xml retVal = getXMLConversionResult(result);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }
 
@@ -254,7 +254,7 @@ function testToXmlMultipleConsume() returns xml {
         boolean_type, string_type from DataTable WHERE row_id = 1", ());
 
     xml retVal = getXMLConversionResult(result);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }
 
@@ -279,7 +279,7 @@ function testToXmlWithAdd() returns xml {
     if (dt3 is table<record{}>) {
         dt3.close();
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return result;
 }
 
@@ -296,7 +296,7 @@ function testToJsonMultipleConsume() returns json {
         boolean_type, string_type from DataTable WHERE row_id = 1", ());
 
     json result = getJsonConversionResult(tableOrError);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return result;
 }
 
@@ -313,7 +313,7 @@ function toXmlComplex() returns xml {
                     string_array from MixTypes where row_id =1", ());
 
     xml convertedVal = getXMLConversionResult(tableOrError);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return convertedVal;
 }
 
@@ -331,7 +331,7 @@ function testToXmlComplexWithStructDef() returns xml {
                     from MixTypes where row_id =1", TestTypeData);
 
     xml convertedVal = getXMLConversionResult(tableOrError);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return convertedVal;
 }
 
@@ -348,7 +348,7 @@ function testToJsonComplex() returns json {
         from MixTypes where row_id =1", ());
 
     json convertedVal = getJsonConversionResult(tableOrError);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
 
     return convertedVal;
 }
@@ -366,7 +366,7 @@ function testToJsonComplexWithStructDef() returns json {
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", TestTypeData);
     json ret = getJsonConversionResult(tableOrError);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return ret;
 }
 
@@ -381,7 +381,7 @@ function testJsonWithNull() returns json {
     var tableOrError = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 2", ());
     json convertedVal = getJsonConversionResult(tableOrError);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return convertedVal;
 }
 
@@ -396,7 +396,7 @@ function testXmlWithNull() returns xml {
     var tableOrError = testDB->select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 2", ());
     xml ret = getXMLConversionResult(tableOrError);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return ret;
 }
 
@@ -423,7 +423,7 @@ function testToXmlWithinTransaction() returns (string, int) {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (resultXml, returnValue);
 }
 
@@ -450,7 +450,7 @@ function testToJsonWithinTransaction() returns (string, int) {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (result, returnValue);
 }
 
@@ -486,7 +486,7 @@ function testGetPrimitiveTypes() returns (int, int, float, float, boolean, strin
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (i, l, f, d, b, s, dec);
 }
 
@@ -513,7 +513,7 @@ function testGetComplexTypes() returns (byte[], string, byte[]) {
         }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (blobData, clob, binaryData);
 }
 
@@ -543,7 +543,7 @@ function testArrayData() returns (int[], int[], decimal[], string[], boolean[]) 
             string_arr = rs.STRING_ARRAY;
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -600,7 +600,7 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int, int) {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (updatedCount, intArrLen, longArrLen, floatArrLen, boolArrLen, strArrLen);
 }
 
@@ -623,7 +623,7 @@ function testDateTime(int datein, int timein, int timestampin) returns (string, 
     sql:Parameter para3 = { sqlType: sql:TYPE_TIMESTAMP, value: timestampin };
     sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: timestampin };
 
-    _ = testDB->update("Insert into DateTimeTypes
+    _ = checkpanic testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
 
@@ -640,7 +640,7 @@ function testDateTime(int datein, int timein, int timestampin) returns (string, 
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (date, time, timestamp, datetime);
 }
 
@@ -680,7 +680,7 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, 
     sql:Parameter para3 = { sqlType: sql:TYPE_TIMESTAMP, value: timestampStruct };
     sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: datetimeStruct };
 
-    _ = testDB->update("Insert into DateTimeTypes
+    _ = checkpanic testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
 
@@ -697,7 +697,7 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, 
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
     datetimeInserted, datetimeRetrieved);
 }
@@ -722,7 +722,7 @@ function testDateTimeInt(int datein, int timein, int timestampin) returns (int, 
     int timestamp = -1;
     int datetime = -1;
 
-    _ = testDB->update("Insert into DateTimeTypes
+    _ = checkpanic testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
 
@@ -740,7 +740,7 @@ function testDateTimeInt(int datein, int timein, int timestampin) returns (int, 
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (date, time, timestamp, datetime);
 }
 
@@ -762,7 +762,7 @@ function testBlobData() returns byte[] {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return blobData;
 }
 
@@ -799,7 +799,7 @@ function testColumnAlias() returns (int, int, float, float, boolean, string, int
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (i, l, f, d, b, s, i2);
 }
 
@@ -826,7 +826,7 @@ function testBlobInsert() returns int {
     var insertCountRet = testDB->update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", para0, para1);
     int insertCount = insertCountRet is sql:UpdateResult ? insertCountRet.updatedRowCount : -1;
 
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return insertCount;
 }
 
@@ -862,7 +862,7 @@ function testTableAutoClose() returns (int, json) {
         selectRet3.close();
     }
 
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (i, jsonData);
 }
 
@@ -886,13 +886,13 @@ function testTableManualClose() returns int {
                     break;
                 }
             } else {
-                _ = testDB.stop();
+                checkpanic testDB.stop();
                 return -1;
             }
         }
         selectRet.close();
     } else {
-        _ = testDB.stop();
+        checkpanic testDB.stop();
         return -2;
     }
 
@@ -905,16 +905,16 @@ function testTableManualClose() returns int {
             if (rs2 is ResultPrimitiveInt) {
                 data = rs2.INT_TYPE;
             } else {
-                _ = testDB.stop();
+                checkpanic testDB.stop();
                 return -2;
             }
         }
         selectRet2.close();
     } else {
-        _ = testDB.stop();
+        checkpanic testDB.stop();
         return -3;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return data;
 }
 
@@ -941,7 +941,7 @@ function testCloseConnectionPool(string connectionCountQuery) returns int {
     } else {
        retVal = -2;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }
 
@@ -962,7 +962,7 @@ function testTablePrintAndPrintln() {
     } else {
         io:print(<string>selectRet.reason());
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
 }
 
 function testMultipleRows() returns (int, int) {
@@ -989,7 +989,7 @@ function testMultipleRows() returns (int, int) {
             i = i + 1;
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (rs1.INT_TYPE, rs2.INT_TYPE);
 }
 
@@ -1107,7 +1107,7 @@ function testMultipleRowsWithoutLoop() returns (int, int, int, int, string, stri
             s2 = s2 + "_" + "NO";
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (i1, i2, i3, i4, s1, s2);
 }
 
@@ -1138,7 +1138,7 @@ function testHasNextWithoutConsume() returns (boolean, boolean, boolean) {
         }
         selectRet.close();
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (b1, b2, b3);
 }
 
@@ -1170,7 +1170,7 @@ function testGetFloatTypes() returns (float, float, decimal, decimal) {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (f, d, num, dec);
 }
 
@@ -1251,7 +1251,7 @@ function testSignedIntMaxMinValues() returns (int, int, int, string, string, str
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (maxInsert, minInsert, nullInsert, jsonStr, xmlStr, str);
 }
 
@@ -1320,7 +1320,7 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, 
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (retDataInsert, retNullInsert, jsonStr, xmlStr, str, expected);
 }
 
@@ -1340,7 +1340,7 @@ function testJsonXMLConversionwithDuplicateColumnNames() returns (json, xml) {
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
     xml x = getXMLConversionResult(selectRet2);
 
-    _ = testDB.stop();
+    checkpanic testDB.stop();
 
     return (j, x);
 }
@@ -1384,7 +1384,7 @@ function testStructFieldNotMatchingColumnName() returns (int, int, int, int, int
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (countAll, i1, i2, i3, i4);
 }
 
@@ -1418,7 +1418,7 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float, float, boo
             dec = x.DECIMAL_TYPE;
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (i, l, f, d, b, s, dec);
 }
 
@@ -1446,7 +1446,7 @@ function testMultipleRowsWithForEach() returns (int, int) {
             i = i +1;
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (rs1.INT_TYPE, rs2.INT_TYPE);
 }
 
@@ -1470,7 +1470,7 @@ function testTableAddInvalid() returns string {
         }
         selectRet.close();
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return s;
 }
 
@@ -1494,7 +1494,7 @@ function testTableRemoveInvalid() returns string {
         }
         selectRet.close();
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return s;
 }
 
@@ -1515,7 +1515,7 @@ function tableGetNextInvalid() returns string {
             retVal = <string> ret.detail().message;
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }
 
@@ -1536,7 +1536,7 @@ function testToJsonAndAccessFromMiddle() returns (json, int) {
     json result = getJsonConversionResult(selectRet);
 
     json j = result[1];
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (result, result.length());
 }
 
@@ -1557,7 +1557,7 @@ function testToJsonAndIterate() returns (json, int)|error {
         j[i] = row;
         i += 1;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (j, j.length());
 }
 
@@ -1573,7 +1573,7 @@ function testToJsonAndSetAsChildElement() returns json {
                   boolean_type, string_type from DataTable", ());
     json result = getJsonConversionResult(selectRet);
     json j = { status: "SUCCESS", resp: { value: result } };
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return j;
 }
 
@@ -1596,7 +1596,7 @@ function testToJsonAndLengthof() returns (int, int) {
     // get the length after accessing
     json j = result[0];
     int afterLen = result.length();
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (beforeLen, afterLen);
 }
 
@@ -1648,7 +1648,7 @@ function testSelectQueryWithCursorTable() returns error? {
     table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
     error? e = trap testSelectQueryWithCursorTableHelper(t1);
     t1.close();
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return e;
 }
 
@@ -1671,7 +1671,7 @@ function testJoinQueryWithCursorTable() returns error? {
     error? e = trap testJoinQueryWithCursorTableHelper(t1, t2);
     t1.close();
     t2.close();
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return e;
 }
 
@@ -1706,7 +1706,7 @@ function testTypeCheckingConstrainedCursorTableWithClosedConstraint() returns (i
              }
          }
      }
-     _ = testDB.stop();
+     checkpanic testDB.stop();
      return (i, l, f, d, b, s);
 }
 
@@ -1731,6 +1731,6 @@ function testAssignStringValueToJsonField() returns json {
             val = rs.STRING_TYPE;
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return val;
 }

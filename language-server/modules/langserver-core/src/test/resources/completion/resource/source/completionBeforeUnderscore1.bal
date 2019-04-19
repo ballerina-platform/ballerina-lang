@@ -10,6 +10,6 @@ service serviceName on new http:Listener(8080) {
    resource function newResource(http:Caller caller, http:Request request) {
        http:Response res = new;
        io:
-       _ = caller->respond(res);
+       checkpanic caller->respond(res);
    }
 }

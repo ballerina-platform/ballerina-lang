@@ -29,8 +29,8 @@ service testEnumService on ep12 {
         if (orderReq.mode == r) {
             permission = "r";
         }
-        _ = caller->send(permission);
-        _ = caller->complete();
+        checkpanic caller->send(permission);
+        checkpanic caller->complete();
     }
 }
 

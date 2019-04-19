@@ -46,14 +46,14 @@ import javax.jms.Topic;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jms",
+        orgName = JmsConstants.BALLERINA,
+        packageName = JmsConstants.JMS,
         functionName = "createSubscriber",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "DurableTopicSubscriber",
-                structPackage = "ballerina/jms"),
+                structType = JmsConstants.DURABLE_TOPIC_SUBSCRIBER,
+                structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         args = {
-                @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
+                @Argument(name = "session", type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME),
                 @Argument(name = "messageSelector", type = TypeKind.STRING)
         },
         isPublic = true
@@ -62,8 +62,10 @@ public class CreateSubscriber extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> topicSubscriberBObject = (BMap<String, BValue>) context.getRefArgument(0);
 
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
                                                            context);
@@ -78,6 +80,7 @@ public class CreateSubscriber extends AbstractBlockingAction {
         try {
             Topic topic = JmsUtils.getTopic(session, topicPattern);
             MessageConsumer consumer = session.createDurableSubscriber(topic, consumerId, messageSelector, false);
+            @SuppressWarnings(JmsConstants.UNCHECKED)
             BMap<String, BValue> consumerConnectorBObject =
                     (BMap<String, BValue>) topicSubscriberBObject.get(JmsConstants.CONSUMER_ACTIONS);
             consumerConnectorBObject.addNativeData(JmsConstants.JMS_CONSUMER_OBJECT, consumer);

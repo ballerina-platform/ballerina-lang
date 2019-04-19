@@ -542,7 +542,7 @@ function testVariableAssignment() returns (string, boolean, int, string) {
     boolean married;
     int theAge;
     string format;
-    map<any> theMap;
+    map<any|error> theMap;
 
     {name: fName, married, age: {age: theAge, format}, ...theMap} = getPerson();
     return (fName, married, theAge, format);

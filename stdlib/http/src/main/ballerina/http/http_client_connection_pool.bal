@@ -33,7 +33,7 @@ type ConnectionManager object {
     public function __init() {
         self.initGlobalPool(self.poolConfig);
     }
-    extern function initGlobalPool(PoolConfiguration poolConfig);
+    function initGlobalPool(PoolConfiguration poolConfig) = external;
 };
 
 ConnectionManager connectionManager = new;

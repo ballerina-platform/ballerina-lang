@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDocParameterDescriptionImpl extends BallerinaCompositeElementImpl implements BallerinaDocParameterDescription {
+public class BallerinaDocParameterDescriptionImpl extends ASTWrapperPsiElement implements BallerinaDocParameterDescription {
 
   public BallerinaDocParameterDescriptionImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaDocParameterDescriptionImpl extends BallerinaCompositeElem
   @Override
   @Nullable
   public BallerinaDocumentationText getDocumentationText() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationText.class);
+    return findChildByClass(BallerinaDocumentationText.class);
   }
 
 }

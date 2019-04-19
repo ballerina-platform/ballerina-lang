@@ -146,14 +146,15 @@ public class BuilderUtils {
                                           boolean offline,
                                           boolean lockEnabled,
                                           boolean skipTests,
-                                          boolean enableExperimentalFeatures) {
+                                          boolean enableExperimentalFeatures, 
+                                          boolean dumpBIR) {
 
         CompilerContext context = getCompilerContext(sourceRootPath, CompilerPhase.BIR_GEN, buildCompiledPkg, offline,
                 lockEnabled, skipTests, enableExperimentalFeatures);
 
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage bLangPackage = compiler.build(packagePath);
-        byte[] jarContent = JVMCodeGen.generateJarBinary(bLangPackage, context, packagePath);
+        byte[] jarContent = JVMCodeGen.generateJarBinary(dumpBIR, bLangPackage, context, packagePath);
         compiler.write(jarContent, sourceRootPath, targetFileName);
     }
 

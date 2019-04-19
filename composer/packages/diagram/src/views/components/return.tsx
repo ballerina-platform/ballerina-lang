@@ -18,12 +18,10 @@ export const Return: React.StatelessComponent<{
         if (viewState.hidden) {
             return null;
         }
-
         const returnLine = { x1: 1, y1: 0, x2: 0, y2: 0 };
         returnLine.x1 = model.viewState.bBox.x;
         returnLine.y1 = returnLine.y2 = model.viewState.bBox.y + config.statement.height;
-        // TODO: Following is a hack to fix object return need to revisit the logic.
-        returnLine.x2 = 90; // model.viewState.client.bBox.x + (model.viewState.client.bBox.w / 2);
+        returnLine.x2 = model.viewState.client.bBox.x + (model.viewState.client.bBox.w / 2);
 
         if (viewState.isAction) {
             returnLine.y2 = returnLine.y1 += (config.statement.height / 2);

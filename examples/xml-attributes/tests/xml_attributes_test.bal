@@ -10,7 +10,11 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = string.convert(s[0]);
+    if (s[0] is ()) {
+        outputs[counter] = "()";
+    } else {
+        outputs[counter] = string.convert(s[0]);
+    }
     counter += 1;
 }
 
@@ -32,4 +36,7 @@ function testFunc() {
     test:assertEquals(outputs[4], op4);
     test:assertEquals(outputs[5], op5);
     test:assertEquals(outputs[6], op6);
+    test:assertEquals(outputs[7], op6);
+    test:assertEquals(outputs[8], "5");
+    test:assertEquals(outputs[9], "()");
 }

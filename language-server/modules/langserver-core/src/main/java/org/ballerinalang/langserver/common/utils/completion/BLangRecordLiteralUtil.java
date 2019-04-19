@@ -67,7 +67,7 @@ public class BLangRecordLiteralUtil {
 
         if (nodeStartLine < line && nodeEndLine > line && recordLiteral.type instanceof BRecordType) {
             completionItems.addAll(
-                    CommonUtil.getStructFieldCompletionItems(((BRecordType) recordLiteral.type).fields)
+                    CommonUtil.getRecordFieldCompletionItems(((BRecordType) recordLiteral.type).fields)
             );
             completionItems.add(CommonUtil.getFillAllStructFieldsItem(((BRecordType) recordLiteral.type).fields));
         }

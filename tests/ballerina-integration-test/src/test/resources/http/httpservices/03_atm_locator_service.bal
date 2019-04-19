@@ -71,7 +71,7 @@ service ATMLocator on serviceEnpoint {
         } else {
             io:println("Error occurred while writing info response");
         }
-        _ = caller -> respond(infomationResponse);
+        checkpanic caller->respond(infomationResponse);
     }
 }
 
@@ -99,7 +99,7 @@ service Bankinfo on serviceEnpoint {
             io:println("Error occurred while reading bank info request");
         }
 
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -127,7 +127,7 @@ service Banklocator on serviceEnpoint {
             io:println("Error occurred while reading bank locator request");
         }
 
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }
 

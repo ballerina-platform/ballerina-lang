@@ -59,7 +59,7 @@ public class CodeGeneratorTest {
         String definitionPath = RES_DIR + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
         generator.setSrcPackage(pkgName);
-        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "swagger_petstore.bal"));
+        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "openapi_petstore.bal"));
 
         try {
             Path cachePath = projectPath.resolve(Paths.get(".ballerina"));
@@ -67,7 +67,7 @@ public class CodeGeneratorTest {
                 Files.createDirectory(cachePath);
             }
 
-            generator.generate(GenType.MOCK, definitionPath, projectPath.toString());
+            generator.generate(GenType.GEN_SERVICE, definitionPath, projectPath.toString());
             if (Files.exists(outFile)) {
                 String result = new String(Files.readAllBytes(outFile));
                 Assert.assertTrue(result.contains("listPets (http:Caller outboundEp"));
@@ -85,7 +85,7 @@ public class CodeGeneratorTest {
         String definitionPath = RES_DIR + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
         generator.setSrcPackage(pkgName);
-        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "swagger_petstore.bal"));
+        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "openapi_petstore.bal"));
 
         try {
             Path cachePath = projectPath.resolve(Paths.get(".ballerina"));
@@ -93,7 +93,7 @@ public class CodeGeneratorTest {
                 Files.createDirectory(cachePath);
             }
 
-            generator.generate(GenType.CLIENT, definitionPath, projectPath.toString());
+            generator.generate(GenType.GEN_CLIENT, definitionPath, projectPath.toString());
             if (Files.exists(outFile)) {
                 String result = new String(Files.readAllBytes(outFile));
                 Assert.assertTrue(result.contains("public remote function listPets()"));
@@ -114,7 +114,7 @@ public class CodeGeneratorTest {
         CodeGenerator generator = new CodeGenerator();
         try {
             String expectedContent = new String(Files.readAllBytes(expectedFilePath));
-            List<GenSrcFile> generatedFileList = generator.generate(GenType.MOCK, definitionPath);
+            List<GenSrcFile> generatedFileList = generator.generate(GenType.GEN_SERVICE, definitionPath);
             if (generatedFileList.size() > 0) {
                 GenSrcFile actualGeneratedContent = generatedFileList.get(0);
                 Assert.assertEquals(actualGeneratedContent.getContent(), expectedContent,

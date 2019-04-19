@@ -4,13 +4,13 @@ This module provides the following code generation capabilities to Ballerina:
 2. Generate the client stub for an existing Ballerina service at build time.
 3. Export the OpenAPI definition of a Ballerina service.
 
-The `swagger` command in Ballerina is used for OpenAPI to Ballerina and Ballerina to OpenAPI code generation.
+The `openapi` command in Ballerina is used for OpenAPI to Ballerina and Ballerina to OpenAPI code generation.
 Code generation from OpenAPI to Ballerina can produce `mock services` and `client stubs`.
 
 For build time client stub generation, annotation support is provided.
 
 ### Mock Service from OpenAPI
-`ballerina swagger mock <openapifile>
+`ballerina openapi gen-service <openapifile>
     [-m <module-name>|--module <module-name>] 
     [-o <path>|--output<path>]`
 
@@ -19,7 +19,7 @@ Generates a Ballerina service for the OpenAPI file.
 This generated service is a mock version of the actual service. Generated sources contain the service definition in `gen/` and the resource implementation file in the module root directory with the suffix `_impl`. The `_impl` file is not overwritten by code regeneration.
 
 ### Client Stub from OpenAPI
-`ballerina swagger client <openapifile>
+`ballerina openapi gen-client <openapifile>
     [-m <module-name>|--module <module-name>] 
     [-o <path>|--output<path>]`
     
@@ -28,7 +28,7 @@ Generates a Ballerina client stub for the service defined in a OpenAPI file.
 This client can be used in client applications to call the service defined in the OpenAPI file.
 
 ### Service to OpenAPI Export
-`ballerina swagger export <balfile>
+`ballerina openapi export <balfile>
     [-o <path>|--output<path>]
     [-s <servicename>|--service <servicename>]`
 
@@ -43,13 +43,13 @@ The `@openapi:ClientConfig { generate: true }` annotation is used to enable or d
 
 ## Samples
 ### Mock Service From OpenAPI
-`ballerina swagger mock hello_service.yaml -p hello_service`
+`ballerina openapi gen-service hello_service.yaml -p hello_service`
 
 ### Client Stub From OpenAPI
-`ballerina swagger client hello_service.yaml -p hello_client`
+`ballerina openapi gen-client hello_service.yaml -p hello_client`
 
 ### OpenAPI From Service
-`ballerina swagger export hello_service.bal`
+`ballerina openapi export hello_service.bal`
 
 ### Client stub From Service
 ```ballerina

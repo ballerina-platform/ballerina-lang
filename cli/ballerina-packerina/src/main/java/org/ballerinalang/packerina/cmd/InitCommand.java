@@ -296,13 +296,6 @@ public class InitCommand implements BLauncherCmd {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
-    }
-
-    /**
      * Validates the version is a semver version.
      *
      * @param versionAsString The version.

@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/runtime;
 import ballerina/task;
 
 // Define a custom record type to use in timer.
@@ -48,6 +49,9 @@ public function main() {
         // Wait until person age reaches max age.
     }
 
+    // Additional sleep to finish onTrigger function.
+    runtime:sleep(1000);
+
     // Cancel the timer. This will stop the timer and all the services
     // attached to it.
     var stopResult = timer.stop();
@@ -65,8 +69,10 @@ service service1 = service {
     // Note the usage of Person object passing inside the function, which we
     // attached with the timer.
     resource function onTrigger(Person person) {
-        person.age = person.age + 1;
-        io:println("Hi " + person.name + " you are " + person.age + " years old now.");
+        if (person.age < person.maxAge) {
+            person.age = person.age + 1;
+            io:println("Hi " + person.name + " you are " + person.age + " years old now.");
+        }
     }
 };
 

@@ -28,6 +28,7 @@ import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import java.util.Objects;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -56,7 +57,7 @@ public class ReceiveActionHandler {
             if (Objects.nonNull(message)) {
                 BMap<String, BValue> messageBObject = BLangConnectorSPIUtil.
                         createBStruct(context, JmsConstants.BALLERINA_PACKAGE_JMS,
-                                      JmsConstants.JMS_MESSAGE_STRUCT_NAME);
+                                      JmsConstants.MESSAGE_OBJ_NAME);
                 messageBObject.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, message);
                 context.setReturnValues(messageBObject);
             } else {

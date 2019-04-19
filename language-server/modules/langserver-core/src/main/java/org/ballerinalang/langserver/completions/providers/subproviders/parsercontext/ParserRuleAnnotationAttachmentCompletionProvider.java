@@ -48,12 +48,9 @@ public class ParserRuleAnnotationAttachmentCompletionProvider extends AbstractSu
      */
     private ArrayList<CompletionItem> filterAnnotations(AnnotationNodeKind attachmentPoint, LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        
         LSAnnotationCache.getInstance().getAnnotationMapForType(attachmentPoint, ctx)
-                .entrySet()
-                .forEach(annotationLists -> annotationLists.getValue().forEach(bLangAnnotation -> {
-                    completionItems.add(CommonUtil.getAnnotationCompletionItem(annotationLists.getKey(),
-                            bLangAnnotation, ctx));
+                .forEach((key, value) -> value.forEach(bLangAnnotation -> {
+                    completionItems.add(CommonUtil.getAnnotationCompletionItem(key, bLangAnnotation, ctx));
                 }));
         
         return completionItems;

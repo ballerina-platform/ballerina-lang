@@ -45,7 +45,7 @@ service echo05 on listener05 {
         path: "/test"
     }
     resource function echo(http:Caller caller, http:Request req) {
-        _ = caller->respond(());
+        checkpanic caller->respond(());
     }
 
     @http:ResourceConfig {
@@ -53,6 +53,6 @@ service echo05 on listener05 {
         path: "/path/{id}"
     }
     resource function path(http:Caller caller, http:Request req, string id) {
-        _ = caller->respond(());
+        checkpanic caller->respond(());
     }
 }

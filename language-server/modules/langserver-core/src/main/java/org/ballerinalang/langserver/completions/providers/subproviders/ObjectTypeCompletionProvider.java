@@ -63,7 +63,6 @@ public class ObjectTypeCompletionProvider extends AbstractSubCompletionProvider 
     public List<CompletionItem> resolveItems(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         BLangNode objectNode = context.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         
         if (!objectNode.getKind().equals(NodeKind.OBJECT_TYPE)) {
             return completionItems;
@@ -82,9 +81,9 @@ public class ObjectTypeCompletionProvider extends AbstractSubCompletionProvider 
             completionItems.addAll(this.getCompletionItemList(eitherList, context));
         } else {
             fillTypes(context, completionItems);
-            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(context, isSnippet));
-            completionItems.add(Snippet.DEF_FUNCTION.get().build(context, isSnippet));
-            completionItems.add(Snippet.DEF_NEW_OBJECT_INITIALIZER.get().build(context, isSnippet));
+            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(context));
+            completionItems.add(Snippet.DEF_FUNCTION.get().build(context));
+            completionItems.add(Snippet.DEF_NEW_OBJECT_INITIALIZER.get().build(context));
         }
 
         return completionItems;

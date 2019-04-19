@@ -1,9 +1,7 @@
 lexer grammar BallerinaLexer;
 
 @members {
-    boolean inTemplate = false;
     boolean inStringTemplate = false;
-    boolean inDeprecatedTemplate = false;
     boolean inSiddhi = false;
     boolean inTableSqlQuery = false;
     boolean inSiddhiInsertQuery = false;
@@ -17,7 +15,7 @@ IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
 PRIVATE     : 'private' ;
-EXTERN      : 'extern' ;
+EXTERNAL    : 'external' ;
 FINAL       : 'final' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
@@ -33,7 +31,6 @@ REMOTE      : 'remote' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns' ;
 VERSION     : 'version' ;
-DEPRECATED  : 'deprecated' ;
 CHANNEL     : 'channel' ;
 ABSTRACT    : 'abstract' ;
 CLIENT      : 'client' ;
@@ -133,6 +130,7 @@ UNTAINT     : 'untaint' ;
 START       : 'start' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
+CHECKPANIC  : 'checkpanic' ;
 PRIMARYKEY  : 'primarykey' ;
 IS          : 'is' ;
 FLUSH       : 'flush' ;
@@ -289,8 +287,8 @@ HexadecimalFloatingPointLiteral
     ;
 
 DecimalFloatingPointNumber
-    :   DecimalNumeral ExponentPart
-    |   DottedDecimalNumber ExponentPart?
+    :   DecimalNumeral ExponentPart DecimalFloatSelector?
+    |   DottedDecimalNumber ExponentPart? DecimalFloatSelector?
     ;
 
 fragment
@@ -311,6 +309,11 @@ SignedInteger
 fragment
 Sign
     :   [+-]
+    ;
+
+fragment
+DecimalFloatSelector
+    : [dDfF]
     ;
 
 fragment
@@ -435,7 +438,7 @@ LetterOrDigit
     ;
 
 XMLLiteralStart
-    :   TYPE_XML WS* BACKTICK   { inTemplate = true; } -> pushMode(XML)
+    :   TYPE_XML WS* BACKTICK   { inStringTemplate = true; } -> pushMode(XML)
     ;
 
 StringTemplateLiteralStart
@@ -452,15 +455,6 @@ ParameterDocumentationStart
 
 ReturnParameterDocumentationStart
     :   HASH DocumentationSpace? ADD DocumentationSpace* RETURN DocumentationSpace* SUB DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
-    ;
-
-
-DeprecatedTemplateStart
-    :   DEPRECATED WS* LEFT_BRACE   { inDeprecatedTemplate = true; } -> pushMode(DEPRECATED_TEMPLATE)
-    ;
-
-ExpressionEnd
-    :   {inTemplate}? RIGHT_BRACE RIGHT_BRACE   ->  popMode
     ;
 
 // Whitespace and comments
@@ -628,12 +622,7 @@ XML_TAG_SPECIAL_OPEN
     ;
 
 XMLLiteralEnd
-    :   '`' { inTemplate = false; }          -> popMode
-    ;
-
-fragment
-ExpressionStart
-    :   '{{'
+    :   '`' { inStringTemplate = false; }                   -> popMode
     ;
 
 fragment
@@ -642,17 +631,18 @@ INTERPOLATION_START
     ;
 
 XMLTemplateText
-    :   XMLText? ExpressionStart            -> pushMode(DEFAULT_MODE)
+    :   XMLText? INTERPOLATION_START                        -> pushMode(DEFAULT_MODE)
     ;
 
 XMLText
-    :   XMLBracesSequence? (XMLTextChar XMLBracesSequence?)+
+    :   XMLBracesSequence* (XMLTextChar XMLBracesSequence*)+
     |   XMLBracesSequence (XMLTextChar XMLBracesSequence?)*
+    |   XMLBracesSequence+
     ;
 
 fragment
 XMLTextChar
-    :   ~[<&`{}]
+    :   ~[<&$`{}]
     |   '\\' [`]
     |   XML_WS
     |   XMLEscapedSequence
@@ -661,14 +651,18 @@ XMLTextChar
 fragment
 XMLEscapedSequence
     :   '\\\\'
-    |   '\\{{'
-    |   '\\}}'
+    |   '\\${'
+    |   '\\}'
+    |   '\\{'
+    |   '&' ('gt' | 'lt' | 'amp') ';'
     ;
 
 fragment
 XMLBracesSequence
-    :   '{}'+
-    |   '}{'
+    :   '{}'+ '{'* '}'*
+    |   '}{'+ '{'* '}'*
+    |   '{{'+ '{'* '}'*
+    |   '}}'+ '{'* '}'*
     |   ('{}')* '{'
     |   '}' ('{}')*
     ;
@@ -692,10 +686,6 @@ XMLQName
 
 XML_TAG_WS
     :   [ \t\r\n]   -> channel(HIDDEN)
-    ;
-
-XMLTagExpressionStart
-    :   ExpressionStart             -> pushMode(DEFAULT_MODE)
     ;
 
 fragment
@@ -732,11 +722,11 @@ NameStartChar
 mode DOUBLE_QUOTED_XML_STRING;
 
 DOUBLE_QUOTE_END    
-    :   DOUBLE_QUOTE  -> popMode
+    :   DOUBLE_QUOTE                                        -> popMode
     ;
 
 XMLDoubleQuotedTemplateString
-    :   XMLDoubleQuotedString? ExpressionStart    -> pushMode(DEFAULT_MODE)
+    :   XMLDoubleQuotedString? INTERPOLATION_START          -> pushMode(DEFAULT_MODE)
     ;
 
 XMLDoubleQuotedString
@@ -746,7 +736,7 @@ XMLDoubleQuotedString
 
 fragment
 XMLDoubleQuotedStringChar
-    :   ~[<"{}\\]
+    :   ~[$<"{}\\]
     |   XMLEscapedSequence
     ;
 
@@ -759,7 +749,7 @@ SINGLE_QUOTE_END
     ;
 
 XMLSingleQuotedTemplateString
-    :   XMLSingleQuotedString? ExpressionStart    -> pushMode(DEFAULT_MODE)
+    :   XMLSingleQuotedString? INTERPOLATION_START    -> pushMode(DEFAULT_MODE)
     ;
 
 XMLSingleQuotedString
@@ -769,7 +759,7 @@ XMLSingleQuotedString
 
 fragment
 XMLSingleQuotedStringChar
-    :   ~[<'{}\\]
+    :   ~[$<'{}\\]
     |   XMLEscapedSequence
     ;
 
@@ -785,7 +775,7 @@ XMLPIText
     ;
 
 XMLPITemplateText
-    :   XMLPITextFragment ExpressionStart    -> pushMode(DEFAULT_MODE)
+    :   XMLPITextFragment INTERPOLATION_START    -> pushMode(DEFAULT_MODE)
     ;
 
 fragment
@@ -795,7 +785,7 @@ XMLPITextFragment
 
 fragment
 XMLPIChar
-    :   ~[{}?>]
+    :   ~[${}?>]
     |   XMLEscapedSequence
     ;
 
@@ -818,17 +808,13 @@ XMLPISpecialSequence
 // Everything inside an XML comment
 mode XML_COMMENT;
 
-fragment
-XML_COMMENT_END
-    :   '-->'
-    ;
 
-XMLCommentText
-    :   XMLCommentTextFragment XML_COMMENT_END    -> popMode
+XML_COMMENT_END
+    :   '-->'                                               -> popMode
     ;
 
 XMLCommentTemplateText
-    :   XMLCommentTextFragment ExpressionStart    -> pushMode(DEFAULT_MODE)
+    :   XMLCommentTextFragment INTERPOLATION_START          -> pushMode(DEFAULT_MODE)
     ;
 
 fragment
@@ -836,10 +822,22 @@ XMLCommentTextFragment
     :   XMLCommentAllowedSequence? (XMLCommentChar XMLCommentAllowedSequence?)*
     ;
 
+XMLCommentText
+    :   XMLCommentAllowedSequence? (XMLCommentChar+ XMLCommentAllowedSequence?)
+    ;
+
 fragment
 XMLCommentChar
-    :   ~[{}>\-]
+    :   ~[>${\-]
+    |   XMLBracesSequence
     |   XMLEscapedSequence
+    |   '\\' [`]
+    |   '$' LookAheadTokenIsNotOpenBrace
+    ;
+
+fragment
+LookAheadTokenIsNotOpenBrace
+    : {_input.LA(1) != '{'}?
     ;
 
 fragment
@@ -853,8 +851,12 @@ XMLCommentAllowedSequence
 fragment
 XMLCommentSpecialSequence
     :   '>'+
-    |   ('>'* '-' '>'+)+
-    |   '-'? '>'* '-'+
+    |   '>'? '-' LookAheadTokenIsNotHypen
+    ;
+
+fragment
+LookAheadTokenIsNotHypen
+    : {_input.LA(1) != '-'}?
     ;
 
 mode TRIPLE_BACKTICK_INLINE_CODE;
@@ -903,54 +905,6 @@ SingleBackTickInlineCode
 fragment
 SingleBackTickInlineCodeChar
     :   ~[`]
-    ;
-
-// Todo - Remove after finalizing the new deprecated annotation
-
-mode DEPRECATED_TEMPLATE;
-
-DeprecatedTemplateEnd
-    :   RIGHT_BRACE { inDeprecatedTemplate = false; }                         -> popMode
-    ;
-
-SBDeprecatedInlineCodeStart
-    :   DeprecatedBackTick                                                     -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
-    ;
-
-DBDeprecatedInlineCodeStart
-    :   DeprecatedBackTick DeprecatedBackTick                                  -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
-    ;
-
-TBDeprecatedInlineCodeStart
-    :   DeprecatedBackTick DeprecatedBackTick DeprecatedBackTick               -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
-    ;
-
-DeprecatedTemplateText
-    :   DeprecatedValidCharSequence? (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)+
-    |   DeprecatedValidCharSequence (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)*
-    ;
-
-fragment
-DeprecatedTemplateStringChar
-    :   ~[`{}\\]
-    |   '\\' [{}`]
-    |   WS
-    |   DeprecatedEscapedSequence
-    ;
-
-fragment
-DeprecatedBackTick
-    :   '`'
-    ;
-
-fragment
-DeprecatedEscapedSequence
-    :   '\\\\'
-    ;
-
-fragment
-DeprecatedValidCharSequence
-    :   '\\' ~'\\'
     ;
 
 mode STRING_TEMPLATE;

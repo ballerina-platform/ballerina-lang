@@ -68,7 +68,7 @@ public class ArrayValue implements RefValue {
 
     Object[] refValues;
     private long[] intValues;
-    private int[] booleanValues;
+    private boolean[] booleanValues;
     private byte[] byteValues;
     private double[] floatValues;
     private String[] stringValues;
@@ -89,7 +89,7 @@ public class ArrayValue implements RefValue {
         setArrayElementType(BTypes.typeInt);
     }
 
-    public ArrayValue(int[] values) {
+    public ArrayValue(boolean[] values) {
         this.booleanValues = values;
         this.size = values.length;
         setArrayElementType(BTypes.typeBoolean);
@@ -114,43 +114,48 @@ public class ArrayValue implements RefValue {
     }
 
     public ArrayValue(BType type) {
-        if (type.getTag() == TypeTags.INT_TAG) {
-            intValues = (long[]) newArrayInstance(Long.TYPE);
-            setArrayElementType(type);
-        } else if (type.getTag() == TypeTags.BOOLEAN_TAG) {
-            booleanValues = (int[]) newArrayInstance(Integer.TYPE);
-            setArrayElementType(type);
-        } else if (type.getTag() == TypeTags.BYTE_TAG) {
-            byteValues = (byte[]) newArrayInstance(Byte.TYPE);
-            setArrayElementType(type);
-        } else if (type.getTag() == TypeTags.FLOAT_TAG) {
-            floatValues = (double[]) newArrayInstance(Double.TYPE);
-            setArrayElementType(type);
-        } else if (type.getTag() == TypeTags.STRING_TAG) {
-            stringValues = (String[]) newArrayInstance(String.class);
-            Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
-            setArrayElementType(type);
-        } else {
-            this.arrayType = type;
-            if (type.getTag() == TypeTags.ARRAY_TAG) {
-                BArrayType arrayType = (BArrayType) type;
-                this.elementType = arrayType.getElementType();
-                if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
-                    this.size = maxArraySize = arrayType.getSize();
-                }
-                refValues = (Object[]) newArrayInstance(Object.class);
-                Arrays.fill(refValues, arrayType.getElementType().getZeroValue());
-            } else if (type.getTag() == TypeTags.TUPLE_TAG) {
-                BTupleType tupleType = (BTupleType) type;
-                this.size = maxArraySize = tupleType.getTupleTypes().size();
-                refValues = (Object[]) newArrayInstance(Object.class);
-                AtomicInteger counter = new AtomicInteger(0);
-                tupleType.getTupleTypes().forEach(memType ->
-                        refValues[counter.getAndIncrement()] = memType.getEmptyValue());
-            } else {
-                refValues = (Object[]) newArrayInstance(Object.class);
-                Arrays.fill(refValues, type.getEmptyValue());
+        this.arrayType = type;
+        if (type.getTag() == TypeTags.ARRAY_TAG) {
+            BArrayType arrayType = (BArrayType) type;
+            this.elementType = arrayType.getElementType();
+            if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
+                this.size = maxArraySize = arrayType.getSize();
             }
+            initArrayValues(this.elementType);
+        } else if (type.getTag() == TypeTags.TUPLE_TAG) {
+            BTupleType tupleType = (BTupleType) type;
+            this.size = maxArraySize = tupleType.getTupleTypes().size();
+            refValues = (Object[]) newArrayInstance(Object.class);
+            AtomicInteger counter = new AtomicInteger(0);
+            tupleType.getTupleTypes()
+                    .forEach(memType -> refValues[counter.getAndIncrement()] = memType.getEmptyValue());
+        } else {
+            refValues = (Object[]) newArrayInstance(Object.class);
+            Arrays.fill(refValues, type.getEmptyValue());
+        }
+    }
+
+    private void initArrayValues(BType elementType) {
+        switch (elementType.getTag()) {
+            case TypeTags.INT_TAG:
+                intValues = (long[]) newArrayInstance(Long.TYPE);
+                break;
+            case TypeTags.FLOAT_TAG:
+                floatValues = (double[]) newArrayInstance(Double.TYPE);
+                break;
+            case TypeTags.STRING_TAG:
+                stringValues = (String[]) newArrayInstance(String.class);
+                Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                booleanValues = (boolean[]) newArrayInstance(Boolean.TYPE);
+                break;
+            case TypeTags.BYTE_TAG:
+                byteValues = (byte[]) newArrayInstance(Byte.TYPE);
+                break;
+            default:
+                refValues = (Object[]) newArrayInstance(Object.class);
+                Arrays.fill(refValues, elementType.getZeroValue());
         }
     }
 
@@ -163,49 +168,45 @@ public class ArrayValue implements RefValue {
             this.size = maxArraySize = (int) size;
         }
 
-        if (type.getTag() == TypeTags.INT_TAG) {
-            intValues = (long[]) newArrayInstance(Long.TYPE);
-        } else if (type.getTag() == TypeTags.BOOLEAN_TAG) {
-            booleanValues = (int[]) newArrayInstance(Integer.TYPE);
-        } else if (type.getTag() == TypeTags.BYTE_TAG) {
-            byteValues = (byte[]) newArrayInstance(Byte.TYPE);
-        } else if (type.getTag() == TypeTags.FLOAT_TAG) {
-            floatValues = (double[]) newArrayInstance(Double.TYPE);
-        } else if (type.getTag() == TypeTags.STRING_TAG) {
-            stringValues = (String[]) newArrayInstance(String.class);
-            Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
+        this.arrayType = type;
+        if (type.getTag() == TypeTags.ARRAY_TAG) {
+            this.elementType = ((BArrayType) type).getElementType();
+            initArrayValues(this.elementType);
         } else {
             refValues = (Object[]) newArrayInstance(Object.class);
             Arrays.fill(refValues, type.getEmptyValue());
         }
-
-        this.arrayType = new BArrayType(type, (int) size);
-        this.elementType = type;
     }
 
     // -----------------------  get methods ----------------------------------------------------
 
     public Object getRefValue(long index) {
+        rangeCheckForGet(index, size);
         return refValues[(int) index];
     }
 
     public long getInt(long index) {
+        rangeCheckForGet(index, size);
         return intValues[(int) index];
     }
 
-    public int getBoolean(long index) {
+    public boolean getBoolean(long index) {
+        rangeCheckForGet(index, size);
         return booleanValues[(int) index];
     }
 
     public byte getByte(long index) {
+        rangeCheckForGet(index, size);
         return byteValues[(int) index];
     }
 
     public double getFloat(long index) {
+        rangeCheckForGet(index, size);
         return floatValues[(int) index];
     }
 
     public String getString(long index) {
+        rangeCheckForGet(index, size);
         return stringValues[(int) index];
     }
 
@@ -217,19 +218,13 @@ public class ArrayValue implements RefValue {
         refValues[(int) index] = value;
     }
 
-    public void add(long index, ArrayValue value) {
-        handleFrozenArrayValue();
-        prepareForAdd(index, refValues.length);
-        refValues[(int) index] = value;
-    }
-
     public void add(long index, long value) {
         handleFrozenArrayValue();
         prepareForAdd(index, intValues.length);
         intValues[(int) index] = value;
     }
 
-    public void add(long index, int value) {
+    public void add(long index, boolean value) {
         if (elementType.getTag() == TypeTags.INT_TAG) {
             add(index, value);
             return;
@@ -341,7 +336,7 @@ public class ArrayValue implements RefValue {
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
                 for (int i = 0; i < size; i++) {
-                    sj.add(Boolean.toString(booleanValues[i] == 1));
+                    sj.add(Boolean.toString(booleanValues[i]));
                 }
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
@@ -529,6 +524,23 @@ public class ArrayValue implements RefValue {
     private void resetSize(int index) {
         if (index >= size) {
             size = index + 1;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void attemptFreeze(Status freezeStatus) {
+        if (!FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            return;
+        }
+        this.freezeStatus = freezeStatus;
+        if (elementType == null || elementType.getTag() > TypeTags.BOOLEAN_TAG) {
+            for (int i = 0; i < this.size; i++) {
+                Object refValue = this.getRefValue(i);
+                ((RefValue) refValue).attemptFreeze(freezeStatus);
+            }
         }
     }
 }

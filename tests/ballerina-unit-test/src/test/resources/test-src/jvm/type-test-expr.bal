@@ -75,11 +75,13 @@ function testNilType() returns (string) {
 
 type A1 record {
     int x;
+    anydata...;
 };
 
 type B1 record {
     int x;
     string y;
+    anydata...;
 };
 
 function testSimpleRecordTypes_1() returns string {
@@ -102,10 +104,12 @@ function testSimpleRecordTypes_2() returns (boolean, boolean) {
 
 type A2 record {
     int x;
+    anydata...;
 };
 
 type B2 record {
     int x;
+    anydata...;
 };
 
 function testSimpleRecordTypes_3() returns (boolean, boolean) {

@@ -19,7 +19,6 @@ dependencies {
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-io')
@@ -29,10 +28,10 @@ dependencies {
     implementation project(':ballerina-internal')
     implementation project(':ballerina-utils')
 
-    testCompile 'io.netty:netty-transport:4.1.34.Final'
-    testCompile 'org.testng:testng:6.13.1'
     testCompile project(':ballerina-launcher')
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.26'
+    testCompile 'io.netty:netty-transport'
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-jdk14'
 
     cliUtils project(':ballerina-cli-utils')
 }
@@ -47,14 +46,22 @@ task genBalx(type: JavaExec) {
             into "$buildDir/lib/repo/ballerina"
         }
     }
+    dependsOn createBalo
 
     classpath = configurations.cliUtils
     main = 'org.ballerinalang.cli.utils.GenerateBalx'
 
-    def src = "$buildDir/../src/test/ballerina/bir_test"
+    def src = "src/test/ballerina/bir_test"
     def fileName = "bir_test.bal"
     def target = "$buildDir/bir_test.balx"
     args("$src", "$fileName", "$target", "$buildDir")
+
+    def balFiles = file("src/main/ballerina/")
+    inputs.dir(balFiles)
+    inputs.files(new File(src, fileName))
+    inputs.files(configurations.baloImplementation)
+    outputs.files(target)
+    outputs.cacheIf { true }
 }
 
 test {

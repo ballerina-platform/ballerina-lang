@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaCloseTagImpl extends BallerinaCompositeElementImpl implements BallerinaCloseTag {
+public class BallerinaCloseTagImpl extends ASTWrapperPsiElement implements BallerinaCloseTag {
 
   public BallerinaCloseTagImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaCloseTagImpl extends BallerinaCompositeElementImpl impleme
   @Override
   @Nullable
   public BallerinaXmlQualifiedName getXmlQualifiedName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaXmlQualifiedName.class);
+    return findChildByClass(BallerinaXmlQualifiedName.class);
   }
 
   @Override
@@ -56,7 +57,7 @@ public class BallerinaCloseTagImpl extends BallerinaCompositeElementImpl impleme
   @Override
   @NotNull
   public PsiElement getXmlTagOpenSlash() {
-    return notNullChild(findChildByType(XML_TAG_OPEN_SLASH));
+    return findNotNullChildByType(XML_TAG_OPEN_SLASH);
   }
 
 }

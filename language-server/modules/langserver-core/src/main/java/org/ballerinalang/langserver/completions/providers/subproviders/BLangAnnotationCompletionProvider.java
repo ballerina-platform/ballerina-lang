@@ -91,7 +91,7 @@ public class BLangAnnotationCompletionProvider extends AbstractSubCompletionProv
                     ? filteredRecord.get().fields
                     : findAllRecordFields(filteredRecord.get(), metaInfo.getFieldQueue().poll(),
                     metaInfo.getFieldQueue());
-            completionItems.addAll(CommonUtil.getStructFieldCompletionItems(fields));
+            completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(fields));
         }
 
         return completionItems;

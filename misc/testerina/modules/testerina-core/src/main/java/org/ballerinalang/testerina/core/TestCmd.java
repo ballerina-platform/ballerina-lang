@@ -25,9 +25,11 @@ import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -97,6 +99,12 @@ public class TestCmd implements BLauncherCmd {
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         SourceDirectory srcDirectory = null;
         if (sourceFileList == null || sourceFileList.isEmpty()) {
+            // Check if the source root is a project. If the source root is not a project, then throw an error.
+            if (!isBallerinaProject(sourceRootPath)) {
+                throw LauncherUtils.createLauncherException("you are trying to execute tests in a directory that is " +
+                        "not a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                        "project and then execute the tests.");
+            }
             srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
             sourceFileList = srcDirectory.getSourcePackageNames();
         } else if (sourceFileList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
@@ -113,6 +121,12 @@ public class TestCmd implements BLauncherCmd {
             sourceFileList.clear();
             sourceFileList.add(fileName.toString());
         } else {
+            // Check if the source root is a project. If the source root is not a project, then throw an error.
+            if (!isBallerinaProject(sourceRootPath)) {
+                throw LauncherUtils.createLauncherException("you are trying to execute tests in a module that is not " +
+                        "inside a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                        "project and then execute the tests.");
+            }
             srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
         }
 
@@ -161,6 +175,17 @@ public class TestCmd implements BLauncherCmd {
         Runtime.getRuntime().exit(0);
     }
 
+    /**
+     * Identifies if a directory given is a ballerina project or not.
+     *
+     * @param projectPath project path.
+     * @return true if its a project else false.
+     */
+    private boolean isBallerinaProject(Path projectPath) {
+        return Files.isDirectory(projectPath) &&
+                Files.exists(projectPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME));
+    }
+
     @Override
     public String getName() {
         return "test";
@@ -176,11 +201,5 @@ public class TestCmd implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-    }
-
-    @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
-        // ignore
-
     }
 }

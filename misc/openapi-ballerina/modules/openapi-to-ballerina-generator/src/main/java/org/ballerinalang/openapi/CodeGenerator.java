@@ -116,10 +116,10 @@ public class CodeGenerator {
         List<GenSrcFile> sourceFiles;
 
         switch (type) {
-            case CLIENT:
+            case GEN_CLIENT:
                 sourceFiles = generateClient(definitionContext);
                 break;
-            case MOCK:
+            case GEN_SERVICE:
                 sourceFiles = generateMock(definitionContext);
                 break;
             default:

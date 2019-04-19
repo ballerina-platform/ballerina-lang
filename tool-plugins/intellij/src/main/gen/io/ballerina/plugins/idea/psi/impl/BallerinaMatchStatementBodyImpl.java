@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaMatchStatementBodyImpl extends BallerinaCompositeElementImpl implements BallerinaMatchStatementBody {
+public class BallerinaMatchStatementBodyImpl extends ASTWrapperPsiElement implements BallerinaMatchStatementBody {
 
   public BallerinaMatchStatementBodyImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,13 +51,13 @@ public class BallerinaMatchStatementBodyImpl extends BallerinaCompositeElementIm
   @Override
   @NotNull
   public PsiElement getLeftBrace() {
-    return notNullChild(findChildByType(LEFT_BRACE));
+    return findNotNullChildByType(LEFT_BRACE);
   }
 
   @Override
   @NotNull
   public PsiElement getRightBrace() {
-    return notNullChild(findChildByType(RIGHT_BRACE));
+    return findNotNullChildByType(RIGHT_BRACE);
   }
 
 }

@@ -28,8 +28,14 @@ public function main() {
     // It is possible to get all the attributes at once. However, this cannot be assigned to any variable.
     io:println(x1@);
 
-    // To assign all the attributes to a variable, it can be stamped to a map. Then the values can be accessed one by one using the map access syntax.
-    map<anydata> attributeMap = map<anydata>.convert(x1@);
+    // We can use x1@ syntax to get all attributes of a singleton xml element as a map.
+    map<string>? attributeMap = x1@;
     io:println(attributeMap);
     io:println(attributeMap["count"]);
+
+    // However if we apply @ operator to a XML sequence it will return NIL, because only XML elements have attributes.
+    xml x2 = xml `<Person name="James" />`;
+    xml x3 = x1 + x2;
+    map<string>? attrMap2 = x3@;
+    io:println(attrMap2);
 }

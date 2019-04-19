@@ -24,13 +24,14 @@ public function main() {
 
     string firstName;
     int personAge;
-    map<anydata> otherDetails = {};
+    map<anydata|error> otherDetails = {};
     // This record de-structure binding pattern will destructure a `record` of type `Person` and assign the values
     // to three variable references as follows:
     // The value of the field `name` in the `Person` record will be assigned to the variable `firstName`.
     // The value of the field `age` in the `Person` record will be assigned to the variable `personAge`.
     // `...otherDetails` is a rest parameter. Since `Person` is an open record, the remaining field values that have
-    // not been matched in the record binding pattern, will be assigned as a `map<anydata>` to the variable `otherDetails`.
+    // not been matched in the record binding pattern, will be assigned as a `map<anydata|error>` to the variable
+    // `otherDetails`.
     { name: firstName, age: personAge, ...otherDetails } = getPerson();
     io:println("Name: " + firstName);
     io:println("Age: " + personAge);

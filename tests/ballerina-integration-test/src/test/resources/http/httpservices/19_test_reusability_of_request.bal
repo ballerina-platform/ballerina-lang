@@ -61,7 +61,7 @@ service testService_1 on testEP {
         }
         http:Response testResponse = new;
         testResponse.setPayload(firstVal + secondVal);
-        _ = caller -> respond(testResponse);
+        checkpanic caller->respond(testResponse);
     }
 
     @http:ResourceConfig {
@@ -101,7 +101,7 @@ service testService_1 on testEP {
         }
         http:Response testResponse = new;
         testResponse.setPayload(firstVal + secondVal);
-        _ = caller -> respond(testResponse);
+        checkpanic caller->respond(testResponse);
     }
 
     @http:ResourceConfig {
@@ -147,7 +147,7 @@ service testService_1 on testEP {
             log:printError(entity.reason(), err = entity);
         }
         testResponse.setTextPayload(firstVal + secondVal);
-        _ = caller -> respond(testResponse);
+        checkpanic caller->respond(testResponse);
     }
 
     @http:ResourceConfig {
@@ -185,7 +185,7 @@ service testService_1 on testEP {
         }
         http:Response testResponse = new;
         testResponse.setPayload(firstVal + secondVal);
-        _ = caller -> respond(testResponse);
+        checkpanic caller->respond(testResponse);
     }
 
     @http:ResourceConfig {
@@ -222,7 +222,7 @@ service testService_1 on testEP {
                 }
 
                 testResponse.setTextPayload(untaint firstVal + untaint secondVal);
-                _ = caller -> respond(testResponse);
+                checkpanic caller->respond(testResponse);
             } else {
                 log:printError(firstResponse.reason(), err = firstResponse);
             }
@@ -242,7 +242,7 @@ service testService_2 on testEP {
     resource function testForGet(http:Caller caller, http:Request clientRequest) {
         http:Response response = new;
         response.setTextPayload("Hello from GET!");
-        _ = caller -> respond(response);
+        checkpanic caller->respond(response);
     }
 
     @http:ResourceConfig {
@@ -252,7 +252,7 @@ service testService_2 on testEP {
     resource function testForPost(http:Caller caller, http:Request clientRequest) {
         http:Response response = new;
         response.setTextPayload("Hello from POST!");
-        _ = caller -> respond(response);
+        checkpanic caller->respond(response);
     }
 
     @http:ResourceConfig {
@@ -268,6 +268,6 @@ service testService_2 on testEP {
             string errMsg = <string> stringPayload.detail().message;
             response.setPayload(untaint errMsg);
         }
-        _ = caller -> respond(response);
+        checkpanic caller->respond(response);
     }
 }

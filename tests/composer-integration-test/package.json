@@ -4,18 +4,15 @@
   "description": "Composer Integration tests",
   "scripts": {
     "compile": "tsc -p ./",
+    "prepare": "node scripts/pre-build.js",
     "build": "npm run compile",
     "watch": "tsc -watch -p ./",
-    "test": "jest",
+    "test": "npm run prepare & jest",
     "test-coverage": "npm run test -- --coverage"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@ballerina/ast-model": "file:../../composer/packages/ast-model",
-    "@ballerina/diagram": "file:../../composer/packages/diagram",
-    "@ballerina/lang-service": "file:../../composer/packages/lang-service",
-    "@ballerina/theme": "file:../../composer/packages/theme",
     "@types/fs-extra": "^5.0.4",
     "@types/glob": "^7.1.1",
     "@types/jest": "^24.0.11",
@@ -43,5 +40,8 @@
     "ts-loader": "^5.2.1",
     "typescript": "^3.0.1",
     "vscode-uri": "^1.0.6"
+  },
+  "dependencies": {
+    "@ballerina/composer": "file:../../composer"
   }
 }

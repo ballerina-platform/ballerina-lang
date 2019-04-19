@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaBuiltInReferenceTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaBuiltInReferenceTypeName {
+public class BallerinaBuiltInReferenceTypeNameImpl extends ASTWrapperPsiElement implements BallerinaBuiltInReferenceTypeName {
 
   public BallerinaBuiltInReferenceTypeNameImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,55 +45,55 @@ public class BallerinaBuiltInReferenceTypeNameImpl extends BallerinaCompositeEle
   @Override
   @Nullable
   public BallerinaErrorTypeName getErrorTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaErrorTypeName.class);
+    return findChildByClass(BallerinaErrorTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaFunctionTypeName getFunctionTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaFunctionTypeName.class);
+    return findChildByClass(BallerinaFunctionTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaFutureTypeName getFutureTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaFutureTypeName.class);
+    return findChildByClass(BallerinaFutureTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaJsonTypeName getJsonTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaJsonTypeName.class);
+    return findChildByClass(BallerinaJsonTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaMapTypeName getMapTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaMapTypeName.class);
+    return findChildByClass(BallerinaMapTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaServiceTypeName getServiceTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaServiceTypeName.class);
+    return findChildByClass(BallerinaServiceTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaStreamTypeName getStreamTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaStreamTypeName.class);
+    return findChildByClass(BallerinaStreamTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaTableTypeName getTableTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTableTypeName.class);
+    return findChildByClass(BallerinaTableTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaXmlTypeName getXmlTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaXmlTypeName.class);
+    return findChildByClass(BallerinaXmlTypeName.class);
   }
 
 }

@@ -115,7 +115,8 @@ public abstract class BValueType implements BValue {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                 if (BVM.checkIsLikeType(this, memberType, new ArrayList<>())) {
                     this.stamp(memberType, unresolvedValues);
-                    type = memberType;
+                    type = memberType.getTag() == TypeTags.ANYDATA_TAG || memberType.getTag() == TypeTags.JSON_TAG ?
+                            this.getType() : memberType;
                     break;
                 }
             }

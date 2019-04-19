@@ -43,10 +43,11 @@ import javax.jms.Session;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jms",
+        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session", structPackage = "ballerina/jms"),
-        args = {@Argument(name = "connection", type = TypeKind.OBJECT, structType = "Connection")
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
+        args = {@Argument(name = "connection", type = TypeKind.OBJECT, structType = JmsConstants.CONNECTION_OBJ_NAME)
         }
 )
 public class InitEndpoint implements NativeCallableUnit {
@@ -57,6 +58,7 @@ public class InitEndpoint implements NativeCallableUnit {
 
         Struct sessionConfig = sessionBObject.getStructField(JmsConstants.SESSION_CONFIG);
 
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> connectionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         Connection connection = BallerinaAdapter.getNativeObject(connectionBObject,
                                                                  JmsConstants.JMS_CONNECTION,

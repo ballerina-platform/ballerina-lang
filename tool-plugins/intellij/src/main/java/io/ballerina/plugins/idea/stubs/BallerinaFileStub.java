@@ -37,16 +37,5 @@ public class BallerinaFileStub extends PsiFileStubImpl<BallerinaFile> {
     public IStubFileElementType getType() {
         return BallerinaFileElementType.INSTANCE;
     }
-
-//    @Nullable
-//    public StubElement<BallerinaPackageDeclaration> getPackageClauseStub() {
-//        return findChildStubByType(BallerinaPackageDeclarationStubElementType.INSTANCE);
-//    }
-
-//    @Nullable
-//    public String getPackageName() {
-//        StubElement<BallerinaPackageDeclaration> stub = getPackageClauseStub();
-//        return stub instanceof BallerinaPackageDeclarationStub ? ((BallerinaPackageDeclarationStub) stub).getName() :
-//                null;
-//    }
 }
+

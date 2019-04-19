@@ -131,6 +131,7 @@
                                 <argument>${project.version}</argument>
                             </arguments>
                             <mainClass>org.ballerinalang.stdlib.utils.GenerateBalo</mainClass>
+                    <classpathScope>test</classpathScope>
                         </configuration>
                     </execution>
 
@@ -266,4 +267,7 @@
         </plugins>
     </build>
 
+    <properties>
+        <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
+    </properties>
 </project>

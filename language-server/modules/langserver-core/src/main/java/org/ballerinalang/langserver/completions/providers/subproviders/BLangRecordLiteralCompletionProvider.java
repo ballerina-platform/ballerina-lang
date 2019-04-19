@@ -51,7 +51,7 @@ public class BLangRecordLiteralCompletionProvider extends AbstractSubCompletionP
         }
 
         List<BField> fields = this.getFieldList((BLangRecordLiteral) bLangNode, completionContext);
-        completionItems.addAll(CommonUtil.getStructFieldCompletionItems(fields));
+        completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(fields));
         completionItems.add(CommonUtil.getFillAllStructFieldsItem(fields));
 
         return completionItems;

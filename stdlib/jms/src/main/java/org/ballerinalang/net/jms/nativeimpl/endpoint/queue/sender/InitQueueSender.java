@@ -46,12 +46,13 @@ import javax.jms.Session;
  * @since 0.966
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jms",
+        orgName = JmsConstants.BALLERINA,
+        packageName = JmsConstants.JMS,
         functionName = "initQueueSender",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "QueueSender", structPackage = "ballerina/jms"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.QUEUE_SENDER_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         args = {
-                @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
+                @Argument(name = "session", type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME),
                 @Argument(name = "destination", type = TypeKind.OBJECT)
         }
 )
@@ -59,7 +60,9 @@ public class InitQueueSender implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> queueSenderBObject = (BMap<String, BValue>) context.getRefArgument(0);
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
                                                            context);

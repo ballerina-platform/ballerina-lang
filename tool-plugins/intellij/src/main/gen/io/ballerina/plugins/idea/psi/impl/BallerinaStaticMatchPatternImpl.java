@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaStaticMatchPatternImpl extends BallerinaCompositeElementImpl implements BallerinaStaticMatchPattern {
+public class BallerinaStaticMatchPatternImpl extends ASTWrapperPsiElement implements BallerinaStaticMatchPattern {
 
   public BallerinaStaticMatchPatternImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,25 +45,25 @@ public class BallerinaStaticMatchPatternImpl extends BallerinaCompositeElementIm
   @Override
   @Nullable
   public BallerinaBlock getBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
+    return findChildByClass(BallerinaBlock.class);
   }
 
   @Override
   @Nullable
   public BallerinaStatement getStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaStatement.class);
+    return findChildByClass(BallerinaStatement.class);
   }
 
   @Override
   @NotNull
   public BallerinaStaticMatchLiterals getStaticMatchLiterals() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaStaticMatchLiterals.class));
+    return findNotNullChildByClass(BallerinaStaticMatchLiterals.class);
   }
 
   @Override
   @NotNull
   public PsiElement getEqualGt() {
-    return notNullChild(findChildByType(EQUAL_GT));
+    return findNotNullChildByType(EQUAL_GT);
   }
 
   @Override
