@@ -165,6 +165,13 @@ public type FuncBodyParser object {
             var detailsOp = self.parseVarRef();
             NewError newError = {kind:kind, lhsOp:lhsOp, reasonOp:reasonOp, detailsOp:detailsOp};
             return newError;
+        } else if (kindTag == INS_FP_LOAD) {
+            kind = INS_KIND_FP_LOAD;
+            var lhsOp = self.parseVarRef();
+            var pkgId = self.reader.readModuleIDCpRef();
+            var name = self.reader.readStringCpRef();
+            FPLoad fpLoad = {kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }};
+            return fpLoad;
         } else {
             return self.parseBinaryOpInstruction(kindTag);
         }

@@ -240,6 +240,13 @@ type InstructionEmitter object {
             print(" ", ins.kind, " ");
             self.typeEmitter.emitType(ins.typeValue);
             println(";");
+        } else if (ins is FPLoad) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ");
+            print(" ", ins.kind, " ");
+            print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "()");
+            println(";");
         }
     }
 };

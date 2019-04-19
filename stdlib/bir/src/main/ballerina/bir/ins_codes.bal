@@ -38,6 +38,7 @@ public const int INS_NEW_INST = 32;
 public const int INS_OBJECT_STORE = 33;
 public const int INS_OBJECT_LOAD = 34;
 public const int INS_PANIC = 35;
+public const int INS_FP_LOAD = 36;
 
 // Binary expression related instructions.
 public const int INS_ADD = 50;

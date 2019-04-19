@@ -266,6 +266,19 @@ public class BIRInstructionWriter extends BIRVisitor {
         birNewError.detailOp.accept(this);
     }
 
+    public void visit(BIRNonTerminator.FPLoad fpLoad) {
+        buf.writeByte(fpLoad.kind.getValue());
+        fpLoad.lhsOp.accept(this);
+
+        PackageID pkgId = fpLoad.pkgId;
+        int orgCPIndex = addStringCPEntry(pkgId.orgName.value);
+        int nameCPIndex = addStringCPEntry(pkgId.name.value);
+        int versionCPIndex = addStringCPEntry(pkgId.version.value);
+        int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buf.writeInt(pkgIndex);
+
+        buf.writeInt(addStringCPEntry(fpLoad.funcName.getValue()));
+    }
 
     public void visit(BIRTerminator.Panic birPanic) {
         buf.writeByte(birPanic.kind.getValue());
