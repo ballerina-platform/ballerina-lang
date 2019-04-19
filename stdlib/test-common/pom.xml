@@ -70,9 +70,6 @@
                 <executions>
                     <execution>
                         <id>Jar Package</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
                     </execution>
                     <execution>
                         <id>Jar Tests Package</id>

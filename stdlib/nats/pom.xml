@@ -221,9 +221,6 @@
                     <execution>
                         <id>Jar Package</id>
                         <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

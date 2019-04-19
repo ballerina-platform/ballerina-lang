@@ -322,9 +322,6 @@
                     <execution>
                         <id>Jar Package</id>
                         <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
                     </execution>
                     <execution>
                         <id>Jar Tests Package</id>
