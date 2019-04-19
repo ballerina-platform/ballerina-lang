@@ -118,7 +118,7 @@ task generateIndex(type: JavaExec) {
     main = 'org.ballerinalang.langserver.index.tools.IndexGenerator'
 
     // Uncomment the following to run the index generator in the debug mode while build
-     debug = true
+    // debug = true
 }
 
 task createZip(type: Zip) {
