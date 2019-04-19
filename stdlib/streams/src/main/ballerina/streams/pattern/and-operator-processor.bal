@@ -36,6 +36,7 @@ public type AndOperatorProcessor object {
     }
 
     public function process(StreamEvent event, string? processorAlias) returns boolean {
+        io:println("AndOperatorProcessor:process:39 -> ", event, "|", processorAlias);
         boolean promote = false;
         boolean promoted = false;
         // leftward traversal
@@ -46,10 +47,17 @@ public type AndOperatorProcessor object {
                 foreach var (id, partialEvt) in self.rhsPartialStates {
                     StreamEvent clone = partialEvt.copy();
                     clone.addData(event.cloneData());
+                    // at the leaf nodes (operand processor), it'll take current events'
+                    // stream name into consideration. Therefore, we have to set that.
+                    clone.streamName = event.streamName;
+                    io:println("AndOperatorProcessor:process:53 -> ", clone, "|", processorAlias);
                     promote = promote || lProcessor.process(clone, self.lhsAlias);
+                    io:println("AndOperatorProcessor:process:55 -> ", clone, "|", processorAlias);
                 }
             } else {
+                io:println("AndOperatorProcessor:process:58 -> ", event, "|", processorAlias);
                 promote = lProcessor.process(event, self.lhsAlias);
+                io:println("AndOperatorProcessor:process:60 -> ", event, "|", processorAlias);
             }
         }
         // rightward traversal
@@ -61,10 +69,17 @@ public type AndOperatorProcessor object {
                     foreach var (id, partialEvt) in self.lhsPartialStates {
                         StreamEvent clone = partialEvt.copy();
                         clone.addData(event.cloneData());
+                        // at the leaf nodes (operand processor), it'll take current events'
+                        // stream name into consideration. Therefore, we have to set that.
+                        clone.streamName = event.streamName;
+                        io:println("AndOperatorProcessor:process:75 -> ", clone, "|", processorAlias);
                         promote = promote || rProcessor.process(clone, self.rhsAlias);
+                        io:println("AndOperatorProcessor:process:77 -> ", clone, "|", processorAlias);
                     }
                 } else {
+                    io:println("AndOperatorProcessor:process:80 -> ", event, "|", processorAlias);
                     promote = rProcessor.process(event, self.rhsAlias);
+                    io:println("AndOperatorProcessor:process:82 -> ", event, "|", processorAlias);
                 }
             }
         }
@@ -76,7 +91,9 @@ public type AndOperatorProcessor object {
                 while (self.stateEvents.hasNext()) {
                     StreamEvent s = getStreamEvent(self.stateEvents.next());
                     self.stateEvents.removeCurrent();
+                    io:println("AndOperatorProcessor:process:94 -> ", s, "|", processorAlias);
                     pProcessor.promote(s, processorAlias);
+                    io:println("AndOperatorProcessor:process:96 -> ", s, "|", processorAlias);
                     promoted = true;
                 }
             }
@@ -87,21 +104,27 @@ public type AndOperatorProcessor object {
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         string pAlias = <string>processorAlias;
         if (pAlias == self.lhsAlias) {
+            io:println("AndOperatorProcessor:promote:107 -> ", stateEvent, "|", processorAlias);
             // promoted from lhs means, it can be a partial lhs state or a completed state.
             boolean rhsRemoved = self.rhsPartialStates.remove(stateEvent.getEventId());
             // rhsRemoved=true means, it was earlier a partial rhs state, and now it's a completed state.
             if (rhsRemoved) {
+                io:println("AndOperatorProcessor:promote:112 -> ", stateEvent, "|", processorAlias);
                 self.stateEvents.addLast(stateEvent);
             } else {
+                io:println("AndOperatorProcessor:promote:115 -> ", stateEvent, "|", processorAlias);
                 self.lhsPartialStates[stateEvent.getEventId()] = stateEvent;
             }
         } else {
+            io:println("AndOperatorProcessor:promote:119 -> ", stateEvent, "|", processorAlias);
             // promoted from rhs means, it can be a partial rhs state or a completed state.
             boolean lhsRemoved = self.lhsPartialStates.remove(stateEvent.getEventId());
             // lhsRemoved=true means, it was earlier a partial lhs state, and now it's a completed state.
             if (lhsRemoved) {
+                io:println("AndOperatorProcessor:promote:124 -> ", stateEvent, "|", processorAlias);
                 self.stateEvents.addLast(stateEvent);
             } else {
+                io:println("AndOperatorProcessor:promote:127 -> ", stateEvent, "|", processorAlias);
                 self.rhsPartialStates[stateEvent.getEventId()] = stateEvent;
             }
         }
