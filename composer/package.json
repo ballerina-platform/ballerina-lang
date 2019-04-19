@@ -57,7 +57,7 @@
     "less-plugin-rewrite-import": "^0.1.1",
     "node-sass": "^4.7.2",
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
-    "react-test-renderer": "16.8.4",
+    "react-test-renderer": "16.8.6",
     "rimraf": "^2.6.2",
     "sass-loader": "^7.1.0",
     "source-map-loader": "^0.2.4",
