@@ -30,6 +30,7 @@ public type CompoundPatternProcessor object {
     }
 
     public function process(StreamEvent event, string? processorAlias) returns boolean {
+        io:println("CompoundPatternProcessor:process:33 -> ", event, "|", processorAlias);
         boolean promote = false;
         boolean promoted = false;
         // downward traversal
@@ -37,7 +38,9 @@ public type CompoundPatternProcessor object {
         if (processor is AbstractPatternProcessor) {
             // processorAlias is not required when get promoted by
             // its only imidiate descendent. Therefore passing ().
+            io:println("CompoundPatternProcessor:process:41 -> ", event, "|", processorAlias);
             promote = processor.process(event, ());
+            io:println("CompoundPatternProcessor:process:43 -> ", event, "|", processorAlias);
         }
         // upward traversal
         if (promote) {
@@ -47,7 +50,9 @@ public type CompoundPatternProcessor object {
                 while (self.stateEvents.hasNext()) {
                     StreamEvent s = getStreamEvent(self.stateEvents.next());
                     self.stateEvents.removeCurrent();
+                    io:println("CompoundPatternProcessor:process:53 -> ", s, "|", processorAlias);
                     pProcessor.promote(s, processorAlias);
+                    io:println("CompoundPatternProcessor:process:55 -> ", s, "|", processorAlias);
                     promoted = true;
                 }
             } else {
@@ -57,19 +62,23 @@ public type CompoundPatternProcessor object {
                 while (self.stateEvents.hasNext()) {
                     StreamEvent s = getStreamEvent(self.stateEvents.next());
                     self.stateEvents.removeCurrent();
+                    io:println("CompoundPatternProcessor:process:65 -> ", s, "|", processorAlias);
                     self.emit(s);
                     promoted = true;
                 }
             }
         }
+        io:println("CompoundPatternProcessor:process:71 -> ", event, "|", processorAlias);
         return promoted;
     }
 
     public function promote(StreamEvent stateEvent, string? processorAlias) {
+        io:println("CompoundPatternProcessor:promote:76 -> ", stateEvent, "|", processorAlias);
         self.stateEvents.addLast(stateEvent);
     }
 
     public function emit(StreamEvent stateEvent) {
+        io:println("CompoundPatternProcessor:emit:81 -> ", stateEvent);
         self.fulfilledEvents[self.fulfilledEvents.length()] = stateEvent;
     }
 

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
+
 public type OrOperatorProcessor object {
     *AbstractPatternProcessor;
     *AbstractOperatorProcessor;
@@ -30,17 +32,22 @@ public type OrOperatorProcessor object {
     }
 
     public function process(StreamEvent event, string? processorAlias) returns boolean {
+        io:println("OrOperatorProcessor:process:35 -> ", event, "|", processorAlias);
         boolean promote = false;
         boolean promoted = false;
         // leftward traversal
         AbstractPatternProcessor? lProcessor = self.lhsProcessor;
         if (lProcessor is AbstractPatternProcessor) {
+            io:println("OrOperatorProcessor:process:41 -> ", event, "|", processorAlias);
             promote = lProcessor.process(event, self.lhsAlias);
+            io:println("OrOperatorProcessor:process:43 -> ", event, "|", processorAlias);
         }
         // rightward traversal
         AbstractPatternProcessor? rProcessor = self.rhsProcessor;
         if (!promote && rProcessor is AbstractPatternProcessor) {
+            io:println("OrOperatorProcessor:process:48 -> ", event, "|", processorAlias);
             promote = rProcessor.process(event, self.rhsAlias);
+            io:println("OrOperatorProcessor:process:50 -> ", event, "|", processorAlias);
         }
         // upward traversal / promote
         if (promote) {
@@ -50,7 +57,9 @@ public type OrOperatorProcessor object {
                 while (self.stateEvents.hasNext()) {
                     StreamEvent s = getStreamEvent(self.stateEvents.next());
                     self.stateEvents.removeCurrent();
+                    io:println("OrOperatorProcessor:process:60 -> ", s, "|", processorAlias);
                     pProcessor.promote(s, processorAlias);
+                    io:println("OrOperatorProcessor:process:62 -> ", s, "|", processorAlias);
                     promoted = true;
                 }
             }
@@ -59,6 +68,7 @@ public type OrOperatorProcessor object {
     }
 
     public function promote(StreamEvent stateEvent, string? processorAlias) {
+        io:println("OrOperatorProcessor:promote:71 -> ", stateEvent, "|", processorAlias);
         self.stateEvents.addLast(stateEvent);
     }
 
