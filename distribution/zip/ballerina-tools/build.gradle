@@ -37,7 +37,7 @@ dependencies {
     dist 'org.bytedeco:javacpp:1.4.2'
     dist 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
     dist 'com.fasterxml.jackson.core:jackson-core:2.8.6'
-    dist 'com.fasterxml.jackson.core:jackson-annotations:2.8.0'
+    dist 'com.fasterxml.jackson.core:jackson-annotations:2.9.8'
     dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
     dist 'org.ow2.asm:asm:6.2.1'
 
