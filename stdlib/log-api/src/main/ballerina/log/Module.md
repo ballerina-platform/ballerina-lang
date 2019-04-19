@@ -58,14 +58,13 @@ log:printDebug("debug log");
 log:printTrace("trace log");
 ```
 
-
 Suppose that the above code snippet resides in a module named `foo`. We can set the log level of `foo` to `DEBUG` in a configuration file by placing the following entry in it:
 ```toml
 ["<org-name>/foo"]
 loglevel="DEBUG"
-
+```
 OR
-
+```toml
 "<org-name>/foo.loglevel"="DEBUG"
 ```
 

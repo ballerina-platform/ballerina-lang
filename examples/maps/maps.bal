@@ -36,7 +36,7 @@ public function main() {
     map<string> stringMap = {};
     stringMap["index"] = "100892N";
 
-    // You do not need explicit conversion to `string` when retrieving a value from a `map`.
+    // You do not need explicit conversion to `string` when retrieving a value from `stringMap` via field-based access.
     string index = stringMap.index;
     io:println(index);
 
