@@ -28,7 +28,7 @@ dependencies {
 
 test {
     maxParallelForks = 1
-    forkEvery=100
+    forkEvery=500
     // make sure ballerina tools zip is built before test run
     dependsOn = [":ballerina-tools:build", ":ballerina-integration-test:test", ":examples-test:test"]
 
