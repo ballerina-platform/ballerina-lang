@@ -33,8 +33,7 @@ public type StreamEvent object {
             foreach var (k, v) in eventData[1] {
                 self.data[eventData[0] + DELIMITER + k] = v;
             }
-        }
-        else if (eventData is map<anydata>) {
+        } else {
             self.data = eventData;
             string key = (eventData.length() > 0) ? eventData.keys()[0] : "";
             self.streamName = key.split("\\.")[0];
