@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordKeyValueImpl extends BallerinaCompositeElementImpl implements BallerinaRecordKeyValue {
+public class BallerinaRecordKeyValueImpl extends ASTWrapperPsiElement implements BallerinaRecordKeyValue {
 
   public BallerinaRecordKeyValueImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaRecordKeyValueImpl extends BallerinaCompositeElementImpl i
   @Override
   @Nullable
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @NotNull
   public BallerinaRecordKey getRecordKey() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaRecordKey.class));
+    return findNotNullChildByClass(BallerinaRecordKey.class);
   }
 
   @Override

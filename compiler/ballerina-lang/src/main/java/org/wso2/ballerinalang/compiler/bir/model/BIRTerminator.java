@@ -70,6 +70,7 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      */
     public static class Call extends BIRTerminator implements BIRAssignInstruction {
         public BIROperand lhsOp;
+        public boolean isVirtual;
         public List<BIROperand> args;
         public BIRBasicBlock thenBB;
         public Name name;
@@ -77,6 +78,7 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
 
         public Call(DiagnosticPos pos,
                     InstructionKind kind,
+                    boolean isVirtual,
                     PackageID calleePkg,
                     Name name,
                     List<BIROperand> args,
@@ -84,6 +86,7 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
                     BIRBasicBlock thenBB) {
             super(pos, kind);
             this.lhsOp = lhsOp;
+            this.isVirtual = isVirtual;
             this.args = args;
             this.thenBB = thenBB;
             this.name = name;
@@ -111,13 +114,14 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     public static class AsyncCall extends Call {
 
         public AsyncCall(DiagnosticPos pos,
-                    InstructionKind kind,
-                    PackageID calleePkg,
-                    Name name,
-                    List<BIROperand> args,
-                    BIROperand lhsOp,
-                    BIRBasicBlock thenBB) {
-            super(pos, kind, calleePkg, name, args, lhsOp, thenBB);
+                         InstructionKind kind,
+                         boolean isVirtual,
+                         PackageID calleePkg,
+                         Name name,
+                         List<BIROperand> args,
+                         BIROperand lhsOp,
+                         BIRBasicBlock thenBB) {
+            super(pos, kind, isVirtual, calleePkg, name, args, lhsOp, thenBB);
         }
 
         @Override
@@ -167,6 +171,51 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
             this.op = op;
             this.trueBB = trueBB;
             this.falseBB = falseBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A panic statement.
+     * <p>
+     * panic error
+     *
+     * @since 0.995.0
+     */
+    public static class Panic extends BIRTerminator {
+
+        public BIROperand errorOp;
+
+        public Panic(DiagnosticPos pos, BIROperand errorOp) {
+            super(pos, InstructionKind.PANIC);
+            this.errorOp = errorOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A wait instruction.
+     * <p>
+     * e.g., wait w1|w2;
+     *
+     * @since 0.995.0
+     */
+    public static class Wait extends BIRTerminator {
+        public List<BIROperand> exprList;
+        public BIROperand lhsOp;
+
+        public Wait(DiagnosticPos pos, List<BIROperand> exprList, BIROperand lhsOp) {
+            super(pos, InstructionKind.WAIT);
+            this.exprList = exprList;
+            this.lhsOp = lhsOp;
         }
 
         @Override

@@ -33,7 +33,10 @@ public function main() {
     runtime:sleep(6000);
 
     // Once all messages are sent, client send complete message to notify the server, I’m done.
-    _ = ep->complete();
+    error? result = ep->complete();
+    if (result is error) {
+        io:println("Error in sending complete message", result);
+    }
 }
 
 

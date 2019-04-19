@@ -15,7 +15,7 @@
 // under the License.
 
 type SMS error <string, map<string>>;
-type SMA error <string, map<any>>;
+type SMA error <string, map<anydata>>;
 
 function testBasicErrorVariableWithMapDetails() {
     SMS err1 = error("Error One", { message: "Msg One", detail: "Detail Msg" });
@@ -51,7 +51,7 @@ function testBasicErrorVariable2() {
     var error (reason11, detail11) = err1;
     var error (reason12, { message: message12, detail: detail12, extra: extra12 }) = err1;
 
-    int detail = detail11; // incompatible types: expected 'int', found 'map'
+    int detail = detail11; // incompatible types: expected 'int', found 'map<anydata|error>'
     var error (reason11, detail11) = 12; // invalid error variable; expecting an error type but found 'int' in type definition
 }
 
@@ -59,7 +59,7 @@ function errorVarInTupleVar() {
     (int, error) tuple = (100, error("Error Code"));
     var (a, error(reason, { message })) = tuple;
     boolean r = reason; // incompatible types: expected 'boolean', found 'string'
-    string m = message; // incompatible types: expected 'string', found 'any'
+    string m = message; // incompatible types: expected 'string', found 'anydata|error'
 }
 
 function errorVarWithConstrainedMap() {

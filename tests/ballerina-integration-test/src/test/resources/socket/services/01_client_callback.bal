@@ -36,7 +36,7 @@ service echo on echoEP {
             var writeResult = socketClient->write(payloadByte);
             if (writeResult is int) {
                 io:println("Number of bytes written: ", writeResult);
-                _ = caller->accepted();
+                checkpanic caller->accepted();
             } else {
                 io:println("Write error!!!");
                 string errMsg = <string>writeResult.detail().message;

@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
@@ -24,6 +25,7 @@ import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.resolvers.CompletionItemsContext;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.InsertTextFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -56,7 +58,7 @@ public class CompletionUtil {
      * @param ctx Completion context
      * @return {@link List}         List of resolved completion Items
      */
-    public static List<CompletionItem> getCompletionItems(LSContext ctx) {
+    public static List<CompletionItem>  getCompletionItems(LSContext ctx) {
         if (ctx == null) {
             return null;
         }
@@ -70,6 +72,17 @@ public class CompletionUtil {
                 items.addAll(provider.getCompletions(ctx, completionItemsContext));
             } catch (Exception e) {
                 LOGGER.error("Error while retrieving completions from: " + provider.getName());
+            }
+        }
+
+        boolean isSnippetSupported = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
+                .getSnippetSupport();
+        for (CompletionItem item : items) {
+            if (!isSnippetSupported) {
+                item.setInsertText(CommonUtil.getPlainTextSnippet(item.getInsertText()));
+                item.setInsertTextFormat(InsertTextFormat.PlainText);
+            } else {
+                item.setInsertTextFormat(InsertTextFormat.Snippet);
             }
         }
         return items;

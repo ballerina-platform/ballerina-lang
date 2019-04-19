@@ -141,7 +141,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             //Generate compilation unit for provided Open Api Sep JSON
             File tempOasJsonFile = getOpenApiFile(params.getOASDefinition());
             CodeGenerator generator = new CodeGenerator();
-            List<GenSrcFile> oasSources = generator.generate(GeneratorConstants.GenType.MOCK,
+            List<GenSrcFile> oasSources = generator.generate(GeneratorConstants.GenType.GEN_SERVICE,
                     tempOasJsonFile.getPath());
 
             Optional<GenSrcFile> oasServiceFile = oasSources.stream()
@@ -332,11 +332,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     private JsonElement getTreeForContent(LSContext context) throws LSCompilerException, JSONGenerationException {
         BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        SymbolFindVisitor symbolFindVisitor = new SymbolFindVisitor(compilerContext);
+        VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
 
         if (bLangPackage.symbol != null) {
-            symbolFindVisitor.visit(bLangPackage);
-            Map<BLangNode, List<SymbolMetaInfo>> symbolMetaInfoMap = symbolFindVisitor.getVisibleSymbolsMap();
+            visibleEndpointVisitor.visit(bLangPackage);
+            Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
             String relativeFilePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
             BLangCompilationUnit compilationUnit = bLangPackage.getCompilationUnits().stream()
                     .filter(cUnit -> cUnit.getPosition().getSource().cUnitName.replace("/", CommonUtil.FILE_SEPARATOR)
@@ -344,7 +344,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     .findFirst()
                     .orElse(null);
             JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>(),
-                    symbolMetaInfoMap);
+                    visibleEPsByNode);
             FormattingSourceGen.build(jsonAST.getAsJsonObject(), "CompilationUnit");
             return jsonAST;
         }

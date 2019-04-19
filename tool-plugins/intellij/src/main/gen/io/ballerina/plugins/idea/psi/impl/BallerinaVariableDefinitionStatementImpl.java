@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaVariableDefinitionStatementImpl extends BallerinaCompositeElementImpl implements BallerinaVariableDefinitionStatement {
+public class BallerinaVariableDefinitionStatementImpl extends ASTWrapperPsiElement implements BallerinaVariableDefinitionStatement {
 
   public BallerinaVariableDefinitionStatementImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,18 +45,13 @@ public class BallerinaVariableDefinitionStatementImpl extends BallerinaComposite
   @Override
   @Nullable
   public BallerinaVariableDefinitionStatementWithAssignment getVariableDefinitionStatementWithAssignment() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaVariableDefinitionStatementWithAssignment.class);
+    return findChildByClass(BallerinaVariableDefinitionStatementWithAssignment.class);
   }
 
   @Override
   @Nullable
   public BallerinaVariableDefinitionStatementWithoutAssignment getVariableDefinitionStatementWithoutAssignment() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaVariableDefinitionStatementWithoutAssignment.class);
-  }
-
-  @Nullable
-  public PsiElement getType() {
-    return BallerinaPsiImplUtil.getType(this);
+    return findChildByClass(BallerinaVariableDefinitionStatementWithoutAssignment.class);
   }
 
 }

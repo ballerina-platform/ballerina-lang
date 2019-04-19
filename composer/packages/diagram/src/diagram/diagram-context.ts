@@ -14,6 +14,7 @@ export interface IDiagramContext {
     toggleEditing: () => void;
     diagramHeight: number;
     diagramWidth: number;
+    update: () => void;
     zoomLevel: number;
     zoomIn: () => void;
     zoomOut: () => void;
@@ -35,6 +36,9 @@ const defaultDiagramContext: IDiagramContext = {
     hasSyntaxErrors: false,
     mode: DiagramMode.ACTION,
     toggleEditing: () => {
+        // do nothing
+    },
+    update: () => {
         // do nothing
     },
     zoomFit: () => {

@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaElseIfClause extends BallerinaCompositeElement {
+public interface BallerinaElseIfClause extends PsiElement {
 
   @Nullable
   BallerinaBlock getBlock();

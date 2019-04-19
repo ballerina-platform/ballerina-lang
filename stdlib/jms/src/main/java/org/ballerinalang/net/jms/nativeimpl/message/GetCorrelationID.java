@@ -32,6 +32,7 @@ import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import java.util.Objects;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 
@@ -39,12 +40,12 @@ import javax.jms.Message;
  * Get a correlation ID of the JMS Message.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jms",
+        orgName = JmsConstants.BALLERINA,
+        packageName = JmsConstants.JMS,
         functionName = "getCorrelationID",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = "Message",
-                             structPackage = "ballerina/jms"),
+                             structType = JmsConstants.MESSAGE_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         returnType = { @ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.NIL) },
         isPublic = true
 )

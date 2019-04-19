@@ -44,7 +44,7 @@ public class BallerinaSimpleVariableReferenceImpl extends BallerinaVariableRefer
   @Override
   @NotNull
   public BallerinaNameReference getNameReference() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaNameReference.class));
+    return findNotNullChildByClass(BallerinaNameReference.class);
   }
 
 }

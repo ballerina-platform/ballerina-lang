@@ -61,6 +61,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -93,8 +94,8 @@ public class LauncherUtils {
         runProgram(sourceRootPath, sourcePath, runtimeParams, configFilePath, args, offline, observeFlag, false, true);
     }
 
-    public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams, 
-                                  String configFilePath, String[] args, boolean offline, boolean observeFlag, 
+    public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
+                                  String configFilePath, String[] args, boolean offline, boolean observeFlag,
                                   boolean siddhiRuntimeFlag, boolean experimentalFlag) {
 
         String srcPathStr = sourcePath.toString();
@@ -117,9 +118,8 @@ public class LauncherUtils {
                 BError returnedError = (BError) result[0];
                 errStream.print(prepareErrorReturnedErrorMessage(returnedError));
 
-                if (returnedError.details != null) {
-                    BMap<String, BValue> details =  (BMap<String, BValue>) returnedError.details;
-                    statusCode = getStatusCode(details);
+                if (returnedError.getDetails() != null) {
+                    statusCode = getStatusCode((BMap<String, BValue>) returnedError.getDetails());
                 }
             } else if (programFile.isServiceEPAvailable()) {
                 return;
@@ -343,6 +343,16 @@ public class LauncherUtils {
             } catch (IOException ignore) {
             }
         }
+    }
+
+    /**
+     * Initializes the {@link ConfigRegistry} and loads {@link LogManager} configs.
+     *
+     * @param sourceRootPath source directory
+     * @param configFilePath config file path
+     */
+    public static void loadConfigurations(Path sourceRootPath, String configFilePath) {
+        loadConfigurations(sourceRootPath, new HashMap<>(), configFilePath, false);
     }
 
     /**

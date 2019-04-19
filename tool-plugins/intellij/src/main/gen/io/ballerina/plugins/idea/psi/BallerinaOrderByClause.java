@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaOrderByClause extends BallerinaCompositeElement {
+public interface BallerinaOrderByClause extends PsiElement {
 
   @NotNull
   List<BallerinaOrderByVariable> getOrderByVariableList();

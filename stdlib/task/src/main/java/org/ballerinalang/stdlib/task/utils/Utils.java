@@ -14,7 +14,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
-*/
+ */
 package org.ballerinalang.stdlib.task.utils;
 
 import org.ballerinalang.bre.Context;
@@ -55,7 +55,7 @@ import static org.quartz.CronExpression.isValidExpression;
  */
 public class Utils {
 
-    public static BError createError(Context context, String message) {
+    private static BError createError(Context context, String message) {
         BMap<String, BValue> taskErrorRecord = createTaskErrorRecord(context);
         taskErrorRecord.put(TASK_ERROR_MESSAGE, new BString(message));
         return BLangVMErrors.createError(context, true, BTypes.typeError, TASK_ERROR_CODE, taskErrorRecord);
@@ -65,11 +65,13 @@ public class Utils {
         return BLangConnectorSPIUtil.createBStruct(context, PACKAGE_STRUCK_NAME, TASK_ERROR_RECORD);
     }
 
-    public static String getCronExpressionFromAppointmentRecord(BValue record)
-            throws SchedulingException {
+    public static void setError(Context context, String message) {
+        context.setReturnValues(createError(context, message));
+    }
 
+    public static String getCronExpressionFromAppointmentRecord(BValue record) throws SchedulingException {
         String cronExpression;
-        if (record instanceof BMap && RECORD_APPOINTMENT_DATA.equals(record.getType().getName())) {
+        if (RECORD_APPOINTMENT_DATA.equals(record.getType().getName())) {
             cronExpression = buildCronExpression((BMap) record);
             if (!isValidExpression(cronExpression)) {
                 throw new SchedulingException("AppointmentData \"" + record.stringValue() + "\" is invalid.");

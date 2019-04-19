@@ -96,7 +96,7 @@ public class RegexTest {
         BValue[] returns = BRunUtil.invoke(result, "invalidPattern", args);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
                             "Unclosed character class near index 0\n[\n^");
     }
@@ -107,7 +107,7 @@ public class RegexTest {
         BValue[] returns = BRunUtil.invoke(result, "matches", args);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
                 "Unclosed character class near index 0\n[\n^");
     }

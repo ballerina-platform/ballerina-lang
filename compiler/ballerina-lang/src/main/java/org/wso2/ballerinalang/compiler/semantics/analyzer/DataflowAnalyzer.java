@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -78,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -691,6 +691,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         if (bLangLambdaFunction.function.flagSet.contains(Flag.LAMBDA)) {
+            bLangLambdaFunction.function.closureVarSymbols.forEach(closureVarSymbol -> {
+                if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
+                    this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.UNINITIALIZED_VARIABLE,
+                            closureVarSymbol.bSymbol);
+                }
+            });
             return;
         }
 
@@ -750,6 +756,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangCheckPanickedExpr checkPanicExpr) {
+        analyzeNode(checkPanicExpr.expr, env);
+    }
+
+    @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
         bLangXMLSequenceLiteral.xmlItems.forEach(xml -> analyzeNode(xml, env));
     }
@@ -765,10 +776,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-    }
-
-    @Override
-    public void visit(BLangDeprecatedNode deprecatedNode) {
     }
 
     @Override
@@ -865,6 +872,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
+        bLangArrowFunction.closureVarSymbols.forEach(closureVarSymbol -> {
+            if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
+                this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.UNINITIALIZED_VARIABLE,
+                        closureVarSymbol.bSymbol);
+            }
+        });
     }
 
     @Override

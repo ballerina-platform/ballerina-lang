@@ -123,17 +123,17 @@ public type LdapAuthStoreProvider object {
     # + username - user name
     # + password - password
     # + return - true if authentication is a success, else false
-    public extern function doAuthenticate(string username, string password) returns boolean;
+    public function doAuthenticate(string username, string password) returns boolean = external;
 
     # Reads the scope(s) for the user with the given username
     #
     # + username - username
     # + return - array of groups for the user denoted by the username
-    public extern function getScopesOfUser(string username) returns string[];
+    public function getScopesOfUser(string username) returns string[] = external;
 };
 
 # Initailizes LDAP connection context
 #
 # + ldapAuthStoreProvider - LdapAuthStoreProvider provider object
 # + instanceId - Unique id generated to identify an endpoint
-public extern function initLdapConnectionContext(LdapAuthStoreProvider ldapAuthStoreProvider, string instanceId);
+public function initLdapConnectionContext(LdapAuthStoreProvider ldapAuthStoreProvider, string instanceId) = external;

@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaBacktickedBlockImpl extends BallerinaCompositeElementImpl implements BallerinaBacktickedBlock {
+public class BallerinaBacktickedBlockImpl extends ASTWrapperPsiElement implements BallerinaBacktickedBlock {
 
   public BallerinaBacktickedBlockImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaBacktickedBlockImpl extends BallerinaCompositeElementImpl 
   @Override
   @Nullable
   public BallerinaDoubleBacktickedBlock getDoubleBacktickedBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDoubleBacktickedBlock.class);
+    return findChildByClass(BallerinaDoubleBacktickedBlock.class);
   }
 
   @Override
   @Nullable
   public BallerinaSingleBacktickedBlock getSingleBacktickedBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaSingleBacktickedBlock.class);
+    return findChildByClass(BallerinaSingleBacktickedBlock.class);
   }
 
   @Override
   @Nullable
   public BallerinaTripleBacktickedBlock getTripleBacktickedBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTripleBacktickedBlock.class);
+    return findChildByClass(BallerinaTripleBacktickedBlock.class);
   }
 
 }

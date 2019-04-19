@@ -5,7 +5,7 @@ type MyUnion int|boolean;
 type MyUnion2 string|byte;
 
 // expected: ()
-() nilType;
+() nilType = ();
 
 // expected: int
 int intType = 42;
@@ -54,6 +54,3 @@ object {int age;} myPerson = new;
 
 // expected: object {int age; function () returns string getFullName; }
 object {int age;  function getFullName() returns string { return ""; }} myPerson2 = new;
-
-// expected: future<int>
-future<int> future;

@@ -82,7 +82,7 @@ service HTTPStreamingService on new http:Listener(9090) {
 //Sets the error to the response.
 function setError(http:Response res, error err) {
     res.statusCode = 500;
-    res.setPayload(untaint string.convert(err.detail().message));
+    res.setPayload(untaint <string> err.detail().message);
 }
 
 // Copies the content from the source channel to the destination channel.

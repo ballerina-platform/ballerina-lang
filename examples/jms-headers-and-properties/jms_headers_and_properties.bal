@@ -3,9 +3,9 @@ import ballerina/log;
 
 // Initialize a JMS connection with the provider.
 jms:Connection conn = new({
-        initialContextFactory: "bmbInitialContextFactory",
-        providerUrl: "amqp://admin:admin@carbon/carbon"
-            + "?brokerlist='tcp://localhost:5672'"
+        initialContextFactory:
+         "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+        providerUrl: "tcp://localhost:61616"
     });
 
 // Initialize a JMS session on top of the created connection.
@@ -26,9 +26,9 @@ service jmsListener on consumerEndpoint {
                                 jms:Message message) {
         // Create a queue sender.
         jms:QueueSender queueSender = new({
-                initialContextFactory: "bmbInitialContextFactory",
-                providerUrl: "amqp://admin:admin@carbon/carbon"
-                    + "?brokerlist='tcp://localhost:5672'"
+                initialContextFactory: 
+                "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+                providerUrl: "tcp://localhost:61616"
             }, queueName = "RequestQueue");
 
         var content = message.getTextMessageContent();

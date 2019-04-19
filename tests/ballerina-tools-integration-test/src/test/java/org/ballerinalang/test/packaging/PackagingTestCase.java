@@ -39,8 +39,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-import static org.awaitility.Awaitility.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.given;
 
 /**
  * Testing pushing, pulling, searching a package from central and installing package to home repository.
@@ -71,8 +71,8 @@ public class PackagingTestCase extends BaseTest {
 
         String[] clientArgsForInit = {"-i"};
         String[] options = {"\n", orgName + "\n", "\n", "m\n", moduleName + "\n", "f\n"};
-        balClient.runMain("init", clientArgsForInit, envVariables, options,
-                new LogLeecher[]{}, projectPath.toString());
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
+                projectPath.toString());
     }
 
     @Test(description = "Test pushing a package to central", dependsOnMethods = "testInitProject")
@@ -108,8 +108,8 @@ public class PackagingTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("initProject");
         String[] clientArgs = {moduleName};
 
-        balClient.runMain("install", clientArgs, envVariables, new String[]{},
-                new LogLeecher[]{}, projectPath.toString());
+        balClient.runMain("install", clientArgs, envVariables, new String[]{}, new LogLeecher[]{},
+                projectPath.toString());
 
         Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, moduleName, "0.0.1");
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath)));
@@ -117,7 +117,7 @@ public class PackagingTestCase extends BaseTest {
     }
 
     @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
-    public void testPull() throws Exception {
+    public void testPull() {
         Path dirPath = Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
                                  ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME,
                                  orgName, moduleName, "0.0.1");
@@ -137,7 +137,7 @@ public class PackagingTestCase extends BaseTest {
     @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
     public void testSearch() throws BallerinaTestException {
         String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
-                balServer.getServerHome());
+                balServer.getServerHome(), false);
 
         // Check if the search results contains the following.
         Assert.assertTrue(actualMsg.contains("Ballerina Central"));

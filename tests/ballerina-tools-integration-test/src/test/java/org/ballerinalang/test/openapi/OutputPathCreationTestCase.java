@@ -37,13 +37,16 @@ import java.util.HashMap;
  */
 public class OutputPathCreationTestCase extends BaseTest {
     private static final String MODULE_NAME = "say";
-    private static final String OPENAPI_YAML = (new File("src/test/resources/openapi/sample.yaml")).getAbsolutePath();
+    
+    private String openapiYaml;
     private Path balProject;
     private Path balModule;
     
     
     @BeforeClass()
     public void setUp() throws IOException, BallerinaTestException {
+        openapiYaml = new File(getClass().getClassLoader().getResource("openapi/sample.yaml").getPath())
+            .getAbsolutePath();
         balProject = Files.createTempDirectory("bal-test-integration-openapi-out-");
         balClient.runMain("init", new String[0], new HashMap<>(), new String[0], new LogLeecher[]{},
                 balProject.toString());
@@ -52,9 +55,9 @@ public class OutputPathCreationTestCase extends BaseTest {
     
     @Test(description = "Test if folder paths are created correctly.")
     public void testFolderStructureCreation() throws BallerinaTestException {
-        String[] clientArgsForOpenApiClientGen = {"client", OPENAPI_YAML, "-o", balProject.toString(), "-m",
+        String[] clientArgsForOpenApiClientGen = {"gen-client", openapiYaml, "-o", balProject.toString(), "-m",
                 MODULE_NAME};
-        balClient.runMain("swagger", clientArgsForOpenApiClientGen, new HashMap<>(), new String[]{},
+        balClient.runMain("openapi", clientArgsForOpenApiClientGen, new HashMap<>(), new String[]{},
                 new LogLeecher[]{}, balServer.getServerHome());
         Assert.assertTrue(Files.exists(balModule), "OpenApi client was not generated");
     }
@@ -64,9 +67,9 @@ public class OutputPathCreationTestCase extends BaseTest {
         Path tempBalFile = balModule.resolve("temp.bal");
         Files.createFile(tempBalFile);
     
-        String[] clientArgsForOpenApiClientGen = {"client", OPENAPI_YAML, "-o", balProject.toString(), "--module",
+        String[] clientArgsForOpenApiClientGen = {"gen-client", openapiYaml, "-o", balProject.toString(), "--module",
                 MODULE_NAME};
-        balClient.runMain("swagger", clientArgsForOpenApiClientGen, new String[]{});
+        balClient.runMain("openapi", clientArgsForOpenApiClientGen, new String[]{});
         Assert.assertTrue(Files.exists(balModule), "OpenApi client was not generated");
         Assert.assertTrue(Files.exists(tempBalFile), "Created temp file has been deleted");
     }

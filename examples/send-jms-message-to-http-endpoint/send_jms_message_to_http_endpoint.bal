@@ -2,18 +2,21 @@ import ballerina/http;
 import ballerina/jms;
 import ballerina/log;
 
-// Create a simple queue receiver.
+// Create a simple queue receiver.  This example makes use of the
+// ActiveMQ Artemis broker for demonstration while it can be tried with other
+// brokers that support JMS.
+
 listener jms:QueueReceiver consumerEndpoint = new({
-        initialContextFactory: "bmbInitialContextFactory",
-        providerUrl: "amqp://admin:admin@carbon/carbon"
-            + "?brokerlist='tcp://localhost:5672'",
+        initialContextFactory: 
+        "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+        providerUrl: "tcp://localhost:61616",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     }, queueName = "MyQueue");
 
 // Bind the created JMS consumer to the listener service.
 service jmsListener on consumerEndpoint {
 
-    resource function onMessage(jms:QueueReceiver consumer,
+    resource function onMessage(jms:QueueReceiverCaller consumer,
                                 jms:Message message) {
         var textContent = message.getTextMessageContent();
         if (textContent is string) {

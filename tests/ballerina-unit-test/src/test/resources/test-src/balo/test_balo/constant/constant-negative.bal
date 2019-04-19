@@ -1,15 +1,15 @@
-import testorg/foo version v1;
+import testorg/simple_literal version v1;
 
 // -----------------------------------------------------------
 
-type BooleanTypeWithType foo:booleanWithType;
+type BooleanTypeWithType simple_literal:booleanWithType;
 
 function testBooleanTypeWithType() returns BooleanTypeWithType {
     BooleanTypeWithType t = true;
     return t;
 }
 
-type BooleanTypeWithoutType foo:booleanWithoutType;
+type BooleanTypeWithoutType simple_literal:booleanWithoutType;
 
 function testBooleanTypeWithoutType() returns BooleanTypeWithoutType {
     BooleanTypeWithoutType t = false;
@@ -18,14 +18,14 @@ function testBooleanTypeWithoutType() returns BooleanTypeWithoutType {
 
 // -----------------------------------------------------------
 
-type IntTypeWithType foo:intWithType;
+type IntTypeWithType simple_literal:intWithType;
 
 function testIntTypeWithType() returns IntTypeWithType {
     IntTypeWithType t = 100;
     return t;
 }
 
-type IntTypeWithoutType foo:intWithoutType;
+type IntTypeWithoutType simple_literal:intWithoutType;
 
 function testIntTypeWithoutType() returns IntTypeWithoutType {
     IntTypeWithoutType t = 100;
@@ -34,7 +34,7 @@ function testIntTypeWithoutType() returns IntTypeWithoutType {
 
 // -----------------------------------------------------------
 
-type ByteTypeWithType foo:byteWithType;
+type ByteTypeWithType simple_literal:byteWithType;
 
 function testByteTypeWithType() returns ByteTypeWithType {
     ByteTypeWithType t = 120;
@@ -43,14 +43,14 @@ function testByteTypeWithType() returns ByteTypeWithType {
 
 // -----------------------------------------------------------
 
-type FloatTypeWithType foo:floatWithType;
+type FloatTypeWithType simple_literal:floatWithType;
 
 function testFloatTypeWithType() returns FloatTypeWithType {
     FloatTypeWithType t = 10.0;
     return t;
 }
 
-type FloatTypeWithoutType foo:floatWithoutType;
+type FloatTypeWithoutType simple_literal:floatWithoutType;
 
 function testFloatTypeWithoutType() returns FloatTypeWithoutType {
     FloatTypeWithoutType t = 10.0;
@@ -59,7 +59,7 @@ function testFloatTypeWithoutType() returns FloatTypeWithoutType {
 
 // -----------------------------------------------------------
 
-type DecimalTypeWithType foo:decimalWithType;
+type DecimalTypeWithType simple_literal:decimalWithType;
 
 function testDecimalTypeWithType() returns DecimalTypeWithType {
     DecimalTypeWithType t = 10.0;
@@ -68,14 +68,14 @@ function testDecimalTypeWithType() returns DecimalTypeWithType {
 
 // -----------------------------------------------------------
 
-type StringTypeWithType foo:stringWithType;
+type StringTypeWithType simple_literal:stringWithType;
 
 function testStringTypeWithType() returns StringTypeWithType {
     StringTypeWithType t = "random text";
     return t;
 }
 
-type StringTypeWithoutType foo:stringWithoutType;
+type StringTypeWithoutType simple_literal:stringWithoutType;
 
 function testStringTypeWithoutType() returns StringTypeWithoutType {
     StringTypeWithoutType t = "random text";

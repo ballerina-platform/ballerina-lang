@@ -41,12 +41,11 @@ public class MockSocketServer implements Runnable {
 
     static final int SERVER_PORT = 47826;
     static final String SERVER_HOST = "localhost";
-    private static final String POISON_PILL = "Bye";
     private String receivedString;
     private boolean execute = true;
     private Selector selector = null;
 
-    private void answerWithEcho(ByteBuffer buffer, SelectionKey key) throws IOException {
+    private synchronized void answerWithEcho(ByteBuffer buffer, SelectionKey key) throws IOException {
         SocketChannel client = (SocketChannel) key.channel();
         final int read = client.read(buffer);
         if (read == -1) {
@@ -54,12 +53,7 @@ public class MockSocketServer implements Runnable {
             return;
         }
         byte[] readBytes = buffer.array();
-        String deserializeContent = new String(readBytes, StandardCharsets.UTF_8.name()).trim();
-        receivedString = deserializeContent;
-        if (POISON_PILL.equals(deserializeContent)) {
-            client.close();
-            log.info("Not accepting client messages anymore");
-        }
+        receivedString = new String(readBytes, StandardCharsets.UTF_8.name()).trim();
         buffer.flip();
         client.write(buffer);
         buffer.clear();

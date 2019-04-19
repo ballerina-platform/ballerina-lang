@@ -30,7 +30,6 @@ import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
-import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -80,7 +79,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -118,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -219,6 +218,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.RestBindingPatternState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -284,8 +284,6 @@ public class BLangPackageBuilder {
     private Stack<AnnotationNode> annotationStack = new Stack<>();
 
     private Stack<MarkdownDocumentationNode> markdownDocumentationStack = new Stack<>();
-
-    private Stack<DeprecatedNode> deprecatedAttachmentStack = new Stack<>();
 
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
 
@@ -488,15 +486,11 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                          boolean exprAvailable, boolean deprecatedDocExit,
-                          int annotCount, boolean isPrivate, boolean isPublic) {
+    void addObjectFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean exprAvailable,
+                                int annotCount, boolean isPrivate, boolean isPublic) {
         BLangSimpleVariable field = addSimpleVar(pos, ws, identifier, exprAvailable, annotCount);
 
         attachAnnotations(field, annotCount);
-        if (deprecatedDocExit) {
-            attachDeprecatedNode(field);
-        }
 
         if (isPublic) {
             field.flagSet.add(Flag.PUBLIC);
@@ -545,17 +539,34 @@ public class BLangPackageBuilder {
         addType(refType);
     }
 
-    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean isReasonTypeExists, boolean isDetailsTypeExists) {
+    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean reasonTypeExists, boolean detailsTypeExists,
+                      boolean isAnonymous) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorType.pos = pos;
         errorType.addWS(ws);
-        if (isDetailsTypeExists) {
+        if (detailsTypeExists) {
             errorType.detailType = (BLangType) this.typeNodeStack.pop();
         }
-        if (isReasonTypeExists) {
+        if (reasonTypeExists) {
             errorType.reasonType = (BLangType) this.typeNodeStack.pop();
         }
-        addType(errorType);
+
+        if (!isAnonymous) {
+            addType(errorType);
+            return;
+        }
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        // Generate a name for the anonymous error
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
+        IdentifierNode anonTypeGenName = createIdentifier(genName);
+        typeDef.setName(anonTypeGenName);
+        typeDef.flagSet.add(Flag.PUBLIC);
+
+        typeDef.typeNode = errorType;
+        typeDef.pos = pos;
+        this.compUnit.addTopLevelNode(typeDef);
+
+        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
     }
 
     void addConstraintTypeWithTypeName(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
@@ -625,11 +636,12 @@ public class BLangPackageBuilder {
         this.varListStack.push(new ArrayList<>());
     }
 
-    void startFunctionDef(int annotCount) {
+    void startFunctionDef(int annotCount, boolean isLambda) {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
         attachAnnotations(functionNode, annotCount);
-        attachMarkdownDocumentations(functionNode);
-        attachDeprecatedNode(functionNode);
+        if (!isLambda) {
+            attachMarkdownDocumentations(functionNode);
+        }
         this.invokableNodeStack.push(functionNode);
     }
 
@@ -901,7 +913,7 @@ public class BLangPackageBuilder {
 
     void startLambdaFunctionDef(PackageID pkgID) {
         // Passing zero for annotation count as Lambdas can't have annotations.
-        startFunctionDef(0);
+        startFunctionDef(0, true);
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.setName(createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         lambdaFunction.addFlag(Flag.LAMBDA);
@@ -1210,7 +1222,7 @@ public class BLangPackageBuilder {
     void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value, String originalValue) {
         BLangLiteral litExpr;
         // If numeric literal create a numeric literal expression; otherwise create a literal expression
-        if (typeTag < TypeTags.DECIMAL) {
+        if (typeTag <= TypeTags.DECIMAL) {
             litExpr = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
         } else {
             litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
@@ -1423,12 +1435,13 @@ public class BLangPackageBuilder {
         exprNodeStack.push(invocationExpr);
     }
 
-    void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName,
+    void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName, DiagnosticPos fieldNamePos,
                                     FieldKind fieldType, boolean safeNavigate) {
         BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldBasedAccess.pos = pos;
         fieldBasedAccess.addWS(ws);
         fieldBasedAccess.field = (BLangIdentifier) createIdentifier(fieldName);
+        fieldBasedAccess.field.pos = fieldNamePos;
         fieldBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         fieldBasedAccess.fieldKind = fieldType;
         fieldBasedAccess.safeNavigate = safeNavigate;
@@ -1528,6 +1541,14 @@ public class BLangPackageBuilder {
         addExpressionNode(checkedExpr);
     }
 
+    void createCheckPanickedExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangCheckPanickedExpr checkPanicExpr = (BLangCheckPanickedExpr) TreeBuilder.createCheckPanicExpressionNode();
+        checkPanicExpr.pos = pos;
+        checkPanicExpr.addWS(ws);
+        checkPanicExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(checkPanicExpr);
+    }
+
     void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
         trapExpr.pos = pos;
@@ -1561,8 +1582,9 @@ public class BLangPackageBuilder {
 
         if (!bodyExists) {
             function.body = null;
+        } else {
+            function.body.pos = function.pos;
         }
-
         if (isReceiverAttached) {
             //Get type node for this attached function
             TypeNode typeNode = this.typeNodeStack.pop();
@@ -1575,10 +1597,6 @@ public class BLangPackageBuilder {
             receiver.setTypeNode(typeNode);
             function.receiver = receiver;
             function.flagSet.add(Flag.ATTACHED);
-        }
-
-        if (!function.deprecatedAttachments.isEmpty()) {
-            function.flagSet.add(Flag.DEPRECATED);
         }
 
         this.compUnit.addTopLevelNode(function);
@@ -1730,7 +1748,6 @@ public class BLangPackageBuilder {
             constantNode.flagSet.add(Flag.PUBLIC);
         }
         attachMarkdownDocumentations(constantNode);
-        attachDeprecatedNode(constantNode);
         this.compUnit.addTopLevelNode(constantNode);
 
         // Check whether the value is a literal. If it is not a literal, it is an invalid case. So we don't need to
@@ -1785,7 +1802,6 @@ public class BLangPackageBuilder {
 
         attachAnnotations(var);
         attachMarkdownDocumentations(var);
-        attachDeprecatedNode(var);
 
         this.compUnit.addTopLevelNode(var);
     }
@@ -1885,7 +1901,16 @@ public class BLangPackageBuilder {
             BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
             finiteTypeNode.addWS(finiteTypeWsStack.pop());
             while (!exprNodeStack.isEmpty()) {
-                finiteTypeNode.valueSpace.add((BLangExpression) exprNodeStack.pop());
+                ExpressionNode expressionNode = exprNodeStack.pop();
+                NodeKind exprKind = expressionNode.getKind();
+                if (exprKind == NodeKind.LITERAL || exprKind == NodeKind.NUMERIC_LITERAL) {
+                    BLangLiteral literal = (BLangLiteral) expressionNode;
+                    String strVal = String.valueOf(literal.value);
+                    if (literal.type.tag == TypeTags.FLOAT || literal.type.tag == TypeTags.DECIMAL) {
+                        literal.value = NumericLiteralSupport.stripDiscriminator(strVal);
+                    }
+                }
+                finiteTypeNode.valueSpace.add((BLangExpression) expressionNode);
             }
 
             // Reverse the collection so that they would appear in the correct order.
@@ -1928,14 +1953,13 @@ public class BLangPackageBuilder {
         typeDefinition.addWS(ws);
         Collections.reverse(markdownDocumentationStack);
         attachMarkdownDocumentations(typeDefinition);
-        attachDeprecatedNode(typeDefinition);
         attachAnnotations(typeDefinition);
         this.compUnit.addTopLevelNode(typeDefinition);
     }
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,
                                       boolean remoteFunc, boolean resourceFunc, boolean nativeFunc, boolean bodyExists,
-                                      boolean markdownDocPresent, boolean deprecatedDocPresent, int annCount) {
+                                      boolean markdownDocPresent, int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.pos = pos;
         function.addWS(ws);
@@ -1965,6 +1989,8 @@ public class BLangPackageBuilder {
                 function.flagSet.add(Flag.INTERFACE);
                 function.interfaceFunction = true;
             }
+        } else {
+            function.body.pos = pos;
         }
 
         function.attachedFunction = true;
@@ -1972,13 +1998,6 @@ public class BLangPackageBuilder {
         attachAnnotations(function, annCount);
         if (markdownDocPresent) {
             attachMarkdownDocumentations(function);
-        }
-        if (deprecatedDocPresent) {
-            attachDeprecatedNode(function);
-        }
-
-        if (!function.deprecatedAttachments.isEmpty()) {
-            function.flagSet.add(Flag.DEPRECATED);
         }
 
         BLangObjectTypeNode objectNode = (BLangObjectTypeNode) this.typeNodeStack.peek();
@@ -2017,6 +2036,8 @@ public class BLangPackageBuilder {
 
         if (!bodyExists) {
             function.body = null;
+        } else {
+            function.body.pos = pos;
         }
 
         // Create an user defined type with object type
@@ -2037,10 +2058,6 @@ public class BLangPackageBuilder {
 
         function.attachedOuterFunction = true;
 
-        if (!function.deprecatedAttachments.isEmpty()) {
-            function.flagSet.add(Flag.DEPRECATED);
-        }
-
         this.compUnit.addTopLevelNode(function);
     }
 
@@ -2049,7 +2066,6 @@ public class BLangPackageBuilder {
         annotNode.pos = pos;
         attachAnnotations(annotNode);
         attachMarkdownDocumentations(annotNode);
-        attachDeprecatedNode(annotNode);
         this.annotationStack.add(annotNode);
     }
 
@@ -2143,18 +2159,6 @@ public class BLangPackageBuilder {
         returnParameter.addReturnParameterDocumentationLine(description);
     }
 
-    void createDeprecatedNode(DiagnosticPos pos,
-                              Set<Whitespace> ws,
-                              String content) {
-        BLangDeprecatedNode deprecatedNode = (BLangDeprecatedNode) TreeBuilder.createDeprecatedNode();
-
-        deprecatedNode.pos = pos;
-        deprecatedNode.addWS(ws);
-
-        deprecatedNode.documentationText = content;
-        deprecatedAttachmentStack.push(deprecatedNode);
-    }
-
     void startAnnotationAttachment(DiagnosticPos currentPos) {
         BLangAnnotationAttachment annotAttachmentNode =
                 (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
@@ -2187,12 +2191,6 @@ public class BLangPackageBuilder {
     private void attachMarkdownDocumentations(DocumentableNode documentableNode) {
         if (!markdownDocumentationStack.empty()) {
             documentableNode.setMarkdownDocumentationAttachment(markdownDocumentationStack.pop());
-        }
-    }
-
-    private void attachDeprecatedNode(DocumentableNode documentableNode) {
-        if (!deprecatedAttachmentStack.empty()) {
-            documentableNode.addDeprecatedAttachment(deprecatedAttachmentStack.pop());
         }
     }
 
@@ -2480,14 +2478,18 @@ public class BLangPackageBuilder {
         ((BLangIf) ifNode).pos = pos;
         ifNode.addWS(ws);
         ifNode.setCondition(exprNodeStack.pop());
-        ifNode.setBody(blockNodeStack.pop());
+        BlockNode blockNode = blockNodeStack.pop();
+        ((BLangBlockStmt) blockNode).pos = pos;
+        ifNode.setBody(blockNode);
     }
 
     void addElseIfBlock(DiagnosticPos pos, Set<Whitespace> ws) {
         IfNode elseIfNode = ifElseStatementStack.pop();
         ((BLangIf) elseIfNode).pos = pos;
         elseIfNode.setCondition(exprNodeStack.pop());
-        elseIfNode.setBody(blockNodeStack.pop());
+        BlockNode blockNode = blockNodeStack.pop();
+        ((BLangBlockStmt) blockNode).pos = pos;
+        elseIfNode.setBody(blockNode);
         elseIfNode.addWS(ws);
 
         IfNode parentIfNode = ifElseStatementStack.peek();
@@ -2628,7 +2630,6 @@ public class BLangPackageBuilder {
         serviceNode.pos = pos;
         attachAnnotations(serviceNode);
         attachMarkdownDocumentations(serviceNode);
-        attachDeprecatedNode(serviceNode);
         serviceNodeStack.push(serviceNode);
     }
 

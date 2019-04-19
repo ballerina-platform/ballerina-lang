@@ -122,6 +122,8 @@ public class SymbolTable {
     public final BType semanticError;
 
     public BErrorType errorType;
+    public BUnionType pureType;
+    public BMapType pureTypeConstrainedMap;
 
     public BPackageSymbol builtInPackageSymbol;
     public BPackageSymbol utilsPackageSymbol;
@@ -181,10 +183,15 @@ public class SymbolTable {
         defineType(semanticError, errSymbol);
 
         // Initialize Ballerina built-in error type.
-        BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
-                rootPkgSymbol.pkgID, null, rootPkgSymbol);
+        BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR, rootPkgSymbol.pkgID,
+                                                       null, rootPkgSymbol);
         this.errorType = new BErrorType(errorSymbol, this.stringType, this.mapType);
         defineType(this.errorType, errorSymbol);
+        errorSymbol.type = this.errorType;
+
+        this.pureType = BUnionType.create(null, this.anydataType, this.errorType);
+        this.pureTypeConstrainedMap = new BMapType(TypeTags.MAP, this.pureType, null);
+        this.errorType.detailType = this.pureTypeConstrainedMap;
 
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();
@@ -237,6 +244,7 @@ public class SymbolTable {
     private void defineOperators() {
         // Binary arithmetic operators
         defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, InstructionCodes.XMLADD);
+        defineBinaryOperator(OperatorKind.ADD, xmlType, stringType, xmlType, InstructionCodes.XMLADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, decimalType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, InstructionCodes.SADD);
@@ -247,6 +255,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.ADD, stringType, booleanType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, stringType, booleanType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, stringType, xmlType, xmlType, InstructionCodes.XMLADD);
         defineBinaryOperator(OperatorKind.ADD, booleanType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, InstructionCodes.FADD);
         defineBinaryOperator(OperatorKind.ADD, decimalType, decimalType, decimalType, InstructionCodes.DADD);
@@ -580,7 +589,7 @@ public class SymbolTable {
         defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, decimalType, booleanType);
 
         //clone related methods
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, anydataType, anydataType);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, anyType, pureType);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, intType, intType);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, floatType, floatType);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, decimalType, decimalType);

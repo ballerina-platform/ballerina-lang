@@ -30,7 +30,7 @@ service resourceReturnService on new http:Listener(9228) {
             error e = error("Simulated error");
             return e;
         }
-        _ = caller -> respond(response);
+        checkpanic caller->respond(response);
         return;
     }
 
@@ -40,7 +40,7 @@ service resourceReturnService on new http:Listener(9228) {
         // Check expression returns error.
         int i = check getError();
         response.setTextPayload("i = " + i);
-        _ = caller -> respond(response);
+        checkpanic caller->respond(response);
         return;
     }
 

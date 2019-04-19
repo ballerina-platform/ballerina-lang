@@ -57,7 +57,7 @@ public function testBidiStreaming() returns string {
         return io:sprintf(RESP_MSG_FORMAT, "Sam: GM", responseMsg);
     }
 
-    _ = ep->complete();
+    checkpanic ep->complete();
     return "Success: received valid responses from server";
 }
 

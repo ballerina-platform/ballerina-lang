@@ -109,3 +109,34 @@ function selectOnRestParam() returns Obj4|Obj5 {
 function selectOnRestParamInReturnType() returns Obj4|Obj5 {
     return new(0, "eka", "deka");
 }
+
+type Foo object {
+    Bar? bar = ();
+
+    function test() {
+        PersonRec p = {name: "John Doe"};
+        self.bar = new(p);
+    }
+};
+
+type Bar object {
+    PersonRec|EmployeeRec p;
+
+    function __init(PersonRec|EmployeeRec p) {
+        self.p = p;
+    }
+};
+
+type PersonRec record {|
+    string name;
+|};
+
+type EmployeeRec record {
+    string name;
+};
+
+function testUnionsAsAnInitParam() returns Foo {
+    Foo f = new;
+    f.test();
+    return f;
+}

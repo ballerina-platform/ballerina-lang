@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.types.xml;
 
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -74,33 +76,29 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'xml'", 28,
                 51);
 
-        // assigning attributes-map to a map
-        BAssertUtil.validateError(negativeResult, index++,
-                "incompatible types: expected 'map', found 'xml-attributes'", 43, 19);
-
         // namespace conflict with package import
-        BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 47, 5);
+        BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 42, 5);
 
         // get attributes from non-xml
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'xml', found 'map'", 52, 16);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'xml', found 'map'", 47, 16);
 
         // update attributes map
         BAssertUtil.validateError(negativeResult, index++,
-                "xml attributes cannot be updated as a collection. update attributes one at a time", 57, 5);
+                "xml attributes cannot be updated as a collection. update attributes one at a time", 52, 5);
 
         // update qname
-        BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 62, 5);
+        BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 57, 5);
 
         // use of undefined namespace for qname
-        BAssertUtil.validateError(negativeResult, index++, "undefined module 'ns0'", 70, 19);
+        BAssertUtil.validateError(negativeResult, index++, "undefined module 'ns0'", 65, 19);
 
         // define namespace with empty URI
         BAssertUtil.validateError(negativeResult, index++, "cannot bind prefix 'ns0' to the empty namespace name",
-                74, 5);
+                69, 5);
 
         // XML elements with mismatching start and end tags
         BAssertUtil.validateError(negativeResult, index++, "mismatching start and end tags found in xml element",
-                                  78, 19);
+                                  73, 19);
     }
 
     @Test
@@ -195,7 +193,7 @@ public class XMLLiteralTest {
 
         Assert.assertTrue(returns[1] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[1];
-        Assert.assertEquals(seq.stringValue(), "hello aaa<bbb good morning <fname>John</fname> <lname>Doe</lname>. "
+        Assert.assertEquals(seq.stringValue(), "hello aaa&lt;bbb good morning <fname>John</fname> <lname>Doe</lname>. "
                 + "Have a nice day!<foo>123</foo><bar></bar>");
 
         BValueArray items = seq.value();
@@ -216,6 +214,27 @@ public class XMLLiteralTest {
 
         Assert.assertTrue(returns[3] instanceof BXML);
         Assert.assertEquals(returns[3].stringValue(), "<_-foo id=\"hello 5\">hello</_-foo>");
+    }
+
+    @Test
+    public void testXMLLiteralWithEscapeSequence() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLLiteralWithEscapeSequence");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "hello &lt; &gt; &amp;");
+        Assert.assertEquals(arrayToString(returns[1]), "hello < > &");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 11);
+        Assert.assertEquals(arrayToString(returns[3]), "hello < > &");
+    }
+
+    private String arrayToString(BValue aReturn) {
+        BValueArray ar = ((BValueArray) aReturn);
+        StringBuilder builder = new StringBuilder();
+        BIterator bIterator = ar.newIterator();
+        while (bIterator.hasNext()) {
+            String str = ((BString) bIterator.getNext()).stringValue();
+            builder.append(str);
+        }
+        return builder.toString();
     }
 
     @Test

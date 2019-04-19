@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaReservedWord extends BallerinaCompositeElement {
+public interface BallerinaReservedWord extends PsiElement {
 
   @Nullable
   PsiElement getObjectInit();

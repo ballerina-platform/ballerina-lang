@@ -44,7 +44,7 @@ public class BallerinaArrowFunctionExpressionImpl extends BallerinaExpressionImp
   @Override
   @NotNull
   public BallerinaArrowFunction getArrowFunction() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaArrowFunction.class));
+    return findNotNullChildByClass(BallerinaArrowFunction.class);
   }
 
 }

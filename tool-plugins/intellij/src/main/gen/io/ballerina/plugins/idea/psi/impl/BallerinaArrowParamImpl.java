@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaArrowParamImpl extends BallerinaCompositeElementImpl implements BallerinaArrowParam {
+public class BallerinaArrowParamImpl extends ASTWrapperPsiElement implements BallerinaArrowParam {
 
   public BallerinaArrowParamImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaArrowParamImpl extends BallerinaCompositeElementImpl imple
   @Override
   @NotNull
   public PsiElement getIdentifier() {
-    return notNullChild(findChildByType(IDENTIFIER));
+    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

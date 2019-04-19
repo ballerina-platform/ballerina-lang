@@ -44,7 +44,7 @@ public class BallerinaFlushWorkerExpressionImpl extends BallerinaExpressionImpl 
   @Override
   @NotNull
   public BallerinaFlushWorker getFlushWorker() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaFlushWorker.class));
+    return findNotNullChildByClass(BallerinaFlushWorker.class);
   }
 
 }

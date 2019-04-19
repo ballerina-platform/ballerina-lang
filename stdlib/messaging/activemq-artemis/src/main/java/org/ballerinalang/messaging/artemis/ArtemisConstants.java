@@ -19,7 +19,8 @@
 
 package org.ballerinalang.messaging.artemis;
 
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
  * Constants related to Artemis connector.
@@ -28,9 +29,9 @@ import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
  */
 public class ArtemisConstants {
 
-    public static final String BALLERINA = "ballerina";
+    public static final String BALLERINA = BALLERINA_BUILTIN_PKG_PREFIX;
     public static final String ARTEMIS = "artemis";
-    public static final String PROTOCOL_PACKAGE_ARTEMIS = BALLERINA + ORG_NAME_SEPARATOR + ARTEMIS;
+    public static final String PROTOCOL_PACKAGE_ARTEMIS = BALLERINA_PACKAGE_PREFIX + ARTEMIS;
 
     // Error related constants
     static final String ARTEMIS_ERROR_CODE = "{ballerina/artemis}ArtemisError";
@@ -51,9 +52,7 @@ public class ArtemisConstants {
     public static final String SESSION_OBJ = "Session";
     public static final String PRODUCER_OBJ = "Producer";
     public static final String LISTENER_OBJ = "Listener";
-
-    // Config related
-    static final String MULTICAST = "MULTICAST";
+    static final String MESSAGE_OBJ_FULL_NAME = PROTOCOL_PACKAGE_ARTEMIS + ":" + MESSAGE_OBJ;
 
     // Warning suppression
     public static final String UNCHECKED = "unchecked";
@@ -85,6 +84,7 @@ public class ArtemisConstants {
     public static final String PURGE_ON_NO_CONSUMERS = "purgeOnNoConsumers";
     public static final String EXCLUSIVE = "exclusive";
     public static final String LAST_VALUE = "lastValue";
+    static final String SERVICE_CONFIG = "ServiceConfig";
 
     // Field names for Message
     public static final String MESSAGE_TYPE = "messageType";
@@ -99,6 +99,7 @@ public class ArtemisConstants {
     public static final String DURABLE = "durable";
     public static final String ROUTING_TYPE = "routingType";
     public static final String AUTO_CREATED = "autoCreated";
+    static final String MULTICAST = "MULTICAST";
 
     // Field name for Session
     public static final String USERNAME = "username";

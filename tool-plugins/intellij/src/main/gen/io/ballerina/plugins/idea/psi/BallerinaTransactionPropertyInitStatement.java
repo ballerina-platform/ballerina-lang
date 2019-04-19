@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaTransactionPropertyInitStatement extends BallerinaCompositeElement {
+public interface BallerinaTransactionPropertyInitStatement extends PsiElement {
 
   @NotNull
   BallerinaRetriesStatement getRetriesStatement();

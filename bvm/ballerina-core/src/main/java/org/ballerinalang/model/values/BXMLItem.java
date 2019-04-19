@@ -32,6 +32,7 @@ import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
@@ -176,23 +177,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BString getTextValue() {
-        switch(nodeType) {
-            case ELEMENT:
-                StringBuilder elementTextBuilder = new StringBuilder();
-                Iterator<OMNode> children = ((OMElement) omNode).getChildren();
-                while (children.hasNext()) {
-                    elementTextBuilder.append(getTextValue(children.next()));
-                }
-                return new BString(elementTextBuilder.toString());
-            case TEXT:
-                return new BString(((OMText) omNode).getText());
-            case COMMENT:
-                return BTypes.typeString.getZeroValue();
-            case PI:
-                return BTypes.typeString.getZeroValue();
-            default:
-                return BTypes.typeString.getZeroValue();
-        }
+        return new BString(getTextValue(omNode));
     }
 
     /**
@@ -302,7 +287,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BMap<?, ?> getAttributesMap() {
-        BMap<String, BString> attrMap = new BMap<>(new BMapType(BTypes.typeString));
+        BXmlAttrMap attrMap = new BXmlAttrMap(this);
 
         if (nodeType != XMLNodeType.ELEMENT) {
             return attrMap;
@@ -328,6 +313,7 @@ public final class BXMLItem extends BXML<OMNode> {
             attrMap.put(attr.getQName().toString(), new BString(attr.getAttributeValue()));
         }
 
+        attrMap.finishConstruction();
         return attrMap;
     }
 
@@ -612,7 +598,7 @@ public final class BXMLItem extends BXML<OMNode> {
                 case COMMENT:
                     return COMMENT_START + ((OMComment) omNode).getValue() + COMMENT_END;
                 case TEXT:
-                    return ((OMText) omNode).getText();
+                    return getTextValue(omNode);
                 case PI:
                     return PI_START + ((OMProcessingInstruction) omNode).getTarget() + " " +
                             ((OMProcessingInstruction) omNode).getValue() + PI_END;
@@ -682,6 +668,10 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     public long size() {
+        if (getNodeType() == XMLNodeType.TEXT) {
+            String textContent = ((OMText) this.omNode).getText();
+            return textContent.codePointCount(0, textContent.length());
+        }
         return this.omNode == null ? 0 : 1;
     }
 
@@ -789,7 +779,8 @@ public final class BXMLItem extends BXML<OMNode> {
                 }
                 return sb.toString();
             case OMNode.TEXT_NODE:
-                return ((OMText) node).getText();
+                String text = ((OMText) node).getText();
+                return StringEscapeUtils.escapeXml11(text);
             case OMNode.COMMENT_NODE:
                 return STRING_NULL_VALUE;
             case OMNode.PI_NODE:
@@ -828,7 +819,7 @@ public final class BXMLItem extends BXML<OMNode> {
         public BValue getNext() {
             if (value.getNodeType() == XMLNodeType.TEXT) {
                 if (codePointIterator == null) {
-                    codePointIterator = new BXMLCodePointIterator(value.stringValue());
+                    codePointIterator = createCodePointIterator(value);
                 }
                 cursor++;
                 return codePointIterator.getNext();
@@ -843,11 +834,15 @@ public final class BXMLItem extends BXML<OMNode> {
         public boolean hasNext() {
             if (value.getNodeType() == XMLNodeType.TEXT) {
                 if (codePointIterator == null) {
-                    codePointIterator = new BXMLCodePointIterator(value.stringValue());
+                    codePointIterator = createCodePointIterator(value);
                 }
                 return codePointIterator.hasNext();
             }
             return cursor == 0;
+        }
+
+        private BXMLCodePointIterator createCodePointIterator(BXMLItem value) {
+            return new BXMLCodePointIterator(((OMText) value.omNode).getText());
         }
 
         @Override
@@ -863,6 +858,44 @@ public final class BXMLItem extends BXML<OMNode> {
     public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
         if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
+        }
+    }
+
+    private static class BXmlAttrMap extends BMap {
+        private final BXMLItem bXmlItem;
+        private boolean constructed = false;
+
+        BXmlAttrMap(BXMLItem bXmlItem) {
+            super(new BMapType(BTypes.typeString));
+            this.bXmlItem = bXmlItem;
+        }
+
+        void finishConstruction() {
+            constructed = true;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public void put(Object key, BValue value) {
+            super.put(key, value);
+            if (constructed) {
+                setAttribute((String) key, value.stringValue());
+            }
+        }
+
+        private void setAttribute(String key, String value) {
+            String url = null;
+            String localName = key;
+
+            int endOfUrl = key.lastIndexOf('}');
+            if (endOfUrl != -1) {
+                int startBrace = key.indexOf('{');
+                if (startBrace == 0) {
+                    url = key.substring(startBrace + 1, endOfUrl);
+                    localName = key.substring(endOfUrl + 1);
+                }
+            }
+            bXmlItem.setAttribute(localName, url, null, value);
         }
     }
 }

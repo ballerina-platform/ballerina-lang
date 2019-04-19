@@ -87,7 +87,19 @@ public class BIREmitter extends BIRVisitor {
         sb.append("\n");
         birFunction.basicBlocks.forEach(birBasicBlock -> birBasicBlock.accept(this));
         sb.deleteCharAt(sb.lastIndexOf("\n"));
+        if (!birFunction.errorTable.isEmpty()) {
+            sb.append("\tError Table \n\t\tBB\t|errorOp\n");
+            birFunction.errorTable.forEach(entry -> {
+                entry.accept(this);
+            });
+        }
         sb.append("}\n\n");
+    }
+
+    public void visit(BIRNode.BIRErrorEntry errorEntry) {
+        sb.append("\t\t").append(errorEntry.trapBB.id).append("\t|");
+        errorEntry.errorOp.accept(this);
+        sb.append("\n");
     }
 
     public void visit(BIRNode.BIRBasicBlock birBasicBlock) {
@@ -251,6 +263,20 @@ public class BIREmitter extends BIRVisitor {
         birNewError.detailOp.accept(this);
         sb.append(";\n");
     }
+
+    public void visit(BIRNonTerminator.FPLoad fpLoad) {
+        sb.append("\t\t");
+        fpLoad.lhsOp.accept(this);
+        sb.append(" = ").append(fpLoad.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        sb.append(fpLoad.funcName.getValue()).append("()");
+        sb.append(";");
+    }
+
+    public void visit(BIRTerminator.Panic birPanic) {
+        sb.append("\t\t").append(birPanic.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        birPanic.errorOp.accept(this);
+        sb.append(";\n");
+    }
     
     // Operands
     public void visit(BIROperand birOp) {
@@ -261,5 +287,21 @@ public class BIREmitter extends BIRVisitor {
     private void writePosition(DiagnosticPos pos) {
         sb.append("\t\t// pos:[").append(pos.sLine).append(":").append(pos.sCol).append("-");
         sb.append(pos.eLine).append(":").append(pos.eCol).append("]");
+    }
+
+    public void visit(BIRTerminator.Wait wait) {
+        sb.append("\t\t");
+        wait.lhsOp.accept(this);
+        sb.append(" = ");
+        sb.append(wait.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        int i = 0;
+        for (BIROperand expr : wait.exprList) {
+            if (i != 0) {
+                sb.append("|");
+            }
+            expr.accept(this);
+            i++;
+        }
+        sb.append(";\n");
     }
 }

@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaCallableUnitSignature extends BallerinaCompositeElement {
+public interface BallerinaCallableUnitSignature extends PsiElement {
 
   @NotNull
   BallerinaAnyIdentifierName getAnyIdentifierName();

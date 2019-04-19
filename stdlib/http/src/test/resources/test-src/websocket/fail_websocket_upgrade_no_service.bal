@@ -36,6 +36,6 @@ service wsService on httpListener {
     resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Successful");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

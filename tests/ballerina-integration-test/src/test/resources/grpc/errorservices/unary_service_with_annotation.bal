@@ -65,7 +65,7 @@ service TestService on server8 {
         if (err is error) {
             io:println("Error from Connector: " + err.reason());
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     @grpc:ResourceConfig {

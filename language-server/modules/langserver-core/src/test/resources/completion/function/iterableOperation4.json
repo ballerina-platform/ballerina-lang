@@ -18,7 +18,7 @@
       "kind": "Function",
       "detail": "Function",
       "sortText": "121",
-      "insertText": "map(function((string, string) entry) returns (any) {\n\t${1}\n})",
+      "insertText": "map(function ((string, string) entry) returns any {\n\t${1}\n})",
       "insertTextFormat": "Snippet"
     },
     {
@@ -83,6 +83,46 @@
       "detail": "Function",
       "sortText": "121",
       "insertText": "convert(${1})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "hasKey(string s)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "hasKey(${1})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "remove(string s)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "remove(${1})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "clear()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "clear()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "keys()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "keys()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "values()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "values()",
       "insertTextFormat": "Snippet"
     }
   ]

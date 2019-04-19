@@ -406,7 +406,7 @@ function populateGenericFailoverActionError (error?[] failoverActionErr, error h
     failoverActionErr[index] = httpActionErr;
     string lastErrorMsg = <string> httpActionErr.detail().message;
     string failoverMessage = "All the failover endpoints failed. Last error was " + lastErrorMsg;
-    map<any> errorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
+    map<anydata> errorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
     error actionError = error(HTTP_ERROR_CODE, errorDetail);
     return actionError;
 }
@@ -416,7 +416,7 @@ function populateGenericFailoverActionError (error?[] failoverActionErr, error h
 function populateFailoverErrorHttpStatusCodes (Response inResponse, error?[] failoverActionErr, int index) {
     string failoverMessage = "Endpoint " + index + " returned response is: " + inResponse.statusCode + " " +
         inResponse.reasonPhrase;
-    map<any> errorDetail = { message : failoverMessage };
+    map<anydata|error> errorDetail = { message : failoverMessage };
     error httpActionErr = error(HTTP_ERROR_CODE, errorDetail);
     failoverActionErr[index] = httpActionErr;
 }
@@ -424,12 +424,12 @@ function populateFailoverErrorHttpStatusCodes (Response inResponse, error?[] fai
 function populateErrorsFromLastResponse (Response inResponse, error?[] failoverActionErr, int index)
                                                                             returns (error) {
     string message = "Last endpoint returned response: " + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    map<any> errorDetail = { message : message };
+    map<anydata|error> errorDetail = { message : message };
     error lastHttpConnectorErr = error(HTTP_ERROR_CODE, errorDetail);
     failoverActionErr[index] = lastHttpConnectorErr;
     string failoverMessage = "All the failover endpoints failed. Last endpoint returned response is: "
                                 + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    map<any> finalErrorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
+    map<anydata> finalErrorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
     error actionError = error(HTTP_ERROR_CODE, finalErrorDetail);
     return actionError;
 }
@@ -444,8 +444,8 @@ function populateErrorsFromLastResponse (Response inResponse, error?[] failoverA
 # + chunking - The chunking behaviour of the request
 # + followRedirects - Redirect related options
 # + retryConfig - Retry related options
+# + poolConfig - Configurations associated with request pooling
 # + proxy - Proxy related options
-# + connectionThrottling - The configurations for controlling the number of connections allowed concurrently
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
 # + cache - The configurations for controlling the caching behaviour
 # + compression - Specifies the way of handling compression (`accept-encoding`) header

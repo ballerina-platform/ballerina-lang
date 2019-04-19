@@ -43,7 +43,8 @@ import static org.ballerinalang.stdlib.socket.MockSocketServer.SERVER_PORT;
 /**
  * Unit tests for client socket.
  */
-@Test(timeOut = 120000)
+@Test(timeOut = 120000,
+      singleThreaded = true)
 public class ClientSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ClientSocketTest.class);
@@ -89,7 +90,7 @@ public class ClientSocketTest {
     }
 
     @Test(description = "Write some content, then shutdown the write and try to write it again",
-          dependsOnMethods = "testOneWayWrite")
+          dependsOnMethods = "testOneWayWrite", enabled = false)
     public void testShutdownWrite() {
         String firstMsg = "Hello Ballerina1";
         String secondMsg = "Hello Ballerina2";
@@ -101,7 +102,7 @@ public class ClientSocketTest {
         Assert.assertEquals(mockSocketServer.getReceivedString(), firstMsg);
     }
 
-    @Test(description = "Test echo behavior", dependsOnMethods = "testShutdownWrite")
+    @Test(description = "Test echo behavior", dependsOnMethods = "testOneWayWrite")
     public void testClientEcho() {
         String msg = "Hello Ballerina echo";
         BValue[] args = { new BString(msg) };
@@ -123,7 +124,7 @@ public class ClientSocketTest {
     public void testInvalidAddress() {
         final BValue[] result = BRunUtil.invoke(socketClient, "invalidAddress");
         BError error = (BError) result[0];
-        Assert.assertEquals(((BMap) error.getDetails()).getMap().get("message").toString(),
-                "Unable to start the client socket: Connection refused");
+        Assert.assertTrue(((BMap) error.getDetails()).getMap().get("message").toString()
+                .matches("^Unable to start the client socket: Connection refused.*"));
     }
 }

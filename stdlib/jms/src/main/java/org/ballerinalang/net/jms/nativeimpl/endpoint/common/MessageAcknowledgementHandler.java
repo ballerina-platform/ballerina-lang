@@ -43,6 +43,7 @@ public class MessageAcknowledgementHandler {
                                                                              JmsConstants.SESSION_CONNECTOR_OBJECT,
                                                                              SessionConnector.class,
                                                                              context);
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> messageBObject = (BMap<String, BValue>) context.getRefArgument(1);
         Message message = BallerinaAdapter.getNativeObject(messageBObject,
                                                            JmsConstants.JMS_MESSAGE_OBJECT,

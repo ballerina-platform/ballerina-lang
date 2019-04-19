@@ -560,7 +560,7 @@ service circuitBreakerService on mockEP {
         http:Response res = new;
         if (currentState == http:CB_CLOSED_STATE) {
             res.setPayload(untaint "Circuit Breaker is in CLOSED state");
-            _ = caller->respond(res);
+            checkpanic caller->respond(res);
         }
     }
 }

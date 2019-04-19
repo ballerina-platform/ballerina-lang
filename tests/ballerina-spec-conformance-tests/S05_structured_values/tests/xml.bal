@@ -38,11 +38,11 @@ function testXmlValue() {
 @test:Config {}
 function testXmlAttributes() {
     xml x1 = xml `<book>The Lost World</book>`;
-    map<string> attributeMap = map<string>.convert(x1@);
+    map<string>? attributeMap = x1@;
     test:assertEquals(attributeMap.length(), 0, msg = "expected attribute count to be zero");
 
     xml x2 = xml `<book status="available" count="5"/>`;
-    attributeMap = map<string>.convert(x2@);
+    attributeMap = x2@;
     test:assertEquals(attributeMap.length(), 2, msg = "expected attribute count to be zero");
     test:assertEquals(attributeMap.status, "available", msg = "expected value to be \"available\"");
     test:assertEquals(attributeMap.count, "5", msg = "expected value to be \"5\"");

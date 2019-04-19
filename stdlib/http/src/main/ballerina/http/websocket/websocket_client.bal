@@ -45,7 +45,7 @@ public type WebSocketClient client object {
     }
 
     # Initializes the endpoint.
-    public extern function initEndpoint();
+    public function initEndpoint() = external;
 
     # Push text to the connection.
     #

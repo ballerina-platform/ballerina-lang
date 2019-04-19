@@ -45,12 +45,13 @@ import javax.jms.Topic;
  * Get a float property in the JMS Message.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jms",
+        orgName = JmsConstants.BALLERINA,
+        packageName = JmsConstants.JMS,
         functionName = "getReplyTo",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Message", structPackage = "ballerina/jms"),
-        returnType = { @ReturnType(type = TypeKind.OBJECT, structType = "Destination",
-                                        structPackage = "ballerina/jms")},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.MESSAGE_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = JmsConstants.DESTINATION_OBJ_NAME,
+                                  structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)},
         isPublic = true
 )
 public class GetReplyTo extends AbstractBlockingAction {

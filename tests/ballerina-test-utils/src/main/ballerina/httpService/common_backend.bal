@@ -21,7 +21,7 @@ service<http:Service> echo bind echoEP{
             error payloadError => io:println(payloadError.message);
             string payload => {
                 resp.setTextPayload(untaint payload);
-                _ = caller -> respond(resp);
+                checkpanic caller->respond(resp);
             }
         }
     }

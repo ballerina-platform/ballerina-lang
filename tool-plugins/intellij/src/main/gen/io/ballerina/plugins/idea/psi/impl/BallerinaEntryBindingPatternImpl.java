@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaEntryBindingPatternImpl extends BallerinaCompositeElementImpl implements BallerinaEntryBindingPattern {
+public class BallerinaEntryBindingPatternImpl extends ASTWrapperPsiElement implements BallerinaEntryBindingPattern {
 
   public BallerinaEntryBindingPatternImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,7 +51,7 @@ public class BallerinaEntryBindingPatternImpl extends BallerinaCompositeElementI
   @Override
   @Nullable
   public BallerinaRestBindingPattern getRestBindingPattern() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaRestBindingPattern.class);
+    return findChildByClass(BallerinaRestBindingPattern.class);
   }
 
 }

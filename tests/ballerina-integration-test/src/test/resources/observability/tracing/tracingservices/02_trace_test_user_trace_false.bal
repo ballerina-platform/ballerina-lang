@@ -32,8 +32,8 @@ service echoService1 on new http:Listener(9091) {
         var response = callNextResource1();
         if (response is http:Response) {
             outResponse.setTextPayload("Hello, World!");
-            _ = caller -> respond(outResponse);
-            _ = observe:finishSpan(id);
+            checkpanic caller->respond(outResponse);
+            checkpanic observe:finishSpan(id);
         } else {
             error err = error ("error occurred");
             panic err;
@@ -43,14 +43,14 @@ service echoService1 on new http:Listener(9091) {
     resource function resourceTwo (http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
         res.setTextPayload("Hello, World 2!");
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     resource function getMockTracers(http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
         json returnString = testobserve:getMockTracers();
         res.setJsonPayload(returnString);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -58,6 +58,6 @@ function callNextResource1() returns (http:Response | error) {
     http:Client httpEndpoint = new("http://localhost:9091/echoService", config = {});
     int spanId = check observe:startSpan("uSpanTwo");
     http:Response resp = check httpEndpoint -> get("/resourceTwo");
-    _ = observe:finishSpan(spanId);
+    checkpanic observe:finishSpan(spanId);
     return resp;
 }

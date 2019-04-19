@@ -27,10 +27,18 @@ function testTableIterable() {
     BazRecordFourteen bazRecord2 = { bazFieldOne: 2, bazFieldTwo: 5 };
     BazRecordFourteen bazRecord3 = { bazFieldOne: 3, bazFieldTwo: 6 };
     table<BazRecordFourteen> iterableTable = table{};
-    _ = iterableTable.add(bazRecord1);
-    _ = iterableTable.add(bazRecord2);
-    _ = iterableTable.add(bazRecord3);
-
+    error? err1 = iterableTable.add(bazRecord1);
+    error? err2 = iterableTable.add(bazRecord2);
+    error? err3 = iterableTable.add(bazRecord3);
+    if err1 is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
+    if err2 is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
+    if err3 is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
     int count = 0;
     foreach var bazRecord in iterableTable {
         // TODO: Clarify: should bazRecord be a closed record?

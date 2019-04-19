@@ -41,14 +41,14 @@ function testToStringOnContentDisposition(mime:ContentDisposition contentDisposi
 function testSetMediaTypeToEntity() returns string? {
     mime:Entity entity = new;
     mime:MediaType mediaType = getMediaTypeTestObj();
-    _ = entity.setContentType(mediaType.toString());
+    checkpanic entity.setContentType(mediaType.toString());
     return entity.getContentType();
 }
 
 function testSetMediaTypeAndGetValueAsHeader() returns string {
     mime:Entity entity = new;
     mime:MediaType mediaType = getMediaTypeTestObj();
-    _ = entity.setContentType(mediaType.toString());
+    checkpanic entity.setContentType(mediaType.toString());
     return entity.getHeader(mime:CONTENT_TYPE);
 }
 

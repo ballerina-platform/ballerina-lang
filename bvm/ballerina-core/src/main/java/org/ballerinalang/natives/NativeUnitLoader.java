@@ -68,6 +68,15 @@ public class NativeUnitLoader {
         }
         return result;
     }
+
+    public String loadNativeFunctionClassName(String pkgName, String functionName) {
+        String result = null;
+        NativeFunctionDef functionDef = this.nativeElementRepo.lookupNativeFunction(pkgName, functionName);
+        if (functionDef != null) {
+            result = functionDef.getClassName().replaceAll("\\.", "\\/");
+        }
+        return result;
+    }
     
     public NativeCallableUnit loadNativeAction(String pkgName, String connectorName, String actionName) {
         String key = NativeElementRepository.actionToKey(pkgName, connectorName, actionName);

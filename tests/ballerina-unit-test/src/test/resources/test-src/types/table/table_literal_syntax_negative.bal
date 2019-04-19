@@ -50,8 +50,8 @@ function testTableLiteralDataAndAdd2() returns (int) {
         ]
     };
 
-    _ = t1.add(p4);
-    _ = t1.add(p5);
+    checkpanic t1.add(p4);
+    checkpanic t1.add(p5);
 
     int count = t1.count();
     return count;
@@ -76,8 +76,8 @@ function testTableLiteralDataAndAddWithObject() returns (int) {
         { key id, name, age }
     };
 
-    _ = t1.add(p4);
-    _ = t1.add(p5);
+    checkpanic t1.add(p4);
+    checkpanic t1.add(p5);
 
     int count = t1.count();
     return count;
@@ -93,9 +93,9 @@ function testTableRemoveInvalidFunctionPointer() returns (int, json) | error {
     Person p3 = { id: 3, age: 42, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{};
-    _ = dt.add(p1);
-    _ = dt.add(p2);
-    _ = dt.add(p3);
+    checkpanic dt.add(p1);
+    checkpanic dt.add(p2);
+    checkpanic dt.add(p3);
 
     var res = dt.remove(isBelow35Invalid);
     int count = -1;
@@ -190,7 +190,7 @@ function addInvalidErrorData() {
 
     error e = error("response error");
     ErrorInRecord d1 = { id: 10, bar: e };
-    _ = t1.add(d1);
+    checkpanic t1.add(d1);
 }
 
 type ArrayRecord record {

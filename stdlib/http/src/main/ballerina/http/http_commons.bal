@@ -117,24 +117,6 @@ public type ResponseMessage Response|string|xml|json|byte[]|io:ReadableByteChann
 # `NONE`: No operation should be performed
 public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIONS|HTTP_PUT|HTTP_PATCH|HTTP_HEAD|HTTP_NONE;
 
-# A record for providing trust store related configurations.
-#
-# + path - Path to the trust store file
-# + password - Trust store password
-public type TrustStore record {|
-    string path = "";
-    string password = "";
-|};
-
-# A record for providing key store related configurations.
-#
-# + path - Path to the key store file
-# + password - Key store password
-public type KeyStore record {|
-    string path = "";
-    string password = "";
-|};
-
 # A record for configuring SSL/TLS protocol and version to be used.
 #
 # + name - SSL Protocol to be used (e.g.: TLS1.2)
@@ -188,7 +170,7 @@ type HTTPError record {
 # + headerValue - The header value
 # + return - Returns a tuple containing the value and its parameter map
 //TODO: Make the error nillable
-public extern function parseHeader(string headerValue) returns (string, map<any>)|error;
+public function parseHeader(string headerValue) returns (string, map<any>)|error = external;
 
 function buildRequest(RequestMessage message) returns Request {
     Request request = new;
@@ -365,4 +347,4 @@ function createFailoverRequest(Request request, mime:Entity requestEntity) retur
 }
 
 //Resolve a given path against a given URI.
-extern function resolve(string baseUrl, string path) returns string|error;
+function resolve(string baseUrl, string path) returns string|error = external;

@@ -130,7 +130,10 @@ function testTableFreezeOnContainer() {
 # + tableVal - the table to which the member should be added
 # + member - the member to be added
 public function insertMemberToTable(table<record{}> tableVal, record{} member) {
-    _ = tableVal.add(member);
+    error? err = tableVal.add(member);
+    if err is error {
+        panic err;
+    }
 }
 
 // A frozen container value can refer only to immutable values:
@@ -369,6 +372,28 @@ function testRecordFrozenContainerShapeAndType() {
     result = trap updateRecordBazField(a8, a10);
     test:assertTrue(a10 is BazRecord, msg = "expected value's type to match shape after freezing");
     test:assertTrue(!(result is error), msg = "expected to be able to add a frozen value that conforms to shape");
+}
+
+@test:Config {}
+function testMapFrozenContainerShapeAndType() {
+    map<map<string>|float> a5 = { one: { a: "a", bc: "b c" }, two: 1.0 };
+    map<string|boolean> a6 = { three: "3", four: "4" };
+    any a7 = a6;
+    var result = trap insertMemberToMap(a5, "three", a7);
+    test:assertTrue(result is error,
+        msg = "expected to not be able to add a value that violates shape");
+    test:assertTrue(!(a7 is map<string>|float),
+        msg = "expected value's type to not be of same type or sub type");
+
+    any|error? err = a7.freeze();
+    if err is error {
+        test:assertFail(msg = "failed in executing freeze operation");
+    }
+    result = trap insertMemberToMap(a5, "three", a7);
+    test:assertTrue(a7 is map<string>|float,
+        msg = "expected value's type to match shape after freezing");
+    test:assertTrue(!(result is error),
+        msg = "expected to be able to add a frozen value that conforms to shape");
 }
 
 public type BazRecord record {

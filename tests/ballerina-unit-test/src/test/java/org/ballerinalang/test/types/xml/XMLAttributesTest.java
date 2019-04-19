@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.test.types.xml;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -286,7 +286,7 @@ public class XMLAttributesTest {
     @Test
     public void testXMLAttributesToAny() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testXMLAttributesToAny");
-        Assert.assertTrue(returns[0] instanceof BXMLAttributes);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(),
                 "{\"{http://sample.com/wso2/c1}ns0\":\"http://sample.com/wso2/a1\", " +
                 "\"{http://sample.com/wso2/c1}ns1\":\"http://sample.com/wso2/b1\", " +
@@ -339,5 +339,59 @@ public class XMLAttributesTest {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeFromLiteral");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "5");
+    }
+
+    @Test(description = "Test getting a xml attributes as a map using xmlElement@ syntax")
+    public void testGetAttributeMap() {
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeMap");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{" +
+                "\"{http://sample.com/wso2/c1}p1\":\"http://wso2.com/\", " +
+                "\"{http://sample.com/wso2/c1}p2\":\"http://sample.com/wso2/a1/\", " +
+                "\"{http://sample.com/wso2/c1}ns0\":\"http://sample.com/wso2/a1\", " +
+                "\"{http://sample.com/wso2/c1}ns1\":\"http://sample.com/wso2/b1\", " +
+                "\"{http://sample.com/wso2/c1}ns3\":\"http://sample.com/wso2/d1\", " +
+                "\"{http://wso2.com/}foo\":\"bar\"}");
+    }
+
+    @Test(description = "Test pass xml attributes as a argument to a function")
+    public void testPassXmlAttributeAsAMap() {
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "passXmlAttrToFunction");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"" +
+                "{http://sample.com/wso2/c1}ns0\":\"http://sample.com/wso2/a1\", \"" +
+                "{http://sample.com/wso2/c1}ns1\":\"http://sample.com/wso2/b1\", \"" +
+                "{http://sample.com/wso2/c1}ns3\":\"http://sample.com/wso2/d1\", \"" +
+                "foo\":\"bar\", \"" +
+                "tracer\":\"1\"}");
+    }
+
+    @Test(description = "Test map operations on xml@ value")
+    public void testMapOperations() {
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "mapOperationsOnXmlAttribute");
+        Assert.assertEquals(returns[0].stringValue(), "4");
+        Assert.assertEquals(returns[1].stringValue(), "[\"" +
+                "{http://sample.com/wso2/c1}ns0\", \"" +
+                "{http://sample.com/wso2/c1}ns1\", \"" +
+                "{http://sample.com/wso2/c1}ns3\", \"" +
+                "foo\"]");
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+    }
+
+    @Test(description = "Test map insertion on xml@ value")
+    public void testMapUpdateOnXmlAttributeMap() {
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "mapUpdateOnXmlAttribute");
+        BXML xml = (BXML) returns[0];
+        String abcAttrVal = xml.getAttribute("abc", null);
+        Assert.assertEquals(abcAttrVal, "xyz");
+        Assert.assertEquals(xml.getAttribute("baz", "http://example.com/ns"), "value");
+        Assert.assertEquals(xml.getAttribute("bar", "abc}}bak"), "theNewVal");
+        Assert.assertEquals(xml.getAttribute("foo", "the{}url"), "foo2");
+    }
+
+    @Test(description = "Test xml@ return nil when xml is non singleton xml item")
+    public void testAttributeAccessOfNonSingletonXML() {
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "nonSingletonXmlAttributeAccess");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }
