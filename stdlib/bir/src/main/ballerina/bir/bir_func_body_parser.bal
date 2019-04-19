@@ -235,6 +235,18 @@ public type FuncBodyParser object {
             var errorOp = self.parseVarRef();
             Panic panicStmt = { kind:kind, errorOp:errorOp };
             return panicStmt;
+        } else if (kindTag == INS_WAIT) {
+            TerminatorKind kind = TERMINATOR_WAIT;
+            var exprCount = self.reader.readInt32();
+            VarRef?[] exprs = [];
+            int i = 0;
+            while (i < exprCount) {
+                exprs[i] = self.parseVarRef();
+                i += 1;
+            }
+            VarRef lhsOp = self.parseVarRef();
+            Wait waitIns = {exprList:exprs, kind:kind, lhsOp:lhsOp};
+            return waitIns;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;
