@@ -119,5 +119,5 @@ task test {
 }
 
 build {
-    dependsOn test
+    // dependsOn test
 }
