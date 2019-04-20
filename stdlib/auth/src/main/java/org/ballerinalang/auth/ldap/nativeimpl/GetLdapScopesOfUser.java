@@ -39,6 +39,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;

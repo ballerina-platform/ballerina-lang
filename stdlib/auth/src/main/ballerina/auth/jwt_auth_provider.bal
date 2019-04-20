@@ -20,6 +20,8 @@ import ballerina/runtime;
 import ballerina/time;
 
 # Represents a JWT Authenticator.
+#
+# + jwtAuthProviderConfig - JWT auth provider configurations
 public type JWTAuthProvider object {
 
     *AuthProvider;

@@ -27,6 +27,7 @@ results
 /composer/modules/web/dist-electron/
 velocity.log
 /composer/modules/web/dist-electron
+extractedDistribution
 
 # gradle
 .gradle

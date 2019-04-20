@@ -22,8 +22,6 @@ import ballerina/runtime;
 const string CONFIG_USER_SECTION = "b7a.users";
 
 # Represents Ballerina configuration file based auth store provider.
-#
-# + configAuthStoreProviderConfig - Config auth store configurations
 public type ConfigAuthStoreProvider object {
 
     *AuthProvider;

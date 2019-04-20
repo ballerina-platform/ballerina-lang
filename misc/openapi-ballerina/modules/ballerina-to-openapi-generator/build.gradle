@@ -9,12 +9,12 @@ dependencies {
         exclude group: 'io.swagger', module: 'swagger-parser'
     }
     implementation 'javax.ws.rs:javax.ws.rs-api'
+    implementation 'io.swagger.parser.v3:swagger-parser-v2-converter'
     implementation project(':ballerina-core')
     implementation project(':language-server:language-server-compiler')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-launcher')
-    implementation 'io.swagger.parser.v3:swagger-parser-v2-converter'
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-http')
     

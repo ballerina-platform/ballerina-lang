@@ -500,6 +500,18 @@ public class TypeGuardTest {
     }
 
     @Test
+    public void testFiniteTypeUnionAsFiniteTypeUnionPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeUnionAsFiniteTypeUnionPositive");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testFiniteTypeUnionAsFiniteTypeUnionNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeUnionAsFiniteTypeUnionNegative");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
     public void testTypeGuardForErrorPositive() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorPositive");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());

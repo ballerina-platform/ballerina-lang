@@ -109,8 +109,12 @@
                 "url": "record-match-statement"
             },
             {
-                "name": "Type Check Expression",
-                "url": "type-check-expression"
+                "name": "Error Match",
+                "url": "error-match-statement"
+            },
+            {
+                "name": "Type Test Expression",
+                "url": "type-test-expression"
             },
             {
                 "name": "Type Guard",
@@ -215,8 +219,8 @@
                 "url": "object-initializer"
             },
             {
-                "name": "Member Functions",
-                "url": "object-member-functions"
+                "name": "Object Methods",
+                "url": "object-methods"
             },
             {
                 "name": "Object Assignability",
@@ -338,12 +342,20 @@
                 "url": "record-type-binding-pattern"
             },
             {
+                "name": "Error Type Binding Pattern",
+                "url": "error-type-binding-pattern"
+            },
+            {
                 "name": "Tuple Destructure Binding Pattern",
                 "url": "tuple-destructure-binding-pattern"
             },
             {
                 "name": "Record Destructure Binding Pattern",
                 "url": "record-destructure-binding-pattern"
+            },
+            {
+                "name": "Error Destructure Binding Pattern",
+                "url": "error-destructure-binding-pattern"
             }
         ]
     },
@@ -364,8 +376,12 @@
                 "url": "check"
             },
             {
-                "name": "Panic ",
+                "name": "Panic",
                 "url": "panic"
+            },
+            {
+                "name": "Check Panic",
+                "url": "checkpanic"
             },
             {
                 "name": "Trap",
@@ -450,11 +466,11 @@
                 "url": "cache"
             },
             {
-                "name": "Config ",
+                "name": "Config",
                 "url": "config-api"
             },
             {
-                "name": "Log ",
+                "name": "Log",
                 "url": "log-api"
             },
             {
@@ -462,7 +478,7 @@
                 "url": "math-functions"
             },
             {
-                "name": "String ",
+                "name": "String",
                 "url": "strings"
             },
             {
@@ -570,6 +586,10 @@
             {
                 "name": "Kubernetes Deployment",
                 "url": "kubernetes-deployment"
+            },
+            {
+                "name": "OpenShift Deployment",
+                "url": "openshift-deployment"
             },
             {
                 "name": "AWS Lambda Deployment",
@@ -980,11 +1000,11 @@
                 "url": "artemis-anycast-session-producer"
             },
             {
-                "name": "Artemis simple MULTICAST consumer",
+                "name": "Artemis Simple MULTICAST Consumer",
                 "url": "artemis-multicast-consumer"
             },
             {
-                "name": "Artemis simple MULTICAST producer",
+                "name": "Artemis Simple MULTICAST Producer",
                 "url": "artemis-multicast-producer"
             }
         ]

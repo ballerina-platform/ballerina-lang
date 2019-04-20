@@ -6,17 +6,45 @@ configurations {
     }
 }
 
-task createBalo(type: JavaExec) {
-    def balFiles = file("src/main/ballerina/")
+class CreateBaloTask extends JavaExec {
+    def isBuiltin = 'false'
+    def skipWarnings = 'false'
+
+    CreateBaloTask() {
+        setClasspath(project.configurations.baloCreat)
+        setMain('org.ballerinalang.stdlib.utils.GenerateBalo')
+        setEnableAssertions(true)
+    }
+
+
+    @Override
+    void exec() {
+        def args = []
+        args << isBuiltin
+        args << "src/main/ballerina/"
+        args << "${project.buildDir}/generated-balo/repo/ballerina"
+        args << "${project.buildDir}"
+        args << skipWarnings
+        super.setArgs(args)
+        super.exec()
+    }
+
+    @Override
+    JavaExec args(Object... args) {
+        throw new UnsupportedOperationException()
+    }
+
+    @Override
+    JavaExecSpec args(Iterable<?> args) {
+        throw new UnsupportedOperationException()
+    }
+
+}
+
+task createBalo(type: CreateBaloTask) {
     dependsOn createBalHome
 
-    // TODO: don't depend on name ,pass this as a prop form project
-    def loadBuiltinFromBalo = project.name == 'ballerina-builtin'
-
-    main 'org.ballerinalang.stdlib.utils.GenerateBalo'
-    classpath configurations.baloCreat
-    args(loadBuiltinFromBalo, balFiles, "$buildDir/generated-balo/repo/ballerina", "$buildDir")
-
+    def balFiles = file("src/main/ballerina/")
     inputs.dir(balFiles)
     inputs.files(configurations.baloImplementation)
     outputs.dir("$buildDir/generated-balo")

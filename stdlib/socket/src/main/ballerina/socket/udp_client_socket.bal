@@ -18,6 +18,7 @@
 #
 # + localPort - the local port number to which this socket is bound
 # + localAddress - the local IP address string in textual presentation to which the socket is bound
+# + interface - network interface to bind to
 # + id - a unique identifier to identify each client
 public type UdpClient client object {
 

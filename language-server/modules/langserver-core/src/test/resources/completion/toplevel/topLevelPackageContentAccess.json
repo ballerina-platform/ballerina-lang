@@ -204,7 +204,7 @@
     {
       "label": "HttpServiceConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Contains the configurations for an HTTP service.\n"
       },
@@ -229,7 +229,7 @@
     {
       "label": "CorsConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configurations for CORS support.\n"
       },
@@ -254,7 +254,7 @@
     {
       "label": "Versioning",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configurations for service versioning.\n"
       },
@@ -279,7 +279,7 @@
     {
       "label": "WSServiceConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configurations for a WebSocket service.\n"
       },
@@ -304,7 +304,7 @@
     {
       "label": "HttpResourceConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configuration for an HTTP resource.\n"
       },
@@ -329,7 +329,7 @@
     {
       "label": "WebSocketUpgradeConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Resource configuration to upgrade from HTTP to WebSocket.\n"
       },
@@ -354,7 +354,7 @@
     {
       "label": "ServiceResourceAuth",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configures the authentication scheme for a service or a resource.\n"
       },
@@ -379,7 +379,7 @@
     {
       "label": "CacheConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for controlling the caching behaviour of the endpoint.\n"
       },
@@ -404,7 +404,7 @@
     {
       "label": "TargetService",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Represents a single service and its related configurations.\n"
       },
@@ -429,7 +429,7 @@
     {
       "label": "ClientEndpointConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
       },
@@ -454,7 +454,7 @@
     {
       "label": "RetryConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides configurations for controlling the retrying behavior in failure scenarios.\n"
       },
@@ -479,7 +479,7 @@
     {
       "label": "SecureSocket",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides configurations for facilitating secure communication with a remote HTTP endpoint.\n"
       },
@@ -504,7 +504,7 @@
     {
       "label": "FollowRedirects",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
       },
@@ -529,7 +529,7 @@
     {
       "label": "ProxyConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Proxy server configurations to be used with the HTTP client endpoint.\n"
       },
@@ -554,7 +554,7 @@
     {
       "label": "OutboundAuthConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "The `OutboundAuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.\n"
       },
@@ -579,7 +579,7 @@
     {
       "label": "BasicAuthConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "The `BasicAuthConfig` record can be used to configure Basic Authentication used by the HTTP endpoint.\n"
       },
@@ -604,7 +604,7 @@
     {
       "label": "OAuth2AuthConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "The `OAuth2AuthConfig` record can be used to configure OAuth2 based authentication used by the HTTP endpoint.\n"
       },
@@ -629,7 +629,7 @@
     {
       "label": "ClientCredentialsGrantConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "The `ClientCredentialsGrantConfig` record can be used to configue OAuth2 client credentials grant type.\n"
       },
@@ -654,7 +654,7 @@
     {
       "label": "PasswordGrantConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "The `PasswordGrantConfig` record can be used to configue OAuth2 password grant type\n"
       },
@@ -679,7 +679,7 @@
     {
       "label": "DirectTokenConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "The `DirectTokenConfig` record configures the access token directly.\n"
       },
@@ -704,7 +704,7 @@
     {
       "label": "RefreshConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "The `RefreshConfig` record can be used to pass the configurations for refreshing the access token of password grant type.\n"
       },
@@ -729,7 +729,7 @@
     {
       "label": "DirectTokenRefreshConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "The `DirectTokenRefreshConfig` record passes the configurations for refreshing the access token for \nthe grant type of the direct token grant type.\n"
       },
@@ -754,7 +754,7 @@
     {
       "label": "JwtAuthConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "The `JwtAuthConfig` record can be used to configure JWT based authentication used by the HTTP endpoint.\n"
       },
@@ -779,7 +779,7 @@
     {
       "label": "HttpTimeoutError",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Defines a timeout error occurred during service invocation.\n"
       },
@@ -804,7 +804,7 @@
     {
       "label": "PoolConfiguration",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configurations for managing HTTP client connection pool.\n"
       },
@@ -829,7 +829,7 @@
     {
       "label": "Protocols",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "A record for configuring SSL/TLS protocol and version to be used.\n"
       },
@@ -854,7 +854,7 @@
     {
       "label": "ValidateCert",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "A record for providing configurations for certificate revocation status checks.\n"
       },
@@ -879,7 +879,7 @@
     {
       "label": "ServiceOcspStapling",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "A record for providing configurations for certificate revocation status checks.\n"
       },
@@ -904,7 +904,7 @@
     {
       "label": "CompressionConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "A record for providing configurations for content compression.\n"
       },
@@ -929,7 +929,7 @@
     {
       "label": "MutualSslHandshake",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "A record for providing mutual ssl handshake results.\n"
       },
@@ -954,7 +954,7 @@
     {
       "label": "CachedToken",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "The `CachedToken` stores the values received from the authorization/token server to use them\nfor the latter requests without requesting tokens again.\n"
       },
@@ -979,7 +979,7 @@
     {
       "label": "FailoverConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for controlling the failover behaviour of the endpoint.\n"
       },
@@ -1004,7 +1004,7 @@
     {
       "label": "FailoverInferredConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Inferred failover configurations passed into the failover client.\n"
       },
@@ -1029,7 +1029,7 @@
     {
       "label": "FailoverClientEndpointConfiguration",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
       },
@@ -1054,7 +1054,7 @@
     {
       "label": "CircuitHealth",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Maintains the health of the Circuit Breaker.\n"
       },
@@ -1079,7 +1079,7 @@
     {
       "label": "CircuitBreakerConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for controlling the behaviour of the Circuit Breaker.\n"
       },
@@ -1104,7 +1104,7 @@
     {
       "label": "RollingWindow",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Represents a rolling window in the Circuit Breaker.\n"
       },
@@ -1129,7 +1129,7 @@
     {
       "label": "Bucket",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Represents a discrete sub-part of the time window (Bucket).\n"
       },
@@ -1154,7 +1154,7 @@
     {
       "label": "CircuitBreakerInferredConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Derived set of configurations from the `CircuitBreakerConfig`.\n"
       },
@@ -1179,7 +1179,7 @@
     {
       "label": "RetryInferredConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Derived set of configurations from the `RetryConfig`.\n"
       },
@@ -1204,7 +1204,7 @@
     {
       "label": "LoadBalanceActionErrorData",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Represents an error occurred in an remote function of the Load Balance connector.\n"
       },
@@ -1229,7 +1229,7 @@
     {
       "label": "LoadBalanceClientEndpointConfiguration",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "The configurations related to the load balance client endpoint.\n"
       },
@@ -1254,7 +1254,7 @@
     {
       "label": "Remote",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Presents a read-only view of the remote address.\n"
       },
@@ -1279,7 +1279,7 @@
     {
       "label": "Local",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Presents a read-only view of the local address.\n"
       },
@@ -1304,7 +1304,7 @@
     {
       "label": "RequestLimits",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configures limits for requests. If these limits are violated, the request is rejected.\n"
       },
@@ -1329,7 +1329,7 @@
     {
       "label": "ServiceEndpointConfiguration",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for HTTP service endpoints.\n"
       },
@@ -1354,7 +1354,7 @@
     {
       "label": "ListenerAuth",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Authentication configurations for the listener.\n"
       },
@@ -1379,7 +1379,7 @@
     {
       "label": "ServiceSecureSocket",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configures the SSL/TLS options to be used for HTTP service.\n"
       },
@@ -1404,7 +1404,7 @@
     {
       "label": "AuthCacheConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
       },
@@ -1429,7 +1429,7 @@
     {
       "label": "WebSocketClientEndpointConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configuration for the WebSocket client endpoint.\n"
       },
@@ -1454,7 +1454,7 @@
     {
       "label": "AuthnFilter",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Representation of the Authentication filter.\n"
       },
@@ -1479,7 +1479,7 @@
     {
       "label": "AuthnHandler",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Representation of Authentication handler for HTTP traffic."
       },
@@ -1504,7 +1504,7 @@
     {
       "label": "AuthzFilter",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Representation of the Authorization filter\n"
       },
@@ -1529,7 +1529,7 @@
     {
       "label": "AuthzHandler",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Representation of Authorization Handler for HTTP\n"
       },
@@ -1554,7 +1554,7 @@
     {
       "label": "BasicAuthnHandler",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Defines Basic Auth handler for HTTP traffic.\n"
       },
@@ -1579,7 +1579,7 @@
     {
       "label": "JwtAuthnHandler",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Representation of JWT Auth handler for HTTP traffic\n"
       },
@@ -1604,7 +1604,7 @@
     {
       "label": "RequestCacheControl",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Configures cache control directives for a `Request`.\n"
       },
@@ -1629,7 +1629,7 @@
     {
       "label": "ResponseCacheControl",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Configures cache control directives for a `Response`.\n"
       },
@@ -1654,7 +1654,10 @@
     {
       "label": "HttpCache",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
+      "documentation": {
+        "left": "Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring\nHTTP caching in the HTTP client endpoint.\n"
+      },
       "insertText": "HttpCache",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -1676,7 +1679,7 @@
     {
       "label": "HttpFuture",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
       },
@@ -1701,7 +1704,7 @@
     {
       "label": "PushPromise",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents an HTTP/2 `PUSH_PROMISE` frame.\n"
       },
@@ -1726,7 +1729,7 @@
     {
       "label": "Filter",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object."
       },
@@ -1751,7 +1754,7 @@
     {
       "label": "FilterContext",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Representation of request filter Context.\n"
       },
@@ -1776,7 +1779,7 @@
     {
       "label": "Request",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents an HTTP request.\n"
       },
@@ -1801,7 +1804,7 @@
     {
       "label": "Response",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents an HTTP response.\n"
       },
@@ -1826,7 +1829,7 @@
     {
       "label": "MockListener",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Mock server endpoint which does not open a listening port."
       },
@@ -1851,7 +1854,7 @@
     {
       "label": "CircuitBreakerClient",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "A Circuit Breaker implementation which can be used to gracefully handle network failures.\n"
       },
@@ -1876,7 +1879,7 @@
     {
       "label": "LoadBalancerRule",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "\nLoadBalancerRule provides a required interfaces to implement different algorithms.\n"
       },
@@ -1901,7 +1904,7 @@
     {
       "label": "LoadBalancerRounRobinRule",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Implementation of round robin load balancing strategy.\n"
       },
@@ -1926,7 +1929,7 @@
     {
       "label": "Listener",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to\nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations."
       },
@@ -1951,7 +1954,7 @@
     {
       "label": "WebSocketListener",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a WebSocket service endpoint."
       },
@@ -1976,7 +1979,7 @@
     {
       "label": "InboundAuthScheme",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Inbound authentication schemes."
       },
@@ -2001,7 +2004,7 @@
     {
       "label": "OutboundAuthScheme",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Outbound authentication schemes."
       },
@@ -2026,7 +2029,7 @@
     {
       "label": "CachingPolicy",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Used for configuring the caching behaviour. Setting the `policy` field in the `CacheConfig` record allows\nthe user to control the caching behaviour."
       },
@@ -2051,7 +2054,7 @@
     {
       "label": "Chunking",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Defines the possible values for the chunking configuration in HTTP services and clients.\n\n`AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,\n        otherwise chunking header is set in the outbound request/response\n`ALWAYS`: Always set chunking header in the response\n`NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response"
       },
@@ -2076,7 +2079,7 @@
     {
       "label": "Compression",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Options to compress using gzip or deflate.\n\n`AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the\n        outbound request/response accept-encoding/content-encoding option\n`ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response\n`NEVER`: Never set accept-encoding/content-encoding header in outbound request/response"
       },
@@ -2101,7 +2104,7 @@
     {
       "label": "HttpOperation",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Defines the HTTP operations related to circuit breaker, failover and load balancer.\n\n`FORWARD`: Forward the specified payload\n`GET`: Request a resource\n`POST`: Create a new resource\n`DELETE`: Deletes the specified resource\n`OPTIONS`: Request communication options available\n`PUT`: Replace the target resource\n`PATCH`: Apply partial modification to the resource\n`HEAD`: Identical to `GET` but no resource body should be returned\n`NONE`: No operation should be performed"
       },
@@ -2126,7 +2129,7 @@
     {
       "label": "RedirectCode",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Defines the HTTP redirect codes as a type."
       },
@@ -2151,7 +2154,7 @@
     {
       "label": "MutualSslStatus",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Defines the possible values for the mutual ssl status.\n\n`passed`: Mutual SSL handshake is succesful.\n`failed`: Mutual SSL handshake has failed."
       },
@@ -2176,7 +2179,7 @@
     {
       "label": "CredentialBearer",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Specifies how to send the authentication credentials when exchanging tokens."
       },
@@ -2201,7 +2204,7 @@
     {
       "label": "OAuth2GrantType",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Specifies the type of the OAuth2 grant type"
       },
@@ -2226,7 +2229,7 @@
     {
       "label": "CircuitState",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "A finite type for modeling the states of the Circuit Breaker. The Circuit Breaker starts in the `CLOSED` state.\nIf any failure thresholds are exceeded during execution, the circuit trips and goes to the `OPEN` state. After\nthe specified timeout period expires, the circuit goes to the `HALF_OPEN` state. If the trial request sent while\nin the `HALF_OPEN` state succeeds, the circuit goes back to the `CLOSED` state."
       },
@@ -2251,7 +2254,7 @@
     {
       "label": "KeepAlive",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Defines the possible values for the keep-alive configuration in service and client endpoints."
       },
@@ -2276,7 +2279,7 @@
     {
       "label": "RequestMessage",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
       },
@@ -2301,7 +2304,7 @@
     {
       "label": "ResponseMessage",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
       },
