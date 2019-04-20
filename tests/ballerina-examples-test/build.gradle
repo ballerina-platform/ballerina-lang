@@ -83,7 +83,10 @@ task test {
                            'gauge-metrics',
                            'counter-metrics',
                            'xml-functions',
-                           'openapi-to-ballerina']
+                           'openapi-to-ballerina',
+                           'rabbitmq-simple-consumer',
+                           'rabbitmq-simple-producer'
+                           ]
 
         def inputFile = new File( "${distPath}/examples/index.json")
         def categories = new JsonSlurper().parseText(inputFile.text)
@@ -119,5 +122,5 @@ task test {
 }
 
 build {
-    // dependsOn test
+    dependsOn test
 }
