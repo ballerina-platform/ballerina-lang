@@ -171,7 +171,7 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             var pkgId = self.reader.readModuleIDCpRef();
             var name = self.reader.readStringCpRef();
-            FPLoad fpLoad = {kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }};
+            FPLoad fpLoad = {pos:pos, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }};
             return fpLoad;
         } else {
             return self.parseBinaryOpInstruction(kindTag, pos);

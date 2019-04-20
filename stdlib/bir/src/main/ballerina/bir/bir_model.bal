@@ -343,6 +343,7 @@ public type NewError record {|
 |};
 
 public type FPLoad record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     ModuleID pkgID;

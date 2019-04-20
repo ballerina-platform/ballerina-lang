@@ -284,6 +284,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.FPLoad fpLoad) {
+        writePosition(fpLoad.pos);
         buf.writeByte(fpLoad.kind.getValue());
         fpLoad.lhsOp.accept(this);
 
