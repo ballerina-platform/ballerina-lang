@@ -20,6 +20,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(untaint func.name.value);
+
     int returnVarRefIndex = -1;
 
     // generate method desc
@@ -989,8 +990,8 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
     }
 }
 
-function generateFrameClassForFunction (string pkgName, bir:Function? func, 
-                                        map<byte[]> pkgEntries, bir:BType? attachedType = ()) {
+function generateFrameClassForFunction (string pkgName, bir:Function? func, map<byte[]> pkgEntries,
+                                        bir:BType? attachedType = ()) {
     bir:Function currentFunc = getFunction(untaint func);
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);

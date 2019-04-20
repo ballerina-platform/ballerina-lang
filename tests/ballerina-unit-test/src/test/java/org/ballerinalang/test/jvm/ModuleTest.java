@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases to cover built in methods related tests on JBallerina.
+ * Test cases to cover modules related tests on JBallerina.
  *
  * @since 0.995.0
  */
@@ -48,6 +48,4 @@ public class ModuleTest {
         BInteger calculatedValue = (BInteger) result[0];
         Assert.assertEquals(calculatedValue.intValue(), 12);
     }
-
-
 }

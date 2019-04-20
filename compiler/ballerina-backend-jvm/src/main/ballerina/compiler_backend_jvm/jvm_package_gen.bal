@@ -81,6 +81,8 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
         foreach var (name, call) in lambdas {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
+        // clear the lambdas
+        lambdas = {};
         cw.visitEnd();
         byte[] classContent = cw.toByteArray();
         pkgEntries[moduleClass + ".class"] = classContent;
@@ -139,6 +141,8 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
         foreach var (name, call) in lambdas {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
+        // clear the lambdas
+        lambdas = {};
         cw.visitEnd();
         byte[] classContent = cw.toByteArray();
         pkgEntries[moduleClass + ".class"] = classContent;
