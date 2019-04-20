@@ -47,6 +47,7 @@ exclude=("proto-to-ballerina"
         "docker-deployment"
         "kubernetes-deployment"
         "awslambda-deployment"
+        "openshift-deployment"
         "grpc-server-streaming"
         )
 

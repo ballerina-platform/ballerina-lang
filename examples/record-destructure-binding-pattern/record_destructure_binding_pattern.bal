@@ -25,7 +25,7 @@ public function main() {
     string firstName;
     int personAge;
     map<anydata|error> otherDetails = {};
-    // This record de-structure binding pattern will destructure a `record` of type `Person` and assign the values
+    // This record destructure binding pattern will destructure a `record` of type `Person` and assign the values
     // to three variable references as follows:
     // The value of the field `name` in the `Person` record will be assigned to the variable `firstName`.
     // The value of the field `age` in the `Person` record will be assigned to the variable `personAge`.
@@ -56,7 +56,8 @@ public function main() {
 
     string countryName;
     string capitalName;
-    // Binding patterns are recursive in nature. `Capital`, which is a field type of `Country` can also be destructured as follows:
+    // Binding patterns are recursive in nature. `capital`, which is a field of type `Capital` in `Country` can also be
+    // destructured as follows:
     { name: countryName, capital: {| name: capitalName |}} = getCountry();
     io:println("Country Name: " + countryName);
     io:println("Capital Name: " + capitalName);
