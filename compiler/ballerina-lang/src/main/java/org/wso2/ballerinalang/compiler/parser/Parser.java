@@ -66,6 +66,7 @@ public class Parser {
     private BLangDiagnosticLog dlog;
     private PackageCache pkgCache;
     private HashMap<String, CUnitCacheItem> cUnitCache;
+    private SymbolResetter symbolResetter;
 
     public static Parser getInstance(CompilerContext context) {
         Parser parser = context.get(PARSER_KEY);
@@ -85,6 +86,7 @@ public class Parser {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgCache = PackageCache.getInstance(context);
         this.cUnitCache = new HashMap<>();
+        this.symbolResetter = SymbolResetter.getInstance(context);
     }
 
     public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath) {
@@ -123,7 +125,10 @@ public class Parser {
                 // Add current cUnit's diagnostics to the global diagnostics list
                 cUnitCacheItem.diagnostics
                         .forEach(diagnostic -> context.get(DiagnosticListener.class).received(diagnostic));
-                return cUnitCacheItem.getCompilationUnitNode();
+
+                CompilationUnitNode compilationUnitNode = cUnitCacheItem.getCompilationUnitNode();
+                compilationUnitNode.getTopLevelNodes().forEach(node -> symbolResetter.resetTopLevelNode(node));
+                return compilationUnitNode;
             }
 
             BLangCompilationUnit compUnit = (BLangCompilationUnit) TreeBuilder.createCompilationUnit();
