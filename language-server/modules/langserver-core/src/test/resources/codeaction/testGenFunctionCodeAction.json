@@ -55,6 +55,14 @@
         {
             "line": 61,
             "character": 20
+        },
+        {
+            "line": 66,
+            "character": 20
+        },
+        {
+            "line": 70,
+            "character": 20
         }
     ],
     "expected": {
