@@ -73,6 +73,8 @@ task test {
                            'docker-deployment',
                            'kubernetes-deployment',
                            'awslambda-deployment',
+                           'openshift-deployment',
+                           'grpc-server-streaming',
                            'transactions-distributed',
                            'local-transactions',
                            'local-transactions-with-participants',
@@ -117,5 +119,5 @@ task test {
 }
 
 build {
-    dependsOn test
+    // dependsOn test
 }

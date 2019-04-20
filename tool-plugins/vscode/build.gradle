@@ -69,5 +69,5 @@ task test(type: Exec) {
 }
 
 build {
-    dependsOn test
+    // dependsOn test
 }
