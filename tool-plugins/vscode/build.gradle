@@ -53,21 +53,20 @@ dependencies {
 }
 
 task test(type: Exec) {
+    mustRunAfter ':examples-test:test'
     dependsOn copyDistribution
     onlyIf {
         !assemble.state.upToDate
     }
     doFirst {
-        exec {
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', 'npm', 'run', 'test'
-            } else {
-                commandLine 'npm', 'run', 'test'
-            }
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', 'npm', 'run', 'test'
+        } else {
+            commandLine 'npm', 'run', 'test'
         }
     }
 }
 
 build {
-    // dependsOn test
+    dependsOn test
 }
