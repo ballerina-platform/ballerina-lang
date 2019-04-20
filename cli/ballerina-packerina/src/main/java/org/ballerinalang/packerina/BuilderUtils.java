@@ -41,6 +41,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
@@ -75,6 +76,39 @@ public class BuilderUtils {
         }
     }
 
+    public static void compileWithTestsAndWrite(Path sourceRootPath,
+                                                String packagePath,
+                                                String targetPath,
+                                                boolean buildCompiledPkg,
+                                                boolean offline,
+                                                boolean lockEnabled,
+                                                boolean skiptests,
+                                                boolean enableExperimentalFeatures,
+                                                boolean siddhiRuntimeEnabled) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRootPath.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(BUILD_COMPILED_MODULE, Boolean.toString(buildCompiledPkg));
+        options.put(OFFLINE, Boolean.toString(offline));
+        options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
+        options.put(SKIP_TESTS, Boolean.toString(skiptests));
+        options.put(TEST_ENABLED, "true");
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
+        options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeEnabled));
+
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage bLangPackage = compiler.build(packagePath);
+
+        if (skiptests) {
+            outStream.println();
+            compiler.write(bLangPackage, targetPath);
+        } else {
+            runTests(compiler, sourceRootPath, Collections.singletonList(bLangPackage));
+            compiler.write(bLangPackage, targetPath);
+        }
+    }
+
     public static void compileWithTestsAndWrite(Path sourceRootPath, boolean offline, boolean lockEnabled,
                                                 boolean skiptests, boolean enableExperimentalFeatures) {
         CompilerContext context = new CompilerContext();
@@ -86,6 +120,38 @@ public class BuilderUtils {
         options.put(SKIP_TESTS, Boolean.toString(skiptests));
         options.put(TEST_ENABLED, "true");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
+
+        Compiler compiler = Compiler.getInstance(context);
+        List<BLangPackage> packages = compiler.build();
+
+        if (skiptests) {
+            if (packages.size() == 0) {
+                throw new BLangCompilerException("no ballerina source files found to compile");
+            }
+            outStream.println();
+            compiler.write(packages);
+        } else {
+            if (packages.size() == 0) {
+                throw new BLangCompilerException("no ballerina source files found to compile");
+            }
+            runTests(compiler, sourceRootPath, packages);
+            compiler.write(packages);
+        }
+    }
+
+    public static void compileWithTestsAndWrite(Path sourceRootPath, boolean offline, boolean lockEnabled,
+                                                boolean skiptests, boolean enableExperimentalFeatures,
+                                                boolean siddhiRuntimeEnabled) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRootPath.toString());
+        options.put(OFFLINE, Boolean.toString(offline));
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
+        options.put(SKIP_TESTS, Boolean.toString(skiptests));
+        options.put(TEST_ENABLED, "true");
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
+        options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeEnabled));
 
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> packages = compiler.build();
@@ -146,7 +212,7 @@ public class BuilderUtils {
                                           boolean offline,
                                           boolean lockEnabled,
                                           boolean skipTests,
-                                          boolean enableExperimentalFeatures, 
+                                          boolean enableExperimentalFeatures,
                                           boolean dumpBIR) {
 
         CompilerContext context = getCompilerContext(sourceRootPath, CompilerPhase.BIR_GEN, buildCompiledPkg, offline,

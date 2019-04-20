@@ -30,6 +30,7 @@ public function getProperty(@sensitive string name) returns string = external;
 # Gives a timeout to the current worker for a predefined amount of time.
 #
 # + millis - Amount of time needed for the timeout in milliseconds
+# + return - Future to be invoked after the timeout
 public function timeout(int millis) returns future<()> {
     return start sleep(millis);
 }

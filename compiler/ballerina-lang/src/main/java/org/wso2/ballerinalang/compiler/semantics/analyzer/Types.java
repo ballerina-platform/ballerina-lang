@@ -1915,18 +1915,6 @@ public class Types {
             return symTable.semanticError;
         }
 
-        if (intersection.size() > 1 && intersection.stream().filter(type -> type.tag == TypeTags.FINITE).count() > 1) {
-            // merge > 1 finite types into one finite type
-            Set<BLangExpression> valueSpace = new LinkedHashSet<>();
-            intersection.forEach(bType -> {
-                if (bType.tag == TypeTags.FINITE) {
-                    intersection.remove(bType);
-                    valueSpace.addAll(((BFiniteType) bType).valueSpace);
-                }
-            });
-            intersection.add(new BFiniteType(null, valueSpace));
-        }
-
         if (intersection.size() == 1) {
             return intersection.get(0);
         } else {

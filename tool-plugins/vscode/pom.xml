@@ -237,7 +237,7 @@
                         <configuration>
                             <includeGroupIds>org.ballerinalang</includeGroupIds>
                             <includeArtifactIds>ballerina-tools</includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/test/</outputDirectory>
+                            <outputDirectory>extractedDistribution</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                             <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>

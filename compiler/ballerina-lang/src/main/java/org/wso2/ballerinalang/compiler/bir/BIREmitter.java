@@ -282,6 +282,14 @@ public class BIREmitter extends BIRVisitor {
         sb.append(";\n");
     }
 
+    public void visit(BIRNonTerminator.FPLoad fpLoad) {
+        sb.append("\t\t");
+        fpLoad.lhsOp.accept(this);
+        sb.append(" = ").append(fpLoad.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        sb.append(fpLoad.funcName.getValue()).append("()");
+        sb.append(";");
+    }
+
     public void visit(BIRTerminator.Panic birPanic) {
         writePosition(birPanic.pos);
         sb.append("\t\t");

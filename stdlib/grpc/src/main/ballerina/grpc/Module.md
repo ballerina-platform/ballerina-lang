@@ -64,7 +64,7 @@ service SamplegRPCService on ep {
        error? err = caller->send("Hi " + name + "! Greetings from gRPC service!");
 
        // After sending the response, call ‘complete()’ to indicate that the response was completely sent.
-       _ = caller->complete();
+       error? result = caller->complete();
    }
 }
 ```
@@ -84,7 +84,7 @@ var responseFromServer = SamplegRPCServiceBlockingEp->receiveMessage("Ballerina"
 if (responseFromServer is (string, grpc:Headers)) {
     // If a response is received, print the payload.
     (string, grpc:Headers) (result, resHeaders) = responseFromServer;
-    io:println("Response received : " + responseFromServer[0]);
+    io:println("Response received : " + result);
 } else {
     // If an error is returned, print the error message.
     io:println("Error while connecting grpc end-point : " + responseFromServer.reason() + " - "
@@ -117,7 +117,7 @@ service ServerStreaming on ep {
            }
        }
        // Once the messages are sent to the server, call ‘complete()’ to indicate that the request was completely sent.
-       _ = caller->complete();
+       error? result = caller->complete();
    }
 }
 ```
@@ -222,10 +222,10 @@ if (res is error) {
 }
 
 // Send multiple messages to the service.
-error connErr = ep->send(“Hello”);
+error? connErr = ep->send(“Hello”);
 
 // After sending the message, call ‘complete()’ to indicate that the request was completely sent. 
-_ = ep->complete();
+error? result = ep->complete();
 
 ```
 

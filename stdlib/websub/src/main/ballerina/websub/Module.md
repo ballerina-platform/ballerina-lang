@@ -45,14 +45,13 @@ A WebSub compliant hub based on the Ballerina Message Broker is also available. 
 
 The Ballerina WebSub Hub can be secured by enforcing authentication (Basic Authentication) and optionally authorization. 
 `AuthProvider` and `authConfig` need to be specified for the hub listener and service respectively. If the 
-`authStoreProvider` of the `AuthProvider` is set as "config", usernames and passwords for authentication and scopes 
-for authorization would be read from a config toml file.
+`authStoreProvider` of the `AuthProvider` is set as "http:CONFIG_AUTH_STORE", usernames and passwords for authentication and scopes for authorization would be read from a config toml file.
 A user can specify `AuthProvider` as follows and set it to the `hubListenerConfig` record passed when starting the hub.
 
 ``` ballerina
 http:AuthProvider basicAuthProvider = {
-    scheme: "basic",
-    authStoreProvider: "config"
+    scheme: http:BASIC_AUTH,
+    authStoreProvider: http:CONFIG_AUTH_STORE
 };
 
 http:ServiceEndpointConfiguration hubListenerConfig = {
@@ -177,7 +176,7 @@ listener websub:Listener websubEP = new(8181);
 service websubSubscriber on websubEP {
 
     resource function onNotification(websub:Notification notification) {
-        var payload = notification.getPayloadAsString();
+        var payload = notification.getTextPayload();
         if (payload is string) {
             log:printInfo("WebSub Notification Received: " + payload);
         } else {
@@ -189,8 +188,8 @@ service websubSubscriber on websubEP {
 
 Explicit intent verification can be done by introducing an ```onIntentVerification``` resource function.
 ```ballerina
-import ballerina/log;
 import ballerina/http;
+import ballerina/log;
 import ballerina/websub;
 
 listener websub:Listener websubEP = new(8181);
@@ -215,7 +214,7 @@ service websubSubscriber on websubEP {
     }
 
     resource function onNotification(websub:Notification notification) {
-        var payload = notification.getPayloadAsString();
+        var payload = notification.getTextPayload();
         if (payload is string) {
             log:printInfo("WebSub Notification Received: " + payload);
         } else {

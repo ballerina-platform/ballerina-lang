@@ -32,6 +32,16 @@ npmBuild() {
     }
 }
 
+task copyDistribution() {
+    dependsOn ":ballerina-tools:build"
+    doFirst {
+        copy {
+            from file(configurations.ballerinaTools.asPath)
+            into "extractedDistribution/ballerina-tools-${project.version}"
+        }
+    }
+}
+
 task assemble(overwrite: true) {
     dependsOn 'npmBuild'
     dependsOn(':composer-library:assemble')
@@ -43,11 +53,10 @@ dependencies {
 }
 
 task test(type: Exec) {
-    dependsOn ":ballerina-tools:build"
+    dependsOn copyDistribution
     onlyIf {
         !assemble.state.upToDate
     }
-    def resourcePath = configurations.ballerinaTools.asPath
     doFirst {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
