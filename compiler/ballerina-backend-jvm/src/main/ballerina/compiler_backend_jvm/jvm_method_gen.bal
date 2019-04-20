@@ -52,9 +52,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         generateUserDefinedTypes(mv, module.typeDefs);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
-            mv.visitTypeInsn(NEW, INIT_CLASS_NAME);
+            mv.visitTypeInsn(NEW, typeOwnerClass);
             mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, INIT_CLASS_NAME, "<init>", "()V", false);
+            mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
             mv.visitVarInsn(ASTORE, 1);
             mv.visitLdcInsn(currentPackageName);
             mv.visitVarInsn(ALOAD, 1);

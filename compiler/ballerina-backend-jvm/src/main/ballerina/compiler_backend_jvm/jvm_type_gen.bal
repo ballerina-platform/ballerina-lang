@@ -14,7 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
+# Name of the class to which the types will be added as static fields.
+string typeOwnerClass = "";
 
 # # Create static fields to hold the user defined types.
 #
@@ -61,14 +62,14 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             panic err;
         }
 
-        mv.visitFieldInsn(PUTSTATIC, INIT_CLASS_NAME, fieldName, io:sprintf("L%s;", BTYPE));
+        mv.visitFieldInsn(PUTSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
     }
 
     // Populate the field types
     foreach var optionalTypeDef in typeDefs {
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         fieldName = getTypeFieldName(typeDef.name.value);
-        mv.visitFieldInsn(GETSTATIC, INIT_CLASS_NAME, fieldName, io:sprintf("L%s;", BTYPE));
+        mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
 
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
@@ -145,7 +146,7 @@ function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] reco
         mv.visitVarInsn(ALOAD, 0);
         mv.visitTypeInsn(NEW, MAP_VALUE);
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETSTATIC, INIT_CLASS_NAME, fieldName, io:sprintf("L%s;", BTYPE));
+        mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
         mv.visitMethodInsn(INVOKESPECIAL, io:sprintf("%s", MAP_VALUE), "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         mv.visitInsn(ARETURN);
         i += 1;
@@ -184,7 +185,7 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
         string className = pkgName + cleanupTypeName(typeDef.name.value);
         mv.visitTypeInsn(NEW, className);
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETSTATIC, INIT_CLASS_NAME, fieldName, io:sprintf("L%s;", BTYPE));
+        mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
         mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
         mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
         mv.visitInsn(ARETURN);
@@ -672,7 +673,7 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
 # + typeName - type to be loaded
 function loadUserDefinedType(jvm:MethodVisitor mv, bir:Name typeName) {
     string fieldName = getTypeFieldName(typeName.value);
-    mv.visitFieldInsn(GETSTATIC, INIT_CLASS_NAME, fieldName, io:sprintf("L%s;", BTYPE));
+    mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
 }
 
 # Return the name of the field that holds the instance of a given type.

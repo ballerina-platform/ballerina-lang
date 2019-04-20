@@ -47,9 +47,9 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     string moduleName = module.name.value;
     string pkgName = getPackageName(orgName, moduleName);
     string sourceFileName = module.name.value;
-    
-    string initClass = getModuleLevelClassName(untaint orgName, untaint moduleName, INIT_CLASS_NAME);
-    map<JavaClass> jvmClassMap = getFilteredJavaClassMap(module, pkgName, initClass, untaint lambdas);
+
+    typeOwnerClass = getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
+    map<JavaClass> jvmClassMap = getFilteredJavaClassMap(module, pkgName, typeOwnerClass, untaint lambdas);
 
     // generate object value classes
     ObjectGenerator objGen = new(module);
@@ -57,7 +57,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     generateFrameClasses(module, pkgEntries);
     foreach var (moduleClass, v) in jvmClassMap {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        if (moduleClass == initClass) {
+        if (moduleClass == typeOwnerClass) {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
             generateDefaultConstructor(cw, VALUE_CREATOR);
             generateUserDefinedTypeFields(cw, module.typeDefs);
@@ -93,9 +93,9 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     string orgName = module.org.value;
     string moduleName = module.name.value;
     string pkgName = getPackageName(orgName, moduleName);
-    
-    string initClass = getModuleLevelClassName(untaint orgName, untaint moduleName, INIT_CLASS_NAME);
-    map<JavaClass> jvmClassMap = getFilteredJavaClassMap(module, pkgName, initClass, untaint lambdas);
+
+    typeOwnerClass = getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
+    map<JavaClass> jvmClassMap = getFilteredJavaClassMap(module, pkgName, typeOwnerClass, untaint lambdas);
 
     // generate object value classes
     ObjectGenerator objGen = new(module);
@@ -109,7 +109,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     }
     foreach var (moduleClass, v) in jvmClassMap {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        if (moduleClass == initClass) {
+        if (moduleClass == typeOwnerClass) {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
             generateDefaultConstructor(cw, VALUE_CREATOR);
             generateUserDefinedTypeFields(cw, module.typeDefs);
@@ -227,11 +227,11 @@ function getFilteredJavaClassMap(bir:Package module, string pkgName, string init
     return jvmClassMap;
 }
 
-function getClassNameForSourceFile(string sourceFileName, string orgName, string moduleName, 
+function getClassNameForSourceFile(string sourceFileName, string orgName, string moduleName,
                                    string pkgName) returns string {
     string className = cleanupFileName(sourceFileName);
     if( className == "." || className == moduleName) {
-        className = INIT_CLASS_NAME;
+        return getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
     }
     return getModuleLevelClassName(untaint orgName, untaint moduleName, untaint className);
 }

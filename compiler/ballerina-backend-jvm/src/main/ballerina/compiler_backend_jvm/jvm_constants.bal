@@ -260,5 +260,5 @@ const string TYPES_ERROR =  "typeError";
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
 
 // code generation related constants.
-const string INIT_CLASS_NAME = "___init";
+const string MODULE_INIT_CLASS_NAME = "___init";
 const string BAL_EXTENSION = ".bal";
