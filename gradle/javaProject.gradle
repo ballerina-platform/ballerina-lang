@@ -160,3 +160,9 @@ test {
         exceptionFormat "full"
     }
 }
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
