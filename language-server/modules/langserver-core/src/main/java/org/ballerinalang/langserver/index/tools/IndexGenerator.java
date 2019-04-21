@@ -18,8 +18,6 @@
 package org.ballerinalang.langserver.index.tools;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSContextManager;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.index.DTOUtil;
 import org.ballerinalang.langserver.index.LSIndexException;
 import org.ballerinalang.langserver.index.LSIndexImpl;
@@ -34,7 +32,6 @@ import org.ballerinalang.langserver.index.dto.BFunctionSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
-import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -42,12 +39,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,9 +55,12 @@ public class IndexGenerator {
 
     private List<BPackageSymbol> getBLangPackages() {
         List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
-        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file", "grpc", "h2",
-                "http", "io", "jms", "log", "math", "mime", "mysql", "reflect", "runtime", "sql", "openapi", "system",
-                "task", "time", "transactions", "websub"/*, "socket", "observability", "streams", "privacy"*/);
+
+        //TODO: re-enable after bir symbol enter
+//        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file", "grpc", "h2",
+//                "http", "io", "jms", "log", "math", "mime", "mysql", "reflect", "runtime", "sql", "openapi", "system",
+//                "task", "time", "transactions", "websub"/*, "socket", "observability", "streams", "privacy"*/);
+        /*
         CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
         packages.forEach(pkg -> {
             try {
@@ -72,11 +70,12 @@ public class IndexGenerator {
                 BPackageSymbol bPackageSymbol = LSPackageLoader.getPackageSymbolById(tempCompilerContext, packageID);
                 bPackageSymbols.add(bPackageSymbol);
             } catch (RuntimeException e) {
-                throw e;
+                throw new RuntimeException("Index generation failed for : " + pkg, e);
             } catch (Exception e) {
                 logger.error("Cannot Load Package: ballerina/" + pkg);
             }
         });
+        */
 
         return bPackageSymbols;
     }

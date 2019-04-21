@@ -80,7 +80,7 @@ public class Parser {
         this.pkgCache = PackageCache.getInstance(context);
     }
 
-    public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath) {
+    public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath, boolean treatAsFromBalo) {
         PackageID pkgId = pkgSource.getPackageId();
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.pkgCache.put(pkgId, pkgNode);
@@ -94,9 +94,10 @@ public class Parser {
                     testablePkg.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, pkgSource.getName()), 1, 1, 1, 1);
                     pkgNode.addTestablePkg(testablePkg);
                 }
-                pkgNode.getTestablePkg().addCompilationUnit(generateCompilationUnit(sourceInput, pkgId));
+                pkgNode.getTestablePkg().addCompilationUnit(
+                        generateCompilationUnit(sourceInput, pkgId, treatAsFromBalo));
             } else {
-                pkgNode.addCompilationUnit(generateCompilationUnit(sourceInput, pkgId));
+                pkgNode.addCompilationUnit(generateCompilationUnit(sourceInput, pkgId, treatAsFromBalo));
             }
         }
         pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId,
@@ -105,7 +106,8 @@ public class Parser {
         return pkgNode;
     }
 
-    private CompilationUnitNode generateCompilationUnit(CompilerInput sourceEntry, PackageID packageID) {
+    private CompilationUnitNode generateCompilationUnit(CompilerInput sourceEntry, PackageID packageID,
+                                                        boolean treatAsFromBalo) {
         try {
             BDiagnosticSource diagnosticSrc = getDiagnosticSource(sourceEntry, packageID);
             String entryName = sourceEntry.getEntryName();
@@ -122,7 +124,7 @@ public class Parser {
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             BallerinaParser parser = new BallerinaParser(tokenStream);
             parser.setErrorHandler(getErrorStrategy(diagnosticSrc));
-            parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
+            parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc, treatAsFromBalo));
             parser.compilationUnit();
             return compUnit;
         } catch (IOException e) {
@@ -132,11 +134,13 @@ public class Parser {
 
     private BLangParserListener newListener(CommonTokenStream tokenStream,
                                             CompilationUnitNode compUnit,
-                                            BDiagnosticSource diagnosticSrc) {
+                                            BDiagnosticSource diagnosticSrc,
+                                            boolean treatAsFromBalo) {
         if (this.preserveWhitespace) {
-            return new BLangWSPreservingParserListener(this.context, tokenStream, compUnit, diagnosticSrc);
+            return new BLangWSPreservingParserListener(this.context, tokenStream, compUnit, diagnosticSrc,
+                                                       treatAsFromBalo);
         } else {
-            return new BLangParserListener(this.context, compUnit, diagnosticSrc);
+            return new BLangParserListener(this.context, compUnit, diagnosticSrc, treatAsFromBalo);
         }
     }
 

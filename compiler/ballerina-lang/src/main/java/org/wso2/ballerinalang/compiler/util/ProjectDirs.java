@@ -97,6 +97,9 @@ public class ProjectDirs {
         if (Names.DOT.value.equals(pkg)) {
             return false;
         }
+        if (sourceRoot.getFileSystem().provider() != sourcePath.getFileSystem().provider()) {
+            sourceRoot = sourcePath.getRoot();
+        }
         // Resolve package path with the source root
         Path pkgPath = sourceRoot.resolve(pkg);
         // Construct a relative path between the package path and the ballerina source file path.

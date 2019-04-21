@@ -55,7 +55,7 @@ public class LSPackageLoader {
                 bLangPackage = LSPackageCache.getInstance(context).get(packageID);
                 if (bLangPackage == null) {
                     PackageLoader pkgLoader = PackageLoader.getInstance(context);
-                    bLangPackage = pkgLoader.loadAndDefinePackage(packageID);
+                    bLangPackage = pkgLoader.loadAndDefinePackage(packageID, false);
                 }
             }
         }

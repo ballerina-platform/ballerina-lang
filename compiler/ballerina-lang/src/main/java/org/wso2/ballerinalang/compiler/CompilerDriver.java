@@ -40,9 +40,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.util.HashSet;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
-import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE;
 
 /**
  * This class drives the compilation of packages through various phases
@@ -109,14 +107,9 @@ public class CompilerDriver {
     }
 
     public void loadBuiltinPackage() {
-        // Load built-in packages.
-        if (LOAD_BUILTIN_FROM_SOURCE) {
-            BLangPackage builtInPkg = getBuiltInPackage();
-            symbolTable.builtInPackageSymbol = builtInPkg.symbol;
-        } else {
-            symbolTable.builtInPackageSymbol = pkgLoader.loadPackageSymbol(BUILTIN, null, null);
-        }
-
+        // TODO: load from bir after bir symbol enter
+        BLangPackage builtInPkg = getBuiltInPackage();
+        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
     }
 
     void loadUtilsPackage() {
@@ -257,7 +250,7 @@ public class CompilerDriver {
 
     private BLangPackage getBuiltInPackage() {
         return codegen(desugar(taintAnalyze(codeAnalyze(semAnalyzer.analyze(
-                pkgLoader.loadAndDefinePackage(SymbolTable.BUILTIN))))));
+                pkgLoader.loadAndDefinePackage(SymbolTable.BUILTIN, true))))));
     }
 
 }

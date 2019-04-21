@@ -22,5 +22,6 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
 
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
 }

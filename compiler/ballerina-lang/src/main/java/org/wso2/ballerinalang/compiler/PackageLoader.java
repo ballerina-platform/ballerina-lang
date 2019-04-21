@@ -111,7 +111,7 @@ public class PackageLoader {
     private final CompiledPackageSymbolEnter compiledPkgSymbolEnter;
     private final Names names;
     private final BLangDiagnosticLog dlog;
-    private static final boolean shouldReadBalo = true;
+    private static final boolean shouldReadBalo = false;
     private static PrintStream outStream = System.out;
 
     public static PackageLoader getInstance(CompilerContext context) {
@@ -164,7 +164,7 @@ public class PackageLoader {
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
         Converter<Path> converter = sourceDirectory.getConverter();
 
-        Repo systemRepo = new BinaryRepo(RepoUtils.getLibDir());
+        Repo systemRepo = new ZipRepo(RepoUtils.getLibDir());
         Repo remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
         Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir) : new ZipRepo(balHomeDir);
@@ -301,7 +301,7 @@ public class PackageLoader {
             return null;
         }
 
-        BLangPackage packageNode = parse(pkgId, (PackageSource) pkgEntity);
+        BLangPackage packageNode = parse(pkgId, (PackageSource) pkgEntity, false);
         if (packageNode.diagCollector.hasErrors()) {
             return packageNode;
         }
@@ -310,14 +310,14 @@ public class PackageLoader {
         return packageNode;
     }
 
-    private BLangPackage loadPackage(PackageID pkgId) {
+    private BLangPackage loadPackage(PackageID pkgId, boolean treatAsFromBalo) {
         // TODO Remove this method()
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
         }
     
-        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId));
+        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId), treatAsFromBalo);
         if (packageNode == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
@@ -327,12 +327,12 @@ public class PackageLoader {
     public BLangPackage loadAndDefinePackage(String orgName, String pkgName, String version) {
         // TODO This is used only to load the builtin package.
         PackageID pkgId = getPackageID(orgName, pkgName, version);
-        return loadAndDefinePackage(pkgId);
+        return loadAndDefinePackage(pkgId, false);
     }
 
-    public BLangPackage loadAndDefinePackage(PackageID pkgId) {
+    public BLangPackage loadAndDefinePackage(PackageID pkgId, boolean treatAsFromBalo) {
         // TODO this used only by the language server component and the above method.
-        BLangPackage bLangPackage = loadPackage(pkgId);
+        BLangPackage bLangPackage = loadPackage(pkgId, treatAsFromBalo);
         if (bLangPackage == null) {
             return null;
         }
@@ -354,13 +354,8 @@ public class PackageLoader {
             return null;
         }
 
-        if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
-            return parseAndDefine(packageId, (PackageSource) pkgEntity);
-        } else if (pkgEntity.getKind() == PackageEntity.Kind.COMPILED) {
-            return loadCompiledPackageAndDefine(packageId, (PackageBinary) pkgEntity);
-        }
-
-        return null;
+        // TODO: load from bir after bir symbol enter
+        return parseAndDefine(packageId, (PackageSource) pkgEntity);
     }
 
 
@@ -406,7 +401,7 @@ public class PackageLoader {
 
     private BPackageSymbol parseAndDefine(PackageID pkgId, PackageSource pkgSource) {
         // 1) Parse the source package
-        BLangPackage pkgNode = parse(pkgId, pkgSource);
+        BLangPackage pkgNode = parse(pkgId, pkgSource, false);
         return define(pkgNode);
     }
 
@@ -420,18 +415,18 @@ public class PackageLoader {
         return pkgNode.symbol;
     }
 
-    private BLangPackage loadPackageFromEntity(PackageID pkgId, PackageEntity pkgEntity) {
+    private BLangPackage loadPackageFromEntity(PackageID pkgId, PackageEntity pkgEntity, boolean treatAsFromBalo) {
         if (pkgEntity == null) {
             return null;
         }
 
-        BLangPackage bLangPackage = parse(pkgId, (PackageSource) pkgEntity);
+        BLangPackage bLangPackage = parse(pkgId, (PackageSource) pkgEntity, treatAsFromBalo);
         this.packageCache.put(pkgId, bLangPackage);
         return bLangPackage;
     }
 
-    private BLangPackage parse(PackageID pkgId, PackageSource pkgSource) {
-        BLangPackage packageNode = this.parser.parse(pkgSource, this.sourceDirectory.getPath());
+    private BLangPackage parse(PackageID pkgId, PackageSource pkgSource, boolean treatAsFromBalo) {
+        BLangPackage packageNode = this.parser.parse(pkgSource, this.sourceDirectory.getPath(), treatAsFromBalo);
         packageNode.packageID = pkgId;
         // Set the same packageId to the testable node
         packageNode.getTestablePkgs().forEach(testablePkg -> testablePkg.packageID = pkgId);

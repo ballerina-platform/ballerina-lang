@@ -56,8 +56,9 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
     public BLangWSPreservingParserListener(CompilerContext context,
                                            CommonTokenStream tokenStream,
                                            CompilationUnitNode compUnit,
-                                           BDiagnosticSource diagnosticSrc) {
-        super(context, compUnit, diagnosticSrc);
+                                           BDiagnosticSource diagnosticSrc,
+                                           boolean treatAsFromBalo) {
+        super(context, compUnit, diagnosticSrc, treatAsFromBalo);
         this.tokenStream = tokenStream;
         this.compUnit = compUnit;
         createNewRange(-1); // a fake range, repressions stuff before CompilationUnit.

@@ -73,8 +73,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private boolean isInErrorState = false;
     private boolean enableExperimentalFeatures;
     private boolean isSiddhiRuntimeEnabled;
+    private boolean treatAsFromBalo;
 
-    BLangParserListener(CompilerContext context, CompilationUnitNode compUnit, BDiagnosticSource diagnosticSource) {
+    BLangParserListener(CompilerContext context, CompilationUnitNode compUnit, BDiagnosticSource diagnosticSource,
+                        boolean treatAsFromBalo) {
+        this.treatAsFromBalo = treatAsFromBalo;
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -3410,7 +3413,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     private void checkTypeValidity(String typeName, DiagnosticPos pos) {
-        if (enableExperimentalFeatures) {
+        if (enableExperimentalFeatures || treatAsFromBalo) {
             return;
         }
 
@@ -3421,7 +3424,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     private void checkExperimentalFeatureValidity(String constructName, DiagnosticPos pos) {
-        if (enableExperimentalFeatures) {
+        if (enableExperimentalFeatures || treatAsFromBalo) {
             return;
         }
 
