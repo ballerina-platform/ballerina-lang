@@ -983,8 +983,7 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs is bir:Function?[]) {
             foreach var func in attachedFuncs {
-                generateFrameClassForFunction(pkgName, func, pkgEntries,
-                                              attachedType=typeDef.typeValue);
+                generateFrameClassForFunction(pkgName, func, pkgEntries, attachedType=typeDef.typeValue);
             }
         }
     }

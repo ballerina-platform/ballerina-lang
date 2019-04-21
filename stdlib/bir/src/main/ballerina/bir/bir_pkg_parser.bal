@@ -262,6 +262,6 @@ public function parseDiagnosticPos(BirChannelReader reader) returns DiagnosticPo
     int sCol = reader.readInt32();
     int eCol = reader.readInt32();
     string sourceFileName = reader.readStringCpRef();
-    return { sLine:sLine, eLine:eLine, sCol:sCol, eCol:eCol, sourceFileName:sourceFileName};
+    return { sLine:sLine, eLine:eLine, sCol:sCol, eCol:eCol, sourceFileName:sourceFileName };
 }
 

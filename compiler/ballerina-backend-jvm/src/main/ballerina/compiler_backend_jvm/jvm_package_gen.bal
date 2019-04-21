@@ -49,7 +49,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     string sourceFileName = module.name.value;
 
     typeOwnerClass = getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
-    map<JavaClass> jvmClassMap = getFilteredJavaClassMap(module, pkgName, typeOwnerClass, untaint lambdas);
+    map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, untaint lambdas);
 
     // generate object value classes
     ObjectGenerator objGen = new(module);
@@ -77,7 +77,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
         foreach var func in v.functions {
             generateMethod(getFunction(func), cw, module);
         }
-        // generate lambdas
+        // generate lambdas created during generating methods
         foreach var (name, call) in lambdas {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
@@ -97,7 +97,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     string pkgName = getPackageName(orgName, moduleName);
 
     typeOwnerClass = getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
-    map<JavaClass> jvmClassMap = getFilteredJavaClassMap(module, pkgName, typeOwnerClass, untaint lambdas);
+    map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, untaint lambdas);
 
     // generate object value classes
     ObjectGenerator objGen = new(module);
@@ -194,14 +194,18 @@ function cleanupName(string name) returns string {
     return name.replace(".","_");
 }
 
-# Java Class will be generate for each source file. This method filters the functions, type defs and catagorize based
-# on their source file name and then returns map of associated java class contents.
+
+
+# Java Class will be generate for each source file. This method add class mappings to globalVar and filters the 
+# functions based on their source file name and then returns map of associated java class contents.
 #
 # + module - The module
+# + pkgName - The module package Name
+# + initClass - The module init class
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
-function getFilteredJavaClassMap(bir:Package module, string pkgName, string initClass,
-                              map<(bir:AsyncCall,string)> lambdaCalls) returns map<JavaClass> {
+function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
+                                 map<(bir:AsyncCall,string)> lambdaCalls) returns map<JavaClass> {
     
     string orgName = module.org.value;
     string moduleName = module.name.value;
@@ -221,7 +225,7 @@ function getFilteredJavaClassMap(bir:Package module, string pkgName, string init
             if (javaClass is JavaClass) {
                 javaClass.functions[javaClass.functions.length()] = func;
             } else {
-                JavaClass class = {sourceFileName:balFileName, moduleClass:moduleClass};
+                JavaClass class = { sourceFileName:balFileName, moduleClass:moduleClass };
                 class.functions[0] = func;
                 jvmClassMap[moduleClass] = class;
             }
