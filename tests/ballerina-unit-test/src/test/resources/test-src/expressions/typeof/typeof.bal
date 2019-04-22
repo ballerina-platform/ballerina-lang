@@ -15,14 +15,29 @@
 // under the License.
 
 
-type R record {
+type RecType0 record {
     string name;
 };
 
 function typeDescOfARecord() returns typedesc {
-    R i = { name: "theName"};
+    RecType0 i = { name: "theName"};
     typedesc td0 = typeof i;
     return td0;
+}
+
+type Obj0 object {
+    string a;
+    int b;
+
+    function __init(string a, int b) {
+        self.a = a;
+        self.b = b;
+    }
+};
+
+function typeDescOrAObject() returns typedesc {
+    Obj0 o = new("name", 42);
+    return typeof o;
 }
 
 function typeDescOfLiterals() returns

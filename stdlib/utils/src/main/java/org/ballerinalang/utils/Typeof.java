@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Return typedesc value of a given BValue
+ * Return typedesc value of a given BValue.
  *
  * @since 0.995
  */

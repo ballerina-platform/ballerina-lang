@@ -64,6 +64,18 @@ public class TypeofOverLiteralExpression {
     }
 
     @Test
+    public void getTypeDescOfASimpleRecordType() {
+        BValue[] res = BRunUtil.invoke(result, "typeDescOfARecord");
+        Assert.assertEquals(res[0].stringValue(), "RecType0");
+    }
+
+    @Test
+    public void getTypeDescOfASimpleObjectType() {
+        BValue[] res = BRunUtil.invoke(result, "typeDescOrAObject");
+        Assert.assertEquals(res[0].stringValue(), "Obj0");
+    }
+
+    @Test
     public void testUsingTypeofOperatorAsRestArgs() {
         BValue[] res = BRunUtil.invoke(result, "passTypeofAsRestParams");
         Assert.assertEquals(res[0].stringValue(), "int");
