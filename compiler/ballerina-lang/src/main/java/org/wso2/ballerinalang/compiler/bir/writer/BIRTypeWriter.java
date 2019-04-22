@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -199,8 +200,14 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BRecordType bRecordType) {
+        BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) bRecordType.tsymbol;
+        if (writeSelfRef(tsymbol)) {
+            return;
+        }
+        compositeStack.push(tsymbol);
+
         buff.writeByte(bRecordType.tag);
-        buff.writeInt(addStringCPEntry(bRecordType.tsymbol.name.value));
+        buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeBoolean(bRecordType.sealed);
         bRecordType.restFieldType.accept(this);
         buff.writeInt(bRecordType.fields.size());
@@ -209,6 +216,8 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeInt(addStringCPEntry(field.name.value));
             field.type.accept(this);
         }
+        
+        compositeStack.pop();
     }
 
     @Override

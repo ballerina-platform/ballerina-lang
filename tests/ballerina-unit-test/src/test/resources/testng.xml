@@ -111,7 +111,6 @@ under the License.
             </class>
             <class name="org.ballerinalang.test.object.AnonymousObjectTest" />
             <class name="org.ballerinalang.test.object.ObjectEquivalencyNegativeTest" />
-            <class name="org.ballerinalang.test.object.ObjectEquivalencyNegativeTest" />
             <class name="org.ballerinalang.test.object.AbstractObjectTest">
                 <methods>
                     <!-- Fails because index based access is not implemented -->

@@ -49,6 +49,18 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
         generateUserDefinedTypes(mv, module.typeDefs);
+
+        if (!"".equalsIgnoreCase(currentPackageName)) {
+            mv.visitTypeInsn(NEW, typeOwnerClass);
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
+            mv.visitVarInsn(ASTORE, 1);
+            mv.visitLdcInsn(currentPackageName);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", VALUE_CREATOR), "addValueCreator",
+                                    io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
+        }
+
     }
 
     // generate method body
@@ -235,17 +247,14 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     localVarOffset);
         } else if (terminator is bir:AsyncCall) {
             termGen.genAsyncCallTerm(terminator, funcName);
-            // testing with yield
-            // mv.visitVarInsn(ALOAD, 0);
-            // mv.visitInsn(ICONST_1);
-            // mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
-            // termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
         } else if (terminator is bir:Branch) {
             termGen.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
             termGen.genReturnTerm(terminator, returnVarRefIndex, func);
         } else if (terminator is bir:Panic) {
             termGen.genPanicIns(terminator);
+        } else if (terminator is bir:Wait) {
+            termGen.generateWaitIns(terminator, funcName);
         }
         // set next error entry after visiting current error entry.
         if (isTrapped) {
@@ -257,7 +266,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         j += 1;
     }
 
-    string frameName = getFrameClassName(currentPackageName, currentPackageName, attachedType);
+    string frameName = getFrameClassName(currentPackageName, funcName, attachedType);
     mv.visitLabel(resumeLable);
     mv.visitVarInsn(ALOAD, localVarOffset);
     mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "frames", "[Ljava/lang/Object;");
@@ -972,7 +981,7 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, (), OBJECT, ());
-    generateDefaultConstructor(cw);
+    generateDefaultConstructor(cw, OBJECT);
 
     int k = 0;
     bir:VariableDcl?[] localVars = currentFunc.localVars;
@@ -980,7 +989,7 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         bir:BType bType = localVar.typeValue;
         var fieldName = localVar.name.value.replace("%","_");
-        generateField(cw, bType, fieldName);
+        generateField(cw, bType, fieldName, false);
         k = k + 1;
     }
 
@@ -1005,7 +1014,7 @@ function cleanupTypeName(string name) returns string {
     return name.replace("$","_");
 }
 
-function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName) {
+function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, boolean isPackage) {
     string typeSig;
     if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
         typeSig = "J";
@@ -1041,15 +1050,20 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName) {
         panic err;
     }
 
-    jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, fieldName, typeSig);
+    jvm:FieldVisitor fv;
+    if (isPackage) {
+        fv = cw.visitField(ACC_STATIC, fieldName, typeSig);
+    } else {
+        fv = cw.visitField(ACC_PROTECTED, fieldName, typeSig);
+    }
     fv.visitEnd();
 }
 
-function generateDefaultConstructor(jvm:ClassWriter cw) {
+function generateDefaultConstructor(jvm:ClassWriter cw, string ownerClass) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", (), ());
     mv.visitCode();
     mv.visitVarInsn(ALOAD, 0);
-    mv.visitMethodInsn(INVOKESPECIAL, OBJECT, "<init>", "()V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, ownerClass, "<init>", "()V", false);
     mv.visitInsn(RETURN);
     mv.visitMaxs(1, 1);
     mv.visitEnd();
