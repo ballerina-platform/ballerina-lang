@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.completions.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.resolvers.CompletionItemsContext;
+import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
@@ -44,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.ballerinalang.langserver.completions.util.SourcePruner.searchTokenAtCursor;
+import static org.ballerinalang.langserver.sourceprune.SourcePruner.searchTokenAtCursor;
 
 /**
  * Common utility methods for the completion operation.
@@ -122,6 +123,4 @@ public class CompletionUtil {
         
         return tokenStream.getText();
     }
-
-    
 }

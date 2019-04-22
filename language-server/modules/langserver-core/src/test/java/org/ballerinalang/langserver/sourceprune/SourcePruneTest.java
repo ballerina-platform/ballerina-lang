@@ -97,21 +97,39 @@ public class SourcePruneTest {
     @DataProvider
     public Object[][] testDataProvider() {
         return new Object[][] {
-//                {"src_prune_config1.json"},
+                {"src_prune_config1.json"},
                 // Top Level
-//                {"src_prune_config2.json"},
+                {"src_prune_config2.json"},
                 // Import statement and xml namespace are similar
-//                {"src_prune_config3.json"},
-//                {"src_prune_config4.json"},
-//                {"src_prune_config5.json"},
-//                {"src_prune_config6.json"},
+                {"src_prune_config3.json"},
+                {"src_prune_config4.json"},
+                {"src_prune_config5.json"},
+                {"src_prune_config6.json"},
                 // Annotation attachments
-//                {"src_prune_config7.json"},
-//                {"src_prune_config8.json"},
-//                {"src_prune_config9.json"},
-//                {"src_prune_config10.json"},
+                {"src_prune_config7.json"},
+                {"src_prune_config8.json"},
+                {"src_prune_config9.json"},
+                {"src_prune_config10.json"},
                 {"src_prune_config11.json"},
-                
+                {"src_prune_config12.json"},
+                // Service definition
+                {"src_prune_config13.json"},
+                {"src_prune_config14.json"},
+                {"src_prune_config15.json"},
+                {"src_prune_config16.json"},
+                // Function Definition
+                {"src_prune_config17.json"},
+                {"src_prune_config18.json"},
+                {"src_prune_config19.json"},
+                {"src_prune_config20.json"},
+                {"src_prune_config21.json"},
+                // Type Definition
+                {"src_prune_config22.json"},
+                {"src_prune_config23.json"},
+                {"src_prune_config24.json"},
+                // Annotation Definition
+                {"src_prune_config25.json"},
+                {"src_prune_config26.json"},
         };
     }
 }

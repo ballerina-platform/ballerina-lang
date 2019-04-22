@@ -13,16 +13,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package org.ballerinalang.langserver.completions.util;
+package org.ballerinalang.langserver.sourceprune;
 
-import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,22 +28,29 @@ import java.util.Optional;
  *
  * @since 0.995.0
  */
-class SourcePruner {
+public class SourcePruner {
     private static final List<Integer> LHS_TRAVERSE_TERMINALS;
     private static final List<Integer> RHS_TRAVERSE_TERMINALS;
-
+    private static final List<Integer> DEFINITION_KW_TERMINALS;
+    
     static {
-        LHS_TRAVERSE_TERMINALS = Arrays.asList(BallerinaParser.LEFT_BRACE, BallerinaParser.RIGHT_BRACE,
-                BallerinaParser.SEMICOLON, BallerinaParser.COMMA);
-        RHS_TRAVERSE_TERMINALS = Arrays.asList(
+        LHS_TRAVERSE_TERMINALS = Arrays.asList(
                 BallerinaParser.LEFT_BRACE, BallerinaParser.RIGHT_BRACE, BallerinaParser.SEMICOLON,
-                BallerinaParser.COMMA, BallerinaParser.IMPORT, BallerinaParser.XMLNS,
-                BallerinaParser.DocumentationLineStart, BallerinaParser.AT, BallerinaParser.SERVICE,
-                BallerinaParser.PUBLIC, BallerinaParser.PRIVATE, BallerinaParser.REMOTE, BallerinaParser.FUNCTION,
-                BallerinaParser.TYPE, BallerinaParser.ANNOTATION, BallerinaParser.CONST
+                BallerinaParser.COMMA, BallerinaParser.LEFT_PARENTHESIS, BallerinaParser.RIGHT_PARENTHESIS,
+                BallerinaParser.LT
+        );
+        RHS_TRAVERSE_TERMINALS = Arrays.asList(
+                BallerinaParser.SEMICOLON, BallerinaParser.COMMA, BallerinaParser.DocumentationLineStart,
+                BallerinaParser.AT, BallerinaParser.LEFT_BRACE, BallerinaParser.RIGHT_BRACE, 
+                BallerinaParser.RIGHT_PARENTHESIS, BallerinaParser.IMPORT, BallerinaParser.GT,
+                BallerinaParser.XMLNS, BallerinaParser.SERVICE, BallerinaParser.PUBLIC, BallerinaParser.PRIVATE,
+                BallerinaParser.REMOTE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.ANNOTATION,
+                BallerinaParser.CONST
+        );
+        DEFINITION_KW_TERMINALS = Arrays.asList(
+                BallerinaParser.SERVICE, BallerinaParser.FUNCTION, BallerinaParser.TYPE
         );
     }
-
     /**
      * Search the token at a given cursor position.
      *
@@ -55,7 +59,7 @@ class SourcePruner {
      * @param cCol      cursor column
      * @return {@link Optional<Token>}
      */
-    static Optional<Token> searchTokenAtCursor(List<Token> tokenList, int cLine, int cCol) {
+    public static Optional<Token> searchTokenAtCursor(List<Token> tokenList, int cLine, int cCol) {
         if (tokenList.isEmpty()) {
             return Optional.empty();
         }
@@ -78,55 +82,11 @@ class SourcePruner {
         if (tokenIndex < 0 || tokenIndex >= tokenStream.size()) {
             return;
         }
-        traverseLHS(tokenStream, tokenIndex);
-        traverseRHS(tokenStream, tokenIndex);
-    }
-
-    private static void traverseLHS(TokenStream tokenStream, int tokenIndex) {
-        Optional<Token> token = Optional.of(tokenStream.get(tokenIndex));
-        while (token.isPresent()) {
-            if (LHS_TRAVERSE_TERMINALS.contains(token.get().getType())) {
-                handleLHSTerminalTokenText(token.get());
-                break;
-            }
-            alterTokenText(token.get());
-            token = CommonUtil.getPreviousDefaultToken(tokenStream, token.get().getTokenIndex());
-        }
-    }
-
-    private static void traverseRHS(TokenStream tokenStream, int tokenIndex) {
-        Optional<Token> token = Optional.of(tokenStream.get(tokenIndex));
-        while (token.isPresent()) {
-            if (RHS_TRAVERSE_TERMINALS.contains(token.get().getType())) {
-                handleRHSTerminalTokenText(token.get());
-                break;
-            }
-            alterTokenText(token.get());
-            token = CommonUtil.getNextDefaultToken(tokenStream, token.get().getTokenIndex());
-        }
-    }
-
-    private static void handleRHSTerminalTokenText(Token token) {
-        if (token.getType() == BallerinaParser.SEMICOLON || token.getType() == BallerinaParser.COMMA) {
-            ((CommonToken) token).setText(getNCharLengthEmptyLine(token.getText().length()));
-        }
-    }
-
-    private static void handleLHSTerminalTokenText(Token token) {
-        if (token.getType() == BallerinaParser.COMMA) {
-            ((CommonToken) token).setText(getNCharLengthEmptyLine(token.getText().length()));
-        }
-    }
-
-    private static String getNCharLengthEmptyLine(int n) {
-        return String.join("", Collections.nCopies(n, " "));
-    }
-    
-    private static void alterTokenText(Token token) {
-        if (token.getType() == BallerinaParser.NEW_LINE) {
-            return;
-        }
-        ((CommonToken) token).setText(getNCharLengthEmptyLine(token.getText().length()));
+        LHSTokenTraverser lhsTokenTraverser = new LHSTokenTraverser(LHS_TRAVERSE_TERMINALS, DEFINITION_KW_TERMINALS);
+        lhsTokenTraverser.traverseLHS(tokenStream, tokenIndex);
+        int lhsLTTokenCount = lhsTokenTraverser.getLessThanSymbolCount();
+        new RHSTokenTraverser(RHS_TRAVERSE_TERMINALS, lhsTokenTraverser.isRemoveDefinition(), lhsLTTokenCount)
+                .traverseRHS(tokenStream, tokenIndex);
     }
 
     private static TokenPosition locateCursorAtToken(Token token, int cLine, int cCol) {
@@ -139,7 +99,7 @@ class SourcePruner {
         Token which is considered as the token at cursor is the token immediate before the cursor,
          where its end column is cursor column 
          */
-        if (tokenLine == cLine && tokenEndCol == cCol && token.getType() != BallerinaParser.NEW_LINE) {
+        if (tokenLine == cLine && tokenStartCol < cCol && tokenEndCol >= cCol && token.getType() != BallerinaParser.NEW_LINE) {
             return TokenPosition.ON;
         } else if (cLine > tokenLine || (tokenLine == cLine && cCol > tokenEndCol)) {
             return TokenPosition.RIGHT;
