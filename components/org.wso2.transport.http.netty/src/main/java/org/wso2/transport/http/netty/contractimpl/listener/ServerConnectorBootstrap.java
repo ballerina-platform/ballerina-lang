@@ -207,7 +207,7 @@ public class ServerConnectorBootstrap {
             serverConnectorFuture = new HttpWsServerConnectorFuture(channelFuture, allChannels);
             channelFuture.addListener(future -> {
                 if (future.isSuccess()) {
-                    log.info("HTTP(S) Interface starting on host {} and port {}", getPort(), getPort());
+                    log.info("HTTP(S) Interface starting on host {} and port {}", getHost(), getPort());
                     serverConnectorFuture.notifyPortBindingEvent(this.connectorID, isHttps);
                 } else {
                     serverConnectorFuture.notifyPortBindingError(future.cause());
