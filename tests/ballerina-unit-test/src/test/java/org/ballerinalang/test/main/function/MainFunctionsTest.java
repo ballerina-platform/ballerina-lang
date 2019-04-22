@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -37,10 +36,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Paths;
-import java.util.Objects;
 
 import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -162,8 +159,6 @@ public class MainFunctionsTest {
     }
 
     private BValue[] runMain(ProgramFile programFile, String[] args) {
-        FunctionInfo mainFunc = Objects.requireNonNull(programFile).getEntryPackage().getFunctionInfo(
-                MAIN_FUNCTION_NAME);
-        return BLangProgramRunner.runProgram(programFile, mainFunc, args);
+        return new BValue[]{BLangProgramRunner.runProgram(programFile, args)};
     }
 }

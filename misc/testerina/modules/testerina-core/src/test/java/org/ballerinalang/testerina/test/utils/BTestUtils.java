@@ -189,7 +189,7 @@ public class BTestUtils {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        return BLangProgramRunner.runProgram(programFile, functionInfo, args);
+        return new BValue[]{BLangProgramRunner.runProgram(programFile, args)};
     }
 
     /**
@@ -229,7 +229,7 @@ public class BTestUtils {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        return BLangProgramRunner.runProgram(programFile, functionInfo, args);
+        return new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
     }
 
     /**

@@ -97,9 +97,9 @@ public class JVMCodeGen {
         args[3] = new BString(FileUtils.cleanupFileExtension(packagePath));
 
         FunctionInfo functionInfo = programFile.getEntryPackage().getFunctionInfo(functionName);
-        BValue[] result = BLangProgramRunner.runProgram(programFile, functionInfo, args);
+        BValue result = BLangProgramRunner.runProgram(programFile, functionInfo, args);
 
-        Map<String, BValue> jarEntries = ((BMap<String, BValue>) result[0]).getMap();
+        Map<String, BValue> jarEntries = ((BMap<String, BValue>) result).getMap();
         try {
             return getJarContent(jarEntries);
         } catch (IOException e) {

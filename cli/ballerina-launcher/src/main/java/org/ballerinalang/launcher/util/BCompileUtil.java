@@ -79,7 +79,7 @@ public class BCompileUtil {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException(compileResult.toString());
         }
-        BLangProgramRunner.runProgram(compileResult.getProgFile());
+        BLangProgramRunner.runProgram(compileResult.getProgFile(), new BValue[0]);
         return compileResult;
     }
 
@@ -96,7 +96,7 @@ public class BCompileUtil {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException(compileResult.toString());
         }
-        BLangProgramRunner.runProgram(compileResult.getProgFile());
+        BLangProgramRunner.runProgram(compileResult.getProgFile(), new BValue[0]);
         return compileResult;
     }
 

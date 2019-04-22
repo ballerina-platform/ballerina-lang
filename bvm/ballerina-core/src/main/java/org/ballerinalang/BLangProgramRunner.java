@@ -21,16 +21,17 @@ import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.bvm.BVMScheduler;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.RecoveryTask;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
-import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 
 import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 import static org.ballerinalang.util.cli.ArgumentParser.extractEntryFuncArgs;
@@ -41,71 +42,57 @@ import static org.ballerinalang.util.cli.ArgumentParser.extractEntryFuncArgs;
  */
 public class BLangProgramRunner {
 
-    public static BValue[] runProgram(ProgramFile programFile, FunctionInfo functionInfo, String[] args) {
-        BValue[] bValArgs;
-        if (functionInfo != null) {
-            bValArgs = extractEntryFuncArgs(functionInfo, args);
-        } else {
-            bValArgs = new BValue[0];
-        }
-        return runProgram(programFile, functionInfo, bValArgs);
-    }
-
-    public static BValue[] runProgram(ProgramFile programFile, FunctionInfo functionInfo, BValue... args) {
-        Debugger debugger = new Debugger(programFile);
-        initDebugger(programFile, debugger);
-        return runProgram(programFile, debugger, functionInfo, args);
-    }
-
-    public static BValue[] runProgram(ProgramFile programFile, Debugger debugger, FunctionInfo functionInfo,
-                                      BValue... args) {
-        BVMExecutor.invokePackageInitFunctions(programFile);
-
-        BValue[] returnVal = null;
-
-        if (functionInfo != null) {
-            returnVal = runMainFunc(programFile, functionInfo, args, debugger);
-        }
-
-        if (returnVal != null && returnVal[0] != null && returnVal[0].getType().getTag() == TypeTags.ERROR_TAG) {
-            return returnVal;
-        }
-
-        if (programFile.isServiceEPAvailable()) {
-            executeListenPhase(programFile);
-        }
-        return returnVal;
-    }
-
-    public static BValue[] runProgram(ProgramFile programFile, String... args) {
-        return runProgram(programFile, null, args);
-    }
-
-    public static BValue[] runProgram(ProgramFile programFile, BValue... args) {
-        return runProgram(programFile, null, args);
-    }
-
-    public static BValue[] runProgram(ProgramFile programFile) {
-        return runProgram(programFile, null, new BValue[0]);
-    }
-
-    public static void resumeStates(ProgramFile programFile) {
-        new Thread(new RecoveryTask(programFile)).start();
-    }
-
-    public static BValue[] runMainFunc(ProgramFile programFile, FunctionInfo functionInfo, BValue[] args,
-                                       Debugger debugger) {
-        BValue[] entryFuncResult;
-        boolean mainRunSuccessful = false;
-
+    /**
+     * API for executing a Ballerina program with a function named main() executed as the main phase.
+     *
+     * @param programFile Program to be executed
+     * @param args        Arguments to the program as a String array
+     * @return The value returned from the main() function
+     */
+    public static BValue runProgram(ProgramFile programFile, String[] args) {
         PackageInfo entryPkgInfo = programFile.getEntryPackage();
         if (entryPkgInfo == null) {
             throw new BallerinaException("entry module not found in  '" + programFile.getProgramFilePath() + "'");
         }
+        FunctionInfo mainFunction = entryPkgInfo.getFunctionInfo(MAIN_FUNCTION_NAME);
+        BValue[] bValArgs = parseEntryFuncArgs(mainFunction, args);
+        return runProgram(programFile, mainFunction, bValArgs);
+    }
 
+    /**
+     * API for executing a Ballerina program with a function named main() executed as the main phase.
+     *
+     * @param programFile Program to be executed
+     * @param args        Arguments to the program as a BValue array
+     * @return The value returned from the main() function
+     */
+    public static BValue runProgram(ProgramFile programFile, BValue[] args) {
+        PackageInfo entryPkgInfo = programFile.getEntryPackage();
+        if (entryPkgInfo == null) {
+            throw new BallerinaException("entry module not found in  '" + programFile.getProgramFilePath() + "'");
+        }
+        FunctionInfo mainFunction = entryPkgInfo.getFunctionInfo(MAIN_FUNCTION_NAME);
+        return runProgram(programFile, mainFunction, args);
+    }
+
+    /**
+     * API for executing a Ballerina program with the provided function as the function to be executed in the main
+     * phase.
+     *
+     * @param programFile   Program to be executed
+     * @param debugger      A Debugger instance to be used with the program
+     * @param entryFunction Function to be executed in the main phase
+     * @param args          Arguments for the program
+     * @return Value returned from the entry function during main phase
+     */
+    public static BValue runProgram(ProgramFile programFile, Debugger debugger, FunctionInfo entryFunction,
+                                    BValue... args) {
+        BVMExecutor.invokePackageInitFunctions(programFile);
+
+        BValue returnVal;
+        boolean mainRunSuccessful = false;
         try {
-            entryFuncResult = BVMExecutor.executeFunction(programFile, functionInfo, args);
-            BVMScheduler.waitForStrandCompletion();
+            returnVal = runMainFunction(programFile, entryFunction, args);
             mainRunSuccessful = true;
         } finally {
             if (!mainRunSuccessful || !programFile.isServiceEPAvailable()) {
@@ -115,7 +102,41 @@ public class BLangProgramRunner {
                 BVMExecutor.stopProgramFile(programFile);
             }
         }
-        return entryFuncResult;
+
+        if (returnVal != null && returnVal.getType().getTag() == TypeTags.ERROR_TAG) {
+            if (debugger.isDebugEnabled()) {
+                debugger.notifyExit();
+            }
+            BVMExecutor.stopProgramFile(programFile);
+            return returnVal;
+        }
+
+        if (programFile.isServiceEPAvailable()) {
+            executeListenPhase(programFile);
+        }
+
+        return returnVal;
+    }
+
+    // TODO: 4/22/19 Remove this/make this private
+    @Deprecated
+    public static BValue runProgram(ProgramFile programFile, FunctionInfo entryFunction, BValue... args) {
+        Debugger debugger = new Debugger(programFile);
+        initDebugger(programFile, debugger);
+        return runProgram(programFile, debugger, entryFunction, args);
+    }
+
+    public static void resumeStates(ProgramFile programFile) {
+        new Thread(new RecoveryTask(programFile)).start();
+    }
+
+    private static BValue runMainFunction(ProgramFile programFile, FunctionInfo entryFunction, BValue[] args) {
+        if (entryFunction == null) {
+            return null;
+        }
+        BValue[] entryFuncResult = BVMExecutor.executeFunction(programFile, entryFunction, args);
+        BVMScheduler.waitForStrandCompletion();
+        return entryFuncResult[0];
     }
 
     private static void initDebugger(ProgramFile programFile, Debugger debugger) {
@@ -124,16 +145,6 @@ public class BLangProgramRunner {
             debugger.init();
             debugger.waitTillDebuggeeResponds();
         }
-    }
-
-    public static FunctionInfo getMainFunctionInfo(PackageInfo entryPkgInfo) {
-        String errorMsg = "'main' function not found in '" + entryPkgInfo.getProgramFile().getProgramFilePath() + "'";
-
-        FunctionInfo functionInfo = entryPkgInfo.getFunctionInfo(MAIN_FUNCTION_NAME);
-        if (functionInfo == null) {
-            throw new BLangUsageException(errorMsg);
-        }
-        return functionInfo;
     }
 
     private static void executeListenPhase(ProgramFile programFile) {
@@ -147,5 +158,15 @@ public class BLangProgramRunner {
         BVMExecutor.invokePackageStartFunctions(programFile);
 
         serverConnectorRegistry.deploymentComplete();
+    }
+
+    private static BValue[] parseEntryFuncArgs(FunctionInfo entryFunction, String[] args) {
+        BValue[] bValArgs;
+        if (entryFunction != null) {
+            bValArgs = extractEntryFuncArgs(entryFunction, args);
+        } else {
+            bValArgs = Arrays.stream(args).map(BString::new).toArray(BValue[]::new);
+        }
+        return bValArgs;
     }
 }

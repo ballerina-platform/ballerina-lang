@@ -19,7 +19,6 @@ package org.ballerinalang.test.main.function;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -31,9 +30,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Paths;
-import java.util.Objects;
-
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Test class for entry function argument parsing positive scenarios.
@@ -317,8 +313,6 @@ public class ArgumentParserPositiveTest {
     }
 
     private void runMain(ProgramFile programFile, String[] args) {
-        FunctionInfo mainFunc = Objects.requireNonNull(programFile).getEntryPackage().getFunctionInfo(
-                MAIN_FUNCTION_NAME);
-        BLangProgramRunner.runProgram(programFile, mainFunc, args);
+        BLangProgramRunner.runProgram(programFile, args);
     }
 }

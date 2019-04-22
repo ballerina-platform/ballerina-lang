@@ -133,7 +133,7 @@ public class BRunUtil {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        BValue[] response = BLangProgramRunner.runProgram(programFile, functionInfo, args);
+        BValue[] response = new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
 
         return spreadToBValueArray(response);
     }
@@ -184,7 +184,7 @@ public class BRunUtil {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        return BLangProgramRunner.runProgram(programFile, functionInfo, args);
+        return new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
     }
 
     /**

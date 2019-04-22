@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.LaunchListener;
-import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -75,7 +74,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -390,12 +388,11 @@ public class LauncherUtils {
     }
 
     private static int executeCompiledProgram(ProgramFile programFile, String[] args) {
-        FunctionInfo mainFunc = programFile.getEntryPackage().getFunctionInfo(MAIN_FUNCTION_NAME);
-        BValue[] result = BLangProgramRunner.runProgram(programFile, mainFunc, args);
+        BValue result = BLangProgramRunner.runProgram(programFile, args);
 
-        if (result != null && result[0] != null && result[0].getType().getTag() == TypeTags.ERROR) {
+        if (result != null && result.getType().getTag() == TypeTags.ERROR) {
             // If an error occurred on main function execution, the program should terminate.
-            BError returnedError = (BError) result[0];
+            BError returnedError = (BError) result;
             errStream.print(prepareErrorReturnedErrorMessage(returnedError));
 
             if (returnedError.getDetails() != null) {

@@ -88,8 +88,8 @@ public class TypeGenTest {
         byte[] typeBinary = serializeBType(type, cp);
         byte[] cpBinary = cp.serialize();
         try {
-            BValue[] testParseTypes = executeTestFuncInBalx(typeBinary, cpBinary);
-            Assert.assertEquals(testParseTypes[0].stringValue(), source,
+            BValue testParseTypes = executeTestFuncInBalx(typeBinary, cpBinary);
+            Assert.assertEquals(testParseTypes.stringValue(), source,
                                 "Unable to recover type info from " + Arrays.toString(typeBinary));
         } catch (Exception e) {
             throw new AssertionError("Error deserializeing" + Arrays.toString(typeBinary), e);
@@ -97,7 +97,7 @@ public class TypeGenTest {
 
     }
 
-    private BValue[] executeTestFuncInBalx(byte[] typeBinary, byte[] cpBinary) {
+    private BValue executeTestFuncInBalx(byte[] typeBinary, byte[] cpBinary) {
         BValue[] args = {new BValueArray(cpBinary), new BValueArray(typeBinary)};
 
         PackageInfo packageInfo = programFile.getPackageInfo(entryPkgName);

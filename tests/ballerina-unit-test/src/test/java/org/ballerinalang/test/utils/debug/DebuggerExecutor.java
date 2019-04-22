@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
+
 /**
  * {@link DebuggerExecutor} represents executor class which runs the main program when debugging.
  *
@@ -87,9 +89,9 @@ public class DebuggerExecutor implements Runnable {
         }
 
         // Invoke package init function
-        FunctionInfo funcInfo = BLangProgramRunner.getMainFunctionInfo(entryPkgInfo);
+        FunctionInfo mainFunction = entryPkgInfo.getFunctionInfo(MAIN_FUNCTION_NAME);
         try {
-            BLangProgramRunner.runProgram(programFile, debugger, funcInfo, arrayArgs);
+            BLangProgramRunner.runProgram(programFile, debugger, mainFunction, arrayArgs);
         } catch (Exception e) {
             log.debug("error occurred, invoking the function - " + e.getMessage(), e);
         } finally {
