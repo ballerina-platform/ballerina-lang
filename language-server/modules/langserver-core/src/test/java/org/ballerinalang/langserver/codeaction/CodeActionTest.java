@@ -148,7 +148,7 @@ public class CodeActionTest {
         Assert.assertTrue(codeActionFound, "Cannot find expected Code Action for: " + title);
     }
 
-    @Test(dataProvider = "codeaction-testgen-data-provider", enabled = false)
+    @Test(dataProvider = "codeaction-testgen-data-provider")
     public void testCodeActionWithTestGen(String config, Path source) throws IOException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -174,8 +174,9 @@ public class CodeActionTest {
             boolean codeActionFound = false;
             JsonObject responseJson = this.getResponseJson(res);
             for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
-                if (jsonElement.getAsJsonObject().get("title").toString().equals(title)
-                        && jsonElement.getAsJsonObject().get("command").toString().equals(command)) {
+                JsonElement left = jsonElement.getAsJsonObject().get("left");
+                if (left.getAsJsonObject().get("title").toString().equals(title)
+                        && left.getAsJsonObject().get("command").toString().equals(command)) {
                     codeActionFound = true;
                     break;
                 }

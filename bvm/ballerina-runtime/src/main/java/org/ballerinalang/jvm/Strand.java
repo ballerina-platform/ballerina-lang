@@ -30,4 +30,11 @@ public class Strand {
     public Object[] frames;
     public int resumeIndex;
     public Future future;
+    public boolean blocked;
+    public Strand blockedOn;
+    public Scheduler scheduler;
+
+    public Strand(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
 }

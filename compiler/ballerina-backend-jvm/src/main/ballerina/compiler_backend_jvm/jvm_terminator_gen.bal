@@ -296,14 +296,13 @@ type TerminatorGenerator object {
     
     function genAsyncCallTerm(bir:AsyncCall callIns, string funcName) {
 
-        //create a object array of args
+        // Load the scheduler from strand
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
+
+        //create an object array of args
         self.mv.visitIntInsn(BIPUSH, callIns.args.length() + 1);
         self.mv.visitTypeInsn(ANEWARRAY, OBJECT);
-        self.mv.visitInsn(DUP);
-
-        self.mv.visitInsn(ICONST_0);
-        self.mv.visitVarInsn(ALOAD, 0);
-        self.mv.visitInsn(AASTORE);
         
         int paramIndex = 1;
         foreach var arg in callIns.args {
@@ -352,12 +351,23 @@ type TerminatorGenerator object {
         string lambdaName = "$" + funcName + "$lambda$" + self.lambdaIndex + "$";
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         string methodClass = lookupFullQualifiedClassName(currentPackageName + funcName);
-        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName);
+        bir:BType futureType = callIns.lhsOp.typeValue;
+        bir:BType returnType = ();
+        if (futureType is bir:BFutureType) {
+            returnType = futureType.returnType;
+        }
+        boolean isVoid = returnType is bir:BTypeNil;
+        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid);
         lambdas[lambdaName] = (callIns, methodClass);
         self.lambdaIndex += 1;
         
-        self.mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "schedule", 
-            io:sprintf("([L%s;Ljava/util/function/Function;)L%s;", OBJECT, FUTURE_VALUE), false);
+        if (isVoid) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
+             io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
+        } else {
+             self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
+            io:sprintf("([L%s;L%s;)L%s;", OBJECT, FUNCTION, FUTURE_VALUE), false);
+        }
 
         // store return
         bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp.variableDcl;
@@ -372,6 +382,59 @@ type TerminatorGenerator object {
         // goto thenBB
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + callIns.thenBB.id.value);
         self.mv.visitJumpInsn(GOTO, gotoLabel);
+    }
+
+    function generateWaitIns(bir:Wait waitInst, string funcName) {
+        // TODO : need to fix to support multiple waits
+        bir:VarRef? futureVal = waitInst.exprList[0];
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+        if (futureVal is bir:VarRef) {
+            generateVarLoad(self.mv, futureVal.variableDcl, currentPackageName, 
+                self.getJVMIndexOfVarRef(futureVal.variableDcl));
+        }
+
+        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "isDone", "Z");
+        jvm:Label label = new;
+        self.mv.visitJumpInsn(IFNE, label);
+        jvm:Label label2 = new;
+        self.mv.visitLabel(label2);
+        // strand.blocked = true
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitFieldInsn(PUTFIELD, STRAND, "blocked", "Z");
+
+        // strand.blockedOn = future.strand
+        self.mv.visitVarInsn(ALOAD, 0);
+        if (futureVal is bir:VarRef) {
+            bir:VariableDcl? varDecl = futureVal.variableDcl;
+            if (varDecl is bir:VariableDcl) {
+                generateVarLoad(self.mv, varDecl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(varDecl));
+            }  
+        }
+        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
+        self.mv.visitFieldInsn(PUTFIELD, STRAND, "blockedOn", io:sprintf("L%s;", STRAND));
+
+        // strand.yield = true
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitFieldInsn(PUTFIELD, STRAND, "yield", "Z");
+        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
+        self.mv.visitJumpInsn(GOTO, yieldLabel);
+        self.mv.visitLabel(label);
+
+        // future.result = lhs
+        if (futureVal is bir:VarRef) {
+            bir:VariableDcl? varDecl = futureVal.variableDcl;
+            if (varDecl is bir:VariableDcl) {
+                generateVarLoad(self.mv, varDecl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(varDecl));
+            }  
+        }
+        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
+        checkCastFromObject(waitInst.lhsOp.typeValue, self.mv);
+        generateVarStore(self.mv, waitInst.lhsOp.variableDcl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(waitInst.lhsOp.variableDcl));
     }
 
     function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {

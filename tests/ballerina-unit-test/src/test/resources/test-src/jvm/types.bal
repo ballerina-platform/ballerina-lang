@@ -217,15 +217,18 @@ function acceptAnydata(anydata data) returns anydata {
 int global = 0;
 
 function futuresTest() returns anydata {
-   future<int> p = start foo("abc", 7);
+   future<()> p = start foo("abc", 7);
    future<string> p2 = start foo2("yy");
    future<string> p3 = acceptFuture(p2);
    return global;
 }
 
-public function foo(string r, int j) returns int {
+public function foo(string r, int j) {
    global = global + 100;
-   return 700;
+   int i = 0;
+   while(i < 1000) {
+       i += 1;
+   }
 }
 
 public function foo2(string k) returns string {
@@ -599,4 +602,63 @@ function testBooleanArrayToJsonAssignment() returns (json, json) {
     json j = b;
     j[3] = true;
     return (j, j[1]);
+}
+
+function waitTest() returns string {
+   future<()> p = start foo("abc", 7);
+   future<string> p2 = start foo2("wait");
+
+   string result = wait p2;
+   wait p;
+   future<string> p3 = acceptFuture(p2);
+   
+   return result;
+}
+
+string waitMultimple = "";
+
+function waitOnSame() returns (string,string,string) {
+    future<string> p1 = start foo2("wait1");
+    future<()> p = start append("00");
+    
+    string wait2 = waitAgain();
+    string p1Result = wait p1;
+
+    waitSame(p);
+    wait p;
+
+    future<()> ap = start append("22");
+    wait ap;
+
+    future<()> ap2 = start append("33");
+    wait ap2;
+
+    return (p1Result, wait2, waitMultimple);
+}
+
+function waitSame(future<()> f) {
+    wait f;
+    future<()> ap = start append("11");
+    wait ap;
+}
+
+function waitAgain() returns string {
+    future<string> p2 = start foo2("wait2");
+    string res = wait p2;
+    return res;
+}
+
+function append(string str) {
+    waitMultimple = waitMultimple + str;
+}
+
+public type Foo record {
+    int a = 3;
+    Foo? f = ();
+};
+
+public function testSelfReferencingRecord() returns Foo {
+    Foo f1 = {a:1};
+    Foo f2 = {a:2, f:f1};
+    return f2;
 }
