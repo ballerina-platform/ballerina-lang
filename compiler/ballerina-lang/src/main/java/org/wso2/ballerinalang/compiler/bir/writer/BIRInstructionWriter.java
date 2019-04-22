@@ -107,6 +107,15 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(birBranch.falseBB.id.value);
     }
 
+    public void visit(BIRTerminator.Wait waitEntry) {
+        buf.writeByte(waitEntry.kind.getValue());
+        buf.writeInt(waitEntry.exprList.size());
+        for (BIROperand expr : waitEntry.exprList) {
+            expr.accept(this);
+        }
+        waitEntry.lhsOp.accept(this);
+    }
+
 
     // Non-terminating instructions
 
@@ -262,6 +271,20 @@ public class BIRInstructionWriter extends BIRVisitor {
         birNewError.lhsOp.accept(this);
         birNewError.reasonOp.accept(this);
         birNewError.detailOp.accept(this);
+    }
+
+    public void visit(BIRNonTerminator.FPLoad fpLoad) {
+        buf.writeByte(fpLoad.kind.getValue());
+        fpLoad.lhsOp.accept(this);
+
+        PackageID pkgId = fpLoad.pkgId;
+        int orgCPIndex = addStringCPEntry(pkgId.orgName.value);
+        int nameCPIndex = addStringCPEntry(pkgId.name.value);
+        int versionCPIndex = addStringCPEntry(pkgId.version.value);
+        int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buf.writeInt(pkgIndex);
+
+        buf.writeInt(addStringCPEntry(fpLoad.funcName.getValue()));
     }
 
     public void visit(BIRTerminator.Panic birPanic) {

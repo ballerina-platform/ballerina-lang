@@ -228,6 +228,13 @@ public type FuncBodyParser object {
             var rhsOp = self.parseVarRef();
             FieldAccess xmlAttrLoad = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return xmlAttrLoad;
+        } else if (kindTag == INS_FP_LOAD) {
+            kind = INS_KIND_FP_LOAD;
+            var lhsOp = self.parseVarRef();
+            var pkgId = self.reader.readModuleIDCpRef();
+            var name = self.reader.readStringCpRef();
+            FPLoad fpLoad = {kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }};
+            return fpLoad;
         } else {
             return self.parseBinaryOpInstruction(kindTag);
         }
@@ -298,6 +305,18 @@ public type FuncBodyParser object {
             var errorOp = self.parseVarRef();
             Panic panicStmt = { kind:kind, errorOp:errorOp };
             return panicStmt;
+        } else if (kindTag == INS_WAIT) {
+            TerminatorKind kind = TERMINATOR_WAIT;
+            var exprCount = self.reader.readInt32();
+            VarRef?[] exprs = [];
+            int i = 0;
+            while (i < exprCount) {
+                exprs[i] = self.parseVarRef();
+                i += 1;
+            }
+            VarRef lhsOp = self.parseVarRef();
+            Wait waitIns = {exprList:exprs, kind:kind, lhsOp:lhsOp};
+            return waitIns;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;

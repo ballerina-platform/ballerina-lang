@@ -19,6 +19,7 @@ public const int INS_CALL = 2;
 public const int INS_BRANCH = 3;
 public const int INS_RETURN = 4;
 public const int INS_ASYNC_CALL = 5;
+public const int INS_WAIT = 6;
 
 // Non-terminating instructions
 public const int INS_MOVE = 20;
@@ -37,18 +38,19 @@ public const int INS_NEW_INST = 32;
 public const int INS_OBJECT_STORE = 33;
 public const int INS_OBJECT_LOAD = 34;
 public const int INS_PANIC = 35;
+public const int INS_FP_LOAD = 36;
 
-public const int INS_NEW_XML_ELEMENT = 36;
-public const int INS_NEW_XML_TEXT = 37;
-public const int INS_NEW_XML_COMMENT = 38;
-public const int INS_NEW_XML_PI = 39;
-public const int INS_NEW_XML_SEQ = 40;
-public const int INS_NEW_XML_QNAME = 41;
-public const int INS_NEW_STRING_XML_QNAME = 42;
-public const int INS_XML_SEQ_STORE = 43;
-public const int INS_XML_SEQ_LOAD = 44;
-public const int INS_XML_ATTRIBUTE_LOAD = 45;
-public const int INS_XML_ATTRIBUTE_STORE = 46;
+public const int INS_NEW_XML_ELEMENT = 37;
+public const int INS_NEW_XML_TEXT = 38;
+public const int INS_NEW_XML_COMMENT = 39;
+public const int INS_NEW_XML_PI = 40;
+public const int INS_NEW_XML_SEQ = 41;
+public const int INS_NEW_XML_QNAME = 42;
+public const int INS_NEW_STRING_XML_QNAME = 43;
+public const int INS_XML_SEQ_STORE = 44;
+public const int INS_XML_SEQ_LOAD = 45;
+public const int INS_XML_ATTRIBUTE_LOAD = 46;
+public const int INS_XML_ATTRIBUTE_STORE = 47;
 
 // Binary expression related instructions.
 public const int INS_ADD = 50;

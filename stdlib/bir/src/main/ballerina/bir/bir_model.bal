@@ -113,8 +113,7 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_OBJECT_LOAD | INS_KIND_NEW_XML_ELEMENT | INS_KIND_NEW_XML_QNAME |
                                 INS_KIND_NEW_STRING_XML_QNAME | INS_KIND_XML_SEQ_STORE | INS_KIND_NEW_XML_TEXT |
                                 INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
-                                INS_KIND_XML_ATTRIBUTE_LOAD;
-
+                                INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_FP_LOAD;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -122,9 +121,10 @@ public const TERMINATOR_ASYNC_CALL = "ASYNC_CALL";
 public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
 public const TERMINATOR_PANIC = "PANIC";
+public const TERMINATOR_WAIT = "WAIT";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
-                                |TERMINATOR_PANIC;
+                                |TERMINATOR_PANIC|TERMINATOR_WAIT;
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -338,6 +338,13 @@ public type NewError record {|
     VarRef detailsOp;
 |};
 
+public type FPLoad record {|
+    InstructionKind kind;
+    VarRef lhsOp;
+    ModuleID pkgID;
+    Name name;
+|};
+
 public type FieldAccess record {|
     InstructionKind kind;
     VarRef lhsOp;
@@ -381,6 +388,12 @@ public type BinaryOp record {|
     VarRef lhsOp;
     VarRef rhsOp1;
     VarRef rhsOp2;
+|};
+
+public type Wait record {|
+    TerminatorKind kind;
+    VarRef lhsOp;
+    VarRef?[] exprList;
 |};
 
 public type Call record {|

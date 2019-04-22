@@ -165,7 +165,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string mo
 function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWriter cw) {
     string varName = globalVar.name.value;
     bir:BType bType = globalVar.typeValue;
-    generateField(cw, bType, varName);
+    generateField(cw, bType, varName, true);
 }
 
 function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) returns bir:Package {
