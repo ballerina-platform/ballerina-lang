@@ -642,6 +642,15 @@ type InstructionGenerator object {
         self.generateVarStore(newXMLQName.lhsOp.variableDcl);
     }
 
+    function generateNewStringXMLQNameIns(bir:NewStringXMLQName newStringXMLQName) {
+        self.mv.visitTypeInsn(NEW, XML_QNAME);
+        self.mv.visitInsn(DUP);
+        self.generateVarLoad(newStringXMLQName.stringQNameOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESPECIAL, XML_QNAME, "<init>",
+                io:sprintf("(L%s;)V", STRING_VALUE), false);
+        self.generateVarStore(newStringXMLQName.lhsOp.variableDcl);
+    }
+
     function generateNewXMLTextIns(bir:NewXMLText newXMLText) {
         self.generateVarLoad(newXMLText.textOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLText",
@@ -684,6 +693,22 @@ type InstructionGenerator object {
         // invoke setAttribute() method
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "setAttribute",
                 io:sprintf("(L%s;L%s;)V", XML_QNAME, STRING_VALUE), false);
+    }
+
+    function generateXMLAttrLoadIns(bir:FieldAccess xmlAttrStoreIns) {
+        // visit xml_ref
+        self.generateVarLoad(xmlAttrStoreIns.rhsOp.variableDcl);
+
+        // visit attribute name expr
+        self.generateVarLoad(xmlAttrStoreIns.keyOp.variableDcl);
+
+        // invoke getAttribute() method
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttribute",
+                io:sprintf("(L%s;)L%s;", XML_QNAME, STRING_VALUE), false);
+
+        // store in the target reg
+        bir:BType targetType = xmlAttrStoreIns.lhsOp.variableDcl.typeValue;
+        self.generateVarStore(xmlAttrStoreIns.lhsOp.variableDcl);
     }
 };
 

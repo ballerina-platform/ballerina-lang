@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
@@ -291,6 +292,13 @@ public class BIRInstructionWriter extends BIRVisitor {
         newXMLQName.localnameOp.accept(this);
         newXMLQName.nsURIOp.accept(this);
         newXMLQName.prefixOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewStringXMLQName newStringXMLQName) {
+        buf.writeByte(newStringXMLQName.kind.getValue());
+        newStringXMLQName.lhsOp.accept(this);
+        newStringXMLQName.stringQNameOP.accept(this);
     }
 
     @Override

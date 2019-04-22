@@ -388,7 +388,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     /**
      * New XML QName instruction.
      * <p>
-     * e.g.: '{@code ns0:foo}' or '{@code {http://nsuri/}foo}'
+     * e.g.: {@code ns0:foo}
      * 
      * @since 0.995.0
      */
@@ -405,6 +405,29 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             this.localnameOp = localnameOp;
             this.nsURIOp = nsURIOp;
             this.prefixOp = prefixOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML QName from a string.
+     * <p>
+     * e.g.: {@code "{http://nsuri/}foo"}
+     * 
+     * @since 0.995.0
+     */
+    public static class NewStringXMLQName extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand stringQNameOP;
+
+        public NewStringXMLQName(DiagnosticPos pos, BIROperand lhsOp, BIROperand stringQName) {
+            super(pos, InstructionKind.NEW_STRING_XML_QNAME);
+            this.lhsOp = lhsOp;
+            this.stringQNameOP = stringQName;
         }
 
         @Override

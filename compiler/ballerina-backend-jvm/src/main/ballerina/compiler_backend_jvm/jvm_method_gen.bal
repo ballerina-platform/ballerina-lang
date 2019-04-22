@@ -221,6 +221,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     instGen.generateObjectLoadIns(inst);
                 } else if (inst.kind == bir:INS_KIND_XML_ATTRIBUTE_STORE) {
                     instGen.generateXMLAttrStoreIns(inst);
+                } else if (inst.kind == bir:INS_KIND_XML_ATTRIBUTE_LOAD) {
+                    instGen.generateXMLAttrLoadIns(inst);
                 } else {
                     error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                     panic err;
@@ -229,6 +231,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                 instGen.generateTypeTestIns(inst);
             } else if (inst is bir:NewXMLQName) {
                 instGen.generateNewXMLQNameIns(inst);
+            } else if (inst is bir:NewStringXMLQName) {
+                instGen.generateNewStringXMLQNameIns(inst);
             } else if (inst is bir:NewXMLElement) {
                 instGen.generateNewXMLElementIns(inst);
             } else if (inst is bir:NewXMLText) {

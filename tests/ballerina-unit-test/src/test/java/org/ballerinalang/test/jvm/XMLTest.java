@@ -49,11 +49,12 @@ public class XMLTest {
     }
 
     @Test
-    public void testInt1() {
+    public void testBasicXML() {
         BValue[] result = BRunUtil.invoke(compileResult, "testXML", new BValue[] {});
         Assert.assertEquals(result[0].stringValue(),
                 "<ns0:foo xmlns:ns0=\"http://wso2.com/\" xmlns:ns1=\"http://ballerinalang.org/\" " +
-                        "a=\"hello world\"><ns1:bar1>hello1</ns1:bar1><bar2>hello2</bar2></ns0:foo>");
+                        "a=\"hello world\" ns0:b=\"active\"><ns1:bar1>hello1</ns1:bar1><bar2>hello2</bar2></ns0:foo>");
+        Assert.assertEquals(result[1].stringValue(), "hello world");
     }
 
     @Test

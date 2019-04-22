@@ -202,6 +202,12 @@ public type FuncBodyParser object {
             NewXMLQName newXMLQName = {kind:kind, lhsOp:lhsOp, localnameOp:localnameOp, nsURIOp:nsURIOp, 
                                        prefixOp:prefixOp};
             return newXMLQName;
+        } else if (kindTag == INS_NEW_STRING_XML_QNAME) {
+            kind = INS_KIND_NEW_STRING_XML_QNAME;
+            var lhsOp = self.parseVarRef();
+            var stringQNameOp = self.parseVarRef();
+            NewStringXMLQName newStringXMLQName = {kind:kind, lhsOp:lhsOp, stringQNameOp:stringQNameOp};
+            return newStringXMLQName;
         } else if (kindTag == INS_XML_SEQ_STORE) {
             kind = INS_KIND_XML_SEQ_STORE;
             var lhsOp = self.parseVarRef();
@@ -215,6 +221,13 @@ public type FuncBodyParser object {
             var rhsOp = self.parseVarRef();
             FieldAccess xmlAttrStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return xmlAttrStore;
+        } else if (kindTag == INS_XML_ATTRIBUTE_LOAD) {
+            kind = INS_KIND_XML_ATTRIBUTE_LOAD;
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess xmlAttrLoad = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return xmlAttrLoad;
         } else {
             return self.parseBinaryOpInstruction(kindTag);
         }

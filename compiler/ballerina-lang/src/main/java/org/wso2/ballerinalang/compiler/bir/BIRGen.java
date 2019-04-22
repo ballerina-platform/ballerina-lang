@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -70,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -89,6 +91,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -111,6 +114,8 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
+import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -956,7 +961,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
-        generateXMLNamespace(xmlnsNode);
+        // do nothing
     }
 
     @Override
@@ -966,7 +971,17 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPackageXMLNS xmlnsNode) {
-        // do nothing
+        generateXMLNamespace(xmlnsNode);
+    }
+
+    @Override
+    public void visit(BLangXMLAccessExpr xmlIndexAccessExpr) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+        generateMappingAccess(xmlAttributeAccessExpr);
     }
 
     // private methods
@@ -1135,7 +1150,10 @@ public class BIRGen extends BLangNodeVisitor {
             astIndexBasedAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
+            if (astIndexBasedAccessExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+                insKind = InstructionKind.XML_ATTRIBUTE_STORE;
+                keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
+            } else if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
                 insKind = InstructionKind.OBJECT_STORE;
             } else {
                 insKind = InstructionKind.MAP_STORE;
@@ -1154,7 +1172,10 @@ public class BIRGen extends BLangNodeVisitor {
             astIndexBasedAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
+            if (astIndexBasedAccessExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+                insKind = InstructionKind.XML_ATTRIBUTE_LOAD;
+                keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
+            } else if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
                 insKind = InstructionKind.OBJECT_LOAD;
             } else {
                 insKind = InstructionKind.MAP_LOAD;
@@ -1253,5 +1274,18 @@ public class BIRGen extends BLangNodeVisitor {
             BIROperand childOp = this.env.targetOperand;
             emit(new BIRNonTerminator.XMLSeqStore(child.pos, toVarRef, childOp));
         });
+    }
+
+    private BIROperand getQNameOP(BLangExpression qnameExpr, BIROperand keyRegIndex) {
+        if (qnameExpr.getKind() == NodeKind.XML_QNAME) {
+            return keyRegIndex;
+        }
+
+        BIRVariableDcl tempQNameVarDcl = new BIRVariableDcl(qnameExpr.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempQNameVarDcl);
+        BIROperand qnameVarRef = new BIROperand(tempQNameVarDcl);
+        emit(new BIRNonTerminator.NewStringXMLQName(qnameExpr.pos, qnameVarRef, keyRegIndex));
+        return qnameVarRef;
     }
 }

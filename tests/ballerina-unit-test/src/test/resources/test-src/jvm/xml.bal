@@ -14,9 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testXML() returns xml {
+function testXML() returns (xml, string) {
     xmlns "http://wso2.com/" as ns0;
 
     xml x = xml `<ns0:foo a="hello world" xmlns:ns1="http://ballerinalang.org/"><ns1:bar1>hello1</ns1:bar1><bar2>hello2</bar2></ns0:foo>`;
-    return x;
+    
+    x@[ns0:b] = "active";
+    return (x, x@["a"]);
 }
