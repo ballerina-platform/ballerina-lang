@@ -148,7 +148,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangPackage astPkg) {
         BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName,
-                astPkg.packageID.name, astPkg.packageID.version);
+                astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName);
         astPkg.symbol.bir = birPkg;
 
         this.env = new BIRGenEnv(birPkg);

@@ -23,13 +23,15 @@ public type BirEmitter object {
     private InstructionEmitter insEmitter;
     private TerminalEmitter termEmitter;
     private OperandEmitter opEmitter;
-
+    private PositionEmitter posEmitter;
+    
     public function __init (Package pkg){
         self.pkg = pkg;
         self.typeEmitter = new;
         self.insEmitter = new;
         self.termEmitter = new;
         self.opEmitter = new;
+        self.posEmitter= new;
     }
 
 
@@ -102,6 +104,7 @@ public type BirEmitter object {
     }
 
     function emitFunction(Function bFunction, string tabs) {
+        self.posEmitter.emitPosition(bFunction.pos);
         string visibility =  bFunction.visibility;
         print(tabs, visibility.toLower(), " function ", bFunction.name.value, " ");
         self.typeEmitter.emitType(bFunction.typeValue);
@@ -124,7 +127,7 @@ public type BirEmitter object {
             }
         }
         if (bFunction.errorEntries.length() > 0 ) {
-            println("\tError Table \n\t\tBB\t|\terrorOp");
+            println("\t\tError Table \n\t\t\tBB\t|\terrorOp");
         }
         foreach var e in bFunction.errorEntries {
             if (e is ErrorEntry) {
@@ -139,15 +142,15 @@ public type BirEmitter object {
         println(tabs, bBasicBlock.id.value, " {");
         foreach var ins in bBasicBlock.instructions {
             if (ins is Instruction) {
-                self.insEmitter.emitIns(ins, tabs = tabs + "\t");
+                self.insEmitter.emitIns(ins, tabs = tabs);
             }
         }
-        self.termEmitter.emitTerminal(bBasicBlock.terminator, tabs = tabs + "\t");
+        self.termEmitter.emitTerminal(bBasicBlock.terminator, tabs = tabs);
         println(tabs, "}");
     }
 
     function emitErrorEntry(ErrorEntry errorEntry) {
-        print("\t\t");
+        print("\t\t\t");
         print(errorEntry.trapBB.id.value);
         print("\t|\t");
         self.opEmitter.emitOp(errorEntry.errorOp);
@@ -157,13 +160,16 @@ public type BirEmitter object {
 type InstructionEmitter object {
     private OperandEmitter opEmitter;
     private TypeEmitter typeEmitter;
-
+    private PositionEmitter posEmitter;
+    
     function __init() {
         self.opEmitter = new;
         self.typeEmitter = new;
+        self.posEmitter = new;
     }
 
     function emitIns(Instruction ins, string tabs = "") {
+        self.posEmitter.emitPosition(ins.pos);
         if (ins is FieldAccess) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
@@ -253,12 +259,15 @@ type InstructionEmitter object {
 
 type TerminalEmitter object {
     private OperandEmitter opEmitter;
+    private PositionEmitter posEmitter;
 
     function __init() {
         self.opEmitter = new;
+        self.posEmitter = new;
     }
 
     function emitTerminal(Terminator term, string tabs = "") {
+        self.posEmitter.emitPosition(term.pos);
         if (term is Call) {
             print(tabs);
             VarRef? lhsOp = term.lhsOp;
@@ -287,7 +296,7 @@ type TerminalEmitter object {
         } else if (term is Panic) {
             print(tabs, "panic ");
             self.opEmitter.emitOp(term.errorOp);
-            print(";");
+            println(";"); 
         } else if (term is Wait) {
             print(tabs);
             self.opEmitter.emitOp(term.lhsOp);
@@ -324,7 +333,7 @@ type TerminalEmitter object {
               }
           }
           println(") -> ", term.thenBB.id.value, ";");
-      } else { //if (term is Return) {
+        } else { //if (term is Return) {
             println(tabs, "return;");
         }
     }
@@ -464,6 +473,27 @@ type TypeEmitter object {
         print(", d-");
         self.emitType(bErrorType.detailType);
         print("}");
+    }
+};
+
+type PositionEmitter object {
+    function emitPosition(DiagnosticPos pos) {
+        if (pos.sLine != -1) {
+            self.appendPos(pos.sLine);
+            print("-");
+            self.appendPos(pos.eLine);
+            print(":");
+            self.appendPos(pos.sCol);
+            print("-");
+            self.appendPos(pos.eCol);
+        } 
+    }
+    
+     function appendPos(int line) {
+        if (line < 10) {
+            print("0");
+        }
+        print(line);
     }
 };
 
