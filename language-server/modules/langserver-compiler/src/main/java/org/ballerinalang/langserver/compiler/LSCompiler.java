@@ -134,8 +134,7 @@ public class LSCompiler {
             // Ignore.
         }
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-            List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))
-                    .getDiagnostics();
+            List<Diagnostic> diagnostics = context.get(DiagnosticListener.class).getDiagnostics();
             bfile = new BallerinaFile(bLangPackage, diagnostics, isProjectDir, context);
         } else {
             bfile = new BallerinaFile(bLangPackage, new ArrayList<>(), isProjectDir, context);
