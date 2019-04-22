@@ -2562,8 +2562,120 @@
                     }
                 ],
                 "listeners": [],
-                "constants": [],
-                "annotations": [],
+                "constants": [
+                    {
+                        "fields": [
+                            {
+                                "name_label": "Name",
+                                "data_type_label": "Data Type",
+                                "default_value_label": "Value",
+                                "description_label": "Description"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "AUTH_HEADER",
+                        "data_type": "string",
+                        "default_value": "Authorization",
+                        "description": "Authentication header name."
+                    },
+                    {
+                        "name": "AUTH_SCHEME_BASIC",
+                        "data_type": "string",
+                        "default_value": "Basic",
+                        "description": "Basic authentication scheme."
+                    },
+                    {
+                        "name": "AUTH_SCHEME_BEARER",
+                        "data_type": "string",
+                        "default_value": "Bearer",
+                        "description": "Bearer authentication scheme."
+                    },
+                    {
+                        "name": "AUTH_PROVIDER_LDAP",
+                        "data_type": "string",
+                        "default_value": "ldap",
+                        "description": "LDAP auth provider config name."
+                    },
+                    {
+                        "name": "AUTHN_SCHEME_BASIC",
+                        "data_type": "string",
+                        "default_value": "basic",
+                        "description": "Authn scheme basic."
+                    },
+                    {
+                        "name": "AUTH_SCHEME_JWT",
+                        "data_type": "string",
+                        "default_value": "jwt",
+                        "description": "Authn scheme JWT."
+                    },
+                    {
+                        "name": "AUTH_SCHEME_OAUTH2",
+                        "data_type": "string",
+                        "default_value": "oauth2",
+                        "description": "Authn scheme OAuth2."
+                    },
+                    {
+                        "name": "NO_CACHE",
+                        "data_type": "string",
+                        "default_value": "no-cache",
+                        "description": "Forces the cache to validate a cached response with the origin server before serving."
+                    },
+                    {
+                        "name": "NO_STORE",
+                        "data_type": "string",
+                        "default_value": "no-store",
+                        "description": "Instructs the cache to not store a response in non-volatile storage."
+                    },
+                    {
+                        "name": "NO_TRANSFORM",
+                        "data_type": "string",
+                        "default_value": "no-transform",
+                        "description": "Instructs intermediaries not to transform the payload."
+                    },
+                    {
+                        "name": "MAX_AGE",
+                        "data_type": "string",
+                        "default_value": "max-age",
+                        "description": "When used in requests, max-ageimplies that clients are not willing to accept responses whose age is greater than max-age. When used in responses, the response is to be considered stale after the specified number of seconds."
+                    },
+                    {
+                        "name": "MAX_STALE",
+                        "data_type": "string",
+                        "default_value": "max-stale",
+                        "description": "Indicates that the client is willing to accept responses which have exceeded their freshness lifetime by no more than the specified number of seconds."
+                    }
+                ],
+                "annotations": [
+                    {
+                        "fields": [
+                            {
+                                "name_label":"Name",
+                                "attachment_points_label":"Attachment Points",
+                                "data_type_label":"Data Type",
+                                "description_label":"Description"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ResourceConfig",
+                        "data_type": "resource",
+                        "default_value": "HttpResourceConfig",
+                        "description": "The annotation which is used to configure an HTTP resource."
+                    },
+                    {
+                        "name": "ServiceConfig",
+                        "data_type": "service",
+                        "default_value": "HttpServiceConfig",
+                        "description": "The annotation which is used to configure an HTTP service."
+                    },
+                    {
+                        "name": "WebSocketServiceConfig",
+                        "data_type": "service",
+                        "default_value": "WSServiceConfig",
+                        "description": "The annotation which is used to configure a WebSocket service."
+                    }
+                ],
                 "errors": []
             }
         },

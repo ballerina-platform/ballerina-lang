@@ -10,6 +10,7 @@ body {
     }
     .ui.grid {
         width: 100%;
+        margin-top: 0rem;
         .navi-wrapper {
             margin: 0;
             background: #f5f7f8;
@@ -73,17 +74,23 @@ body {
                 th {
                     background: none;
                     padding: 10px 0;
+                    border-top: 1px solid #e8e9e9;
+                    border-radius: 0;
                 }
                 tr {
                     padding: 10px 0;
                     td:first-child {
                         width: 120px;
                         vertical-align: top;
+                        padding: 10px 0 !important;
                     }
                 }
                 td {
                     word-break: break-all;
                 }
+            }
+            .params-table {
+                padding-top: 20px;
             }
             .breadcrumb {
                 a {
@@ -122,6 +129,13 @@ body {
                     color: #93bd54;
                 }
             }
+            .clients {
+                color: #068000;
+                text-transform: capitalize;
+                a {
+                    color: #068000;
+                }
+            }
             .functions {
                 color: #ad448e;
                 text-transform: capitalize;
@@ -129,11 +143,18 @@ body {
                     color: #ad448e;
                 }
             }
-            .clients {
-                color: #068000;
+            .constant {
+                color: #7B1FA2;
                 text-transform: capitalize;
                 a {
-                    color: #068000;
+                    color: #7B1FA2;
+                }
+            }
+            .annotations {
+                color: #3F51B5;
+                text-transform: capitalize;
+                a {
+                    color: #3F51B5;
                 }
             }
             .constants {
@@ -154,15 +175,16 @@ body {
                         display: inline-block;
                         vertical-align: top;
                         .ui.table {
-                            tr{
+                            tr {
                                 td:first-child {
                                     width: 180px !important;
                                     vertical-align: top;
-                                }
-                                td {
-                                    padding : 10px 0 !important;
-                                }
+                                    padding : 10px 0;
+                                }   
                             }
+                        }
+                        .ui.table td {
+                            padding : 10px 0 !important;
                         }
                         .method-table-header {
                             max-width: 180px;
@@ -174,6 +196,7 @@ body {
                         }
                     }
                     .method-type-wrapper {
+                        border-bottom: 1px solid #e8e9e9; 
                         .method-title {
                             p {
                                 font-weight: 600;

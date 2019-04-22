@@ -173,6 +173,38 @@
         {{/if}}
       </table>
 
+
+      <div class="ui divider"></div>
+      <h3><a name="constants">Constants</a></h3>
+      <div class="ui divider"></div>
+
+      <table> 
+        {{#if constructs}}
+          {{#each constructs.constants}}
+          <tr>
+            <td class="module-title truncate constant" id ="{{name}}"><a href="constants/constants.html">{{name}}</a></td>
+            <td class="module-desc">{{description}}</td>
+          </tr>
+          {{/each}}
+        {{/if}}
+      </table>
+
+
+      <div class="ui divider"></div>
+      <h3><a name="annotations">Annotations</a></h3>
+      <div class="ui divider"></div>
+
+      <table> 
+        {{#if constructs}}
+          {{#each constructs.annotations}}
+          <tr>
+            <td class="module-title truncate annotations" id ="{{name}}"><a href="annotations/annotations.html">{{name}}</a></td>
+            <td class="module-desc">{{description}}</td>
+          </tr>
+          {{/each}}
+        {{/if}}
+      </table>
+
       
   </div>
 </body>

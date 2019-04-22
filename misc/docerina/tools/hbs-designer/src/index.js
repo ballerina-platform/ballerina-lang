@@ -60,6 +60,21 @@ function buildFunctions(modId, functions) {
     fs.writeFileSync(path.join(funcOutDir, "functions.html"), functionsTemplate({ functions, all: data }));
 }
 
+function buildConstants(modId, constants) {
+    const constantsHBS = fs.readFileSync(path.join(__dirname, "constants.hbs")).toString();
+    const constantsTemplate = Handlebars.compile(constantsHBS);
+    const constantsOutDir = path.join(outPath, modId, 'constants');
+    fs.ensureDirSync(constantsOutDir);
+    fs.writeFileSync(path.join(constantsOutDir, "constants.html"), constantsTemplate({ constants, all: data }));
+}
+
+function buildAnnotations(modId, annotations) {
+    const annotationsHBS = fs.readFileSync(path.join(__dirname, "annotations.hbs")).toString();
+    const annotationsTemplate = Handlebars.compile(annotationsHBS);
+    const annotationsOutDir = path.join(outPath, modId, 'annotations');
+    fs.ensureDirSync(annotationsOutDir);
+    fs.writeFileSync(path.join(annotationsOutDir, "annotations.html"), annotationsTemplate({ annotations, all: data }));
+}
 
 function buildConstructs(mod) {
     const records = mod.constructs.records;

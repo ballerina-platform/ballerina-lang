@@ -126,7 +126,7 @@
               <div class="method-span"> 
                 <table class="ui table">
                   <tr>
-                    <td class="clients module-title method-table-header">{{method_type}}</td>
+                    <td class="clients module-title method-table-header"><a href="#{{method_type}}">{{method_type}}</a></td>
                     <td class="module-desc">{{description}}</td> 
                   </tr>
                 </table>
@@ -136,11 +136,11 @@
               {{#each method}}
               <div class="method-type-wrapper">
                 <div class="method-title">
-                  <h3 class="clients" id="#{{method_type}}">{{method_type}}</h3><p>{{method_params}}</p>
+                  <h3 class="clients" id="{{method_type}}">{{method_type}}</h3><p>{{method_params}}</p>
                   <h3>{{label_return}}</h3><p>{{return_params}}</p>
                 </div>
                 <p>{{description}}</p>
-                <table class="ui table">
+                <table class="ui table params-table">
                   <thead>
                     {{#if params }}
                       {{#each params }}
