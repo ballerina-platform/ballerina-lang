@@ -63,3 +63,12 @@ type Person2 object {
         self.month = "february";
     }
 };
+
+public type Foo object {
+    public int a = 3;
+    public Foo? f = ();
+};
+
+public function testSelfReferencingObject() returns Foo {
+    return new Foo();
+}

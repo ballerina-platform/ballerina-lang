@@ -646,10 +646,12 @@ public class BLangPackageBuilder {
         this.varListStack.push(new ArrayList<>());
     }
 
-    void startFunctionDef(int annotCount) {
+    void startFunctionDef(int annotCount, boolean isLambda) {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
         attachAnnotations(functionNode, annotCount);
-        attachMarkdownDocumentations(functionNode);
+        if (!isLambda) {
+            attachMarkdownDocumentations(functionNode);
+        }
         this.invokableNodeStack.push(functionNode);
     }
 
@@ -921,7 +923,7 @@ public class BLangPackageBuilder {
 
     void startLambdaFunctionDef(PackageID pkgID) {
         // Passing zero for annotation count as Lambdas can't have annotations.
-        startFunctionDef(0);
+        startFunctionDef(0, true);
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.setName(createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         lambdaFunction.addFlag(Flag.LAMBDA);

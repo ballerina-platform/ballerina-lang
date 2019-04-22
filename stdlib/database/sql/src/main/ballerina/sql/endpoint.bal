@@ -87,5 +87,6 @@ function nativeBatchUpdate(Client sqlClient, @sensitive string sqlQuery, Param?[
 # An internal function used by clients to shutdown the connection pool.
 #
 # + sqlClient - The Client object which represents the connection pool.
+# + return - Possible error during closing
 public function close(Client sqlClient) returns error? = external;
 

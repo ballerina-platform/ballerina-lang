@@ -49,12 +49,15 @@ type InstructionGenerator object {
             panic err;
         }
 
-        self.generateVarStore(loadIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, loadIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(loadIns.lhsOp.variableDcl));
     }
 
     function generateMoveIns(bir:Move moveIns) {
-        self.generateVarLoad(moveIns.rhsOp.variableDcl);
-        self.generateVarStore(moveIns.lhsOp.variableDcl);
+        generateVarLoad(self.mv, moveIns.rhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(moveIns.rhsOp.variableDcl));
+        generateVarStore(self.mv, moveIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(moveIns.lhsOp.variableDcl));
     }
 
 
@@ -84,8 +87,10 @@ type InstructionGenerator object {
     }
 
     function generateBinaryRhsAndLhsLoad(bir:BinaryOp binaryIns) {
-        self.generateVarLoad(binaryIns.rhsOp1.variableDcl);
-        self.generateVarLoad(binaryIns.rhsOp2.variableDcl);
+        generateVarLoad(self.mv, binaryIns.rhsOp1.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.rhsOp1.variableDcl));
+        generateVarLoad(self.mv, binaryIns.rhsOp2.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.rhsOp2.variableDcl));
     }
 
     function generateLessThanIns(bir:BinaryOp binaryIns) {
@@ -104,7 +109,8 @@ type InstructionGenerator object {
         self.mv.visitInsn(ICONST_1);
 
         self.mv.visitLabel(label2);
-        self.generateVarStore(binaryIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, binaryIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.lhsOp.variableDcl));
     }
 
     function generateLessEqualIns(bir:BinaryOp binaryIns) {
@@ -123,7 +129,8 @@ type InstructionGenerator object {
         self.mv.visitInsn(ICONST_1);
 
         self.mv.visitLabel(label2);
-        self.generateVarStore(binaryIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, binaryIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.lhsOp.variableDcl));
     }
 
     function generateEqualIns(bir:BinaryOp binaryIns) {
@@ -155,7 +162,8 @@ type InstructionGenerator object {
         self.mv.visitInsn(ICONST_0);
 
         self.mv.visitLabel(label2);
-        self.generateVarStore(binaryIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, binaryIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.lhsOp.variableDcl));
     }
 
     function generateAddIns(bir:BinaryOp binaryIns) {
@@ -167,18 +175,23 @@ type InstructionGenerator object {
             self.generateBinaryRhsAndLhsLoad(binaryIns);
 
             self.mv.visitInsn(LADD);
-            self.generateVarStore(binaryIns.lhsOp.variableDcl);
+            generateVarStore(self.mv, binaryIns.lhsOp.variableDcl, self.currentPackageName, 
+                self.getJVMIndexOfVarRef(binaryIns.lhsOp.variableDcl));
         } else if (bType is bir:BTypeString) {
-            self.generateVarLoad(binaryIns.rhsOp1.variableDcl);
-            self.generateVarLoad(binaryIns.rhsOp2.variableDcl);
+            generateVarLoad(self.mv, binaryIns.rhsOp1.variableDcl, self.currentPackageName, 
+                self.getJVMIndexOfVarRef(binaryIns.rhsOp1.variableDcl));
+            generateVarLoad(self.mv, binaryIns.rhsOp2.variableDcl, self.currentPackageName, 
+                self.getJVMIndexOfVarRef(binaryIns.rhsOp2.variableDcl));
             self.mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat",
                                          "(Ljava/lang/String;)Ljava/lang/String;", false);
-            self.generateVarStore(binaryIns.lhsOp.variableDcl);
+            generateVarStore(self.mv, binaryIns.lhsOp.variableDcl, self.currentPackageName, 
+                self.getJVMIndexOfVarRef(binaryIns.lhsOp.variableDcl));
         } else if (bType is bir:BTypeFloat) {
             self.generateBinaryRhsAndLhsLoad(binaryIns);
 
             self.mv.visitInsn(DADD);
-            self.generateVarStore(binaryIns.lhsOp.variableDcl);
+            generateVarStore(self.mv, binaryIns.lhsOp.variableDcl, self.currentPackageName, 
+                self.getJVMIndexOfVarRef(binaryIns.lhsOp.variableDcl));
         } else {
             error err = error( "JVM generation is not supported for type " +
                             io:sprintf("%s", binaryIns.lhsOp.typeValue));
@@ -198,7 +211,8 @@ type InstructionGenerator object {
                             io:sprintf("%s", binaryIns.lhsOp.typeValue));
             panic err;
         }
-        self.generateVarStore(binaryIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, binaryIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.lhsOp.variableDcl));
     }
 
     function generateDivIns(bir:BinaryOp binaryIns) {
@@ -213,7 +227,8 @@ type InstructionGenerator object {
                             io:sprintf("%s", binaryIns.lhsOp.typeValue));
             panic err;
         }
-        self.generateVarStore(binaryIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, binaryIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.lhsOp.variableDcl));
     }
 
     function generateMulIns(bir:BinaryOp binaryIns) {
@@ -228,7 +243,8 @@ type InstructionGenerator object {
                             io:sprintf("%s", binaryIns.lhsOp.typeValue));
             panic err;
         }
-        self.generateVarStore(binaryIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, binaryIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.lhsOp.variableDcl));
     }
 
     function generateAndIns(bir:BinaryOp binaryIns) {
@@ -246,12 +262,14 @@ type InstructionGenerator object {
         jvm:Label label1 = new;
         jvm:Label label2 = new;
 
-        self.generateVarLoad(binaryIns.rhsOp1.variableDcl);
+        generateVarLoad(self.mv, binaryIns.rhsOp1.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.rhsOp1.variableDcl));
 
         self.mv.visitInsn(ICONST_1);
         self.mv.visitJumpInsn(IF_ICMPNE, label1);
 
-        self.generateVarLoad(binaryIns.rhsOp2.variableDcl);
+        generateVarLoad(self.mv, binaryIns.rhsOp2.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.rhsOp2.variableDcl));
 
         self.mv.visitInsn(ICONST_1);
         self.mv.visitJumpInsn(IF_ICMPNE, label1);
@@ -264,7 +282,8 @@ type InstructionGenerator object {
 
         self.mv.visitLabel(label2);
 
-        self.generateVarStore(binaryIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, binaryIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.lhsOp.variableDcl));
     }
 
     function generateOrIns(bir:BinaryOp binaryIns) {
@@ -282,12 +301,14 @@ type InstructionGenerator object {
         jvm:Label label1 = new;
         jvm:Label label2 = new;
 
-        self.generateVarLoad(binaryIns.rhsOp1.variableDcl);
+        generateVarLoad(self.mv, binaryIns.rhsOp1.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.rhsOp1.variableDcl));
 
         self.mv.visitInsn(ICONST_1);
         self.mv.visitJumpInsn(IF_ICMPEQ, label1);
 
-        self.generateVarLoad(binaryIns.rhsOp2.variableDcl);
+        generateVarLoad(self.mv, binaryIns.rhsOp2.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.rhsOp2.variableDcl));
 
         self.mv.visitInsn(ICONST_1);
         self.mv.visitJumpInsn(IF_ICMPEQ, label1);
@@ -300,7 +321,8 @@ type InstructionGenerator object {
 
         self.mv.visitLabel(label2);
 
-        self.generateVarStore(binaryIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, binaryIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(binaryIns.lhsOp.variableDcl));
     }
 
     function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {
@@ -312,20 +334,24 @@ type InstructionGenerator object {
         self.mv.visitInsn(DUP);
         loadType(self.mv, mapNewIns.typeValue);
         self.mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
-        self.generateVarStore(mapNewIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, mapNewIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(mapNewIns.lhsOp.variableDcl));
     }
 
     function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
         // visit map_ref
-        self.generateVarLoad(mapStoreIns.lhsOp.variableDcl);
+        generateVarLoad(self.mv, mapStoreIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(mapStoreIns.lhsOp.variableDcl));
         bir:BType varRefType = mapStoreIns.lhsOp.variableDcl.typeValue;
 
         // visit key_expr
-        self.generateVarLoad(mapStoreIns.keyOp.variableDcl);
+        generateVarLoad(self.mv, mapStoreIns.keyOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(mapStoreIns.keyOp.variableDcl));
 
         // visit value_expr
         bir:BType valueType = mapStoreIns.rhsOp.variableDcl.typeValue;
-        self.generateVarLoad(mapStoreIns.rhsOp.variableDcl);
+        generateVarLoad(self.mv, mapStoreIns.rhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(mapStoreIns.rhsOp.variableDcl));
         addBoxInsn(self.mv, valueType);
 
         if (varRefType is bir:BJSONType) {
@@ -342,12 +368,14 @@ type InstructionGenerator object {
 
     function generateMapLoadIns(bir:FieldAccess mapLoadIns) {
         // visit map_ref
-        self.generateVarLoad(mapLoadIns.rhsOp.variableDcl);
+        generateVarLoad(self.mv, mapLoadIns.rhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(mapLoadIns.rhsOp.variableDcl));
         bir:BType varRefType = mapLoadIns.rhsOp.variableDcl.typeValue;
         addUnboxInsn(self.mv, varRefType);
 
         // visit key_expr
-        self.generateVarLoad(mapLoadIns.keyOp.variableDcl);
+        generateVarLoad(self.mv, mapLoadIns.keyOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(mapLoadIns.keyOp.variableDcl));
 
         if (varRefType is bir:BJSONType) {
             self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
@@ -361,16 +389,19 @@ type InstructionGenerator object {
         // store in the target reg
         bir:BType targetType = mapLoadIns.lhsOp.variableDcl.typeValue;
         addUnboxInsn(self.mv, targetType);
-        self.generateVarStore(mapLoadIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, mapLoadIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(mapLoadIns.lhsOp.variableDcl));
     }
 
     function generateObjectLoadIns(bir:FieldAccess objectLoadIns) {
         // visit object_ref
-        self.generateVarLoad(objectLoadIns.rhsOp.variableDcl);
+        generateVarLoad(self.mv, objectLoadIns.rhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(objectLoadIns.rhsOp.variableDcl));
         bir:BType varRefType = objectLoadIns.rhsOp.variableDcl.typeValue;
 
         // visit key_expr
-        self.generateVarLoad(objectLoadIns.keyOp.variableDcl);
+        generateVarLoad(self.mv, objectLoadIns.keyOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(objectLoadIns.keyOp.variableDcl));
 
         // invoke get() method, and unbox if needed
         self.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "get",
@@ -379,20 +410,24 @@ type InstructionGenerator object {
         addUnboxInsn(self.mv, targetType);
 
         // store in the target reg
-        self.generateVarStore(objectLoadIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, objectLoadIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(objectLoadIns.lhsOp.variableDcl));
     }
 
     function generateObjectStoreIns(bir:FieldAccess objectStoreIns) {
         // visit object_ref
-        self.generateVarLoad(objectStoreIns.lhsOp.variableDcl);
+        generateVarLoad(self.mv, objectStoreIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(objectStoreIns.lhsOp.variableDcl));
         bir:BType varRefType = objectStoreIns.lhsOp.variableDcl.typeValue;
 
         // visit key_expr
-        self.generateVarLoad(objectStoreIns.keyOp.variableDcl);
+        generateVarLoad(self.mv, objectStoreIns.keyOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(objectStoreIns.keyOp.variableDcl));
 
         // visit value_expr
         bir:BType valueType = objectStoreIns.rhsOp.variableDcl.typeValue;
-        self.generateVarLoad(objectStoreIns.rhsOp.variableDcl);
+        generateVarLoad(self.mv, objectStoreIns.rhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(objectStoreIns.rhsOp.variableDcl));
         addBoxInsn(self.mv, valueType);
 
         // invoke set() method
@@ -407,18 +442,23 @@ type InstructionGenerator object {
         self.mv.visitTypeInsn(NEW, ARRAY_VALUE);
         self.mv.visitInsn(DUP);
         loadType(self.mv, inst.typeValue);
-        self.generateVarLoad(inst.sizeOp.variableDcl);
+        generateVarLoad(self.mv, inst.sizeOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(inst.sizeOp.variableDcl));
         self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
-        self.generateVarStore(inst.lhsOp.variableDcl);
+        generateVarStore(self.mv, inst.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
     }
 
     # Generate adding a new value to an array
     # 
     # + inst - array store instruction
     function generateArrayStoreIns(bir:FieldAccess inst) {
-        self.generateVarLoad(inst.lhsOp.variableDcl);
-        self.generateVarLoad(inst.keyOp.variableDcl);
-        self.generateVarLoad(inst.rhsOp.variableDcl);
+        generateVarLoad(self.mv, inst.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
+        generateVarLoad(self.mv, inst.keyOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(inst.keyOp.variableDcl));
+        generateVarLoad(self.mv, inst.rhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(inst.rhsOp.variableDcl));
 
         bir:BType varRefType = inst.lhsOp.variableDcl.typeValue;
         if (varRefType is bir:BJSONType ||
@@ -456,8 +496,10 @@ type InstructionGenerator object {
     # 
     # + inst - field access instruction
     function generateArrayValueLoad(bir:FieldAccess inst) {
-        self.generateVarLoad(inst.rhsOp.variableDcl);
-        self.generateVarLoad(inst.keyOp.variableDcl);
+        generateVarLoad(self.mv, inst.rhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(inst.rhsOp.variableDcl));
+        generateVarLoad(self.mv, inst.keyOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(inst.keyOp.variableDcl));
         bir:BType bType = inst.lhsOp.variableDcl.typeValue;
 
         bir:BType varRefType = inst.rhsOp.variableDcl.typeValue;
@@ -483,115 +525,44 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
         }
 
-        self.generateVarStore(inst.lhsOp.variableDcl);
+        generateVarStore(self.mv, inst.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
     }
 
     function generateNewErrorIns(bir:NewError newErrorIns) {
         self.mv.visitTypeInsn(NEW, ERROR_VALUE);
         self.mv.visitInsn(DUP);
-        self.generateVarLoad(newErrorIns.reasonOp.variableDcl);
-        self.generateVarLoad(newErrorIns.detailsOp.variableDcl);
+        generateVarLoad(self.mv, newErrorIns.reasonOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(newErrorIns.reasonOp.variableDcl));
+        generateVarLoad(self.mv, newErrorIns.detailsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(newErrorIns.detailsOp.variableDcl));
         self.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>",
                            io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
-        self.generateVarStore(newErrorIns.lhsOp.variableDcl);
-    }
-
-    private function generateVarLoad(bir:VariableDcl varDcl) {
-        bir:BType bType = varDcl.typeValue;
-
-        if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
-            string varName = varDcl.name.value;
-            string className = lookupFullQualifiedClassName(self.currentPackageName + varName);
-            string typeSig = getTypeDesc(bType);
-            self.mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
-            return;
-        } else if (varDcl.kind == bir:VAR_KIND_SELF) {
-            self.mv.visitVarInsn(ALOAD, 0);
-            return;
-        }
-
-        int valueIndex = self.getJVMIndexOfVarRef(varDcl);
-        if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
-            self.mv.visitVarInsn(LLOAD, valueIndex);
-        } else if (bType is bir:BTypeFloat) {
-            self.mv.visitVarInsn(DLOAD, valueIndex);
-        } else if (bType is bir:BTypeBoolean) {
-            self.mv.visitVarInsn(ILOAD, valueIndex);
-        } else if (bType is bir:BArrayType ||
-                    bType is bir:BTypeString ||
-                    bType is bir:BMapType ||
-                    bType is bir:BTypeAny ||
-                    bType is bir:BTypeAnyData ||
-                    bType is bir:BTypeNil ||
-                    bType is bir:BUnionType ||
-                    bType is bir:BTupleType ||
-                    bType is bir:BRecordType ||
-                    bType is bir:BErrorType ||
-                    bType is bir:BJSONType ||
-                    bType is bir:BFutureType ||
-                    bType is bir:BObjectType) {
-            self.mv.visitVarInsn(ALOAD, valueIndex);
-        } else {
-            error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
-            panic err;
-        }
-    }
-
-    private function generateVarStore(bir:VariableDcl varDcl) {
-        bir:BType bType = varDcl.typeValue;
-
-        if (varDcl.kind == "GLOBAL") {
-            string varName = varDcl.name.value;
-            string className = lookupFullQualifiedClassName(self.currentPackageName + varName);
-            string typeSig = getTypeDesc(bType);
-            self.mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
-            return;
-        }
-
-        int valueIndex = self.getJVMIndexOfVarRef(varDcl);
-        if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
-            self.mv.visitVarInsn(LSTORE, valueIndex);
-        } else if (bType is bir:BTypeFloat) {
-            self.mv.visitVarInsn(DSTORE, valueIndex);
-        } else if (bType is bir:BTypeBoolean) {
-            self.mv.visitVarInsn(ISTORE, valueIndex);
-        } else if (bType is bir:BArrayType ||
-                        bType is bir:BTypeString ||
-                        bType is bir:BMapType ||
-                        bType is bir:BTypeAny ||
-                        bType is bir:BTypeAnyData ||
-                        bType is bir:BTypeNil ||
-                        bType is bir:BUnionType ||
-                        bType is bir:BTupleType ||
-                        bType is bir:BRecordType ||
-                        bType is bir:BErrorType ||
-                        bType is bir:BJSONType ||
-                        bType is bir:BFutureType ||
-                        bType is bir:BObjectType) {
-            self.mv.visitVarInsn(ASTORE, valueIndex);
-        } else {
-            error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
-            panic err;
-        }
+        generateVarStore(self.mv, newErrorIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(newErrorIns.lhsOp.variableDcl));
     }
 
     function generateCastIns(bir:TypeCast typeCastIns) {
         // load source value
-        self.generateVarLoad(typeCastIns.rhsOp.variableDcl);
+        generateVarLoad(self.mv, typeCastIns.rhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(typeCastIns.rhsOp.variableDcl));
         generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
-        self.generateVarStore(typeCastIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, typeCastIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(typeCastIns.lhsOp.variableDcl));
     }
 
     function generateTypeTestIns(bir:TypeTest typeTestIns) {
         // load source value
-        self.generateVarLoad(typeTestIns.rhsOp.variableDcl);
+        generateVarLoad(self.mv, typeTestIns.rhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(typeTestIns.rhsOp.variableDcl));
 
         // load targetType
         loadType(self.mv, typeTestIns.typeValue);
 
         self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
                 io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE, OBJECT), false);
-        self.generateVarStore(typeTestIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, typeTestIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(typeTestIns.lhsOp.variableDcl));
     }
 
     function generateObjectNewIns(bir:NewInstance objectNewIns) {
@@ -601,7 +572,8 @@ type InstructionGenerator object {
         loadType(self.mv, objectNewIns.typeDef.typeValue);
         self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
         self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
-        self.generateVarStore(objectNewIns.lhsOp.variableDcl);
+        generateVarStore(self.mv, objectNewIns.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(objectNewIns.lhsOp.variableDcl));
 
         // todo : check if this is a new service object creation and process its annotation
         boolean isServiceType = false;
@@ -626,4 +598,81 @@ function addBoxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
 
 function addUnboxInsn(jvm:MethodVisitor mv, bir:BType bType) {
     generateCast(mv, "any", bType);
+}
+
+function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string currentPackageName, int valueIndex) {
+    bir:BType bType = varDcl.typeValue;
+
+    if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
+        string varName = varDcl.name.value;
+        string className = lookupFullQualifiedClassName(currentPackageName + varName);
+        string typeSig = getTypeDesc(bType);
+        mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
+        return;
+    } else if (varDcl.kind == bir:VAR_KIND_SELF) {
+        mv.visitVarInsn(ALOAD, 0);
+        return;
+    }
+
+    if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+        mv.visitVarInsn(LLOAD, valueIndex);
+    } else if (bType is bir:BTypeFloat) {
+        mv.visitVarInsn(DLOAD, valueIndex);
+    } else if (bType is bir:BTypeBoolean) {
+        mv.visitVarInsn(ILOAD, valueIndex);
+    } else if (bType is bir:BArrayType ||
+                bType is bir:BTypeString ||
+                bType is bir:BMapType ||
+                bType is bir:BTypeAny ||
+                bType is bir:BTypeAnyData ||
+                bType is bir:BTypeNil ||
+                bType is bir:BUnionType ||
+                bType is bir:BTupleType ||
+                bType is bir:BRecordType ||
+                bType is bir:BErrorType ||
+                bType is bir:BJSONType ||
+                bType is bir:BFutureType ||
+                bType is bir:BObjectType) {
+        mv.visitVarInsn(ALOAD, valueIndex);
+    } else {
+        error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
+        panic err;
+    }
+}
+
+function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string currentPackageName, int valueIndex) {
+    bir:BType bType = varDcl.typeValue;
+
+    if (varDcl.kind == "GLOBAL") {
+        string varName = varDcl.name.value;
+        string className = lookupFullQualifiedClassName(currentPackageName + varName);
+        string typeSig = getTypeDesc(bType);
+        mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
+        return;
+    }
+
+    if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+        mv.visitVarInsn(LSTORE, valueIndex);
+    } else if (bType is bir:BTypeFloat) {
+        mv.visitVarInsn(DSTORE, valueIndex);
+    } else if (bType is bir:BTypeBoolean) {
+        mv.visitVarInsn(ISTORE, valueIndex);
+    } else if (bType is bir:BArrayType ||
+                    bType is bir:BTypeString ||
+                    bType is bir:BMapType ||
+                    bType is bir:BTypeAny ||
+                    bType is bir:BTypeAnyData ||
+                    bType is bir:BTypeNil ||
+                    bType is bir:BUnionType ||
+                    bType is bir:BTupleType ||
+                    bType is bir:BRecordType ||
+                    bType is bir:BErrorType ||
+                    bType is bir:BJSONType ||
+                    bType is bir:BFutureType ||
+                    bType is bir:BObjectType) {
+        mv.visitVarInsn(ASTORE, valueIndex);
+    } else {
+        error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
+        panic err;
+    }
 }
