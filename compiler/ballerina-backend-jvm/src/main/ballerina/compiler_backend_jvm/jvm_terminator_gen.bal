@@ -18,15 +18,17 @@ type TerminatorGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
     LabelGenerator labelGen;
+    ErrorHandlerGenerator errorGen;
     int lambdaIndex = 0;
     bir:Package module;
 
 
     public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen, 
-        bir:Package module) {
+                            ErrorHandlerGenerator errorGen, bir:Package module) {
         self.mv = mv;
         self.indexMap = indexMap;
         self.labelGen = labelGen;
+        self.errorGen = errorGen;
         self.module = module;
     }
 
@@ -134,7 +136,7 @@ type TerminatorGenerator object {
         
         // handle trapped function calls.
         if (isInTryBlock &&  currentEE is bir:ErrorEntry) {
-            self.generateCatchIns(currentEE, endLabel, handlerLabel, jumpLabel);
+            self.errorGen.generateCatchInsForTrap(currentEE, endLabel, handlerLabel, jumpLabel);
         }
         
         self.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -165,7 +167,6 @@ type TerminatorGenerator object {
         bir:BType? returnType = callIns.lhsOp.typeValue;
         string returnTypeDesc = generateReturnType(returnType);
         methodDesc = methodDesc + returnTypeDesc;
-
         string jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + methodName);
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, methodName, methodDesc, false);
     }
@@ -266,34 +267,6 @@ type TerminatorGenerator object {
         }
     }
 
-    function genPanicIns(bir:Panic panicTerm) {
-        int errorIndex = self.getJVMIndexOfVarRef(panicTerm.errorOp.variableDcl);
-        self.mv.visitVarInsn(ALOAD, errorIndex);
-        self.mv.visitInsn(ATHROW);
-    }
-
-    function generateTryIns(bir:ErrorEntry currentEE, jvm:Label endLabel, jvm:Label handlerLabel,
-                            jvm:Label jumpLabel) {
-        jvm:Label startLabel = new;
-        self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
-        jvm:Label temp = new;
-        self.mv.visitLabel(temp);
-        int lhsIndex = self.getJVMIndexOfVarRef(<bir:VariableDcl>currentEE.errorOp.variableDcl);
-        self.mv.visitVarInsn(ALOAD, lhsIndex);
-        self.mv.visitJumpInsn(IFNONNULL, jumpLabel);
-        self.mv.visitLabel(startLabel);
-    }
-
-    function generateCatchIns(bir:ErrorEntry currentEE, jvm:Label endLabel, jvm:Label handlerLabel,
-                              jvm:Label jumpLabel) {
-        int lhsIndex = self.getJVMIndexOfVarRef(<bir:VariableDcl>currentEE.errorOp.variableDcl);
-        self.mv.visitLabel(endLabel);
-        self.mv.visitJumpInsn(GOTO, jumpLabel);
-        self.mv.visitLabel(handlerLabel);
-        self.mv.visitVarInsn(ASTORE, lhsIndex);
-        self.mv.visitLabel(jumpLabel);
-    }
-    
     function genAsyncCallTerm(bir:AsyncCall callIns, string funcName) {
 
         // Load the scheduler from strand
@@ -382,6 +355,59 @@ type TerminatorGenerator object {
         // goto thenBB
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + callIns.thenBB.id.value);
         self.mv.visitJumpInsn(GOTO, gotoLabel);
+    }
+
+    function generateWaitIns(bir:Wait waitInst, string funcName) {
+        // TODO : need to fix to support multiple waits
+        bir:VarRef? futureVal = waitInst.exprList[0];
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+        if (futureVal is bir:VarRef) {
+            generateVarLoad(self.mv, futureVal.variableDcl, currentPackageName, 
+                self.getJVMIndexOfVarRef(futureVal.variableDcl));
+        }
+
+        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "isDone", "Z");
+        jvm:Label label = new;
+        self.mv.visitJumpInsn(IFNE, label);
+        jvm:Label label2 = new;
+        self.mv.visitLabel(label2);
+        // strand.blocked = true
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitFieldInsn(PUTFIELD, STRAND, "blocked", "Z");
+
+        // strand.blockedOn = future.strand
+        self.mv.visitVarInsn(ALOAD, 0);
+        if (futureVal is bir:VarRef) {
+            bir:VariableDcl? varDecl = futureVal.variableDcl;
+            if (varDecl is bir:VariableDcl) {
+                generateVarLoad(self.mv, varDecl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(varDecl));
+            }  
+        }
+        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
+        self.mv.visitFieldInsn(PUTFIELD, STRAND, "blockedOn", io:sprintf("L%s;", STRAND));
+
+        // strand.yield = true
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitFieldInsn(PUTFIELD, STRAND, "yield", "Z");
+        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
+        self.mv.visitJumpInsn(GOTO, yieldLabel);
+        self.mv.visitLabel(label);
+
+        // future.result = lhs
+        if (futureVal is bir:VarRef) {
+            bir:VariableDcl? varDecl = futureVal.variableDcl;
+            if (varDecl is bir:VariableDcl) {
+                generateVarLoad(self.mv, varDecl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(varDecl));
+            }  
+        }
+        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
+        checkCastFromObject(waitInst.lhsOp.typeValue, self.mv);
+        generateVarStore(self.mv, waitInst.lhsOp.variableDcl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(waitInst.lhsOp.variableDcl));
     }
 
     function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {

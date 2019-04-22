@@ -39,15 +39,11 @@ import java.util.jar.JarInputStream;
 
 public class JBallerinaInMemoryClassLoader {
 
-    private byte[] jarBinaryContent = null;
-
-    public JBallerinaInMemoryClassLoader(byte[] data) {
-        jarBinaryContent = new byte[data.length];
-        System.arraycopy(data, 0, jarBinaryContent, 0, data.length);
-    }
-
-    public Class<?> loadClass(String className) {
-
+    private URLClassLoader cl;
+    
+    public JBallerinaInMemoryClassLoader(byte[] compiledJar) {
+        byte[] jarBinaryContent = new byte[compiledJar.length];
+        System.arraycopy(compiledJar, 0, jarBinaryContent, 0, compiledJar.length);
         final Map<String, byte[]> map = new HashMap<>();
         try (JarInputStream is = new JarInputStream(new ByteArrayInputStream(jarBinaryContent))) {
             JarEntry nextEntry;
@@ -70,13 +66,16 @@ public class JBallerinaInMemoryClassLoader {
             }
 
             URL jarFileUrl = new URL("x-buffer", null, -1, "/", new InMemoryURLStreamHandler(map));
+            cl = URLClassLoader.newInstance(new URL[] { jarFileUrl });
+        } catch (IOException e) {
+            throw new RuntimeException("Error occurred while creating the class loader.", e);
+        }
+    }
 
-            URLClassLoader cl = URLClassLoader.newInstance(new URL[]{
-                    jarFileUrl
-            });
-
+    public Class<?> loadClass(String className) {
+        try {
             return cl.loadClass(className);
-        } catch (ClassNotFoundException | IOException e) {
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException("Class '" + className + "' cannot be loaded in-memory", e);
         }
     }

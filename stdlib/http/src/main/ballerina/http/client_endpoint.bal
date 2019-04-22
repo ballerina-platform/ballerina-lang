@@ -221,8 +221,8 @@ public type TargetService record {|
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + followRedirects - Configurations associated with Redirection
 # + retryConfig - Configurations associated with Retry
+# + poolConfig - Configurations associated with request pooling
 # + proxy - Proxy server related options
-# + connectionThrottling - Configurations for connection throttling
 # + secureSocket - SSL/TLS related options
 # + cache - HTTP caching related configurations
 # + compression - Specifies the way of handling compression (`accept-encoding`) header

@@ -1,0 +1,2 @@
+// Error destructuring binding patterns are used to destructure the reason string and the detail mapping values from a
+// `error` value, and assign the values to existing variable references.

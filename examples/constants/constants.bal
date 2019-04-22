@@ -3,10 +3,11 @@ import ballerina/io;
 // Constants are defined using the `const` modifier.
 const string GET = "GET";
 
-// Constants can be defined without type using `var` keyword. Then the type is inferred from the right hand side.
+// Constants can be defined without the type using the `var` keyword. Then the type is inferred from the right hand side.
 const POST = "POST";
 
-// These constants can be used to create type definitions. This type definition can only hold `GET` or `POST` values.
+// Constants can be used to create type definitions. The type definition below specifies that a variable of the type
+// `ACTION` can only hold either `GET` or `POST`.
 type ACTION GET|POST;
 
 // Integer constant.
