@@ -3029,6 +3029,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         iExpr.requiredArgs = new ArrayList<>();
+        iExpr.restArgs = new ArrayList<>();
 
         // Split the different argument types: required args, named args and rest args
         int i = 0;
