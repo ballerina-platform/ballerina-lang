@@ -169,6 +169,11 @@ public abstract class BIRNode {
         public boolean isDeclaration;
 
         /**
+         * Indicate whether this is a function definition or an interface.
+         */
+        public boolean isInterface;
+
+        /**
          * Visibility of this function.
          * 0 - package_private
          * 1 - private
