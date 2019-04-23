@@ -24,7 +24,7 @@ public type BirEmitter object {
     private TerminalEmitter termEmitter;
     private OperandEmitter opEmitter;
     private PositionEmitter posEmitter;
-    
+
     public function __init (Package pkg){
         self.pkg = pkg;
         self.typeEmitter = new;
@@ -74,8 +74,10 @@ public type BirEmitter object {
     function emitTypeDef(TypeDef bTypeDef) {
         string visibility =  bTypeDef.visibility;
         print(visibility.toLower(), " type ", bTypeDef.name.value, " ");
-        if (bTypeDef.typeValue is BObjectType){
-            println("{");
+        var typeValue = bTypeDef.typeValue;
+        if (typeValue is BObjectType){
+            emitObjectTypeWithFields(typeValue, self.typeEmitter, "");
+            println();
             self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
             print("}");
         } else {
@@ -108,7 +110,7 @@ public type BirEmitter object {
         string visibility =  bFunction.visibility;
         print(tabs, visibility.toLower(), " function ", bFunction.name.value, " ");
         self.typeEmitter.emitType(bFunction.typeValue);
-        println(" {");
+        println(" {", bFunction.isDeclaration ? "\t// extern" : bFunction.isInterface ? "\t// interface" : "");
         foreach var v in bFunction.localVars {
             VariableDcl varDecl = getVariableDcl(v);
             self.typeEmitter.emitType(varDecl.typeValue, tabs = tabs + "\t");
@@ -162,7 +164,7 @@ type InstructionEmitter object {
     private OperandEmitter opEmitter;
     private TypeEmitter typeEmitter;
     private PositionEmitter posEmitter;
-    
+
     function __init() {
         self.opEmitter = new;
         self.typeEmitter = new;
@@ -297,7 +299,7 @@ type TerminalEmitter object {
         } else if (term is Panic) {
             print(tabs, "panic ");
             self.opEmitter.emitOp(term.errorOp);
-            println(";"); 
+            println(";");
         } else if (term is Wait) {
             print(tabs);
             self.opEmitter.emitOp(term.lhsOp);
@@ -385,11 +387,11 @@ type TypeEmitter object {
         if (bRecordType.sealed) {
             print("sealed ");
         }
-        print("record { ");
+        println("record { ");
         foreach var f in bRecordType.fields {
             BRecordField recField = getRecordField(f);
             self.emitType(recField.typeValue, tabs = tabs + "\t");
-            print(" ", recField.name.value);
+            println(" ", recField.name.value, ";");
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
         print("...");
@@ -397,15 +399,7 @@ type TypeEmitter object {
     }
 
     function emitObjectType(BObjectType bObjectType, string tabs) {
-        print(tabs, "object {");
-        foreach var f in bObjectType.fields {
-            if (f is BObjectField) {
-                string visibility = f.visibility;
-                print(tabs + "\t", visibility.toLower(), " ");
-                self.emitType(f.typeValue);
-                print(" ", f.name.value);
-            }
-        }
+        emitObjectTypeWithFields(bObjectType, self, tabs);
         print(tabs, "}");
     }
 
@@ -491,9 +485,9 @@ type PositionEmitter object {
             self.appendPos(pos.sCol);
             print("-");
             self.appendPos(pos.eCol);
-        } 
+        }
     }
-    
+
      function appendPos(int line) {
         if (line < 10) {
             print("0");
@@ -501,6 +495,18 @@ type PositionEmitter object {
         print(line);
     }
 };
+
+function emitObjectTypeWithFields(BObjectType bObjectType, TypeEmitter typeEmitter, string tabs) {
+    println(tabs, bObjectType.isAbstract ? "abstract " : "", "object {");
+    foreach var f in bObjectType.fields {
+        if (f is BObjectField) {
+            string visibility = f.visibility;
+            print(tabs + "\t", visibility.toLower(), " ");
+            typeEmitter.emitType(f.typeValue);
+            println(" ", f.name.value, ";");
+        }
+    }
+}
 
 
 function println(any... vals) {

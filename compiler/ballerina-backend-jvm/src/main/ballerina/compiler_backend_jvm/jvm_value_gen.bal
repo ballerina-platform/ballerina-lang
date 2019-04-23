@@ -27,7 +27,7 @@ public type ObjectGenerator object {
         foreach var optionalTypeDef in typeDefs {
             bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
             bir:BType bType = typeDef.typeValue;
-            if (bType is bir:BObjectType) {
+            if (bType is bir:BObjectType && !bType.isAbstract) {
                 self.currentObjectType = bType;
                 string className = self.getObjectValueClassName(typeDef.name.value);
                 byte[] bytes = self.createObjectValueClass(bType, className, typeDef);
