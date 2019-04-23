@@ -97,9 +97,7 @@ under the License.
             </class>
             <class name="org.ballerinalang.test.object.ObjectTest" >
                 <methods>
-                    <!-- fails due to functions without a body -->
-                    <exclude name="testAbstractClientObject" />
-                    <exclude name="testObjectWithAttachedFunction1" />
+                    <!-- Fails due to link error at runtime -->
                     <exclude name="testObjectWithMissingNativeImpl" />
 
                     <!-- fails in getBIRModuleBinary -->
@@ -113,6 +111,15 @@ under the License.
             </class>
             <class name="org.ballerinalang.test.object.AnonymousObjectTest" />
             <class name="org.ballerinalang.test.object.ObjectEquivalencyNegativeTest" />
+            <class name="org.ballerinalang.test.object.AbstractObjectTest">
+                <methods>
+                    <!-- Fails because index based access is not implemented -->
+                    <exclude name="testAbstractAnonObjectInFunction" />
+                    <exclude name="testAbstractAnonObjectInMatch" />
+                    <exclude name="testAbstractAnonObjectInVarDef" />
+                    <exclude name="testAbstractObjectInObject" />
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

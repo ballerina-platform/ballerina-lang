@@ -174,6 +174,7 @@ public class BIRBinaryWriter {
         // Function definition or a declaration
         // Non-zero value means this is a function declaration e.g. extern function
         buf.writeByte(birFunction.isDeclaration ? 1 : 0);
+        buf.writeByte(birFunction.isInterface ? 1 : 0);
         // Visibility
         buf.writeByte(birFunction.visibility.value());
 

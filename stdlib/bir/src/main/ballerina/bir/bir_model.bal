@@ -45,6 +45,7 @@ public type Function record {|
     BasicBlock?[] basicBlocks = [];
     ErrorEntry?[] errorEntries = [];
     boolean isDeclaration = false;
+    boolean isInterface = false;
     VariableDcl?[] localVars = [];
     Name name = {};
     BInvokableType typeValue = {};
@@ -221,6 +222,7 @@ public type BRecordType record {|
 
 public type BObjectType record {|
     Name name = {};
+    boolean isAbstract = false;
     BObjectField?[] fields = [];
     BAttachedFunction?[] attachedFunctions = [];
 |};
