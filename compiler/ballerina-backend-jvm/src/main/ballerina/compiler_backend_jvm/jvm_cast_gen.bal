@@ -49,6 +49,9 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
     } else if (targetType is bir:BJSONType) {
         generateCheckCastToJSON(mv, sourceType);
         return;
+    } else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
+        generateXMLToAttributesMap(mv, sourceType);
+        return;
     }
 
     // do the ballerina checkcast
@@ -329,4 +332,9 @@ function generateCastToAny(jvm:MethodVisitor mv, bir:BType sourceType) {
         // do nothing
         return;
     }
+}
+
+function generateXMLToAttributesMap(jvm:MethodVisitor mv, bir:BType sourceType) {
+    mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttributesMap", 
+            io:sprintf("()L%s;", MAP_VALUE), false);
 }

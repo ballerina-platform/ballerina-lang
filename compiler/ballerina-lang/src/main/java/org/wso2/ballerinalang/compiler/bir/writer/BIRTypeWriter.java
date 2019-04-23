@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 
 import java.util.LinkedList;
@@ -256,11 +255,6 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BType bType) {
         buff.writeByte(bType.tag);
-    }
-
-    @Override
-    public void visit(BXMLAttributesType bxmlAttributesType) {
-        buff.writeByte(bxmlAttributesType.tag);
     }
 
     @Override

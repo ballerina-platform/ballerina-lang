@@ -679,7 +679,8 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BErrorType ||
                 bType is bir:BJSONType ||
                 bType is bir:BFutureType ||
-                bType is bir:BObjectType) {
+                bType is bir:BObjectType ||
+                bType is bir:BXMLType ) {
         mv.visitVarInsn(ALOAD, valueIndex);
     } else {
         error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
@@ -716,7 +717,8 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BErrorType ||
                     bType is bir:BJSONType ||
                     bType is bir:BFutureType ||
-                    bType is bir:BObjectType) {
+                    bType is bir:BObjectType ||
+                    bType is bir:BXMLType) {
         mv.visitVarInsn(ASTORE, valueIndex);
     } else {
         error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));

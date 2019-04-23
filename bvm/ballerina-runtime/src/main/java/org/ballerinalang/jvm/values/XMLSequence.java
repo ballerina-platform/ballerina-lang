@@ -169,7 +169,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             return ((XMLItem) sequence.getRefValue(0)).getAttributesMap();
         }
 
-        return new MapValue<>(new BMapType(BTypes.typeString));
+        return null;
     }
 
     @Override

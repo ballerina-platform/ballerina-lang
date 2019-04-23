@@ -46,8 +46,7 @@ public type TypeParser object {
     public int TYPE_TAG_VOID = TYPE_TAG_NONE + 1;
     public int TYPE_TAG_XMLNS = TYPE_TAG_VOID + 1;
     public int TYPE_TAG_ANNOTATION = TYPE_TAG_XMLNS + 1;
-    public int TYPE_TAG_XML_ATTRIBUTES = TYPE_TAG_ANNOTATION + 1;
-    public int TYPE_TAG_SEMANTIC_ERROR = TYPE_TAG_XML_ATTRIBUTES + 1;
+    public int TYPE_TAG_SEMANTIC_ERROR = TYPE_TAG_ANNOTATION + 1;
     public int TYPE_TAG_ERROR = TYPE_TAG_SEMANTIC_ERROR + 1;
     public int TYPE_TAG_ITERATOR = TYPE_TAG_ERROR + 1;
     public int TYPE_TAG_TUPLE = TYPE_TAG_ITERATOR + 1;

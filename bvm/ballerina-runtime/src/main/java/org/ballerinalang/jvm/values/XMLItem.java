@@ -322,7 +322,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public MapValue<String, ?> getAttributesMap() {
-        MapValue<String, String> attrMap = new MapValue<>(new BMapType(BTypes.typeString));
+        BXmlAttrMap attrMap = new BXmlAttrMap(this);
 
         if (nodeType != XMLNodeType.ELEMENT) {
             return attrMap;
@@ -348,6 +348,7 @@ public final class XMLItem extends XMLValue<OMNode> {
             attrMap.put(attr.getQName().toString(), attr.getAttributeValue());
         }
 
+        attrMap.finishConstruction();
         return attrMap;
     }
 
@@ -851,5 +852,44 @@ public final class XMLItem extends XMLValue<OMNode> {
     public void stamp(BType type) {
         // TODO Auto-generated method stub
 
+    }
+
+    private static class BXmlAttrMap extends MapValue<String, String> {
+        private final XMLItem bXmlItem;
+        private boolean constructed = false;
+
+        BXmlAttrMap(XMLItem bXmlItem) {
+            super(new BMapType(BTypes.typeString));
+            this.bXmlItem = bXmlItem;
+        }
+
+        void finishConstruction() {
+            constructed = true;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public String put(String key, String value) {
+            super.put(key, value);
+            if (constructed) {
+                setAttribute(key, value);
+            }
+            return null;
+        }
+
+        private void setAttribute(String key, String value) {
+            String url = null;
+            String localName = key;
+
+            int endOfUrl = key.lastIndexOf('}');
+            if (endOfUrl != -1) {
+                int startBrace = key.indexOf('{');
+                if (startBrace == 0) {
+                    url = key.substring(startBrace + 1, endOfUrl);
+                    localName = key.substring(endOfUrl + 1);
+                }
+            }
+            bXmlItem.setAttribute(localName, url, null, value);
+        }
     }
 }
