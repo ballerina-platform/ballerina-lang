@@ -453,6 +453,7 @@
                                 ballerina-privacy,
                                 ballerina-jvm,
                                 ballerina-bir,
+                                ballerina-nats,
                                 <!-- other artifacts -->
                                 ballerina,
                                 testerina-core,
@@ -660,6 +661,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-bir-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-nats-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                             </resources>
