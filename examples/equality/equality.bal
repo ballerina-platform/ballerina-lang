@@ -12,7 +12,7 @@ type Person record {
 final Employee globalEmployee = { name: "John", id: 2102 };
 
 public function main() {
-    // `==` and `!=` are used with values of compatible `anydata` types and serve as deep value equality checks.
+    // `==` and `!=` are used with values of compatible `anydata|error` types and serve as deep value equality checks.
     int i1 = 1;
     int i2 = 1;
     boolean isEqual = i1 == i2;

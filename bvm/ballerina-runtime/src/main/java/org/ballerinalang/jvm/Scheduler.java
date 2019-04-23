@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -41,10 +42,23 @@ public class Scheduler {
      * @return - Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Function function) {
-        Strand newStrand = new Strand(this);
-        FutureValue future = new FutureValue(newStrand);
+        FutureValue future = createFuture();
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
+        runnableList.add(item);
+        return future;
+    }
+
+    /**
+     * Add a void returning task to the runnable list, which will eventually be executed by the Scheduler.
+     * @param params - parameters to be passed to the function
+     * @param consumer - consumer to be executed
+     * @return - Reference to the scheduled task
+     */
+    public FutureValue schedule(Object[] params, Consumer consumer) {
+        FutureValue future = createFuture();
+        params[0] = future.strand;
+        SchedulerItem item = new SchedulerItem(consumer, params, future);
         runnableList.add(item);
         return future;
     }
@@ -55,11 +69,12 @@ public class Scheduler {
     public void execute() {
         while (!runnableList.isEmpty()) {
             SchedulerItem item = runnableList.poll();
-            Object result = item.function.apply(item.params);
-            if (item.future.strand.yield) {
-                item.future.strand.yield = false;
-                runnableList.add(item);
-                continue;
+            Object result = null;
+
+            if (item.isVoid) {
+                item.consumer.accept(item.params);
+            } else {
+                result = item.function.apply(item.params);
             }
 
             //TODO: Need to improve for performance and support conditional waits
@@ -69,13 +84,32 @@ public class Scheduler {
                 continue;
             }
 
+            if (item.future.strand.yield) {
+                item.future.strand.yield = false;
+                runnableList.add(item);
+                continue;
+            }
+
             //strand has completed execution
             item.future.result = result;
+            item.future.isDone = true;
             ArrayList<SchedulerItem> blockedItems = blockedList.get(item.future.strand);
             if (blockedItems != null) {
-                blockedItems.forEach(strand -> runnableList.add(item));
+                blockedItems.forEach(blockedItem -> {
+                    blockedItem.future.strand.blocked = false;
+                    blockedItem.future.strand.yield = false;
+                    runnableList.add(blockedItem);
+                });
+                blockedList.remove(item.future.strand);
             }
         }
+    }
+
+    private FutureValue createFuture() {
+        Strand newStrand = new Strand(this);
+        FutureValue future = new FutureValue(newStrand);
+        future.strand.frames = new Object[100];
+        return future;
     }
 }
 
@@ -86,6 +120,8 @@ public class Scheduler {
  */
 class SchedulerItem {
     Function function;
+    Consumer consumer;
+    boolean isVoid;
     Object[] params;
     FutureValue future;
 
@@ -93,5 +129,13 @@ class SchedulerItem {
         this.future = future;
         this.function = function;
         this.params = params;
+        this.isVoid = false;
+    }
+
+    public SchedulerItem(Consumer consumer, Object[] params, FutureValue future) {
+        this.future = future;
+        this.consumer = consumer;
+        this.params = params;
+        this.isVoid = true;
     }
 }

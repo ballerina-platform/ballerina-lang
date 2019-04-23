@@ -122,6 +122,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNonTerminator.FPLoad fpLoad) {
+        throw new AssertionError();
+    }
+
     public void visit(BIRTerminator.Panic birPanic) {
         throw new AssertionError();
     }
@@ -142,6 +146,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRTerminator.Wait birWait) {
+        throw new AssertionError();
+    }
+
     public void visit(TypeTest birTypeTest) {
         throw new AssertionError();
     }
@@ -150,6 +158,4 @@ public abstract class BIRVisitor {
     public void visit(BIROperand birVarRef) {
         throw new AssertionError();
     }
-
-    
 }
