@@ -1,5 +1,3 @@
-import ballerina/io;
-
 function funcReturnNil() {
 }
 
@@ -36,5 +34,3 @@ function testNilableTypeInTypeTest() returns string {
 
     return "()";
 }
-
-function testNilableTypeArrayIteration() returns in
