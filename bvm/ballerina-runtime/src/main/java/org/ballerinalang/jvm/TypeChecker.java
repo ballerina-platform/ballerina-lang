@@ -1116,8 +1116,7 @@ public class TypeChecker {
     private static boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
         return types.stream().allMatch(bType -> isPureType(bType, unresolvedTypes));
     }
-
-
+    
     /**
      * Type vector of size two, to hold the source and the target types.
      *
