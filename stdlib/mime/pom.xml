@@ -83,7 +83,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime-api</artifactId>
+            <artifactId>ballerina-runtime</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -95,7 +95,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime-api</artifactId>
+            <artifactId>ballerina-runtime</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
             <scope>test</scope>

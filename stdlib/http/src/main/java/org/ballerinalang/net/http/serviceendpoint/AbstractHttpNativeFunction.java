@@ -1,7 +1,7 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
@@ -14,24 +14,24 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
  */
 public abstract class AbstractHttpNativeFunction extends BlockingNativeCallableUnit {
 
-    protected HTTPServicesRegistry getHttpServicesRegistry(Struct serviceEndpoint) {
+    protected static HTTPServicesRegistry getHttpServicesRegistry(ObjectValue serviceEndpoint) {
         return (HTTPServicesRegistry) serviceEndpoint.getNativeData(HttpConstants.HTTP_SERVICE_REGISTRY);
     }
 
-    protected WebSocketServicesRegistry getWebSocketServicesRegistry(Struct serviceEndpoint) {
+    protected static WebSocketServicesRegistry getWebSocketServicesRegistry(ObjectValue serviceEndpoint) {
         return (WebSocketServicesRegistry) serviceEndpoint.getNativeData(HttpConstants.WS_SERVICE_REGISTRY);
     }
 
-    protected ServerConnector getServerConnector(Struct serviceEndpoint) {
+    protected static ServerConnector getServerConnector(ObjectValue serviceEndpoint) {
         return (ServerConnector) serviceEndpoint.getNativeData(HttpConstants.HTTP_SERVER_CONNECTOR);
     }
 
-    protected boolean isConnectorStarted(Struct serviceEndpoint) {
+    static boolean isConnectorStarted(ObjectValue serviceEndpoint) {
         return serviceEndpoint.getNativeData(HttpConstants.CONNECTOR_STARTED) != null &&
                 (Boolean) serviceEndpoint.getNativeData(HttpConstants.CONNECTOR_STARTED);
     }
 
-    protected void resetRegistry(Struct serviceEndpoint) {
+    static void resetRegistry(ObjectValue serviceEndpoint) {
         WebSocketServicesRegistry webSocketServicesRegistry = new WebSocketServicesRegistry();
         HTTPServicesRegistry httpServicesRegistry = new HTTPServicesRegistry(webSocketServicesRegistry);
         serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVICE_REGISTRY, httpServicesRegistry);

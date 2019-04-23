@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -100,7 +101,7 @@ public class HTTPServicesRegistry {
      *
      * @param service requested serviceInfo to be registered.
      */
-    public void registerService(Service service) {
+    public void registerService(ObjectValue service) {
         List<HttpService> httpServices = HttpService.buildHttpService(service);
 
         for (HttpService httpService : httpServices) {
@@ -121,7 +122,7 @@ public class HTTPServicesRegistry {
                                                      basePath + errorMessage);
             }
             servicesByBasePath.put(basePath, httpService);
-            String errLog = String.format("Service deployed : %s with context %s", service.getName(), basePath);
+            String errLog = String.format("Service deployed : %s with context %s", service.getType().getName(), basePath);
             logger.info(errLog);
 
             //basePath will get cached after registering service

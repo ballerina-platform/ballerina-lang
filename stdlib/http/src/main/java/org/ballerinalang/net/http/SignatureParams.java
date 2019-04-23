@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ParamDetail;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.connector.ParamDetail;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeTags;
 
@@ -40,9 +40,9 @@ public class SignatureParams {
     private List<ParamDetail> pathParams;
     private int paramCount = COMPULSORY_PARAM_COUNT;
 
-    SignatureParams(HttpResource resource, List<ParamDetail> paramDetails) {
+    SignatureParams(HttpResource resource) {
         this.resource = resource;
-        this.paramDetails = paramDetails;
+        this.paramDetails = resource.getParamDetails();
     }
 
     void validate() {
@@ -69,31 +69,32 @@ public class SignatureParams {
     }
 
     private void validateEntityBodyParam(ParamDetail entityBodyParam) {
-        String entityBodyAttributeValue = resource.getEntityBodyAttributeValue();
-        if (!entityBodyAttributeValue.equals(entityBodyParam.getVarName())) {
-            throw new BallerinaConnectorException("expected '" + entityBodyAttributeValue +
-                    "' as param name, but found '" + entityBodyParam.getVarName() + "'");
-        }
-        int type = entityBodyParam.getVarType().getTag();
-        if (type == TypeTags.RECORD_TYPE_TAG || type == TypeTags.JSON_TAG || type == TypeTags.XML_TAG ||
-                type == TypeTags.STRING_TAG || (type == TypeTags.ARRAY_TAG && validArrayType(entityBodyParam))) {
-            this.entityBody = entityBodyParam;
-            paramCount++;
-        } else {
-            throw new BallerinaConnectorException("incompatible entity-body type : " +
-                    entityBodyParam.getVarType().getName());
-        }
-    }
-
-    /**
-     * Check the validity of array type in data binding scenario.
-     *
-     * @param entityBodyParam Represents resource parameter details
-     * @return a boolean indicating the validity of the array type
-     */
-    private boolean validArrayType(ParamDetail entityBodyParam) {
-        return ((BArrayType) entityBodyParam.getVarType()).getElementType().getTag() == TypeTags.BYTE_TAG ||
-                ((BArrayType) entityBodyParam.getVarType()).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG;
+        //TODO move this validation to compile time
+//        String entityBodyAttributeValue = resource.getEntityBodyAttributeValue();
+//        if (!entityBodyAttributeValue.equals(entityBodyParam.getVarName())) {
+//            throw new BallerinaConnectorException("expected '" + entityBodyAttributeValue +
+//                    "' as param name, but found '" + entityBodyParam.getVarName() + "'");
+//        }
+//        int type = entityBodyParam.getVarType().getTag();
+//        if (type == TypeTags.RECORD_TYPE_TAG || type == TypeTags.JSON_TAG || type == TypeTags.XML_TAG ||
+//                type == TypeTags.STRING_TAG || (type == TypeTags.ARRAY_TAG && validArrayType(entityBodyParam))) {
+//            this.entityBody = entityBodyParam;
+//            paramCount++;
+//        } else {
+//            throw new BallerinaConnectorException("incompatible entity-body type : " +
+//                    entityBodyParam.getVarType().getName());
+//        }
+//    }
+//
+//    /**
+//     * Check the validity of array type in data binding scenario.
+//     *
+//     * @param entityBodyParam Represents resource parameter details
+//     * @return a boolean indicating the validity of the array type
+//     */
+//    private boolean validArrayType(ParamDetail entityBodyParam) {
+//        return ((BArrayType) entityBodyParam.getVarType()).getElementType().getTag() == TypeTags.BYTE_TAG ||
+//                ((BArrayType) entityBodyParam.getVarType()).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG;
     }
 
     ParamDetail getEntityBody() {

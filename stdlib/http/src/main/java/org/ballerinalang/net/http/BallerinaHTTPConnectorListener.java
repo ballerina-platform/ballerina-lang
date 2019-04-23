@@ -21,7 +21,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -51,10 +51,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private final HTTPServicesRegistry httpServicesRegistry;
 
-    protected final Struct endpointConfig;
+    protected final MapValue endpointConfig;
 
-    public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry,
-                                          Struct endpointConfig) {
+    public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry, MapValue endpointConfig) {
         this.httpServicesRegistry = httpServicesRegistry;
         this.endpointConfig = endpointConfig;
     }
@@ -81,7 +80,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             }
         } catch (BallerinaException ex) {
             try {
-                HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
+//                HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
             } catch (Exception e) {
                 log.error("Cannot handle error using the error handler for: " + e.getMessage(), e);
             }
@@ -100,16 +99,16 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         Map<String, Object> properties = collectRequestProperties(inboundMessage, isTransactionInfectable,
                 isInterruptible, httpResource.isTransactionAnnotated());
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
-        Resource balResource = httpResource.getBalResource();
+//        Resource balResource = httpResource.getBalResource();
 
         ObserverContext observerContext = null;
         if (ObserveUtils.isObservabilityEnabled()) {
             observerContext = new ObserverContext();
             observerContext.setConnectorName(SERVER_CONNECTOR_HTTP);
-            observerContext.setServiceName(ObserveUtils.getFullServiceName(httpResource.getParentService()
-                                                                                       .getBalService()
-                                                                                       .getServiceInfo()));
-            observerContext.setResourceName(balResource.getName());
+//            observerContext.setServiceName(ObserveUtils.getFullServiceName(httpResource.getParentService()
+//                                                                                       .getBalService()
+//                                                                                       .getServiceInfo()));
+//            observerContext.setResourceName(balResource.getName());
 
             Map<String, String> httpHeaders = new HashMap<>();
             inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
@@ -121,7 +120,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         //TODO handle BallerinaConnectorException
-        Executor.submit(balResource, callback, properties, observerContext, signatureParams);
+//        Executor.submit(balResource, callback, properties, observerContext, signatureParams);
     }
 
     protected boolean accessed(HttpCarbonMessage inboundMessage) {

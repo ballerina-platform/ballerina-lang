@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -47,6 +48,10 @@ public class WebSocketService {
     }
 
     public WebSocketService(Service service) {
+        service = null;
+    }
+
+    public WebSocketService(ObjectValue service) {
         this.service = service;
         for (Resource resource : service.getResources()) {
             resourceMap.put(resource.getName(), resource);

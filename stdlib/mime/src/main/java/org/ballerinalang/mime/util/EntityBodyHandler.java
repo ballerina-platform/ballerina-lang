@@ -114,7 +114,7 @@ public class EntityBodyHandler {
      * @param entityObj      Represent the ballerina entity
      * @param messageDataSource which represent the entity body in memory
      */
-    public static void addMessageDataSource(BMap<String, BValue> entityObj, BValue messageDataSource) {
+    public static void addMessageDataSource(ObjectValue entityObj, BValue messageDataSource) {
         entityObj.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
     }
 
@@ -243,7 +243,7 @@ public class EntityBodyHandler {
      * @param entityObj Represent an entity object
      * @return StringDataSource which represent the entity body which is kept in memory
      */
-    public static BString constructStringDataSource(BMap<String, BValue> entityObj) {
+    public static BString constructStringDataSource(ObjectValue entityObj) {
         try {
             Channel byteChannel = getByteChannel(entityObj);
             if (byteChannel == null) {

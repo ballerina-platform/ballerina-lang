@@ -18,9 +18,10 @@
 package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
@@ -149,31 +150,26 @@ public class HttpDispatcher {
     }
 
     public static BValue[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
-                                                  Struct endpointConfig) {
+                                                  MapValue endpointConfig) {
         //TODO Think of keeping struct type globally rather than creating for each request
         ProgramFile programFile = httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile();
 
-        BMap<String, BValue> serviceEndpoint =
-                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, HTTP_LISTENER_ENDPOINT);
-        BMap<String, BValue> httpCaller =
-                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, CALLER);
-        BMap<String, BValue> inRequest =
-                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, REQUEST);
-        BMap<String, BValue> inRequestEntity =
-                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_MIME, ENTITY);
-        BMap<String, BValue> mediaType =
-                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+        ObjectValue serviceEndpoint = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, HTTP_LISTENER_ENDPOINT);
+        ObjectValue httpCaller = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, CALLER);
+        ObjectValue inRequest = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, REQUEST);
+        ObjectValue inRequestEntity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
+        ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
         HttpUtil.enrichHttpCallerWithConnectionInfo(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);
-        serviceEndpoint.put(SERVICE_ENDPOINT_CONNECTION_FIELD, httpCaller);
+        serviceEndpoint.addNativeData(SERVICE_ENDPOINT_CONNECTION_FIELD, httpCaller);
 
-        HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
+//        HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
         BValue[] bValues = new BValue[signatureParams.getParamCount()];
-        bValues[0] = httpCaller;
-        bValues[1] = inRequest;
+//        bValues[0] = httpCaller;
+//        bValues[1] = inRequest;
         if (signatureParams.getParamCount() == 2) {
             return bValues;
         }
@@ -183,7 +179,9 @@ public class HttpDispatcher {
         for (int i = 0; i < signatureParams.getPathParams().size(); i++) {
             //No need for validation as validation already happened at deployment time,
             //only string parameters can be found here.
-            String argumentValue = resourceArgumentValues.get(signatureParams.getPathParams().get(i).getVarName());
+            //TODO : fix argumentValue
+//            String argumentValue = resourceArgumentValues.get(signatureParams.getPathParams().get(i).getVarName());
+            String argumentValue = "";
             if (argumentValue != null) {
                 try {
                     argumentValue = URLDecoder.decode(argumentValue, "UTF-8");
@@ -208,8 +206,8 @@ public class HttpDispatcher {
         return bValues;
     }
 
-    private static BValue populateAndGetEntityBody(BMap<String, BValue> inRequest,
-                                                   BMap<String, BValue> inRequestEntity, BType entityBodyType) {
+    private static BValue populateAndGetEntityBody(ObjectValue inRequest, ObjectValue inRequestEntity,
+                                                   org.ballerinalang.jvm.types.BType entityBodyType) {
         HttpUtil.populateEntityBody(null, inRequest, inRequestEntity, true, true);
         try {
             switch (entityBodyType.getTag()) {

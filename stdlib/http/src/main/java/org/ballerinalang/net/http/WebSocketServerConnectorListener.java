@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -51,7 +52,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     private final WebSocketConnectionManager connectionManager;
     private final Struct httpEndpointConfig;
 
-    public WebSocketServerConnectorListener(WebSocketServicesRegistry servicesRegistry, Struct httpEndpointConfig) {
+    public WebSocketServerConnectorListener(WebSocketServicesRegistry servicesRegistry, MapValue httpEndpointConfig) {
         this.servicesRegistry = servicesRegistry;
         this.connectionManager = new WebSocketConnectionManager();
         this.httpEndpointConfig = httpEndpointConfig;

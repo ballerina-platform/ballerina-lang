@@ -35,17 +35,21 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
@@ -107,57 +111,7 @@ import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
-import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
-import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
-import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
-import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
-import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS;
-import static org.ballerinalang.net.http.HttpConstants.AUTO;
-import static org.ballerinalang.net.http.HttpConstants.COLON;
-import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
-import static org.ballerinalang.net.http.HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION;
-import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_SESSION_TIMEOUT;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
-import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_RECORD;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
-import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
-import static org.ballerinalang.net.http.HttpConstants.NEVER;
-import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
-import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS;
-import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI;
-import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
-import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
-import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
-import static org.ballerinalang.net.http.HttpConstants.SSL_ENABLED_PROTOCOLS;
-import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
+import static org.ballerinalang.net.http.HttpConstants.*;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
@@ -294,8 +248,8 @@ public class HttpUtil {
      * @param request           boolean representing whether the message is a request or a response
      * @param streaming         boolean representing whether the entity requires byte channel or message as native data
      */
-    public static void populateEntityBody(Context context, BMap<String, BValue> httpMessageStruct,
-                                          BMap<String, BValue> entity, boolean request, boolean streaming) {
+    public static void populateEntityBody(Context context, ObjectValue httpMessageStruct, ObjectValue entity,
+                                          boolean request, boolean streaming) {
         HttpCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(request));
         String contentType = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
@@ -509,32 +463,31 @@ public class HttpUtil {
     /**
      * Get error struct.
      *
-     * @param context Represent ballerina context
      * @param errMsg  Error message
      * @return Error struct
      */
-    public static BError getError(Context context, String errMsg) {
-        BMap<String, BValue> httpErrorRecord = createHTTPErrorRecord(context);
+    public static ErrorValue getError(String errMsg) {
+        MapValue<String, Object> httpErrorRecord = createHTTPErrorRecord();
         httpErrorRecord.put(HTTP_ERROR_MESSAGE, new BString(errMsg));
-        return BLangVMErrors.createError(context, true, BTypes.typeError, HTTP_ERROR_CODE, httpErrorRecord);
+        return BallerinaErrors.createError(HTTP_ERROR_CODE, httpErrorRecord);
     }
 
-    private static BMap<String, BValue> createHTTPErrorRecord(Context context) {
-        return BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_RECORD);
+    private static MapValue<String, Object> createHTTPErrorRecord() {
+        return BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_RECORD);
+//        return BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_RECORD);
     }
 
     /**
      * Get error struct from throwable.
      *
-     * @param context   Represent ballerina context
      * @param throwable Throwable representing the error.
      * @return Error struct
      */
-    public static BError getError(Context context, Throwable throwable) {
+    public static ErrorValue getError(Throwable throwable) {
         if (throwable.getMessage() == null) {
-            return getError(context, IO_EXCEPTION_OCCURED);
+            return getError(IO_EXCEPTION_OCCURED);
         } else {
-            return getError(context, throwable.getMessage());
+            return getError(throwable.getMessage());
         }
     }
 
@@ -664,10 +617,10 @@ public class HttpUtil {
      * @param inboundMsg Represents carbon message
      * @param config     Represents service endpoint configuration
      */
-    public static void enrichHttpCallerWithNativeData(BMap<String, BValue> caller, HttpCarbonMessage inboundMsg,
-                                                      Struct config) {
+    public static void enrichHttpCallerWithNativeData(ObjectValue caller, HttpCarbonMessage inboundMsg,
+                                                      MapValue config) {
         caller.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
-        caller.put(HttpConstants.HTTP_CONNECTOR_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
+//        caller.put(HttpConstants.HTTP_CONNECTOR_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
     }
 
     /**
@@ -678,8 +631,8 @@ public class HttpUtil {
      * @param httpResource Represents the Http Resource
      * @param config       Represents the service endpoint configuration
      */
-    public static void enrichHttpCallerWithConnectionInfo(BMap<String, BValue> httpCaller, HttpCarbonMessage inboundMsg,
-                                                          HttpResource httpResource, Struct config) {
+    public static void enrichHttpCallerWithConnectionInfo(ObjectValue httpCaller, HttpCarbonMessage inboundMsg,
+                                                          HttpResource httpResource, MapValue config) {
         BMap<String, BValue> remote = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
@@ -695,7 +648,7 @@ public class HttpUtil {
             remote.put(HttpConstants.REMOTE_HOST_FIELD, new BString(remoteHost));
             remote.put(HttpConstants.REMOTE_PORT_FIELD, new BInteger(remotePort));
         }
-        httpCaller.put(HttpConstants.REMOTE_STRUCT_FIELD, remote);
+        httpCaller.addNativeData(HttpConstants.REMOTE_STRUCT_FIELD, remote);
 
         Object localSocketAddress = inboundMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
         if (localSocketAddress instanceof InetSocketAddress) {
@@ -705,10 +658,10 @@ public class HttpUtil {
             local.put(HttpConstants.LOCAL_HOST_FIELD, new BString(localHost));
             local.put(HttpConstants.LOCAL_PORT_FIELD, new BInteger(localPort));
         }
-        httpCaller.put(HttpConstants.LOCAL_STRUCT_INDEX, local);
-        httpCaller.put(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
+        httpCaller.addNativeData(HttpConstants.LOCAL_STRUCT_INDEX, local);
+        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
                 new BString((String) inboundMsg.getProperty(HttpConstants.PROTOCOL)));
-        httpCaller.put(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
+//        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
     }
 
     /**
@@ -1087,35 +1040,35 @@ public class HttpUtil {
 //        }
 //    }
 
-    public static Annotation getResourceConfigAnnotation(Resource resource, String pkgPath) {
-        List<Annotation> annotationList = resource.getAnnotationList(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
+    public static MapValue getResourceConfigAnnotation(AttachedFunction resource, String pkgPath) {
+        MapValue annotations = resource.getAnnotation(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
 
-        if (annotationList == null) {
+        if (annotations == null) {
             return null;
         }
 
-        if (annotationList.size() > 1) {
+        if (annotations.size() > 1) {
             throw new BallerinaException(
                     "multiple resource configuration annotations found in resource: " +
-                            resource.getServiceName() + "." + resource.getName());
+                            resource.parent.getName() + "." + resource.getName());
         }
 
-        return annotationList.isEmpty() ? null : annotationList.get(0);
+        return annotations.isEmpty() ? null : annotations;
     }
 
-    public static Annotation getTransactionConfigAnnotation(Resource resource, String transactionPackagePath) {
-        List<Annotation> annotationList = resource.getAnnotationList(transactionPackagePath,
+    public static MapValue getTransactionConfigAnnotation(AttachedFunction resource, String transactionPackagePath) {
+        MapValue annotation = resource.getAnnotation(transactionPackagePath,
                 TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
 
-        if (annotationList == null || annotationList.isEmpty()) {
+        if (annotation == null || annotation.isEmpty()) {
             return null;
         }
-        if (annotationList.size() > 1) {
+        if (annotation.size() > 1) {
             throw new BallerinaException(
                     "multiple transaction configuration annotations found in resource: " +
-                            resource.getServiceName() + "." + resource.getName());
+                            resource.parent.getName() + "." + resource.getName());
         }
-        return annotationList.get(0);
+        return annotation;
     }
 
     private static int getIntValue(long val) {
@@ -1481,8 +1434,8 @@ public class HttpUtil {
      * @param configAnnotation      Represent the annotation
      * @return True if the annotation and the annotation value are available
      */
-    public static boolean checkConfigAnnotationAvailability(Annotation configAnnotation) {
-        return configAnnotation != null && configAnnotation.getValue() != null;
+    public static boolean checkConfigAnnotationAvailability(MapValue configAnnotation) {
+        return configAnnotation != null;
     }
 
     /**
@@ -1492,13 +1445,13 @@ public class HttpUtil {
      * @param endpointConfig    listener endpoint configuration.
      * @return                  transport listener configuration instance.
      */
-    public static ListenerConfiguration getListenerConfig(long port, Struct endpointConfig) {
-        String host = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_HOST);
-        String keepAlive = endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE).getStringValue();
-        Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
-        String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
-        Struct requestLimits = endpointConfig.getStructField(HttpConstants.ENDPOINT_REQUEST_LIMITS);
-        long idleTimeout = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
+    public static ListenerConfiguration getListenerConfig(long port, MapValue endpointConfig) {
+        String host = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_HOST);
+        String keepAlive = endpointConfig.get(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE).toString();
+        MapValue sslConfig = endpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
+        String httpVersion = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_VERSION);
+        MapValue requestLimits = endpointConfig.getMapValue(HttpConstants.ENDPOINT_REQUEST_LIMITS);
+        long idleTimeout = endpointConfig.getIntValue(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
@@ -1539,17 +1492,17 @@ public class HttpUtil {
         }
 
         listenerConfiguration.setPipeliningEnabled(true); //Pipelining is enabled all the time
-        listenerConfiguration.setPipeliningLimit(endpointConfig.getIntField(
+        listenerConfiguration.setPipeliningLimit(endpointConfig.getIntValue(
                 HttpConstants.PIPELINING_REQUEST_LIMIT));
 
         return listenerConfiguration;
     }
 
-    private static void setRequestSizeValidationConfig(Struct requestLimits,
+    private static void setRequestSizeValidationConfig(MapValue requestLimits,
                                                      ListenerConfiguration listenerConfiguration) {
-        long maxUriLength = requestLimits.getIntField(HttpConstants.REQUEST_LIMITS_MAXIMUM_URL_LENGTH);
-        long maxHeaderSize = requestLimits.getIntField(HttpConstants.REQUEST_LIMITS_MAXIMUM_HEADER_SIZE);
-        long maxEntityBodySize = requestLimits.getIntField(HttpConstants.REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE);
+        long maxUriLength = requestLimits.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_URL_LENGTH);
+        long maxHeaderSize = requestLimits.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_HEADER_SIZE);
+        long maxEntityBodySize = requestLimits.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE);
         RequestSizeValidationConfig requestSizeValidationConfig = listenerConfiguration
                 .getRequestSizeValidationConfig();
 
@@ -1591,17 +1544,17 @@ public class HttpUtil {
         return userAgent;
     }
 
-    private static ListenerConfiguration setSslConfig(Struct sslConfig, ListenerConfiguration listenerConfiguration) {
+    private static ListenerConfiguration setSslConfig(MapValue sslConfig, ListenerConfiguration listenerConfiguration) {
         listenerConfiguration.setScheme(PROTOCOL_HTTPS);
-        Struct trustStore = sslConfig.getStructField(ENDPOINT_CONFIG_TRUST_STORE);
-        Struct keyStore = sslConfig.getStructField(ENDPOINT_CONFIG_KEY_STORE);
-        Struct protocols = sslConfig.getStructField(ENDPOINT_CONFIG_PROTOCOLS);
-        Struct validateCert = sslConfig.getStructField(ENDPOINT_CONFIG_VALIDATE_CERT);
-        Struct ocspStapling = sslConfig.getStructField(ENDPOINT_CONFIG_OCSP_STAPLING);
-        String keyFile = sslConfig.getStringField(ENDPOINT_CONFIG_KEY);
-        String certFile = sslConfig.getStringField(ENDPOINT_CONFIG_CERTIFICATE);
-        String trustCerts = sslConfig.getStringField(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
-        String keyPassword = sslConfig.getStringField(ENDPOINT_CONFIG_KEY_PASSWORD);
+        MapValue trustStore = sslConfig.getMapValue(ENDPOINT_CONFIG_TRUST_STORE);
+        MapValue keyStore = sslConfig.getMapValue(ENDPOINT_CONFIG_KEY_STORE);
+        MapValue protocols = sslConfig.getMapValue(ENDPOINT_CONFIG_PROTOCOLS);
+        MapValue validateCert = sslConfig.getMapValue(ENDPOINT_CONFIG_VALIDATE_CERT);
+        MapValue ocspStapling = sslConfig.getMapValue(ENDPOINT_CONFIG_OCSP_STAPLING);
+        String keyFile = sslConfig.getStringValue(ENDPOINT_CONFIG_KEY);
+        String certFile = sslConfig.getStringValue(ENDPOINT_CONFIG_CERTIFICATE);
+        String trustCerts = sslConfig.getStringValue(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
+        String keyPassword = sslConfig.getStringValue(ENDPOINT_CONFIG_KEY_PASSWORD);
 
         if (keyStore != null && StringUtils.isNotBlank(keyFile)) {
             throw new BallerinaException("Cannot configure both keyStore and keyFile at the same time.");
@@ -1610,11 +1563,11 @@ public class HttpUtil {
                     + "for secure connection");
         }
         if (keyStore != null) {
-            String keyStoreFile = keyStore.getStringField(FILE_PATH);
+            String keyStoreFile = keyStore.getStringValue(FILE_PATH);
             if (StringUtils.isBlank(keyStoreFile)) {
                 throw new BallerinaException("Keystore file location must be provided for secure connection.");
             }
-            String keyStorePassword = keyStore.getStringField(PASSWORD);
+            String keyStorePassword = keyStore.getStringValue(PASSWORD);
             if (StringUtils.isBlank(keyStorePassword)) {
                 throw new BallerinaException("Keystore password must be provided for secure connection");
             }
@@ -1627,19 +1580,19 @@ public class HttpUtil {
                 listenerConfiguration.setServerKeyPassword(keyPassword);
             }
         }
-        String sslVerifyClient = sslConfig.getStringField(SSL_CONFIG_SSL_VERIFY_CLIENT);
+        String sslVerifyClient = sslConfig.getStringValue(SSL_CONFIG_SSL_VERIFY_CLIENT);
         listenerConfiguration.setVerifyClient(sslVerifyClient);
         listenerConfiguration
-                .setSslSessionTimeOut((int) sslConfig.getDefaultableIntField(ENDPOINT_CONFIG_SESSION_TIMEOUT));
+                .setSslSessionTimeOut((int) sslConfig.getDefaultableIntValue(ENDPOINT_CONFIG_SESSION_TIMEOUT));
         listenerConfiguration
-                .setSslHandshakeTimeOut(sslConfig.getDefaultableIntField(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
+                .setSslHandshakeTimeOut(sslConfig.getDefaultableIntValue(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
         if (trustStore == null && StringUtils.isNotBlank(sslVerifyClient) && StringUtils.isBlank(trustCerts)) {
             throw new BallerinaException(
                     "Truststore location or trustCertificates must be provided to enable Mutual SSL");
         }
         if (trustStore != null) {
-            String trustStoreFile = trustStore.getStringField(FILE_PATH);
-            String trustStorePassword = trustStore.getStringField(PASSWORD);
+            String trustStoreFile = trustStore.getStringValue(FILE_PATH);
+            String trustStorePassword = trustStore.getStringValue(PASSWORD);
             if (StringUtils.isBlank(trustStoreFile) && StringUtils.isNotBlank(sslVerifyClient)) {
                 throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
             }
@@ -1654,31 +1607,30 @@ public class HttpUtil {
         List<Parameter> serverParamList = new ArrayList<>();
         Parameter serverParameters;
         if (protocols != null) {
-            List<Value> sslEnabledProtocolsValueList = Arrays.asList(protocols.getArrayField(ENABLED_PROTOCOLS));
+            List<String> sslEnabledProtocolsValueList = Arrays.asList(protocols.getArrayValue(ENABLED_PROTOCOLS).getStringArray());
             if (!sslEnabledProtocolsValueList.isEmpty()) {
-                String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
+                String sslEnabledProtocols = sslEnabledProtocolsValueList.stream()
                         .collect(Collectors.joining(",", "", ""));
                 serverParameters = new Parameter(ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
                 serverParamList.add(serverParameters);
             }
 
-            String sslProtocol = protocols.getStringField(PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringValue(PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 listenerConfiguration.setSSLProtocol(sslProtocol);
             }
         }
 
-        List<Value> ciphersValueList = Arrays.asList(sslConfig.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
+        List<String> ciphersValueList = Arrays.asList(sslConfig.getArrayValue(HttpConstants.SSL_CONFIG_CIPHERS).getStringArray());
         if (!ciphersValueList.isEmpty()) {
-            String ciphers = ciphersValueList.stream().map(Value::getStringValue)
-                    .collect(Collectors.joining(",", "", ""));
+            String ciphers = ciphersValueList.stream().collect(Collectors.joining(",", "", ""));
             serverParameters = new Parameter(HttpConstants.CIPHERS, ciphers);
             serverParamList.add(serverParameters);
         }
         if (validateCert != null) {
-            boolean validateCertificateEnabled = validateCert.getBooleanField(HttpConstants.ENABLE);
-            long cacheSize = validateCert.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
-            long cacheValidationPeriod = validateCert.getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
+            boolean validateCertificateEnabled = validateCert.getBooleanValue(HttpConstants.ENABLE);
+            long cacheSize = validateCert.getIntValue(HttpConstants.SSL_CONFIG_CACHE_SIZE);
+            long cacheValidationPeriod = validateCert.getIntValue(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
             listenerConfiguration.setValidateCertEnabled(validateCertificateEnabled);
             if (validateCertificateEnabled) {
                 if (cacheSize != 0) {
@@ -1690,10 +1642,10 @@ public class HttpUtil {
             }
         }
         if (ocspStapling != null) {
-            boolean ocspStaplingEnabled = ocspStapling.getBooleanField(HttpConstants.ENABLE);
+            boolean ocspStaplingEnabled = ocspStapling.getBooleanValue(HttpConstants.ENABLE);
             listenerConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
-            long cacheSize = ocspStapling.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
-            long cacheValidationPeriod = ocspStapling.getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
+            long cacheSize = ocspStapling.getIntValue(HttpConstants.SSL_CONFIG_CACHE_SIZE);
+            long cacheValidationPeriod = ocspStapling.getIntValue(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
             listenerConfiguration.setValidateCertEnabled(ocspStaplingEnabled);
             if (ocspStaplingEnabled) {
                 if (cacheSize != 0) {
@@ -1706,7 +1658,7 @@ public class HttpUtil {
         }
         listenerConfiguration.setTLSStoreType(PKCS_STORE_TYPE);
         String serverEnableSessionCreation = String
-                .valueOf(sslConfig.getBooleanField(SSL_CONFIG_ENABLE_SESSION_CREATION));
+                .valueOf(sslConfig.getBooleanValue(SSL_CONFIG_ENABLE_SESSION_CREATION));
         Parameter enableSessionCreationParam = new Parameter(SSL_CONFIG_ENABLE_SESSION_CREATION,
                 serverEnableSessionCreation);
         serverParamList.add(enableSessionCreationParam);

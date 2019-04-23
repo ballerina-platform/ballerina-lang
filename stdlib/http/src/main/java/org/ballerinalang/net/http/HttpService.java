@@ -17,15 +17,20 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.Annotation;
+//import org.ballerinalang.connector.api.Annotation;
+//import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+//import org.ballerinalang.connector.api.Resource;
+//import org.ballerinalang.connector.api.Service;
+//import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;
+import org.omg.CORBA.Object;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -64,7 +69,7 @@ public class HttpService implements Cloneable {
     private static final String HOST_FIELD = "host";
     protected static final String WEBSOCKET_UPGRADE_FIELD = "webSocketUpgrade";
 
-    private Service balService;
+    private ObjectValue balService;
     private List<HttpResource> resources;
     private List<HttpResource> upgradeToWebSocketResources;
     private List<String> allAllowedMethods;
@@ -76,11 +81,11 @@ public class HttpService implements Cloneable {
     private String hostName;
     private boolean interruptible;
 
-    protected HttpService(Service service) {
+    protected HttpService(ObjectValue service) {
         this.balService = service;
     }
 
-    public Object clone() throws CloneNotSupportedException {
+    public java.lang.Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 
@@ -97,14 +102,14 @@ public class HttpService implements Cloneable {
     }
 
     public String getName() {
-        return balService.getName();
+        return balService.getType().getName();
     }
 
     public String getPackage() {
-        return balService.getPackage();
+        return balService.getType().getPackage().getName();
     }
 
-    public Service getBalService() {
+    public ObjectValue getBalService() {
         return balService;
     }
 
@@ -186,25 +191,25 @@ public class HttpService implements Cloneable {
         return uriTemplate;
     }
 
-    public static List<HttpService> buildHttpService(Service service) {
+    public static List<HttpService> buildHttpService(ObjectValue service) {
         List<HttpService> serviceList = new ArrayList<>();
         List<String> basePathList = new ArrayList<>();
         HttpService httpService = new HttpService(service);
-        Annotation serviceConfigAnnotation = getHttpServiceConfigAnnotation(service);
+        MapValue serviceConfigAnnotation = getHttpServiceConfigAnnotation(service);
         httpService.setInterruptible(hasInterruptibleAnnotation(service));
 
         if (checkConfigAnnotationAvailability(serviceConfigAnnotation)) {
-            Struct serviceConfig = serviceConfigAnnotation.getValue();
+            MapValue serviceConfig = serviceConfigAnnotation;
 
-            httpService.setCompression(serviceConfig.getRefField(COMPRESSION_FIELD).getStringValue());
-            httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getStructField(CORS_FIELD)));
-            httpService.setHostName(serviceConfig.getStringField(HOST_FIELD).trim());
+            httpService.setCompression(serviceConfig.get(COMPRESSION_FIELD).toString());
+            httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getMapValue(CORS_FIELD)));
+            httpService.setHostName(serviceConfig.getStringValue(HOST_FIELD).trim());
 
-            String basePath = serviceConfig.getStringField(BASE_PATH_FIELD);
+            String basePath = serviceConfig.getStringValue(BASE_PATH_FIELD);
             if (basePath.contains(HttpConstants.VERSION)) {
-                prepareBasePathList(serviceConfig.getStructField(VERSIONING_FIELD),
-                                    serviceConfig.getStringField(BASE_PATH_FIELD), basePathList,
-                                    httpService.getBalService().getPackageVersion());
+                prepareBasePathList(serviceConfig.getMapValue(VERSIONING_FIELD),
+                                    serviceConfig.getStringValue(BASE_PATH_FIELD), basePathList,
+                                    httpService.getBalService().getType().getPackage().getVersion());
             } else {
                 basePathList.add(basePath);
             }
@@ -219,11 +224,11 @@ public class HttpService implements Cloneable {
 
         List<HttpResource> httpResources = new ArrayList<>();
         List<HttpResource> upgradeToWebSocketResources = new ArrayList<>();
-        for (Resource resource : httpService.getBalService().getResources()) {
-            Annotation resourceConfigAnnotation =
+        for (AttachedFunction resource : httpService.getBalService().getType().getAttachedFunctions()) {
+            MapValue resourceConfigAnnotation =
                     HttpUtil.getResourceConfigAnnotation(resource, HttpConstants.HTTP_PACKAGE_PATH);
             if (checkConfigAnnotationAvailability(resourceConfigAnnotation)
-                    && resourceConfigAnnotation.getValue().getStructField(WEBSOCKET_UPGRADE_FIELD) != null) {
+                    && resourceConfigAnnotation.getMapValue(WEBSOCKET_UPGRADE_FIELD) != null) {
                 HttpResource upgradeResource = HttpResource.buildHttpResource(resource, httpService);
                 upgradeToWebSocketResources.add(upgradeResource);
             } else {
@@ -260,15 +265,15 @@ public class HttpService implements Cloneable {
         return serviceList;
     }
 
-    private static void prepareBasePathList(Struct versioningConfig, String basePath, List<String> basePathList,
+    private static void prepareBasePathList(MapValue versioningConfig, String basePath, List<String> basePathList,
                                             String packageVersion) {
         String patternAnnotValue = HttpConstants.DEFAULT_VERSION;
         Boolean allowNoVersionAnnotValue = false;
         Boolean matchMajorVersionAnnotValue = false;
         if (versioningConfig != null) {
-            patternAnnotValue = versioningConfig.getStringField(HttpConstants.ANN_CONFIG_ATTR_PATTERN);
-            allowNoVersionAnnotValue = versioningConfig.getBooleanField(HttpConstants.ANN_CONFIG_ATTR_ALLOW_NO_VERSION);
-            matchMajorVersionAnnotValue = versioningConfig.getBooleanField(
+            patternAnnotValue = versioningConfig.getStringValue(HttpConstants.ANN_CONFIG_ATTR_PATTERN);
+            allowNoVersionAnnotValue = versioningConfig.getBooleanValue(HttpConstants.ANN_CONFIG_ATTR_ALLOW_NO_VERSION);
+            matchMajorVersionAnnotValue = versioningConfig.getBooleanValue(
                     HttpConstants.ANN_CONFIG_ATTR_MATCH_MAJOR_VERSION);
         }
         patternAnnotValue = patternAnnotValue.toLowerCase();
@@ -301,22 +306,22 @@ public class HttpService implements Cloneable {
                                               "," + HttpConstants.MINOR_VERSION + "\" elements");
     }
 
-    private static Annotation getHttpServiceConfigAnnotation(Service service) {
+    private static MapValue getHttpServiceConfigAnnotation(ObjectValue service) {
         return getServiceConfigAnnotation(service, HTTP_PACKAGE_PATH, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
     }
 
-    protected static Annotation getServiceConfigAnnotation(Service service, String packagePath, String annotationName) {
-        List<Annotation> annotationList = service.getAnnotationList(packagePath, annotationName);
+    protected static MapValue getServiceConfigAnnotation(ObjectValue service, String packagePath, String annotationName) {
+        MapValue annotation = service.getType().getAnnotation(packagePath, annotationName);
 
-        if (annotationList == null || annotationList.isEmpty()) {
+        if (annotation == null || annotation.isEmpty()) {
             return null;
         }
-        return annotationList.get(0);
+        return annotation;
     }
 
-    private static boolean hasInterruptibleAnnotation(Service service) {
-        List<Annotation> annotationList = service.getAnnotationList(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
-        return annotationList != null && !annotationList.isEmpty();
+    private static boolean hasInterruptibleAnnotation(ObjectValue service) {
+        MapValue annotation = service.getType().getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
+        return annotation != null && !annotation.isEmpty();
     }
 
     private String urlDecode(String basePath) {

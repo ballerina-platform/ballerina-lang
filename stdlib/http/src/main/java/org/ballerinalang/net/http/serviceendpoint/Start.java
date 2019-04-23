@@ -19,6 +19,8 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -42,6 +44,10 @@ public class Start extends AbstractHttpNativeFunction {
 
     @Override
     public void execute(Context context) {
-        context.setReturnValues();
+//        context.setReturnValues();
+    }
+
+    public static void start(Strand strand, ObjectValue liste) {
+
     }
 }
