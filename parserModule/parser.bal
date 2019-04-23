@@ -289,11 +289,11 @@ type Parser object {
 		}
 	}
 	function expressionBuilder() returns ExpressionNode {
+		io:println("isempty" + expStack.isEmpty());
 		tupleListPos = 0;
 		boolean isExpr = true;
 		while (self.LAToken(1) != SEMICOLON && isExpr == true){
-			//io:println(oprStack.isEmpty());
-			//io:println(expStack.isEmpty());
+			//expStack.printStack();
 			isExpr = self.parseExpression2();
 
 			if(isExpr == false){
@@ -311,6 +311,18 @@ type Parser object {
 			BinaryExpressionNode bExpr = { nodeKind: BINARY_EXP_NODE, tokenList: [operator], operatorKind: opKind,
 				leftExpr: expr1, rightExpr: expr2 };
 			expStack.push(bExpr);
+			}else if (operator.tokenType == UNARY_MINUS){
+				OperatorKind opKind3 = self.matchOperatorType(operator);
+				ExpressionNode expr3 = expStack.pop();
+				UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator], operatorKind: opKind3,
+				uExpression : expr3 };
+				expStack.push(uExpression);
+			}else if (operator.tokenType == UNARY_PLUS){
+				OperatorKind opKind4 = self.matchOperatorType(operator);
+				ExpressionNode expr4 = expStack.pop();
+				UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator], operatorKind: opKind4,
+				uExpression : expr4 };
+				expStack.push(uExpression);
 			}else{
 				OperatorKind opKind = self.matchOperatorType(operator);
 				ExpressionNode expr2 = expStack.pop();
@@ -404,44 +416,60 @@ type Parser object {
 			//if the expression stack is empty then that means no prior expression , so this is a unary expr
 			if(expStack.isEmpty() == true){
 				if(self.LAToken(1) == SUB){
-					Token unaryAdd = self.matchToken(SUB, EXPRESSION_NODE);
-					OperatorKind opKind2 = self.matchOperatorType(unaryAdd);
-					boolean isParsed = self.parseExpression2();
-					//doesnt work for braced expressions
-					if (isParsed == true){
-						ExpressionNode uExpression = expStack.pop();
-						UnaryExpressionNode unaryExpression = {nodeKind:UNARY_EXPRESSION_NODE,tokenList: [unaryAdd], operatorKind: opKind2, uExpression: uExpression };
-					expStack.push(unaryExpression);
+					Token unarySub = self.matchToken(SUB, EXPRESSION_NODE);
+					unarySub.tokenType = UNARY_MINUS;
+					oprStack.push(unarySub);
 					}
-					return true;
+				else if (self.LAToken(1) == ADD){
+					Token unaryAdd = self.matchToken(ADD, EXPRESSION_NODE);
+					unaryAdd.tokenType = UNARY_PLUS;
+					oprStack.push(unaryAdd);
 				}
+					expOperand = true;
+					return true;
 			}else if (priorOperator == true) {
 				if(self.LAToken(1) == SUB){
-					Token unaryAdd = self.matchToken(SUB, EXPRESSION_NODE);
-					OperatorKind opKind2 = self.matchOperatorType(unaryAdd);
-					boolean isParsed = self.parseExpression2();
-					if (isParsed == true){
-						ExpressionNode uExpression = expStack.pop();
-						UnaryExpressionNode unaryExpression = {nodeKind:UNARY_EXPRESSION_NODE,tokenList: [unaryAdd], operatorKind: opKind2, uExpression: uExpression };
-					expStack.push(unaryExpression);
-					}
+					Token unarySub = self.matchToken(SUB, EXPRESSION_NODE);
+					unarySub.tokenType = UNARY_MINUS;
+					oprStack.push(unarySub);
 				}
+				else if (self.LAToken(1) == ADD){
+					Token unaryAdd = self.matchToken(ADD, EXPRESSION_NODE);
+					unaryAdd.tokenType = UNARY_PLUS;
+					oprStack.push(unaryAdd);
+				}
+				expOperand = true;
 				priorOperator = false;
 				return true;
-			} else {
+			}else{
 				priorOperator = true;
 				while (oprStack.opPrecedence(oprStack.peek()) >= oprStack.opPrecedence(self.LAToken(1))) {
 					Token operator = oprStack.pop();
+
+					if (operator.tokenType == UNARY_MINUS){
+						priorOperator = false;
+						OperatorKind opKind3 = self.matchOperatorType(operator);
+						ExpressionNode expr3 = expStack.pop();
+						UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator], operatorKind: opKind3,
+						uExpression : expr3 };
+						expStack.push(uExpression);
+					}else if (operator.tokenType == UNARY_PLUS){
+						priorOperator = false;
+						OperatorKind opKind4 = self.matchOperatorType(operator);
+						ExpressionNode expr4 = expStack.pop();
+						UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator], operatorKind: opKind4,
+						uExpression : expr4 };
+						expStack.push(uExpression);
+					}else{
 					OperatorKind opKind = self.matchOperatorType(operator);
 					ExpressionNode expr2 = expStack.pop();
 					ExpressionNode expr1 = expStack.pop();
-
 					BinaryExpressionNode bExpr = { nodeKind: BINARY_EXP_NODE, tokenList: [operator], operatorKind:
-					opKind,
-						leftExpr: expr1, rightExpr: expr2 };
+					opKind,leftExpr: expr1, rightExpr: expr2 };
 					expStack.push(bExpr);
+					}
 				}
-				if (self.LAToken(1) == ADD) {
+				if(self.LAToken(1) == ADD) {
 					Token add = self.matchToken(ADD, EXPRESSION_NODE);
 					oprStack.push(add);
 				} else if (self.LAToken(1) == MUL){
@@ -508,7 +536,7 @@ type Parser object {
 					ExpressionNode expr2 = expStack.pop();
 					ExpressionNode expr1 = expStack.pop();
 					BinaryExpressionNode bExpr = { nodeKind: BINARY_EXP_NODE, tokenList: [operator], operatorKind:
-					opKind,leftExpr: expr1, rightExpr: expr2 };
+					opKind,leftExpr: expr1, rightExpr: expr2};
 					expStack.push(bExpr);
 				}
 				//popping the lParen
@@ -598,7 +626,7 @@ type Parser object {
 	//recordKey COLON expression
 	function parseRecordKeyValue() returns RecordKeyValueNode{
 	//record key
-	//	boolean sf = self.parseRecordKey();
+	//recordKey COLON expression
 		if(self.LAToken(1) == IDENTIFIER && self.LAToken(2) == COLON){
 			Token id = self.matchToken(IDENTIFIER, EXPRESSION_NODE);
 			IdentifierNode idNode = {nodeKind:IDENTIFIER_NODE,tokenList:[id],identifier:id.text};
@@ -669,15 +697,6 @@ type Parser object {
 			return rKeyValueNode;
 		 }
 	}
-	//function parseRecordKey() returns boolean{
-	//	if(self.LAToken(1) == IDENTIFIER){
-	//		Token id = self.matchToken(IDENTIFIER, EXPRESSION_NODE);
-	//		IdentifierNode idNode = {nodeKind:IDENTIFIER_NODE,identifier: id.text};
-	//	}else{
-	//	 boolean parseRKey = self.parseExpression2();
-	//	 return parseRKey;
-	//	 }
-	//}
 	//valueTypeName
 	//    | INT
 	//    | STRING
@@ -729,6 +748,12 @@ type Parser object {
 			return REF_EQUAL_OP;
 		}else if(tokenNames[operator.tokenType] == "REF_NOT_EQUAL"){
 			return REF_NOT_EQUAL_OP;
+		}else if (tokenNames[operator.tokenType] == "UNARY_MINUS"){
+			return MINUS_OP;
+		}else if (tokenNames[operator.tokenType] == "UNARY_PLUS"){
+			return PLUS_OP;
+		}else if (tokenNames[operator.tokenType] == "NOT"){
+			return NOT_OP;
 		}else{
 			return ERROR_OP;
 		}
@@ -769,6 +794,10 @@ type OperatorStack object {
 		}
 		return true;
 	}
+	function size() returns int {
+		int opSize = self.opStack.length();
+		return opSize;
+	}
 	//ToDo: add the operatory associativity
 	function opPrecedence(int opToken) returns int {
 		if(opToken == COMMA){
@@ -783,15 +812,17 @@ type OperatorStack object {
 			return 4;
 		} else if (opToken == DIV || opToken == MUL || opToken == MOD){
 			return 5;
-		}else if (opToken == COLON){
+		}else if (opToken == UNARY_MINUS || opToken == UNARY_PLUS || opToken == NOT ){
 			return 6;
+		}else if (opToken == COLON){
+			return 7;
 		}
 		return -1;
 	}
 };
 
 type ExprStack object {
-	ExpressionNode[] exprStack = [];
+	ExpressionNode[] exprStack = [null];
 	int top;
 	public function __init(int top = 0) {
 		self.top = top;
@@ -812,10 +843,17 @@ type ExprStack object {
 		return topExpr;
 	}
 	function isEmpty() returns boolean {
-		if(self.exprStack.length() == 1){
-			return false;
+		if(self.exprStack.length() == 1 && self.exprStack[0] == null ){
+			return true;
 		}
-		return true;
+		return false;
+	}
+	function printStack(){
+		int i = 0;
+		while (i < self.exprStack.length()){
+			io:println(self.exprStack[i]);
+			i+= 1;
+		}
 	}
 };
 

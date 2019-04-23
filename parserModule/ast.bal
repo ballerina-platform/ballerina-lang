@@ -46,9 +46,10 @@ const EQUAL_OP = "==";
 const NOT_EQUAL_OP = "!=";
 const REF_EQUAL_OP = "===";
 const REF_NOT_EQUAL_OP = "!==";
+const NOT_OP = "!";
 
 type OperatorKind PLUS_OP|MINUS_OP|DIVISION_OP|MULTIPLICATION_OP|ERROR_OP|COLON_OP |COMMA_OP |
-MOD_OP | LT_EQUAL_OP | GT_EQUAL_OP | GT_OP | LT_OP | EQUAL_OP | NOT_EQUAL_OP | REF_EQUAL_OP | REF_NOT_EQUAL_OP ;
+MOD_OP | LT_EQUAL_OP | GT_EQUAL_OP | GT_OP | LT_OP | EQUAL_OP | NOT_EQUAL_OP | REF_EQUAL_OP | REF_NOT_EQUAL_OP | NOT_OP ;
 
 type Node record {
     NodeKind nodeKind;
