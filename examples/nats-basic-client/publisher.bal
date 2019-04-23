@@ -19,7 +19,7 @@ public function main() {
             if (result is error) {
                 io:println("Error occurred while producing the message.");
             } else {
-                io:println("GUID "+result+" received for the produced message.");
+                io:println("GUID " + result + " received for the produced message.");
             }
         }
     }
