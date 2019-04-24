@@ -46,6 +46,7 @@ public class OutboundMsgHolder {
     private boolean allPromisesReceived = false;
     private long lastReadWriteTime;
     private boolean requestWritten;
+    private boolean firstContentWritten;
 
     public OutboundMsgHolder(HttpCarbonMessage httpOutboundRequest) {
         this.requestCarbonMessage = httpOutboundRequest;
@@ -208,5 +209,12 @@ public class OutboundMsgHolder {
     public void setRequestWritten(boolean requestWritten) {
         this.requestWritten = requestWritten;
     }
-}
 
+    boolean isFirstContentWritten() {
+        return firstContentWritten;
+    }
+
+    void setFirstContentWritten(boolean firstContentWritten) {
+        this.firstContentWritten = firstContentWritten;
+    }
+}

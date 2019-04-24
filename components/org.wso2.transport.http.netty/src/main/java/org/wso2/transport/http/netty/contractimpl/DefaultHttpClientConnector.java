@@ -50,6 +50,7 @@ import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.Connection
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.RequestWriteStarter;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.TimeoutHandler;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
@@ -185,8 +186,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
                 if (activeHttp2ClientChannel != null) {
                     outboundMsgHolder.setHttp2ClientChannel(activeHttp2ClientChannel);
-                    activeHttp2ClientChannel.getChannel().eventLoop().execute(
-                        () -> activeHttp2ClientChannel.getChannel().write(outboundMsgHolder));
+                    new RequestWriteStarter(outboundMsgHolder, activeHttp2ClientChannel).startWritingContent();
                     httpResponseFuture = outboundMsgHolder.getResponseFuture();
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                     return httpResponseFuture;
@@ -254,9 +254,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     freshHttp2ClientChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
                                                                  new TimeoutHandler(socketIdleTimeout,
                                                                                     freshHttp2ClientChannel));
-
-                    freshHttp2ClientChannel.getChannel().eventLoop().execute(
-                        () -> freshHttp2ClientChannel.getChannel().write(outboundMsgHolder));
+                    new RequestWriteStarter(outboundMsgHolder, freshHttp2ClientChannel).startWritingContent();
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                 }
 

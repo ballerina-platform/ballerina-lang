@@ -23,6 +23,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.ssl.SslHandshakeCompletionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 
 import java.security.cert.Certificate;
@@ -40,6 +42,8 @@ import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_PASSED
  * once this becomes successful.
  */
 public class SslHandshakeCompletionHandlerForServer extends ChannelInboundHandlerAdapter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SslHandshakeCompletionHandlerForServer.class);
 
     private HttpServerChannelInitializer httpServerChannelInitializer;
     private ChannelPipeline serverPipeline;
@@ -76,6 +80,11 @@ public class SslHandshakeCompletionHandlerForServer extends ChannelInboundHandle
                 ctx.close();
             }
         }
+     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LOG.error("Error while SSL handshake: " + cause.getMessage());
     }
 }
 
