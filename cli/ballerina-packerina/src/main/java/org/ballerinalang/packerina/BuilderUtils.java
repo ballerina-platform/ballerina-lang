@@ -219,7 +219,7 @@ public class BuilderUtils {
                 lockEnabled, skipTests, enableExperimentalFeatures);
 
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage bLangPackage = compiler.build(packagePath);
+        BLangPackage bLangPackage = compiler.compile(packagePath, true, true);
         byte[] jarContent = JVMCodeGen.generateJarBinary(dumpBIR, bLangPackage, context, packagePath);
         compiler.write(jarContent, sourceRootPath, targetFileName);
     }
