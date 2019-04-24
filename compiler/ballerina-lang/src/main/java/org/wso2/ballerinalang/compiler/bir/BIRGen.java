@@ -233,7 +233,28 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarLambda);
         BIROperand lhsOp = new BIROperand(tempVarLambda);
         Name funcName = getFuncName(lambdaExpr.function.symbol);
-        emit(new BIRNonTerminator.FPLoad(lambdaExpr.pos, lambdaExpr.function.symbol.pkgID, funcName, lhsOp));
+
+        List<BIRVariableDcl> params = new ArrayList<>();
+
+        lambdaExpr.function.requiredParams.forEach(param -> {
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(param.pos, param.symbol.type,
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG);
+            params.add(birVarDcl);
+        });
+
+        lambdaExpr.function.defaultableParams.forEach(param -> {
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(param.pos, param.var.symbol.type,
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG);
+            params.add(birVarDcl);
+        });
+        BLangSimpleVariable restParam = lambdaExpr.function.restParam;
+        if (restParam != null) {
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(restParam.pos, restParam.symbol.type,
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG);
+            params.add(birVarDcl);
+        }
+
+        emit(new BIRNonTerminator.FPLoad(lambdaExpr.pos, lambdaExpr.function.symbol.pkgID, funcName, lhsOp, params));
         this.env.targetOperand = lhsOp;
     }
 

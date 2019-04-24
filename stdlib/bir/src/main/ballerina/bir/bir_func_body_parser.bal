@@ -170,7 +170,16 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             var pkgId = self.reader.readModuleIDCpRef();
             var name = self.reader.readStringCpRef();
-            FPLoad fpLoad = {kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }};
+            VariableDcl?[] params = [];
+            var numVars = self.reader.readInt32();
+            int i = 0;
+            io:println(numVars);
+            while (i < numVars) {
+                var dcl = parseVariableDcl(self.reader, self.typeParser);
+                params[i] = dcl;
+                i += 1;
+            }
+            FPLoad fpLoad = {kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params};
             return fpLoad;
         } else {
             return self.parseBinaryOpInstruction(kindTag);
@@ -346,5 +355,17 @@ function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, Va
         error err = error("local var missing " + varName);
         panic err;
     }
+}
+
+public function parseVariableDcl(BirChannelReader reader, TypeParser typeParser) returns VariableDcl {
+    VarKind kind = parseVarKind(reader);
+    var typeValue = typeParser.parseType();
+    var name = reader.readStringCpRef();
+    VariableDcl dcl = {
+        typeValue: typeValue,
+        name: { value: name },
+            kind: kind
+        };
+    return dcl;
 }
 

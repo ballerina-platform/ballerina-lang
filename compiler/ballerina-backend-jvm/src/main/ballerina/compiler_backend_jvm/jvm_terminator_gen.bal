@@ -252,6 +252,13 @@ type TerminatorGenerator object {
         } else if (bType is bir:BErrorType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             return io:sprintf("L%s;", ERROR_VALUE);
+        } else if (bType is bir:BInvokableType) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            if (bType.retType is bir:BTypeNil) {
+                return io:sprintf("L%s;", CONSUMER);
+            } else {
+                return io:sprintf("L%s;", FUNCTION);
+            }   
         } else if (bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BTypeNil ||

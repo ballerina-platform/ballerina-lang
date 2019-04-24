@@ -16,7 +16,7 @@
 
 final map<string> fullQualifiedClassNames = {};
 
-final map<(bir:AsyncCall,string)> lambdas = {};
+final map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
 
 function lookupFullQualifiedClassName(string key) returns string {
     var result = fullQualifiedClassNames[key];

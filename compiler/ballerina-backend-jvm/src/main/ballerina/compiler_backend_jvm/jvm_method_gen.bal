@@ -218,6 +218,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                     panic err;
                 }
+            } else if (inst is bir:FPLoad) {
+                instGen.generateFPLoadIns(inst);
             } else if (inst is bir:TypeTest) {
                 instGen.generateTypeTestIns(inst);
             } else {
@@ -321,7 +323,16 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", FUTURE_VALUE));
             mv.visitVarInsn(ASTORE, index);
-        } else if (bType is bir:BTypeNil ||
+        } else if (bType is bir:BInvokableType) {
+            if (bType.retType is bir:BTypeNil) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
+                    io:sprintf("L%s;", CONSUMER));
+            } else {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
+                    io:sprintf("L%s;", FUNCTION));
+            }
+            mv.visitVarInsn(ASTORE, index);
+        }   else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BUnionType ||
@@ -389,6 +400,15 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", OBJECT_VALUE));
+        } else if (bType is bir:BInvokableType) {
+            mv.visitVarInsn(ALOAD, index);
+            if (bType.retType is bir:BTypeNil) {
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), 
+                    io:sprintf("L%s;", CONSUMER));
+            } else {
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), 
+                    io:sprintf("L%s;", FUNCTION));
+            }
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
@@ -434,11 +454,19 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitEnd();
 }
 
-function generateLambdaMethod(bir:AsyncCall callIns, jvm:ClassWriter cw, string className, string lambdaName) {
-    bir:BType lhsType = callIns.lhsOp.typeValue;
+function generateLambdaMethod(bir:AsyncCall|bir:FPLoad callIns, jvm:ClassWriter cw, string className, 
+    string lambdaName) {
+    bir:BType lhsType;
+    if (callIns is bir:AsyncCall) {
+        lhsType = callIns.lhsOp.typeValue;
+    } else {
+        lhsType = callIns.lhsOp.typeValue;
+    }
     bir:BType returnType = ();
     if (lhsType is bir:BFutureType) {
         returnType = lhsType.returnType;
+    } else if (lhsType is bir:BInvokableType) { 
+        returnType = lhsType.retType;
     } else {
         error err = error( "JVM generation is not supported for async return type " +
                                         io:sprintf("%s", lhsType));
@@ -457,27 +485,43 @@ function generateLambdaMethod(bir:AsyncCall callIns, jvm:ClassWriter cw, string 
 
     mv.visitCode();
 
-    bir:VarRef?[] paramTypes = callIns.args;
-
     //load strand as first arg
     mv.visitVarInsn(ALOAD, 0);
     mv.visitInsn(ICONST_0);
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, STRAND);
 
-    // load and cast param values
-    bir:BType[] paramBTypes = []; 
-    int paramIndex = 1;
-    foreach var paramType in paramTypes {
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitIntInsn(BIPUSH, paramIndex);
-        mv.visitInsn(AALOAD);
-        checkCastFromObject(paramType.typeValue, mv);
-        paramBTypes[paramIndex -1] = paramType.typeValue;
-        paramIndex += 1;
+    bir:BType[] paramBTypes = [];
+    string funcName; 
+    if (callIns is bir:AsyncCall) {
+        bir:VarRef?[] paramTypes = callIns.args;
+        // load and cast param values
+        int paramIndex = 1;
+        foreach var paramType in paramTypes {
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitIntInsn(BIPUSH, paramIndex);
+            mv.visitInsn(AALOAD);
+            checkCastFromObject(paramType.typeValue, mv);
+            paramBTypes[paramIndex -1] = paramType.typeValue;
+            paramIndex += 1;
+        }
+        funcName = callIns.name.value;
+    } else {
+        bir:VariableDcl?[] paramTypes = callIns.params;
+        // load and cast param values
+        int paramIndex = 1;
+        foreach var paramType in paramTypes {
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitIntInsn(BIPUSH, paramIndex);
+            mv.visitInsn(AALOAD);
+            checkCastFromObject(paramType.typeValue, mv);
+            paramBTypes[paramIndex -1] = paramType.typeValue;
+            paramIndex += 1;
+        }
+        funcName = callIns.name.value;
     }
 
-    mv.visitMethodInsn(INVOKESTATIC, className, callIns.name.value, getMethodDesc(paramBTypes, returnType), false);
+    mv.visitMethodInsn(INVOKESTATIC, className, funcName, getMethodDesc(paramBTypes, returnType), false);
     
     if (isVoid) {
         mv.visitInsn(RETURN);
@@ -513,7 +557,8 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BRecordType ||
                 bType is bir:BTupleType ||
                 bType is bir:BFutureType ||
-                bType is bir:BJSONType) {
+                bType is bir:BJSONType ||
+                bType is bir:BInvokableType) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
     } else {
@@ -561,6 +606,12 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BFutureType) {
         return io:sprintf("L%s;", FUTURE_VALUE);
+    } else if (bType is bir:BInvokableType) {
+        if (bType.retType is bir:BTypeNil) {
+            return io:sprintf("L%s;", CONSUMER);
+        } else {
+            return io:sprintf("L%s;", FUNCTION);
+        }       
     } else if (bType is bir:BObjectType) {
         return io:sprintf("L%s;", OBJECT_VALUE);
     } else {
@@ -1044,6 +1095,12 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
                 bType is bir:BUnionType ||
                 bType is bir:BJSONType) {
         typeSig = io:sprintf("L%s;", OBJECT);
+    } else if (bType is bir:BInvokableType) {
+        if (bType.retType is bir:BTypeNil) {
+            typeSig = io:sprintf("L%s;", CONSUMER);
+        } else {
+            typeSig = io:sprintf("L%s;", FUNCTION);
+        }
     } else {
         error err = error( "JVM generation is not supported for type " +
                                     io:sprintf("%s", bType));

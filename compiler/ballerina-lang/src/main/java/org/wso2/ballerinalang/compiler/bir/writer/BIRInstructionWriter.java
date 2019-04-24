@@ -276,8 +276,15 @@ public class BIRInstructionWriter extends BIRVisitor {
         int versionCPIndex = addStringCPEntry(pkgId.version.value);
         int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         buf.writeInt(pkgIndex);
-
         buf.writeInt(addStringCPEntry(fpLoad.funcName.getValue()));
+
+        buf.writeInt(fpLoad.params.size());
+        fpLoad.params.forEach(param -> {
+            buf.writeByte(param.kind.getValue());
+            param.type.accept(typeWriter);
+            buf.writeInt(addStringCPEntry(param.name.value));
+        });
+
     }
 
     public void visit(BIRTerminator.Panic birPanic) {

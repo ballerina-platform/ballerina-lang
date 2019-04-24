@@ -330,6 +330,7 @@ public type FPLoad record {|
     VarRef lhsOp;
     ModuleID pkgID;
     Name name;
+    VariableDcl?[] params;
 |};
 
 public type FieldAccess record {|

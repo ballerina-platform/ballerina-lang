@@ -588,6 +588,23 @@ type InstructionGenerator object {
                                         io:sprintf("(L%s;L%s;)V", MAP_VALUE, OBJECT_TYPE), false);
         }
     }
+
+    function generateFPLoadIns(bir:FPLoad inst) {
+        string lambdaName = inst.name.value + "$lambda$";
+        string methodClass = lookupFullQualifiedClassName(self.currentPackageName + inst.name.value);
+        bir:BType returnType = inst.lhsOp.typeValue;
+        boolean isVoid = false;
+        if (returnType is bir:BInvokableType) {
+            isVoid = returnType.retType is bir:BTypeNil;
+        } else {
+            error err = error( "Expected BInvokableType, found " + io:sprintf("%s", returnType));
+            panic err;
+        }
+        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid);
+        generateVarStore(self.mv, inst.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
+        lambdas[lambdaName] = (inst, methodClass);
+    }
 };
 
 function addBoxInsn(jvm:MethodVisitor mv, bir:BType bType) {
@@ -630,7 +647,8 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BErrorType ||
                 bType is bir:BJSONType ||
                 bType is bir:BFutureType ||
-                bType is bir:BObjectType) {
+                bType is bir:BObjectType ||
+                bType is bir:BInvokableType) {
         mv.visitVarInsn(ALOAD, valueIndex);
     } else {
         error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
@@ -667,7 +685,8 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BErrorType ||
                     bType is bir:BJSONType ||
                     bType is bir:BFutureType ||
-                    bType is bir:BObjectType) {
+                    bType is bir:BObjectType ||
+                    bType is bir:BInvokableType) {
         mv.visitVarInsn(ASTORE, valueIndex);
     } else {
         error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
