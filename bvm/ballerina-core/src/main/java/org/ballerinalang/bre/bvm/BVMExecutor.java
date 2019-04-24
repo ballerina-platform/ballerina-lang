@@ -53,7 +53,7 @@ import java.util.Map;
 public class BVMExecutor {
 
     /**
-     * This will invoke package start functions.
+     * This will invoke package stop functions.
      *
      * @param programFile to be invoked.
      */

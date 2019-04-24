@@ -30,7 +30,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.PrintStream;
 import java.util.Arrays;
 
 import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
@@ -96,18 +95,12 @@ public class BLangProgramRunner {
             mainRunSuccessful = true;
         } finally {
             if (!mainRunSuccessful || !programFile.isServiceEPAvailable()) {
-                if (debugger.isDebugEnabled()) {
-                    debugger.notifyExit();
-                }
-                BVMExecutor.stopProgramFile(programFile);
+                stopProgram(programFile, debugger);
             }
         }
 
         if (returnVal != null && returnVal.getType().getTag() == TypeTags.ERROR_TAG) {
-            if (debugger.isDebugEnabled()) {
-                debugger.notifyExit();
-            }
-            BVMExecutor.stopProgramFile(programFile);
+            stopProgram(programFile, debugger);
             return returnVal;
         }
 
@@ -148,14 +141,10 @@ public class BLangProgramRunner {
     }
 
     private static void executeListenPhase(ProgramFile programFile) {
-        PrintStream outStream = System.out;
-
         ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
         programFile.setServerConnectorRegistry(serverConnectorRegistry);
         serverConnectorRegistry.initServerConnectors();
-
         BVMExecutor.invokePackageStartFunctions(programFile);
-
         serverConnectorRegistry.deploymentComplete();
     }
 
@@ -167,5 +156,12 @@ public class BLangProgramRunner {
             bValArgs = Arrays.stream(args).map(BString::new).toArray(BValue[]::new);
         }
         return bValArgs;
+    }
+
+    private static void stopProgram(ProgramFile programFile, Debugger debugger) {
+        if (debugger.isDebugEnabled()) {
+            debugger.notifyExit();
+        }
+        BVMExecutor.stopProgramFile(programFile);
     }
 }
