@@ -79,7 +79,7 @@ public class BRecordType extends BStructureType {
     }
 
     public String toString() {
-        String name = (pkgPath == null || pkgPath.equals(".")) ? typeName : pkgPath + ":" + typeName;
+        String name = (pkg == null || pkg.equals(".")) ? typeName : pkg + ":" + typeName;
         StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");
         for (Entry<String, BField> field : getFields().entrySet()) {
             sj.add(field.getKey() + " : " + field.getValue().type);

@@ -30,10 +30,10 @@ public class BFutureType extends BType {
      * Create a {@code BTableType} which represents the SQL Result Set.
      *
      * @param typeName string name of the type
-     * @param pkgPath of the type
+     * @param pkg of the type
      */
-    public BFutureType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, Object.class);
+    public BFutureType(String typeName, BPackage pkg) {
+        super(typeName, pkg, Object.class);
     }
 
     public BFutureType(BType constraint) {

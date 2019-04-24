@@ -39,10 +39,10 @@ public class BMapType extends BType {
      *
      * @param typeName string name of the type.
      * @param constraint constraint type which particular map is bound to.
-     * @param pkgPath package for the type.
+     * @param pkg package for the type.
      */
-    public BMapType(String typeName, BType constraint, String pkgPath) {
-        super(typeName, pkgPath, MapValue.class);
+    public BMapType(String typeName, BType constraint, BPackage pkg) {
+        super(typeName, pkg, MapValue.class);
         this.constraint = constraint;
     }
 

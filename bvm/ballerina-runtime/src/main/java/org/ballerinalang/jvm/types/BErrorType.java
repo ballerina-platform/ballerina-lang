@@ -29,8 +29,8 @@ public class BErrorType extends BType {
     private BType reasonType;
     private BType detailType;
 
-    public BErrorType(String typeName, String pkgPath, BType reasonType, BType detailType) {
-        super(typeName, pkgPath, ErrorValue.class);
+    public BErrorType(String typeName, BPackage pkg, BType reasonType, BType detailType) {
+        super(typeName, pkg, ErrorValue.class);
         this.reasonType = reasonType;
         this.detailType = detailType;
     }

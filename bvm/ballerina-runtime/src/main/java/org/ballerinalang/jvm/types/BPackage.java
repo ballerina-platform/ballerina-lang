@@ -6,7 +6,7 @@
  *  in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
@@ -15,39 +15,28 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.jvm.types;
 
 /**
- * {@code BByteType} represents byte type in Ballerina.
+ * {@code BPackage} represents the package of defined type in Ballerina.
  *
  * @since 0.995.0
  */
-class BByteType extends BType {
+public class BPackage {
 
-    /**
-     * Create a {@code BByteType} which represents the byte type.
-     *
-     * @param typeName string name of the type
-     */
-    BByteType(String typeName, BPackage pkg) {
-        super(typeName, pkg, Byte.class);
+    public String name;
+    public String version;
+
+    public BPackage(String name, String version) {
+        this.name = name;
+        this.version = version;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <V extends Object> V getZeroValue() {
-        return (V) new Byte((byte) 0);
+    public String getName() {
+        return name;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <V extends Object> V getEmptyValue() {
-        return (V) new Byte((byte) 0);
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.BYTE_TAG;
+    public String getVersion() {
+        return version;
     }
 }

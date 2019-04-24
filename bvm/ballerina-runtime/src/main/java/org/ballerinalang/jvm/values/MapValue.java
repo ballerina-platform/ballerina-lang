@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.values.freeze.Status;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -59,6 +60,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
+    private final HashMap<String, Object> nativeData = new HashMap<>();
 
     public MapValue(BType type) {
         super();
@@ -113,6 +115,13 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
 
     public ArrayValue getArrayValue(String key) {
         return (ArrayValue) get(key);
+    }
+
+    public long getDefaultableIntValue(String key) {
+        if (get(key) != null) {
+            return getIntValue(key);
+        }
+        return 0;
     }
 
     /**
@@ -373,5 +382,25 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
             throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
         }
         return new String(byteOut.toByteArray());
+    }
+
+    /**
+     * Add native data to the MapValue.
+     *
+     * @param key key to identify native value.
+     * @param data value to be added.
+     */
+    public void addNativeData(String key, Object data) {
+        nativeData.put(key, data);
+    }
+
+    /**
+     * Get native data.
+
+     * @param key key to identify native value.
+     * @return value for the given key.
+     */
+    public Object getNativeData(String key) {
+        return nativeData.get(key);
     }
 }
