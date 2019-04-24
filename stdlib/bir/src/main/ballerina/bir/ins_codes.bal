@@ -49,8 +49,10 @@ public const int INS_NEW_XML_QNAME = 42;
 public const int INS_NEW_STRING_XML_QNAME = 43;
 public const int INS_XML_SEQ_STORE = 44;
 public const int INS_XML_SEQ_LOAD = 45;
-public const int INS_XML_ATTRIBUTE_LOAD = 46;
-public const int INS_XML_ATTRIBUTE_STORE = 47;
+public const int INS_XML_LOAD = 46;
+public const int INS_XML_LOAD_ALL = 47;
+public const int INS_XML_ATTRIBUTE_LOAD = 48;
+public const int INS_XML_ATTRIBUTE_STORE = 49;
 
 // Binary expression related instructions.
 public const int INS_ADD = 50;

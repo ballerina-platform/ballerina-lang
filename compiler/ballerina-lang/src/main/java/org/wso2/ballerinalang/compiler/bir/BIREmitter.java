@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLSeqStore;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -319,7 +319,7 @@ public class BIREmitter extends BIRVisitor {
         sb.append(";\n");
     }
 
-    public void visit(XMLSeqStore xmlAddChild) {
+    public void visit(XMLAccess xmlAddChild) {
         sb.append("\t\t");
         xmlAddChild.lhsOp.accept(this);
         sb.append(" = ").append(xmlAddChild.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");

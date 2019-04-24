@@ -504,16 +504,17 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
-     * XML sequence store expression.
+     * XML access expression with two operands.
+     * e.g: {@link InstructionKind.XML_SEQ_STORE}, {@link InstructionKind.XML_LOAD_ALL}
      *
      * @since 0.995.0
      */
-    public static class XMLSeqStore extends BIRNonTerminator {
+    public static class XMLAccess extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BIROperand rhsOp;
 
-        public XMLSeqStore(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
-            super(pos, InstructionKind.XML_SEQ_STORE);
+        public XMLAccess(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, kind);
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
         }

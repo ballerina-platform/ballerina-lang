@@ -103,6 +103,9 @@ public const INS_KIND_NEW_XML_PI = "NEW_XML_PI";
 public const INS_KIND_NEW_XML_QNAME = "NEW_XML_QNAME";
 public const INS_KIND_NEW_STRING_XML_QNAME = "NEW_STRING_XML_QNAME";
 public const INS_KIND_XML_SEQ_STORE = "XML_SEQ_STORE";
+public const INS_KIND_XML_SEQ_LOAD = "XML_SEQ_LOAD";
+public const INS_KIND_XML_LOAD = "XML_LOAD";
+public const INS_KIND_XML_LOAD_ALL = "XML_LOAD_ALL";
 public const INS_KIND_XML_ATTRIBUTE_STORE = "XML_ATTRIBUTE_STORE";
 public const INS_KIND_XML_ATTRIBUTE_LOAD = "XML_ATTRIBUTE_LOAD";
 public const INS_KIND_FP_LOAD = "FP_LOAD";
@@ -114,7 +117,8 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_OBJECT_LOAD | INS_KIND_NEW_XML_ELEMENT | INS_KIND_NEW_XML_QNAME |
                                 INS_KIND_NEW_STRING_XML_QNAME | INS_KIND_XML_SEQ_STORE | INS_KIND_NEW_XML_TEXT |
                                 INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
-                                INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_FP_LOAD;
+                                INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
+                                INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -459,7 +463,7 @@ public type NewStringXMLQName record {|
     VarRef stringQNameOp;
 |};
 
-public type XMLSeqStore record {|
+public type XMLAccess record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;

@@ -58,8 +58,10 @@ public enum InstructionKind {
     NEW_STRING_XML_QNAME((byte) 43),
     XML_SEQ_STORE((byte) 44),
     XML_SEQ_LOAD((byte) 45),
-    XML_ATTRIBUTE_LOAD((byte) 46),
-    XML_ATTRIBUTE_STORE((byte) 47),
+    XML_LOAD((byte) 46),
+    XML_LOAD_ALL((byte) 47),
+    XML_ATTRIBUTE_LOAD((byte) 48),
+    XML_ATTRIBUTE_STORE((byte) 49),
 
     // Binary expression related instructions.
     ADD((byte) 50),

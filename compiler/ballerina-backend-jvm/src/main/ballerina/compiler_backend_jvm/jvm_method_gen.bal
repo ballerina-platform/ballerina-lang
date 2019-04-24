@@ -192,6 +192,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     instGen.generateMoveIns(inst);
                 } else if (inst.kind == bir:INS_KIND_XML_SEQ_STORE) {
                     instGen.generateXMLStoreIns(inst);
+                } else if (inst.kind == bir:INS_KIND_XML_LOAD_ALL) {
+                    instGen.generateXMLLoadAllIns(inst);
                 } else {
                     error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                     panic err;
@@ -223,6 +225,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     instGen.generateXMLAttrStoreIns(inst);
                 } else if (inst.kind == bir:INS_KIND_XML_ATTRIBUTE_LOAD) {
                     instGen.generateXMLAttrLoadIns(inst);
+                } else if (inst.kind == bir:INS_KIND_XML_LOAD || inst.kind == bir:INS_KIND_XML_SEQ_LOAD) {
+                    instGen.generateXMLLoadIns(inst);
                 } else {
                     error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                     panic err;

@@ -112,10 +112,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -1014,8 +1016,8 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangXMLAccessExpr xmlIndexAccessExpr) {
-        throw new AssertionError();
+    public void visit(BLangXMLAccessExpr xmlAccessExpr) {
+        generateMappingAccess(xmlAccessExpr);
     }
 
     @Override
@@ -1229,6 +1231,11 @@ public class BIRGen extends BLangNodeVisitor {
             if (astIndexBasedAccessExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
                 insKind = InstructionKind.XML_ATTRIBUTE_LOAD;
                 keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
+            } else if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.XML) {
+                generateXMLAccess((BLangXMLAccessExpr) astIndexBasedAccessExpr, tempVarRef, varRefRegIndex,
+                        keyRegIndex);
+                this.varAssignment = variableStore;
+                return;
             } else if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
                 insKind = InstructionKind.OBJECT_LOAD;
             } else {
@@ -1326,7 +1333,7 @@ public class BIRGen extends BLangNodeVisitor {
         xmlElementLiteral.modifiedChildren.forEach(child -> {
             child.accept(this);
             BIROperand childOp = this.env.targetOperand;
-            emit(new BIRNonTerminator.XMLSeqStore(child.pos, toVarRef, childOp));
+            emit(new BIRNonTerminator.XMLAccess(child.pos, InstructionKind.XML_SEQ_STORE, toVarRef, childOp));
         });
     }
 
@@ -1341,5 +1348,22 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand qnameVarRef = new BIROperand(tempQNameVarDcl);
         emit(new BIRNonTerminator.NewStringXMLQName(qnameExpr.pos, qnameVarRef, keyRegIndex));
         return qnameVarRef;
+    }
+
+    private void generateXMLAccess(BLangXMLAccessExpr xmlAccessExpr, BIROperand tempVarRef,
+                                   BIROperand varRefRegIndex, BIROperand keyRegIndex) {
+        this.env.targetOperand = tempVarRef;
+        InstructionKind insKind;
+        if (xmlAccessExpr.fieldType == FieldKind.ALL) {
+            emit(new BIRNonTerminator.XMLAccess(xmlAccessExpr.pos, InstructionKind.XML_LOAD_ALL, tempVarRef,
+                    varRefRegIndex));
+            return;
+        } else if (xmlAccessExpr.indexExpr.type.tag == TypeTags.STRING) {
+            insKind = InstructionKind.XML_LOAD;
+        } else {
+            insKind = InstructionKind.XML_SEQ_LOAD;
+        }
+
+        emit(new BIRNonTerminator.FieldAccess(xmlAccessExpr.pos, insKind, tempVarRef, keyRegIndex, varRefRegIndex));
     }
 }

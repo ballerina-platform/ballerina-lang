@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLSeqStore;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -325,7 +325,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     @Override
-    public void visit(XMLSeqStore xmlAddChild) {
+    public void visit(XMLAccess xmlAddChild) {
         buf.writeByte(xmlAddChild.kind.getValue());
         xmlAddChild.lhsOp.accept(this);
         xmlAddChild.rhsOp.accept(this);

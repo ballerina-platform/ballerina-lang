@@ -212,8 +212,28 @@ public type FuncBodyParser object {
             kind = INS_KIND_XML_SEQ_STORE;
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            XMLSeqStore xmlSeqStore = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            XMLAccess xmlSeqStore = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return xmlSeqStore;
+        } else if (kindTag == INS_XML_SEQ_LOAD) {
+            kind = INS_KIND_XML_SEQ_LOAD;
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess xmlLoad = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return xmlLoad;
+        } else if (kindTag == INS_XML_LOAD) {
+            kind = INS_KIND_XML_LOAD;
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess xmlLoad = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return xmlLoad;
+        } else if (kindTag == INS_XML_LOAD_ALL) {
+            kind = INS_KIND_XML_LOAD_ALL;
+            var lhsOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            XMLAccess xmlLoadAll = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return xmlLoadAll;
         } else if (kindTag == INS_XML_ATTRIBUTE_STORE) {
             kind = INS_KIND_XML_ATTRIBUTE_STORE;
             var lhsOp = self.parseVarRef();

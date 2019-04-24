@@ -20,6 +20,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -190,7 +191,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public XMLValue<?> elements() {
-        ArrayValue elementsSeq = new ArrayValue(BTypes.typeXML);
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
             XMLItem item = (XMLItem) sequence.getRefValue(i);
@@ -206,7 +207,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public XMLValue<?> elements(String qname) {
-        ArrayValue elementsSeq = new ArrayValue(BTypes.typeXML);
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         String qnameStr = getQname(qname).toString();
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
@@ -224,7 +225,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     @SuppressWarnings("unchecked")
     public XMLValue<?> children() {
-        ArrayValue elementsSeq = new ArrayValue(BTypes.typeXML);
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         int index = 0;
         for (int i = 0; i < sequence.size(); i++) {
             XMLItem element = (XMLItem) sequence.getRefValue(i);
@@ -247,7 +248,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     @SuppressWarnings("unchecked")
     public XMLValue<?> children(String qname) {
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         QName name = getQname(qname);
         int index = 0;
         for (int i = 0; i < sequence.size(); i++) {
@@ -306,7 +307,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public XMLValue<?> strip() {
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
             XMLItem element = (XMLItem) sequence.getRefValue(i);
@@ -346,7 +347,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         int j = 0;
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         for (int i = startIndex; i < endIndex; i++) {
             elementsSeq.add(j++, sequence.getRefValue(i));
         }

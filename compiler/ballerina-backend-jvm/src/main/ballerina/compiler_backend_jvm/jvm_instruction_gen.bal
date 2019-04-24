@@ -592,11 +592,34 @@ type InstructionGenerator object {
         self.storeToVar(newXMLPI.lhsOp.variableDcl);
     }
 
-    function generateXMLStoreIns(bir:XMLSeqStore xmlStoreIns) {
+    function generateXMLStoreIns(bir:XMLAccess xmlStoreIns) {
         self.loadVar(xmlStoreIns.lhsOp.variableDcl);
         self.loadVar(xmlStoreIns.rhsOp.variableDcl);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "addChildren", io:sprintf("(L%s;)V", XML_VALUE),
                                         false);
+    }
+
+    function generateXMLLoadAllIns(bir:XMLAccess xmlLoadAllIns) {
+        self.loadVar(xmlLoadAllIns.rhsOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "children", io:sprintf("()L%s;", XML_VALUE),
+                                        false);
+        self.storeToVar(xmlLoadAllIns.lhsOp.variableDcl);
+    }
+
+    function generateXMLAttrLoadIns(bir:FieldAccess xmlAttrStoreIns) {
+        // visit xml_ref
+        self.loadVar(xmlAttrStoreIns.rhsOp.variableDcl);
+
+        // visit attribute name expr
+        self.loadVar(xmlAttrStoreIns.keyOp.variableDcl);
+
+        // invoke getAttribute() method
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttribute",
+                io:sprintf("(L%s;)L%s;", XML_QNAME, STRING_VALUE), false);
+
+        // store in the target reg
+        bir:BType targetType = xmlAttrStoreIns.lhsOp.variableDcl.typeValue;
+        self.storeToVar(xmlAttrStoreIns.lhsOp.variableDcl);
     }
 
     function generateXMLAttrStoreIns(bir:FieldAccess xmlAttrStoreIns) {
@@ -614,20 +637,27 @@ type InstructionGenerator object {
                 io:sprintf("(L%s;L%s;)V", XML_QNAME, STRING_VALUE), false);
     }
 
-    function generateXMLAttrLoadIns(bir:FieldAccess xmlAttrStoreIns) {
+    function generateXMLLoadIns(bir:FieldAccess xmlLoadIns) {
         // visit xml_ref
-        self.loadVar(xmlAttrStoreIns.rhsOp.variableDcl);
+        self.loadVar(xmlLoadIns.rhsOp.variableDcl);
 
-        // visit attribute name expr
-        self.loadVar(xmlAttrStoreIns.keyOp.variableDcl);
+        // visit element name/index expr
+        self.loadVar(xmlLoadIns.keyOp.variableDcl);
 
-        // invoke getAttribute() method
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttribute",
-                io:sprintf("(L%s;)L%s;", XML_QNAME, STRING_VALUE), false);
+        if (xmlLoadIns.keyOp.variableDcl.typeValue is bir:BTypeString) {
+            // invoke `children(name)` method
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "children",
+                io:sprintf("(L%s;)L%s;", STRING_VALUE, XML_VALUE), false);
+        } else {
+            // invoke `getItem(index)` method
+            self.mv.visitInsn(L2I);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getItem",
+                io:sprintf("(I)L%s;", XML_VALUE), false);
+        }
 
         // store in the target reg
-        bir:BType targetType = xmlAttrStoreIns.lhsOp.variableDcl.typeValue;
-        self.storeToVar(xmlAttrStoreIns.lhsOp.variableDcl);
+        bir:BType targetType = xmlLoadIns.lhsOp.variableDcl.typeValue;
+        self.storeToVar(xmlLoadIns.lhsOp.variableDcl);
     }
 
     private function loadVar(bir:VariableDcl varDcl) {

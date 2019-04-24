@@ -38,7 +38,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQN
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLSeqStore;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.AsyncCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
@@ -178,7 +178,7 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
-    public void visit(XMLSeqStore xmlAddChild) {
+    public void visit(XMLAccess xmlAddChild) {
         throw new AssertionError();
     }
 
