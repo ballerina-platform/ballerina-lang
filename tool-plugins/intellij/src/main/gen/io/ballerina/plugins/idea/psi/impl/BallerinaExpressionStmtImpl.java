@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaExpressionStmtImpl extends BallerinaCompositeElementImpl implements BallerinaExpressionStmt {
+public class BallerinaExpressionStmtImpl extends ASTWrapperPsiElement implements BallerinaExpressionStmt {
 
   public BallerinaExpressionStmtImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaExpressionStmtImpl extends BallerinaCompositeElementImpl i
   @Override
   @NotNull
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return findNotNullChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @NotNull
   public PsiElement getSemicolon() {
-    return notNullChild(findChildByType(SEMICOLON));
+    return findNotNullChildByType(SEMICOLON);
   }
 
 }

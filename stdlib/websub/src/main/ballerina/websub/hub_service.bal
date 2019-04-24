@@ -31,7 +31,7 @@ service hubService =
     basePath: BASE_PATH,
     authConfig: {
         authentication: {
-            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", default = false)
+            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", defaultValue = false)
         },
         scopes: getArray(config:getAsString("b7a.websub.hub.auth.scopes"))
     }
@@ -46,7 +46,7 @@ service {
         http:Response response = new;
         response.statusCode = http:ACCEPTED_202;
         response.setTextPayload("Ballerina Hub Service - Up and Running!");
-        _ = httpCaller->respond(response);
+        checkpanic httpCaller->respond(response);
     }
 
     @http:ResourceConfig {
@@ -168,7 +168,7 @@ service {
                             if (fetchResponse.hasHeader(CONTENT_TYPE)) {
                                 contentType = fetchResponse.getHeader(CONTENT_TYPE);
                             }
-                            var fetchedPayload = fetchResponse.getPayloadAsString();
+                            var fetchedPayload = fetchResponse.getTextPayload();
                             stringPayload = fetchedPayload is string ? fetchedPayload : "";
                         } else {
                             string errorCause = <string> fetchResponse.detail().message;
@@ -188,7 +188,7 @@ service {
                         if (request.hasHeader(CONTENT_TYPE)) {
                             contentType = request.getHeader(CONTENT_TYPE);
                         }
-                        var result = request.getPayloadAsString();
+                        var result = request.getTextPayload();
                         stringPayload = result is string ? result : "";
                     }
 
@@ -266,7 +266,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         }
         return;
     }
-    map<any> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
+    map<anydata> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
     error err = error(WEBSUB_ERROR_CODE, errorDetail);
     return err;
 }
@@ -383,11 +383,9 @@ function persistSubscriptionChange(string mode, SubscriptionDetails subscription
 # Function to initiate set up activities on startup/restart.
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
-        if (hubPersistenceStoreImpl is HubPersistenceStore) {
-            // always true since already checked
-            addTopicRegistrationsOnStartup(hubPersistenceStoreImpl);
-            addSubscriptionsOnStartup(hubPersistenceStoreImpl); //TODO:verify against topics
-        }
+        HubPersistenceStore hubServicePersistenceImpl = <HubPersistenceStore> hubPersistenceStoreImpl;
+        addTopicRegistrationsOnStartup(hubServicePersistenceImpl);
+        addSubscriptionsOnStartup(hubServicePersistenceImpl); //TODO:verify against topics
     }
     return;
 }
@@ -455,7 +453,7 @@ returns error? {
             persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
         }
     } else {
-        var result = request.getPayloadAsString();
+        var result = request.getTextPayload();
         string stringPayload = result is error ? "" : result;
 
         if (subscriptionDetails.secret != "") {
@@ -505,10 +503,9 @@ returns error? {
 # Struct to represent a topic registration.
 #
 # + topic - The topic for which notification would happen
-type TopicRegistration record {
+type TopicRegistration record {|
     string topic = "";
-    !...;
-};
+|};
 
 # Object to represent a pending subscription/unsubscription request.
 #

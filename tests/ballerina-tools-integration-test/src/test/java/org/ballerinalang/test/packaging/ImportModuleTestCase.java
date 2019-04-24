@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
@@ -64,8 +63,8 @@ public class ImportModuleTestCase extends BaseTest {
         Path projPath = tempProjectDirectory.resolve("firstProj");
         Files.createDirectories(projPath);
 
-        String projectPath = (new File("src/test/resources/import-module")).getAbsolutePath();
-        FileUtils.copyDirectory(Paths.get(projectPath).toFile(), projPath.toFile());
+        FileUtils.copyDirectory(new File(getClass().getClassLoader().getResource("import-module").getPath()),
+                projPath.toFile());
         Files.createDirectories(projPath.resolve(".ballerina"));
 
         String[] clientArgs = {"foo"};
@@ -108,8 +107,9 @@ public class ImportModuleTestCase extends BaseTest {
     public void testResolveModulesFromProjectInTestSources() throws BallerinaTestException, IOException {
         Path projPath = tempProjectDirectory.resolve("secProj");
         Files.createDirectories(projPath);
-        FileUtils.copyDirectory(Paths.get((new File("src/test/resources/import-test-in-project"))
-                                                  .getAbsolutePath()).toFile(), projPath.toFile());
+
+        FileUtils.copyDirectory(new File(getClass().getClassLoader().getResource("import-test-in-project").getPath()),
+                projPath.toFile());
         Files.createDirectories(projPath.resolve(".ballerina"));
 
         balClient.runMain("build", new String[]{}, envVariables, new String[]{}, new LogLeecher[]{},
@@ -136,9 +136,9 @@ public class ImportModuleTestCase extends BaseTest {
     public void testResolveImportsFromInstalledModulesInTests() throws BallerinaTestException, IOException {
         Path projPath = tempProjectDirectory.resolve("thirdProj");
         Files.createDirectories(projPath);
-
-        FileUtils.copyDirectory(Paths.get((new File("src/test/resources/import-test-in-cache"))
-                                                  .getAbsolutePath()).toFile(), projPath.toFile());
+        
+        FileUtils.copyDirectory(new File(getClass().getClassLoader().getResource("import-test-in-cache").getPath()),
+            projPath.toFile());
         Files.createDirectories(projPath.resolve(".ballerina"));
 
         // ballerina install abc
@@ -178,8 +178,8 @@ public class ImportModuleTestCase extends BaseTest {
         Path projPath = tempProjectDirectory.resolve("fourthProj");
         Files.createDirectories(projPath);
 
-        FileUtils.copyDirectory(Paths.get((new File("src/test/resources/import-in-both")).getAbsolutePath())
-                                     .toFile(), projPath.toFile());
+        FileUtils.copyDirectory(new File(getClass().getClassLoader().getResource("import-in-both").getPath()),
+                projPath.toFile());
         Files.createDirectories(projPath.resolve(".ballerina"));
 
         // ballerina install abc

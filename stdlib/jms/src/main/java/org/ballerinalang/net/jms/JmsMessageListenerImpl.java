@@ -34,6 +34,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
@@ -63,7 +64,7 @@ public class JmsMessageListenerImpl implements MessageListener {
         ProgramFile programFile = resource.getResourceInfo().getPackageInfo().getProgramFile();
         BMap<String, BValue> message = BLangConnectorSPIUtil.createBStruct(programFile,
                                                                            JmsConstants.BALLERINA_PACKAGE_JMS,
-                                                                           JmsConstants.JMS_MESSAGE_STRUCT_NAME);
+                                                                           JmsConstants.MESSAGE_OBJ_NAME);
         message.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, jmsMessage);
 
         List<ParamDetail> paramDetails = resource.getParamDetails();

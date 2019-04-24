@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -119,6 +120,18 @@ public class Compiler {
         this.lockFileWriter.writeLockFile(this.manifest);
     }
 
+
+    /**
+     * Writes the given binary content as a java archive to specified location with the name.
+     *
+     * @param jarContent the binary content of jar
+     * @param outputPath path to be used for writing the jar file
+     * @param targetFileName file name of the jar to be used
+     */
+    public void write(byte[] jarContent, Path outputPath, String targetFileName) {
+        this.binaryFileWriter.write(jarContent, outputPath, targetFileName);
+    }
+
     public void list() {
         compilePackages(true).forEach(this.dependencyTree::listDependencyPackages);
     }
@@ -148,7 +161,8 @@ public class Compiler {
             outStream.println("Compiling source");
         }
         List<BLangPackage> compiledPackages = compilePackages(pkgList.stream(), isBuild);
-        if (this.dlog.errorCount > 0) {
+        // If it is a build and dlog is not empty, compilation should fail
+        if (isBuild && this.dlog.errorCount > 0) {
             throw new BLangCompilerException("compilation contains errors");
         }
         return compiledPackages;

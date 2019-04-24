@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.util;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
 import org.hsqldb.Server;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.ServerAcl;
@@ -41,7 +40,7 @@ import java.sql.Statement;
  */
 public class SQLDBUtils {
 
-    public static final String DB_DIRECTORY = "./target/tempdb/";
+    public static final String DB_DIRECTORY = System.getProperty("libdir") + File.separator + "tempdb" + File.separator;
     private static final Logger LOG = LoggerFactory.getLogger(SQLDBUtils.class);
 
     /**

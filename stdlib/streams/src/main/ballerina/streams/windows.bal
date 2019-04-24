@@ -17,10 +17,35 @@
 import ballerina/task;
 import ballerina/time;
 
+# The `Window` abstract objects is the base object for implementing windows in Ballerina streams. The `process`
+# function contains the logic of processing events when events are received. `getCandidateEvents` function is used
+# inside the `Select` object to return the events in the window to perform joining.
+# The window names in the window objects cannot be used in the queries. Always a function which returns the specific
+# window has to be used in streaing query.
+# E.g. If `LengthWindow` has to be used in a streaming query, the function `streams:length` has to be used for
+# streaming  query without the module identifier `streams`. An example is shown below.
+#
+#       from inputStream window `length`(5)
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
 public type Window abstract object {
 
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents);
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -28,6 +53,22 @@ public type Window abstract object {
                         returns (StreamEvent?, StreamEvent?)[];
 };
 
+# The `LengthWindow` is a sliding length window, that holds last windowLength events, and gets updated on every event
+# arrival and expiry.
+# E.g.
+#       from inputStream window `length(5)`
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
+# The `length` window should only have one parameter (<int> windowLength)
+#
+# + size - description
+# + linkedList - description
+# + windowParameters - description
+# + nextProcessPointer - description
 public type LengthWindow object {
     *Window;
     *Snapshotable;
@@ -43,6 +84,7 @@ public type LengthWindow object {
         self.size = 0;
         self.initParameters(windowParameters);
     }
+
 
     public function initParameters(any[] parameters) {
         if (parameters.length() == 1) {
@@ -60,6 +102,8 @@ public type LengthWindow object {
         }
     }
 
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         StreamEvent?[] outputEvents = [];
         foreach var evt in streamEvents {
@@ -84,6 +128,14 @@ public type LengthWindow object {
         }
     }
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -110,6 +162,8 @@ public type LengthWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] eventsList = toSnapshottableEvents(self.linkedList.asArray());
         return {
@@ -117,6 +171,8 @@ public type LengthWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var eventsList = state["eventsList"];
         if (eventsList is SnapshottableStreamEvent?[]) {
@@ -127,12 +183,35 @@ public type LengthWindow object {
     }
 };
 
+# The `length` function creates a `LengthWindow` object and returns it.
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function length(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     LengthWindow lengthWindow1 = new(nextProcessPointer, windowParameters);
     return lengthWindow1;
 }
 
+# The `TimeWindow` is a sliding time window, that holds events for that arrived during last windowTime period, and
+# gets updated on every event arrival and expiry.
+# E.g.
+#       from inputStream window `time(5000)`
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
+# The `time` window should only have one parameter (<int> windowTime)
+#
+# + timeInMillis - description
+# + windowParameters - description
+# + expiredEventQueue - description
+# + nextProcessPointer - description
+# + lastTimestamp - description
+# + scheduler - description
 public type TimeWindow object {
     *Window;
     *Snapshotable;
@@ -170,6 +249,8 @@ public type TimeWindow object {
         }
     }
 
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         lock {
@@ -226,6 +307,14 @@ public type TimeWindow object {
         }
     }
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -252,6 +341,8 @@ public type TimeWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventQueue.asArray());
         return {
@@ -260,6 +351,8 @@ public type TimeWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var expiredEventsList = state["expiredEventsList"];
         if (expiredEventsList is SnapshottableStreamEvent?[]) {
@@ -274,12 +367,35 @@ public type TimeWindow object {
     }
 };
 
+# The `time` function creates a `TimeWindow` object and returns it.
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function time(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     TimeWindow timeWindow1 = new(nextProcessPointer, windowParameters);
     return timeWindow1;
 }
 
+# This is a batch (tumbling) length window, that holds up to the given length of events, and gets updated on every
+# given number of events arrival.
+# E.g.
+#       from inputStream window `lengthBatch(5)`
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
+# The `lengthBatch` window should only have one parameter (<int> windowBatchLength)
+#
+# + length - description
+# + windowParameters - description
+# + count - description
+# + resetEvent - description
+# + currentEventQueue - description
+# + nextProcessPointer - description
 public type LengthBatchWindow object {
     *Window;
     *Snapshotable;
@@ -316,6 +432,8 @@ public type LengthBatchWindow object {
         }
     }
 
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunks = new();
         LinkedList outputStreamEventChunk = new();
@@ -368,6 +486,14 @@ public type LengthBatchWindow object {
         }
     }
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -394,6 +520,8 @@ public type LengthBatchWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
         StreamEvent? resetStreamEvt = self.resetEvent;
@@ -406,6 +534,8 @@ public type LengthBatchWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var currentEventsList = state["currentEventsList"];
         if (currentEventsList is SnapshottableStreamEvent?[]) {
@@ -425,13 +555,36 @@ public type LengthBatchWindow object {
     }
 };
 
+# The `lengthBatch` function creates a `LengthBatchWindow` object and returns it.
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function lengthBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     LengthBatchWindow lengthBatchWindow = new(nextProcessPointer, windowParameters);
     return lengthBatchWindow;
 }
 
-
+# This is a batch (tumbling) time window, that holds events arrived between window time periods, and gets updated for
+# every window time.
+# E.g.
+#       from inputStream window `timeBatch(5000)`
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
+# The `timeBatch` window should only have one parameter (<int> windowBatchTime)
+#
+# + timeInMilliSeconds - description
+# + windowParameters - description
+# + nextEmitTime - description
+# + currentEventQueue - description
+# + resetEvent - description
+# + nextProcessPointer - description
+# + scheduler - description
 public type TimeBatchWindow object {
     *Window;
     *Snapshotable;
@@ -471,6 +624,8 @@ public type TimeBatchWindow object {
         }
     }
 
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         LinkedList outputStreamEvents = new();
         if (self.nextEmitTime == -1) {
@@ -527,6 +682,14 @@ public type TimeBatchWindow object {
         }
     }
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -553,6 +716,8 @@ public type TimeBatchWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
         StreamEvent? resetStreamEvt = self.resetEvent;
@@ -566,6 +731,8 @@ public type TimeBatchWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var currentEventsList = state["currentEventsList"];
         if (currentEventsList is SnapshottableStreamEvent?[]) {
@@ -589,12 +756,34 @@ public type TimeBatchWindow object {
     }
 };
 
+# The `timeBatch` function creates a `TimeBatchWindow` object and returns it.
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function timeBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     TimeBatchWindow timeBatchWindow = new(nextProcessPointer, windowParameters);
     return timeBatchWindow;
 }
 
+# This is a sliding time window based on external time, that holds events for that arrived during last window time
+# period from the external timestamp, and gets updated on every monotonically increasing timestamp.
+# E.g.
+#       from inputStream window `externalTime(inputStream.timestamp, 4000)`
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
+# The `externalTime` window should only have two parameters (timestamp field, <int> windowTime)
+#
+# + timeInMillis - description
+# + windowParameters - description
+# + expiredEventQueue - description
+# + nextProcessPointer - description
+# + timeStamp - description
 public type ExternalTimeWindow object {
     *Window;
     *Snapshotable;
@@ -637,6 +826,8 @@ public type ExternalTimeWindow object {
         }
     }
 
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         lock {
@@ -688,6 +879,14 @@ public type ExternalTimeWindow object {
         }
     }
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -714,6 +913,8 @@ public type ExternalTimeWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventQueue.asArray());
         return {
@@ -723,6 +924,8 @@ public type ExternalTimeWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var expiredEventsList = state["expiredEventsList"];
         if (expiredEventsList is SnapshottableStreamEvent?[]) {
@@ -750,6 +953,11 @@ public type ExternalTimeWindow object {
     }
 };
 
+# The `externalTime` function creates a `ExternalTimeWindow` object and returns it.
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function externalTime(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
 
@@ -757,6 +965,37 @@ public function externalTime(any[] windowParameters, function (StreamEvent?[])? 
     return timeWindow1;
 }
 
+# This is a batch (tumbling) time window based on external time, that holds events arrived during window time periods,
+# and gets updated for every window time.
+# E.g.
+#       from inputStream window `externalTimeBatch(inputStream.timestamp, 1000, 500, 1200, true)`
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
+# The `externalTimeBatch` window should only have two to five parameters (timestamp field, <int> windowTime, <int>
+# startTime, <int> timeout, <boolean> replaceTimestampWithBatchEndTime)
+#
+# + timeToKeep - description
+# + currentEventChunk - description
+# + expiredEventChunk - description
+# + resetEvent - description
+# + startTime - description
+# + isStartTimeEnabled - description
+# + replaceTimestampWithBatchEndTime - description
+# + flushed - description
+# + endTime - description
+# + schedulerTimeout - description
+# + lastScheduledTime - description
+# + lastCurrentEventTime - description
+# + nextProcessPointer - description
+# + timeStamp - description
+# + storeExpiredEvents - description
+# + outputExpectsExpiredEvents - description
+# + windowParameters - description
+# + scheduler - description
 public type ExternalTimeBatchWindow object {
     *Window;
     *Snapshotable;
@@ -867,6 +1106,8 @@ public type ExternalTimeBatchWindow object {
         }
     }
 
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         foreach var event in streamEvents {
@@ -954,6 +1195,14 @@ public type ExternalTimeBatchWindow object {
         }
     }
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -980,6 +1229,8 @@ public type ExternalTimeBatchWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventChunk.asArray());
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventChunk.asArray());
@@ -999,6 +1250,8 @@ public type ExternalTimeBatchWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var currentEventsList = state["currentEventsList"];
         if (currentEventsList is SnapshottableStreamEvent?[]) {
@@ -1204,12 +1457,36 @@ public type ExternalTimeBatchWindow object {
     }
 };
 
+# The `externalTimeBatch` function creates a `ExternalTimeBatchWindow` object and returns it.
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function externalTimeBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     ExternalTimeBatchWindow timeWindow1 = new(nextProcessPointer, windowParameters);
     return timeWindow1;
 }
 
+# This is a sliding time window that, at a given time holds the last windowLength events that arrived during last
+# windowTime period, and gets updated for every event arrival and expiry.
+# E.g.
+#       from inputStream window `timeLength(4000, 10)`
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
+# The `timeLength` window should only have two parameters (<int> windowTime, <int> windowLength)
+#
+# + timeInMilliSeconds - description
+# + length - description
+# + windowParameters - description
+# + count - description
+# + expiredEventChunk - description
+# + nextProcessPointer - description
+# + scheduler - description
 public type TimeLengthWindow object {
     *Window;
     *Snapshotable;
@@ -1258,6 +1535,8 @@ public type TimeLengthWindow object {
         }
     }
 
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         foreach var event in streamEvents {
@@ -1324,6 +1603,14 @@ public type TimeLengthWindow object {
         }
     }
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -1350,6 +1637,8 @@ public type TimeLengthWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventChunk.asArray());
         return {
@@ -1358,6 +1647,8 @@ public type TimeLengthWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var expiredEventsList = state["expiredEventsList"];
         if (expiredEventsList is SnapshottableStreamEvent?[]) {
@@ -1372,12 +1663,35 @@ public type TimeLengthWindow object {
     }
 };
 
+# The `timeLength` function creates a `TimeLengthWindow` object and returns it.
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function timeLength(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     TimeLengthWindow timeLengthWindow1 = new(nextProcessPointer, windowParameters);
     return timeLengthWindow1;
 }
 
+# This is a length window which only keeps the unique events.
+# E.g.
+#       from inputStream window `uniqueLength(inputStream.timestamp, 4000)`
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
+# The `uniqueLength` window should only have two parameters (stream field, <int> windowLength)
+#
+# + uniqueKey - description
+# + length - description
+# + windowParameters - description
+# + count - description
+# + uniqueMap - description
+# + expiredEventChunk - description
+# + nextProcessPointer - description
 public type UniqueLengthWindow object {
     *Window;
     *Snapshotable;
@@ -1426,6 +1740,8 @@ public type UniqueLengthWindow object {
         }
     }
 
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         foreach var event in streamEvents {
@@ -1500,6 +1816,14 @@ public type UniqueLengthWindow object {
         }
     }
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -1526,6 +1850,8 @@ public type UniqueLengthWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventChunk.asArray());
         map<SnapshottableStreamEvent> uMap = {};
@@ -1539,6 +1865,8 @@ public type UniqueLengthWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var expiredEventsList = state["expiredEventsList"];
         if (expiredEventsList is SnapshottableStreamEvent?[]) {
@@ -1560,12 +1888,34 @@ public type UniqueLengthWindow object {
     }
 };
 
+# The `uniqueLength` function creates a `UniqueLengthWindow` object and returns it.
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function uniqueLength(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     UniqueLengthWindow uniqueLengthWindow1 = new(nextProcessPointer, windowParameters);
     return uniqueLengthWindow1;
 }
 
+# This window will delay the incoming events for a given amount of time.
+# E.g.
+#       from inputStream window `delay(4000)`
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
+# The `delay` window should only have one parameter (<int> delayTime)
+#
+# + delayInMilliSeconds - description
+# + windowParameters - description
+# + delayedEventQueue - description
+# + lastTimestamp - description
+# + nextProcessPointer - description
+# + scheduler - description
 public type DelayWindow object {
     *Window;
     *Snapshotable;
@@ -1604,7 +1954,8 @@ public type DelayWindow object {
         }
     }
 
-
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         foreach var event in streamEvents {
@@ -1664,6 +2015,14 @@ public type DelayWindow object {
         }
     }
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -1690,6 +2049,8 @@ public type DelayWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] delayedEventsList = toSnapshottableEvents(self.delayedEventQueue.asArray());
         return {
@@ -1698,6 +2059,8 @@ public type DelayWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var delayedEventsList = state["delayedEventsList"];
         if (delayedEventsList is SnapshottableStreamEvent?[]) {
@@ -1712,12 +2075,37 @@ public type DelayWindow object {
     }
 };
 
+# The `delay` function creates a `DelayWindow` object and returns it.
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function delay(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     DelayWindow delayWindow1 = new(nextProcessPointer, windowParameters);
     return delayWindow1;
 }
 
+# The sort window hold a given number of events and emit the expired events in the ordered by the given fields.
+# E.g.
+#       from inputStream window `sort(10, inputStream.age, "ascending", inputStream.name, "descending")`
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
+# The `sort` window should have three or more odd no of parameters (<int> windowLength, stream field, <string>
+# order1,  stream field, <string> order2, ...)
+#
+# + lengthToKeep - description
+# + windowParameters - description
+# + sortedWindow - description
+# + fields - description
+# + sortTypes - description
+# + nextProcessPointer - description
+# + fieldFuncs - description
+# + mergeSort - description
 public type SortWindow object {
     *Window;
     *Snapshotable;
@@ -1802,6 +2190,9 @@ public type SortWindow object {
         self.mergeSort = new(self.fieldFuncs, self.sortTypes);
     }
 
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    #
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         foreach var event in streamEvents {
@@ -1858,6 +2249,14 @@ public type SortWindow object {
         }
     }
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -1884,6 +2283,8 @@ public type SortWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] sortEventsList = toSnapshottableEvents(self.sortedWindow.asArray());
         return {
@@ -1891,6 +2292,8 @@ public type SortWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var sortEventsList = state["sortEventsList"];
         if (sortEventsList is SnapshottableStreamEvent?[]) {
@@ -1901,12 +2304,37 @@ public type SortWindow object {
     }
 };
 
+# The `sort` function creates a `SortWindow` object and returns it.
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function sort(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     SortWindow sortWindow1 = new(nextProcessPointer, windowParameters);
     return sortWindow1;
 }
 
+# The  `TimeAccumulatingWindow` holds the events but if the events are not received for a specific time period, the
+# collected events are released, at the point the time exceeds the given time period from the time when the last
+# event is received.
+# E.g.
+#       from inputStream window `timeAccum(4000)`
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
+# Time accumulating window should only have one parameter (<int> timePeriod)
+#
+# + timeInMillis - description
+# + windowParameters - description
+# + currentEventQueue - description
+# + resetEvent - description
+# + nextProcessPointer - description
+# + lastTimestamp - description
+# + scheduler - description
 public type TimeAccumulatingWindow object {
     *Window;
     *Snapshotable;
@@ -1946,6 +2374,8 @@ public type TimeAccumulatingWindow object {
         }
     }
 
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         LinkedList outputStreamEvents = new();
 
@@ -1999,6 +2429,14 @@ public type TimeAccumulatingWindow object {
         }
     }
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -2025,6 +2463,8 @@ public type TimeAccumulatingWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
         StreamEvent? resetStreamEvt = self.resetEvent;
@@ -2037,6 +2477,8 @@ public type TimeAccumulatingWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var currentEventsList = state["currentEventsList"];
         if (currentEventsList is SnapshottableStreamEvent?[]) {
@@ -2056,12 +2498,38 @@ public type TimeAccumulatingWindow object {
     }
 };
 
+# The `timeAccum` function creates a `TimeAccumulatingWindow` object and returns it.
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function timeAccum(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     TimeAccumulatingWindow timeAccumulatingWindow1 = new(nextProcessPointer, windowParameters);
     return timeAccumulatingWindow1;
 }
 
+# The hopping window releases the events in batches defined by a time period every given time interval. The batch is
+# also determined by  the time period given in the window. When the time interval the events being released and the
+# time period it hold the events are equal, the hopping window acts as a `TimeBatch` window.
+# E.g.
+#       from inputStream window `hopping(5000, 4000)`
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
+# Hopping window should only have two parameters (<int> windowTime, <int> hoppingTime)
+#
+# + timeInMilliSeconds - description
+# + hoppingTime - description
+# + windowParameters - description
+# + nextEmitTime - description
+# + currentEventQueue - description
+# + resetEvent - description
+# + nextProcessPointer - description
+# + scheduler - description
 public type HoppingWindow object {
     *Window;
     *Snapshotable;
@@ -2111,6 +2579,8 @@ public type HoppingWindow object {
         }
     }
 
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         LinkedList outputStreamEvents = new();
         if (self.nextEmitTime == -1) {
@@ -2171,6 +2641,14 @@ public type HoppingWindow object {
         }
     }
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -2197,6 +2675,8 @@ public type HoppingWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
         StreamEvent? resetStreamEvt = self.resetEvent;
@@ -2209,6 +2689,8 @@ public type HoppingWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var currentEventsList = state["currentEventsList"];
         if (currentEventsList is SnapshottableStreamEvent?[]) {
@@ -2228,12 +2710,38 @@ public type HoppingWindow object {
     }
 };
 
+# The `hopping` function creates a `HoppingWindow` object and returns it.
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function hopping(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     HoppingWindow hoppingWindow = new(nextProcessPointer, windowParameters);
     return hoppingWindow;
 }
 
+# The `TimeOrderWindow` sorts the events to be expired by the given timestamp field by comparing that timestamp value
+# to engine system time.
+# E.g.
+#       from inputStream window `timeOrder(inputStream.timestamp, 4000, true)`
+#       select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
+#       group by inputStream.name => (TeacherOutput [] teachers) {
+#            foreach var t in teachers {
+#                outputStream.publish(t);
+#            }
+#        }
+# `timeOrder` window should only have three parameters (timestamp field, <int> windowTime, <boolean> dropOlderEvents)
+#
+# + timeInMillis - description
+# + windowParameters - description
+# + expiredEventQueue - description
+# + nextProcessPointer - description
+# + timestamp - description
+# + lastTimestamp - description
+# + dropOlderEvents - description
+# + mergeSort - description
+# + scheduler - description
 public type TimeOrderWindow object {
     *Window;
     *Snapshotable;
@@ -2300,6 +2808,8 @@ public type TimeOrderWindow object {
         self.mergeSort = new(fieldFuncs, sortTypes);
     }
 
+    # The `process` function process the incoming events to the events and update the current state of the window.
+    # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         lock {
@@ -2373,6 +2883,14 @@ public type TimeOrderWindow object {
         }
     }
 
+    # Returns the events(State) which match with the where condition in the join clause for a given event.
+    # + originEvent - The event against which the state or the events being held by the window is matched.
+    # + conditionFunc - The function pointer to the lambda function which contain the condition logic in where clause.
+    # + isLHSTrigger - Specify if the join is triggered when the lhs stream received the events, if so it should be
+    #                  true. Most of the time it is true. In rare cases, where the join is triggered when the rhs
+    #                   stream receives events this should be false.
+    # + return - Returns an array of 2 element tuples of events. A tuple contains the matching events one from lhs
+    #            stream and one from rhs stream.
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -2408,6 +2926,8 @@ public type TimeOrderWindow object {
         }
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventQueue.asArray());
         return {
@@ -2416,6 +2936,8 @@ public type TimeOrderWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var expiredEventsList = state["expiredEventsList"];
         if (expiredEventsList is SnapshottableStreamEvent?[]) {
@@ -2430,6 +2952,11 @@ public type TimeOrderWindow object {
     }
 };
 
+# The `timeOrder` function creates a `TimeOrderWindow` object and returns it.
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function timeOrder(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
 

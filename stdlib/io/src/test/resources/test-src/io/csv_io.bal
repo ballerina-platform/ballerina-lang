@@ -62,8 +62,8 @@ function writeRecord(string[] fields) {
 }
 
 function close() {
-    _ = rch.close();
-    _ = wch.close();
+    checkpanic rch.close();
+    checkpanic wch.close();
 }
 
 function hasNextRecord() returns boolean? {

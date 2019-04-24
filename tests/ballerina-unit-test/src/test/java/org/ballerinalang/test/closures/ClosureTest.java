@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.test.closures;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -197,7 +198,7 @@ public class ClosureTest {
     public void testIterableOperationsVarModification() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testLocalVarModifyWithinClosureScope");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 9.9);
     }
 
     @Test(description = "Test byte and boolean")
@@ -240,5 +241,23 @@ public class ClosureTest {
         Assert.assertFalse(((BBoolean) returns[5]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[6]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[7]).booleanValue());
+    }
+
+    @Test(description = "Test type guard with closures")
+    public void testBasicClosureWithTypeGuard() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test30");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
+    }
+
+    @Test(description = "Test a complex scenario type guard with closures")
+    public void testComplexlosureWithTypeGuard() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test31");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 31);
+    }
+
+    @Test(description = "Test closure capture of variable not initialized at declaration")
+    public void testClosureCaptureLaterInitializedVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "laterInitCapture");
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "aa");
     }
 }

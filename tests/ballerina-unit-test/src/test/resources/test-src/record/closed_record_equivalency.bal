@@ -3,25 +3,23 @@ import eq2;
 import req;
 import req2;
 
-public type person1 record {
+public type person1 record {|
     int age = 0;
     string name = "";
     string address = "";
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...;
-};
+|};
 
-public type employee1 record {
+public type employee1 record {|
     int age = 0;
     string name = "";
     string address = "";
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...;
-};
+|};
 
 function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
     employee1 e = {age:14, name:"rat"};
@@ -32,25 +30,23 @@ function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
     return p.ssn;
 }
 
-public type person2 record {
+public type person2 record {|
     int age = 0;
     string name = "";
     string address = "";
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...;
-};
+|};
 
-public type employee2 record {
+public type employee2 record {|
     int age = 0;
     string name = "";
     string address = "";
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...;
-};
+|};
 
 function testEquivalenceOfPublicStructsInSamePackage () returns (string) {
     employee2 e = {age:14, name:"rat"};
@@ -72,15 +68,14 @@ function testEqOfPublicStructs () returns (string) {
 }
 
 
-public type employee3 record {
+public type employee3 record {|
     int age = 0;
     string name = "";
     string address = "";
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...;
-};
+|};
 
 function testEqOfPublicStructs1 () returns (string) {
     employee3 e = {age:14, name:"rat"};
@@ -103,29 +98,26 @@ function testEqOfPublicStructs2 () returns (string) {
 
 
 
-type userA record {
+type userA record {|
     int age = 0;
     string name = "";
     string address = "";
     string zipcode = "";
-    !...;
-};
+|};
 
-type userB record {
+type userB record {|
     int age = 0;
     string name = "";
     string address = "";
     string zipcode = "";
-    !...;
-};
+|};
 
-type userFoo record {
+type userFoo record {|
     int age = 0;
     string name = "";
     string address = "";
     string zipcode = "23468";
-    !...;
-};
+|};
 
 
 function testRuntimeEqPrivateStructsInSamePackage () returns (string|error) {
@@ -138,30 +130,27 @@ function testRuntimeEqPrivateStructsInSamePackage () returns (string|error) {
 }
 
 
-public type userPA record {
+public type userPA record {|
     int age = 0;
     string name = "";
     string address = "";
     string zipcode = "";
-    !...;
-};
+|};
 
-public type userPB record {
+public type userPB record {|
     int age = 0;
     string name = "";
     string address = "";
     string zipcode = "";
-    !...;
-};
+|};
 
 
-public type userPFoo record {
+public type userPFoo record {|
     int age = 0;
     string name = "";
     string address = "";
     string zipcode = "23468";
-    !...;
-};
+|};
 
 function testRuntimeEqPublicStructsInSamePackage () returns (string|error) {
     userPFoo uFoo = {age:10, name:"Skyhigh", address:"102 Skyhigh street #129, San Jose"};
@@ -192,25 +181,23 @@ function testRuntimeEqPublicStructs1 () returns (string|error) {
     return uB.name;
 }
 
-type Foo record {
+type Foo record {|
     string a = "";
     string b = "";
     string c = "";
     int d = 0;
     float e = 0.0;
     person1? p = ();
-    !...;
-};
+|};
 
-type AnotherFoo record {
+type AnotherFoo record {|
     string c = "";
     string b = "";
     string a = "";
     int d = 0;
     float e = 0.0;
     person1? p = ();
-    !...;
-};
+|};
 
 function testRecordEquivalence() returns Foo {
     AnotherFoo af = {a: "A", b: "B", c: "C", d: 10};

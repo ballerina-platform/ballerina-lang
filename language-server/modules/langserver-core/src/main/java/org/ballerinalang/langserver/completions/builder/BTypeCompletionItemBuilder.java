@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -25,6 +24,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Names;
+
+import java.util.Locale;
 
 /**
  * This class is being used to build BType completion item.
@@ -47,7 +48,6 @@ public class BTypeCompletionItemBuilder {
         item.setLabel(label);
         String[] delimiterSeparatedTokens = (label).split("\\.");
         item.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
-        item.setDetail(ItemResolverConstants.B_TYPE);
         setMeta(item, bSymbol);
         return item;
     }
@@ -78,5 +78,10 @@ public class BTypeCompletionItemBuilder {
         if (bSymbol.markdownDocumentation != null) {
             item.setDocumentation(bSymbol.markdownDocumentation.description);
         }
+        // set sub bType
+        String name = bSymbol.type.getKind().name();
+        String detail = name.substring(0, 1).toUpperCase(Locale.ENGLISH)
+                + name.substring(1).toLowerCase(Locale.ENGLISH);
+        item.setDetail(detail);
     }
 }

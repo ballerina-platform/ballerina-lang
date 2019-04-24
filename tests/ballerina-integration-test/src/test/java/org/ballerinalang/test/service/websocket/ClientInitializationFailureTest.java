@@ -43,7 +43,7 @@ public class ClientInitializationFailureTest extends WebSocketTestCommons {
         client = new WebSocketTestClient(URL);
     }
 
-    @Test(description = "Tests the client initialization failing in a resource", enabled = false)
+    @Test(description = "Tests the client initialization failing in a resource")
     public void testClientEndpointFailureInResource() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);

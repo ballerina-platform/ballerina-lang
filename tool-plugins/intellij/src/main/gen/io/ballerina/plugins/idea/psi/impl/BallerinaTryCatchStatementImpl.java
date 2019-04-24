@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTryCatchStatementImpl extends BallerinaCompositeElementImpl implements BallerinaTryCatchStatement {
+public class BallerinaTryCatchStatementImpl extends ASTWrapperPsiElement implements BallerinaTryCatchStatement {
 
   public BallerinaTryCatchStatementImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaTryCatchStatementImpl extends BallerinaCompositeElementImp
   @Override
   @Nullable
   public BallerinaBlock getBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
+    return findChildByClass(BallerinaBlock.class);
   }
 
   @Override
   @Nullable
   public BallerinaCatchClauses getCatchClauses() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCatchClauses.class);
+    return findChildByClass(BallerinaCatchClauses.class);
   }
 
   @Override
@@ -68,7 +69,7 @@ public class BallerinaTryCatchStatementImpl extends BallerinaCompositeElementImp
   @Override
   @NotNull
   public PsiElement getTry() {
-    return notNullChild(findChildByType(TRY));
+    return findNotNullChildByType(TRY);
   }
 
 }

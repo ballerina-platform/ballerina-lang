@@ -17,8 +17,8 @@
 
 package org.ballerinalang.test.taintchecking;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -50,6 +50,19 @@ public class ConflictTest {
     @Test
     public void testCyclicCall() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/recursions/cyclic-call.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testMultipleCyclicCalls() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/recursions/multiple-cyclic-calls.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testMultipleCyclicCallsComplex() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/recursions/" +
+                "multiple-cyclic-calls-complex.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 }

@@ -41,7 +41,8 @@ import java.io.IOException;
  * @since 0.990.5
  */
 public class BallerinaStreamsV2StatePersistenceTest {
-
+    private static final String PERSISTENCE_PATH = System.getProperty("ballerina.home") + File.separator +
+            "persistence" + File.separator;
     private ConfigRegistry conf = ConfigRegistry.getInstance();
     private CompileResult result;
 
@@ -49,11 +50,12 @@ public class BallerinaStreamsV2StatePersistenceTest {
     public void setup() {
         cleanSnapshots();
         result = BCompileUtil.compile("test-src/streamingv2-state-persistence-test.bal");
+        conf.addConfiguration("b7a.streaming.persistence.directory", PERSISTENCE_PATH);
         conf.addConfiguration("b7a.streaming.persistence.enabled", true);
         conf.addConfiguration("b7a.streaming.persistence.interval", 1L);
     }
 
-    @Test(description = "Test streaming state persistence")
+    @Test(description = "Test streaming state persistence", enabled = false)
     public void testStreamingStatePersistence() {
         BValue[] outputTeacherEvents = BRunUtil.invoke(result, "startQuery");
         Assert.assertNotNull(outputTeacherEvents);
@@ -99,7 +101,7 @@ public class BallerinaStreamsV2StatePersistenceTest {
     }
 
     private void cleanSnapshots() {
-        File snapshots = new File("snapshots" + File.separator);
+        File snapshots = new File(PERSISTENCE_PATH);
         try {
             FileUtils.deleteDirectory(snapshots);
         } catch (IOException ignored) {

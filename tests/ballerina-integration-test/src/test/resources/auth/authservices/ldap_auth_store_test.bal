@@ -70,7 +70,7 @@ service helloService on ep {
         path: "/disableAuthz"
     }
     resource function disableAuthz(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello, World!!!");
+        checkpanic caller->respond("Hello, World!!!");
     }
 
     @http:ResourceConfig {
@@ -81,7 +81,7 @@ service helloService on ep {
         }
     }
     resource function enableAuthz(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello, World!!!");
+        checkpanic caller->respond("Hello, World!!!");
     }
 
     @http:ResourceConfig {
@@ -92,6 +92,6 @@ service helloService on ep {
         }
     }
     resource function failAuthz(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello, World!!!");
+        checkpanic caller->respond("Hello, World!!!");
     }
 }

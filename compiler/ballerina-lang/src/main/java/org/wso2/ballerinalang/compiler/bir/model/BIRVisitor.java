@@ -23,10 +23,16 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.IsLike;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewError;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRConstant;
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.AsyncCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
@@ -39,6 +45,10 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
 public abstract class BIRVisitor {
 
     public void visit(BIRPackage birPackage) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNode.BIRImportModule birImportModule) {
         throw new AssertionError();
     }
 
@@ -62,6 +72,10 @@ public abstract class BIRVisitor {
     }
 
     public void visit(Call birCall) {
+        throw new AssertionError();
+    }
+
+    public void visit(AsyncCall birCall) {
         throw new AssertionError();
     }
 
@@ -92,12 +106,56 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
-    // Operands
-    public void visit(BIRVarRef birVarRef) {
+    public void visit(NewStructure birNewStructure) {
         throw new AssertionError();
     }
 
-    public void visit(BIRConstant birConstant) {
+    public void visit(NewArray birNewArray) {
+        throw new AssertionError();
+    }
+
+    public void visit(FieldAccess birFieldAccess) {
+        throw new AssertionError();
+    }
+
+    public void visit(NewError birNewError) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.FPLoad fpLoad) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRTerminator.Panic birPanic) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNode.BIRErrorEntry birErrorEntry) {
+        throw new AssertionError();
+    }
+
+    public void visit(TypeCast birTypeCast) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewInstance newInstance) {
+        throw new AssertionError();
+    }
+
+    public void visit(IsLike birIsLike) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRTerminator.Wait birWait) {
+        throw new AssertionError();
+    }
+
+    public void visit(TypeTest birTypeTest) {
+        throw new AssertionError();
+    }
+
+    // Operands
+    public void visit(BIROperand birVarRef) {
         throw new AssertionError();
     }
 }

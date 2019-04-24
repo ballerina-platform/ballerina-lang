@@ -68,11 +68,10 @@ service onTextbyteArray on wsListener {
     }
 }
 
-type Person record {
+type Person record {|
     int id;
     string name;
-    !...;
-};
+|};
 
 service onTextRecord on wsListener {
 

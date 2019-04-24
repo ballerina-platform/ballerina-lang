@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaBuiltInReferenceTypeName extends BallerinaCompositeElement {
+public interface BallerinaBuiltInReferenceTypeName extends PsiElement {
 
   @Nullable
   BallerinaErrorTypeName getErrorTypeName();

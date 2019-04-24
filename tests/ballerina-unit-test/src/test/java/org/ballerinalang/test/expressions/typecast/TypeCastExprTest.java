@@ -17,11 +17,6 @@
  */
 package org.ballerinalang.test.expressions.typecast;
 
-
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
@@ -31,6 +26,10 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -562,7 +561,7 @@ public class TypeCastExprTest {
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        String errorMsg = ((BMap<String, BString>) error.details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) error.getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible convert operation: 'B' value cannot be converted as 'A'");
     }
 
@@ -609,7 +608,7 @@ public class TypeCastExprTest {
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        String errorMsg = ((BMap<String, BString>) error.details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) error.getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible types: 'map' cannot be cast to 'boolean'");
     }
 
@@ -620,7 +619,7 @@ public class TypeCastExprTest {
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        String errorMsg = ((BMap<String, BString>) error.details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) error.getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible types: '()' cannot be cast to 'boolean'");
     }
 
@@ -631,7 +630,7 @@ public class TypeCastExprTest {
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        String errorMsg = ((BMap<String, BString>) error.details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) error.getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible types: 'string' cannot be cast to 'int'");
     }
 
@@ -642,7 +641,7 @@ public class TypeCastExprTest {
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        String errorMsg = ((BMap<String, BString>) error.details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) error.getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible types: '()' cannot be cast to 'int'");
     }
 
@@ -653,7 +652,7 @@ public class TypeCastExprTest {
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        String errorMsg = ((BMap<String, BString>) error.details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) error.getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible types: 'string' cannot be cast to 'float'");
     }
 
@@ -664,7 +663,7 @@ public class TypeCastExprTest {
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        String errorMsg = ((BMap<String, BString>) error.details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) error.getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible types: '()' cannot be cast to 'float'");
     }
 
@@ -675,7 +674,7 @@ public class TypeCastExprTest {
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        String errorMsg = ((BMap<String, BString>) error.details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) error.getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible types: 'string' cannot be cast to 'map'");
     }
 

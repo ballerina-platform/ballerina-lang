@@ -86,15 +86,13 @@ function testObjectTupleMemberReferenceByValidIntegerIndex() {
     test:assertEquals(b14, a14, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "3");
 }
 
-public type FooRecordNine record {
+public type FooRecordNine record {|
     string fooFieldOne;
-    !...;
-};
+|};
 
-public type BarRecordNine record {
+public type BarRecordNine record {|
     int barFieldOne;
-    !...;
-};
+|};
 
 public type FooObjectNine object {
     public string fooFieldOne;

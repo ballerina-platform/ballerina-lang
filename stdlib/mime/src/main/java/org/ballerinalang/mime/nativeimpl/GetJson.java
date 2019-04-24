@@ -21,7 +21,6 @@ package org.ballerinalang.mime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JsonParser;
@@ -57,13 +56,6 @@ public class GetJson extends AbstractGetPayloadHandler {
         try {
             BRefType<?> result;
             BMap<String, BValue> entity = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-
-            if (!MimeUtil.isJSONContentType(entity)) {
-                String baseType = HeaderUtil.getBaseType(entity);
-                createErrorAndNotify(context, callback, "Entity body is not json " + COMPATIBLE_SINCE_CONTENT_TYPE +
-                        baseType);
-                return;
-            }
             BValue dataSource = EntityBodyHandler.getMessageDataSource(entity);
             if (dataSource != null) {
                 // If the value is already a JSON, then return as it is.

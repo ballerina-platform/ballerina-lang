@@ -46,7 +46,7 @@ service HelloWorld101 on ep8 {
         } else {
             io:println("Server send response : " + message);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 }
 

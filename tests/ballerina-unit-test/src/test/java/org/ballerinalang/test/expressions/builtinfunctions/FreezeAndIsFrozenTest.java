@@ -16,9 +16,6 @@
  */
 package org.ballerinalang.test.expressions.builtinfunctions;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
@@ -28,6 +25,9 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -37,7 +37,7 @@ import org.testng.annotations.Test;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * This class tests the freeze() and isFrozen() builtin functions.
@@ -82,7 +82,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(dataProvider = "byteValues")
     public void testByteFreeze(int i) {
-        BValue[] returns = BRunUtil.invoke(result, "testByteFreeze", new BValue[]{new BByte((byte) i)});
+        BValue[] returns = BRunUtil.invoke(result, "testByteFreeze", new BValue[]{new BByte(i)});
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected bytes to be the same");
@@ -379,7 +379,7 @@ public class FreezeAndIsFrozenTest {
         BValue[] returns = BRunUtil.invoke(result, "testInvalidComplexArrayFreeze", new BValue[0]);
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "error occurred on freeze: freeze not allowed on 'typedesc'");
+        Assert.assertEquals(returns[0].stringValue(), "error occurred on freeze: 'freeze()' not allowed on 'typedesc'");
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "Expected value to be unfrozen since an error " +
                 "was encountered");
@@ -532,7 +532,15 @@ public class FreezeAndIsFrozenTest {
         BValue[] returns = BRunUtil.invoke(result, "testErrorValueFreeze", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "error occurred on freeze: freeze not allowed on 'error'");
+        Assert.assertEquals(returns[0].stringValue(), "error occurred on freeze: 'freeze()' not allowed on 'error'");
+    }
+
+    @Test
+    public void testStructureWithErrorValueFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructureWithErrorValueFreeze", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test

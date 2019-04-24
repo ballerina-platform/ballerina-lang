@@ -41,7 +41,7 @@ function testUnionTypeDescriptors() {
     test:assertEquals(m1.one, sv, msg = "expected value to be the assigned value");
     test:assertEquals(m1.two, iv, msg = "expected value to be the assigned value");
 
-    utils:assertPanic(function () { anyMap["three"] = <float> 1.0; },
+    utils:assertPanic(function () { anyMap["three"] = 1.0f; },
                       "{ballerina}InherentTypeViolation",
                       "invalid error on inherent type violating map insertion");
 
@@ -57,7 +57,7 @@ function testUnionTypeDescriptors() {
     test:assertEquals(m2.one, 1.0, msg = "expected value to be the assigned value");
     test:assertEquals(m2.two, 2.0, msg = "expected value to be the assigned value");
 
-    utils:assertPanic(function () { anyMap["three"] = <float> 3.0; },
+    utils:assertPanic(function () { anyMap["three"] = 3.0f; },
                       "{ballerina}InherentTypeViolation",
                       "invalid error on inherent type violating map insertion");
 }

@@ -21,6 +21,12 @@ under the License.
 
 <suite name="ballerina-test-suite">
 
+    <!--This listener is only meant to be used for debugging purposes. 
+    Hence it's disabled by default to avoid causing problems in Travis due to the volume of logs this may generate.-->
+    <!--<listeners>-->
+        <!--<listener class-name="org.ballerinalang.stdlib.utils.HTTPTestSuiteListener"/>-->
+    <!--</listeners>-->
+
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <groups>

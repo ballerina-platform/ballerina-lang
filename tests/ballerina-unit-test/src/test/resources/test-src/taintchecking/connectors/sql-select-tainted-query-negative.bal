@@ -16,6 +16,6 @@ public function testSelectWithTaintedQueryNegative(string... args) {
     });
 
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = " + args[0], ());
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return;
 }

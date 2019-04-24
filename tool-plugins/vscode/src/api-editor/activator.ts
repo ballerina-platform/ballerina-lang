@@ -175,14 +175,14 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
 
     const remoteMethods: WebViewMethod[] = [
         {
-            methodName: "getSwaggerDef",
+            methodName: "getOpenApiDef",
             handler: (args: any[]): Thenable<any> => {
                 return langClient.getBallerinaOASDef(args[0], args[1]);
             }
         },{
-            methodName: 'triggerSwaggerDefChange',
+            methodName: 'triggerOpenApiDefChange',
             handler: (args: any[]) => {
-                return langClient.triggerSwaggerDefChange(args[0], args[1]);
+                return langClient.triggerOpenApiDefChange(args[0], args[1]);
             }
         }
     ];

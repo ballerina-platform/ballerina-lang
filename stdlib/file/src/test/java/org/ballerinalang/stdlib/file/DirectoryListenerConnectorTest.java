@@ -54,7 +54,7 @@ public class DirectoryListenerConnectorTest {
     @BeforeClass
     public void init() {
         try {
-            Path rootListenFolderPath = Files.createDirectory(Paths.get("target", "fs"));
+            Path rootListenFolderPath = Files.createDirectory(Paths.get("src", "test", "resources", "fs"));
             rootDirectory = rootListenFolderPath.toFile();
             rootDirectory.deleteOnExit();
             String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
@@ -84,7 +84,7 @@ public class DirectoryListenerConnectorTest {
                 .compileAndSetup(testResourceRoot.resolve("file-system.bal").toString());
         BServiceUtil.runService(compileResult);
         try {
-            final Path file = Files.createFile(Paths.get("target", "fs", "temp.txt"));
+            final Path file = Files.createFile(Paths.get("src", "test", "resources", "fs", "temp.txt"));
             Awaitility.await().atMost(1, MINUTES).until(() -> {
                 BValue[] result = BRunUtil.invokeStateful(compileResult, "isCreateInvoked");
                 return ((BBoolean) result[0]).booleanValue();
@@ -166,13 +166,13 @@ public class DirectoryListenerConnectorTest {
     @Test(description = "Check the negative test for not a folder situation.")
     public void testNegativeNotDirectory() {
         try {
-            Files.createFile(Paths.get("target", "fs", "file.txt"));
+            Files.createFile(Paths.get("src", "test", "resources", "fs", "file.txt"));
             final CompileResult compileResult = BCompileUtil
                     .compileAndSetup(testResourceRoot.resolve("file-system-negative-not-folder.bal").toString());
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
-            String actualMsg = e.getMessage().substring(43, 43 + 46);
-            String expectedErrorMsg = "Unable to find a directory: target/fs/file.txt";
+            String actualMsg = e.getMessage().substring(43, 43 + 58);
+            String expectedErrorMsg = "Unable to find a directory: src/test/resources/fs/file.txt";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid folder.");
         }
     }

@@ -109,10 +109,9 @@ function anyValueDataProvider() returns any[][] {
     ];
 }
 
-public type FooRecord record {
+public type FooRecord record {|
     string fooFieldOne;
-    !...;
-};
+|};
 
 public type BazRecord record {
     float bazFieldOne;

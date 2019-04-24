@@ -19,13 +19,13 @@
 package org.ballerinalang.test.documentation;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -463,5 +463,23 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(returnParameter.getReturnParameterDocumentation(), "return description line 1\n" +
                 "           return description line 2\n" +
                 "           return description line 3");
+    }
+
+    @Test(description = "Test lambda in object init")
+    public void testMarkdownWithLambdaInObjectInit() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_with_lambda.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
+
+        PackageNode packageNode = compileResult.getAST();
+        BLangMarkdownDocumentation documentationAttachment =
+                packageNode.getTypeDefinitions().get(0).getMarkdownDocumentationAttachment();
+        Assert.assertNotNull(documentationAttachment);
+        Assert.assertEquals(documentationAttachment.getDocumentation(), "Documentation for TimeOrderWindow.\n");
+
+        LinkedList<BLangMarkdownParameterDocumentation> parameters = documentationAttachment.getParameters();
+        Assert.assertEquals(parameters.size(), 1);
+        Assert.assertEquals(parameters.get(0).getParameterName().getValue(), "f");
+        Assert.assertEquals(parameters.get(0).getParameterDocumentation(), "documentation");
     }
 }

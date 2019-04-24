@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.balo;
 
-import org.ballerinalang.launcher.util.BFileUtil;
 import org.ballerinalang.packerina.BuilderUtils;
+import org.ballerinalang.test.util.BFileUtil;
 
 import java.io.IOException;
 import java.nio.file.Path;

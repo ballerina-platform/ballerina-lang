@@ -458,7 +458,7 @@ public class HttpUtil {
     }
 
     private static String getErrorMessage(BError error) {
-        String errorMsg = error.reason;
+        String errorMsg = error.getReason();
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
         if (!errorDetails.isEmpty()) {
             errorMsg = errorMsg.concat(COLON + errorDetails.get(HTTP_ERROR_MESSAGE));

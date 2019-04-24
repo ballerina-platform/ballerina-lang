@@ -119,15 +119,13 @@ function testObjectTupleInherentTypeViolation() {
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
 }
 
-public type FooRecordSeven record {
+public type FooRecordSeven record {|
     string fooFieldOne;
-    !...;
-};
+|};
 
-public type BarRecordSeven record {
+public type BarRecordSeven record {|
     int barFieldOne;
-    !...;
-};
+|};
 
 public type FooObjectSeven object {
     public string fooFieldOne;

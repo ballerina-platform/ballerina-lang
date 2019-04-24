@@ -2,7 +2,7 @@ import ballerina/io;
 
 public function main() {
 
-    // Tuple variables can be de-structured with new values when used as a tuple variable
+    // Tuple variables can be destructured with new values when used as a tuple variable
     // reference based binding pattern.
     (string, (int, boolean)) (a1, (a2, a3)) = ("Hello", (123, true));
     (a1, (a2, a3)) = ("Ballerina", (453, false));
@@ -16,8 +16,8 @@ public function main() {
     b3 = false;
     io:println("Tuple variable : ", b1, " ", b2, " ", b3);
 
-    // The binding patterns are recursive in nature. Following examples shows how we can write complex recursive
-    // variable references for de-structuring.
+    // The binding patterns are recursive in nature. Following examples show how we can write complex recursive
+    // variable references for destructuring.
 
     (string, (int, (boolean, float))) (c1, (c2, (c3, c4))) =
                                         ("Test", (123, (true, 5.6)));

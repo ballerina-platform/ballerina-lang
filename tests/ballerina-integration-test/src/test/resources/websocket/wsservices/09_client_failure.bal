@@ -15,9 +15,10 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/log;
 
 final string REMOTE_BACKEND_URL1 = "ws://localhost:14400/websocketxyz";
-http:WebSocketCaller serverCaller = new;
+http:WebSocketCaller? globalServerCaller = ();
 
 @http:WebSocketServiceConfig {
     path: "/client/failure"
@@ -25,12 +26,20 @@ http:WebSocketCaller serverCaller = new;
 service clientFailure on new http:WebSocketListener(9091) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
-        http:WebSocketClient wsClientEp = new(REMOTE_BACKEND_URL1, config = { callbackService: erroHandlingService });
-        serverCaller = untaint wsEp;
+        http:WebSocketClient wsClientEp;
+        globalServerCaller = untaint wsEp;
+        wsClientEp = new(REMOTE_BACKEND_URL1, config = { callbackService: errorHandlingService });
     }
 }
-service erroHandlingService = @http:WebSocketServiceConfig {} service {
+service errorHandlingService = @http:WebSocketServiceConfig {} service {
     resource function onError(http:WebSocketClient caller, error err) {
-        _ = serverCaller->close(statusCode = 1011, reason = <string>err.detail().message, timeoutInSecs = 0);
+        http:WebSocketCaller? serverCaller = globalServerCaller;
+        if (serverCaller is http:WebSocketCaller) {
+            var closeErr = serverCaller->close(statusCode = 1011, reason = <string>err.detail().message,
+            timeoutInSecs = 0);
+            log:printError("Failed during closing the connection", err = closeErr);
+        } else {
+            log:printError("serverCaller has not been set");
+        }
     }
 };

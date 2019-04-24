@@ -42,10 +42,10 @@ import java.time.temporal.TemporalAccessor;
  */
 public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
 
-    public static final String KEY_ZONED_DATETIME = "ZonedDateTime";
-    public static final String TIME_FIELD = "time";
-    public static final String ZONE_FIELD = "zone";
-    public static final String ZONE_ID_FIELD = "id";
+    private static final String KEY_ZONED_DATETIME = "ZonedDateTime";
+    private static final String TIME_FIELD = "time";
+    private static final String ZONE_FIELD = "zone";
+    private static final String ZONE_ID_FIELD = "id";
     
     private StructureTypeInfo timeStructInfo;
     private StructureTypeInfo zoneStructInfo;
@@ -64,7 +64,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
             zoneId = ZoneId.systemDefault();
             zoneIDStr = zoneId.toString();
         } else {
-            zoneId = ZoneId.of(zoneIDStr);
+            zoneId = TimeUtils.getTimeZone(zoneIDStr);
         }
         ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
         long timeValue = zonedDateTime.toInstant().toEpochMilli();
@@ -106,7 +106,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
                 nanoSecond = temporalAccessor.get(ChronoField.NANO_OF_SECOND);
             }
 
-            ZoneId zoneId = null;
+            ZoneId zoneId;
             try {
                 zoneId = ZoneId.from(temporalAccessor);
             } catch (DateTimeException e) {
@@ -117,24 +117,18 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
             long timeValue = zonedDateTime.toInstant().toEpochMilli();
             return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue,
                     zoneId.toString());
-
         } catch (DateTimeParseException e) {
-            throw new BallerinaException("parse date \"" + dateValue + "\" for the format \"" + pattern  + "\" failed");
+            throw new BallerinaException(
+                    "parse date \"" + dateValue + "\" for the format \"" + pattern + "\" failed:" + e.getMessage());
         } catch (IllegalArgumentException e) {
-            throw new BallerinaException("invalid pattern for parsing " + pattern);
+            throw new BallerinaException("invalid pattern: " + pattern);
         }
     }
 
-    String getFormattedtString(BMap<String, BValue> timeStruct, String pattern) {
-        String formattedString;
-        try {
-            ZonedDateTime dateTime = getZonedDateTime(timeStruct);
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
-            formattedString =  dateTime.format(dateTimeFormatter);
-        } catch (IllegalArgumentException e) {
-            throw new BallerinaException("invalid pattern for formatting: " + pattern);
-        }
-        return formattedString;
+    String getFormattedtString(BMap<String, BValue> timeStruct, String pattern) throws IllegalArgumentException {
+        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        return dateTime.format(dateTimeFormatter);
     }
 
     String getDefaultString(BMap<String, BValue> timeStruct) {
@@ -214,7 +208,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         return dateTime.getDayOfWeek().toString();
     }
 
-    protected ZonedDateTime getZonedDateTime(BMap<String, BValue> timeStruct) {
+    ZonedDateTime getZonedDateTime(BMap<String, BValue> timeStruct) {
         ZonedDateTime dateTime = (ZonedDateTime) timeStruct.getNativeData(KEY_ZONED_DATETIME);
         if (dateTime != null) {
             return dateTime;
@@ -227,7 +221,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
             if (zoneIdName.isEmpty()) {
                 zoneId = ZoneId.systemDefault();
             } else {
-                zoneId = ZoneId.of(zoneIdName);
+                zoneId = TimeUtils.getTimeZone(zoneIdName);
             }
         } else {
             zoneId = ZoneId.systemDefault();

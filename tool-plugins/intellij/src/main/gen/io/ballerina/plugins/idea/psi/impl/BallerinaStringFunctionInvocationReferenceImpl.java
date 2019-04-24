@@ -44,13 +44,13 @@ public class BallerinaStringFunctionInvocationReferenceImpl extends BallerinaVar
   @Override
   @NotNull
   public BallerinaInvocation getInvocation() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaInvocation.class));
+    return findNotNullChildByClass(BallerinaInvocation.class);
   }
 
   @Override
   @NotNull
   public PsiElement getQuotedStringLiteral() {
-    return notNullChild(findChildByType(QUOTED_STRING_LITERAL));
+    return findNotNullChildByType(QUOTED_STRING_LITERAL);
   }
 
 }

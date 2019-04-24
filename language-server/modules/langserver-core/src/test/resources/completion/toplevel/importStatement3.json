@@ -1,0 +1,177 @@
+{
+  "position": {
+    "line": 0,
+    "character": 17
+  },
+  "source": "toplevel/source/importStatement3.bal",
+  "items": [
+    {
+      "label": "transactions",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "transactions"
+    },
+    {
+      "label": "websub",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "websub"
+    },
+    {
+      "label": "grpc",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "grpc"
+    },
+    {
+      "label": "reflect",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "reflect"
+    },
+    {
+      "label": "log",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "log"
+    },
+    {
+      "label": "time",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "time"
+    },
+    {
+      "label": "test",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "test"
+    },
+    {
+      "label": "runtime",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "runtime"
+    },
+    {
+      "label": "openapi",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "openapi"
+    },
+    {
+      "label": "file",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "file"
+    },
+    {
+      "label": "sql",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "sql"
+    },
+    {
+      "label": "internal",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "internal"
+    },
+    {
+      "label": "http",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "http"
+    },
+    {
+      "label": "mysql",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "mysql"
+    },
+    {
+      "label": "encoding",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "encoding"
+    },
+    {
+      "label": "mime",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "mime"
+    },
+    {
+      "label": "task",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "task"
+    },
+    {
+      "label": "crypto",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "crypto"
+    },
+    {
+      "label": "io",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "io"
+    },
+    {
+      "label": "artemis",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "artemis"
+    },
+    {
+      "label": "utils",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "utils"
+    },
+    {
+      "label": "cache",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "cache"
+    },
+    {
+      "label": "auth",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "auth"
+    },
+    {
+      "label": "jms",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jms"
+    },
+    {
+      "label": "system",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "system"
+    },
+    {
+      "label": "h2",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "h2"
+    },
+    {
+      "label": "math",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "math"
+    },
+    {
+      "label": "config",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "config"
+    }
+  ]
+}

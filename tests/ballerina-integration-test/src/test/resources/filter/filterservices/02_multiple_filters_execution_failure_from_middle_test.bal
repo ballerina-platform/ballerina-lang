@@ -42,7 +42,7 @@ public type Filter04 object {
         http:Response response = new;
         response.statusCode = 405;
         response.setTextPayload("Not Allowed");
-        _ = caller->respond(response);
+        checkpanic caller->respond(response);
         return false;
     }
 
@@ -81,6 +81,6 @@ service echo01 on echoEP01 {
     }
     resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

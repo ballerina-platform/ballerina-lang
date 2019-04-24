@@ -29,8 +29,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
 import javax.jms.Session;
@@ -38,20 +36,18 @@ import javax.jms.Session;
 /**
  * Unsubscribe a durable subscriber.
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "jms",
+@BallerinaFunction(orgName = JmsConstants.BALLERINA,
+                   packageName = JmsConstants.JMS,
                    functionName = "unsubscribe",
                    receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "Session",
-                                        structPackage = "ballerina/jms"),
+                                        structType = JmsConstants.SESSION_OBJ_NAME,
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
                    args = {
                            @Argument(name = "subscriptionId",
                                      type = TypeKind.STRING)
                    },
                    isPublic = true)
 public class Unsubscribe extends AbstractBlockingAction {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Unsubscribe.class);
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {

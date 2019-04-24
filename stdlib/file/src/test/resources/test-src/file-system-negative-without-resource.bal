@@ -17,7 +17,7 @@
 import ballerina/file;
 
 listener file:Listener localFolder = new ({
-    path: "target/fs",
+    path: "src/test/resources/fs",
     recursive: false
 });
 

@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaIntegerLiteral extends BallerinaCompositeElement {
+public interface BallerinaIntegerLiteral extends PsiElement {
 
   @Nullable
   PsiElement getDecimalIntegerLiteral();
