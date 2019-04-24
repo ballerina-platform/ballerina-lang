@@ -166,6 +166,10 @@ public class TestUtils {
 
     // TODO: find a better way to run client bal files during integration tests.
     public static void prepareBalo(Object test) throws URISyntaxException {
+        if (System.getProperty(BLangConstants.BALLERINA_HOME) != null) {
+            return;
+        }
+
         String path = new File(test.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
                 .getAbsolutePath();
         Path target = Paths.get(path).getParent();

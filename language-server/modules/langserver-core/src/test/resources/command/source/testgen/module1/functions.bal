@@ -55,11 +55,19 @@ public function returnOptionalAny(int n1, int n2, int n3) returns any? {
     return 1;
 }
 
-public function complexInput(task:TimerConfiguration timer) returns error? {
+public function complexInput(task:Scheduler scheduler) returns error? {
     return ();
 }
 
 function complexReturnType(string url) returns http:Client {
     http:Client myclient = new("https://postman-echo.com/get?foo1=bar1&foo2=bar2");
     return myclient;
+}
+
+public function errorAsParam(error s) {
+    //do nothing
+}
+
+public function voidFunc(int a) {
+    //do nothing
 }

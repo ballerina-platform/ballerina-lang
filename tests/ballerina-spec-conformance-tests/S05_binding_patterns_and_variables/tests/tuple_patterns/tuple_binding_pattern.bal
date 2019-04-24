@@ -55,12 +55,12 @@ function testTupleBindingPattern() {
 
     // a tuple-binding-pattern (p1, p2, …, pn) matches a list value of length n [v1, v2, …, vn]
     // if pi matches vi for each i in 1 to n;
-    (var1, var2, var3, var4, var5, _, var7) = (10, "string", 15.5, <decimal>19.9, true, (), [1, 2, 3]);
+    (var1, var2, var3, var4, var5, _, var7) = (10, "string", 15.5, 19.9d, true, (), [1, 2, 3]);
 
     test:assertEquals(var1, 10, msg = EXPECTED_TUPLE_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(var2, "string", msg = EXPECTED_TUPLE_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(var3, 15.5, msg = EXPECTED_TUPLE_DESTRUCTURE_FAILURE_MESSAGE);
-    test:assertEquals(var4, <decimal>19.9, msg = EXPECTED_TUPLE_DESTRUCTURE_FAILURE_MESSAGE);
+    test:assertEquals(var4, 19.9d, msg = EXPECTED_TUPLE_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(var5, true, msg = EXPECTED_TUPLE_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(var7, <int[]>[1, 2, 3], msg = EXPECTED_TUPLE_DESTRUCTURE_FAILURE_MESSAGE);
 }

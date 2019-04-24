@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.FiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +67,15 @@ public class BLangFiniteTypeNode extends BLangType implements FiniteTypeNode {
     @Override
     public String toString() {
         StringJoiner stringJoiner = new StringJoiner(" | ");
-        valueSpace.forEach(memberTypeNode -> stringJoiner.add(memberTypeNode.toString()));
+        for (BLangExpression memberTypeNode : valueSpace) {
+            if (memberTypeNode.type.tag == TypeTags.FLOAT) {
+                stringJoiner.add(memberTypeNode.toString() + NumericLiteralSupport.FLOAT_DISCRIMINATOR);
+            } else if (memberTypeNode.type.tag == TypeTags.DECIMAL) {
+                stringJoiner.add(memberTypeNode.toString() + NumericLiteralSupport.DECIMAL_DISCRIMINATOR);
+            } else {
+                stringJoiner.add(memberTypeNode.toString());
+            }
+        }
         return stringJoiner.toString();
     }
 

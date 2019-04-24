@@ -164,6 +164,7 @@ public type TypeParser object {
 
     function parseObjectType() returns BObjectType {
         BObjectType obj = { name: { value: self.reader.readStringCpRef() },
+            isAbstract: self.reader.readBoolean(),
             fields: [],
             attachedFunctions: [] };
         self.compositeStack[self.compositeStackI] = obj;

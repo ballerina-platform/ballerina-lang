@@ -68,7 +68,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariabl
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class CreateVariableExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "CREATE_VAR";
+    public static final String COMMAND = "CREATE_VAR";
 
     private static Set<String> getAllEntries(BLangInvocation functionNode, CompilerContext context) {
         Set<String> strings = new HashSet<>();

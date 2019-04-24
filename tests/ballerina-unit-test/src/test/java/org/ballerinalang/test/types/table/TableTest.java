@@ -1421,6 +1421,12 @@ public class TableTest {
         Assert.assertEquals(returns[0].stringValue(), "Hello");
     }
 
+    @Test(description = "Test removing data from a table using a given lambda as a filter")
+    public void testRemoveOp() {
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveOp");
+        Assert.assertEquals(returns[0].stringValue(), "table<Order> {index: [], primaryKey: [], data: []}");
+    }
+
     @AfterClass(alwaysRun = true)
     public void closeConnectionPool() {
         BRunUtil.invokeStateful(service, "closeConnectionPool");
