@@ -4,67 +4,100 @@ Formatting is one of the most vital topics with respect to a programming languag
 
 ### Indentation and length of the lines
 * Use four spaces (not tabs) for each level of indentation.
-* Do not indent the top level definitions. 
-
-Example,
-  ```ballerina
-  // This is the top level definition of the .bal file.
-
-  import ballerina/http;
-
-  function func1() {
-      int a = 0;
-  }
-
-  service hello on ep1 {
-      resource function sayHello(http:Caller caller, http:Request req) {
-          http:Response res = new();
-          res.setPayload("Test");
-          _ = caller->respond(res);
-      }
-  }
-
-  ```
 * Keep the maximum length of a line as 120 characters. 
 
 ### Spacing
 
 #### Inline spacing
 
-Use only a single space to separate keywords, types, and identifiers. 
+* Use only a single space to separate keywords, types, and identifiers. 
 
-Example,
-```ballerina
-// public keyword, type keyword, identifier Employee, abstract keyword and object keyword
-// all have to be separated with only a single space.
-public type Employee abstract object {
-    public int id;
-    public string name;
-};
-```
-
-#### Blank lines
-
-Separate both statements and top level definitions by zero or one blank lines (i.e., one or two new lines).
+  Example,
+    ```ballerina
+    string fullName = "john doe"; 
+      
+    function getFullName() returns string {
+        return fullName;
+    }
+    
+    // public keyword, type keyword, identifier Employee, abstract keyword and object keyword
+    // all have to be separated with only a single space.
+    public type Employee abstract object {
+        public int id;
+        public string name;
+    };
+    
+    public remote function getUserName(http:Caller caller, http:Request req) {
+      
+    } 
+    ```
+  Few exceptions for this rule are
+  - Do not keep spaces around a type when it is enclosed using angle brackets `<string>`. 
+      
+      Example,
+      ```ballerina
+      map<string> names = {};
+      ```
+  - Do not keep spaces between the type and opening bracket in the array definition `string[]`.
+      
+      Example,
+      ```ballerina
+      string[] names = [];
+      
+      ```
+* If its a list of values separated by commas, add only a single space after each comma 
+  and don't add spaces before the comma.
+  
+  Example,
+    ```ballerina
+    (string, int, boolean) tupleVar = ("", 0, false);
+    
+    int[] arrayOfString = [1, 2, 3, 4]
+    
+    map<string> stringMap = {one: st1, two: st2, three: st3};
+    
+    Person personRecord = {name:"marcus", id: 0};
+    
+    function foo(string name, int id) {}
+    
+    service hello on ep1, ep2 {...}
+    ```
+* When defining an union type keep only single spaces around pipe operator `|`.
 
   Example,
   ```ballerina
+  type method "POST" | "GET" | "PUT";
+  
+  (int | string) variable = 0;
+  
+  function name(int | string value) returns int | () {
+      ...
+  }
+  ```
+#### Blank lines
+
+Separate both statements and top level definitions by zero or one blank lines.
+
+  Example,
+  
+  ```ballerina
   import ballerina/http;
   import ballerina/io;
-  
+    
   const string CITY = "Colombo";
   const int CITY_NO = 1;
-  
+    
   function getName() returns string {
       string firstName = "john";
       string lastName = "doe";
-      
+        
       return firstName + lastName;
   }
-  
-  function getAge() returns int {}
+    
+  function setName(string name) {}
   function setAge(int age) {}
   ```
+    
 ### Blocks
 * Add a single space before opening the curly braces. 
 
@@ -76,28 +109,49 @@ Separate both statements and top level definitions by zero or one blank lines (i
   }
 
    ```
-* If a block is empty, do not keep spaces in between the opening `{` and closing `}` braces.
+* If a block is empty, do not keep spaces in between the opening and closing braces.
   
   Example,
   ```ballerina
   function func1() {}
   ``` 
 * Indent all the statements inside a block to be at the same level.
+* Indent the closing brace of a block to align with the starting position of the block statement.
+
+  Example,
+  
+  ```ballerina
+  if (false) {
+      ...
+  }
+  
+  match a {
+      ...
+  }
+  ```
 
 ### Parentheses
-* To define empty parenthese, do not keep spaces between the opening and closing parentheses `()`.
-* Do not have spaces before closing and after opening the parentheses.
+* Do not have spaces before closing parentheses and after opening parentheses.
   
   Example,
   ```ballerina
-  function setValue(string value) {} 
+  (string, int) tupleVar = ("", 0);
+  
+  function setValue(string value) {...}
+  
+  setValue("value");
+  ```
+* To define an empty parentheses, do not keep spaces between the opening and closing parentheses `()`.
+  Example,
+  ```ballerina
+  int | () result = getResult();
   ```
   
 ### Line breaks
 
 * Have only one statement in a line.
-* Split a line at some point, in the direction from the start towards the end of the line.
-* When splitting lines, which contain operator(s), split them right before an operator.
+* When splitting lines, which contain operator(s) or separator(s),
+  split them right before an operator or a separator.
   
   Example,
   
@@ -115,16 +169,29 @@ Separate both statements and top level definitions by zero or one blank lines (i
       && (i == 1)) {
   
   }
+  
+  // Function parameters.
+  function getName(int id, int age,
+      string searchValue) returns string {
+      ...
+  }
 
   ```
-
-* Indent splitted lines with relation to the starting position of the statement or definition.
+* Split the line from the nearest point, which matches all the requirement for splitting,
+  toward the end of the line.
+* Indent split lines with relation to the starting position of the statement or definition.
   
   Example,
   ```ballerina
   if (isNameAvailable 
       && (i == 1)) {
-    
+      
+  }
+  
+  // Function parameters.
+  function getName(int id, int age,
+      string searchValue) returns string {
+      ...
   }
   ```
 * Avoid line breaks in constrained types and type casting.
@@ -158,7 +225,7 @@ Separate both statements and top level definitions by zero or one blank lines (i
   >
   ```
   
-  >**Info:** However, if you cannot add the type casting expression or statement with the constrained type in a single line 
+* However, if you cannot add the type casting expression or statement with the constrained type in a single line 
   due to it exceeding the max line length, 
     - move the casting type with the operators to a new line.
   
@@ -180,9 +247,9 @@ Separate both statements and top level definitions by zero or one blank lines (i
       ```
 
 ### [Top Level Definitions](definitions.md)
+### [Operators, Keywords and Types](operators_keywords_and_types.md)
 ### [Statements](statements.md)
 ### [Expressions](expressions.md)
-### [Operators, Keywords and Types](operators_keywords_and_types.md)
 
 ### Annotations
 * Do not have spaces around the `@` symbol.
@@ -217,13 +284,41 @@ Separate both statements and top level definitions by zero or one blank lines (i
   }
   ```
 * If an annotation is empty, place it in a single line and 
-  do not have spoaces between both braces.
+  do not have spaces between both braces.
   
   Example,
   ```ballerina
   @http:ServiceConfig {}
   ```
+* If the annotation is a inline annotation, it should follow owner's formatting guideline
+  for indenting and spacing.
 
+  For an example if the owner of the `@sensitive` annotation is a function parameter, annotation should be formatted
+  as the parameter should be spaced or indented in this scenario.
+  
+  ```ballerina
+  public function secureFunction1(@sensitive string secureInName, @sensitive int secureInId, string insecureIn) {
+      ...
+  }
+  
+  public function secureFunction2(@sensitive string secureInName,
+      @sensitive int secureInId, string insecureIn) {
+      ...
+  }
+  ```
+  Another example is `@tainted` annotation which should be formatted as the return type spaced or indented
+  in this scenario.
+  
+  ```ballerina
+  public function taintedReturn1() returns @tainted string {
+      ...
+  }
+  
+  public function taintedReturn2() returns 
+      @tainted string {
+      ...
+  }
+  ```
 ### Comments
 * Use `//` to write both single-line and multi-line comments.
   
@@ -289,49 +384,39 @@ Separate both statements and top level definitions by zero or one blank lines (i
 
 ### Documentation
 * Always, indent them to align with the starting position of the owner.
-* Add a space before the`#` symnbol.
+* Add a space after the `#` symbol.
 * Add an empty line after the description.
 
-Example,
-  ```ballerina
-    # Get Value.
+  Example,
+    ```ballerina
+    # Description.
     #
     # + value - value input parameter 
     # + return - return a integer value
     function getValue(int value) returns int {
         return value;
     }
-  ```
-* Addonly one space after `+`, `-` and `return`.
+    ```
+* Add only one space after parameter marker (`+`), divider (`-`) and `return`.
 * Begin the param identifier and description with a single space.
 
   Example,
   ```ballerina
-  # Get Value.
+  # Description.
   #
-  # + value - value input parameter 
-  # + return - return a integer value
-  function getValue(int value) returns int {
-      return value;
-  }
+  # + value - Parameter description
+  # + return - Return value description
+  function getValue(int value) returns int {...}
 
-  @http:ServiceConfig {
-      basePath: "greet"
-  }
+  # Description.
+  @http:ServiceConfig {...}
   service greet on new http:Listener(8080) {
-      # Say hello.
+      # Description.
       #
-      # + caller - caller endpoint that calling this resource 
-      # + request - request sent by the caller
-      @http:ResourceConfig {
-          methods: [],
-          path: "sayHello"
-      }
-      resource function sayHello(http:Caller caller, http:Request request) {
-          http:Response res = new;
-          res.setPayload("hello");
-          _ = caller->respond(res);
-      }
+      # + caller - Parameter description.
+      # + request - Parameter description.
+      @http:ResourceConfig {...}
+      resource function sayHello(http:Caller caller, http:Request request) {...}
   }
   ```
-  For more information on how to document Ballerina code, go to [How to document Ballerina code](https://ballerina.io/learn/how-to-document-ballerina-code/).
+  
