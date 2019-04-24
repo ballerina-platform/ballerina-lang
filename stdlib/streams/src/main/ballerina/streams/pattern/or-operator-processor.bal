@@ -72,6 +72,24 @@ public type OrOperatorProcessor object {
         self.stateEvents.addLast(stateEvent);
     }
 
+    public function evict(StreamEvent stateEvent, string? processorAlias) {
+        // remove matching fulfilled states from this processor.
+        self.stateEvents.resetToFront();
+        while (self.stateEvents.hasNext()) {
+            StreamEvent s = getStreamEvent(self.stateEvents.next());
+            if (stateEvent.getEventId() == s.getEventId()) {
+                self.stateEvents.removeCurrent();
+            }
+        }
+        // remove matching states from prev processor.
+        AbstractOperatorProcessor? pProcessor = self.prevProcessor;
+        if (pProcessor is AbstractOperatorProcessor) {
+            io:println("OrOperatorProcessor:evict:87 -> ", stateEvent, "|", processorAlias);
+            pProcessor.evict(stateEvent, processorAlias);
+            io:println("OrOperatorProcessor:evict:89 -> ", stateEvent, "|", processorAlias);
+        }
+    }
+
     public function setPreviousProcessor(AbstractOperatorProcessor processor) {
         self.prevProcessor = processor;
     }

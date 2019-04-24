@@ -35,6 +35,24 @@ public type NotOperatorProcessor object {
 
     }
 
+    public function evict(StreamEvent stateEvent, string? processorAlias) {
+        // remove matching fulfilled states from this processor.
+        self.stateEvents.resetToFront();
+        while (self.stateEvents.hasNext()) {
+            StreamEvent s = getStreamEvent(self.stateEvents.next());
+            if (stateEvent.getEventId() == s.getEventId()) {
+                self.stateEvents.removeCurrent();
+            }
+        }
+        // remove matching states from prev processor.
+        AbstractOperatorProcessor? pProcessor = self.prevProcessor;
+        if (pProcessor is AbstractOperatorProcessor) {
+            io:println("NotOperatorProcessor:evict:50 -> ", stateEvent, "|", processorAlias);
+            pProcessor.evict(stateEvent, processorAlias);
+            io:println("NotOperatorProcessor:evict:52 -> ", stateEvent, "|", processorAlias);
+        }
+    }
+
     public function setPreviousProcessor(AbstractOperatorProcessor processor) {
         self.prevProcessor = processor;
     }

@@ -17,4 +17,5 @@
 public type AbstractOperatorProcessor abstract object {
     public LinkedList stateEvents;
     public function promote(StreamEvent stateEvent, string? processorAlias);
+    public function evict(StreamEvent stateEvent, string? processorAlias);
 };
