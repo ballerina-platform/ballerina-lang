@@ -361,8 +361,6 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
 
     /**
      * New XML element instruction.
-     * <p>
-     * e.g.: {@code <foo>content</foo>}
      * 
      * @since 0.995.0
      */

@@ -178,7 +178,7 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
-    public void visit(XMLAccess xmlAddChild) {
+    public void visit(XMLAccess xmlAccess) {
         throw new AssertionError();
     }
 

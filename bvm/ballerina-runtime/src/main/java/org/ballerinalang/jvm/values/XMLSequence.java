@@ -21,7 +21,6 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;

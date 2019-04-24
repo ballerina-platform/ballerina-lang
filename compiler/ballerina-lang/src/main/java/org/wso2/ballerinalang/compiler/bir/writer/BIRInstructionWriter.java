@@ -310,7 +310,68 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(birPanic.kind.getValue());
         birPanic.errorOp.accept(this);
     }
-    
+
+    @Override
+    public void visit(NewXMLElement newXMLElement) {
+        writePosition(newXMLElement.pos);
+        buf.writeByte(newXMLElement.kind.getValue());
+        newXMLElement.lhsOp.accept(this);
+        newXMLElement.startTagOp.accept(this);
+        newXMLElement.endTagOp.accept(this);
+        newXMLElement.defaultNsURIOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewXMLText newXMLText) {
+        writePosition(newXMLText.pos);
+        buf.writeByte(newXMLText.kind.getValue());
+        newXMLText.lhsOp.accept(this);
+        newXMLText.textOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewXMLQName newXMLQName) {
+        writePosition(newXMLQName.pos);
+        buf.writeByte(newXMLQName.kind.getValue());
+        newXMLQName.lhsOp.accept(this);
+        newXMLQName.localnameOp.accept(this);
+        newXMLQName.nsURIOp.accept(this);
+        newXMLQName.prefixOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewStringXMLQName newStringXMLQName) {
+        writePosition(newStringXMLQName.pos);
+        buf.writeByte(newStringXMLQName.kind.getValue());
+        newStringXMLQName.lhsOp.accept(this);
+        newStringXMLQName.stringQNameOP.accept(this);
+    }
+
+    @Override
+    public void visit(XMLAccess xmlAccess) {
+        writePosition(xmlAccess.pos);
+        buf.writeByte(xmlAccess.kind.getValue());
+        xmlAccess.lhsOp.accept(this);
+        xmlAccess.rhsOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewXMLComment newXMLComment) {
+        writePosition(newXMLComment.pos);
+        buf.writeByte(newXMLComment.kind.getValue());
+        newXMLComment.lhsOp.accept(this);
+        newXMLComment.textOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewXMLProcIns newXMLProcIns) {
+        writePosition(newXMLProcIns.pos);
+        buf.writeByte(newXMLProcIns.kind.getValue());
+        newXMLProcIns.lhsOp.accept(this);
+        newXMLProcIns.dataOp.accept(this);
+        newXMLProcIns.targetOp.accept(this);
+    }
+
     // Positions
     void writePosition(DiagnosticPos pos) {
         int sLine = 1;
@@ -332,60 +393,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(sCol);
         buf.writeInt(eCol);
         buf.writeInt(addStringCPEntry(sourceFileName));
-    }
-
-    @Override
-    public void visit(NewXMLElement newXMLElement) {
-        buf.writeByte(newXMLElement.kind.getValue());
-        newXMLElement.lhsOp.accept(this);
-        newXMLElement.startTagOp.accept(this);
-        newXMLElement.endTagOp.accept(this);
-        newXMLElement.defaultNsURIOp.accept(this);
-    }
-
-    @Override
-    public void visit(NewXMLText newXMLText) {
-        buf.writeByte(newXMLText.kind.getValue());
-        newXMLText.lhsOp.accept(this);
-        newXMLText.textOp.accept(this);
-    }
-
-    @Override
-    public void visit(NewXMLQName newXMLQName) {
-        buf.writeByte(newXMLQName.kind.getValue());
-        newXMLQName.lhsOp.accept(this);
-        newXMLQName.localnameOp.accept(this);
-        newXMLQName.nsURIOp.accept(this);
-        newXMLQName.prefixOp.accept(this);
-    }
-
-    @Override
-    public void visit(NewStringXMLQName newStringXMLQName) {
-        buf.writeByte(newStringXMLQName.kind.getValue());
-        newStringXMLQName.lhsOp.accept(this);
-        newStringXMLQName.stringQNameOP.accept(this);
-    }
-
-    @Override
-    public void visit(XMLAccess xmlAddChild) {
-        buf.writeByte(xmlAddChild.kind.getValue());
-        xmlAddChild.lhsOp.accept(this);
-        xmlAddChild.rhsOp.accept(this);
-    }
-
-    @Override
-    public void visit(NewXMLComment newXMLComment) {
-        buf.writeByte(newXMLComment.kind.getValue());
-        newXMLComment.lhsOp.accept(this);
-        newXMLComment.textOp.accept(this);
-    }
-
-    @Override
-    public void visit(NewXMLProcIns newXMLProcIns) {
-        buf.writeByte(newXMLProcIns.kind.getValue());
-        newXMLProcIns.lhsOp.accept(this);
-        newXMLProcIns.dataOp.accept(this);
-        newXMLProcIns.targetOp.accept(this);
     }
 
     // private methods

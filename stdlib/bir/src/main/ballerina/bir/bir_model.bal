@@ -476,6 +476,7 @@ public type Panic record {|
 |};
 
 public type NewXMLElement record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef startTagOp;
@@ -484,6 +485,7 @@ public type NewXMLElement record {|
 |};
 
 public type NewXMLQName record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef localnameOp;
@@ -492,30 +494,35 @@ public type NewXMLQName record {|
 |};
 
 public type NewStringXMLQName record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef stringQNameOp;
 |};
 
 public type XMLAccess record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
 |};
 
 public type NewXMLText record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef textOp;
 |};
 
 public type NewXMLComment record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef textOp;
 |};
 
 public type NewXMLPI record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef dataOp;

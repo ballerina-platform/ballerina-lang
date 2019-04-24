@@ -172,27 +172,27 @@ public type FuncBodyParser object {
             var startTagOp = self.parseVarRef();
             var endTagOp = self.parseVarRef();
             var defaultNsURIOp = self.parseVarRef();
-            NewXMLElement newXMLElement = {kind:kind, lhsOp:lhsOp, startTagOp:startTagOp, endTagOp:endTagOp, 
+            NewXMLElement newXMLElement = {pos:pos, kind:kind, lhsOp:lhsOp, startTagOp:startTagOp, endTagOp:endTagOp, 
                                            defaultNsURIOp:defaultNsURIOp};
             return newXMLElement;
         } else if (kindTag == INS_NEW_XML_TEXT) {
             kind = INS_KIND_NEW_XML_TEXT;
             var lhsOp = self.parseVarRef();
             var textOp = self.parseVarRef();
-            NewXMLText newXMLText = {kind:kind, lhsOp:lhsOp, textOp:textOp};
+            NewXMLText newXMLText = {pos:pos, kind:kind, lhsOp:lhsOp, textOp:textOp};
             return newXMLText;
         } else if (kindTag == INS_NEW_XML_COMMENT) {
             kind = INS_KIND_NEW_XML_COMMENT;
             var lhsOp = self.parseVarRef();
             var textOp = self.parseVarRef();
-            NewXMLComment newXMLComment = {kind:kind, lhsOp:lhsOp, textOp:textOp};
+            NewXMLComment newXMLComment = {pos:pos, kind:kind, lhsOp:lhsOp, textOp:textOp};
             return newXMLComment;
         } else if (kindTag == INS_NEW_XML_PI) {
             kind = INS_KIND_NEW_XML_PI;
             var lhsOp = self.parseVarRef();
             var dataOp = self.parseVarRef();
             var targetOp = self.parseVarRef();
-            NewXMLPI newXMLPI = {kind:kind, lhsOp:lhsOp, dataOp:dataOp, targetOp:targetOp};
+            NewXMLPI newXMLPI = {pos:pos, kind:kind, lhsOp:lhsOp, dataOp:dataOp, targetOp:targetOp};
             return newXMLPI;
         } else if (kindTag == INS_NEW_XML_QNAME) {
             kind = INS_KIND_NEW_XML_QNAME;
@@ -200,54 +200,54 @@ public type FuncBodyParser object {
             var localnameOp = self.parseVarRef();
             var nsURIOp = self.parseVarRef();
             var prefixOp = self.parseVarRef();
-            NewXMLQName newXMLQName = {kind:kind, lhsOp:lhsOp, localnameOp:localnameOp, nsURIOp:nsURIOp, 
+            NewXMLQName newXMLQName = {pos:pos, kind:kind, lhsOp:lhsOp, localnameOp:localnameOp, nsURIOp:nsURIOp, 
                                        prefixOp:prefixOp};
             return newXMLQName;
         } else if (kindTag == INS_NEW_STRING_XML_QNAME) {
             kind = INS_KIND_NEW_STRING_XML_QNAME;
             var lhsOp = self.parseVarRef();
             var stringQNameOp = self.parseVarRef();
-            NewStringXMLQName newStringXMLQName = {kind:kind, lhsOp:lhsOp, stringQNameOp:stringQNameOp};
+            NewStringXMLQName newStringXMLQName = {pos:pos, kind:kind, lhsOp:lhsOp, stringQNameOp:stringQNameOp};
             return newStringXMLQName;
         } else if (kindTag == INS_XML_SEQ_STORE) {
             kind = INS_KIND_XML_SEQ_STORE;
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            XMLAccess xmlSeqStore = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            XMLAccess xmlSeqStore = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return xmlSeqStore;
         } else if (kindTag == INS_XML_SEQ_LOAD) {
             kind = INS_KIND_XML_SEQ_LOAD;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess xmlLoad = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess xmlLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return xmlLoad;
         } else if (kindTag == INS_XML_LOAD) {
             kind = INS_KIND_XML_LOAD;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess xmlLoad = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess xmlLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return xmlLoad;
         } else if (kindTag == INS_XML_LOAD_ALL) {
             kind = INS_KIND_XML_LOAD_ALL;
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            XMLAccess xmlLoadAll = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            XMLAccess xmlLoadAll = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return xmlLoadAll;
         } else if (kindTag == INS_XML_ATTRIBUTE_STORE) {
             kind = INS_KIND_XML_ATTRIBUTE_STORE;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess xmlAttrStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess xmlAttrStore = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return xmlAttrStore;
         } else if (kindTag == INS_XML_ATTRIBUTE_LOAD) {
             kind = INS_KIND_XML_ATTRIBUTE_LOAD;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess xmlAttrLoad = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess xmlAttrLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return xmlAttrLoad;
         } else if (kindTag == INS_FP_LOAD) {
             kind = INS_KIND_FP_LOAD;
