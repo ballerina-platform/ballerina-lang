@@ -192,7 +192,7 @@ public class Compiler {
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST
         List<BLangPackage> packages = pkgIdStream
-                .filter(p -> !SymbolTable.BUILTIN.equals(p))
+                .filter(p -> (!SymbolTable.BUILTIN.equals(p) || !SymbolTable.UTILS.equals(p)))
                 .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null, isBuild))
                 .filter(pkgNode -> pkgNode != null) // skip the packages that were not loaded properly
                 .collect(Collectors.toList());
