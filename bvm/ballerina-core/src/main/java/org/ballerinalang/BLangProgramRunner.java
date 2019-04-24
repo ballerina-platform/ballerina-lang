@@ -154,7 +154,6 @@ public class BLangProgramRunner {
         programFile.setServerConnectorRegistry(serverConnectorRegistry);
         serverConnectorRegistry.initServerConnectors();
 
-        outStream.println("Initiating service(s) in '" + programFile.getProgramFilePath() + "'");
         BVMExecutor.invokePackageStartFunctions(programFile);
 
         serverConnectorRegistry.deploymentComplete();
