@@ -20,7 +20,6 @@ import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,15 +33,20 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
     private List<Integer> lhsTraverseTerminals;
     private List<Integer> definitionKWTerminals;
     private boolean removeDefinition;
-    private int closeParenthesisCount;
-    private int lessThanSymbolCount;
+    private int rightParenthesisCount;
+    private int rightBraceCount;
+    private int ltSymbolCount;
+    private SourcePruneContext sourcePruneContext;
 
-    LHSTokenTraverser(List<Integer> traverseTerminals, List<Integer> kwTerminals) {
-        this.lhsTraverseTerminals = traverseTerminals;
-        this.definitionKWTerminals = kwTerminals;
+    LHSTokenTraverser(SourcePruneContext sourcePruneContext) {
+        this.sourcePruneContext = sourcePruneContext;
+        this.lhsTraverseTerminals = sourcePruneContext.get(SourcePruneKeys.LHS_TRAVERSE_TERMINALS_KEY);
+        this.definitionKWTerminals = sourcePruneContext.get(SourcePruneKeys.DEFINITION_KW_TERMINALS_KEY);
+
         this.removeDefinition = false;
-        this.closeParenthesisCount = 0;
-        this.lessThanSymbolCount = 0;
+        this.rightParenthesisCount = 0;
+        this.rightBraceCount = 0;
+        this.ltSymbolCount = 0;
     }
 
     void traverseLHS(TokenStream tokenStream, int tokenIndex) {
@@ -61,23 +65,51 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             alterTokenText(token.get());
             token = CommonUtil.getPreviousDefaultToken(tokenStream, token.get().getTokenIndex());
         }
+        
+        sourcePruneContext.put(SourcePruneKeys.REMOVE_DEFINITION_KEY, this.removeDefinition);
+        sourcePruneContext.put(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY, this.rightParenthesisCount);
+        sourcePruneContext.put(SourcePruneKeys.RIGHT_BRACE_COUNT_KEY, this.rightBraceCount);
+        sourcePruneContext.put(SourcePruneKeys.LT_COUNT_KEY, this.ltSymbolCount);
     }
 
     private boolean terminateLHSTraverse(Token token, TokenStream tokenStream) {
         int type = token.getType();
         if (type == BallerinaParser.RIGHT_PARENTHESIS) {
-            this.closeParenthesisCount++;
+            this.rightParenthesisCount++;
             this.alterTokenText(token);
             return false;
         }
         if (type == BallerinaParser.LEFT_PARENTHESIS) {
-            if (this.closeParenthesisCount > 0) {
-                this.closeParenthesisCount--;
+            Optional<Token> tokenToLeft = CommonUtil.getPreviousDefaultToken(tokenStream, token.getTokenIndex());
+            if (this.rightParenthesisCount > 0) {
+                this.rightParenthesisCount--;
                 this.alterTokenText(token);
                 return false;
-            } else {
-                return true;
+            } else if (tokenToLeft.isPresent() && 
+                    (BallerinaParser.IF == tokenToLeft.get().getType() ||
+                            BallerinaParser.WHILE == tokenToLeft.get().getType())) {
+                // Cursor is within the if/ else if/ while condition
+                this.replaceCondition(tokenStream, token.getTokenIndex());
             }
+            return true;
+        }
+        /*
+        Right brace is used as a terminal token and should be used as a terminating point for block statements.
+        in cases such as following example,
+            xyz {f1:1, f2:{f3:4}} = 
+        right brace cannot consider as a terminal token, therefore we track the previous token and consider that to
+        identify blocks. Until the right brace count is zero all the following right braces are altered (refer example)
+         */
+        if (type == BallerinaParser.RIGHT_BRACE
+                && (this.lastAlteredToken == BallerinaParser.ASSIGN || this.rightBraceCount > 0)) {
+            this.alterTokenText(token);
+            this.rightBraceCount++;
+            return false;
+        }
+        if (type == BallerinaParser.LEFT_BRACE && this.rightBraceCount > 0) {
+            this.alterTokenText(token);
+            this.rightBraceCount--;
+            return false;
         }
         /*
         Specially capture the LT token in order to avoid Right token removal during the following case
@@ -86,7 +118,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
          */
         if (type == BallerinaParser.LT) {
             this.alterTokenText(token);
-            this.lessThanSymbolCount++;
+            this.ltSymbolCount++;
             return false;
         }
         // Handle the ON token replacing since this is used in both service and JSON streaming input
@@ -98,24 +130,6 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             this.alterTokenText(token);
         }
         
-        return true;
-    }
-
-    /**
-     * Removed the definition or not.
-     * 
-     * @return {@link Boolean} removed the definition or not
-     */
-    public boolean isRemoveDefinition() {
-        return removeDefinition;
-    }
-
-    /**
-     * Get the number of less than symbols found while removing the tokens.
-     *
-     * @return {@link Integer}  number of LT tokens found during the left traversal
-     */
-    public int getLessThanSymbolCount() {
-        return lessThanSymbolCount;
+        return rightParenthesisCount == 0 && this.rightBraceCount == 0;
     }
 }

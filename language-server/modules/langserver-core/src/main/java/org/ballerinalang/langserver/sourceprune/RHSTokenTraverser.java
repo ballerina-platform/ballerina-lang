@@ -29,25 +29,30 @@ import java.util.Optional;
  * @since 0.995.0
  */
 class RHSTokenTraverser extends AbstractTokenTraverser {
-    private int openBraceCount = 0;
+    private int leftBraceCount;
+    private int leftParenthesisCount;
     private List<Integer> rhsTraverseTerminals;
     private boolean definitionRemoved;
-    private int lhsLTTokenCount;
+    private int ltTokenCount;
 
-    RHSTokenTraverser(List<Integer> traverseTerminals, boolean definitionRemoved, int lhsLTTokenCount) {
-        this.rhsTraverseTerminals = traverseTerminals;
-        this.definitionRemoved = definitionRemoved;
-        this.lhsLTTokenCount = lhsLTTokenCount;
+    RHSTokenTraverser(SourcePruneContext sourcePruneContext) {
+        this.leftBraceCount = sourcePruneContext.get(SourcePruneKeys.LEFT_BRACE_COUNT_KEY);
+        this.leftParenthesisCount = sourcePruneContext.get(SourcePruneKeys.LEFT_PARAN_COUNT_KEY);
+        this.rhsTraverseTerminals = sourcePruneContext.get(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY);
+        this.definitionRemoved = sourcePruneContext.get(SourcePruneKeys.REMOVE_DEFINITION_KEY);
+        this.ltTokenCount = sourcePruneContext.get(SourcePruneKeys.LT_COUNT_KEY);
     }
 
     void traverseRHS(TokenStream tokenStream, int tokenIndex) {
         Optional<Token> token = Optional.of(tokenStream.get(tokenIndex));
         while (token.isPresent()) {
             int type = token.get().getType();
-            if (BallerinaParser.RIGHT_BRACE == type && openBraceCount > 0) {
-                openBraceCount--;
+            if (BallerinaParser.RIGHT_BRACE == type && leftBraceCount > 0) {
+                leftBraceCount--;
             } else if (BallerinaParser.LEFT_BRACE == type && this.definitionRemoved) {
-                openBraceCount++;
+                leftBraceCount++;
+            } else if (BallerinaParser.LEFT_PARENTHESIS == type) {
+                this.leftParenthesisCount++;
             } else if (rhsTraverseTerminals.contains(type)) {
                 boolean terminateRHSTraverse = terminateRHSTraverse(token.get());
                 if (terminateRHSTraverse) {
@@ -60,18 +65,24 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
     }
 
     private boolean terminateRHSTraverse(Token token) {
-        if (token.getType() == BallerinaParser.SEMICOLON || token.getType() == BallerinaParser.COMMA) {
-            this.alterTokenText(token);
-        }
+        int type = token.getType();
         /*
         Address the case of removing the LT symbol during the LHS traversal
         Ex: map<> ...
             annotation <r> ...
          */
-        if (token.getType() == BallerinaParser.GT && this.lhsLTTokenCount > 0) {
-            this.lhsLTTokenCount--;
+        if (type == BallerinaParser.GT && this.ltTokenCount > 0) {
+            this.ltTokenCount--;
             this.alterTokenText(token);
             return false;
+        }
+        if (type == BallerinaParser.RIGHT_PARENTHESIS && this.leftParenthesisCount > 0) {
+            this.leftParenthesisCount--;
+            this.alterTokenText(token);
+            return false;
+        }
+        if (type == BallerinaParser.SEMICOLON || type == BallerinaParser.COMMA) {
+            this.alterTokenText(token);
         }
         
         return true;

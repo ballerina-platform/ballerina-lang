@@ -17,24 +17,41 @@ package org.ballerinalang.langserver.sourceprune;
 
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.Collections;
+import java.util.Optional;
 
 /**
  * Abstract token traverser.
  * 
  * @since 0.995.0
  */
-public abstract class AbstractTokenTraverser {
-    public void alterTokenText(Token token) {
+abstract class AbstractTokenTraverser {
+    int lastAlteredToken = -1;
+
+    void alterTokenText(Token token) {
         if (token.getType() == BallerinaParser.NEW_LINE) {
             return;
         }
         ((CommonToken) token).setText(getNCharLengthEmptyLine(token.getText().length()));
+        this.lastAlteredToken = token.getType();
     }
 
-    public static String getNCharLengthEmptyLine(int n) {
+    private static String getNCharLengthEmptyLine(int n) {
         return String.join("", Collections.nCopies(n, " "));
+    }
+
+    /**
+     * Replace the condition of an if/ else if/ while statement.
+     * @param tokenStream   Current token stream
+     * @param tokenIndex    Token index of the if token or open parenthesis
+     */
+    void replaceCondition(TokenStream tokenStream, int tokenIndex) {
+        Optional<Token> nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream, tokenIndex);
+        nextDefaultToken.ifPresent(token -> ((CommonToken) token)
+                .setText(String.join("_", Collections.nCopies(token.getText().length()/2, "a"))));
     }
 }

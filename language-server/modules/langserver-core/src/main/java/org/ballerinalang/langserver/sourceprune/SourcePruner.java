@@ -82,11 +82,9 @@ public class SourcePruner {
         if (tokenIndex < 0 || tokenIndex >= tokenStream.size()) {
             return;
         }
-        LHSTokenTraverser lhsTokenTraverser = new LHSTokenTraverser(LHS_TRAVERSE_TERMINALS, DEFINITION_KW_TERMINALS);
-        lhsTokenTraverser.traverseLHS(tokenStream, tokenIndex);
-        int lhsLTTokenCount = lhsTokenTraverser.getLessThanSymbolCount();
-        new RHSTokenTraverser(RHS_TRAVERSE_TERMINALS, lhsTokenTraverser.isRemoveDefinition(), lhsLTTokenCount)
-                .traverseRHS(tokenStream, tokenIndex);
+        SourcePruneContext sourcePruneContext = getContext();
+        new LHSTokenTraverser(sourcePruneContext).traverseLHS(tokenStream, tokenIndex);
+        new RHSTokenTraverser(sourcePruneContext).traverseRHS(tokenStream, tokenIndex);
     }
 
     private static TokenPosition locateCursorAtToken(Token token, int cLine, int cCol) {
@@ -106,6 +104,21 @@ public class SourcePruner {
         } else {
             return TokenPosition.LEFT;
         }
+    }
+    
+    private static SourcePruneContext getContext() {
+        SourcePruneContext context = new SourcePruneContext();
+        context.put(SourcePruneKeys.GT_COUNT_KEY, 0);
+        context.put(SourcePruneKeys.LT_COUNT_KEY, 0);
+        context.put(SourcePruneKeys.LEFT_BRACE_COUNT_KEY, 0);
+        context.put(SourcePruneKeys.RIGHT_BRACE_COUNT_KEY, 0);
+        context.put(SourcePruneKeys.LEFT_PARAN_COUNT_KEY, 0);
+        context.put(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY, 0);
+        context.put(SourcePruneKeys.LHS_TRAVERSE_TERMINALS_KEY, LHS_TRAVERSE_TERMINALS);
+        context.put(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY, RHS_TRAVERSE_TERMINALS);
+        context.put(SourcePruneKeys.DEFINITION_KW_TERMINALS_KEY, DEFINITION_KW_TERMINALS);
+        
+        return context;
     }
 
     private enum TokenPosition {

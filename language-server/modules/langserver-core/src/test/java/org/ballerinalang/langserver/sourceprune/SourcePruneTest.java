@@ -130,6 +130,26 @@ public class SourcePruneTest {
                 // Annotation Definition
                 {"src_prune_config25.json"},
                 {"src_prune_config26.json"},
+                // Global variable Definition
+                {"src_prune_config27.json"},
+                {"src_prune_config28.json"},
+                {"src_prune_config29.json"},
+                // Error Destructure Statement
+                {"src_prune_config30.json"},
+                {"src_prune_config31.json"},
+                // Variable Definition statement
+                {"src_prune_config32.json"},
+                {"src_prune_config33.json"},
+                {"src_prune_config34.json"},
+                {"src_prune_config35.json"},
+                {"src_prune_config36.json"},
+                {"src_prune_config37.json"},
+                // Compound assignment statement
+                {"src_prune_config38.json"},
+                // If else statement conditions
+                {"src_prune_config39.json"},
+                {"src_prune_config40.json"},
+                {"src_prune_config41.json"},
         };
     }
 }
