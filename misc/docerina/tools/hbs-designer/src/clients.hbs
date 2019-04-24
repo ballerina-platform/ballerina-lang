@@ -1,17 +1,7 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
-  <title>API Documentation</title>
-  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
-  <link rel="stylesheet" href="../../styles/css/styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
-</head>
+{{> htmlHead title="API Documentation - Module Clients " rootPath="../../" }}
 
 <body>
   <div class="ui grid">
@@ -22,63 +12,16 @@
       <div class="primary-list">
         <h3>Clients</h3>
         <ul>
-         {{#each clients}}
+          {{#each module.constructs.clients}}
           <li>
-            {{name}}
+            <a href="{{name}}">{{name}}</a>
           </li>
           {{/each}}
         </ul>
       </div>
       <div class="ui divider"></div>
-      <div class="primary-list">
-        {{#if all.modules}}
-        <ul>
-          {{#each all.modules}}
-            {{#if constructs}}
-              {{#each constructs}}
-                {{#if clients}}
-                  {{#each clients}}
-                    <li>
-                      {{name}}
-                    </li>
-                  {{/each}}
-                {{/if}}
-              {{/each}}
-            {{/if}}
-          {{/each}}
-        </ul>
-        {{/if}}
-      </div>
-      <div class="primary-list">
-        <h3>{{id}}</h3>
-        {{#if all.modules}}
-        <ul>
-          {{#each all.modules}}
-          {{#if constructs}}
-          {{#each constructs}}
-          <li>
-            <a href="../index.html#{{@key}}">{{@key}}</a>
-          </li>
-          {{/each}}
-          {{/if}}
-          {{/each}}
-        </ul>
-        {{/if}}
-        <div class="ui divider"></div>
-      </div>
-       <div class="primary-list">
-        <h3>All Modules</h3>
-        {{#if all.modules}}
-            <ul>
-              {{#each all.modules}}
-              <li>
-                <a href="../index.html">{{id}}</a>
-              </li>
-              {{/each}}
-            </ul>
-        {{/if}}
-        <div class="ui divider"></div>
-      </div>
+      {{> currentModule rootPath="../../" }}
+      {{> allModules rootPath="../../" }}
     </div>
 
     <div class="fourteen wide column content-wrapper">
@@ -92,125 +35,127 @@
         <table class="ui table">
           <thead>
             {{#if clnt}}
-              {{#clnt}}
-                {{#each fields}}
-                <tr>
-                  <th width ="20%">{{field_name_label}}</th>
-                  <th width ="20%">{{data_type_label}}</th>
-                  <th width ="15%">{{default_value_label}}</th>
-                  <th width ="45%">{{description_label}}</th>
-                </tr>
-              </thead>
-              <tbody>
-                  {{#if attributes}}
-                    {{#each attributes}}
-                    <tr>
-                      <td width ="20%">{{field_name}}</td>
-                      <td width ="20%">{{data_type}}</td>
-                      <td width ="15%">{{default_value}}</td>
-                      <td width ="45%">{{description}}</td>
-                    </tr>
-                    {{/each}}
-                  {{/if}}
-                {{/each}}
-              {{/clnt}}
+            {{#clnt}}
+            {{#each fields}}
+            <tr>
+              <th width="20%">{{field_name_label}}</th>
+              <th width="20%">{{data_type_label}}</th>
+              <th width="15%">{{default_value_label}}</th>
+              <th width="45%">{{description_label}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#if attributes}}
+            {{#each attributes}}
+            <tr>
+              <td width="20%">{{field_name}}</td>
+              <td width="20%">{{data_type}}</td>
+              <td width="15%">{{default_value}}</td>
+              <td width="45%">{{description}}</td>
+            </tr>
+            {{/each}}
+            {{/if}}
+            {{/each}}
+            {{/clnt}}
             {{/if}}
           </tbody>
         </table>
-        
+
         <div class="ui divider"></div>
         <div class="method-wrapper">
           {{#if clnt}}
-            {{#clnt}}
-              {{#each method}}
-              <div class="method-span"> 
-                <table class="ui table">
-                  <tr>
-                    <td class="clients module-title method-table-header"><a href="#{{method_type}}">{{method_type}}</a></td>
-                    <td class="module-desc">{{description}}</td> 
-                  </tr>
-                </table>
-              </div>
+          {{#clnt}}
+          {{#each method}}
+          <div class="method-span">
+            <table class="ui table">
+              <tr>
+                <td class="clients module-title method-table-header"><a href="#{{method_type}}">{{method_type}}</a></td>
+                <td class="module-desc">{{description}}</td>
+              </tr>
+            </table>
+          </div>
+          {{/each}}
+
+          {{#each method}}
+          <div class="method-type-wrapper">
+            <div class="method-title">
+              <h3 class="clients" id="{{method_type}}">{{method_type}}</h3>
+              <p>{{method_params}}</p>
+              <h3>{{label_return}}</h3>
+              <p>{{return_params}}</p>
+            </div>
+            <p>{{description}}</p>
+            <table class="ui table params-table">
+              <thead>
+                {{#if params }}
+                {{#each params }}
+                {{#if fields}}
+                {{#each fields}}
+                <tr>
+                  <th width="20%">{{param_name_label}}</th>
+                  <th width="20%">{{data_type_label}}</th>
+                  <th width="15%">{{default_value_label}}</th>
+                  <th width="45%">{{description_label}}</th>
+                </tr>
+                {{/each}}
+                {{/if}}
+                {{/each}}
+                {{/if}}
+              </thead>
+              {{#if params }}
+              {{#each params }}
+              {{#if fields}}
+              {{#each fields}}
+              {{#if attributes}}
+              {{#each attributes}}
+              <tbody>
+                <tr>
+                  <td width="20%">{{field_name}}</td>
+                  <td width="20%">{{data_type}}</td>
+                  <td width="15%">{{default_value}}</td>
+                  <td width="45%">{{description}}</td>
+                </tr>
+              </tbody>
               {{/each}}
-              
-              {{#each method}}
-              <div class="method-type-wrapper">
-                <div class="method-title">
-                  <h3 class="clients" id="{{method_type}}">{{method_type}}</h3><p>{{method_params}}</p>
-                  <h3>{{label_return}}</h3><p>{{return_params}}</p>
-                </div>
-                <p>{{description}}</p>
-                <table class="ui table params-table">
-                  <thead>
-                    {{#if params }}
-                      {{#each params }}
-                        {{#if fields}}
-                          {{#each fields}}
-                            <tr>
-                              <th width ="20%">{{param_name_label}}</th>
-                              <th width ="20%">{{data_type_label}}</th>
-                              <th width ="15%">{{default_value_label}}</th>
-                              <th width ="45%">{{description_label}}</th>
-                            </tr>
-                          {{/each}}
-                        {{/if}}
-                      {{/each}}
-                    {{/if}}
-                  </thead>
-                    {{#if params }}
-                      {{#each params }}
-                        {{#if fields}}
-                          {{#each fields}}
-                            {{#if attributes}}
-                              {{#each attributes}}
-                                <tbody>
-                                  <tr>
-                                    <td width ="20%">{{field_name}}</td>
-                                    <td width ="20%">{{data_type}}</td>
-                                    <td width ="15%">{{default_value}}</td>
-                                    <td width ="45%">{{description}}</td>
-                                  </tr>
-                                </tbody>  
-                              {{/each}}
-                            {{/if}}
-                          {{/each}}
-                        {{/if}}
-                      {{/each}}
-                    {{/if}}
-                </table>
-                <table class="ui table">
-                  <thead>
-                    {{#if returns }}
-                      {{#each returns }}
-                        {{#if fields}}
-                          {{#each fields}}
-                            <tr>
-                              <th width ="30%">{{return_type_label}}</th>
-                              <th width ="70%">{{return_description_label}}</th>
-                            </tr>
-                          {{/each}}
-                        {{/if}}
-                      {{/each}}
-                    {{/if}}
-                  </thead>
-                    {{#if returns }}
-                      {{#each returns }}
-                        {{#if fields}}
-                          {{#each fields}}
-                                <tbody>
-                                  <tr>
-                                    <td width ="30%">{{return_type}}</td>
-                                    <td width ="70%">{{description}}</td>
-                                  </tr>
-                                </tbody>  
-                          {{/each}}
-                        {{/if}}
-                      {{/each}}
-                    {{/if}}
-                </table>
-              </div>
+              {{/if}}
               {{/each}}
-            {{/clnt}}
+              {{/if}}
+              {{/each}}
+              {{/if}}
+            </table>
+            <table class="ui table">
+              <thead>
+                {{#if returns }}
+                {{#each returns }}
+                {{#if fields}}
+                {{#each fields}}
+                <tr>
+                  <th width="30%">{{return_type_label}}</th>
+                  <th width="70%">{{return_description_label}}</th>
+                </tr>
+                {{/each}}
+                {{/if}}
+                {{/each}}
+                {{/if}}
+              </thead>
+              {{#if returns }}
+              {{#each returns }}
+              {{#if fields}}
+              {{#each fields}}
+              <tbody>
+                <tr>
+                  <td width="30%">{{return_type}}</td>
+                  <td width="70%">{{description}}</td>
+                </tr>
+              </tbody>
+              {{/each}}
+              {{/if}}
+              {{/each}}
+              {{/if}}
+            </table>
+          </div>
+          {{/each}}
+          {{/clnt}}
           {{/if}}
         </div>
       </div>
