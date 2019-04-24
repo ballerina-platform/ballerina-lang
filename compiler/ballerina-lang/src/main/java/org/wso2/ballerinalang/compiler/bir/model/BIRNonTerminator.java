@@ -505,7 +505,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
 
     /**
      * XML access expression with two operands.
-     * e.g: {@link InstructionKind.XML_SEQ_STORE}, {@link InstructionKind.XML_LOAD_ALL}
+     * e.g: {@code InstructionKind.XML_SEQ_STORE}, {@code InstructionKind.XML_LOAD_ALL}
      *
      * @since 0.995.0
      */
