@@ -14,17 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person1 record {
+type Person1 record {|
     string name;
     int age;
-    !...;
-};
+|};
 
-type AnotherPerson1 record {
+type AnotherPerson1 record {|
     string name;
     int age;
-    !...;
-};
+|};
 
 function testClosedToClosedAssignment1() returns AnotherPerson1 {
     Person1 p = {name:"John Doe", age:25};
@@ -32,11 +30,10 @@ function testClosedToClosedAssignment1() returns AnotherPerson1 {
     return ap;
 }
 
-type AnotherPerson2 record {
+type AnotherPerson2 record {|
     string name;
     int|float age;
-    !...;
-};
+|};
 
 function testClosedToClosedAssignment2() returns AnotherPerson2 {
     Person1 p = {name:"John Doe", age:25};
@@ -44,12 +41,11 @@ function testClosedToClosedAssignment2() returns AnotherPerson2 {
     return ap;
 }
 
-type AnotherPerson3 record {
+type AnotherPerson3 record {|
     string name;
     int age;
     float weight?;
-    !...;
-};
+|};
 
 // Tests assignment when the LHS type has optional fields which don't correspond to any fields in the RHS type.
 function testClosedToClosedAssignment3() returns AnotherPerson3 {
@@ -69,11 +65,10 @@ function testClosedToClosedAssignment4() {
 // Test for when the LHS type has optional fields which correspond to required fields of the RHS type.
 // This is allowed.
 
-type AnotherPerson4 record {
+type AnotherPerson4 record {|
     string name;
     int age?;
-    !...;
-};
+|};
 
 function testReqFieldToOptField() returns AnotherPerson4 {
     Person1 p = {name:"John Doe", age:25};
@@ -86,11 +81,10 @@ function testReqFieldToOptField() returns AnotherPerson4 {
 // Test for when the optional fields of RHS type correspond to optional fields of LHS type.
 // This is allowed.
 
-type Person2 record {
+type Person2 record {|
     string name;
     int age?;
-    !...;
-};
+|};
 
 function testOptFieldToOptField1() returns AnotherPerson4 {
     Person2 p = {name:"John Doe", age:25};

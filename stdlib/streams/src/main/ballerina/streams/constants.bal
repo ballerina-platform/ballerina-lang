@@ -14,14 +14,28 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# The type of stream events.
 public type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
+
+# The types of joins between streams and tables.
 public type JoinType "JOIN"|"LEFTOUTERJOIN"|"RIGHTOUTERJOIN"|"FULLOUTERJOIN";
+
 public const OUTPUT = "OUTPUT";
+
+# The reset event type
 public const RESET = "RESET";
+
+# The expired event type
 public const EXPIRED = "EXPIRED";
-public const DEFAULT = "DEFAULT";
+
+# The current event type.
 public const CURRENT = "CURRENT";
+
+# The timer event type.
 public const TIMER = "TIMER";
+
+# The default key to group by if the group by clause is not used in query
+public const DEFAULT = "DEFAULT";
 public const DELIMITER = ".";
 public const DELIMITER_REGEX = "\\.";
 public const ASCENDING = "ascending";

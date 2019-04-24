@@ -17,12 +17,12 @@
 # Publishes data to the stream.
 #
 # + data - Data to be published to the stream
-public extern function stream<any>.publish(any data);
+public function stream<any>.publish(any data) = external;
 
 # Subscribes to data from the stream.
 #
 # + func - The function pointer for the subscription, which will be invoked with data published to the stream
-public extern function stream<any>.subscribe(function (any) func);
+public function stream<any>.subscribe(function (any) func) = external;
 
 # Creates the forever runtime.
 #
@@ -32,5 +32,5 @@ public extern function stream<any>.subscribe(function (any) func);
 # + outStreamRefs - References of the output streams in the forever
 # + outTableRefs - References of the output tables in the forever
 # + funcPointers - References of the functions to invoke as the streaming action
-extern function startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs,
-                             any outTableRefs, any funcPointers);
+function startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs,
+                      any outTableRefs, any funcPointers) = external;

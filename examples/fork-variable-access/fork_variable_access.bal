@@ -39,6 +39,9 @@ public function main() {
                     i = i + 100;
                 }
             }
+
+            // Wait for worker `W3` to finish.
+            wait W3;
         }
 
         worker W2 {
@@ -55,8 +58,7 @@ public function main() {
     // Print the values after the `fork` block to check if the values of the
     // variables have changed.
 
-    // The value type variables have not changed since they are passed in as 
-    // a copy of the original variable.
+    // The value type variables have changed since the original variables are passed in
     io:println("[value type variables] after fork: " +
                "value of integer variable is [", i, "] ",
                "value of string variable is [", s, "]");

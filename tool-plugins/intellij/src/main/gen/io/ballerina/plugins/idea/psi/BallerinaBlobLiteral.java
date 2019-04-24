@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaBlobLiteral extends BallerinaCompositeElement {
+public interface BallerinaBlobLiteral extends PsiElement {
 
   @Nullable
   PsiElement getBase16BlobLiteral();

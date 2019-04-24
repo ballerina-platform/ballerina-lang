@@ -19,10 +19,9 @@ import ballerina/sql;
 # Represents personally identifiable information (PII) stored in a database
 #
 # + pii - personally identifiable information
-type PiiData record {
+type PiiData record {|
     string pii;
-    !...;
-};
+|};
 
 # Build insert query based on the table name and column names
 #

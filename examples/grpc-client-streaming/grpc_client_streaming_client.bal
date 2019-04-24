@@ -33,7 +33,10 @@ public function main() {
     }
 
     // Once all the messages are sent, the server notifies the caller with a `complete` message.
-    _ = ep->complete();
+    error? result = ep->complete();
+    if (result is error) {
+        io:println("Error in sending complete message", result);
+    }
 
     while (total == 0) {}
     io:println("completed successfully");

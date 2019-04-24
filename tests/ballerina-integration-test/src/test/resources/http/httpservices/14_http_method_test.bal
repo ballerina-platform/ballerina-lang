@@ -33,10 +33,10 @@ service headQuoteService on serviceEndpoint4 {
 
         var response = endPoint -> execute(untaint method, "/getQuote/stocks", clientRequest);
         if (response is http:Response) {
-            _ = caller -> respond(response);
+            checkpanic caller->respond(response);
         } else {
             json errMsg = {"error":"error occurred while invoking the service"};
-            _ = caller -> respond(errMsg);
+           checkpanic caller->respond(errMsg);
         }
     }
 
@@ -46,10 +46,10 @@ service headQuoteService on serviceEndpoint4 {
     resource function forwardRes11 (http:Caller caller, http:Request req) {
         var response = endPoint -> forward("/getQuote/stocks", req);
         if (response is http:Response) {
-            _ = caller -> respond(response);
+            checkpanic caller->respond(response);
         } else {
             json errMsg = {"error":"error occurred while invoking the service"};
-            _ = caller -> respond(errMsg);
+           checkpanic caller->respond(errMsg);
         }
     }
 
@@ -59,10 +59,10 @@ service headQuoteService on serviceEndpoint4 {
     resource function forwardRes22 (http:Caller caller, http:Request req) {
         var response = endPoint -> forward("/getQuote/stocks", req);
         if (response is http:Response) {
-            _ = caller -> respond(response);
+            checkpanic caller->respond(response);
         } else {
             json errMsg = {"error":"error occurred while invoking the service"};
-            _ = caller -> respond(errMsg);
+           checkpanic caller->respond(errMsg);
         }
     }
 
@@ -73,10 +73,10 @@ service headQuoteService on serviceEndpoint4 {
         http:Request clientRequest = new;
         var response = endPoint -> execute(untaint method, "/getQuote/stocks", clientRequest);
         if (response is http:Response) {
-            _ = caller -> respond(response);
+            checkpanic caller->respond(response);
         } else {
             json errMsg = {"error":"error occurred while invoking the service"};
-            _ = caller -> respond(errMsg);
+           checkpanic caller->respond(errMsg);
         }
     }
 }
@@ -94,10 +94,10 @@ service testClientConHEAD on serviceEndpoint4 {
         http:Request clientRequest = new;
         var response = endPoint -> get("/getQuote/stocks", message = clientRequest);
         if (response is http:Response) {
-            _ = caller -> respond(response);
+            checkpanic caller->respond(response);
         } else {
             json errMsg = {"error":"error occurred while invoking the service"};
-            _ = caller -> respond(errMsg);
+           checkpanic caller->respond(errMsg);
         }
     }
 }
@@ -114,7 +114,7 @@ service quoteService2 on serviceEndpoint4 {
     resource function company (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("wso2");
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -124,7 +124,7 @@ service quoteService2 on serviceEndpoint4 {
     resource function product (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("ballerina");
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -134,7 +134,7 @@ service quoteService2 on serviceEndpoint4 {
         http:Response res = new;
         res.setHeader("Method", "any");
         res.setTextPayload("default");
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -144,6 +144,6 @@ service quoteService2 on serviceEndpoint4 {
     resource function employee (http:Caller caller, http:Request req, json person) {
         http:Response res = new;
         res.setJsonPayload(untaint person);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }

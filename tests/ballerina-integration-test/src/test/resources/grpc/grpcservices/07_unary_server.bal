@@ -35,7 +35,7 @@ service HelloWorld100 on ep7 {
         if (err is error) {
             io:println("Error from Connector: " + err.reason());
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testInt(grpc:Caller caller, int age) {
@@ -47,7 +47,7 @@ service HelloWorld100 on ep7 {
         } else {
             io:println("display age : " + displayAge);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testFloat(grpc:Caller caller, float salary) {
@@ -59,7 +59,7 @@ service HelloWorld100 on ep7 {
         } else {
             io:println("net salary : " + netSalary);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testBoolean(grpc:Caller caller, boolean available) {
@@ -71,7 +71,7 @@ service HelloWorld100 on ep7 {
         } else {
             io:println("avaliability : " + aval);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testStruct(grpc:Caller caller, Request msg) {
@@ -83,7 +83,7 @@ service HelloWorld100 on ep7 {
         } else {
             io:println("msg : " + response.resp);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testNoRequest(grpc:Caller caller) {
@@ -94,7 +94,7 @@ service HelloWorld100 on ep7 {
         } else {
             io:println("response : " + resp);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testNoResponse(grpc:Caller caller, string msg) {
@@ -105,11 +105,11 @@ service HelloWorld100 on ep7 {
         io:println("Request: " + msg);
         Response? res = {resp:"Acknowledge " + msg};
         if (res is Response) {
-            _ = caller->send(res);
+            checkpanic caller->send(res);
         } else {
-            _ = caller->sendError(grpc:NOT_FOUND, "No updates from that drone");
+            checkpanic caller->sendError(grpc:NOT_FOUND, "No updates from that drone");
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 }
 

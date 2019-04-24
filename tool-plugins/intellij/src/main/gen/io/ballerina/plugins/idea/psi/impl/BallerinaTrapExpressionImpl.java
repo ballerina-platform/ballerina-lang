@@ -44,13 +44,13 @@ public class BallerinaTrapExpressionImpl extends BallerinaExpressionImpl impleme
   @Override
   @Nullable
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @NotNull
   public PsiElement getTrap() {
-    return notNullChild(findChildByType(TRAP));
+    return findNotNullChildByType(TRAP);
   }
 
 }

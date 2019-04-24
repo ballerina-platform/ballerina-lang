@@ -52,7 +52,8 @@ export const SourceLinkedLabel: React.StatelessComponent<{
                     }}
                 >
                     {text}
-                </text>)
+                </text>
+                )
             }
             </DiagramContext.Consumer>
         );

@@ -46,8 +46,8 @@ boolean hubPersistenceEnabled = false;
 # + hubServiceListener - The `http:Listener` to which the service is attached
 function startHubService(http:Listener hubServiceListener) {
     // TODO : handle errors
-    _ = hubServiceListener.__attach(hubService, {});
-    _ = hubServiceListener.__start();
+    checkpanic hubServiceListener.__attach(hubService);
+    checkpanic hubServiceListener.__start();
 }
 
 # Function to retrieve if persistence is enabled for the Hub.
@@ -86,7 +86,7 @@ function getSignatureMethod(SignatureMethod? signatureMethod) returns string {
 function getRemotePublishConfig(RemotePublishConfig? remotePublish) returns RemotePublishConfig {
     RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
     boolean remotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish",
-                                     default = remotePublish.enabled ?: false);
+                                     defaultValue = remotePublish.enabled ?: false);
 
     string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
     if (remotePublishModeAsConfig == "") {

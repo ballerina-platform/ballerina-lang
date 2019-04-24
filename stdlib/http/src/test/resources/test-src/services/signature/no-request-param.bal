@@ -8,6 +8,6 @@ listener http:MockListener echoEP = new(9090);
 service echo on echoEP {
     resource function echo1(http:Caller caller) {
         http:Response res = new;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

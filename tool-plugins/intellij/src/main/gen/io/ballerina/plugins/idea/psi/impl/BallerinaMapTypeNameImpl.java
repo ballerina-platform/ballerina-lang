@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaMapTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaMapTypeName {
+public class BallerinaMapTypeNameImpl extends ASTWrapperPsiElement implements BallerinaMapTypeName {
 
   public BallerinaMapTypeNameImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaMapTypeNameImpl extends BallerinaCompositeElementImpl impl
   @Override
   @Nullable
   public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
@@ -62,7 +63,7 @@ public class BallerinaMapTypeNameImpl extends BallerinaCompositeElementImpl impl
   @Override
   @NotNull
   public PsiElement getMap() {
-    return notNullChild(findChildByType(MAP));
+    return findNotNullChildByType(MAP);
   }
 
 }

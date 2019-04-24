@@ -243,8 +243,12 @@ function getDateCreated(json jsonObj) returns string {
     var timeInMillis = int.convert(jsonTime);
     if (timeInMillis is int) {
         time:Time timeRecord = { time: timeInMillis, zone: { id: "UTC", offset: 0 } };
-        string customTimeString = time:format(timeRecord, "yyyy-MM-dd-E");
-        return customTimeString;
+        var customTimeString = time:format(timeRecord, "yyyy-MM-dd-E");
+        if (customTimeString is string) {
+            return customTimeString;
+        } else {
+            panic customTimeString;
+        }
     } else {
         panic timeInMillis;
     }

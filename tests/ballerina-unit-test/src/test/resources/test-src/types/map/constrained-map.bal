@@ -246,12 +246,11 @@ function updateGenericMapWithNullValue (map<any> m) returns (map<any>) {
     return m;
 }
 
-type Person record {
+type Person record {|
     string name;
     int age;
     string address = "";
-    !...;
-};
+|};
 
 type Employee record {
     string name;
@@ -344,11 +343,10 @@ function testAnyMapToRefTypeRuntimeCast () returns (map<Employee>|error) {
     return check trap <map<Employee>>testMap;
 }
 
-type Student record {
+type Student record {|
     int index;
     int age;
-    !...;
-};
+|};
 
 function testMapToStructConversion () returns ((int, int)|error) {
     map<int> testMap = {};
@@ -399,7 +397,7 @@ function testMapOfElementTypeRefArray () returns ((string, int)) {
     return (jackR.name, jackR.age);
 }
 
-type PersonComplex record {
+type PersonComplex record {|
     string name = "";
     int age = 0;
     PersonComplex? parent = ();
@@ -409,8 +407,7 @@ type PersonComplex record {
     anydata a = ();
     float score = 0.0;
     boolean alive = false;
-    !...;
-};
+|};
 
 function testJsonToStructConversionStructWithConstrainedMap () returns (string, string) {
     json j = {name:"Child",
@@ -443,7 +440,7 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
     }
 }
 
-type PersonComplexTwo record {
+type PersonComplexTwo record {|
     string name = "";
     int age = 0;
     PersonComplexTwo? parent = ();
@@ -453,8 +450,7 @@ type PersonComplexTwo record {
     anydata a = ();
     float score = 0.0;
     boolean alive = false;
-    !...;
-};
+|};
 
 function testJsonToStructConversionStructWithConstrainedMapNegative () returns (PersonComplexTwo|error) {
     json j = {name:"Child",
@@ -529,30 +525,27 @@ type Transaction record {
     Protocol[] coordinatorProtocols?;
 };
 
-type Participant record {
+type Participant record {|
     string participantId;
     Protocol[] participantProtocols;
-    !...;
-};
+|};
 
-type Protocol record {
+type Protocol record {|
     string name;
     string url;
     int transactionBlockId;
     (function (string transactionId,
                int transactionBlockId,
                string protocolAction) returns boolean)|() protocolFn;
-    !...;
-};
+|};
 
-type TwoPhaseCommitTransaction record {
+type TwoPhaseCommitTransaction record {|
     string transactionId;
     string coordinationType;
     map<Participant> participants?;
     Protocol[] coordinatorProtocols?;
     boolean possibleMixedOutcome?;
-    !...;
-};
+|};
 
 function testRuntimeStructEquivalencyWithNestedConstrainedMaps () returns (string?) {
     map<Transaction> initiatedTransactions = {};
@@ -597,4 +590,13 @@ function testMapConstrainedToNullableUnionNonExistingKey () returns (string?) {
 function testMapConstrainedToNullableUnionNonExistingKeyWithIndexAccess () returns (string?) {
     map<string?> testMap = {};
     return testMap["nonexist"];
+}
+
+function testInherentTypeViolationWithNilType() {
+    map<string> m = { one: "one" };
+    insertNilToMap(m);
+}
+
+function insertNilToMap(map<any> m) {
+    m.two = (); // panic
 }

@@ -17,13 +17,14 @@
  */
 package org.ballerinalang.test.balo.object;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.balo.BaloCreator;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -48,9 +49,13 @@ public class RemoteObjectBaloTest {
         Assert.assertEquals(result.length, 1);
         Assert.assertEquals(result[0].stringValue(), "i1 {}");
 
-        result = BRunUtil.invoke(compileResult, "testNewEP", new BValue[] { new BString("done") });
+        result = BRunUtil.invoke(compileResult, "testNewEP", new BValue[]{new BString("done")});
         Assert.assertEquals(result.length, 1);
         Assert.assertEquals(result[0].stringValue(), "donedone");
     }
 
+    @AfterClass
+    public void tearDown() {
+        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "foo");
+    }
 }

@@ -25,7 +25,18 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
  * Enum to hold the state of a {@link BArrayType}.
  */
 public enum BArrayState {
-    CLOSED_SEALED,
-    OPEN_SEALED,
-    UNSEALED
+    CLOSED_SEALED((byte) 1),
+    OPEN_SEALED((byte) 2),
+    UNSEALED((byte) 3);
+
+    byte value;
+
+    BArrayState(byte value) {
+        this.value = value;
+    }
+
+    public byte getValue() {
+        return this.value;
+    }
+
 }

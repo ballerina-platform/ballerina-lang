@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -59,7 +59,7 @@ public class AbstractObjectTest {
         BAssertUtil.validateError(negativeResult, index++, "cannot find function signature for function 'getName' in " +
                 "object 'Bar'", 87, 1);
         BAssertUtil.validateError(negativeResult, index,
-                "extern function: 'getName' not allowed in abstract object 'Person7'", 93, 5);
+                                  "external function: 'getName' not allowed in abstract object 'Person7'", 93, 5);
     }
 
     @Test

@@ -153,11 +153,10 @@ const int INDEX_NEG_ONE = -1;
 const int INDEX_ZERO = 0;
 const int INDEX_ONE = 1;
 
-type Foo record {
+type Foo record {|
     string x;
     int y;
-    !...;
-};
+|};
 
 function testConstTupleIndex(int index) returns anydata {
     (Foo, boolean) tuple = ({ x: "s", y: 12 }, true);
@@ -212,12 +211,16 @@ function testTupleAccessToAnyAndAnydata() returns string {
     return result;
 }
 
-type Bar record {
+type Bar record {|
     string fieldOne;
-    !...;
-};
+|};
 
 type FiniteOne 0|1|2;
+type FiniteTwo 0|1|4;
+
+const SIX = 6;
+type FiniteThree FiniteTwo|SIX;
+type FiniteFour int|FiniteTwo|SIX;
 
 function testTupleAccessUsingFiniteType() returns string {
     (string, boolean, Bar, float) tuple = ("string", true, { fieldOne: "string" }, 1.1);
@@ -242,7 +245,21 @@ function testTupleAccessUsingFiniteType() returns string {
     return result;
 }
 
-type FiniteTwo 0|1|4;
+function testTupleAccessUsingUnionWithFiniteTypes() returns boolean {
+    string s = "hello world";
+    boolean b = true;
+    Bar bar = { fieldOne: "string" };
+    (string, boolean, Bar) tuple = (s, b, bar);
+    FiniteFour index0 = 0;
+    FiniteFour index1 = 1;
+    FiniteFour index2 = 2;
+
+    string|boolean|Bar f1 = tuple[index0];
+    var f2 = tuple[index1];
+    string|boolean|Bar f3 = tuple[index2];
+
+    return f1 == s && f2 == b && f3 == bar;
+}
 
 function testTupleAccessUsingFiniteTypeNegative() returns string {
     (string, boolean, Bar, float) tuple = ("string", true, { fieldOne: "string" }, 1.1);
@@ -253,4 +270,13 @@ function testTupleAccessUsingFiniteTypeNegative() returns string {
     var f2 = tuple[index1];
 
     return "";
+}
+
+function testTupleAccessUsingUnionWithFiniteTypesNegative() {
+    (string, boolean, Bar, float) tuple = ("string", true, { fieldOne: "string" }, 1.1);
+    FiniteThree index0 = 0;
+    FiniteThree index1 = 6;
+
+    string|boolean f1 = tuple[index0];
+    var f2 = tuple[index1];
 }

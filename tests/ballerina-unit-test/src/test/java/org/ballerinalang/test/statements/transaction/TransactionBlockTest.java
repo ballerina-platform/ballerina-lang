@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.test.statements.transaction;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -72,7 +72,7 @@ public class TransactionBlockTest {
         BValue[] result = BRunUtil.invoke(programFile, "testTransactionFailing", params);
         Assert.assertEquals(result[0].getType().getTag(), TypeTags.ERROR);
         BError error = (BError) result[0];
-        Assert.assertEquals(error.reason, "TransactionError");
+        Assert.assertEquals(error.getReason(), "TransactionError");
     }
 
     @Test

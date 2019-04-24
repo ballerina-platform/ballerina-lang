@@ -461,7 +461,7 @@ public class Debugger {
                         packVarInfo.getGlobalMemIndex())));
                 break;
             case TypeTags.BYTE_TAG:
-                variableDTO.setBValue(new BByte((byte) (ctx.programFile.globalMemArea.getBooleanField(pkgIndex,
+                variableDTO.setBValue(new BByte((ctx.programFile.globalMemArea.getIntField(pkgIndex,
                         packVarInfo.getGlobalMemIndex()))));
                 break;
             case TypeTags.FLOAT_TAG:
@@ -500,7 +500,7 @@ public class Debugger {
                 variableDTO.setBValue(new BInteger(sf.longRegs[variableInfo.getVariableIndex()]));
                 break;
             case TypeTags.BYTE_TAG:
-                variableDTO.setBValue(new BByte((byte) sf.intRegs[variableInfo.getVariableIndex()]));
+                variableDTO.setBValue(new BByte(sf.longRegs[variableInfo.getVariableIndex()]));
                 break;
             case TypeTags.FLOAT_TAG:
                 variableDTO.setBValue(new BFloat(sf.doubleRegs[variableInfo.getVariableIndex()]));

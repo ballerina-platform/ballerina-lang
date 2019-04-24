@@ -130,7 +130,10 @@ function testTableFreezeOnContainer() {
 # + tableVal - the table to which the member should be added
 # + member - the member to be added
 public function insertMemberToTable(table<record{}> tableVal, record{} member) {
-    _ = tableVal.add(member);
+    error? err = tableVal.add(member);
+    if err is error {
+        panic err;
+    }
 }
 
 // A frozen container value can refer only to immutable values:
@@ -321,6 +324,42 @@ function testTableContainerValueInherentType() {
 // information that cannot be derived from the value. In other words, freezing a container
 // narrows its inherent type to a type that consists of just its current shape.
 @test:Config {}
+function testArrayFrozenContainerShapeAndType() {
+    int[][] a1 = [[1, 2], [1]];
+    (int|string)?[] a2 = [11, 12];
+    var result = trap insertMemberToArray(a1, a1.length() - 1, a2);
+    test:assertTrue(result is error,
+        msg = "expected to not be able to add a value that violates shape");
+    test:assertTrue(!(a2 is int[]),
+        msg = "expected value's type to not be of same type or sub type");
+
+    _ = a2.freeze();
+    result = trap insertMemberToArray(a1, a1.length() - 1, a2);
+    test:assertTrue(a2 is int[],
+        msg = "expected value's type to match shape after freezing");
+     test:assertTrue(!(result is error),
+                     msg = "expected to be able to add a frozen value that conforms to shape");
+}
+
+@test:Config {}
+function testTupleFrozenContainerShapeAndType() {
+    ((int, string), int) a3 = ((1, "test string 1"), 2);
+    (int|float, string) a4 = (2, "test string 2");
+    var result = trap insertMemberToTuple(a3, a4);
+     test:assertTrue(result is error,
+                     msg = "expected to not be able to add a value that violates shape");
+    test:assertTrue(!(a4 is (int, string)),
+        msg = "expected value's type to not be of same type or sub type");
+
+    _ = a4.freeze();
+    result = trap insertMemberToTuple(a3, a4);
+    test:assertTrue(a4 is (int, string),
+        msg = "expected value's type to match shape after freezing");
+    test:assertTrue(!(result is error),
+        msg = "expected to be able to add a frozen value that conforms to shape");
+}
+
+@test:Config {}
 function testRecordFrozenContainerShapeAndType() {
     BazRecordThree a8 = { bazFieldOne: "test string 1" };
     BazRecordFour a9 = { bazFieldOne: 1.0, bazFieldTwo: "test string 2" };
@@ -333,6 +372,28 @@ function testRecordFrozenContainerShapeAndType() {
     result = trap updateRecordBazField(a8, a10);
     test:assertTrue(a10 is BazRecord, msg = "expected value's type to match shape after freezing");
     test:assertTrue(!(result is error), msg = "expected to be able to add a frozen value that conforms to shape");
+}
+
+@test:Config {}
+function testMapFrozenContainerShapeAndType() {
+    map<map<string>|float> a5 = { one: { a: "a", bc: "b c" }, two: 1.0 };
+    map<string|boolean> a6 = { three: "3", four: "4" };
+    any a7 = a6;
+    var result = trap insertMemberToMap(a5, "three", a7);
+    test:assertTrue(result is error,
+        msg = "expected to not be able to add a value that violates shape");
+    test:assertTrue(!(a7 is map<string>|float),
+        msg = "expected value's type to not be of same type or sub type");
+
+    any|error? err = a7.freeze();
+    if err is error {
+        test:assertFail(msg = "failed in executing freeze operation");
+    }
+    result = trap insertMemberToMap(a5, "three", a7);
+    test:assertTrue(a7 is map<string>|float,
+        msg = "expected value's type to match shape after freezing");
+    test:assertTrue(!(result is error),
+        msg = "expected to be able to add a frozen value that conforms to shape");
 }
 
 public type BazRecord record {
@@ -362,15 +423,13 @@ function updateRecordBazField(record{} rec, anydata value) {
     rec.bazFieldTwo = value;
 }
 
-public type FooRecordThirteen record {
+public type FooRecordThirteen record {|
     string fooFieldOne;
-    !...;
-};
+|};
 
-public type BarRecordThirteen record {
+public type BarRecordThirteen record {|
     int barFieldOne;
-    !...;
-};
+|};
 
 public type FooObjectThirteen object {
     public string fooFieldOne;

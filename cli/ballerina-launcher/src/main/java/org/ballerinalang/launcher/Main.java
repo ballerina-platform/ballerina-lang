@@ -80,11 +80,6 @@ public class Main {
         }
     }
 
-    private static CommandLine addSubCommand(CommandLine parentCmd, String commandName, Object commandObject) {
-        parentCmd.addSubcommand(commandName, commandObject);
-        return parentCmd.getSubcommands().get(commandName);
-    }
-
     private static Optional<BLauncherCmd> getInvokedCmd(String... args) {
         try {
             DefaultCmd defaultCmd = new DefaultCmd();
@@ -93,9 +88,8 @@ public class Main {
 
             // Run command
             RunCmd runCmd = new RunCmd();
-            CommandLine pcRunCmd = addSubCommand(cmdParser, BallerinaCliCommands.RUN, runCmd);
+            cmdParser.addSubcommand(BallerinaCliCommands.RUN, runCmd);
             runCmd.setParentCmdParser(cmdParser);
-            runCmd.setSelfCmdParser(pcRunCmd);
 
             // Set stop at positional before the other commands are added as sub commands, to enforce ordering only
             // for the run command
@@ -295,10 +289,6 @@ public class Main {
         @Override
         public void setParentCmdParser(CommandLine parentCmdParser) {
         }
-
-        @Override
-        public void setSelfCmdParser(CommandLine selfCmdParser) {
-        }
     }
 
     /**
@@ -349,10 +339,6 @@ public class Main {
         @Override
         public void setParentCmdParser(CommandLine parentCmdParser) {
             this.parentCmdParser = parentCmdParser;
-        }
-
-        @Override
-        public void setSelfCmdParser(CommandLine selfCmdParser) {
         }
     }
 
@@ -409,11 +395,6 @@ public class Main {
         @Override
         public void setParentCmdParser(CommandLine parentCmdParser) {
             this.parentCmdParser = parentCmdParser;
-        }
-
-        @Override
-        public void setSelfCmdParser(CommandLine selfCmdParser) {
-
         }
     }
 
@@ -502,11 +483,6 @@ public class Main {
         public void setParentCmdParser(CommandLine parentCmdParser) {
         }
 
-        @Override
-        public void setSelfCmdParser(CommandLine selfCmdParser) {
-
-        }
-
         private String promptForInput(String msg) {
             errStream.println(msg);
             return new String(System.console().readPassword());
@@ -561,10 +537,6 @@ public class Main {
 
         @Override
         public void setParentCmdParser(CommandLine parentCmdParser) {
-        }
-
-        @Override
-        public void setSelfCmdParser(CommandLine selfCmdParser) {
         }
     }
 }

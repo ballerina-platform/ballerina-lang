@@ -14,7 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type MyError error<string, map<string>>;
+const ERR_REASON = "error reason";
+
+type MyError error<string>;
+type MyErrorTwo error<ERR_REASON, ErrorDetails>;
+
+type ErrorDetails record {
+   string message;
+};
 
 type Employee record {
     string name;
@@ -31,17 +38,15 @@ type Person record {
     string name;
 };
 
-type TableEmployee record {
+type TableEmployee record {|
     int id;
     string name;
-    !...;
-};
+|};
 
-type TableEmployeeTwo record {
+type TableEmployeeTwo record {|
     boolean id;
     string name;
-    !...;
-};
+|};
 
 type EmployeeObject object {
     string name;
@@ -329,22 +334,28 @@ function testXmlCastNegative() {
     xml x2 = <xml> a;
 }
 
-//function testErrorCastPositive() returns boolean {
-//    error e1 = error("test error");
-//    anydata|error a = e1;
-//    error e2 = <error> a;
-//
-//    MyError e3 = error("test my error");
-//    any|error a2 = e3;
-//    error e4 = <MyError> a2;
-//    return e1 === e2 && e3 === e4;
-//}
-//
-//function testErrorCastNegative() {
-//    MyError e1 = error("test my error");
-//    any|error e2 = e1;
-//    error e3 = <error> e2;
-//}
+function testErrorCastPositive() returns boolean {
+    error e1 = error("test error");
+    anydata|error a = e1;
+    error e2 = <error> a;
+
+    MyError e3 = error("test my error");
+    any|error a2 = e3;
+    error e4 = <MyError> a2;
+
+    MyErrorTwo e5 = error(ERR_REASON, { message: "error message" });
+    a2 = e5;
+    MyErrorTwo e6 = <MyErrorTwo> a2;
+    error e7 = <error> a2;
+
+    return e1 === e2 && e3 === e4 && e5 === e6 && e5 === e7;
+}
+
+function testErrorCastNegative() {
+    error e1 = error("test my error");
+    any|error e2 = e1;
+    MyErrorTwo e3 = <MyErrorTwo> e2;
+}
 
 function testFunctionCastPositive() returns boolean {
     function (string, int) returns string f = testFunc;
@@ -635,8 +646,8 @@ function testSimpleTypeToUnionCastPositive() returns boolean {
 
 function testDirectlyUnmatchedUnionToUnionCastPositive() returns boolean {
     string s = "hello world";
-    string|int v1 = s;
-    string|boolean v2 = <string|boolean> v1;
+    string|typedesc v1 = s;
+    json|table<Lead> v2 = <json|table<Lead>> v1;
     boolean castSuccessful = s == v2;
 
     Lead lead = { name: "Em", id: 2000, rating: 10.0 };
@@ -672,26 +683,101 @@ function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) return
     }
 }
 
-public type InMemoryModeConfig record {
+public type InMemoryModeConfig record {|
     string name = "";
     string username = "";
     string password = "";
     map<any> dbOptions = {name:"asdf"};
-    !...;
-};
+|};
 
-public type ServerModeConfig record {
+public type ServerModeConfig record {|
     string host = "";
     int port = 9090;
     *InMemoryModeConfig;
-    !...;
-};
+|};
 
-public type EmbeddedModeConfig record {
+public type EmbeddedModeConfig record {|
     string path = "";
     *InMemoryModeConfig;
-    !...;
-};
+|};
+
+type FooBar "foo"|"bar";
+type FooBarOne "foo"|"bar"|1;
+type FooBarOneTwoTrue "foo"|"bar"|1|2.0|boolean;
+
+function testFiniteTypeToValueTypeCastPositive() returns boolean {
+    FooBar f = "foo";
+    string s = <string> f;
+    boolean castSuccessful = f == s;
+
+    FooBarOne f2 = 1;
+    int i = <int> f2;
+    castSuccessful = castSuccessful && f2 == i;
+
+    FooBarOneTwoTrue f3 = true;
+    boolean b = <boolean> f3;
+    return castSuccessful && f3 == b;
+}
+
+function testFiniteTypeToValueTypeCastNegative() {
+    FooBarOne f2 = 1;
+    string i = <string> f2;
+}
+
+function testFiniteTypeToRefTypeCastPositive() returns boolean {
+    FooBar f = "bar";
+    string|int s = <string|int> f;
+    boolean castSuccessful = f == s;
+
+    FooBarOne f2 = "foo";
+    any i = <any> f2;
+    castSuccessful = castSuccessful && f2 === i;
+
+    FooBarOneTwoTrue f3 = true;
+    json b = <json> f3;
+    return castSuccessful && f3 == b;
+}
+
+function testFiniteTypeToRefTypeCastNegative() {
+    FooBarOne f2 = 1;
+    string|xml i = <string|xml> f2;
+}
+
+function testValueTypeToFiniteTypeCastPositive() returns boolean {
+    string a = "bar";
+    FooBar b = <FooBar> a;
+    boolean castSuccessful = a == b;
+
+    int c = 1;
+    FooBarOne d = <FooBarOne> c;
+    castSuccessful = castSuccessful && c == d;
+
+    float f = 2.0;
+    FooBarOneTwoTrue g = <FooBarOneTwoTrue> f;
+    return castSuccessful && f == g;
+}
+
+function testValueTypeToFiniteTypeCastNegative() {
+    int a = 2;
+    FooBarOne d = <FooBarOne> a;
+}
+
+type FooOneTrue 1|"foo"|true;
+
+function testFiniteTypeToFiniteTypeCastPositive() returns boolean {
+    FooBar a = "bar";
+    FooBarOne b = <FooBarOne> a;
+    boolean castSuccessful = a == b;
+
+    FooBarOne c = "foo";
+    FooOneTrue d = <FooOneTrue> c;
+    return castSuccessful && c == d;
+}
+
+function testFiniteTypeToFiniteTypeCastNegative() {
+    FooBarOne a = "bar";
+    FooOneTrue b = <FooOneTrue> a;
+}
 
 function testFunc(string s, int i) returns string {
     return string.convert(i) + s;

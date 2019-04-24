@@ -48,11 +48,10 @@ service onTextXML on new http:WebSocketListener(9082) {
     }
 }
 
-type Person record {
+type Person record {|
     int id;
     string name;
-    !...;
-};
+|};
 service onTextRecord on new http:WebSocketListener(9083) {
 
     resource function onText(http:WebSocketCaller caller, Person data) {

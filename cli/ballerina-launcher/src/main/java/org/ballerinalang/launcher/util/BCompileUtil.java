@@ -42,14 +42,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.CodeSource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -150,18 +146,10 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(Object obj, String sourceRoot, String packageName) {
-        try {
-            CodeSource codeSource = obj.getClass().getProtectionDomain().getCodeSource();
-            URL location = codeSource.getLocation();
-            URI locationUri = location.toURI();
-            Path pathLocation = Paths.get(locationUri);
-            String filePath = concatFileName(sourceRoot, pathLocation);
-            Path rootPath = Paths.get(filePath);
-            Path packagePath = Paths.get(packageName);
-            return getCompileResult(packageName, rootPath, packagePath);
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("error while running test: " + e.getMessage());
-        }
+        String filePath = concatFileName(sourceRoot, resourceDir);
+        Path rootPath = Paths.get(filePath);
+        Path packagePath = Paths.get(packageName);
+        return getCompileResult(packageName, rootPath, packagePath);
     }
 
     private static CompileResult getCompileResult(String packageName, Path rootPath, Path packagePath) {

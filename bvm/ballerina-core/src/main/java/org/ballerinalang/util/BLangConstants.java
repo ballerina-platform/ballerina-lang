@@ -28,7 +28,7 @@ import java.math.MathContext;
 public class BLangConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
-    public static final short VERSION_NUMBER = 27;
+    public static final short VERSION_NUMBER = 50;
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String INIT_FUNCTION_SUFFIX = ".<init>";
@@ -44,6 +44,8 @@ public class BLangConstants {
 
     public static final String BLANG_EXEC_FILE_EXT = "balx";
     public static final String BLANG_EXEC_FILE_SUFFIX = "." + BLANG_EXEC_FILE_EXT;
+
+    public static final String JAR_FILE_SUFFIX = ".jar";
 
     public static final String BLANG_COMPILED_PACKAGE_FILE_EXT = "balo";
     public static final String BLANG_COMPILED_PACKAGE_FILE_SUFFIX = "." + BLANG_COMPILED_PACKAGE_FILE_EXT;

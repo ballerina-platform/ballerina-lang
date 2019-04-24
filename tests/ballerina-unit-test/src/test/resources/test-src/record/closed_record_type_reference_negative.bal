@@ -24,27 +24,24 @@ type PersonObj object {
     int age = 0;
 };
 
-type Student record {
+type Student record {|
     *PersonObj;
     string school;
-    !...;
-};
+|};
 
 type IntOrFloat int|float;
 
-type Foo1 record {
+type Foo1 record {|
     *IntOrFloat;
-    !...;
-};
+|};
 
 type FiniteT 1|2|3|"foo"|"bar";
 
-type Foo2 record {
+type Foo2 record {|
     *FiniteT;
-    !...;
-};
+|};
 
-type Foo3 record {
+type Foo3 record {|
     *int;
     *float;
     *boolean;
@@ -52,19 +49,17 @@ type Foo3 record {
     *byte;
     *json;
     *xml;
-    !...;
-};
+|};
 
 type Person1 record {
     string name;
     int age;
 };
 
-type Student1 record {
+type Student1 record {|
     *Person1;
     string name;
-    !...;
-};
+|};
 
 type Gender "male"|"female";
 
@@ -73,29 +68,25 @@ type Person2 record {
     Gender gender;
 };
 
-type Student2 record {
+type Student2 record {|
     *Person2;
     string school;
-    !...;
-};
+|};
 
 function testAttributeRetainment() {
     Student2 s = {name:"John Doe", school:"ABC"};
 }
 
-type Student3 record {
+type Student3 record {|
     *Person;
     *Person2;
-    !...;
-};
+|};
 
-type UserData1 record {
+type UserData1 record {|
     *Data;
-    !...;
-};
+|};
 
-type UserData2 record {
+type UserData2 record {|
     int index;
     *Data;
-    !...;
-};
+|};

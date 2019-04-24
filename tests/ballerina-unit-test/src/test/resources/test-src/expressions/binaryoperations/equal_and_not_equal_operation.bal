@@ -23,11 +23,10 @@ type OpenPerson record {
     string name;
 };
 
-type ClosedEmployee record {
+type ClosedEmployee record {|
     string name = "";
     int id = 0;
-    !...;
-};
+|};
 
 type OpenEmployeeTwo record {
     string name;
@@ -44,17 +43,15 @@ type OpenRecordWithOptionalFieldTwo record {
     int two?;
 };
 
-type ClosedRecordWithOptionalFieldOne record {
+type ClosedRecordWithOptionalFieldOne record {|
     string name;
     int one?;
-    !...;
-};
+|};
 
-type ClosedRecordWithOptionalFieldTwo record {
+type ClosedRecordWithOptionalFieldTwo record {|
     string name;
     int two?;
-    !...;
-};
+|};
 
 function checkBooleanEqualityPositive(boolean a, boolean b) returns boolean {
     return (a == b) && !(a != b);
@@ -102,6 +99,29 @@ function checkEqualityToNilPositive(any a) returns boolean {
 
 function checkEqualityToNilNegative(any a) returns boolean {
     return (a == ()) || !(a != ());
+}
+
+type ErrorDetail record {
+    string message?;
+};
+
+type MyError error<string, ErrorDetail>;
+
+function testErrorEqualityPositive() returns boolean {
+    error e1 = error("reason 1");
+    error e2 = error("reason 1");
+    MyError e3 = error("reason 1", {});
+
+    error e4 = error("reason 1", { message: "error message", intVal: 5 });
+    MyError e5 = error("reason 1", { message: "error message", intVal: 5 });
+    return e1 == e2 && !(e1 != e2) && e2 == e3 && !(e2 != e3)&& e4 == e5 && !(e4 != e5);
+}
+
+function testErrorEqualityNegative() returns boolean {
+    error e1 = error("reason 1");
+    error e2 = error("reason 2");
+    MyError e3 = error("reason 1", { message: "error message" });
+    return e1 == e2 && !(e1 != e2) && e1 == e3 && !(e1 != e3);
 }
 
 function checkOpenRecordEqualityPositive() returns boolean {
@@ -428,7 +448,7 @@ function check2DStringArrayEqualityNegative() returns boolean {
 
 function checkComplex2DArrayEqualityPositive() returns boolean {
     (int, float)[][] a = [];
-    (int|string, float)[][] b = [];
+    (int|string, float)?[][] b = [];
 
     boolean equals = a == b && !(a != b);
 
@@ -441,7 +461,7 @@ function checkComplex2DArrayEqualityPositive() returns boolean {
 
 function checkComplex2DArrayEqualityNegative() returns boolean {
     (int, float)[][] a = [[(123, 65.4), (234, 23.22)]];
-    (int|string, float)[][] b = [[(124, 65.4), (234, 23.22)]];
+    (int|string, float)?[][] b = [[(124, 65.4), (234, 23.22)]];
 
     boolean equals = a == b || !(a != b);
 
@@ -728,7 +748,7 @@ function testIntByteEqualityPositive() returns boolean {
     equals = equals && (c == d) && !(c != d);
 
     byte[][] e = [[23, 45], [123, 43, 68]];
-    (int|float)[][] f = [[23, 45], [123, 43, 68]];
+    (int|float)?[][] f = [[23, 45], [123, 43, 68]];
 
     equals = equals && (e == f) && !(e != f);
 
@@ -761,7 +781,7 @@ function testIntByteEqualityNegative() returns boolean {
 
     equals = equals || (c == d) || !(c != d);
 
-    (int|float)[][] e = [[2.3, 45], [124, 43, 68]];
+    (int|float)?[][] e = [[2.3, 45], [124, 43, 68]];
     byte[][] f = [[23, 45], [123, 43, 68]];
 
     equals = equals || (e == f) || !(e != f);
@@ -1208,6 +1228,12 @@ public function testSelfAndCyclicReferencingTupleEqualityNegative() returns bool
     p[3] = n;
 
     return equals || o == p || !(o != p);
+}
+
+function testEmptyMapAndRecordEquality() returns boolean {
+    map<error> m = {};
+    record { string s?; int...; } r = {};
+    return m == r;
 }
 
 function isEqual(anydata a, anydata b) returns boolean {

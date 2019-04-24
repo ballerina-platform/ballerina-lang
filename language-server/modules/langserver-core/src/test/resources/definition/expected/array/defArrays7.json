@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "defFl4.bal"
+  },
+  "position": {
+    "line": 39,
+    "character": 12
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 38,
+          "character": 27
+        },
+        "end": {
+          "line": 38,
+          "character": 29
+        }
+      },
+      "uri": "defFl4.bal"
+    }
+  ]
+}

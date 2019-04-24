@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaObjectFunctionDefinition {
+public class BallerinaObjectFunctionDefinitionImpl extends ASTWrapperPsiElement implements BallerinaObjectFunctionDefinition {
 
   public BallerinaObjectFunctionDefinitionImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,25 +51,25 @@ public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeEle
   @Override
   @Nullable
   public BallerinaCallableUnitBody getCallableUnitBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitBody.class);
+    return findChildByClass(BallerinaCallableUnitBody.class);
   }
 
   @Override
   @Nullable
   public BallerinaCallableUnitSignature getCallableUnitSignature() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitSignature.class);
+    return findChildByClass(BallerinaCallableUnitSignature.class);
   }
 
   @Override
   @Nullable
   public BallerinaDeprecatedAttachment getDeprecatedAttachment() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDeprecatedAttachment.class);
+    return findChildByClass(BallerinaDeprecatedAttachment.class);
   }
 
   @Override
   @Nullable
   public BallerinaDocumentationString getDocumentationString() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationString.class);
+    return findChildByClass(BallerinaDocumentationString.class);
   }
 
   @Override
@@ -86,7 +87,7 @@ public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeEle
   @Override
   @NotNull
   public PsiElement getFunction() {
-    return notNullChild(findChildByType(FUNCTION));
+    return findNotNullChildByType(FUNCTION);
   }
 
   @Override

@@ -48,7 +48,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEd
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class ImportModuleExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "IMPORT_MODULE";
+    public static final String COMMAND = "IMPORT_MODULE";
 
     /**
      * {@inheritDoc}
@@ -78,7 +78,7 @@ public class ImportModuleExecutor implements LSCommandExecutor {
             } catch (LSCompilerException e) {
                 throw new LSCommandExecutorException("Couldn't compile the source", e);
             }
-            context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+//            context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, bLangPackage.symbol.getName().getValue());
             String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
             BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);

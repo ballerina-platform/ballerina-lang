@@ -25,6 +25,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
+import java.util.concurrent.CountDownLatch;
+
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 
@@ -37,12 +39,11 @@ public class CloseConsumerHandler {
     }
 
     public static void handle(Context context) {
-        BMap<String, BValue> connectorBObject = (BMap<String, BValue>) context.getRefArgument(1);
-        if (connectorBObject.getNativeData(JmsConstants.JMS_CONSUMER_OBJECT) != null) {
-            MessageConsumer consumer = BallerinaAdapter.getNativeObject(connectorBObject,
-                                                                        JmsConstants.JMS_CONSUMER_OBJECT,
-                                                                        MessageConsumer.class,
-                                                                        context);
+        @SuppressWarnings(JmsConstants.UNCHECKED)
+        BMap<String, BValue> listenerObj = (BMap<String, BValue>) context.getRefArgument(1);
+        if (listenerObj.getNativeData(JmsConstants.JMS_CONSUMER_OBJECT) != null) {
+            MessageConsumer consumer = BallerinaAdapter.getNativeObject(
+                    listenerObj, JmsConstants.JMS_CONSUMER_OBJECT, MessageConsumer.class, context);
             try {
                 if (consumer != null) {
                     consumer.close();
@@ -51,6 +52,14 @@ public class CloseConsumerHandler {
                 BallerinaAdapter.throwBallerinaException("Error closing message consumer.", context, e);
             }
         }
+        releaseNonDaemonThreadIfRunning(listenerObj);
     }
 
+    private static void releaseNonDaemonThreadIfRunning(BMap<String, BValue> listenerObj) {
+        CountDownLatch countDownLatch =
+                (CountDownLatch) listenerObj.getNativeData(JmsConstants.COUNTDOWN_LATCH);
+        if (countDownLatch != null) {
+            countDownLatch.countDown();
+        }
+    }
 }

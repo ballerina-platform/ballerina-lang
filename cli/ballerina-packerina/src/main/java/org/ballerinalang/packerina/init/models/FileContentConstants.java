@@ -24,6 +24,7 @@ public class FileContentConstants {
     public static final String SERVICE_CONTENT = "// A system module containing protocol access constructs\n" +
                                                 "// Module objects referenced with 'http:' in code\n" +
                                                 "import ballerina/http;\n" +
+                                                "import ballerina/io;\n" +
                                                 "\n" +
                                                 "# A service is a network-accessible API\n" +
                                                 "# Advertised on '/hello', port comes from listener endpoint\n" +
@@ -45,9 +46,11 @@ public class FileContentConstants {
                                                 "        response.setTextPayload(\"Hello Ballerina!\");\n" +
                                                 "\n" +
                                                 "        // Send a response back to caller\n" +
-                                                "        // Errors are ignored with '_'\n" +
                                                 "        // -> indicates a synchronous network-bound call\n" +
-                                                "        _ = caller -> respond(response);\n" +
+                                                "        error? result = caller -> respond(response);\n" +
+                                                "        if (result is error) {\n" +
+                                                "            io:println(\"Error in responding\", result);\n" +
+                                                "        }" +
                                                 "    }\n" +
                                                 "}";
 

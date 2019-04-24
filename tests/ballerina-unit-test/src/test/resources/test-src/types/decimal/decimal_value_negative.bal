@@ -20,8 +20,14 @@ function testInvlaidDecimalValue() {
     decimal a = 12.3
 
     // This is to test invalid literal assignment.
-    decimal b = 12.3d;
+    decimal b = 12.3g;
 
     // This is to test non-supported decimal value assignment that starts with 0.
     decimal d = 023.04;
+
+    // This is to test invalid hexadecimal literal assignment.
+    decimal h = -0xX1231.12P2;
+
+    // This is to test hexadecimal literal assignment with invalid extra space.
+    decimal h = -0 X1231.12P2;
 }

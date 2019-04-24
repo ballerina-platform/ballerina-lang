@@ -29,10 +29,10 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.openapi.CodeGenerator;
+import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
+import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
-import org.ballerinalang.swagger.CodeGenerator;
-import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
-import org.ballerinalang.swagger.utils.GeneratorConstants;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.util.TesterinaUtils;
@@ -48,18 +48,18 @@ import java.nio.file.Paths;
 
 /**
  * Native function ballerina.test:startServiceSkeleton.
- * Start a service skeleton from a given Swagger definition.
+ * Start a service skeleton from a given OpenApi definition.
  *
  * @since 0.97.0
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "test", functionName = "startServiceSkeleton", args =
         {@Argument(name = "moduleName", type = TypeKind
-                .STRING), @Argument(name = "swaggerFilePath", type = TypeKind.STRING)}, returnType = {@ReturnType
+                .STRING), @Argument(name = "openApiFilePath", type = TypeKind.STRING)}, returnType = {@ReturnType
         (type = TypeKind.BOOLEAN)}, isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value", value = "Start a " +
-        "service skeleton from a given Swagger definition in the given ballerina module.")})
+        "service skeleton from a given OpenApi definition in the given ballerina module.")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "moduleName", value = "Name of " +
-        "the module"), @Attribute(name = "swaggerFilePath", value = "Path to the Swagger definition")})
+        "the module"), @Attribute(name = "openApiFilePath", value = "Path to the OpenApi definition")})
 public class StartServiceSkeleton extends BlockingNativeCallableUnit {
 
     private static PrintStream errStream = System.err;
@@ -67,7 +67,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context ctx) {
         String moduleName = ctx.getStringArgument(0);
-        String swaggerFilePath = ctx.getStringArgument(1);
+        String openApiFilePath = ctx.getStringArgument(1);
 
         //TODO : validate for duplicate module in the source which can conflict with mock module
         String sourceRoot = System.getProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT);
@@ -77,11 +77,11 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
         generator.setSrcPackage(moduleName);
 
         try {
-            generator.generate(GeneratorConstants.GenType.MOCK, swaggerFilePath, rootDir.toString());
+            generator.generate(GeneratorConstants.GenType.GEN_SERVICE, openApiFilePath, rootDir.toString());
 
         } catch (IOException | BallerinaOpenApiException e) {
             throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to generate the "
-                    + "service from the [Swagger file] %s [cause] %s", swaggerFilePath, e.getMessage()), e);
+                    + "service from the [OpenApi file] %s [cause] %s", openApiFilePath, e.getMessage()), e);
         }
 
         CompileResult compileResult = BCompileUtil.compile(rootDir.toString(), moduleName, CompilerPhase.CODE_GEN);

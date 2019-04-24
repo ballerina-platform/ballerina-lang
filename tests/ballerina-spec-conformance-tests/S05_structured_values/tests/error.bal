@@ -30,3 +30,17 @@ function testErrorTypeDescriptor() {
     test:assertEquals(error4.detail().detailError.reason(), error1.reason(),
         msg = "expected error types detail to support map<error> type");
 }
+
+// An error value belongs to the error basic type, which is a basic type which is distinct from
+// other structured types and is used only for representing errors. An error value contains the
+// following information:
+// ● a reason, which is a string identifier for the category of error
+// ● a detail, which is a frozen mapping providing additional information about the error
+// ● a stack trace
+@test:Config {}
+function testErrorDetailFrozenness() {
+    error<string, map<anydata>> error1 = error("Error Three", { cause: "Core Error" });
+    utils:assertPanic(function () { error1.detail().key1 = 1.0; },
+                      "{ballerina}InvalidUpdate",
+                      "invalid error on error detail update");
+}

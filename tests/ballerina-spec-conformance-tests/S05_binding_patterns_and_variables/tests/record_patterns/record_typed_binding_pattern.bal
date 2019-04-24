@@ -111,7 +111,7 @@ function testRecordTypedBindingPatternWithClosedRestParam() {
         field3: FLOAT_FIELD
     };
 
-    ClosedBindingPattern { field1: field1, field2: field2, field3, !... } = cBindingPattern;
+    ClosedBindingPattern {| field1: field1, field2: field2, field3 |} = cBindingPattern;
 
     test:assertEquals(field1, INT_FIELD, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
     test:assertEquals(field2, STRING_FIELD, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
@@ -213,7 +213,7 @@ function testImpliedRecordTypedBindingPatternWithClosedRestParam() {
         field3: FLOAT_FIELD_2
     };
 
-    var { field1: field1, field2: field2, field3, !... } = cBindingPattern;
+    var {| field1: field1, field2: field2, field3 |} = cBindingPattern;
 
     test:assertEquals(field1, 15, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
     test:assertEquals(field2, STRING_FIELD, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);

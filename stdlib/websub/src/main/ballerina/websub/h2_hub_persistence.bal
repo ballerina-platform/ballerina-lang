@@ -32,6 +32,7 @@ const string DELETE_FROM_SUBSCRIPTIONS = "DELETE FROM subscriptions WHERE topic=
 const string SELECT_FROM_SUBSCRIPTIONS = "SELECT topic, callback, secret, lease_seconds, created_at FROM subscriptions";
 
 # Represents H2 based hub persistence configuration and functions.
+# + subscriptionDbClient - Database clint used to persist subscription data
 public type H2HubPersistenceStore object {
 
     // TODO: make private

@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.index.LSIndexException;
@@ -56,7 +56,7 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
     private static final Logger logger = LoggerFactory.getLogger(DelimiterBasedContentFilter.class);
 
     @Override
-    public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext ctx) {
+    public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSContext ctx) {
 
         List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(ctx), 3);
 
@@ -118,7 +118,7 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
      * @return {@link ArrayList}    List of filtered symbol info
      */
     private Either<List<CompletionItem>, List<SymbolInfo>> getActionsFunctionsAndTypes(
-            LSServiceOperationContext context, String pkgName, String delimiter) {
+            LSContext context, String pkgName, String delimiter) {
 
         LSIndexImpl lsIndex = context.get(LSGlobalContextKeys.LS_INDEX_KEY);
         // Extract the package symbol
@@ -206,7 +206,7 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         }
     }
     
-    private Either<List<CompletionItem>, List<SymbolInfo>> filterSymbolsOnFallback(LSServiceOperationContext context,
+    private Either<List<CompletionItem>, List<SymbolInfo>> filterSymbolsOnFallback(LSContext context,
                                                                                    String pkgName, String delimiter) {
         List<SymbolInfo> visibleSymbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         List<SymbolInfo> filteredSymbols = FilterUtils.getInvocationAndFieldSymbolsOnVar(context, pkgName,

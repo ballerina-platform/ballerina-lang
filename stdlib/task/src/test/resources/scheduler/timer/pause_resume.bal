@@ -27,8 +27,8 @@ boolean isResumed = false;
 
 function testAttach() {
     task:Scheduler timer = new(configuration);
-    _ = timer.attach(timerService);
-    _ = timer.start();
+    checkpanic timer.attach(timerService);
+    checkpanic timer.start();
     var result = timer.pause();
     if (result is error) {
         return;

@@ -52,8 +52,8 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
         packageName = "utils",
         functionName = "simpleValueConvert",
         args = {@Argument(name = "convertType", type = TypeKind.TYPEDESC),
-                @Argument(name = "value", type = TypeKind.ANYDATA)},
-        returnType = { @ReturnType(type = TypeKind.ANYDATA) }
+                @Argument(name = "value", type = TypeKind.ANY)},
+        returnType = { @ReturnType(type = TypeKind.ANYDATA), @ReturnType(type = TypeKind.ERROR) }
 )
 public class SimpleValueConvert extends BlockingNativeCallableUnit {
 

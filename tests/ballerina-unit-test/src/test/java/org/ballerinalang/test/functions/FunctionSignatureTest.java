@@ -17,9 +17,6 @@
 */
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -27,6 +24,9 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.NativeElementRepository;
 import org.ballerinalang.natives.NativeUnitLoader;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.mock.StandardNativeElementProvider;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;

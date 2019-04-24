@@ -16,13 +16,13 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,7 +43,7 @@ public class TypeTestExprTest {
     public void testTypeTestExprNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/expressions/binaryoperations/type-test-expr-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 34);
+        Assert.assertEquals(negativeResult.getErrorCount(), 38);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 19, 9);
@@ -103,15 +103,23 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 161, 18);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 178, 16);
+                "unnecessary condition: expression will always evaluate to 'true'", 177, 16);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 188, 13);
+                "unnecessary condition: expression will always evaluate to 'true'", 187, 13);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 188, 23);
+                "unnecessary condition: expression will always evaluate to 'true'", 187, 23);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 226, 8);
+                "unnecessary condition: expression will always evaluate to 'true'", 225, 8);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 230, 9);
+                "unnecessary condition: expression will always evaluate to 'true'", 229, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "unnecessary condition: expression will always evaluate to 'true'", 241, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "unnecessary condition: expression will always evaluate to 'true'", 246, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 255, 9);
+        BAssertUtil.validateError(negativeResult, i,
+                                  "incompatible types: 'string|int' will not be matched to 'float|boolean'", 262, 9);
     }
 
     @Test
@@ -469,7 +477,7 @@ public class TypeTestExprTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
     }
 
     @Test
@@ -496,5 +504,137 @@ public class TypeTestExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "a is an Apple");
+    }
+
+    @Test
+    public void testFiniteTypeAsBroaderType_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsBroaderType_1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testFiniteTypeAsBroaderType_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsBroaderType_2");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testUnionWithFiniteTypeAsFiniteTypeTrue() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionWithFiniteTypeAsFiniteTypeTrue");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testUnionWithFiniteTypeAsFiniteTypeFalse() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionWithFiniteTypeAsFiniteTypeFalse");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testFiniteTypeAsFiniteTypeTrue() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeTrue");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testFiniteTypeAsFiniteTypeFalse() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeFalse");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testIntersectingUnionTrue() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntersectingUnionTrue");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testIntersectingUnionFalse() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntersectingUnionFalse");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testValueTypeAsFiniteTypeTrue() {
+        BValue[] returns = BRunUtil.invoke(result, "testValueTypeAsFiniteTypeTrue");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testValueTypeAsFiniteTypeFalse() {
+        BValue[] returns = BRunUtil.invoke(result, "testValueTypeAsFiniteTypeFalse");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testError_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testError_1");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertSame(returns[3].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+    }
+
+    @Test
+    public void testError_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testError_2");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+    }
+
+    @Test
+    public void testClosedArrayAsOpenArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testClosedArrayAsOpenArray");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testClosedArrayAsInvalidClosedArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testClosedArrayAsInvalidClosedArray");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 }

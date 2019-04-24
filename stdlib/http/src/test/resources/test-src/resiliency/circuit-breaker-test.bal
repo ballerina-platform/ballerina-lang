@@ -293,9 +293,9 @@ public type MockClient client object {
     public http:Client httpClient;
 
     public function __init(string url, http:ClientEndpointConfig? config = ()) {
+        http:Client simpleClient = new(url);
         self.url = url;
         self.config = config ?: {};
-        http:Client simpleClient = new(url);
         self.httpClient = simpleClient;
     }
 
@@ -560,7 +560,7 @@ service circuitBreakerService on mockEP {
         http:Response res = new;
         if (currentState == http:CB_CLOSED_STATE) {
             res.setPayload(untaint "Circuit Breaker is in CLOSED state");
-            _ = caller->respond(res);
+            checkpanic caller->respond(res);
         }
     }
 }

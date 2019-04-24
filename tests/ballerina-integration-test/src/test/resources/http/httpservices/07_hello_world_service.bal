@@ -29,8 +29,7 @@ service helloWorld on helloWorldEp {
     resource function sayHello(http:Caller caller, http:Request req) {
         http:Response resp = new;
         resp.setTextPayload("Hello, World!");
-        _ = caller -> respond(resp);
-
-}
+        checkpanic caller->respond(resp);
+    }
 }
 

@@ -532,11 +532,14 @@ error e2 = error("e2");
 error? errorW1 = e1;
 error? errorW2 = e2;
 
-function testTypeGuardForGlobalVars() returns (string, string) {
+function testTypeGuardForGlobalVars() returns (string, string?) {
     string w1ErrMsg = "";
-    string w2ErrMsg = "";
+    string? w2ErrMsg = "";
     if (errorW1 is error) {
-        w1ErrMsg = errorW1.reason();
+        error? e3 = errorW1;
+        if (e3 is error) {
+            w1ErrMsg = e3.reason();
+        }
     }
     if (errorW2 is error) {
         w2ErrMsg = errorW2.reason();
@@ -544,26 +547,396 @@ function testTypeGuardForGlobalVars() returns (string, string) {
     return (w1ErrMsg, w2ErrMsg);
 }
 
-int|string|boolean global_x = 5;
+type FooBarOneTwoTrue "foo"|"bar"|1|2.0|true;
+type FooBar "foo"|"bar";
+type OneTwo 1|2.0;
 
-public function testUpdatingTypeNarrowedGlobalVar() returns string {
-    if (global_x is int|boolean) {
-        if (global_x is int) {
-            global_x = "hello";   // update the var with a type outside of narrowed types
-        }
+function testFiniteTypeAsBroaderTypes_1() returns boolean {
+    FooBarOneTwoTrue f = "foo";
+    boolean equals = finiteTypeAsBroaderTypesHelper(f) == "string: foo";
 
-        if (global_x is int) {
-            int z = global_x;
-            return "int: " + z;
-        } else if (global_x is string) {
-            string z = global_x;
-            return "string: " + z;
-        } else {
-            boolean z = global_x;
-            return "boolean: " + z;
+    f = "bar";
+    return equals && finiteTypeAsBroaderTypesHelper(f) == "string: bar";
+}
+
+function testFiniteTypeAsBroaderTypes_2() returns boolean {
+    FooBarOneTwoTrue f = 1;
+    return finiteTypeAsBroaderTypesHelper(f) == "int: 1";
+}
+
+function testFiniteTypeAsBroaderTypes_3() returns boolean {
+    FooBarOneTwoTrue f = 2.0;
+    return finiteTypeAsBroaderTypesHelper(f) == "float: 2.0";
+}
+
+function testFiniteTypeAsBroaderTypes_4() returns boolean {
+    FooBarOneTwoTrue f = true;
+    return finiteTypeAsBroaderTypesHelper(f) == "boolean: true";
+}
+
+function finiteTypeAsBroaderTypesHelper(FooBarOneTwoTrue f) returns string {
+    if (f is string) {
+        match f {
+            "foo" => return "string: foo";
+            "bar" => return "string: bar";
         }
+        return "expected foo or bar!";
     } else {
-        string z = global_x;
-        return "outer string: " + z;
+        if (f is int|float) {
+            int|float ot = f;
+            if (ot is int) {
+                int i = ot;
+                return string `int: ${i}`;
+            } else {
+                float fl = ot;
+                return string `float: ${fl}`;
+            }
+        } else {
+            boolean b = f;
+            return string `boolean: ${b}`;
+        }
+    }
+}
+
+function testFiniteTypeAsBroaderTypesAndFiniteType_1() returns boolean {
+    FooBarOneTwoTrue f = "foo";
+    boolean equals = finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: foo";
+
+    f = "bar";
+    return equals && finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: bar";
+}
+
+function testFiniteTypeAsBroaderTypesAndFiniteType_2() returns boolean {
+    FooBarOneTwoTrue f = 1;
+    return finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "int: 1";
+}
+
+function testFiniteTypeAsBroaderTypesAndFiniteType_3() returns boolean {
+    FooBarOneTwoTrue f = 2.0;
+    return finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "float: 2.0";
+}
+
+function testFiniteTypeAsBroaderTypesAndFiniteType_4() returns boolean {
+    FooBarOneTwoTrue f = true;
+    return finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "boolean: true";
+}
+
+function finiteTypeAsBroaderTypesAndFiniteTypeHelper(FooBarOneTwoTrue f) returns string {
+    if (f is string) {
+        FooBar fb = f;
+        match fb {
+            "foo" => return "string: foo";
+            "bar" => return "string: bar";
+        }
+        return "expected foo or bar!";
+    } else {
+        if (f is OneTwo) {
+            OneTwo ot = f;
+            if (ot is int) {
+                int i = ot;
+                return string `int: ${i}`;
+            } else {
+                float fl = ot;
+                return string `float: ${fl}`;
+            }
+        } else {
+            boolean b = f;
+            return string `boolean: ${b}`;
+        }
+    }
+}
+
+type FooBarOneTwoBoolean "foo"|"bar"|1|2.0|boolean;
+type FooBarBaz "foo"|"bar"|"baz";
+type FooBarInt "foo"|"bar"|int;
+
+function testFiniteTypeInUnionAsComplexFiniteTypes_1() returns boolean {
+    FooBarOneTwoBoolean f = "foo";
+    (string, FooBarBaz|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperOne(f);
+    return s == "FooBarBaz" && f == v;
+}
+
+function testFiniteTypeInUnionAsComplexFiniteTypes_2() returns boolean {
+    FooBarOneTwoBoolean f = 2.0;
+    (string, FooBarBaz|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperOne(f);
+    return s == "OneTwo" && f == v;
+}
+
+function testFiniteTypeInUnionAsComplexFiniteTypes_3() returns boolean {
+    FooBarOneTwoBoolean f = true;
+    (string, FooBarBaz|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperOne(f);
+    return s == "boolean" && f == v;
+}
+
+function testFiniteTypeInUnionAsComplexFiniteTypes_4() returns boolean {
+    FooBarOneTwoBoolean f = "bar";
+    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    return s == "FooBarInt" && f == v;
+}
+
+function testFiniteTypeInUnionAsComplexFiniteTypes_5() returns boolean {
+    FooBarOneTwoBoolean f = 1;
+    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    return s == "FooBarInt" && f == v;
+}
+
+function testFiniteTypeInUnionAsComplexFiniteTypes_6() returns boolean {
+    FooBarOneTwoBoolean f = 2.0;
+    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    return s == "OneTwo" && f == v;
+}
+
+function testFiniteTypeInUnionAsComplexFiniteTypes_7() returns boolean {
+    FooBarOneTwoBoolean f = false;
+    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    return s == "boolean" && f == v;
+}
+
+function finiteTypeAsComplexFiniteTypesHelperOne(FooBarOneTwoBoolean f) returns (string, FooBarBaz|OneTwo|boolean) {
+    if (f is FooBarBaz) {
+        FooBarBaz x = f;
+        return ("FooBarBaz", x);
+    } else {
+        if (f is OneTwo) {
+            OneTwo x = f;
+            return ("OneTwo", x);
+        } else {
+            boolean x = f;
+            return ("boolean", x);
+        }
+    }
+}
+
+function finiteTypeAsComplexFiniteTypesHelperTwo(FooBarOneTwoBoolean f) returns (string, FooBarInt|OneTwo|boolean) {
+    if (f is FooBarInt) {
+        FooBarInt x = f;
+        return ("FooBarInt", x);
+    } else {
+        if (f is OneTwo) {
+            OneTwo x = f;
+            return ("OneTwo", x);
+        } else {
+            boolean x = f;
+            return ("boolean", x);
+        }
+    }
+}
+
+type TrueBazOne true|"baz"|1;
+type TrueOneBarFoo true|1|"bar"|"foo";
+type OneTrue 1|true;
+type Baz "baz";
+
+function testFiniteTypeAsFiniteTypeWithIntersectionPositive() returns boolean {
+    TrueBazOne f = 1;
+    if (f is TrueOneBarFoo) {
+        OneTrue g = f;
+        return f == g;
+    }
+    return false;
+}
+
+function testFiniteTypeAsFiniteTypeWithIntersectionNegative() returns boolean {
+    TrueBazOne f = "baz";
+    if (f is TrueOneBarFoo) {
+        return false;
+    } else {
+        Baz b = f; // Would have matched to `TrueOneBarFoo` if `true` or `1`
+        return b == f;
+    }
+}
+
+function testTypeNarrowingForIntersectingDirectUnion_1() returns boolean {
+    string s = "hello world";
+    string|typedesc st = s;
+    if (st is string|boolean) {
+        string s2 = st;
+        return s2 == s;
+    }
+    return false;
+}
+
+function testTypeNarrowingForIntersectingDirectUnion_2() returns boolean {
+    xml x = xml `Hello World`;
+    string|xml st = x;
+    if (st is string|boolean) {
+        return true;
+    } else {
+        xml t2 = st;
+        return t2 == x;
+    }
+}
+
+function testTypeNarrowingForIntersectingAssignableUnion_1() returns boolean {
+    string s = "hello world";
+    string|typedesc st = s;
+    if (st is json|xml) {
+        string s2 = st;
+        return s2 == s;
+    }
+    return false;
+}
+
+function testTypeNarrowingForIntersectingAssignableUnion_2() returns boolean {
+    record{} t = { name: "Maryam" };
+    string|record{} st = t;
+    if (st is json|xml) {
+        return false;
+    } else {
+        record{} t2 = st;
+        return t2 == t;
+    }
+}
+
+function testTypeNarrowingForValueTypeAsFiniteType_1() returns boolean {
+    string s = "bar";
+    if (s is FooBar) {
+        FooBar f = s;
+        return f == s;
+    } else {
+        string s2 = s;
+        return false;
+    }
+}
+
+function testTypeNarrowingForValueTypeAsFiniteType_2() returns boolean {
+    float f = 11.0;
+    if (f is FooBarOneTwoBoolean) {
+        FooBarOneTwoBoolean f2 = f;
+        return true;
+    } else {
+        float f3 = f;
+        return f == f3;
+    }
+}
+
+const FIVE = 5.0;
+type FooBarTen "foo"|"bar"|10;
+type FloatFive FIVE;
+type IntTen 10;
+
+function testFiniteTypeAsBroaderTypeInStructurePositive() returns boolean {
+    FooBarTen f = "bar";
+    (FooBarTen, FloatFive, boolean) g = (f, FIVE, true);
+    any a = g;
+    if (a is (string|int|xml, float, boolean)) {
+        return a === g;
+    }
+    return false;
+}
+
+function testFiniteTypeAsBroaderTypeInStructureNegative() returns boolean {
+    FooBarTen f = "bar";
+    (string|float|int, FloatFive, boolean) g = (f, FIVE, true);
+    any a = g;
+    if (a is (string|int|xml, float, boolean)) {
+        return true;
+    }
+    return false;
+}
+
+function testFiniteTypeReassignmentToBroaderType() returns boolean {
+    int i = 10;
+    if (i is FooBarTen) {
+        IntTen j = i; // assignment should not fail
+        int k = i;
+        return i == k;
+    }
+    return false;
+}
+
+type Foo "foo";
+type Bar "bar";
+
+type X "x";
+type Y "y";
+
+function testFiniteTypeUnionAsFiniteTypeUnionPositive() returns boolean {
+    Foo|Bar|X|int q = 1;
+    if (q is Foo|Bar|Y|int) {
+        Foo|Bar|int w = q;
+        return q == w;
+    }
+    return false;
+}
+
+function testFiniteTypeUnionAsFiniteTypeUnionNegative() returns boolean {
+    Foo|Bar|X|int q = "x";
+    if (q is Foo|Bar|int|Y) {
+        return true;
+    }
+    return q != "x";
+}
+
+string reason = "error reason";
+map<anydata> detail = { code: 11, detail: "detail message" };
+
+function testTypeGuardForErrorPositive() returns boolean {
+    any|error a1 = <error> error(reason);
+    any|error a2 = <error> error(reason, detail);
+    return errorGuardHelper(a1, a2);
+}
+
+function testTypeGuardForErrorNegative() returns boolean {
+    return errorGuardHelper("hello world", 1);
+}
+
+function errorGuardHelper(any|error a1, any|error a2) returns boolean {
+    if (a1 is error && a2 is error) {
+        error e3 = a1;
+        error e4 = a2;
+
+        map<anydata> m = <map<anydata>> e4.detail();
+        return e3.reason() == reason && e4.reason() == reason && m == detail;
+    }
+    return false;
+}
+
+const ERR_REASON = "error reason";
+const ERR_REASON_TWO = "error reason two";
+
+type Details record {
+    string message;
+};
+
+type MyError error<ERR_REASON, Details>;
+type MyErrorTwo error<ERR_REASON_TWO, Details>;
+
+function testTypeGuardForCustomErrorPositive() returns (boolean, boolean) {
+    Details d = { message: "detail message" };
+    MyError e3 = error(ERR_REASON, d);
+    MyErrorTwo e4 = error(ERR_REASON_TWO, d);
+
+    any|error a1 = e3;
+    any|error a2 = e4;
+
+    boolean isSpecificError = false;
+
+    if (a1 is MyError && a2 is MyErrorTwo) {
+        MyError e5 = a1;
+        MyErrorTwo e6 = a2;
+
+        Details m1 = e5.detail();
+        Details m2 = e6.detail();
+        isSpecificError = e5.reason() == ERR_REASON && e6.reason() == ERR_REASON_TWO && m1 == d && m2 == d;
+    }
+
+    boolean isGenericError = a1 is error && a2 is error;
+    return (isSpecificError, isGenericError);
+}
+
+function testTypeGuardForCustomErrorNegative() returns boolean {
+    error e3 = error(ERR_REASON);
+    error e4 = error("error reason x", { message: "detail message" });
+
+    any|error a1 = e3;
+    any|error a2 = e4;
+
+    if (a1 is MyError || a2 is MyErrorTwo) {
+        return true;
+    } else {
+        any|error a3 = a1;
+        any|error a4 = a2;
+        return false;
     }
 }

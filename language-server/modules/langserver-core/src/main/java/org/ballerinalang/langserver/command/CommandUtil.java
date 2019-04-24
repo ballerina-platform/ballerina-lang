@@ -17,6 +17,15 @@ package org.ballerinalang.langserver.command;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
+import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
+import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
+import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
+import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
+import org.ballerinalang.langserver.command.executors.CreateVariableExecutor;
+import org.ballerinalang.langserver.command.executors.IgnoreReturnExecutor;
+import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
+import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
@@ -129,10 +138,10 @@ public class CommandUtil {
 
         if (isService) {
             commands.add(Either.forLeft(new Command(CommandConstants.CREATE_TEST_SERVICE_TITLE,
-                    CommandConstants.CMD_CREATE_TEST, args)));
+                                                    CreateTestExecutor.COMMAND, args)));
         } else if (isFunction) {
             commands.add(Either.forLeft(new Command(CommandConstants.CREATE_TEST_FUNC_TITLE,
-                    CommandConstants.CMD_CREATE_TEST, args)));
+                                                    CreateTestExecutor.COMMAND, args)));
         }
         return commands;
     }
@@ -183,7 +192,7 @@ public class CommandUtil {
                                 + pkgEntry.getFullPackageNameAlias();
                         CommandArgument pkgArgument = new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME,
                                                                           pkgEntry.getFullPackageNameAlias());
-                        commands.add(Either.forLeft(new Command(commandTitle, CommandConstants.CMD_IMPORT_MODULE,
+                        commands.add(Either.forLeft(new Command(commandTitle, ImportModuleExecutor.COMMAND,
                                                  new ArrayList<>(Arrays.asList(pkgArgument, uriArg)))));
                     });
         } else if (isUndefinedFunction(diagnosticMessage)) {
@@ -194,11 +203,13 @@ public class CommandUtil {
                 functionName = matcher.group(1) + "(...)";
             }
             String commandTitle = CommandConstants.CREATE_FUNCTION_TITLE + functionName;
-            commands.add(Either.forLeft(new Command(commandTitle, CommandConstants.CMD_CREATE_FUNCTION, args)));
+            commands.add(Either.forLeft(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args)));
         } else if (isVariableAssignmentRequired(diagnosticMessage)) {
             List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
-            commands.add(Either.forLeft(new Command(commandTitle, CommandConstants.CMD_CREATE_VARIABLE, args)));
+            commands.add(Either.forLeft(new Command(commandTitle, CreateVariableExecutor.COMMAND, args)));
+            commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
+            commands.add(Either.forLeft(new Command(commandTitle, IgnoreReturnExecutor.COMMAND, args)));
         } else if (isUnresolvedPackage(diagnosticMessage)) {
             Matcher matcher = CommandConstants.UNRESOLVED_MODULE_PATTERN.matcher(
                     diagnosticMessage.toLowerCase(Locale.ROOT)
@@ -209,7 +220,7 @@ public class CommandUtil {
                 args.add(new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME, pkgName));
                 args.add(uriArg);
                 String commandTitle = CommandConstants.PULL_MOD_TITLE;
-                commands.add(Either.forLeft(new Command(commandTitle, CommandConstants.CMD_PULL_MODULE, args)));
+                commands.add(Either.forLeft(new Command(commandTitle, PullModuleExecutor.COMMAND, args)));
             }
         }
         return commands;
@@ -333,9 +344,6 @@ public class CommandUtil {
 
         // Get the current package.
         BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, uri);
-
-        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, currentBLangPackage.symbol.getName().getValue());
-
         // Run the position calculator for the current package.
         PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(context);
         currentBLangPackage.accept(positionTreeVisitor);
@@ -366,13 +374,14 @@ public class CommandUtil {
         List<Object> args = new ArrayList<>(Arrays.asList(nodeTypeArg, docUriArg, lineStart));
 
         return Either.forLeft(new Command(CommandConstants.ADD_DOCUMENTATION_TITLE,
-                CommandConstants.CMD_ADD_DOCUMENTATION, args));
+                                          AddDocumentationExecutor.COMMAND, args));
     }
 
     private static Either<Command, CodeAction> getAllDocGenerationCommand(String docUri) {
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         List<Object> args = new ArrayList<>(Collections.singletonList(docUriArg));
-        return Either.forLeft(new Command(CommandConstants.ADD_ALL_DOC_TITLE, CommandConstants.CMD_ADD_ALL_DOC, args));
+        return Either.forLeft(
+                new Command(CommandConstants.ADD_ALL_DOC_TITLE, AddAllDocumentationExecutor.COMMAND, args));
     }
 
     private static Either<Command, CodeAction> getInitializerGenerationCommand(String docUri, int line) {
@@ -380,7 +389,7 @@ public class CommandUtil {
         CommandArgument startLineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
         List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, startLineArg));
         return Either.forLeft(new Command(CommandConstants.CREATE_INITIALIZER_TITLE,
-                CommandConstants.CMD_CREATE_INITIALIZER, args));
+                                          CreateObjectInitializerExecutor.COMMAND, args));
     }
 
     /**

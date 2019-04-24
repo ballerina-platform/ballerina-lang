@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.common.constants;
 
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Location;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -50,5 +51,9 @@ public class NodeContextKeys {
     public static final LSContext.Key<List<Location>> REFERENCE_RESULTS_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<List<PackageID>> REFERENCE_PKG_IDS_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> NODE_NAME_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<SymbolReferencesModel> REFERENCES_KEY
             = new LSContext.Key<>();
 }

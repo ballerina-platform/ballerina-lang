@@ -45,8 +45,8 @@ public interface InstructionCodes {
     int RCONST_NULL = BCONST_1 + 1;
     int BICONST = RCONST_NULL + 1;
     int DCONST = BICONST + 1;
-
-    int IMOVE = DCONST + 1;
+    int MCONST = DCONST + 1;
+    int IMOVE = MCONST + 1;
     int FMOVE = IMOVE + 1;
     int SMOVE = FMOVE + 1;
     int BMOVE = SMOVE + 1;
@@ -81,10 +81,8 @@ public interface InstructionCodes {
     int RASTORE = BASTORE + 1;
     int JSONASTORE = RASTORE + 1;
 
-    int BIAND = JSONASTORE + 1;
-    int IAND = BIAND + 1;
-    int BIOR = IAND + 1;
-    int IOR = BIOR + 1;
+    int IAND = JSONASTORE + 1;
+    int IOR = IAND + 1;
 
     int IGSTORE = IOR + 1;
     int FGSTORE = IGSTORE + 1;
@@ -278,13 +276,9 @@ public interface InstructionCodes {
     int INT_RANGE = ITR_NEXT + 1;
 
     int I2BI = INT_RANGE + 1;
-    int BI2I = I2BI + 1;
-    int F2BI = BI2I + 1;
-    int BI2F = F2BI + 1;
-    int D2BI = BI2F + 1;
-    int BI2D = D2BI + 1;
-    int BIXOR = BI2D + 1;
-    int IXOR = BIXOR + 1;
+    int F2BI = I2BI + 1;
+    int D2BI = F2BI + 1;
+    int IXOR = D2BI + 1;
     int BACONST = IXOR + 1;
     int IURSHIFT = BACONST + 1;
 

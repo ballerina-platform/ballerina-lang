@@ -20,7 +20,7 @@ service GlobalVar on echoEP {
             "glbVarFloat": foo:getGlbVarFloat()
         };
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -31,7 +31,7 @@ service GlobalVar on echoEP {
         http:Response res = new;
         json responseJson = {"serviceVarFloat": self.serviceVarFloat};
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -43,7 +43,7 @@ service GlobalVar on echoEP {
         foo:setGlbVarFloatChange(77.87);
         json responseJson = { "glbVarFloatChange": foo:getGlbVarFloatChange() };
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -54,7 +54,7 @@ service GlobalVar on echoEP {
         http:Response res = new;
         json responseJson = { "glbVarFloatChange": foo: getGlbVarFloatChange() };
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -71,7 +71,7 @@ service GlobalVar on echoEP {
             "glbSealed2DArray2Element": foo:getGlbSealed2DArray2()[0][1]
         };
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -86,7 +86,7 @@ service GlobalVarSecond on echoEP {
         http:Response res = new;
         json responseJson = { "glbVarFloatChange": foo: getGlbVarFloatChange() };
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
 }

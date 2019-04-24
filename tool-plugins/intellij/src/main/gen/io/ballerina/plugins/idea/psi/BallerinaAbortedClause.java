@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaAbortedClause extends BallerinaCompositeElement {
+public interface BallerinaAbortedClause extends PsiElement {
 
   @Nullable
   BallerinaBlock getBlock();

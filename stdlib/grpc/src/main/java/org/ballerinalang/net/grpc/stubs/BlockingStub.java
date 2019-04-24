@@ -36,6 +36,7 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 
 import java.util.Arrays;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
@@ -45,8 +46,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
  * @since 0.980.0
  */
 public class BlockingStub extends AbstractStub {
-
-    private static final BTupleType RESP_TUPLE_TYPE = new BTupleType(Arrays.asList(BTypes.typeAny, BTypes.typeAny));
 
     public BlockingStub(HttpClientConnector clientConnector, String url) {
         super(clientConnector, url);
@@ -112,9 +111,14 @@ public class BlockingStub extends AbstractStub {
                     BValue responseBValue = value.getbMessage();
                     // Set response headers, when response headers exists in the message context.
                     BMap<String, BValue> headerStruct = BLangConnectorSPIUtil.createBStruct(dataContext.context
-                            .getProgramFile(), PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
+                            .getProgramFile(), PROTOCOL_STRUCT_PACKAGE_GRPC, HEADERS);
                     headerStruct.addNativeData(MESSAGE_HEADERS, value.getHeaders());
-                    BValueArray contentTuple = new BValueArray(RESP_TUPLE_TYPE);
+                    BValueArray contentTuple =
+                            new BValueArray(
+                                    new BTupleType(Arrays.asList(BTypes.typeAny,
+                                                                 dataContext.context.getProgramFile()
+                                                                         .getPackageInfo (PROTOCOL_STRUCT_PACKAGE_GRPC)
+                                                                         .getTypeDefInfo(HEADERS).typeInfo.getType())));
                     contentTuple.add(0, (BRefType) responseBValue);
                     contentTuple.add(1, headerStruct);
                     inboundResponse = contentTuple;

@@ -190,7 +190,7 @@ public class IOUtils {
         try {
             int totalNumberOfCharsWritten = 0;
             int numberOfCharsWritten;
-            final int lengthOfPayload = payload.length();
+            final int lengthOfPayload = payload.getBytes().length;
             do {
                 WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, payload, 0, eventContext);
                 CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
@@ -199,7 +199,7 @@ public class IOUtils {
                 totalNumberOfCharsWritten = totalNumberOfCharsWritten + numberOfCharsWritten;
             } while (totalNumberOfCharsWritten != lengthOfPayload && numberOfCharsWritten != 0);
             if (totalNumberOfCharsWritten != lengthOfPayload) {
-                String message = "JSON payload was partially written expected:" + lengthOfPayload + ",written : " +
+                String message = "JSON payload was partially written expected: " + lengthOfPayload + ", written : " +
                         totalNumberOfCharsWritten;
                 throw new BallerinaException(message);
             }

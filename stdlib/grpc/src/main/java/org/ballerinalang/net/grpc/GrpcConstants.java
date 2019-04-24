@@ -82,6 +82,7 @@ public class GrpcConstants {
 
     public static final String CLIENT = "Client";
     public static final String STREAMING_CLIENT = "StreamingClient";
+    public static final String HEADERS = "Headers";
     public static final String ANN_RESOURCE_CONFIG = "ResourceConfig";
     public static final String ANN_ATTR_RESOURCE_SERVER_STREAM = "streaming";
     // InboundMessage Message Param index in service resource.

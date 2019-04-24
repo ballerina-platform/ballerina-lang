@@ -1,3 +1,5 @@
+import ballerina/io;
+
 type Department record {
     string dptName = "";
     Person[] employees = [];
@@ -88,6 +90,327 @@ function testNestedFieldDefaultVal () returns (string?, string?, int?) {
     dpt["employees"] = [];
     dpt["employees"][0] = {lname:"Smith"};
     return (dpt["employees"][0]["name"], dpt["employees"][0]["lname"], dpt["employees"][0]["age"]);
+}
+
+type StructField record {
+    string key;
+};
+
+function testExpressionAsStructIndex() returns string {
+    StructField nameField = { key: "name" };
+    Person emp = { name: "Jack", adrs: { "country": "USA", "state": "CA" }, age: 25 };
+    var result = emp[nameField.key];
+    if result is string {
+        return result;
+    } else {
+        return "fail";
+    }
+}
+
+type Foo record {|
+    string fieldOne;
+    int fieldTwo;
+    boolean fieldThree;
+    () fieldFour;
+    float fieldFive;
+    decimal fieldSix;
+|};
+
+function testDynamicIndexAccessTypes() returns string {
+    Foo f = {
+        fieldOne: "string",
+        fieldTwo: 100,
+        fieldThree: true,
+        fieldFour: (),
+        fieldFive: 25.5,
+        fieldSix: 96.9
+    };
+
+    string result = "";
+
+    string index = "fieldOne";
+    var res1 = f[index];
+    if (res1 is string) {
+        result += io:sprintf("string:%s", res1);
+    }
+
+    index = "fieldTwo";
+    string|int|boolean|()|float|decimal res2 = f[index];
+    if (res2 is int) {
+        result += io:sprintf(":int:%s", res2);
+    }
+
+    index = "fieldThree";
+    res2 = f[index];
+    if (res2 is boolean) {
+        result += io:sprintf(":boolean:%s", res2);
+    }
+
+    index = "fieldFour";
+    string|int|boolean|()|float|decimal res4 = f[index];
+    if (res4 is ()) {
+        result += io:sprintf(":():%s", res4);
+    }
+
+    index = "fieldFive";
+    var res5 = f[index];
+    if (res5 is float) {
+        result += io:sprintf(":float:%s", res5);
+    }
+
+    index = "fieldSix";
+    res5 = f[index];
+    if (res5 is decimal) {
+        result += io:sprintf(":decimal:%s", res5);
+    }
+
+    return result;
+}
+
+type Bar record {
+    int fieldOne;
+    string|float fieldTwo;
+    boolean...;
+};
+
+function testDynamicIndexAccessTypesWithRestParam(string arg) returns string {
+    Bar f = {
+        fieldOne: 50,
+        fieldTwo: "string",
+        fieldThree: true
+    };
+
+    string result = "";
+
+    int|string|float|boolean? res1 = f[arg];
+    if (res1 is int) {
+        result += io:sprintf(":int:%s", res1);
+    }
+    if (res1 is string) {
+        result += io:sprintf(":string:%s", res1);
+    }
+    if (res1 is boolean) {
+        result += io:sprintf(":boolean:%s", res1);
+    }
+    if (res1 is ()) {
+        result += "()";
+    }
+    return result;
+}
+
+type Obj object {
+    private int intField;
+
+    function __init() {
+        self.intField = 10;
+    }
+
+    function getIntField() returns int {
+        return self.intField;
+    }
+};
+
+type FooBar record {
+    Obj fieldOne?;
+    function (int) returns int fieldTwo;
+    json fieldThree;
+};
+
+function testDynamicIndexAccessTypesWithOpenRecord() returns string {
+    Obj obj = new;
+    function (int) returns int aFn = x => x * 2;
+    json jVal = "json-string";
+
+    string result = "";
+
+    FooBar fb = { fieldOne: obj, fieldTwo: aFn, fieldThree: jVal, fieldFour: true };
+    int[5] indexArr = [1, 2, 3, 4, 5];
+
+    foreach var index in indexArr {
+        Obj|(function (int) returns int)|json|anydata|error res = fb[getIndex(index)];
+        if (res is Obj) {
+            result += io:sprintf(":object:%s", res.getIntField());
+            continue;
+        }
+        if (res is function (int) returns int) {
+            result += io:sprintf(":function:%s", res.call(8));
+            continue;
+        }
+        if (res is ()) {
+            result += ":():";
+            continue;
+        }
+        if (res is boolean) {
+            result += io:sprintf(":boolean:%s", res);
+            continue;
+        }
+        if (res is json) {
+            result += io:sprintf(":json:%s", res);
+            continue;
+        }
+    }
+    return result;
+}
+
+function getIndex(int index) returns string {
+    match index {
+        1 => return "fieldOne";
+        2 => return "fieldTwo";
+        3 => return "fieldThree";
+        4 => return "fieldFour";
+        _ => return "fieldFive";
+    }
+}
+
+type Qux record {
+    int fieldOne?;
+    int fieldTwo;
+    int...;
+};
+
+function testDynamicIndexAccessWithSingleType() returns int {
+    Qux q = { fieldOne: 95, fieldTwo: 96, fieldThree: 100 };
+    string[] index = ["fieldOne", "fieldTwo", "fieldThree"];
+    int marks = 0;
+
+    int? field = q[index[0]];
+    if field is int {
+        marks += (field * 2);
+    }
+    field = q[index[1]];
+    if field is int {
+        marks += (field * 2);
+    }
+    field = q[index[2]];
+    if field is int {
+        marks += (field * 2);
+    }
+    return marks;
+}
+
+type Quux record {|
+    Qux fieldOne;
+|};
+
+function testDynamicIndexAccessWithRecordInsideRecord() returns (int?, int?) {
+    Qux q = { fieldOne: 95, fieldTwo: 96, fieldThree: 100 };
+    Quux qu = { fieldOne: q };
+
+    string index = "fieldOne";
+
+    int? r1 = qu["fieldOne"]["fieldOne"];
+    int? r2 = qu[index][index];
+
+    return (r1, r2);
+}
+
+type Finite "fieldOne"|"fieldTwo"|"fieldThree"|"fieldFive";
+
+type FooQux record {
+    string|boolean fieldOne;
+    Bar fieldTwo;
+    float|Obj fieldThree;
+    int fieldFour;
+};
+
+function testFiniteTypeAsIndex() returns string {
+    Finite index1 = "fieldOne";
+    Finite index2 = "fieldTwo";
+    Finite index3 = "fieldThree";
+    Finite index4 = "fieldFive";
+
+    Bar bar = {
+        fieldOne: 50,
+        fieldTwo: "barField",
+        fieldThree: true
+    };
+
+    Qux q = { fieldOne: 95, fieldTwo: 96, fieldThree: 100 };
+    FooQux foo = { fieldOne: "string", fieldTwo: bar, fieldThree: 98.9, fieldFour: 12, fieldFive: q };
+
+    string|boolean|Bar|float|Obj|anydata|error r1 = foo[index1];
+    var r2 = foo[index2];
+    string|boolean|Bar|float|Obj|anydata|error r3 = foo[index3];
+    string|boolean|Bar|float|Obj|anydata|error r4 = foo[index4];
+
+    string result = "";
+    if r1 is string {
+        result += r1;
+    }
+    if r2 is Bar {
+        int|string|float|boolean? r2s = r2[index2];
+        if r2s is string {
+            result += r2s;
+        }
+    }
+    if r3 is float {
+        result += io:sprintf("%s", r3);
+    }
+    if r4 is Qux {
+        int? r5 = r4[index1];
+        result += io:sprintf("%s", r5);
+    }
+
+    return result;
+}
+
+const string FIELD_FOUR = "fieldFour";
+type FiniteOne "fieldOne"|"fieldTwo";
+type FiniteTwo "fieldTwo"|"fieldThree";
+type FiniteThree FiniteOne|FiniteTwo|FIELD_FOUR;
+
+function testUnionInFiniteTypeAsIndex() returns string {
+    FiniteThree index1 = "fieldOne";
+    FiniteThree index2 = "fieldTwo";
+    FiniteThree index3 = "fieldThree";
+    FiniteThree index4 = "fieldFour";
+
+    Foo foo = {
+        fieldOne: "string",
+        fieldTwo: 100,
+        fieldThree: true,
+        fieldFour: (),
+        fieldFive: 25.5,
+        fieldSix: 96.9
+    };
+
+    string|int|boolean|() r1 = foo[index1];
+    var r2 = foo[index2];
+    string|int|boolean? r3 = foo[index3];
+    string|int|boolean|() r4 = foo[index4];
+
+    string result = "";
+    if r1 is string {
+        result += r1;
+    }
+    if r2 is int {
+        result += io:sprintf("%s", r2);
+    }
+    if r3 is boolean {
+        result += io:sprintf("%s", r3);
+    }
+    if r4 is () {
+        result += "()";
+    }
+
+    return result;
+}
+
+function testUnionInFiniteTypeAsIndexNoField() returns string {
+    FiniteThree index = "fieldFour";
+
+    Bar f = {
+        fieldOne: 50,
+        fieldTwo: "string",
+        fieldThree: true
+    };
+
+    var r1 = f[index];
+    if (r1 is ()) {
+        return "Passed";
+    } else {
+        return "Failed";
+    }
 }
 
 function testGetNonInitAttribute () returns string? {

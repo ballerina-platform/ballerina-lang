@@ -63,6 +63,7 @@ public class Names {
 
     public static final Name BIR_BASIC_BLOCK_PREFIX = new Name("bb");
     public static final Name BIR_LOCAL_VAR_PREFIX = new Name("%");
+    public static final Name BIR_GLOBAL_VAR_PREFIX = new Name("#");
 
     // Names related to Endpoint SPI.
     public static final Name EP_SERVICE_GET_ENDPOINT = new Name("getEndpoint");

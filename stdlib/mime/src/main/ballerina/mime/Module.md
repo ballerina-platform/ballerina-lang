@@ -22,7 +22,7 @@ Content-Description: a complete map of the human genome
 The module provides functions to set and get an entity body from different kinds of message types, such as XML, text, JSON, blob, and body parts. Headers can be modified through functions such as `addHeader()`, `setHeader()`, `removeHeader()`, etc. 
 ## Samples
 ### Handle multipart request
-The sample service given below handles a multipart request. It extracts the body content from each part, converts it to to a `string`, and sends a response.
+The sample service given below handles a multipart request. It extracts the body content from each part, converts it to a `string`, and sends a response.
 
 ``` ballerina
 import ballerina/http;
@@ -30,44 +30,46 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 
-@http:ServiceConfig { basePath:"/test" }
+@http:ServiceConfig {
+    basePath: "/test"
+}
 service test on new http:Listener(9090) {
 
-   @http:ResourceConfig {
-       methods: ["POST"],
-       path: "/multipleparts"
-   }
-   // The resource that handles multipart requests.
-   resource function multipartResource(http:Caller caller, http:Request request) {
-       http:Response response = new;
-       
+    @http:ResourceConfig {
+        methods: ["POST"],
+        path: "/multipleparts"
+    }
+    // The resource that handles multipart requests.
+    resource function multipartResource(http:Caller caller, http:Request request) {
+        http:Response response = new;
+
         // Get the body parts from the request.
         var bodyParts = request.getBodyParts();
         if (bodyParts is mime:Entity[]) {
             string content = "";
-             // Iterate through each body part and handle the content.
+            // Iterate through each body part and handle the content.
             foreach var part in bodyParts {
                 content = content + " -- " + handleContent(part);
             }
             response.setPayload(untaint content);
-        } else if (bodyParts is error) {
-            // If there is an error while getting the body parts, set the response code as 500 and 
+        } else {
+            // If there is an error while getting the body parts, set the response code as 500 and
             // set the error message as the response message.
             response.statusCode = 500;
             response.setPayload(untaint bodyParts.reason());
         }
-          
+
         var result = caller->respond(response);
         if (result is error) {
             log:printError("Error in responding", err = result);
         }
-   }
+    }
 }
 
 // The function that handles the content based on the body part type.
 function handleContent(mime:Entity bodyPart) returns string {
-   var mediaType = mime:getMediaType(bodyPart.getContentType());
-   if (mediaType is mime:MediaType) {
+    var mediaType = mime:getMediaType(bodyPart.getContentType());
+    if (mediaType is mime:MediaType) {
         // Get the base type of the specific body part.
         string baseType = mediaType.getBaseType();
         // If the base type is ‘application/xml’ or ‘text/xml’, get the XML content from body part.
@@ -75,7 +77,7 @@ function handleContent(mime:Entity bodyPart) returns string {
             var payload = bodyPart.getXml();
             if (payload is xml) {
                 return payload.getTextValue();
-            } else if (payload is error) {
+            } else {
                 return "Error in parsing xml payload";
             }
         } else if (mime:APPLICATION_JSON == baseType) {
@@ -83,14 +85,14 @@ function handleContent(mime:Entity bodyPart) returns string {
             var payload = bodyPart.getJson();
             if (payload is json) {
                 return payload.toString();
-            } else if (payload is error) {
+            } else {
                 return "Error in parsing json payload";
             }
         }
-   } else if (mediaType is error) {
+    } else {
         return mediaType.reason();
-   }
-   return "";
+    }
+    return "";
 }
 ```
 

@@ -44,25 +44,13 @@ public class BallerinaTypeConversionExpressionImpl extends BallerinaExpressionIm
   @Override
   @Nullable
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaFunctionInvocation getFunctionInvocation() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaFunctionInvocation.class);
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @Nullable
   public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getComma() {
-    return findChildByType(COMMA);
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
@@ -74,7 +62,7 @@ public class BallerinaTypeConversionExpressionImpl extends BallerinaExpressionIm
   @Override
   @NotNull
   public PsiElement getLt() {
-    return notNullChild(findChildByType(LT));
+    return findNotNullChildByType(LT);
   }
 
 }

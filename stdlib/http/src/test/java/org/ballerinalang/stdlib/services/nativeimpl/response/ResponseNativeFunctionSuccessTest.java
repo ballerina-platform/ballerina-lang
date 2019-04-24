@@ -25,7 +25,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
@@ -48,7 +47,6 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
@@ -431,15 +429,9 @@ public class ResponseNativeFunctionSuccessTest {
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, HttpConstants.RESPONSE);
         BMap<String, BValue> entity =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BMap<String, BValue> mediaType =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
         String payload = "{\"code\":\"123\"}";
-        MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
-        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
-        HttpHeaders httpHeaders = new DefaultHttpHeaders();
-        httpHeaders.add(CONTENT_TYPE, TEXT_PLAIN);
-        entity.addNativeData(ENTITY_HEADERS, httpHeaders);
+        enrichTestEntity(entity, APPLICATION_JSON, payload);
         inResponse.put(RESPONSE_ENTITY_FIELD, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -447,6 +439,25 @@ public class ResponseNativeFunctionSuccessTest {
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetTextPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
+        Assert.assertEquals(returnVals[0].stringValue(), payload);
+    }
+
+    @Test(description = "Test getTextPayload method with Xml payload")
+    public void testGetTextPayloadMethodWithXmlPayload() {
+        BMap<String, BValue> inResponse =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
+        BMap<String, BValue> entity =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+
+        String payload = "<name>ballerina</name>";
+        enrichTestEntity(entity, APPLICATION_XML, payload);
+        inResponse.put(RESPONSE_ENTITY_FIELD, entity);
+        inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
+        BValue[] inputArg = { inResponse };
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetTextPayload", inputArg);
+
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), payload);
     }
 

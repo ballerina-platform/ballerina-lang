@@ -18,9 +18,9 @@
 
 package org.ballerinalang.test.types.constant;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -35,8 +35,8 @@ public class ConstantAccessNegativeTest {
         Assert.assertEquals(compileResult.getErrorCount(), 5);
         BAssertUtil.validateError(compileResult, 0, "attempt to refer to non-accessible symbol 'address'", 5, 16);
         BAssertUtil.validateError(compileResult, 1, "undefined symbol 'address'", 5, 16);
-        BAssertUtil.validateError(compileResult, 2, "cannot assign a value to a constant", 7, 5);
+        BAssertUtil.validateError(compileResult, 2, "cannot update constant value", 7, 5);
         BAssertUtil.validateError(compileResult, 3, "incompatible types: expected 'int', found 'string'", 9, 13);
-        BAssertUtil.validateError(compileResult, 4, "incompatible types: expected 'C|D', found 'string'", 11, 13);
+        BAssertUtil.validateError(compileResult, 4, "incompatible types: expected 'C|D', found 'A'", 11, 13);
     }
 }

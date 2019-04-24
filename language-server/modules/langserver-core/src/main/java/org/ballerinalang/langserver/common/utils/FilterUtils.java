@@ -19,17 +19,19 @@ package org.ballerinalang.langserver.common.utils;
 
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -37,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -61,11 +64,12 @@ public class FilterUtils {
      * @param addBuiltIn   Add built-in functions
      * @return {@link ArrayList}    List of filtered symbol info
      */
-    public static List<SymbolInfo> getInvocationAndFieldSymbolsOnVar(LSServiceOperationContext context,
+    public static List<SymbolInfo> getInvocationAndFieldSymbolsOnVar(LSContext context,
                                                                      String variableName, String delimiter,
                                                                      List<SymbolInfo> symbolInfos, boolean addBuiltIn) {
         ArrayList<SymbolInfo> resultList = new ArrayList<>();
-        SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
         SymbolInfo variable = getVariableByName(variableName, symbolInfos);
 
         if (variable == null) {
@@ -88,7 +92,7 @@ public class FilterUtils {
         } else if (delimiter.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || delimiter.equals(UtilSymbolKeys.BANG_SYMBOL_KEY)) {
             String builtinPkgName = symbolTable.builtInPackageSymbol.pkgID.name.getValue();
-            String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY);
+            String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
             Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
             PackageID pkgId = getPackageIDForBType(bType);
             String packageIDString = pkgId == null ? "" : pkgId.getName().getValue();
@@ -143,6 +147,20 @@ public class FilterUtils {
                             resultList.add(new SymbolInfo(entryName.getValue(), attachedScopeEntry));
                         }
                     });
+                } else if (scopeEntry.symbol instanceof BServiceSymbol
+                        && scopeEntry.symbol.getName().getValue().equals(variableName)) {
+                    Map<Name, Scope.ScopeEntry> attachedEntries =
+                            ((BObjectTypeSymbol) scopeEntry.symbol.type.tsymbol).scope.entries;
+                    Map<Name, Scope.ScopeEntry> methodEntries =
+                            ((BObjectTypeSymbol) scopeEntry.symbol.type.tsymbol).methodScope.entries;
+                    methodEntries.forEach((entryName, functionEntry) -> {
+                        if ((functionEntry.symbol.flags & Flags.RESOURCE) == Flags.RESOURCE) {
+                            return;
+                        }
+                        resultList.add(new SymbolInfo(functionEntry.symbol.getName().value, functionEntry));
+                    });
+                    attachedEntries.forEach((entryName, fieldEntry) -> 
+                            resultList.add(new SymbolInfo(fieldEntry.symbol.getName().value, fieldEntry)));
                 }
             });
             if (addBuiltIn) {
@@ -170,7 +188,7 @@ public class FilterUtils {
      * @param symbolInfos           List of visible symbol info
      * @return {@link ArrayList}    List of filtered symbol info
      */
-    public static List<SymbolInfo> getInvocationAndFieldSymbolsOnVar(LSServiceOperationContext context,
+    public static List<SymbolInfo> getInvocationAndFieldSymbolsOnVar(LSContext context,
                                                                      String variableName, String delimiter,
                                                                      List<SymbolInfo> symbolInfos) {
         return getInvocationAndFieldSymbolsOnVar(context, variableName, delimiter, symbolInfos, true);
@@ -211,11 +229,12 @@ public class FilterUtils {
         }
         symbolInfos.forEach(symbolInfo -> {
             if (!CommonUtil.isInvalidSymbol(symbolInfo.getScopeEntry().symbol) 
-                    && (symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol 
+                    && ((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol 
                     && symbolInfo.getScopeEntry().symbol.getType() != null 
                     && symbolInfo.getScopeEntry().symbol.getType().toString().equals(modifiedBType.toString())) 
                     || (symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol
-                    && CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol))) {
+                    && CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol))
+                    || (symbolInfo.getScopeEntry().symbol instanceof BServiceSymbol))) {
                 returnMap.put(symbolInfo.getScopeEntry().symbol.getName(), symbolInfo.getScopeEntry());
             }
         });
@@ -269,7 +288,8 @@ public class FilterUtils {
             BSymbol symbol = value.symbol;
             if (((symbol instanceof BInvokableSymbol && ((BInvokableSymbol) symbol).receiverSymbol == null)
                     || (symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol))
-                    || symbol instanceof BVarSymbol) && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+                    || symbol instanceof BVarSymbol || symbol instanceof BConstantSymbol)
+                    && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
                 SymbolInfo entry = new SymbolInfo(name.toString(), value);
                 actionFunctionList.add(entry);
             }

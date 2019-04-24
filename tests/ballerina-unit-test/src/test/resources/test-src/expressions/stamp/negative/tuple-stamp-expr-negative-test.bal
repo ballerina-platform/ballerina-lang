@@ -20,13 +20,12 @@ type Employee record {
     string batch;
 };
 
-type Person record {
+type Person record {|
     string name;
     string status;
     string batch;
     string school;
-    !...;
-};
+|};
 
 type EmployeeObj object {
     public string name = "Mohan";

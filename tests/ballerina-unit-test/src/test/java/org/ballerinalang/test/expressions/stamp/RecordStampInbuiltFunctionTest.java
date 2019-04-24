@@ -17,9 +17,6 @@
 */
 package org.ballerinalang.test.expressions.stamp;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BErrorType;
@@ -32,6 +29,9 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -554,7 +554,7 @@ public class RecordStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
                             "incompatible stamp operation: 'Teacher' value cannot be stamped as 'map<string>'");
     }
 
@@ -564,7 +564,7 @@ public class RecordStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
                             "incompatible stamp operation: 'Teacher' value cannot be stamped as 'NonAcademicStaff'");
     }
 
@@ -574,7 +574,7 @@ public class RecordStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
                             "incompatible stamp operation: 'Employee' value cannot be stamped as 'Teacher'");
     }
 
@@ -584,7 +584,7 @@ public class RecordStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
                             "incompatible stamp operation: 'Employee' value cannot be stamped as 'Teacher'");
     }
 }

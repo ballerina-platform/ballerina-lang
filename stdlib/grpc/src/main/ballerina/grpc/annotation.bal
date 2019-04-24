@@ -27,14 +27,13 @@
 #                     bidirectional streaming. Flag sets to true, if the service defines as client/bidirectional streaming.
 # + serverStreaming - Server streaming flag. This applies only for bidirectional streaming. Flag
 #                     sets to true, if the service defines as bidirectional streaming.
-public type GrpcServiceConfig record {
+public type GrpcServiceConfig record {|
     string name = "";
     typedesc requestType?;
     typedesc responseType?;
     boolean clientStreaming = false;
     boolean serverStreaming = false;
-    !...;
-};
+|};
 
 # Service configuration. Sets only for client and bidirectional streaming service.
 public annotation<service> ServiceConfig GrpcServiceConfig;
@@ -47,12 +46,11 @@ public annotation<service> ServiceConfig GrpcServiceConfig;
 #                   type is derived from input argument of the resource.
 # + responseType - Response message type of the resource. This is an optional field. If it is not specified, response
 #                   type is derived from the he value passed to the send() expression.
-public type GrpcResourceConfig record {
+public type GrpcResourceConfig record {|
     boolean streaming = false;
     typedesc requestType?;
     typedesc responseType?;
-    !...;
-};
+|};
 
 # Service resource configuration. Sets only for server streaming service.
 public annotation<resource> ResourceConfig GrpcResourceConfig;
@@ -61,11 +59,10 @@ public annotation<resource> ResourceConfig GrpcResourceConfig;
 #
 # + descriptor - Service descriptor sets at compile time.
 # + descMap - Service dependent descriptor map sets at compile time.
-public type ServiceDescriptorData record {
+public type ServiceDescriptorData record {|
     string descriptor = "";
     map<any> descMap = {};
-    !...;
-};
+|};
 
 # Service descriptor data generated at compile time. This is for internal use.
 public annotation <service> ServiceDescriptor ServiceDescriptorData;

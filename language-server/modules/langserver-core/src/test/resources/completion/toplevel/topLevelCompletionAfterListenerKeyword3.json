@@ -1,0 +1,39 @@
+{
+  "position": {
+    "line": 2,
+    "character": 14
+  },
+  "source": "toplevel/source/topLevelCompletionAfterListenerKeyword3.bal",
+  "items": [
+    {
+      "label": "MockListener",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Mock server endpoint which does not open a listening port."
+      },
+      "insertText": "MockListener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to\nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations."
+      },
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketListener",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a WebSocket service endpoint."
+      },
+      "insertText": "WebSocketListener",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

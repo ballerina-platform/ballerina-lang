@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaReferenceTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaReferenceTypeName {
+public class BallerinaReferenceTypeNameImpl extends ASTWrapperPsiElement implements BallerinaReferenceTypeName {
 
   public BallerinaReferenceTypeNameImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaReferenceTypeNameImpl extends BallerinaCompositeElementImp
   @Override
   @Nullable
   public BallerinaBuiltInReferenceTypeName getBuiltInReferenceTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBuiltInReferenceTypeName.class);
+    return findChildByClass(BallerinaBuiltInReferenceTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaUserDefineTypeName getUserDefineTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaUserDefineTypeName.class);
+    return findChildByClass(BallerinaUserDefineTypeName.class);
   }
 
 }

@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaDoubleBacktickedBlock extends BallerinaCompositeElement {
+public interface BallerinaDoubleBacktickedBlock extends PsiElement {
 
   @Nullable
   PsiElement getDoubleBacktickContent();

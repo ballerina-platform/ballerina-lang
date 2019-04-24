@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaCompoundAssignmentStatement extends BallerinaCompositeElement {
+public interface BallerinaCompoundAssignmentStatement extends PsiElement {
 
   @NotNull
   BallerinaCompoundOperator getCompoundOperator();

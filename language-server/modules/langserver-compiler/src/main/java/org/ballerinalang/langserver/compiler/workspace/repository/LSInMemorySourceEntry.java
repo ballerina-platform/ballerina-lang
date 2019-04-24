@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -40,8 +40,8 @@ class LSInMemorySourceEntry extends FileSystemSourceInput {
     @Override
     public byte[] getCode() {
         try {
-            return documentManager.getFileContent(this.getPath()).getBytes("UTF-8");
-        } catch (UnsupportedEncodingException | WorkspaceDocumentException e) {
+            return documentManager.getFileContent(this.getPath()).getBytes(StandardCharsets.UTF_8);
+        } catch (WorkspaceDocumentException e) {
             throw new RuntimeException("Error in loading package source entry '" + getPath() +
                                                "': " + e.getMessage(), e);
         }

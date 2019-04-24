@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangSimpleVarRef extends BLangVariableReference implements SimpleVariableReferenceNode {
 
-    public BVarSymbol varSymbol;
+    public BSymbol varSymbol;
     public BLangIdentifier pkgAlias;
 
     public BLangIdentifier variableName;
@@ -70,6 +70,8 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
      * @since 0.94
      */
     public static class BLangLocalVarRef extends BLangSimpleVarRef {
+        // This is used for closure desugar purposes.
+        public boolean closureDesugared = false;
 
         public BLangLocalVarRef(BVarSymbol varSymbol) {
             this.symbol = varSymbol;
@@ -116,6 +118,27 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+    }
+
+    /***
+     * @since 0.990.4
+     */
+    public static class BLangConstRef extends BLangSimpleVarRef {
+
+        public BLangConstRef(BSymbol varSymbol) {
+            this.symbol = varSymbol;
+            this.varSymbol = varSymbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public NodeKind getKind() {
+            return NodeKind.CONSTANT_REF;
         }
     }
 

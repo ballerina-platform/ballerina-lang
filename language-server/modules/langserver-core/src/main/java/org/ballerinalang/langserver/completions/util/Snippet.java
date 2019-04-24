@@ -48,6 +48,8 @@ public enum Snippet {
 
     DEF_SERVICE_WEBSUB(SnippetGenerator.getWebSubServiceDefSnippet()),
 
+    DEF_SERVICE_GRPC(SnippetGenerator.getGRPCServiceDefSnippet()),
+
     DEF_WORKER(SnippetGenerator.getWorkerDeclarationSnippet()),
 
     DEF_ERROR(SnippetGenerator.getErrorDefinitionSnippet()),
@@ -65,8 +67,6 @@ public enum Snippet {
     KW_CHECK(SnippetGenerator.getCheckKeywordSnippet()),
 
     KW_WAIT(SnippetGenerator.getWaitKeywordSnippet()),
-
-    KW_EXTERN(SnippetGenerator.getExternKeywordSnippet()),
 
     KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),
 
@@ -94,6 +94,10 @@ public enum Snippet {
     STMT_FORK(SnippetGenerator.getForkStatementSnippet()),
 
     STMT_IF(SnippetGenerator.getIfStatementSnippet()),
+
+    STMT_ELSE_IF(SnippetGenerator.getElseIfStatementSnippet()),
+
+    STMT_ELSE(SnippetGenerator.getElseStatementSnippet()),
 
     STMT_LOCK(SnippetGenerator.getLockStatementSnippet()),
 
@@ -142,6 +146,16 @@ public enum Snippet {
     BUILTIN_IS_FROZEN(SnippetGenerator.getBuiltinIsFrozenSnippet()),
 
     BUILTIN_STAMP(SnippetGenerator.getBuiltinStampSnippet()),
+
+    BUILTIN_HAS_KEY(SnippetGenerator.getBuiltinHasKeySnippet()),
+
+    BUILTIN_REMOVE(SnippetGenerator.getBuiltinRemoveSnippet()),
+
+    BUILTIN_VALUES(SnippetGenerator.getBuiltinValuesSnippet()),
+
+    BUILTIN_KEYS(SnippetGenerator.getBuiltinKeysSnippet()),
+
+    BUILTIN_CLEAR(SnippetGenerator.getBuiltinClearSnippet()),
 
     BUILTIN_CONVERT(SnippetGenerator.getBuiltinConvertSnippet()),
 

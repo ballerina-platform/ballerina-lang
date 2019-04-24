@@ -19,22 +19,22 @@
 # + moduleName - Name of the module
 #
 # + return - `true` if the services were started successfully, `false` otherwise
-public extern function startServices(string moduleName) returns boolean;
+public function startServices(string moduleName) returns boolean = external;
 
 # Stops all the services defined in the module specified in the 'moduleName' argument.
 #
 # + moduleName - Name of the module
-public extern function stopServices(string moduleName);
+public function stopServices(string moduleName) = external;
 
-# Start a service skeleton from a given Swagger definition in the given ballerina module.
+# Start a service skeleton from a given OpenApi definition in the given ballerina module.
 #
 # + moduleName - Name of the module
-# + swaggerFilePath - Path to the Swagger definition
+# + openApiFilePath - Path to the OpenApi definition
 #
 # + return - `true` if the service skeleton was started successfully, `false` otherwise
-public extern function startServiceSkeleton(string moduleName, string swaggerFilePath) returns boolean;
+public function startServiceSkeleton(string moduleName, string openApiFilePath) returns boolean = external;
 
 # Stop a service skeleton and cleanup created directories of a given ballerina module.
 #
 # + moduleName - Name of the module
-public extern function stopServiceSkeleton(string moduleName);
+public function stopServiceSkeleton(string moduleName) = external;

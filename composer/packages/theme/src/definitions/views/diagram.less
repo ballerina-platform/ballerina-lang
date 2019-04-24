@@ -147,6 +147,22 @@
                     }
                     .statement {
                         font-size: @diagram-statement-font-size;
+                        .expander {
+                            visibility: hidden;
+                            .circle {
+                                fill: ~"@{@{color}-diagram-expanded-func-frame-color}";
+                                cursor: pointer;
+                            }
+                            text {
+                                cursor: pointer;
+                            }
+                        }
+                    }
+                    .statement:hover > .expander {
+                        visibility: visible;
+                    }
+                    .expander:hover {
+                        visibility: visible;
                     }
                     .action-invocation {
                         line {
@@ -190,6 +206,22 @@
                     .hide-line {
                         stroke: ~"@{@{color}-diagram-panel-body-background-color}";
                         stroke-width: 2px;
+                    }
+                    .expanded-func {
+                        .frame {
+                            stroke: ~"@{@{color}-diagram-expanded-func-frame-color}";
+                            fill: none;
+                        }
+                        .func-name {
+                            font-weight: bold;
+                        }
+                        .collapser {
+                            stroke: ~"@{@{color}-diagram-collapse-func-color}";
+                        }
+                        .life-line {
+                            stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";
+                            stroke-width: @diagram-life-line-stroke-width;
+                        }
                     }
                 }
                 .worker-block-container {

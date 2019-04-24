@@ -24,7 +24,6 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangParserListener;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -38,7 +37,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
 
     private BLangDiagnosticLog dlog;
-    private BDiagnosticSource diagnosticSrc;
+    protected BDiagnosticSource diagnosticSrc;
     
     public BallerinaParserErrorStrategy(CompilerContext context, BDiagnosticSource diagnosticSrc) {
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -121,6 +120,15 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
             DiagnosticPos pos = getPosition(getMissingSymbol(parser));
             dlog.error(pos, DiagnosticCode.INVALID_TOKEN, e.getMessage());
         }
+    }
+
+    /**
+     * Set the diagnostic source for the error strategy.
+     *
+     * @param diagnosticSrc     Diagnostic source to be set
+     */
+    public void setDiagnosticSrc(BDiagnosticSource diagnosticSrc) {
+        this.diagnosticSrc = diagnosticSrc;
     }
 
     /**
