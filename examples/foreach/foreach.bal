@@ -33,7 +33,7 @@ public function main() {
             io:println("json array value: ", j);
         } else {
             // JSON is a union type for `()` or `null` | `int` | `float` | `decimal` | `string` | `json[]` | `map<json>`,
-            // `j` in else block if type cannot be inferred then it is type `anydata`.
+            // The else block will be reached if `j` is neither `string`, `int` or `json[]`.
             io:println("non-string value: ", j);
         }
     }

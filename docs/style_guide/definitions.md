@@ -1,20 +1,35 @@
 # Top Level definitions
 
-* Do not apply indentation for the top-level constructs.
+* Do not indent the top level definitions. 
 
   Example,
-  ```ballerina
-  import ballerina/http;
+  
+  Dos
+    ```ballerina
 
-  // Global variable definitions.
-  const int MIN_AGE = 20;
-  int repititions = 0;
+    import ballerina/http;
 
-  function func1() {
-      int a = 0;
-  }
-  ```
+    const int MIN_AGE = 20;
+    int repititions = 0;
+    
+    service hello on ep1 {
+        ...
+    }
 
+    ```
+  Don'ts
+  
+    ```ballerina
+        import ballerina/http;
+    
+        const int MIN_AGE = 20;
+        int repititions = 0;
+        
+        service hello on ep1 {
+            ...
+        }
+        
+    ```
 ## Imports
 
 * Do not keep spaces between the org name, divider(`/`), and module name.
@@ -23,7 +38,7 @@
   ```ballerina
   import ballerina/http;
   ```
-* Front the identifiers such as version and alias with a single space.
+* Add a single space before identifiers such as version and alias.
 
   Example,
   ```ballerina
@@ -33,22 +48,15 @@
   ```
 
 ## Function definition
-* Do not keep spaces between the function name and the open parentheses `(` of the function signature.
+* Do not keep spaces between the function name and the open parentheses (`(`) of the function signature.
 
   Example,
   ```ballerina
   function func1() {}
   ```
-* Indent and align the closing brace `}` of the function with the starting position of the function.
-  
-  Example,
-  ```ballerina
-  function getName() returns string {
-      return "john";
-  }
-  ```
-* If the function body has at least one statement, front the closing brace `}` with a new line
-  and indent it accordingly.
+
+* If the function body has at least one statement, indent the closing brace (`}`) on a new line to match the
+  start position of the function.
   
   Example,
   ```ballerina
@@ -56,8 +64,6 @@
       int a = 0;
   }
   ```
-* Do not front the first parameter with a space. 
-* Add a single space before the `,` comma, which separates the parameters.
 * Do not keep spaces between the last parameter and the closing parentheses.
 
   Example,
@@ -83,52 +89,72 @@ keep a single space between the `function` keyword and the name of the object.
       return "john";
   }
   ``` 
+* If function needs to be split in to new lines, due to exceeding max line length
+  - can break lines from the parameter list by moving a parameter value only to a 
+    new line and indent it with four spaces from the function start position.
+    
+    Examples,
+    ```ballerina
+    function getAddress(int value,
+        string name) returns (string | ()) {
+        ...
+    }
+    ```
+  - can break before the `returns` keyword and indent it with four spaces from the function start position.
+    
+    Examples,
+    ```ballerina
+    function getAddress(int value, string name)
+        returns (string | ()) {
+        ...
+    }    
+    ```
+  - can break after the `returns` keyword and move return value to a new line
+    and indent it with four spaces from the function start.
+    
+    Examples,
+    ```ballerina
+    function getAddress(int value, string name) returns
+        (string | ()) {
+        ...
+    }          
+    ```
 
 ## Service definition
 
-* Front the listeners with a single space.
-* Do not keep spaces before a comma `,`, which is used in a list of listeners.
+* Always keep the Inline listener listener on the same line as the service signature.
   
   Example,
   ```ballerina
-  service hello on ep1, ep2 {}
-  ```
-
-### Resource function
-
-* Block indent resource functions inside the service body.
-* Also, block indent the function definitions, which are defined in the service definition.
-* For the parameter, return type, and function body formatting, of resource functions and function definitions in the service definition, follow [function formatting guidelines](#function-definition).
-
-  Example,
-  ```ballerina
-  service hello on ep1, ep2 {
-      resource function sayHello(http:Caller caller, http:Request req) returns error? {
-          http:Response res = new;
-          res.setPayload(self.getGreeting());
-          _ = caller->respond(res);
-      }
-      
-      function getGreeting() returns string {
-          return "Hello";
-      }
+  service hello on new http:Listener(9090) {
+      ...
   }
   ```
+* When formatting resource functions, function definitions block indent each element and
+  follow [function formatting guidelines.](#function-definition).
+  
+   Example,
+    ```ballerina
+    service hello on ep1, ep2 {
+        resource function sayHello(http:Caller caller, http:Request req) returns error? {
+            http:Response res = new;
+            res.setPayload(self.getGreeting());
+            _ = caller->respond(res);
+        }
+        
+        function getGreeting() returns string {
+            return "Hello";
+        }
+    }
+    ```
 
-## Global variable definition
-
-* When defining type definition, keep only single spaces around pipe operator `|`.
-
-  Example,
-  ```ballerina
-  type method "POST" | "GET" | "PUT";
-  ```
-
+* When formatting field definition, block indent each on a own line.
+ 
 ## Object definition
 
 * Block indent each field definition in their own line.
 * Also, block indent \function definitions, which are defined in the object.
-* For parameter, return type, and function body formatting, of function definitions in the object definition, follow [function formatting guidelines](#function-definition).
+* For function definitions in the object definition, follow [function formatting guidelines](#function-definition).
 
   Example,
   ```ballerina
@@ -158,10 +184,9 @@ keep a single space between the `function` keyword and the name of the object.
       }
   };
   ```
-* For type reference formatting, see [referencing](#referencing-record-or-abstract-object).
 
 ## Record definition
-* Block indent each of the field definitions (including the Rest field) in their own line.
+Block indent each of the field definitions (including the Rest field) in their own line.
 
   Example,
   ```ballerina
@@ -172,13 +197,11 @@ keep a single space between the `function` keyword and the name of the object.
 
   // or
 
-  type Person record {
+  type Person record {|
       int id;
       string name;
-      !...;
-  }
+  |}
   ```
-* For type reference formatting, see [referencing](#referencing-record-or-abstract-object) section.
 
 ## Referencing record or abstract object 
 * Do not keep spaces between the `*`, and abstract object name or record name.

@@ -81,7 +81,6 @@ suite('Ballerina Debug Adapter', () => {
         }).timeout(10000);
 
         test('should stop on a breakpoint, hello world service', function() {
-            this.skip();
             const PROGRAM = Path.join(DATA_ROOT, 'hello_world_service.bal');
 
             const launchArgs = {
@@ -101,7 +100,6 @@ suite('Ballerina Debug Adapter', () => {
         }).timeout(15000);
 
         test('should stop on a breakpoint, hello world service - package', function() {
-            this.skip();
             const PROGRAM = Path.join(DATA_ROOT, 'helloPackage', 'hello', 'hello_service.bal');
 
             const launchArgs = {

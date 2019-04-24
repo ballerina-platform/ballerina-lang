@@ -20,9 +20,7 @@
 package org.ballerina.testobserve;
 
 import com.google.gson.Gson;
-
 import io.opentracing.mock.MockTracer;
-
 import org.ballerina.testobserve.extension.BMockTracer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;

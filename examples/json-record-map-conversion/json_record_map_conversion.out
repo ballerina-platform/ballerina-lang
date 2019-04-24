@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run json_record_map_conversion.bal
 {"title":"The Revenant", "year":"2015", "released":"08 Jan 2016",
  "writer":{"fname":"Michael", "lname":"Punke", "age":30}}

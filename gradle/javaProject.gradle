@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+ 
 apply plugin: 'java'
 apply plugin: 'checkstyle'
 apply plugin: "com.github.spotbugs"
@@ -7,7 +24,7 @@ apply from: "$rootDir/gradle/repositories.gradle"
 
 dependencies {
     checkstyle project(':build-config:checkstyle')
-    checkstyle 'com.puppycrawl.tools:checkstyle:7.8.2'
+    checkstyle 'com.puppycrawl.tools:checkstyle:8.18'
 
     implementation 'org.slf4j:slf4j-api:1.7.26'
 
@@ -52,7 +69,7 @@ dependencies {
         implementation 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
         implementation 'org.codehaus.plexus:plexus-utils:3.0.8'
         implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.6.0'
-        implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.3.0'
+        implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.6.0'
         implementation 'org.hdrhistogram:HdrHistogram:2.1.11'
         implementation 'org.hsqldb:hsqldb:2.4.1'
         implementation 'org.javassist:javassist:3.24.1-GA'
@@ -136,10 +153,21 @@ spotbugsTest {
 }
 
 test {
+    testLogging {
+        // Make sure output from standard out or error is shown in Gradle output.
+        showStackTraces = true
+        showStandardStreams = true
+    }
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog"
     testLogging {
         events "failed"
         exceptionFormat "full"
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
     }
 }

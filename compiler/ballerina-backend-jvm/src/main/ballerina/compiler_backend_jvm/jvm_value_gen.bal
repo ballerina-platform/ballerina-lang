@@ -27,7 +27,7 @@ public type ObjectGenerator object {
         foreach var optionalTypeDef in typeDefs {
             bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
             bir:BType bType = typeDef.typeValue;
-            if (bType is bir:BObjectType) {
+            if (bType is bir:BObjectType && !bType.isAbstract) {
                 self.currentObjectType = bType;
                 string className = self.getObjectValueClassName(typeDef.name.value);
                 byte[] bytes = self.createObjectValueClass(bType, className, typeDef);
@@ -45,6 +45,7 @@ public type ObjectGenerator object {
     private function createObjectValueClass(bir:BObjectType objectType, string className, bir:TypeDef typeDef) 
             returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+        cw.visitSource(typeDef.pos.sourceFileName);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), ABSTRACT_OBJECT_VALUE, [OBJECT_VALUE]);
 
         bir:BObjectField?[] fields = objectType.fields;

@@ -104,14 +104,14 @@
     {
       "label":"channel",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Channel",
       "sortText":"170",
       "insertText":"channel"
     },
     {
       "label":"xml",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Xml",
       "sortText":"170",
       "insertText":"xml"
     },
@@ -132,7 +132,7 @@
     {
       "label":"TableConfig",
       "kind":"Class",
-      "detail":"BType",
+      "detail":"Record",
       "documentation":{
         "left":"TableConfig represents properties used during table initialization.\n"
       },
@@ -142,21 +142,21 @@
     {
       "label":"byte",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Byte",
       "sortText":"170",
       "insertText":"byte"
     },
     {
       "label":"testRecord1",
       "kind":"Class",
-      "detail":"BType",
+      "detail":"Record",
       "sortText":"170",
       "insertText":"testRecord1"
     },
     {
       "label":"testRecord2",
       "kind":"Class",
-      "detail":"BType",
+      "detail":"Record",
       "sortText":"170",
       "insertText":"testRecord2"
     },
@@ -191,70 +191,70 @@
     {
       "label":"stream",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Stream",
       "sortText":"170",
       "insertText":"stream"
     },
     {
       "label":"AbstractListener",
       "kind":"Class",
-      "detail":"BType",
+      "detail":"Object",
       "sortText":"170",
       "insertText":"AbstractListener"
     },
     {
       "label":"map",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Map",
       "sortText":"170",
       "insertText":"map"
     },
     {
       "label":"table",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Table",
       "sortText":"170",
       "insertText":"table"
     },
     {
       "label":"anydata",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Anydata",
       "sortText":"170",
       "insertText":"anydata"
     },
     {
       "label":"future",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Future",
       "sortText":"170",
       "insertText":"future"
     },
     {
       "label":"typedesc",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Typedesc",
       "sortText":"170",
       "insertText":"typedesc"
     },
     {
       "label":"float",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Float",
       "sortText":"170",
       "insertText":"float"
     },
     {
       "label":"null",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Nil",
       "sortText":"170",
       "insertText":"null"
     },
     {
       "label":"decimal",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Decimal",
       "sortText":"170",
       "insertText":"decimal"
     },
@@ -268,35 +268,35 @@
     {
       "label":"string",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"String",
       "sortText":"170",
       "insertText":"string"
     },
     {
       "label":"error",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Error",
       "sortText":"170",
       "insertText":"error"
     },
     {
       "label":"json",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Json",
       "sortText":"170",
       "insertText":"json"
     },
     {
       "label":"any",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Any",
       "sortText":"170",
       "insertText":"any"
     },
     {
       "label":"int",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Int",
       "sortText":"170",
       "insertText":"int"
     },
@@ -310,14 +310,14 @@
     {
       "label":"boolean",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Boolean",
       "sortText":"170",
       "insertText":"boolean"
     },
     {
       "label":"service",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Service",
       "sortText":"170",
       "insertText":"service"
     },
