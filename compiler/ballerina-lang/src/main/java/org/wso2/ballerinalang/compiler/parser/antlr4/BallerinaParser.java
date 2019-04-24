@@ -80,8 +80,8 @@ public class BallerinaParser extends Parser {
 		RULE_objectFunctionDefinition = 23, RULE_annotationDefinition = 24, RULE_constantDefinition = 25, 
 		RULE_globalVariableDefinition = 26, RULE_channelType = 27, RULE_attachmentPoint = 28, 
 		RULE_workerDeclaration = 29, RULE_workerDefinition = 30, RULE_finiteType = 31, 
-		RULE_finiteTypeUnit = 32, RULE_typeName = 33, RULE_openRecordTypeDescriptor = 34, 
-		RULE_closedRecordTypeDescriptor = 35, RULE_fieldDescriptor = 36, RULE_simpleTypeName = 37, 
+		RULE_finiteTypeUnit = 32, RULE_typeName = 33, RULE_inclusiveRecordTypeDescriptor = 34, 
+		RULE_exclusiveRecordTypeDescriptor = 35, RULE_fieldDescriptor = 36, RULE_simpleTypeName = 37, 
 		RULE_referenceTypeName = 38, RULE_userDefineTypeName = 39, RULE_valueTypeName = 40, 
 		RULE_builtInReferenceTypeName = 41, RULE_functionTypeName = 42, RULE_errorTypeName = 43, 
 		RULE_xmlNamespaceName = 44, RULE_xmlLocalName = 45, RULE_annotationAttachment = 46, 
@@ -157,18 +157,18 @@ public class BallerinaParser extends Parser {
 		"sealedLiteral", "restDescriptorPredicate", "objectFunctionDefinition", 
 		"annotationDefinition", "constantDefinition", "globalVariableDefinition", 
 		"channelType", "attachmentPoint", "workerDeclaration", "workerDefinition", 
-		"finiteType", "finiteTypeUnit", "typeName", "openRecordTypeDescriptor", 
-		"closedRecordTypeDescriptor", "fieldDescriptor", "simpleTypeName", "referenceTypeName", 
-		"userDefineTypeName", "valueTypeName", "builtInReferenceTypeName", "functionTypeName", 
-		"errorTypeName", "xmlNamespaceName", "xmlLocalName", "annotationAttachment", 
-		"statement", "variableDefinitionStatement", "recordLiteral", "staticMatchLiterals", 
-		"tupleLiteral", "recordKeyValue", "recordKey", "tableLiteral", "tableColumnDefinition", 
-		"tableColumn", "tableDataArray", "tableDataList", "tableData", "arrayLiteral", 
-		"assignmentStatement", "tupleDestructuringStatement", "recordDestructuringStatement", 
-		"errorDestructuringStatement", "compoundAssignmentStatement", "compoundOperator", 
-		"variableReferenceList", "ifElseStatement", "ifClause", "elseIfClause", 
-		"elseClause", "matchStatement", "matchPatternClause", "bindingPattern", 
-		"structuredBindingPattern", "errorBindingPattern", "tupleBindingPattern", 
+		"finiteType", "finiteTypeUnit", "typeName", "inclusiveRecordTypeDescriptor", 
+		"exclusiveRecordTypeDescriptor", "fieldDescriptor", "simpleTypeName", 
+		"referenceTypeName", "userDefineTypeName", "valueTypeName", "builtInReferenceTypeName", 
+		"functionTypeName", "errorTypeName", "xmlNamespaceName", "xmlLocalName", 
+		"annotationAttachment", "statement", "variableDefinitionStatement", "recordLiteral", 
+		"staticMatchLiterals", "tupleLiteral", "recordKeyValue", "recordKey", 
+		"tableLiteral", "tableColumnDefinition", "tableColumn", "tableDataArray", 
+		"tableDataList", "tableData", "arrayLiteral", "assignmentStatement", "tupleDestructuringStatement", 
+		"recordDestructuringStatement", "errorDestructuringStatement", "compoundAssignmentStatement", 
+		"compoundOperator", "variableReferenceList", "ifElseStatement", "ifClause", 
+		"elseIfClause", "elseClause", "matchStatement", "matchPatternClause", 
+		"bindingPattern", "structuredBindingPattern", "errorBindingPattern", "tupleBindingPattern", 
 		"recordBindingPattern", "openRecordBindingPattern", "closedRecordBindingPattern", 
 		"entryBindingPattern", "fieldBindingPattern", "restBindingPattern", "bindingRefPattern", 
 		"structuredRefBindingPattern", "tupleRefBindingPattern", "recordRefBindingPattern", 
@@ -2845,20 +2845,6 @@ public class BallerinaParser extends Parser {
 			super.copyFrom(ctx);
 		}
 	}
-	public static class OpenRecordTypeNameLabelContext extends TypeNameContext {
-		public OpenRecordTypeDescriptorContext openRecordTypeDescriptor() {
-			return getRuleContext(OpenRecordTypeDescriptorContext.class,0);
-		}
-		public OpenRecordTypeNameLabelContext(TypeNameContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterOpenRecordTypeNameLabel(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitOpenRecordTypeNameLabel(this);
-		}
-	}
 	public static class TupleTypeNameLabelContext extends TypeNameContext {
 		public TerminalNode LEFT_PARENTHESIS() { return getToken(BallerinaParser.LEFT_PARENTHESIS, 0); }
 		public List<TypeNameContext> typeName() {
@@ -2903,6 +2889,20 @@ public class BallerinaParser extends Parser {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitUnionTypeNameLabel(this);
 		}
 	}
+	public static class ExclusiveRecordTypeNameLabelContext extends TypeNameContext {
+		public ExclusiveRecordTypeDescriptorContext exclusiveRecordTypeDescriptor() {
+			return getRuleContext(ExclusiveRecordTypeDescriptorContext.class,0);
+		}
+		public ExclusiveRecordTypeNameLabelContext(TypeNameContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterExclusiveRecordTypeNameLabel(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitExclusiveRecordTypeNameLabel(this);
+		}
+	}
 	public static class SimpleTypeNameLabelContext extends TypeNameContext {
 		public SimpleTypeNameContext simpleTypeName() {
 			return getRuleContext(SimpleTypeNameContext.class,0);
@@ -2930,20 +2930,6 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitNullableTypeNameLabel(this);
-		}
-	}
-	public static class ClosedRecordTypeNameLabelContext extends TypeNameContext {
-		public ClosedRecordTypeDescriptorContext closedRecordTypeDescriptor() {
-			return getRuleContext(ClosedRecordTypeDescriptorContext.class,0);
-		}
-		public ClosedRecordTypeNameLabelContext(TypeNameContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterClosedRecordTypeNameLabel(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitClosedRecordTypeNameLabel(this);
 		}
 	}
 	public static class ArrayTypeNameLabelContext extends TypeNameContext {
@@ -3011,6 +2997,20 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitGroupTypeNameLabel(this);
+		}
+	}
+	public static class InclusiveRecordTypeNameLabelContext extends TypeNameContext {
+		public InclusiveRecordTypeDescriptorContext inclusiveRecordTypeDescriptor() {
+			return getRuleContext(InclusiveRecordTypeDescriptorContext.class,0);
+		}
+		public InclusiveRecordTypeNameLabelContext(TypeNameContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterInclusiveRecordTypeNameLabel(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitInclusiveRecordTypeNameLabel(this);
 		}
 	}
 
@@ -3147,20 +3147,20 @@ public class BallerinaParser extends Parser {
 				break;
 			case 5:
 				{
-				_localctx = new OpenRecordTypeNameLabelContext(_localctx);
+				_localctx = new InclusiveRecordTypeNameLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(847);
-				openRecordTypeDescriptor();
+				inclusiveRecordTypeDescriptor();
 				}
 				break;
 			case 6:
 				{
-				_localctx = new ClosedRecordTypeNameLabelContext(_localctx);
+				_localctx = new ExclusiveRecordTypeNameLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(848);
-				closedRecordTypeDescriptor();
+				exclusiveRecordTypeDescriptor();
 				}
 				break;
 			}
@@ -3286,7 +3286,7 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class OpenRecordTypeDescriptorContext extends ParserRuleContext {
+	public static class InclusiveRecordTypeDescriptorContext extends ParserRuleContext {
 		public TerminalNode RECORD() { return getToken(BallerinaParser.RECORD, 0); }
 		public TerminalNode LEFT_BRACE() { return getToken(BallerinaParser.LEFT_BRACE, 0); }
 		public TerminalNode RIGHT_BRACE() { return getToken(BallerinaParser.RIGHT_BRACE, 0); }
@@ -3296,29 +3296,25 @@ public class BallerinaParser extends Parser {
 		public FieldDescriptorContext fieldDescriptor(int i) {
 			return getRuleContext(FieldDescriptorContext.class,i);
 		}
-		public RecordRestFieldDefinitionContext recordRestFieldDefinition() {
-			return getRuleContext(RecordRestFieldDefinitionContext.class,0);
-		}
-		public OpenRecordTypeDescriptorContext(ParserRuleContext parent, int invokingState) {
+		public InclusiveRecordTypeDescriptorContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_openRecordTypeDescriptor; }
+		@Override public int getRuleIndex() { return RULE_inclusiveRecordTypeDescriptor; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterOpenRecordTypeDescriptor(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterInclusiveRecordTypeDescriptor(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitOpenRecordTypeDescriptor(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitInclusiveRecordTypeDescriptor(this);
 		}
 	}
 
-	public final OpenRecordTypeDescriptorContext openRecordTypeDescriptor() throws RecognitionException {
-		OpenRecordTypeDescriptorContext _localctx = new OpenRecordTypeDescriptorContext(_ctx, getState());
-		enterRule(_localctx, 68, RULE_openRecordTypeDescriptor);
+	public final InclusiveRecordTypeDescriptorContext inclusiveRecordTypeDescriptor() throws RecognitionException {
+		InclusiveRecordTypeDescriptorContext _localctx = new InclusiveRecordTypeDescriptorContext(_ctx, getState());
+		enterRule(_localctx, 68, RULE_inclusiveRecordTypeDescriptor);
 		int _la;
 		try {
-			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(876);
@@ -3327,30 +3323,19 @@ public class BallerinaParser extends Parser {
 			match(LEFT_BRACE);
 			setState(881);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,69,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
-				if ( _alt==1 ) {
-					{
-					{
-					setState(878);
-					fieldDescriptor();
-					}
-					} 
+			_la = _input.LA(1);
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SERVICE) | (1L << FUNCTION) | (1L << OBJECT) | (1L << RECORD) | (1L << ABSTRACT) | (1L << CLIENT))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (TYPE_INT - 65)) | (1L << (TYPE_BYTE - 65)) | (1L << (TYPE_FLOAT - 65)) | (1L << (TYPE_DECIMAL - 65)) | (1L << (TYPE_BOOL - 65)) | (1L << (TYPE_STRING - 65)) | (1L << (TYPE_ERROR - 65)) | (1L << (TYPE_MAP - 65)) | (1L << (TYPE_JSON - 65)) | (1L << (TYPE_XML - 65)) | (1L << (TYPE_TABLE - 65)) | (1L << (TYPE_STREAM - 65)) | (1L << (TYPE_ANY - 65)) | (1L << (TYPE_DESC - 65)) | (1L << (TYPE_FUTURE - 65)) | (1L << (TYPE_ANYDATA - 65)))) != 0) || ((((_la - 129)) & ~0x3f) == 0 && ((1L << (_la - 129)) & ((1L << (LEFT_PARENTHESIS - 129)) | (1L << (MUL - 129)) | (1L << (AT - 129)) | (1L << (Identifier - 129)))) != 0)) {
+				{
+				{
+				setState(878);
+				fieldDescriptor();
+				}
 				}
 				setState(883);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,69,_ctx);
+				_la = _input.LA(1);
 			}
-			setState(885);
-			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SERVICE) | (1L << FUNCTION) | (1L << OBJECT) | (1L << RECORD) | (1L << ABSTRACT) | (1L << CLIENT))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (TYPE_INT - 65)) | (1L << (TYPE_BYTE - 65)) | (1L << (TYPE_FLOAT - 65)) | (1L << (TYPE_DECIMAL - 65)) | (1L << (TYPE_BOOL - 65)) | (1L << (TYPE_STRING - 65)) | (1L << (TYPE_ERROR - 65)) | (1L << (TYPE_MAP - 65)) | (1L << (TYPE_JSON - 65)) | (1L << (TYPE_XML - 65)) | (1L << (TYPE_TABLE - 65)) | (1L << (TYPE_STREAM - 65)) | (1L << (TYPE_ANY - 65)) | (1L << (TYPE_DESC - 65)) | (1L << (TYPE_FUTURE - 65)) | (1L << (TYPE_ANYDATA - 65)))) != 0) || _la==LEFT_PARENTHESIS || _la==Identifier) {
-				{
-				setState(884);
-				recordRestFieldDefinition();
-				}
-			}
-
-			setState(887);
+			setState(884);
 			match(RIGHT_BRACE);
 			}
 		}
@@ -3365,7 +3350,7 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ClosedRecordTypeDescriptorContext extends ParserRuleContext {
+	public static class ExclusiveRecordTypeDescriptorContext extends ParserRuleContext {
 		public TerminalNode RECORD() { return getToken(BallerinaParser.RECORD, 0); }
 		public TerminalNode LEFT_CLOSED_RECORD_DELIMITER() { return getToken(BallerinaParser.LEFT_CLOSED_RECORD_DELIMITER, 0); }
 		public TerminalNode RIGHT_CLOSED_RECORD_DELIMITER() { return getToken(BallerinaParser.RIGHT_CLOSED_RECORD_DELIMITER, 0); }
@@ -3375,45 +3360,60 @@ public class BallerinaParser extends Parser {
 		public FieldDescriptorContext fieldDescriptor(int i) {
 			return getRuleContext(FieldDescriptorContext.class,i);
 		}
-		public ClosedRecordTypeDescriptorContext(ParserRuleContext parent, int invokingState) {
+		public RecordRestFieldDefinitionContext recordRestFieldDefinition() {
+			return getRuleContext(RecordRestFieldDefinitionContext.class,0);
+		}
+		public ExclusiveRecordTypeDescriptorContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_closedRecordTypeDescriptor; }
+		@Override public int getRuleIndex() { return RULE_exclusiveRecordTypeDescriptor; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterClosedRecordTypeDescriptor(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterExclusiveRecordTypeDescriptor(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitClosedRecordTypeDescriptor(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitExclusiveRecordTypeDescriptor(this);
 		}
 	}
 
-	public final ClosedRecordTypeDescriptorContext closedRecordTypeDescriptor() throws RecognitionException {
-		ClosedRecordTypeDescriptorContext _localctx = new ClosedRecordTypeDescriptorContext(_ctx, getState());
-		enterRule(_localctx, 70, RULE_closedRecordTypeDescriptor);
+	public final ExclusiveRecordTypeDescriptorContext exclusiveRecordTypeDescriptor() throws RecognitionException {
+		ExclusiveRecordTypeDescriptorContext _localctx = new ExclusiveRecordTypeDescriptorContext(_ctx, getState());
+		enterRule(_localctx, 70, RULE_exclusiveRecordTypeDescriptor);
 		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(889);
+			setState(886);
 			match(RECORD);
-			setState(890);
+			setState(887);
 			match(LEFT_CLOSED_RECORD_DELIMITER);
-			setState(894);
+			setState(891);
 			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SERVICE) | (1L << FUNCTION) | (1L << OBJECT) | (1L << RECORD) | (1L << ABSTRACT) | (1L << CLIENT))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (TYPE_INT - 65)) | (1L << (TYPE_BYTE - 65)) | (1L << (TYPE_FLOAT - 65)) | (1L << (TYPE_DECIMAL - 65)) | (1L << (TYPE_BOOL - 65)) | (1L << (TYPE_STRING - 65)) | (1L << (TYPE_ERROR - 65)) | (1L << (TYPE_MAP - 65)) | (1L << (TYPE_JSON - 65)) | (1L << (TYPE_XML - 65)) | (1L << (TYPE_TABLE - 65)) | (1L << (TYPE_STREAM - 65)) | (1L << (TYPE_ANY - 65)) | (1L << (TYPE_DESC - 65)) | (1L << (TYPE_FUTURE - 65)) | (1L << (TYPE_ANYDATA - 65)))) != 0) || ((((_la - 129)) & ~0x3f) == 0 && ((1L << (_la - 129)) & ((1L << (LEFT_PARENTHESIS - 129)) | (1L << (MUL - 129)) | (1L << (AT - 129)) | (1L << (Identifier - 129)))) != 0)) {
-				{
-				{
-				setState(891);
-				fieldDescriptor();
+			_alt = getInterpreter().adaptivePredict(_input,70,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(888);
+					fieldDescriptor();
+					}
+					} 
 				}
-				}
-				setState(896);
+				setState(893);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
+				_alt = getInterpreter().adaptivePredict(_input,70,_ctx);
 			}
+			setState(895);
+			_la = _input.LA(1);
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SERVICE) | (1L << FUNCTION) | (1L << OBJECT) | (1L << RECORD) | (1L << ABSTRACT) | (1L << CLIENT))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (TYPE_INT - 65)) | (1L << (TYPE_BYTE - 65)) | (1L << (TYPE_FLOAT - 65)) | (1L << (TYPE_DECIMAL - 65)) | (1L << (TYPE_BOOL - 65)) | (1L << (TYPE_STRING - 65)) | (1L << (TYPE_ERROR - 65)) | (1L << (TYPE_MAP - 65)) | (1L << (TYPE_JSON - 65)) | (1L << (TYPE_XML - 65)) | (1L << (TYPE_TABLE - 65)) | (1L << (TYPE_STREAM - 65)) | (1L << (TYPE_ANY - 65)) | (1L << (TYPE_DESC - 65)) | (1L << (TYPE_FUTURE - 65)) | (1L << (TYPE_ANYDATA - 65)))) != 0) || _la==LEFT_PARENTHESIS || _la==Identifier) {
+				{
+				setState(894);
+				recordRestFieldDefinition();
+				}
+			}
+
 			setState(897);
 			match(RIGHT_CLOSED_RECORD_DELIMITER);
 			}
@@ -17659,7 +17659,7 @@ public class BallerinaParser extends Parser {
 		"\5#\u0348\n#\3#\5#\u034b\n#\3#\3#\3#\3#\3#\3#\3#\5#\u0354\n#\3#\3#\3#"+
 		"\3#\5#\u035a\n#\3#\6#\u035d\n#\r#\16#\u035e\3#\3#\3#\6#\u0364\n#\r#\16"+
 		"#\u0365\3#\3#\7#\u036a\n#\f#\16#\u036d\13#\3$\3$\3$\7$\u0372\n$\f$\16"+
-		"$\u0375\13$\3$\5$\u0378\n$\3$\3$\3%\3%\3%\7%\u037f\n%\f%\16%\u0382\13"+
+		"$\u0375\13$\3$\3$\3%\3%\3%\7%\u037c\n%\f%\16%\u037f\13%\3%\5%\u0382\n"+
 		"%\3%\3%\3&\3&\5&\u0388\n&\3\'\3\'\3\'\3\'\3\'\3\'\5\'\u0390\n\'\3(\3("+
 		"\5(\u0394\n(\3)\3)\3*\3*\3+\3+\3+\3+\3+\3+\3+\3+\3+\3+\3+\3+\3+\3+\3+"+
 		"\3+\3+\3+\3+\3+\3+\3+\3+\3+\3+\5+\u03b3\n+\3,\3,\3,\3,\5,\u03b9\n,\3,"+
@@ -17853,7 +17853,7 @@ public class BallerinaParser extends Parser {
 		"\2\2\2.\u02b1\3\2\2\2\60\u02b4\3\2\2\2\62\u02cd\3\2\2\2\64\u02e4\3\2\2"+
 		"\2\66\u030b\3\2\2\28\u030d\3\2\2\2:\u0312\3\2\2\2<\u0314\3\2\2\2>\u031e"+
 		"\3\2\2\2@\u0323\3\2\2\2B\u032d\3\2\2\2D\u0353\3\2\2\2F\u036e\3\2\2\2H"+
-		"\u037b\3\2\2\2J\u0387\3\2\2\2L\u038f\3\2\2\2N\u0393\3\2\2\2P\u0395\3\2"+
+		"\u0378\3\2\2\2J\u0387\3\2\2\2L\u038f\3\2\2\2N\u0393\3\2\2\2P\u0395\3\2"+
 		"\2\2R\u0397\3\2\2\2T\u03b2\3\2\2\2V\u03b4\3\2\2\2X\u03be\3\2\2\2Z\u03c9"+
 		"\3\2\2\2\\\u03cb\3\2\2\2^\u03cd\3\2\2\2`\u03ec\3\2\2\2b\u03fe\3\2\2\2"+
 		"d\u0400\3\2\2\2f\u0412\3\2\2\2h\u041c\3\2\2\2j\u0427\3\2\2\2l\u042d\3"+
@@ -18052,12 +18052,12 @@ public class BallerinaParser extends Parser {
 		"\3\2\2\2\u0369\u0367\3\2\2\2\u036a\u036d\3\2\2\2\u036b\u0369\3\2\2\2\u036b"+
 		"\u036c\3\2\2\2\u036cE\3\2\2\2\u036d\u036b\3\2\2\2\u036e\u036f\7\r\2\2"+
 		"\u036f\u0373\7\u0081\2\2\u0370\u0372\5J&\2\u0371\u0370\3\2\2\2\u0372\u0375"+
-		"\3\2\2\2\u0373\u0371\3\2\2\2\u0373\u0374\3\2\2\2\u0374\u0377\3\2\2\2\u0375"+
-		"\u0373\3\2\2\2\u0376\u0378\5*\26\2\u0377\u0376\3\2\2\2\u0377\u0378\3\2"+
-		"\2\2\u0378\u0379\3\2\2\2\u0379\u037a\7\u0082\2\2\u037aG\3\2\2\2\u037b"+
-		"\u037c\7\r\2\2\u037c\u0380\7\u0088\2\2\u037d\u037f\5J&\2\u037e\u037d\3"+
-		"\2\2\2\u037f\u0382\3\2\2\2\u0380\u037e\3\2\2\2\u0380\u0381\3\2\2\2\u0381"+
-		"\u0383\3\2\2\2\u0382\u0380\3\2\2\2\u0383\u0384\7\u0089\2\2\u0384I\3\2"+
+		"\3\2\2\2\u0373\u0371\3\2\2\2\u0373\u0374\3\2\2\2\u0374\u0376\3\2\2\2\u0375"+
+		"\u0373\3\2\2\2\u0376\u0377\7\u0082\2\2\u0377G\3\2\2\2\u0378\u0379\7\r"+
+		"\2\2\u0379\u037d\7\u0088\2\2\u037a\u037c\5J&\2\u037b\u037a\3\2\2\2\u037c"+
+		"\u037f\3\2\2\2\u037d\u037b\3\2\2\2\u037d\u037e\3\2\2\2\u037e\u0381\3\2"+
+		"\2\2\u037f\u037d\3\2\2\2\u0380\u0382\5*\26\2\u0381\u0380\3\2\2\2\u0381"+
+		"\u0382\3\2\2\2\u0382\u0383\3\2\2\2\u0383\u0384\7\u0089\2\2\u0384I\3\2"+
 		"\2\2\u0385\u0388\5(\25\2\u0386\u0388\5$\23\2\u0387\u0385\3\2\2\2\u0387"+
 		"\u0386\3\2\2\2\u0388K\3\2\2\2\u0389\u0390\7O\2\2\u038a\u0390\7S\2\2\u038b"+
 		"\u0390\7P\2\2\u038c\u0390\5R*\2\u038d\u0390\5N(\2\u038e\u0390\5\u0144"+
@@ -18657,7 +18657,7 @@ public class BallerinaParser extends Parser {
 		"\u025d\u0260\u0265\u026c\u0270\u0273\u027d\u027f\u0289\u028d\u0293\u029a"+
 		"\u02a0\u02a4\u02b4\u02b9\u02bd\u02c0\u02c7\u02ca\u02cd\u02d6\u02db\u02df"+
 		"\u02e4\u02e8\u02f0\u02fa\u02fe\u030b\u0319\u0321\u0328\u032d\u033b\u0341"+
-		"\u0344\u0347\u034a\u0353\u0359\u035e\u0365\u0369\u036b\u0373\u0377\u0380"+
+		"\u0344\u0347\u034a\u0353\u0359\u035e\u0365\u0369\u036b\u0373\u037d\u0381"+
 		"\u0387\u038f\u0393\u03b2\u03b8\u03bc\u03c3\u03c7\u03d0\u03ec\u03f3\u03f7"+
 		"\u03fe\u0406\u0409\u0412\u0419\u0422\u042d\u0432\u0436\u0440\u0443\u0448"+
 		"\u044e\u0457\u045b\u0463\u0487\u048e\u0492\u049a\u04a6\u04b0\u04bb\u04c6"+
