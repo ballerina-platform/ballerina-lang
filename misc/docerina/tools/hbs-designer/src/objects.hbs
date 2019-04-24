@@ -10,24 +10,15 @@
         <img class="logo" src="../../images/ballerina-logo.png">
       </a>
       <div class="primary-list">
-        {{#if data.modules}}
+        <h3>Objects</h3>
         <ul>
-          {{#each data.modules}}
-          {{#if constructs}}
-          {{#each constructs}}
-          {{#if constructs.objects}}
-          {{#each objects}}
+          {{#each module.constructs.objects}}
           <li>
-            {{name}}
+            <a href="{{name}}.html">{{name}}</a>
           </li>
           {{/each}}
-          {{/if}}
-          {{/each}}
-          {{/if}}
-          {{/each}}
         </ul>
-        {{/if}}
-      </div>...
+      </div>
       <div class="ui divider"></div>
       {{> currentModule rootPath="../../" }}
       {{> allModules rootPath="../../" }}

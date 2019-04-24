@@ -12,9 +12,9 @@
       <div class="primary-list">
         <h3>Clients</h3>
         <ul>
-          {{#each clients}}
+          {{#each module.constructs.clients}}
           <li>
-            {{name}}
+            <a href="{{name}}">{{name}}</a>
           </li>
           {{/each}}
         </ul>

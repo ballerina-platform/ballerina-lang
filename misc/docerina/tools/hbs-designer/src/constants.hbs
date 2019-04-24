@@ -14,7 +14,7 @@
         <ul>
           {{#each constants}}
           <li>
-            {{name}}
+            <a href="#{{name}}">{{name}}</a>
           </li>
           {{/each}}
         </ul>
@@ -31,7 +31,7 @@
         <table class="ui table">
           {{#each constants}}
           <tbody>
-            <tr>
+            <tr id="{{name}}" >
               <td class="constant"><a href="#{{name}}">{{name}}</a></td>
               <td>{{description}}</td>
             </tr>

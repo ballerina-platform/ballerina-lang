@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 
-{{> htmlHead title="API Documentation - Module " rootPath="../" }}
+{{> htmlHead title="API Documentation - {{ ../module.id }} Module " rootPath="../" }}
 
 <body>
   <div class="ui grid">
@@ -9,30 +9,17 @@
       <a href="../index.html">
         <img class="logo" src="../images/ballerina-logo.png">
       </a>
-
-      <div class="primary-list">
-        <h3>{{mod.id}}</h3>
-        <ul>
-          {{#each mod.constructs}}
-          <li>
-            <a href="#{{@key}}">{{@key}}</a>
-          </li>
-          {{/each}}
-        </ul>
-        <div class="ui divider"></div>
-        <div class="secondary-list">
-          {{> allModules rootPath="../" }}
-        </div>
-      </div>
+      {{> currentModule rootPath="../" }}
+      {{> allModules rootPath="../" }}
     </div>
 
     <div class="fourteen wide column content-wrapper">
       <div class="ui breadcrumb">
-        <a href="">
+        <a href="../index.html">
           <h2 class="section">modules</h2>
         </a>
         <div class="divider"> / </div>
-        <h2 class="active section">{{id}}</h2>
+        <h2 class="active section">{{module.id}}</h2>
       </div>
       <div class="ui divider"></div>
       <p>This module provides an implementation for connecting and interacting with HTTP, HTTP2, and WebSocket
@@ -96,8 +83,8 @@
       <div class="ui divider"></div>
 
       <table>
-        {{#if mod.constructs}}
-        {{#each mod.constructs.records}}
+        {{#if module.constructs}}
+        {{#each module.constructs.records}}
         <tr>
           <td class="module-title truncate records" id="{{name}}"><a href="records/{{name}}.html">{{name}}</a></td>
           <td class="module-desc">{{description}}</td>
@@ -111,8 +98,8 @@
       <div class="ui divider"></div>
 
       <table>
-        {{#if mod.constructs}}
-        {{#each mod.constructs.objects}}
+        {{#if module.constructs}}
+        {{#each module.constructs.objects}}
         <tr>
           <td class="module-title truncate objects" id="{{name}}"><a href="objects/{{name}}.html">{{name}}</a></td>
           <td class="module-desc">{{description}}</td>
@@ -126,8 +113,8 @@
       <div class="ui divider"></div>
 
       <table>
-        {{#if mod.constructs}}
-        {{#each mod.constructs.clients}}
+        {{#if module.constructs}}
+        {{#each module.constructs.clients}}
         <tr>
           <td class="module-title truncate clients" id="{{name}}"><a href="clients/{{name}}.html">{{name}}</a></td>
           <td class="module-desc">{{description}}</td>
@@ -141,8 +128,8 @@
       <div class="ui divider"></div>
 
       <table>
-        {{#if mod.constructs}}
-        {{#each mod.constructs.functions}}
+        {{#if module.constructs}}
+        {{#each module.constructs.functions}}
         <tr>
           <td class="module-title truncate functions" id="{{name}}"><a href="functions/functions.html">{{name}}</a></td>
           <td class="module-desc">{{description}}</td>
@@ -157,8 +144,8 @@
       <div class="ui divider"></div>
 
       <table>
-        {{#if mod.constructs}}
-        {{#each mod.constructs.constants}}
+        {{#if module.constructs}}
+        {{#each module.constructs.constants}}
         <tr>
           <td class="module-title truncate constant" id="{{name}}"><a href="constants/constants.html">{{name}}</a></td>
           <td class="module-desc">{{description}}</td>
@@ -173,8 +160,8 @@
       <div class="ui divider"></div>
 
       <table>
-        {{#if mod.constructs}}
-        {{#each mod.constructs.annotations}}
+        {{#if module.constructs}}
+        {{#each module.constructs.annotations}}
         <tr>
           <td class="module-title truncate annotations" id="{{name}}"><a
               href="annotations/annotations.html">{{name}}</a></td>

@@ -23,7 +23,7 @@ function buildModules(modules) {
     modules.forEach((mod) => {
         const modOutDir = path.join(outPath, mod.id);
         fs.ensureDirSync(modOutDir);
-        fs.writeFileSync(path.join(modOutDir, "index.html"), modTemplate({ mod, data } ));
+        fs.writeFileSync(path.join(modOutDir, "index.html"), modTemplate({ module: mod, data } ));
         if (mod.constructs){
             buildConstructs(mod);
         }

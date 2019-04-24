@@ -1,5 +1,7 @@
 <div class="primary-list">
-    <h3>{{module.id}} Module</h3>
+    <a href="{{ rootPath }}{{ module.id }}/index.html">
+        <h3>{{module.id}} Module</h3>
+    </a>
     <ul>
         {{#each module.constructs}}
         <li>
