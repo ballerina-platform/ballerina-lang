@@ -524,10 +524,6 @@
                         "description": "Representation of the Http Auth Handler Registry.",
                         "label": "object",
                         "type": "public type",
-                        "field_name_label": "Field Name",
-                        "data_type_label": "Date Type",
-                        "default_value_label": "Default Value",
-                        "description_label": "Description",
                         "method": [
                             {
                                 "method_type": "add",
@@ -535,22 +531,26 @@
                                 "label_return": "",
                                 "return_params": "",
                                 "description": "Add an HttpAuthnHandler to HttpAuthHandlerRegistry",
-                                "param_name_label": "Param Name",
-                                "data_type_label": "Data Type",
-                                "default_value_label": "Default Value",
-                                "description_label": "Description",
                                 "fields": [
                                     {
-                                        "param_name": "id",
-                                        "data_type": "string",
-                                        "default_value": "",
-                                        "description": "Auth provider id"
-                                    },
-                                    {
-                                        "param_name": "authnHandler",
-                                        "data_type": "Http:HttpAuthnHandler",
-                                        "default_value": "",
-                                        "description": "HttpAuthnHandler instance"
+                                        "param_name_label": "Param Name",
+                                        "data_type_label": "Data Type",
+                                        "default_value_label": "Default Value",
+                                        "description_label": "Description",
+                                        "attributes": [
+                                            {
+                                                "param_name": "id",
+                                                "data_type": "string",
+                                                "default_value": "",
+                                                "description": "Auth provider id"
+                                            },
+                                            {
+                                                "param_name": "authnHandler",
+                                                "data_type": "Http:HttpAuthnHandler",
+                                                "default_value": "",
+                                                "description": "HttpAuthnHandler instance"
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -560,18 +560,30 @@
                                 "label_return": "returns",
                                 "return_params": "(HttpAuthnHandler)",
                                 "description": "Retrieves an HttpAuthnHandler from HttpAuthHandlerRegistry which corresponds to the given id",
-                                "param_name_label": "Param Name",
-                                "data_type_label": "Data Type",
-                                "default_value_label": "Default Value",
-                                "description_label": "Description",
-                                "fields": {
-                                    "param_name": "id",
-                                    "data_type": "string",
-                                    "default_value": "",
-                                    "description": "Auth provider id",
-                                    "Return Type": "HttpAuthnHandler",
-                                    "return_description": "HttpAuthnHandler instance or nil if not found"
-                                }
+                                "fields": [
+                                    {
+                                        "param_name_label": "Param Name",
+                                        "data_type_label": "Data Type",
+                                        "default_value_label": "Default Value",
+                                        "description_label": "Description",
+                                        "attributes": [
+                                            {
+                                                "param_name": "id",
+                                                "data_type": "string",
+                                                "default_value": "",
+                                                "description": "Auth provider id"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "return" : [
+                                    {
+                                        "return_type_label": "Return Type",
+                                        "description_label": "Description",
+                                        "return_type": "HttpAuthnHandler",
+                                        "description": "HttpAuthnHandler instance or nil if not found"
+                                    }
+                                ]
                             },
                             {
                                 "method_type": "getAll",
@@ -579,18 +591,14 @@
                                 "label_return": "returns",
                                 "return_params": "(map<HttpAuthnHandler>)",
                                 "description": "Retrieve the HttpAuthnHandler map",
-                                "param_name_label": "Param Name",
-                                "data_type_label": "Data Type",
-                                "default_value_label": "Default Value",
-                                "description_label": "Description",
-                                "fields": {
-                                    "param_name": "",
-                                    "data_type": "",
-                                    "default_value": "",
-                                    "description": "",
-                                    "Return Type": "map",
-                                    "return_description": "map of HttpAuthnHandler"
-                                }
+                                "return" : [
+                                    {
+                                        "return_type_label": "Return Type",
+                                        "description_label": "Description",
+                                        "return_type": "map",
+                                        "description": "map of HttpAuthnHandler"
+                                    }
+                                ]
                             },
                             {
                                 "method_type": "remove",
@@ -598,29 +606,29 @@
                                 "label_return": "",
                                 "return_params": "",
                                 "description": "Removes a specific authn handler from the HttpAuthnHandler map",
-                                "param_name_label": "Param Name",
-                                "data_type_label": "Data Type",
-                                "default_value_label": "Default Value",
-                                "description_label": "Description",
-                                "fields": {
-                                    "param_name": "id",
-                                    "data_type": "string",
-                                    "default_value": "",
-                                    "description": ""
-                                }
+                                "fields": [
+                                    {
+                                        "param_name_label": "Param Name",
+                                        "data_type_label": "Data Type",
+                                        "default_value_label": "Default Value",
+                                        "description_label": "Description",
+                                        "attributes": [
+                                            {
+                                                "param_name": "id",
+                                                "data_type": "string",
+                                                "default_value": "",
+                                                "description": ""
+                                            }
+                                        ]
+                                    }
+                                ]
                             },
                             {
                                 "method_type": "clear",
                                 "method_params": "()",
                                 "label_return": "",
                                 "return_params": "",
-                                "description": "Removes all authn handler from the HttpAuthnHandler map",
-                                "fields": {
-                                    "param_name": "enabled",
-                                    "data_type": "boolean",
-                                    "default_value": "true",
-                                    "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
-                                }
+                                "description": "Removes all authn handler from the HttpAuthnHandler map"
                             }
                         ]
                     },
@@ -629,16 +637,61 @@
                         "description": "Representation of the Authentication filter.",
                         "label": "object",
                         "type": "public type",
-                        "field_name_label": "Field Name",
-                        "data_type_label": "Date Type",
-                        "default_value_label": "Default Value",
-                        "description_label": "Description",
-                        "fields": {
-                            "field_name": "enabled",
-                            "data_type": "boolean",
-                            "default_value": "true",
-                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
-                        }
+                        "top_fields": [
+                            {
+                                    "field_name_label": "Field Name",
+                                    "data_type_label": "Date Type",
+                                    "default_value_label": "Default Value",
+                                    "description_label": "Description",
+                                    "attributes": 
+                                    {
+                                        "field_name": "authnHandlerChain",
+                                        "data_type": "http:AuthnHandlerChain",
+                                        "default_value": "",
+                                        "description": "The Authentication handler chain"
+                                    }
+                            }
+                            
+                        ],
+                        "method": [
+                            {
+                                "method_type": "add",
+                                "method_params": "(string id, Http:HttpAuthnHandler authnHandler)",
+                                "label_return": "",
+                                "return_params": "",
+                                "description": "Add an HttpAuthnHandler to HttpAuthHandlerRegistry",
+                                "fields": [
+                                    {
+                                        "param_name_label": "Param Name",
+                                        "data_type_label": "Data Type",
+                                        "default_value_label": "Default Value",
+                                        "description_label": "Description",
+                                        "attributes": [
+                                            {
+                                                "param_name": "id",
+                                                "data_type": "string",
+                                                "default_value": "",
+                                                "description": "Auth provider id"
+                                            },
+                                            {
+                                                "param_name": "authnHandler",
+                                                "data_type": "Http:HttpAuthnHandler",
+                                                "default_value": "",
+                                                "description": "HttpAuthnHandler instance"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "return" : [
+                                    {
+                                        "return_type_label": "Return Type",
+                                        "description_label": "Description",
+                                        "return_type": "HttpAuthnHandler",
+                                        "description": "HttpAuthnHandler instance or nil if not found"
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     {
                         "name": "AuthnHandlerChain",
