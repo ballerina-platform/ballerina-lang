@@ -224,25 +224,27 @@ public remote function RetryClient.options(string path, RequestMessage message =
 }
 
 public remote function RetryClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
-    return self.httpClient->submit(httpVerb, path, <Request>message);
+    return performHttp2RetrySubmit(httpVerb, path, <Request>message, self);
 }
 
 public remote function RetryClient.getResponse(HttpFuture httpFuture) returns Response|error {
-    return self.httpClient->getResponse(httpFuture);
+    return performHttp2RetryGetResponse(httpFuture, self);
 }
 
+// Retry logic does not apply to hasPromise
 public remote function RetryClient.hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient->hasPromise(httpFuture);
 }
 
 public remote function RetryClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-    return self.httpClient->getNextPromise(httpFuture);
+    return performHttp2RetryGetNextPromise(httpFuture, self);
 }
 
 public remote function RetryClient.getPromisedResponse(PushPromise promise) returns Response|error {
-    return self.httpClient->getPromisedResponse(promise);
+    return performHttp2RetryGetPromisedResponse(promise, self);
 }
 
+// Retry logic does not apply to rejectPromise
 public remote function RetryClient.rejectPromise(PushPromise promise) {
     return self.httpClient->rejectPromise(promise);
 }
@@ -255,6 +257,128 @@ function performRetryClientExecuteAction(@sensitive string path, Request request
     return performRetryAction(path, request, connectorAction, retryClient);
 }
 
+function performHttp2RetrySubmit(string httpVerb, string path, Request request, RetryClient retryClient)
+                                        returns HttpFuture|error {
+    Client httpClient = retryClient.httpClient;
+    int currentRetryCount = 0;
+    int retryCount = retryClient.retryInferredConfig.count;
+    int interval = retryClient.retryInferredConfig.interval;
+
+    initializeBackOffFactorAndMaxWaitInterval(retryClient);
+    //TODO : Initialize the record type correctly once it is fixed.
+    error httpConnectorErr = error("http connection err");
+
+    Request inRequest = request;
+    // When performing passthrough scenarios using retry client, message needs to be built before sending out the
+    // to keep the request message to retry.
+    var binaryPayload = check inRequest.getBinaryPayload();
+
+    while (currentRetryCount < (retryCount + 1)) {
+        inRequest = check populateMultipartRequest(inRequest);
+        var backendResponse = httpClient->submit(httpVerb, path, inRequest);
+        if (backendResponse is HttpFuture) {
+            return backendResponse;
+        } else {
+            (interval, currentRetryCount) =
+                            calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
+            httpConnectorErr = backendResponse;
+        }
+        runtime:sleep(interval);
+    }
+    return httpConnectorErr;
+}
+
+function performHttp2RetryGetResponse(HttpFuture httpFuture, RetryClient retryClient) returns Response|error {
+    Client httpClient = retryClient.httpClient;
+    int currentRetryCount = 0;
+    int retryCount = retryClient.retryInferredConfig.count;
+    int interval = retryClient.retryInferredConfig.interval;
+    boolean[] statusCodeIndex = retryClient.retryInferredConfig.statusCodes;
+
+    initializeBackOffFactorAndMaxWaitInterval(retryClient);
+    //TODO : Initialize the record type correctly once it is fixed.
+    error httpConnectorErr = error("http connection err");
+
+    HttpFuture inFuture = httpFuture;
+    while (currentRetryCount < (retryCount + 1)) {
+        var backendResponse = httpClient->getResponse(inFuture);
+        if (backendResponse is Response) {
+            int responseStatusCode = backendResponse.statusCode;
+            if (statusCodeIndex.length() > responseStatusCode && (statusCodeIndex[responseStatusCode] == true)
+                                                              && currentRetryCount < (retryCount)) {
+                (interval, currentRetryCount) =
+                                calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
+            } else {
+                return backendResponse;
+            }
+        } else {
+            (interval, currentRetryCount) =
+                            calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
+            httpConnectorErr = backendResponse;
+        }
+        runtime:sleep(interval);
+    }
+    return httpConnectorErr;
+}
+
+function performHttp2RetryGetNextPromise(HttpFuture httpFuture, RetryClient retryClient) returns PushPromise|error {
+    Client httpClient = retryClient.httpClient;
+    int currentRetryCount = 0;
+    int retryCount = retryClient.retryInferredConfig.count;
+    int interval = retryClient.retryInferredConfig.interval;
+
+    initializeBackOffFactorAndMaxWaitInterval(retryClient);
+    //TODO : Initialize the record type correctly once it is fixed.
+    error httpConnectorErr = error("http connection err");
+
+    HttpFuture inFuture = httpFuture;
+    while (currentRetryCount < (retryCount + 1)) {
+        var nextPromise = httpClient->getNextPromise(inFuture);
+        if (nextPromise is PushPromise) {
+            return nextPromise;
+        } else {
+            (interval, currentRetryCount) =
+                            calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
+            httpConnectorErr = nextPromise;
+        }
+        runtime:sleep(interval);
+    }
+    return httpConnectorErr;
+}
+
+function performHttp2RetryGetPromisedResponse(PushPromise promise, RetryClient retryClient) returns Response|error {
+    Client httpClient = retryClient.httpClient;
+    int currentRetryCount = 0;
+    int retryCount = retryClient.retryInferredConfig.count;
+    int interval = retryClient.retryInferredConfig.interval;
+    boolean[] statusCodeIndex = retryClient.retryInferredConfig.statusCodes;
+
+    initializeBackOffFactorAndMaxWaitInterval(retryClient);
+    //TODO : Initialize the record type correctly once it is fixed.
+    error httpConnectorErr = error("http connection err");
+    PushPromise inPromise = promise;
+
+    while (currentRetryCount < (retryCount + 1)) {
+        var backendResponse = httpClient->getPromisedResponse(inPromise);
+        if (backendResponse is Response) {
+            int responseStatusCode = backendResponse.statusCode;
+            if (statusCodeIndex.length() > responseStatusCode && (statusCodeIndex[responseStatusCode] == true)
+                                                              && currentRetryCount < (retryCount)) {
+                (interval, currentRetryCount) =
+                                calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
+            } else {
+                return backendResponse;
+            }
+        } else {
+            (interval, currentRetryCount) =
+                            calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
+            httpConnectorErr = backendResponse;
+        }
+        runtime:sleep(interval);
+    }
+    return httpConnectorErr;
+}
+
 // Handles all the actions exposed through the retry client.
 function performRetryAction(@sensitive string path, Request request, HttpOperation requestAction,
                             RetryClient retryClient) returns Response|error {
@@ -264,12 +388,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
     int interval = retryClient.retryInferredConfig.interval;
     boolean[] statusCodeIndex = retryClient.retryInferredConfig.statusCodes;
 
-    if (retryClient.retryInferredConfig.backOffFactor <= 0.0) {
-        retryClient.retryInferredConfig.backOffFactor = 1.0;
-    }
-    if (retryClient.retryInferredConfig.maxWaitInterval == 0) {
-        retryClient.retryInferredConfig.maxWaitInterval = 60000;
-    }
+    initializeBackOffFactorAndMaxWaitInterval(retryClient);
     Response response = new;
     //TODO : Initialize the record type correctly once it is fixed.
     error httpConnectorErr = error("http connection err");
@@ -315,4 +434,13 @@ function calculateEffectiveIntervalAndRetryCount(RetryClient retryClient, int cu
     }
     int retryCount = currentRetryCount + 1;
     return (interval, retryCount);
+}
+
+function initializeBackOffFactorAndMaxWaitInterval(RetryClient retryClient) {
+    if (retryClient.retryInferredConfig.backOffFactor <= 0.0) {
+        retryClient.retryInferredConfig.backOffFactor = 1.0;
+    }
+    if (retryClient.retryInferredConfig.maxWaitInterval == 0) {
+        retryClient.retryInferredConfig.maxWaitInterval = 60000;
+    }
 }
