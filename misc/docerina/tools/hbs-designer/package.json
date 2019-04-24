@@ -15,6 +15,6 @@
   },
   "dependencies": {
     "jquery": "^3.4.0",
-    "semantic-ui": "^2.4.2"
+    "semantic-ui-css": "^2.4.1"
   }
 }

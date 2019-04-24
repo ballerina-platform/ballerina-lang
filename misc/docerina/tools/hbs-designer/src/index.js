@@ -126,9 +126,9 @@ try {
     buildModules(data.modules);
     fs.copySync(path.join(__dirname, "styles"), path.join(outPath, "styles"));
     fs.ensureDirSync(resPath);
-    fs.copySync(path.join(nodeModulesPath, "semantic-ui", "dist", "semantic.min.css"), 
+    fs.copySync(path.join(nodeModulesPath, "semantic-ui-css", "semantic.min.css"), 
         path.join(resPath, "semantic.min.css"));
-    fs.copySync(path.join(nodeModulesPath, "semantic-ui", "dist", "semantic.min.js"), 
+    fs.copySync(path.join(nodeModulesPath, "semantic-ui-css", "semantic.min.js"), 
         path.join(resPath, "semantic.min.js"));
     fs.copySync(path.join(nodeModulesPath, "jquery", "dist", "jquery.min.js"), 
         path.join(resPath, "jquery.min.js"));
