@@ -249,10 +249,19 @@ const string FUNCTION_TYPE = "org/ballerinalang/jvm/types/BFunctionType";
 const string BFIELD = "org/ballerinalang/jvm/types/BField";
 const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
 
+// error related classes
+const string BLANG_VM_ERRORS = "org/ballerinalang/jvm/BLangVMErrors";
+const string PRINT_STACKTRACE_ON_MAIN_METHOD_ERROR = "printStackTraceOnMainMethodError";
+
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
 
 // types related constants
 const string TYPES_ERROR =  "typeError";
+
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
+
+// code generation related constants.
+const string MODULE_INIT_CLASS_NAME = "___init";
+const string BAL_EXTENSION = ".bal";

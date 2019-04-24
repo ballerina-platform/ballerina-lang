@@ -33,16 +33,19 @@ public type ImportModule record {
 
 public type TypeDef record {
     Name name = {};
+    DiagnosticPos pos;
     Visibility visibility = "PACKAGE_PRIVATE";
     BType typeValue = "()";
     Function?[]? attachedFuncs = ();
 };
 
 public type Function record {|
+    DiagnosticPos pos;
     int argsCount = 0;
     BasicBlock?[] basicBlocks = [];
     ErrorEntry?[] errorEntries = [];
     boolean isDeclaration = false;
+    boolean isInterface = false;
     VariableDcl?[] localVars = [];
     Name name = {};
     BInvokableType typeValue = {};
@@ -52,7 +55,7 @@ public type Function record {|
 public type BasicBlock record {|
     Name id = {};
     Instruction?[] instructions = [];
-    Terminator terminator = {kind:"RETURN"};
+    Terminator terminator = {pos:{}, kind:"RETURN"};
 |};
 
 public type ErrorEntry record {|
@@ -237,6 +240,7 @@ public type BRecordType record {|
 
 public type BObjectType record {|
     Name name = {};
+    boolean isAbstract = false;
     BObjectField?[] fields = [];
     BAttachedFunction?[] attachedFunctions = [];
 |};
@@ -303,14 +307,25 @@ public type Visibility VISIBILITY_PACKAGE_PRIVATE|VISIBILITY_PRIVATE|VISIBILITY_
 // Instructions
 
 public type Instruction record  {
+    DiagnosticPos pos;
     InstructionKind kind;
 };
 
 public type Terminator record {
+    DiagnosticPos pos;
     TerminatorKind kind;
 };
 
+public type DiagnosticPos record {|
+    int sLine = -1;
+    int eLine = -1;
+    int sCol = -1;
+    int eCol = -1;
+    string sourceFileName = "";
+|};
+
 public type ConstantLoad record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     BType typeValue;
@@ -318,18 +333,21 @@ public type ConstantLoad record {|
 |};
 
 public type NewMap record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     BType typeValue;
 |};
 
 public type NewInstance record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     TypeDef typeDef;
     VarRef lhsOp;
 |};
 
 public type NewArray record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef sizeOp;
@@ -337,6 +355,7 @@ public type NewArray record {|
 |};
 
 public type NewError record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef reasonOp;
@@ -344,6 +363,7 @@ public type NewError record {|
 |};
 
 public type FPLoad record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     ModuleID pkgID;
@@ -351,6 +371,7 @@ public type FPLoad record {|
 |};
 
 public type FieldAccess record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef keyOp;
@@ -358,12 +379,14 @@ public type FieldAccess record {|
 |};
 
 public type TypeCast record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
 |};
 
 public type IsLike record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
@@ -371,6 +394,7 @@ public type IsLike record {|
 |};
 
 public type TypeTest record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
@@ -383,12 +407,14 @@ public type VarRef record {|
 |};
 
 public type Move record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
 |};
 
 public type BinaryOp record {|
+    DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp1;
@@ -396,12 +422,14 @@ public type BinaryOp record {|
 |};
 
 public type Wait record {|
+    DiagnosticPos pos;
     TerminatorKind kind;
     VarRef lhsOp;
     VarRef?[] exprList;
 |};
 
 public type Call record {|
+    DiagnosticPos pos;
     VarRef?[] args;
     TerminatorKind kind;
     VarRef? lhsOp;
@@ -412,6 +440,7 @@ public type Call record {|
 |};
 
 public type AsyncCall record {|
+    DiagnosticPos pos;
     VarRef?[] args;
     TerminatorKind kind;
     VarRef? lhsOp;
@@ -421,6 +450,7 @@ public type AsyncCall record {|
 |};
 
 public type Branch record {|
+    DiagnosticPos pos;
     BasicBlock falseBB;
     TerminatorKind kind;
     VarRef op;
@@ -428,15 +458,19 @@ public type Branch record {|
 |};
 
 public type GOTO record {|
+    DiagnosticPos pos;
     TerminatorKind kind;
     BasicBlock targetBB;
 |};
 
 public type Return record {|
+    DiagnosticPos pos;
     TerminatorKind kind;
 |};
 
+
 public type Panic record {|
+    DiagnosticPos pos;
     TerminatorKind kind;
     VarRef errorOp;
 |};
