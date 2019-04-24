@@ -229,7 +229,21 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                 class.functions[0] = func;
                 jvmClassMap[moduleClass] = class;
             }
-            fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
+
+            string functionName = getFunction(func).name.value;
+            var isExtern = func.isDeclaration;
+            if (isExtern is boolean && isExtern) { // if this function is an extern
+                var result = jvm:lookupExternClassName(pkgName, functionName);
+                if (result is string) {
+                    moduleClass = result;
+                } else {
+                    error err = error("cannot find full qualified class name for extern function : " +
+                        io:sprintf("%s:%s", pkgName, functionName));
+                    panic err;
+                }
+            }
+
+            fullQualifiedClassNames[pkgName + functionName] = moduleClass;
         }
     }
     return jvmClassMap;
