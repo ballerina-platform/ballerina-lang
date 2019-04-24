@@ -120,6 +120,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
@@ -910,6 +911,22 @@ public class CommonUtil {
                     ItemResolverConstants.BUILTIN_REASON_LABEL, context);
             symbolInfoList.addAll(Arrays.asList(detail, reason));
         }
+        
+        if (bType.tag == TypeTags.MAP) {
+            SymbolInfo hasKey = getIterableOpSymbolInfo(Snippet.BUILTIN_HAS_KEY.get(), bType,
+                    ItemResolverConstants.BUILTIN_HASKEY_LABEL, context);
+            SymbolInfo remove = getIterableOpSymbolInfo(Snippet.BUILTIN_REMOVE.get(), bType,
+                    ItemResolverConstants.BUILTIN_REMOVE_LABEL, context);
+            SymbolInfo clear = getIterableOpSymbolInfo(Snippet.BUILTIN_CLEAR.get(), bType,
+                    ItemResolverConstants.BUILTIN_CLEAR_LABEL, context);
+            SymbolInfo keys = getIterableOpSymbolInfo(Snippet.BUILTIN_KEYS.get(), bType,
+                    ItemResolverConstants.BUILTIN_KEYS_LABEL, context);
+            SymbolInfo values = getIterableOpSymbolInfo(Snippet.BUILTIN_VALUES.get(), bType,
+                    ItemResolverConstants.BUILTIN_GET_VALUES_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(hasKey, remove, clear, keys, values));
+        }
+        
+        
     }
 
     /**
@@ -1016,7 +1033,13 @@ public class CommonUtil {
                 .map(id -> id.value)
                 .collect(Collectors.toList()));
     }
-    
+
+    /**
+     * Convert the Snippet to a plain text snippet by removing the place holders.
+     * 
+     * @param snippet           Snippet string to alter
+     * @return {@link String}   Converted Snippet
+     */
     public static String getPlainTextSnippet(String snippet) {
         return snippet
                 .replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
@@ -1025,7 +1048,7 @@ public class CommonUtil {
 
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
                                                       LSContext context) {
-        String signature = "";
+        String signature;
         SymbolInfo.CustomOperationSignature customOpSignature;
         SymbolInfo iterableOperation = new SymbolInfo();
         switch (operation.getLabel()) {
@@ -1112,7 +1135,8 @@ public class CommonUtil {
                 || symbolName.contains(UtilSymbolKeys.GT_SYMBOL_KEY)
                 || symbolName.contains(UtilSymbolKeys.DOLLAR_SYMBOL_KEY)
                 || symbolName.equals("main")
-                || symbolName.endsWith(".new");
+                || symbolName.endsWith(".new")
+                || symbolName.startsWith("0");
     }
 
     private static boolean builtinLengthFunctionAllowed(BType bType) {

@@ -8,14 +8,14 @@
     {
       "label":"testRecord1",
       "kind":"Class",
-      "detail":"BType",
+      "detail":"Record",
       "sortText":"170",
       "insertText":"testRecord1"
     },
     {
       "label":"testRecord2",
       "kind":"Class",
-      "detail":"BType",
+      "detail":"Record",
       "sortText":"170",
       "insertText":"testRecord2"
     }

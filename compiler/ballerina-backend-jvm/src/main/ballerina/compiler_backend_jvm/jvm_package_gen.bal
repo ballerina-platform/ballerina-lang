@@ -16,7 +16,7 @@
 
 final map<string> fullQualifiedClassNames = {};
 
-final map<(bir:AsyncCall,string)> lambdas = {};
+map<(bir:AsyncCall,string)> lambdas = {};
 
 function lookupFullQualifiedClassName(string key) returns string {
     var result = fullQualifiedClassNames[key];
@@ -45,49 +45,48 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 
     string orgName = module.org.value;
     string moduleName = module.name.value;
+    string pkgName = getPackageName(orgName, moduleName);
+    string sourceFileName = module.name.value;
 
-    // TODO: need to get bal source file name for class name mapping
-    string moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName, untaint moduleName);
-
-    // TODO: remove once the package init class is introduced
-    typeOwnerClass = moduleClass;
+    typeOwnerClass = getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
+    map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, untaint lambdas);
 
     // generate object value classes
-    ObjectGenerator objGen = new();
+    ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, pkgEntries);
-
     generateFrameClasses(module, pkgEntries);
-
-    jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
-    generateDefaultConstructor(cw);
-
-    generateUserDefinedTypeFields(cw, module.typeDefs);
-
-    string pkgName = getPackageName(orgName, moduleName);
-
-    // populate global variable to class name mapping and generate them
-    foreach var globalVar in module.globalVars {
-        if (globalVar is bir:GlobalVariableDcl) {
-            fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
-            generatePackageVariable(globalVar, cw);
+    foreach var (moduleClass, v) in jvmClassMap {
+        jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+        if (moduleClass == typeOwnerClass) {
+            cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
+            generateDefaultConstructor(cw, VALUE_CREATOR);
+            generateUserDefinedTypeFields(cw, module.typeDefs);
+            generateValueCreatorMethods(cw, module.typeDefs, pkgName);
+            // populate global variable to class name mapping and generate them
+            foreach var globalVar in module.globalVars {
+                if (globalVar is bir:GlobalVariableDcl) {
+                    generatePackageVariable(globalVar, cw);
+                }
+            }
+        } else {
+            cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
+            generateDefaultConstructor(cw, OBJECT);
         }
+        cw.visitSource(v.sourceFileName);
+        // generate methods
+        foreach var func in v.functions {
+            generateMethod(getFunction(func), cw, module);
+        }
+        // generate lambdas created during generating methods
+        foreach var (name, call) in lambdas {
+            generateLambdaMethod(call[0], cw, call[1], name);
+        }
+        // clear the lambdas
+        lambdas = {};
+        cw.visitEnd();
+        byte[] classContent = cw.toByteArray();
+        pkgEntries[moduleClass + ".class"] = classContent;
     }
-
-    // populate function to class name mapping
-    foreach var func in module.functions {
-        fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
-    }
-
-    // generate methods
-    foreach var func in module.functions {
-        generateMethod(getFunction(func), cw, module);
-    }
-
-    cw.visitEnd();
-
-    byte[] classContent = cw.toByteArray();
-    pkgEntries[moduleClass + ".class"] = classContent;
 }
 
 public function generateEntryPackage(bir:Package module, string sourceFileName, map<byte[]> pkgEntries,
@@ -95,64 +94,65 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     string orgName = module.org.value;
     string moduleName = module.name.value;
-
-    string moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName, untaint sourceFileName);
-
-    // TODO: remove once the package init class is introduced
-    typeOwnerClass = moduleClass;
-
-    // generate object value classes
-    ObjectGenerator objGen = new();
-    objGen.generateValueClasses(module.typeDefs, pkgEntries);
-
-    generateFrameClasses(module, pkgEntries);
-
-    jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
-    generateDefaultConstructor(cw);
-
-    generateUserDefinedTypeFields(cw, module.typeDefs);
-
     string pkgName = getPackageName(orgName, moduleName);
 
-    // populate global variable to class name mapping and generate them
-    foreach var globalVar in module.globalVars {
-        if (globalVar is bir:GlobalVariableDcl) {
-            fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
-            generatePackageVariable(globalVar, cw);
-        }
-    }
+    typeOwnerClass = getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
+    map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, untaint lambdas);
 
-    // populate function to class name mapping
-    foreach var func in module.functions {
-        fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
-    }
-
+    // generate object value classes
+    ObjectGenerator objGen = new(module);
+    objGen.generateValueClasses(module.typeDefs, pkgEntries);
+    generateFrameClasses(module, pkgEntries);
     bir:Function? mainFunc = getMainFunc(module.functions);
+    string mainClass = "";
     if (mainFunc is bir:Function) {
-        generateMainMethod(mainFunc, cw, module);
-        manifestEntries["Main-Class"] = getMainClassName(orgName, moduleName, sourceFileName);
+        mainClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
+                                            cleanupFileName(mainFunc.pos.sourceFileName));
     }
-
-    // generate methods
-    foreach var func in module.functions {
-        generateMethod(getFunction(func), cw, module);
+    foreach var (moduleClass, v) in jvmClassMap {
+        jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+        if (moduleClass == typeOwnerClass) {
+            cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
+            generateDefaultConstructor(cw, VALUE_CREATOR);
+            generateUserDefinedTypeFields(cw, module.typeDefs);
+            generateValueCreatorMethods(cw, module.typeDefs, pkgName);
+            // populate global variable to class name mapping and generate them
+            foreach var globalVar in module.globalVars {
+                if (globalVar is bir:GlobalVariableDcl) {
+                    generatePackageVariable(globalVar, cw);
+                }
+            }
+            if (mainFunc is bir:Function) {
+                generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
+                generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
+                manifestEntries["Main-Class"] = moduleClass;
+            }
+        } else {
+            cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
+            generateDefaultConstructor(cw, OBJECT);
+        }
+        cw.visitSource(v.sourceFileName);
+        // generate methods
+        foreach var func in v.functions {
+            generateMethod(getFunction(func), cw, module);
+        }
+        
+        // generate lambdas
+        foreach var (name, call) in lambdas {
+            generateLambdaMethod(call[0], cw, call[1], name);
+        }
+        // clear the lambdas
+        lambdas = {};
+        cw.visitEnd();
+        byte[] classContent = cw.toByteArray();
+        pkgEntries[moduleClass + ".class"] = classContent;
     }
-
-    foreach var (k,v) in lambdas {
-        generateLambdaMethod(v[0], cw, v[1], k);
-    }
-
-    cw.visitEnd();
-
-    byte[] classContent = cw.toByteArray();
-    pkgEntries[moduleClass + ".class"] = classContent;
 }
 
 function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWriter cw) {
     string varName = globalVar.name.value;
     bir:BType bType = globalVar.typeValue;
-    generateField(cw, bType, varName);
+    generateField(cw, bType, varName, true);
 }
 
 function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) returns bir:Package {
@@ -162,31 +162,24 @@ function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) 
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
-    string name = sourceFileName;
-
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        name = orgName + "/" + moduleName + "/" + sourceFileName;
+        return orgName + "/" + cleanupName(moduleName) + "/" + cleanupName(sourceFileName);
     }
-    return name;
+    return cleanupName(sourceFileName);
 }
 
 function getMainClassName(string orgName, string moduleName, string sourceFileName) returns string {
-    string name = sourceFileName;
-
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        name = orgName + "." + moduleName + "." + sourceFileName;
+        return orgName + "." + cleanupName(moduleName) + "." + cleanupName(sourceFileName);
     }
-    return name;
+    return cleanupName(sourceFileName);
 }
 
 function getPackageName(string orgName, string moduleName) returns string {
-    string name = "";
-
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        name = orgName + "/" + moduleName + "/";
+        return orgName + "/" + cleanupName(moduleName) + "/";
     }
-
-    return name;
+    return "";
 }
 
 function getPackageAndFunctionName(string key) returns (string, string) {
@@ -195,4 +188,58 @@ function getPackageAndFunctionName(string key) returns (string, string) {
     string functionName = key.substring(index + 1, key.length());
 
     return (pkgName, functionName);
+}
+
+function cleanupName(string name) returns string {
+    return name.replace(".","_");
+}
+
+
+
+# Java Class will be generate for each source file. This method add class mappings to globalVar and filters the 
+# functions based on their source file name and then returns map of associated java class contents.
+#
+# + module - The module
+# + pkgName - The module package Name
+# + initClass - The module init class
+# + lambdaCalls - The lambdas
+# + return - The map of javaClass records on given source file name
+function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
+                                 map<(bir:AsyncCall,string)> lambdaCalls) returns map<JavaClass> {
+    
+    string orgName = module.org.value;
+    string moduleName = module.name.value;
+    map<JavaClass> jvmClassMap = {};
+
+    foreach var globalVar in module.globalVars {
+        if (globalVar is bir:GlobalVariableDcl) {
+            fullQualifiedClassNames[pkgName + globalVar.name.value] = initClass;
+        }
+    }
+    // filter out functions.
+    foreach var func in module.functions {
+        string? balFileName = func.pos.sourceFileName;
+        if (balFileName is string) {
+            string moduleClass = getClassNameForSourceFile(balFileName, orgName, moduleName, pkgName);
+            var javaClass = jvmClassMap[moduleClass];
+            if (javaClass is JavaClass) {
+                javaClass.functions[javaClass.functions.length()] = func;
+            } else {
+                JavaClass class = { sourceFileName:balFileName, moduleClass:moduleClass };
+                class.functions[0] = func;
+                jvmClassMap[moduleClass] = class;
+            }
+            fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
+        }
+    }
+    return jvmClassMap;
+}
+
+function getClassNameForSourceFile(string sourceFileName, string orgName, string moduleName,
+                                   string pkgName) returns string {
+    string className = cleanupFileName(sourceFileName);
+    if( className == "." || className == moduleName) {
+        return getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
+    }
+    return getModuleLevelClassName(untaint orgName, untaint moduleName, untaint className);
 }

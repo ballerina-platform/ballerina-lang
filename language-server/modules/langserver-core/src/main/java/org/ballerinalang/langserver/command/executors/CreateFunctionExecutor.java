@@ -61,7 +61,7 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFi
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class CreateFunctionExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "CREATE_FUNC";
+    public static final String COMMAND = "CREATE_FUNC";
 
     /**
      * {@inheritDoc}

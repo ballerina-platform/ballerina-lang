@@ -14,24 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# TrustStore record represents trust store related options to be used for HTTP client/service invocation.
-#
-# + path - File path to trust store file
-# + password - Trust store password
-public type TrustStore record {|
-    string path = "";
-    string password = "";
-|};
-
-# KeyStore record represents key store related options to be used for HTTP client/service invocation.
-#
-# + path - File path to key store file
-# + password - Key store password
-public type KeyStore record {|
-    string path = "";
-    string password = "";
-|};
-
 # Protocols record represents SSL/TLS protocol related options to be used for HTTP client/service invocation.
 #
 # + name - SSL Protocol to be used. eg TLS1.2

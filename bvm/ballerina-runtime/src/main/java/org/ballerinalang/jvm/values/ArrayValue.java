@@ -218,12 +218,6 @@ public class ArrayValue implements RefValue {
         refValues[(int) index] = value;
     }
 
-    public void add(long index, ArrayValue value) {
-        handleFrozenArrayValue();
-        prepareForAdd(index, refValues.length);
-        refValues[(int) index] = value;
-    }
-
     public void add(long index, long value) {
         handleFrozenArrayValue();
         prepareForAdd(index, intValues.length);
@@ -530,6 +524,23 @@ public class ArrayValue implements RefValue {
     private void resetSize(int index) {
         if (index >= size) {
             size = index + 1;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void attemptFreeze(Status freezeStatus) {
+        if (!FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            return;
+        }
+        this.freezeStatus = freezeStatus;
+        if (elementType == null || elementType.getTag() > TypeTags.BOOLEAN_TAG) {
+            for (int i = 0; i < this.size; i++) {
+                Object refValue = this.getRefValue(i);
+                ((RefValue) refValue).attemptFreeze(freezeStatus);
+            }
         }
     }
 }

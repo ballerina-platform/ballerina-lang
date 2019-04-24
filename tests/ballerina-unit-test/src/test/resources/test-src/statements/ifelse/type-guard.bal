@@ -845,6 +845,29 @@ function testFiniteTypeReassignmentToBroaderType() returns boolean {
     return false;
 }
 
+type Foo "foo";
+type Bar "bar";
+
+type X "x";
+type Y "y";
+
+function testFiniteTypeUnionAsFiniteTypeUnionPositive() returns boolean {
+    Foo|Bar|X|int q = 1;
+    if (q is Foo|Bar|Y|int) {
+        Foo|Bar|int w = q;
+        return q == w;
+    }
+    return false;
+}
+
+function testFiniteTypeUnionAsFiniteTypeUnionNegative() returns boolean {
+    Foo|Bar|X|int q = "x";
+    if (q is Foo|Bar|int|Y) {
+        return true;
+    }
+    return q != "x";
+}
+
 string reason = "error reason";
 map<anydata> detail = { code: 11, detail: "detail message" };
 

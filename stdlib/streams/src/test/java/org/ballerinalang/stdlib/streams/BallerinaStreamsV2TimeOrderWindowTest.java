@@ -42,7 +42,7 @@ public class BallerinaStreamsV2TimeOrderWindowTest {
         result2 = BCompileUtil.compile("test-src/streamingv2-time-order-window-test2.bal");
     }
 
-    @Test(description = "Test timeOrder window query", enabled = false)
+    @Test(description = "Test timeOrder window query")
     public void testExternalTimeQuery() {
                 BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startTimeOrderWindowTest");
         Assert.assertNotNull(outputEmployeeEvents);
@@ -67,7 +67,7 @@ public class BallerinaStreamsV2TimeOrderWindowTest {
         Assert.assertEquals(((BInteger) employee3.get("sumAge")).intValue(), 125);
     }
 
-    @Test(description = "Test timeOrder window query with dropOlderEvents enabled", enabled = false)
+    @Test(description = "Test timeOrder window query with dropOlderEvents enabled")
     public void testExternalTimeQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startTimeOrderWindowTest2");
         Assert.assertNotNull(outputEmployeeEvents);

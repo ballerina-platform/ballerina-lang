@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 # Name of the class to which the types will be added as static fields.
 string typeOwnerClass = "";
 
@@ -82,10 +81,122 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             mv.visitInsn(DUP);
             addObjectFields(mv, bType.fields);
-            addObjectAtatchedFunctions(mv, bType.attachedFunctions);
+            addObjectAtatchedFunctions(mv, bType.attachedFunctions, bType);
         }
     }
 }
+
+// -------------------------------------------------------
+//              Runtime value creation methods
+// -------------------------------------------------------
+
+public function generateValueCreatorMethods(jvm:ClassWriter cw, bir:TypeDef?[] typeDefs, string pkgName) {
+    bir:TypeDef?[] recordTypeDefs = [];
+    bir:TypeDef?[] objectTypeDefs = [];
+
+    int i = 0;
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        bir:BType bType = typeDef.typeValue;
+        if (bType is bir:BRecordType) {
+            recordTypeDefs[i] = typeDef;
+            i += 1;
+        }
+    }
+
+    i = 0;
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        bir:BType bType = typeDef.typeValue;
+        if (bType is bir:BObjectType) {
+            objectTypeDefs[i] = typeDef;
+            i += 1;
+        }
+    }
+
+    generateRecordValueCreateMethod(cw, recordTypeDefs);
+    generateObjectValueCreateMethod(cw, objectTypeDefs, pkgName);
+}
+
+function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] recordTypeDefs) {
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "createRecordValue",
+        io:sprintf("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
+        io:sprintf("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE, STRING_VALUE, OBJECT), ());
+
+    mv.visitCode();
+
+    int fieldNameRegIndex = 1;
+    jvm:Label defaultCaseLabel = new jvm:Label();
+
+    // sort the fields before generating switch case
+    NodeSorter sorter = new();
+    sorter.sortByHash(recordTypeDefs);
+
+    jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, recordTypeDefs, defaultCaseLabel);
+    jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, recordTypeDefs, labels,
+            defaultCaseLabel);
+
+    int i = 0;
+
+    foreach var optionalTypeDef in recordTypeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        string fieldName = getTypeFieldName(typeDef.name.value);
+        jvm:Label targetLabel = targetLabels[i];
+        mv.visitLabel(targetLabel);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitTypeInsn(NEW, MAP_VALUE);
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
+        mv.visitMethodInsn(INVOKESPECIAL, io:sprintf("%s", MAP_VALUE), "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        mv.visitInsn(ARETURN);
+        i += 1;
+    }
+
+    createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
+    mv.visitMaxs(recordTypeDefs.length() + 10, recordTypeDefs.length() + 10);
+    mv.visitEnd();
+}
+
+function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] objectTypeDefs, string pkgName) {
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "createObjectValue",
+        io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT_VALUE), (), ());
+
+    mv.visitCode();
+
+    int fieldNameRegIndex = 1;
+    jvm:Label defaultCaseLabel = new jvm:Label();
+
+    // sort the fields before generating switch case
+    NodeSorter sorter = new();
+    sorter.sortByHash(objectTypeDefs);
+
+    jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, objectTypeDefs, defaultCaseLabel);
+    jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, objectTypeDefs, labels,
+            defaultCaseLabel);
+
+    int i = 0;
+
+    foreach var optionalTypeDef in objectTypeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        string fieldName = getTypeFieldName(typeDef.name.value);
+        jvm:Label targetLabel = targetLabels[i];
+        mv.visitLabel(targetLabel);
+        mv.visitVarInsn(ALOAD, 0);
+        string className = pkgName + cleanupTypeName(typeDef.name.value);
+        mv.visitTypeInsn(NEW, className);
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
+        mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+        mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
+        mv.visitInsn(ARETURN);
+        i += 1;
+    }
+
+    createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
+    mv.visitMaxs(objectTypeDefs.length() + 10, objectTypeDefs.length() + 10);
+    mv.visitEnd();
+}
+
 
 // -------------------------------------------------------
 //              Record type generation methods
@@ -202,7 +313,7 @@ function addRecordRestField(jvm:MethodVisitor mv, bir:BType restFieldType) {
 # + objectType - object type
 # + name - name of the object
 function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, string name) {
-    // Create the record type
+    // Create the object type
     mv.visitTypeInsn(NEW, OBJECT_TYPE);
     mv.visitInsn(DUP);
 
@@ -291,7 +402,8 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
 #
 # + mv - method visitor
 # + attachedFunctions - attached functions to be added
-function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?[] attachedFunctions) {
+function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?[] attachedFunctions,
+                                        bir:BObjectType objType) {
     // Create the attached function array
     mv.visitLdcInsn(attachedFunctions.length());
     mv.visitInsn(L2I);
@@ -304,7 +416,7 @@ function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
             mv.visitInsn(L2I);
 
             // create and load attached function
-            createObjectAttachedFunction(mv, attachedFunc);
+            createObjectAttachedFunction(mv, attachedFunc, objType);
 
             // Add the member to the array
             mv.visitInsn(AASTORE);
@@ -321,12 +433,17 @@ function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
 #
 # + mv - method visitor
 # + attachedFunc - object attached function
-function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunction attachedFunc) {
+function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunction attachedFunc,
+                                        bir:BObjectType objType) {
     mv.visitTypeInsn(NEW, ATTACHED_FUNCTION);
     mv.visitInsn(DUP);
 
     // Load function name
     mv.visitLdcInsn(attachedFunc.name.value);
+
+    // Load the parent object type
+    loadType(mv, objType);
+    mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
 
     // Load the field type
     loadType(mv, attachedFunc.funcType);
@@ -341,8 +458,7 @@ function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunctio
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",
-            io:sprintf("(L%s;L%s;I)V", STRING_VALUE, FUNCTION_TYPE),
-            false);
+                        io:sprintf("(L%s;L%s;L%s;I)V", STRING_VALUE, OBJECT_TYPE, FUNCTION_TYPE), false);
 }
 
 // -------------------------------------------------------
@@ -384,11 +500,6 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
 #
 # + bType - type to load
 function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
-    if (bType == ()) {
-        mv.visitInsn(ACONST_NULL);
-        return;
-    }
-
     string typeFieldName = "";
     if (bType is bir:BTypeInt) {
         typeFieldName = "typeInt";
@@ -400,7 +511,7 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         typeFieldName = "typeBoolean";
     } else if (bType is bir:BTypeByte) {
         typeFieldName = "typeByte";
-    } else if (bType is bir:BTypeNil) {
+    } else if (bType is bir:BTypeNil || bType is ()) {
         typeFieldName = "typeNull";
     } else if (bType is bir:BTypeAny) {
         typeFieldName = "typeAny";
@@ -434,6 +545,14 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         return;
     } else if (bType is bir:BTupleType) {
         loadTupleType(mv, bType);
+        return;
+    } else if (bType is bir:Self) {
+        if (bType.bType is bir:BErrorType) {
+            // Todo: Handle for recursive user defined error types.
+            mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
+        } else {
+            loadType(mv, bType.bType);
+        }
         return;
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
@@ -615,6 +734,8 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", ERROR_VALUE);
     } else if (bType is bir:BMapType) {
         return io:sprintf("L%s;", MAP_VALUE);
+    } else if (bType is bir:BObjectType) {
+        return io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BTypeAny ||
                bType is bir:BTypeAnyData ||
                bType is bir:BUnionType ||

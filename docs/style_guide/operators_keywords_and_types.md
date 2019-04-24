@@ -2,37 +2,6 @@
 
 ## Single-line formatting
 ### Keywords and types
-* If there is a keyword followed by a keyword, separate them using a single space only.
-  
-  Example,
-  ```ballerina
-  public remote function getUserName(http:Caller caller, http:Request req) {
-  
-  } 
-  ```
-* If there is a keyword or type followed by an identifier, separate them using a single space only.
-  
-  Example,
-  ```ballerina
-  string fullName = "john doe"; 
-  
-  function getFullName() returns string {
-      return fullName;
-  }
-  ```
-* Do not keep spaces around a type when it is enclosed using angle brackets `<string>`. 
-  
-  Example,
-  ```ballerina
-  map<string> names = {};
-  ```
-* Do not keep spaces between the type and opening bracket in the array definition `string[]`.
-  
-  Example,
-  ```ballerina
-  string[] names = [];
-  
-  ```
 * Keep single spaces between the type and a pipe operator when it is in an union type `string | int`.
   
   Example,
@@ -85,5 +54,12 @@
   Example,
   ```ballerina
   name += lastName;
+  ```
+* When accessing a function, object or record from another module, do not keep spaces around `:`.
+  
+  Example,
+  ```ballerina
+  io:println("john");
+  http:Response res = new();
   ```
   

@@ -1,5 +1,6 @@
 import ballerina/nats;
 import ballerina/io;
+import ballerina/log;
 
 // Represent escape character
 const string ESCAPE = "!q";
@@ -8,11 +9,12 @@ const string ESCAPE = "!q";
 public function main() {
     string message = "";
     string subject = io:readln("Subject : ");
-    // Initializes a producer
+    // Initializes a producer.
     nats:Producer producer = new({ host: "localhost", port: 4222, clientId: "p0" });
     while (message != ESCAPE) {
         message = io:readln("Message : ");
         if (message != ESCAPE) {
+            // Produce a message to specified subject.
             var result = producer->send(subject, message);
             if (result is error) {
                 io:println("Error occurred while producing the message.");
@@ -20,5 +22,10 @@ public function main() {
                 io:println("GUID "+result+" received for the produced message.");
             }
         }
+    }
+    // Close the publisher connection.
+    var result = producer.close();
+    if (result is error) {
+        log:printError("Error occurred while closing the connection", err = result);
     }
 }
