@@ -48,8 +48,6 @@ import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
 public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
 
-    static final String COMPATIBLE_SINCE_CONTENT_TYPE = "compatible since the received content-type is : ";
-
     @Override
     public boolean isBlocking() {
         return false;

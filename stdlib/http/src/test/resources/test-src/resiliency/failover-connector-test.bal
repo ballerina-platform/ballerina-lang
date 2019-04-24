@@ -81,9 +81,9 @@ public type MockClient client object {
     public http:Client httpClient;
 
     public function __init(string url, http:ClientEndpointConfig? config = ()) {
+        http:Client simpleClient = new(url);
         self.url = url;
         self.config = config ?: {};
-        http:Client simpleClient = new(url);
         self.httpClient = simpleClient;
     }
 

@@ -530,20 +530,19 @@ type Age record {
     string format;
 };
 
-type Person record {
+type Person record {|
     string name;
     boolean married;
     Age age;
     (string, int) extra;
-    !...;
-};
+|};
 
 function testVariableAssignment() returns (string, boolean, int, string) {
     string fName;
     boolean married;
     int theAge;
     string format;
-    map<any> theMap;
+    map<any|error> theMap;
 
     {name: fName, married, age: {age: theAge, format}, ...theMap} = getPerson();
     return (fName, married, theAge, format);

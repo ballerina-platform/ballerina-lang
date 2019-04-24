@@ -114,6 +114,9 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
             diagramHeight: diagramSize.h,
             diagramWidth: diagramSize.w,
             mode: currentMode,
+            update: () => {
+                this.forceUpdate();
+            },
             zoomFit: () => {
                 this.setState({
                     currentZoom: 1

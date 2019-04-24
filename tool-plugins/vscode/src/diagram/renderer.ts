@@ -57,6 +57,7 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
 
     const script = `
         function loadedScript() {
+            window.langclient = getLangClient();
             let docUri = ${JSON.stringify(docUri.toString())};
             function drawDiagram() {
                 try {

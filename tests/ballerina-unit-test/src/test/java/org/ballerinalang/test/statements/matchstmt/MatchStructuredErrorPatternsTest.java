@@ -145,15 +145,15 @@ public class MatchStructuredErrorPatternsTest {
         int i = -1;
         String unreachablePattern = "unreachable pattern: " +
                 "preceding patterns are too general or the pattern ordering is not correct";
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 28, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 33, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 43, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 27, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 32, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 42, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record binding pattern; unknown field 'detail' in record type 'ClosedFoo'", 48, 30);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 49, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 59, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 64, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 78, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 83, 13);
+                "invalid record binding pattern; unknown field 'detail' in record type 'ClosedFoo'", 47, 28);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 48, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 58, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 63, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 77, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 82, 13);
     }
 }

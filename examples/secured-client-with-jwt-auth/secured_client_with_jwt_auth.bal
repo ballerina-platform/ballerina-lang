@@ -29,7 +29,7 @@ public function main() {
     // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
-        var result = response.getPayloadAsString();
+        var result = response.getTextPayload();
         log:printInfo((result is error) ? "Failed to retrieve payload."
                                         : result);
     } else {
@@ -57,10 +57,6 @@ listener http:Listener ep = new(9090, config = {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
-        },
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
         }
     }
 });
@@ -78,6 +74,9 @@ service echo on ep {
         path: "/sayHello"
     }
     resource function hello(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello, World!!!");
+        error? result = caller->respond("Hello, World!!!");
+        if (result is error) {
+            log:printError("Error in responding to caller", err = result);
+        }
     }
 }

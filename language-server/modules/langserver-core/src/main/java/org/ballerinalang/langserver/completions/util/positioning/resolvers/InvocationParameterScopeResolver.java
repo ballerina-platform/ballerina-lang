@@ -85,10 +85,6 @@ public class InvocationParameterScopeResolver extends CursorPositionResolver {
                 (curLine < invocationEndLine || (curLine == invocationEndLine && curCol <= invocationEndCol)) &&
                 (curLine > nodeEndLine || (curLine == nodeEndLine && curCol > nodeEndCol)));
 
-        if (isWithinScope) {
-            treeVisitor.setPreviousNode((BLangNode) node);
-        }
-
         return isWithinScope;
     }
 }

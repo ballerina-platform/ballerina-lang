@@ -16,12 +16,12 @@
  */
 package org.ballerinalang.test.statements.block;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -85,9 +85,9 @@ public class BlockStmtTest {
         BAssertUtil.validateError(resultNegative, 7, "unreachable code", 92, 9);
         BAssertUtil.validateError(resultNegative, 8, "break cannot be used outside of a loop", 92, 9);
         //testUnreachableThrow
-        BAssertUtil.validateError(resultNegative, 9, "unreachable code", 108, 9);
-        BAssertUtil.validateError(resultNegative, 10, "redeclared symbol 'value'", 114, 5);
-        BAssertUtil.validateError(resultNegative, 11, "unreachable code", 118, 9);
+        BAssertUtil.validateError(resultNegative, 9, "unreachable code", 107, 9);
+        BAssertUtil.validateError(resultNegative, 10, "redeclared symbol 'value'", 113, 5);
+        BAssertUtil.validateError(resultNegative, 11, "unreachable code", 117, 9);
 
     }
 }

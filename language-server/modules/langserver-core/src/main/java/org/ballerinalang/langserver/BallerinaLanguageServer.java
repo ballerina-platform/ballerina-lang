@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
@@ -99,6 +100,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
 
         LSAnnotationCache.initiate();
         LSCodeLensesProviderFactory.getInstance().initiate();
+        LSCompletionProviderFactory.getInstance().initiate();
     }
 
     public ExtendedLanguageClient getClient() {

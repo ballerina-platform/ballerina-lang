@@ -1,4 +1,5 @@
-import { InitializeParams, InitializeResult } from "vscode-languageserver-protocol";
+import { InitializeParams, InitializeResult,
+    Location, TextDocumentPositionParams } from "vscode-languageserver-protocol";
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
     BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse,
@@ -37,6 +38,10 @@ export class EmptyLanguageClient implements IBallerinaLangClient {
         return Promise.reject();
     }
 
+    public getDefinitionPosition(params: TextDocumentPositionParams): Thenable<Location> {
+        return Promise.reject();
+    }
+
     public goToSource(params: GoToSourceParams): void {
         // EMPTY
     }
@@ -46,6 +51,6 @@ export class EmptyLanguageClient implements IBallerinaLangClient {
     }
 
     public close(): void {
-        // EMTY
+        // EMPTY
     }
 }

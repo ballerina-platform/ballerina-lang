@@ -17,9 +17,6 @@
 */
 package org.ballerinalang.test.types.xml;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
@@ -30,6 +27,9 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -558,46 +558,13 @@ public class XMLNativeFunctionTest {
     }
 
     @Test
-    public void testSetChildrenWithEmptyNamespace() {
-        BValue[] returns = BRunUtil.invoke(result, "testSetChildrenEmptyNamespace");
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertTrue(returns[0] instanceof BXML);
-
-        Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\"><fname>supun</fname>"
-                + "<lname>setunga</lname><residency xmlns=\"\" citizen=\"true\">true</residency></name>");
-
-        // is children seq is empty?
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-
-        // is children seq is singleton?
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-
-        // Check children
-        Assert.assertTrue(returns[3] instanceof BXML);
-        BValueArray children = ((BXMLSequence) returns[3]).value();
-        Assert.assertEquals(children.size(), 3);
-        Assert.assertEquals(children.getRefValue(0).stringValue(),
-                "<fname xmlns=\"http://sample.com/test\">supun</fname>");
-        Assert.assertEquals(children.getRefValue(1).stringValue(),
-                "<lname xmlns=\"http://sample.com/test\">setunga</lname>");
-        Assert.assertEquals(children.getRefValue(2).stringValue(),
-                "<residency citizen=\"true\">true</residency>");
-
-        // Check attribute value
-        Assert.assertSame(returns[4].getClass(), BString.class);
-        Assert.assertEquals(returns[4].stringValue(), "true");
-    }
-
-    @Test
     public void testSetChildrenWithDifferentNamespaceForAttribute() {
         BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithDifferentNamespaceForAttribute");
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\">" +
                 "<fname>supun</fname><lname>setunga</lname><residency xmlns:nsncdom=\"http://sample.com/test/code\" " +
-                "nsncdom:citizen=\"true\">true</residency></name>");
+                "citizen=\"true\">true</residency></name>");
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -691,7 +658,7 @@ public class XMLNativeFunctionTest {
 
         Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\" " +
                 "xmlns=\"http://sample.com/test/code\"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
-                "<residency xmlns:citizen=\"yes\">true</residency></ns0:name>");
+                "<residency citizen=\"yes\">true</residency></ns0:name>");
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -1394,7 +1361,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns.length, 2);
 
         Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
 
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[1].stringValue(),
@@ -1491,5 +1458,14 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[1] instanceof BMap);
         Assert.assertEquals(returns[1].getType().getTag(), TypeTags.JSON_TAG);
         Assert.assertEquals(returns[1].stringValue(), "{}");
+    }
+
+    @Test
+    public void testXMLCharacterLiteralLength() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLLength");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 1);
     }
 }

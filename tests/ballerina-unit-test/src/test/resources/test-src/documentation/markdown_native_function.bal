@@ -3,4 +3,4 @@
 # `SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);`
 # + accessMode - read or write mode
 # + successful - boolean `true` or `false`
-public extern function open(string accessMode) returns (boolean);
+public function open(string accessMode) returns boolean = external;

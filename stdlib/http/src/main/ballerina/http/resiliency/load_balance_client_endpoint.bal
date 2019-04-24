@@ -165,12 +165,11 @@ public type LoadBalanceClient client object {
 # + message - An error message explaining about the error
 # + statusCode - HTTP status code of the LoadBalanceActionError
 # + httpActionErr - Array of errors occurred at each endpoint
-public type LoadBalanceActionErrorData record {
+public type LoadBalanceActionErrorData record {|
     string message = "";
     int statusCode = 0;
     error?[] httpActionErr = [];
-    !...;
-};
+|};
 
 public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;
 
@@ -333,15 +332,15 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 # + chunking - The chunking behaviour of the request
 # + followRedirects - Redirect related options
 # + retryConfig - Retry related options
+# + poolConfig - Configurations associated with request pooling
 # + proxy - Proxy related options
-# + connectionThrottling - The configurations for controlling the number of connections allowed concurrently
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be distributed
 # + cache - The configurations for controlling the caching behaviour
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication releated configurations
 # + lbRule - LoadBalancing rule
 # + failover - Configuration for load balancer whether to fail over in case of a failure
-public type LoadBalanceClientEndpointConfiguration record {
+public type LoadBalanceClientEndpointConfiguration record {|
     CircuitBreakerConfig? circuitBreaker = ();
     int timeoutMillis = 60000;
     string httpVersion = "1.1";
@@ -358,8 +357,7 @@ public type LoadBalanceClientEndpointConfiguration record {
     AuthConfig? auth = ();
     LoadBalancerRule? lbRule = ();
     boolean failover = true;
-    !...;
-};
+|};
 
 function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
                                                      TargetService target) returns ClientEndpointConfig {

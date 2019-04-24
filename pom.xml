@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.990.4-SNAPSHOT</version>
+    <version>0.991.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -389,7 +389,33 @@
                 <classifier>ballerina-sources</classifier>
             </dependency>
 
+            <!-- ballerina-jvm -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+
             <!-- ballerina-bir -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-bir</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-bir</artifactId>
@@ -421,6 +447,27 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-grpc</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-filepath -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-filepath</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-filepath</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-filepath</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -526,6 +573,48 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-jms</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!--ballerina-activemq-artemis-->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-activemq-artemis</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-activemq-artemis</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-activemq-artemis</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-rabbitmq -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-rabbitmq</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-rabbitmq</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-rabbitmq</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -651,19 +740,19 @@
             <!-- ballerina-runtime -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
+                <artifactId>ballerina-runtime-api</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
+                <artifactId>ballerina-runtime-api</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
+                <artifactId>ballerina-runtime-api</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -690,22 +779,22 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
-            <!-- ballerina-swagger -->
+            <!-- ballerina-openapi -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-swagger</artifactId>
+                <artifactId>ballerina-openapi</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-swagger</artifactId>
+                <artifactId>ballerina-openapi</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-swagger</artifactId>
+                <artifactId>ballerina-openapi</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -857,6 +946,37 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
+
+            <!-- ballerina nats -->
+            <dependency>
+                <groupId>io.nats</groupId>
+                <artifactId>java-nats-streaming</artifactId>
+                <version>${nats.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.nats</groupId>
+                <artifactId>jnats</artifactId>
+                <version>${nats.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-nats</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-nats</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-nats</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
             <!-- End STD lib dependencies -->
 
             <dependency>
@@ -872,12 +992,22 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-runtime</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-lang</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-backend-llvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-backend-jvm</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <!--<dependency>-->
@@ -952,22 +1082,17 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>swagger-ballerina-generator</artifactId>
+                <artifactId>openapi-to-ballerina-generator</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>swagger-to-ballerina-generator</artifactId>
+                <artifactId>ballerina-to-openapi-generator</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-to-swagger</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-codegen</artifactId>
+                <artifactId>ballerina-client-generator</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -1002,6 +1127,11 @@
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-test-utils</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
@@ -1010,21 +1140,6 @@
                 <groupId>org.wso2.transport.http</groupId>
                 <artifactId>org.wso2.transport.http.netty</artifactId>
                 <version>${transport.http.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.secvault</groupId>
-                <artifactId>org.wso2.carbon.secvault</artifactId>
-                <version>${carbon.securevault.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.secvault</groupId>
-                <artifactId>org.wso2.carbon.secvault.ciphertool</artifactId>
-                <version>${carbon.securevault.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.utils</groupId>
-                <artifactId>carbon-utils</artifactId>
-                <version>${carbon.utils.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.org.antlr</groupId>
@@ -1050,11 +1165,6 @@
                 <groupId>org.apache.ws.commons.axiom</groupId>
                 <artifactId>axiom-c14n</artifactId>
                 <version>${axiom.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>jaxen</groupId>
-                <artifactId>jaxen</artifactId>
-                <version>${jaxen.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
@@ -1186,6 +1296,7 @@
                 <artifactId>netty-resolver</artifactId>
                 <version>${netty.version}</version>
             </dependency>
+            <!-- This dependency is required for WebSocket Compression -->
             <dependency>
                 <groupId>com.jcraft</groupId>
                 <artifactId>jzlib</artifactId>
@@ -1218,14 +1329,19 @@
                 <version>${h2.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>gson-fragment</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars</artifactId>
                 <version>${handlebars.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.commonmark</groupId>
+                <artifactId>commonmark</artifactId>
+                <version>${commonmark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.commonmark</groupId>
+                <artifactId>commonmark-ext-gfm-tables</artifactId>
+                <version>${commonmark.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -1252,16 +1368,6 @@
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-codegen</artifactId>
                 <version>${swagger.codegen.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.airlift</groupId>
-                <artifactId>airline</artifactId>
-                <version>${airline.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.googlecode.lambdaj</groupId>
-                <artifactId>lambdaj</artifactId>
-                <version>${lambdaj.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -1309,24 +1415,14 @@
                 <version>${swagger.v3.models.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.swagger.parser.v3</groupId>
+                <artifactId>swagger-parser-v2-converter</artifactId>
+                <version>${swagger.parser.v2.converter.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
                 <version>${com.fasterxml.jackson.core.annotations.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.ws.rs</groupId>
-                <artifactId>javax.ws.rs-api</artifactId>
-                <version>${rs-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.msf4j</groupId>
-                <artifactId>msf4j-core</artifactId>
-                <version>${msf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>${servlet-api-version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.transaction</groupId>
@@ -1337,6 +1433,12 @@
                 <groupId>org.quartz-scheduler</groupId>
                 <artifactId>quartz</artifactId>
                 <version>${quartz.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.zaxxer</groupId>
+                        <artifactId>HikariCP-java6</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.quartz-scheduler</groupId>
@@ -1498,11 +1600,6 @@
             </dependency>
             <!-- JMS connector dependencies -->
             <dependency>
-                <groupId>org.wso2.transport.jms</groupId>
-                <artifactId>transport-jms</artifactId>
-                <version>${wso2.transport.jms.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>javax.jms</groupId>
                 <artifactId>javax.jms-api</artifactId>
                 <version>${javax.jms.version}</version>
@@ -1513,16 +1610,10 @@
                 <version>${javacpp.llvm.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.andes.wso2</groupId>
-                <artifactId>andes-client</artifactId>
-                <version>${andes.client.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.securevault</groupId>
                 <artifactId>org.wso2.securevault</artifactId>
                 <version>${wso2.securevault.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.wso2.transport.file</groupId>
                 <artifactId>org.wso2.transport.local-file-system</artifactId>
@@ -1556,6 +1647,66 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+
+            <!--RabbitMQ dependencies -->
+            <dependency>
+                <groupId>com.rabbitmq</groupId>
+                <artifactId>amqp-client</artifactId>
+                <version>${rabbitmq.version}</version>
+            </dependency>
+
+            <!--Artemis dependencies -->
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>artemis-core-client</artifactId>
+                <version>${artemis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>artemis-commons</artifactId>
+                <version>${artemis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>artemis-server</artifactId>
+                <version>${artemis.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${beanutils.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.logging</groupId>
+                <artifactId>jboss-logging</artifactId>
+                <version>${jboss.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-json_1.0_spec</artifactId>
+                <version>${geronimo-json.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport-native-epoll</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport-native-kqueue</artifactId>
+                <version>${netty.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -1647,7 +1798,7 @@
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/utils</module>
-                <module>stdlib/runtime</module>
+                <module>stdlib/runtime-api</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
@@ -1655,7 +1806,7 @@
                 <module>stdlib/crypto</module>
                 <module>stdlib/encoding</module>
                 <module>stdlib/file</module>
-                <module>stdlib/swagger</module>
+                <module>stdlib/openapi</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
@@ -1663,6 +1814,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
@@ -1671,6 +1823,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1679,17 +1832,22 @@
                 <module>stdlib/database/sql</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
+                <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/messaging/rabbitmq</module>
+                <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
 
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-runtime</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-llvm</module>-->
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
+                <module>compiler/ballerina-backend-jvm</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1702,7 +1860,7 @@
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/swagger-ballerina</module>
+                <module>misc/openapi-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
@@ -1714,7 +1872,7 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
@@ -1734,7 +1892,7 @@
                 <module>compiler/ballerina-lang</module>
 
                 <module>stdlib/builtin</module>
-                <module>stdlib/runtime</module>
+                <module>stdlib/runtime-api</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
@@ -1742,13 +1900,14 @@
                 <module>stdlib/crypto</module>
                 <module>stdlib/encoding</module>
                 <module>stdlib/file</module>
-                <module>stdlib/swagger</module>
+                <module>stdlib/openapi</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
@@ -1758,6 +1917,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/filepath</module>
                 <module>stdlib/utils</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
@@ -1767,16 +1927,21 @@
                 <module>stdlib/database/sql</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
+                <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/messaging/rabbitmq</module>
+                <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
 
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-runtime</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-llvm</module>-->
+                <module>compiler/ballerina-backend-jvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
@@ -1789,7 +1954,7 @@
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/swagger-ballerina</module>
+                <module>misc/openapi-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
@@ -1799,7 +1964,7 @@
                 <module>distribution/zip/ballerina</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
             </modules>
         </profile>
@@ -1819,7 +1984,7 @@
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/utils</module>
-                <module>stdlib/runtime</module>
+                <module>stdlib/runtime-api</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
@@ -1827,13 +1992,14 @@
                 <module>stdlib/crypto</module>
                 <module>stdlib/encoding</module>
                 <module>stdlib/file</module>
-                <module>stdlib/swagger</module>
+                <module>stdlib/openapi</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
@@ -1843,6 +2009,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1851,16 +2018,21 @@
                 <module>stdlib/database/sql</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
+                <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/messaging/rabbitmq</module>
+                <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
 
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-runtime</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-llvm</module>-->
+                <module>compiler/ballerina-backend-jvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
@@ -1875,7 +2047,7 @@
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/docerina</module>
-                <module>misc/swagger-ballerina</module>
+                <module>misc/openapi-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
@@ -1888,7 +2060,7 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-examples-test</module>
@@ -1966,10 +2138,10 @@
                             <phase>validate</phase>
                             <configuration>
                                 <configLocation>
-                                    https://raw.githubusercontent.com/wso2/code-quality-tools/v1.2/checkstyle/checkstyle.xml
+                                    https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/checkstyle.xml
                                 </configLocation>
                                 <suppressionsLocation>
-                                    https://raw.githubusercontent.com/wso2/code-quality-tools/v1.1/checkstyle/suppressions.xml
+                                    https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/suppressions.xml
                                 </suppressionsLocation>
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
@@ -2199,6 +2371,9 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
+                        <configuration>
+                            <quiet>true</quiet>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
@@ -2209,29 +2384,23 @@
     </build>
 
     <properties>
-        <ballerina.version>0.990.4-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.991.1-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
-        <cobertura.version>2.7</cobertura.version>
 
-        <native.constructs.provider.package>org.ballerinalang.nativeimpl</native.constructs.provider.package>
-        <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
-        <ballerina.package.repository.provider.class>BallerinaBuiltinPackageRepository
-        </ballerina.package.repository.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <ant.contrib.plugin.version>1.0b3</ant.contrib.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-
-
         <testng.version>6.14.3</testng.version>
         <commons.io.version>2.6</commons.io.version>
         <handlebars.version>4.1.2</handlebars.version>
+        <commonmark.version>0.11.0</commonmark.version>
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
-        <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
-        <transport.http.version>6.0.275</transport.http.version>
+        <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
+        <transport.http.version>6.0.289</transport.http.version>
         <carbon.securevault.version>5.0.12</carbon.securevault.version>
         <carbon.utils.version>1.2.1</carbon.utils.version>
         <slf4j.version>1.7.26</slf4j.version>
@@ -2239,15 +2408,13 @@
         <commons.lang3.version>3.8.1</commons.lang3.version>
         <jackson.version>2.9.8</jackson.version>
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.8</com.fasterxml.jackson.dataformat.yaml.version>
-        <tapestry.json.orbit.version>5.4.1.wso2v1</tapestry.json.orbit.version>
         <axiom.version>1.2.22</axiom.version>
         <saxon.wso2.version>9.7.0.wso2v1</saxon.wso2.version>
-        <jaxen.version>1.1.6</jaxen.version>
         <geronimo.activation>1.1</geronimo.activation>
         <geronimo.stax>1.0.1</geronimo.stax>
         <mime4j.version>0.7.2</mime4j.version>
         <staxon.version>1.2.0.wso2v2</staxon.version>
-        <jacoco.agent.version>0.8.1</jacoco.agent.version>
+        <jacoco.agent.version>0.8.3</jacoco.agent.version>
         <mockito.version>1.10.19</mockito.version>
         <javassist.version>3.24.1-GA</javassist.version>
         <netty.version>4.1.34.Final</netty.version>
@@ -2257,45 +2424,37 @@
         <picocli.version>3.9.5</picocli.version>
         <com.zaxxer.hikaricp.version>3.3.1</com.zaxxer.hikaricp.version>
         <hyperSQL.version>2.4.1</hyperSQL.version>
-        <h2.version>1.4.198</h2.version>
-        <gson.version>2.7</gson.version>
+        <h2.version>1.4.199</h2.version>
+        <gson.version>2.8.5</gson.version>
         <maven.wagon.ssh.version>3.3.2</maven.wagon.ssh.version>
-        <lambdaj.version>2.3.3</lambdaj.version>
         <maven.plugin.api.version>3.6.0</maven.plugin.api.version>
         <maven.plugin.annotation.version>3.6.0</maven.plugin.annotation.version>
         <swagger.codegen.version>2.4.2</swagger.codegen.version>
-        <airline.version>0.8</airline.version>
         <io.swagger.version>1.5.22</io.swagger.version>
-        <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
         <swagger.parser.version>1.0.34</swagger.parser.version>
         <swagger.models.version>1.5.18</swagger.models.version>
-        <swagger.v3.parser.version>2.0.9</swagger.v3.parser.version>
+        <swagger.v3.parser.version>2.0.11</swagger.v3.parser.version>
         <swagger.v3.models.version>2.0.7</swagger.v3.models.version>
         <swagger.parser.v2.converter.version>2.0.0-rc3</swagger.parser.v2.converter.version>
-        <com.fasterxml.jackson.core.annotations.version>2.9.1</com.fasterxml.jackson.core.annotations.version>
-        <rs-api.version>2.1.1</rs-api.version>
-        <msf4j.version>2.6.4</msf4j.version>
-        <servlet-api-version>2.5</servlet-api-version>
+        <com.fasterxml.jackson.core.annotations.version>2.9.8</com.fasterxml.jackson.core.annotations.version>
         <javax-transaction-version>1.3</javax-transaction-version>
-        <quartz.version>2.3.0</quartz.version>
-        <commons-net.version>3.6</commons-net.version>
+        <quartz.version>2.3.1</quartz.version>
         <jackson-core.version>2.9.8</jackson-core.version>
         <mimepull.version>1.9.11</mimepull.version>
         <broker.version>0.970.5</broker.version>
-        <netty-tcnative-boringssl-static.version>2.0.22.Final</netty-tcnative-boringssl-static.version>
+        <netty-tcnative-boringssl-static.version>2.0.23.Final</netty-tcnative-boringssl-static.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
         <sourceReleaseAssemblyDescriptor>source-release</sourceReleaseAssemblyDescriptor>
-        <project.scm.id>ballerina-scm-server</project.scm.id>
 
         <!-- Maven plugin versions -->
         <maven.antrun.plugin.version>1.8</maven.antrun.plugin.version>
         <maven.assembly.plugin.version>2.6</maven.assembly.plugin.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
-        <maven.checkstyle.version>7.8.2</maven.checkstyle.version>
-        <maven.clean.plugin.version>3.0.0</maven.clean.plugin.version>
+        <maven.checkstyle.version>8.18</maven.checkstyle.version>
+        <maven.clean.plugin.version>3.1.0</maven.clean.plugin.version>
         <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
         <maven.dependency.plugin.version>3.1.1</maven.dependency.plugin.version>
         <maven.deploy.plugin.version>2.8.2</maven.deploy.plugin.version>
@@ -2307,17 +2466,16 @@
         <maven.install.plugin.version>2.5.2</maven.install.plugin.version>
         <maven.invoker.plugin.version>3.2.0</maven.invoker.plugin.version>
         <maven.jar.plugin.version>2.6</maven.jar.plugin.version>
-        <maven.javadoc.plugin.version>3.0.1</maven.javadoc.plugin.version>
+        <maven.javadoc.plugin.version>3.1.0</maven.javadoc.plugin.version>
         <maven.plugin.plugin.version>3.6.0</maven.plugin.plugin.version>
         <maven.remote.resources.plugin.version>1.6.0</maven.remote.resources.plugin.version>
         <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
         <maven.resources.plugin.version>3.1.0</maven.resources.plugin.version>
-        <maven.scm.plugin.version>1.9.4</maven.scm.plugin.version>
+        <maven.scm.plugin.version>1.11.2</maven.scm.plugin.version>
         <maven.site.plugin.version>3.7.1</maven.site.plugin.version>
         <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
         <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
         <maven.exec.plugin.version>1.6.0</maven.exec.plugin.version>
-        <maven.replacer.plugin.version>1.5.3</maven.replacer.plugin.version>
         <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>
 
         <apache.rat.plugin.version>0.13</apache.rat.plugin.version>
@@ -2325,7 +2483,7 @@
         <awaitility.version>3.1.6</awaitility.version>
 
         <!-- gRPC support for microservice -->
-        <com.google.protobuf.version>3.5.1</com.google.protobuf.version>
+        <com.google.protobuf.version>3.7.0</com.google.protobuf.version>
         <protobuf.maven.plugin.version>0.6.1</protobuf.maven.plugin.version>
         <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
 
@@ -2339,15 +2497,26 @@
         <jaeger.version>0.27.0</jaeger.version>
         <libthrift.version>0.12.0</libthrift.version>
         <okhttp.version>3.14.0</okhttp.version>
-        <okio.version>1.13.0</okio.version>
+        <okio.version>2.2.2</okio.version>
         <hdrhistogram.version>2.1.11</hdrhistogram.version>
 
         <!-- JMS Connector -->
-        <wso2.transport.jms.version>6.0.51</wso2.transport.jms.version>
         <javax.jms.version>2.0.1</javax.jms.version>
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
-        <andes.client.version>3.2.87</andes.client.version>
-        <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
+        <wso2.securevault.version>1.1.2</wso2.securevault.version>
+
+        <!-- Artemis connector -->
+        <artemis.version>2.7.0</artemis.version>
+        <beanutils.version>1.9.3</beanutils.version>
+        <jboss.version>3.3.2.Final</jboss.version>
+        <commons-collections.version>3.2.2</commons-collections.version>
+        <geronimo-json.version>1.0-alpha-1</geronimo-json.version>
+
+        <!-- Nats Connector -->
+        <nats.version>2.1.0</nats.version>
+
+        <!-- RabbitMQ Connector -->
+        <rabbitmq.version>5.6.0</rabbitmq.version>
 
         <file.transport.version>6.0.55</file.transport.version>
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
@@ -2355,6 +2524,7 @@
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <apache.directory.server.version>2.0.0-M24</apache.directory.server.version>
         <bouncycastle.version>1.61</bouncycastle.version>
+        <asm.version>6.2.1</asm.version>
     </properties>
 
 </project>

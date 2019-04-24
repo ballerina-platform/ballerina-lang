@@ -45,13 +45,13 @@ service passthroughService on listener10_1 {
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
         var response = nyseEP->get("/nyseStock/stocks", message = untaint clientRequest);
         if (response is http:Response) {
-            _ = caller->respond(response);
+            checkpanic caller->respond(response);
         } else {
             http:Response resp = new;
             json errMsg = { "error": "error occurred while invoking the service: " + response.reason() };
             resp.statusCode = 500;
             resp.setPayload(errMsg);
-            _ = caller->respond(resp);
+            checkpanic caller->respond(resp);
         }
     }
 }
@@ -88,6 +88,6 @@ service nyseStockQuote on listener10_2 {
     }
     resource function stocks(http:Caller caller, http:Request clientRequest) {
         json payload = { "exchange": "nyse", "name": "IBM", "value": "127.50" };
-        _ = caller->respond(payload);
+        checkpanic caller->respond(payload);
     }
 }

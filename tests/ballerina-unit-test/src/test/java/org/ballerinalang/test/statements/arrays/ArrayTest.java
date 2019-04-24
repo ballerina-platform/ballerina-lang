@@ -17,10 +17,6 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
@@ -28,6 +24,11 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -175,6 +176,33 @@ public class ArrayTest {
         Assert.assertEquals(arr.stringValue(), "[1, 3]");
     }
 
+    @Test
+    public void testArraysOfCyclicDependentTypes() {
+        BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArraysOfCyclicDependentTypes");
+        BValueArray arr = (BValueArray) retVals[0];
+        Assert.assertEquals(arr.stringValue(), "[{b:{b1:\"\"}, a1:\"\"}, {b:{b1:\"\"}, a1:\"\"}, {b:{b1:\"\"}, " +
+                "a1:\"\"}, {a1:\"A1\", b:{b1:\"B1\"}}]");
+    }
+
+    @Test
+    public void testArraysOfCyclicDependentTypes2() {
+        BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArraysOfCyclicDependentTypes2");
+        BValueArray arr = (BValueArray) retVals[0];
+        Assert.assertEquals(arr.stringValue(), "[{b1:\"\"}, {b1:\"\"}, {b1:\"\"}, {b1:\"B1\"}]");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*error: " +
+            "\\{ballerina}StackOverflow \\{\"message\":\"stack overflow\"}.*")
+    public void testArraysOfCyclicDependentTypes3() {
+        BRunUtil.invokeFunction(compileResult, "testArraysOfCyclicDependentTypes3");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*error: " +
+            "\\{ballerina}StackOverflow \\{\"message\":\"stack overflow\"}.*")
+    public void testArraysOfCyclicDependentTypes4() {
+        BRunUtil.invokeFunction(compileResult, "testArraysOfCyclicDependentTypes4");
+    }
+
     @Test(description = "Test arrays with errors")
     public void testConnectorNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
@@ -185,7 +213,7 @@ public class ArrayTest {
     @Test(description = "Test arrays of types without implicit initial values")
     public void testArrayImplicitInitialValues() {
         String errMsgFormat = "array element type '%s' does not have an implicit initial value, use '%s'";
-        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 17);
+        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 19);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 0,
                                   format(errMsgFormat, "ObjInitWithParam", "ObjInitWithParam?"), 53, 41);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, format(errMsgFormat, "1|2|3", "1|2|3?"),
@@ -223,11 +251,13 @@ public class ArrayTest {
                                   format(errMsgFormat, "1|2|3", "1|2|3?"), 171, 11);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 15,
                                   format(errMsgFormat, "1|2|3", "1|2|3?"), 179, 25);
-        // TODO: 3/14/19 Uncomment after PR #14220 is merged
-//        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 16,
-//                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 186, 21);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 16,
+                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 186, 21);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 17,
                                   format(errMsgFormat, "1|2|3", "1|2|3?"), 196, 29);
+
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 18,
+                                  format(errMsgFormat, "A", "A?"), 218, 15);
     }
 
     @Test(description = "Test arrays of types without implicit initial values")
@@ -239,8 +269,8 @@ public class ArrayTest {
                                   "array element type '1|2|3' does not have an implicit initial value, use '1|2|3?'",
                                   22, 24);
         BAssertUtil.validateError(negResult, 1,
-                                  "array element type '1.0|3.143' does not have an implicit initial value, use " +
-                                          "'1.0|3.143?'",
+                                  "array element type '1.0f|3.143f' does not have an implicit initial value, use " +
+                                          "'1.0f|3.143f?'",
                                   29, 26);
         BAssertUtil.validateError(negResult, 2,
                                   "array element type 'a|b|c' does not have an implicit initial value, use 'a|b|c?'",

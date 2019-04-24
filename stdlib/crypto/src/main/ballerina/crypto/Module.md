@@ -17,10 +17,9 @@ public function main() {
      // Input value for crypto operations.
      string input = "Hello Ballerina";
      byte[] inputArr = input.toByteArray("UTF-8");
-     byte[] output = [];
 
      // Hashing input value using different hashing algorithms, and printing hash value using Hex encoding.
-     output = crypto:hashMd5(inputArr);
+     byte[] output = crypto:hashMd5(inputArr);
      io:println("Hash with MD5: " + encoding:encodeHex(output));
 
      output = crypto:hashSha1(inputArr);
@@ -58,10 +57,8 @@ public function main() {
      string key = "somesecret";
      byte[] keyArr = key.toByteArray(charEncoding);
 
-     byte[] output = [];
-
      // HMAC generation for input value using different HMAC algorithms, and printing HMAC value using Hex encoding.
-     output = crypto:hmacMd5(inputArr, keyArr);
+     byte[] output = crypto:hmacMd5(inputArr, keyArr);
      io:println("HMAC with MD5: " + encoding:encodeHex(output));
 
      output = crypto:hmacSha1(inputArr, keyArr);
@@ -119,10 +116,9 @@ public function main() returns error? {
      crypto:PrivateKey privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
                                                             keyPassword = "ballerina");
 
-
      // Signing input value using different signature algorithms, and printing the signature value
      // using Hex encoding.
-     output = check crypto:signRsaMd5(inputArr, privateKey);
+     byte[] output = check crypto:signRsaMd5(inputArr, privateKey);
      io:println("RSA-MD5 signature: " + encoding:encodeHex(output));
 
      output = check crypto:signRsaSha1(inputArr, privateKey);

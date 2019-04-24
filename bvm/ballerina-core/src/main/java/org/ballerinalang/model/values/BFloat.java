@@ -58,7 +58,7 @@ public final class BFloat extends BValueType implements BRefType<Double> {
     }
 
     @Override
-    public byte byteValue() {
+    public long byteValue() {
         if (Double.isNaN(value) || Double.isInfinite(value)) {
             throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                                          "'float' value '" + value + "' cannot be converted to 'byte'");
@@ -69,7 +69,7 @@ public final class BFloat extends BValueType implements BRefType<Double> {
             throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                                          "'float' value '" + value + "' cannot be converted to 'byte'");
         }
-        return (byte) intVal;
+        return intVal;
     }
 
     @Override

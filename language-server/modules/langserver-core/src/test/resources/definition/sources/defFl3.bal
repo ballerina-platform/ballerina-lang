@@ -10,7 +10,7 @@ service defTestService1 on new http:Listener(8080) {
         http:Request req2 = new();
         var res1 = cl2->get("path");
         var res2 = cl1->get("path");
-        _ = caller->respond("test response");
+        checkpanic caller->respond("test response");
     }
 }
 

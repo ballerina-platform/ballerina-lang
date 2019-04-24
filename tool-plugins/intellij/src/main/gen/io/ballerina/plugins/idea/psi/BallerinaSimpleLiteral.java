@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaSimpleLiteral extends BallerinaCompositeElement {
+public interface BallerinaSimpleLiteral extends PsiElement {
 
   @Nullable
   BallerinaBlobLiteral getBlobLiteral();
@@ -36,9 +36,6 @@ public interface BallerinaSimpleLiteral extends BallerinaCompositeElement {
   BallerinaIntegerLiteral getIntegerLiteral();
 
   @Nullable
-  PsiElement getAdd();
-
-  @Nullable
   PsiElement getBooleanLiteral();
 
   @Nullable
@@ -49,5 +46,8 @@ public interface BallerinaSimpleLiteral extends BallerinaCompositeElement {
 
   @Nullable
   PsiElement getSub();
+
+  @Nullable
+  PsiElement getSymbolicStringLiteral();
 
 }

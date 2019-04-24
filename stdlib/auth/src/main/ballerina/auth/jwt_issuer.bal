@@ -23,13 +23,12 @@ import ballerina/encoding;
 # + keyAlias - Signing key alias
 # + keyPassword - Signing key password
 # + audienceAsArray - Always represent audience as an array (even when there is single audience)
-public type JWTIssuerConfig record {
+public type JWTIssuerConfig record {|
     crypto:KeyStore keyStore?;
     string keyAlias?;
     string keyPassword?;
     boolean audienceAsArray = false;
-    !...;
-};
+|};
 
 # Issue a JWT token based on provided header and payload. JWT will be signed (JWS) if `keyStore` information is provided
 # in the `JWTIssuerConfig` and the `alg` field of `JwtHeader` is not `NONE`.
@@ -103,10 +102,6 @@ function buildHeaderString(JwtHeader header) returns (string|error) {
         return jwtError;
     }
     headerJson[TYP] = "JWT";
-    var customClaims = header["customClaims"];
-    if (customClaims is map<any>) {
-        headerJson = addMapToJson(headerJson, customClaims);
-    }
     string headerValInString = headerJson.toString();
     string encodedPayload = encoding:encodeBase64Url(headerValInString.toByteArray("UTF-8"));
     return encodedPayload;
@@ -135,63 +130,32 @@ function buildPayloadString(JwtPayload payload, boolean audienceAsArray) returns
         payloadJson[JTI] = jti;
     }
     var aud = payload["aud"];
-    if (aud is string[]) {
+    if (aud is string[] && aud.length() > 0) {
         if (audienceAsArray) {
-            payloadJson[AUD] = convertStringArrayToJson(aud);
+            payloadJson[AUD] = aud;
         } else {
             if (aud.length() == 1) {
                 payloadJson[AUD] = aud[0];
             } else {
-                payloadJson[AUD] = convertStringArrayToJson(aud);
+                payloadJson[AUD] = aud;
             }
         }
     }
     var customClaims = payload["customClaims"];
-    if (customClaims is map<any>) {
+    if (customClaims is map<json>) {
         payloadJson = addMapToJson(payloadJson, customClaims);
     }
     string payloadInString = payloadJson.toString();
     return encoding:encodeBase64Url(payloadInString.toByteArray("UTF-8"));
 }
 
-function addMapToJson(json inJson, map<any> mapToConvert) returns (json) {
+function addMapToJson(json inJson, map<json> mapToConvert) returns (json) {
     if (mapToConvert.length() != 0) {
         foreach var key in mapToConvert.keys() {
-            var customClaims = mapToConvert[key];
-            if (customClaims is string[]) {
-                inJson[key] = convertStringArrayToJson(customClaims);
-            } else if (customClaims is int[]) {
-                inJson[key] = convertIntArrayToJson(customClaims);
-            } else if (customClaims is string) {
-                inJson[key] = customClaims;
-            } else if (customClaims is int) {
-                inJson[key] = customClaims;
-            } else if (customClaims is boolean) {
-                inJson[key] = customClaims;
-            }
+            inJson[key] = mapToConvert[key];
         }
     }
     return inJson;
-}
-
-function convertStringArrayToJson(string[] arrayToConvert) returns (json) {
-    json jsonPayload = [];
-    int i = 0;
-    while (i < arrayToConvert.length()) {
-        jsonPayload[i] = arrayToConvert[i];
-        i = i + 1;
-    }
-    return jsonPayload;
-}
-
-function convertIntArrayToJson(int[] arrayToConvert) returns (json) {
-    json jsonPayload = [];
-    int i = 0;
-    while (i < arrayToConvert.length()) {
-        jsonPayload[i] = arrayToConvert[i];
-        i = i + 1;
-    }
-    return jsonPayload;
 }
 
 # Represents authentication provider configurations that supports generating JWT for client interactions.
@@ -203,7 +167,7 @@ function convertIntArrayToJson(int[] arrayToConvert) returns (json) {
 # + keyAlias - Key alias for signing newly issued JWT tokens
 # + keyPassword - Key password for signing newly issued JWT tokens
 # + signingAlg - Signing algorithm for signing newly issued JWT tokens
-public type InferredJwtIssuerConfig record {
+public type InferredJwtIssuerConfig record {|
     string issuer;
     string[] audience;
     int expTime = 300;
@@ -211,5 +175,4 @@ public type InferredJwtIssuerConfig record {
     string keyAlias;
     string keyPassword;
     JwtSigningAlgorithm signingAlg = RS256;
-    !...;
-};
+|};

@@ -90,21 +90,6 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 	if (diagramViewPanel && html) {
 		diagramViewPanel.webview.html = html;
 	}
-	// Handle messages from the webview
-	diagramViewPanel.webview.onDidReceiveMessage(message => {
-		switch (message.command) {
-			case 'astModified':
-				if (activeEditor && activeEditor.document.fileName.endsWith('.bal')) {
-					preventDiagramUpdate = true;
-					const ast = JSON.parse(message.ast);
-					langClient.triggerASTDidChange(ast, activeEditor.document.uri)
-						.then(() => {
-							preventDiagramUpdate = false;
-						});	
-				}
-				return;
-		}
-	}, undefined, context.subscriptions);
 
 	diagramViewPanel.onDidDispose(() => {
 		diagramViewPanel = undefined;

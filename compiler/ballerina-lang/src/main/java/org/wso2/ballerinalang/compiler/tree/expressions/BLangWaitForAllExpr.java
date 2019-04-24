@@ -77,7 +77,7 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
     public static class BLangWaitKeyValue extends BLangNode implements WaitKeyValueNode {
         public BLangIdentifier key;
         public BLangExpression valueExpr;
-        public BLangSimpleVarRef keyExpr;
+        public BLangExpression keyExpr;
 
         @Override
         public BLangIdentifier getKey() {

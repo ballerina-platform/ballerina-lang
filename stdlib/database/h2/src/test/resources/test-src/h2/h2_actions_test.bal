@@ -51,7 +51,7 @@ function testSelect() returns (int[]) {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return customerIds;
 }
 
@@ -70,7 +70,7 @@ function testUpdate() returns (int) {
     if (insertCountRet is sql:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return insertCount;
 }
 
@@ -101,7 +101,7 @@ function testCall() returns (string) {
             name = rs.name;
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return name;
 }
 
@@ -124,7 +124,7 @@ function testGeneratedKeyOnInsert() returns string|int {
         returnVal = <string>x.detail().message;
     }
 
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return returnVal;
 }
 
@@ -161,7 +161,7 @@ function testBatchUpdate() returns (int[]) {
     } else {
         ret = [];
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return ret;
 }
 
@@ -174,7 +174,7 @@ function testUpdateInMemory() returns (int, string) {
             poolOptions: { maximumPoolSize: 1 }
         });
 
-    _ = testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
+    _ = checkpanic testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
     creditLimit DOUBLE, country  VARCHAR(300), PRIMARY KEY (customerId))");
 
     var insertCountRet = testDB->update("insert into Customers2 (customerId, name, creditLimit, country)
@@ -193,7 +193,7 @@ function testUpdateInMemory() returns (int, string) {
         }
     }
 
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (insertCount, s);
 }
 
@@ -253,7 +253,7 @@ function testCloseConnectionPool(string connectionCountQuery)
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return count;
 }
 
@@ -273,7 +273,7 @@ function selectFunction(h2:Client testDB) returns (int[]) {
     } else {
         customerIds = [];
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return customerIds;
 }
 
@@ -300,6 +300,6 @@ function testH2MemDBUpdate() returns (int, string) {
     if (insertCountRet is sql:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (insertCount, data);
 }

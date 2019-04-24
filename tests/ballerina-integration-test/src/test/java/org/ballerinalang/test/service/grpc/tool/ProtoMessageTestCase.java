@@ -20,8 +20,6 @@ package org.ballerinalang.test.service.grpc.tool;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -33,6 +31,8 @@ import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageParser;
 import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.ProtoUtils;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -59,8 +59,7 @@ public class ProtoMessageTestCase {
     @BeforeClass
     private void setup() throws Exception {
         compilerFile = ProtoDescriptorUtils.getProtocCompiler();
-        Path resourceDir = Paths.get(new File(ProtoMessageTestCase.class.getProtectionDomain().getCodeSource()
-                .getLocation().toURI().getPath()).getAbsolutePath());
+        Path resourceDir = Paths.get("src", "test", "resources").toAbsolutePath();
         Path protoPath = resourceDir.resolve(Paths.get("grpc", "tool", "testMessage.proto"));
         //read message descriptor from proto file.
         readMessageDescriptor(protoPath);

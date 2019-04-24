@@ -41,8 +41,7 @@ public class TypeTags {
     public static final int INVOKABLE_TAG = MAP_TAG + 1;
     public static final int ANY_TAG = INVOKABLE_TAG + 1;
     public static final int ENDPOINT_TAG = ANY_TAG + 1;
-    public static final int SERVICE_TAG = ENDPOINT_TAG + 1;
-    public static final int ARRAY_TAG = SERVICE_TAG + 1;
+    public static final int ARRAY_TAG = ENDPOINT_TAG + 1;
     public static final int UNION_TAG = ARRAY_TAG + 1;
     public static final int PACKAGE_TAG = UNION_TAG + 1;
     public static final int NONE_TAG = PACKAGE_TAG + 1;
@@ -61,4 +60,6 @@ public class TypeTags {
     public static final int BYTE_ARRAY_TAG = OBJECT_TYPE_TAG + 1;
     public static final int FUNCTION_POINTER_TAG = BYTE_ARRAY_TAG + 1;
     public static final int CHANNEL_TAG = FUNCTION_POINTER_TAG + 1;
+
+    public static final int SERVICE_TAG = OBJECT_TYPE_TAG;
 }

@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaMatchPatternClause extends BallerinaCompositeElement {
+public interface BallerinaMatchPatternClause extends PsiElement {
 
   @Nullable
   BallerinaStaticMatchPattern getStaticMatchPattern();

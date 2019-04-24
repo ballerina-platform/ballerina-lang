@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaOrderByVariableImpl extends BallerinaCompositeElementImpl implements BallerinaOrderByVariable {
+public class BallerinaOrderByVariableImpl extends ASTWrapperPsiElement implements BallerinaOrderByVariable {
 
   public BallerinaOrderByVariableImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaOrderByVariableImpl extends BallerinaCompositeElementImpl 
   @Override
   @Nullable
   public BallerinaOrderByType getOrderByType() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaOrderByType.class);
+    return findChildByClass(BallerinaOrderByType.class);
   }
 
   @Override
   @NotNull
   public BallerinaVariableReference getVariableReference() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class));
+    return findNotNullChildByClass(BallerinaVariableReference.class);
   }
 
 }

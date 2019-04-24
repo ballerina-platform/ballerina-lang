@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.990.4-SNAPSHOT</version>
+        <version>0.991.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -14,9 +14,14 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-server</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-integration-test-utils</artifactId>
-            <version>${project.version}</version>
+            <artifactId>ballerina-test-utils</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -52,15 +57,15 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-launcher</artifactId>
+            <artifactId>ballerina-runtime-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-activemq-artemis</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -157,6 +162,16 @@
             <artifactId>observability-test-utils</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-core-client</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-crypto</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- balo dependencies -->
         <dependency>
@@ -236,6 +251,12 @@
             <artifactId>apacheds-all</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-activemq-artemis</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
     </dependencies>
 
     <build>
@@ -267,7 +288,7 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.ballerinalang</groupId>
-                                    <artifactId>ballerina-integration-test-utils</artifactId>
+                                    <artifactId>ballerina-test-utils</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
@@ -298,13 +319,14 @@
                 <configuration>
                     <argLine>${jacoco.agent.argLine}</argLine>
                     <systemPropertyVariables>
+                        <libdir>${basedir}/target</libdir>
                         <server.zip>
                             ${basedir}/../../distribution/zip/ballerina/target/ballerina-${project.version}.zip
                         </server.zip>
                         <jacoco.agent.argLine>${jacoco.agent.argLine}</jacoco.agent.argLine>
-                        <ballerina.agent.path>${project.build.directory}/ballerina-integration-test-utils-${project.version}.jar</ballerina.agent.path>
+                        <ballerina.agent.path>${project.build.directory}/ballerina-test-utils-${project.version}.jar</ballerina.agent.path>
                         <integration.test.utils.service.file>
-                            ${basedir}/../../tests/ballerina-integration-test-utils/src/main/ballerina/httpService/common_backend.bal
+                            ${basedir}/../../tests/ballerina-test-utils/src/main/ballerina/httpService/common_backend.bal
                         </integration.test.utils.service.file>
                         <observability-test-natives.jar>
                             ${basedir}/../../tests/observability-test-utils/target/observability-test-utils-${project.version}.jar
@@ -356,6 +378,16 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>data</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -73,6 +73,6 @@ service authService on authEP {
         }
     }
     resource function failAuthz(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello, World!!!");
+        checkpanic caller->respond("Hello, World!!!");
     }
 }

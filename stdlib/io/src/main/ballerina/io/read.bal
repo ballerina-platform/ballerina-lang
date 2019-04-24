@@ -18,4 +18,4 @@
 #
 # + a - Any value to be printed
 # + return - Input read from STDIN
-public extern function readln(any a) returns (string);
+public function readln(any a) returns string = external;

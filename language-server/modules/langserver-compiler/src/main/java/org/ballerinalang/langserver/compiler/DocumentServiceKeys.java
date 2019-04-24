@@ -22,7 +22,6 @@ import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -41,8 +40,6 @@ public class DocumentServiceKeys {
     public static final LSContext.Key<String> RELATIVE_FILE_PATH_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<CompilerContext> COMPILER_CONTEXT_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<SymbolTable> SYMBOL_TABLE_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<List<Either<SymbolInformation, DocumentSymbol>>> SYMBOL_LIST_KEY
             = new LSContext.Key<>();

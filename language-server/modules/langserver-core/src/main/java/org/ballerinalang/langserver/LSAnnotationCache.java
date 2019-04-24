@@ -128,7 +128,7 @@ public class LSAnnotationCache {
         // Check whether the imported packages in the current bLang package has been already processed
         ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).getImports()
                 .forEach(bLangImportPackage -> {
-                    if (!isPackageProcessed(bLangImportPackage.symbol.pkgID)
+                    if (bLangImportPackage.symbol != null && !isPackageProcessed(bLangImportPackage.symbol.pkgID)
                             && !bLangImportPackage.symbol.pkgID.getName().getValue().equals("runtime")) {
                         loadAnnotationsFromPackage(LSPackageLoader.getPackageSymbolById(
                                 ctx.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), bLangImportPackage.symbol.pkgID));

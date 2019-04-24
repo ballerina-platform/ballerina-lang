@@ -43,7 +43,7 @@ function testFreezeOnArrayWithoutAnydata() {
     _ = a1.freeze();
 
     (PersonObjTwo|PersonObj)?[] a2 = [];
-    _ = a2.freeze();
+    _ = checkpanic a2.freeze();
 }
 
 function testFreezeOnTupleWithoutAnydata() {

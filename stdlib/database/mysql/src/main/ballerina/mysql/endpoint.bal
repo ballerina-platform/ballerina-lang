@@ -25,7 +25,7 @@ import ballerina/sql;
 # + password - Password for the database connection
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
-public type ClientEndpointConfig record {
+public type ClientEndpointConfig record {|
     string host;
     int port = 3306;
     string name = "";
@@ -33,8 +33,7 @@ public type ClientEndpointConfig record {
     string password = "";
     sql:PoolOptions poolOptions?;
     map<any> dbOptions = {};
-    !...;
-};
+|};
 
 # Represents an MySQL client endpoint.
 #
@@ -118,6 +117,7 @@ public type Client client object {
     }
 
     # Stops the JDBC client.
+    # + return - Possible error during closing
     public function stop() returns error? {
         self.clientActive = false;
         return sql:close(self.sqlClient);
@@ -128,4 +128,4 @@ public type Client client object {
     }
 };
 
-extern function createClient(ClientEndpointConfig config, sql:PoolOptions globalPoolOptions) returns sql:Client;
+function createClient(ClientEndpointConfig config, sql:PoolOptions globalPoolOptions) returns sql:Client = external;

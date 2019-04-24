@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
@@ -58,6 +59,11 @@ public class BFiniteType extends BType implements FiniteType {
     }
 
     @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
     }
@@ -65,7 +71,15 @@ public class BFiniteType extends BType implements FiniteType {
     @Override
     public String toString() {
         StringJoiner joiner = new StringJoiner("|");
-        this.valueSpace.forEach(value -> joiner.add(value.toString()));
+        for (BLangExpression value : this.valueSpace) {
+            if (value.type.tag == TypeTags.FLOAT) {
+                joiner.add(value.toString() + "f");
+            } else if (value.type.tag == TypeTags.DECIMAL) {
+                joiner.add(value.toString() + "d");
+            } else {
+                joiner.add(value.toString());
+            }
+        }
         return joiner.toString();
     }
 

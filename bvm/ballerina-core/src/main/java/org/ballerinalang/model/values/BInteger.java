@@ -48,12 +48,12 @@ public final class BInteger extends BValueType implements BRefType<Long> {
     }
 
     @Override
-    public byte byteValue() {
+    public long byteValue() {
         if (!isByteLiteral(this.value)) {
             throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                                          "'int' value '" + value + "' cannot be converted to 'byte'");
         }
-        return (byte) this.value;
+        return this.value;
     }
 
     @Override
@@ -63,7 +63,7 @@ public final class BInteger extends BValueType implements BRefType<Long> {
 
     @Override
     public BigDecimal decimalValue() {
-        return new BigDecimal(stringValue(), MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN);
+        return new BigDecimal(this.value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN);
     }
 
     @Override

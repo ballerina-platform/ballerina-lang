@@ -33,7 +33,7 @@ fi
 
 # List of BBEs excluded from building
 exclude=("proto-to-ballerina"
-        "swagger-to-ballerina"
+        "openapi-to-ballerina"
         "taint-checking"
         "websub-hub-client-sample"
         "websub-remote-hub-sample"
@@ -47,6 +47,8 @@ exclude=("proto-to-ballerina"
         "docker-deployment"
         "kubernetes-deployment"
         "awslambda-deployment"
+        "openshift-deployment"
+        "grpc-server-streaming"
         )
 
 packages=($( sed -n 's/.*"url": "\([^"]*\)"/\1/p' index.json ))

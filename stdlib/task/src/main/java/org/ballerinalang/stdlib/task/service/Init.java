@@ -14,7 +14,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
-*/
+ */
 
 package org.ballerinalang.stdlib.task.service;
 
@@ -30,7 +30,8 @@ import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Appointment;
 import org.ballerinalang.stdlib.task.objects.Task;
 import org.ballerinalang.stdlib.task.objects.Timer;
-import org.ballerinalang.stdlib.task.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -47,6 +48,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_N
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RECORD_TIMER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_RECORD;
 import static org.ballerinalang.stdlib.task.utils.Utils.getCronExpressionFromAppointmentRecord;
+import static org.ballerinalang.stdlib.task.utils.Utils.setError;
 
 /**
  * Native function to attach a service to the listener.
@@ -65,6 +67,8 @@ import static org.ballerinalang.stdlib.task.utils.Utils.getCronExpressionFromApp
 )
 public class Init extends BlockingNativeCallableUnit {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Init.class);
+
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
@@ -72,50 +76,45 @@ public class Init extends BlockingNativeCallableUnit {
         BMap<String, BValue> configurations = (BMap<String, BValue>) taskStruct.get(MEMBER_LISTENER_CONFIGURATION);
         String configurationTypeName = configurations.getType().getName();
         Task task;
-
-        if (RECORD_TIMER_CONFIGURATION.equals(configurationTypeName)) {
-            task = processTimer(context, configurations);
-        } else { // Record type validates at the compile time; Hence we do not need exhaustive validation.
-            task = processAppointment(context, configurations);
+        try {
+            if (RECORD_TIMER_CONFIGURATION.equals(configurationTypeName)) {
+                task = processTimer(configurations);
+            } else { // Record type validates at the compile time; Hence we do not need exhaustive validation.
+                task = processAppointment(configurations);
+            }
+            taskStruct.addNativeData(NATIVE_DATA_TASK_OBJECT, task);
+        } catch (SchedulingException e) {
+            LOG.error(e.getMessage(), e);
+            setError(context, e.getMessage());
         }
-        taskStruct.addNativeData(NATIVE_DATA_TASK_OBJECT, task);
     }
 
-    private static Timer processTimer(Context context, BMap<String, BValue> configurations) {
+    private static Timer processTimer(BMap<String, BValue> configurations) throws SchedulingException {
         Timer task;
         long interval = ((BInteger) configurations.get(FIELD_INTERVAL)).intValue();
         long delay = ((BInteger) configurations.get(FIELD_DELAY)).intValue();
 
-        try {
-            if (Objects.nonNull(configurations.get(FIELD_NO_OF_RUNS))) {
-                long noOfRuns = ((BInteger) configurations.get(FIELD_NO_OF_RUNS)).intValue();
-                task = new Timer(context, delay, interval, noOfRuns);
-            } else {
-                task = new Timer(context, delay, interval);
-            }
-            return task;
-        } catch (SchedulingException e) {
-            context.setReturnValues(Utils.createError(context, e.getMessage()));
-            return null;
+        if (Objects.nonNull(configurations.get(FIELD_NO_OF_RUNS))) {
+            long noOfRuns = ((BInteger) configurations.get(FIELD_NO_OF_RUNS)).intValue();
+            task = new Timer(delay, interval, noOfRuns);
+        } else {
+            task = new Timer(delay, interval);
         }
+        return task;
     }
 
-    private static Appointment processAppointment(Context context, BMap<String, BValue> configurations) {
+    private static Appointment processAppointment(BMap<String, BValue> configurations)
+            throws SchedulingException {
         Appointment appointment;
-        try {
-            BValue appointmentDetails = configurations.get(MEMBER_APPOINTMENT_DETAILS);
-            String cronExpression = getCronExpressionFromAppointmentRecord(appointmentDetails);
+        BValue appointmentDetails = configurations.get(MEMBER_APPOINTMENT_DETAILS);
+        String cronExpression = getCronExpressionFromAppointmentRecord(appointmentDetails);
 
-            if (Objects.nonNull(configurations.get(FIELD_NO_OF_RUNS))) {
-                long noOfRuns = ((BInteger) configurations.get(FIELD_NO_OF_RUNS)).intValue();
-                appointment = new Appointment(context, cronExpression, noOfRuns);
-            } else {
-                appointment = new Appointment(context, cronExpression);
-            }
-            return appointment;
-        } catch (SchedulingException e) {
-            context.setReturnValues(Utils.createError(context, e.getMessage()));
-            return null;
+        if (Objects.nonNull(configurations.get(FIELD_NO_OF_RUNS))) {
+            long noOfRuns = ((BInteger) configurations.get(FIELD_NO_OF_RUNS)).intValue();
+            appointment = new Appointment(cronExpression, noOfRuns);
+        } else {
+            appointment = new Appointment(cronExpression);
         }
+        return appointment;
     }
 }

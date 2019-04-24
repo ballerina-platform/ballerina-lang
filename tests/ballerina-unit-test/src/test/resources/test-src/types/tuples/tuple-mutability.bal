@@ -26,19 +26,17 @@ type Employee record {
 };
 
 // Assignable to Employee type and Person Type
-type Intern record {
+type Intern record {|
     string name;
     boolean intern;
     int salary;
-    !...;
-};
+|};
 
 // Assignable to Person type
-type Student record {
+type Student record {|
     string name;
     int studentId;
-    !...;
-};
+|};
 
 Person person1 = { name: "John" };
 Employee employee1 = { name: "John", intern: true };

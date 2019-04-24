@@ -17,13 +17,13 @@
 
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -82,7 +82,7 @@ public class WorkerSyncSendTest {
 
         BValue[] returns = BRunUtil.invoke(result, "errorResult");
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, "error3");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "error3");
     }
 
     @Test
@@ -161,7 +161,7 @@ public class WorkerSyncSendTest {
     public void errorResultWithMultipleWorkers() {
         BValue[] returns = BRunUtil.invoke(result, "errorResultWithMultipleWorkers");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals("err returned from w2", ((BError) returns[0]).reason);
+        Assert.assertEquals("err returned from w2", ((BError) returns[0]).getReason());
     }
 
     @Test

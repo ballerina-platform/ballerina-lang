@@ -75,6 +75,12 @@ export class ASTKindChecker {
     return node.kind === "CheckExpr";
   }
 
+  public static isCheckPanicExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.CheckPanicExpr {
+    return node.kind === "CheckPanicExpr";
+  }
+
   public static isCompilationUnit(
     node: Ballerina.ASTNode
   ): node is Ballerina.CompilationUnit {
@@ -129,10 +135,22 @@ export class ASTKindChecker {
     return node.kind === "ErrorConstructor";
   }
 
+  public static isErrorDestructure(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ErrorDestructure {
+    return node.kind === "ErrorDestructure";
+  }
+
   public static isErrorType(
     node: Ballerina.ASTNode
   ): node is Ballerina.ErrorType {
     return node.kind === "ErrorType";
+  }
+
+  public static isErrorVariableRef(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ErrorVariableRef {
+    return node.kind === "ErrorVariableRef";
   }
 
   public static isExpressionStatement(

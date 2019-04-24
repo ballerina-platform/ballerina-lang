@@ -35,7 +35,7 @@ service hello on lis {
 
         http:Response response = new;
         response.setTextPayload(self.str);
-        _ = caller -> respond(response);
+        checkpanic caller->respond(response);
     }
 }
 

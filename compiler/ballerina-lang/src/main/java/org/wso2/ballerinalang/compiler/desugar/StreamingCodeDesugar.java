@@ -101,13 +101,10 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.stream.Collectors;
 
 /**
  * Class responsible for desugar streaming pipeline into actual Ballerina code.
@@ -517,6 +514,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                                 names.fromString(getVariableName(OUTPUT_FUNC_VAR_ARG)),
                                 lambdaFunction.function.symbol.pkgID, new BArrayType(anydataMapType),
                                 lambdaFunction.function.symbol.owner))}, typeNode);
+        // Rewrite the lambda function.
+        outputLambdaFunc = desugar.rewrite(outputLambdaFunc, env);
         // create `T[] outputEvents`
         BLangSimpleVarRef outputArrayRef =
                 createResultArrayRefInForEach(outputLambdaFunc.function.pos, outputEventType,
@@ -538,6 +537,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 createVariable(outputLambdaFunc.pos, getVariableName(OUTPUT_FUNC_REFERENCE),
                         outputLambdaFunc.function.symbol.type, outputLambdaFunc, outputLambdaFunc.function.symbol);
         outputStreamFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(outputLambdaFunc.function.symbol.type);
+        outputStreamFunctionVariable.symbol.owner = env.enclInvokable.symbol;
         BLangSimpleVariableDef outputStreamFunctionVarDef = ASTBuilderUtil.createVariableDef(outputLambdaFunc.pos,
                 outputStreamFunctionVariable);
         stmts.add(outputStreamFunctionVarDef);
@@ -888,14 +888,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BLangLambdaFunction createAggregatorLambdaWithParams(BLangSimpleVariable varAggregatorArray,
                                                                  BLangSimpleVariable varSelectFnStreamEvent,
                                                                  DiagnosticPos pos) {
-        Set<BVarSymbol> selectLambdaClosureVarSymbols = new LinkedHashSet<>();
-        selectLambdaClosureVarSymbols.add(varSelectFnStreamEvent.symbol);
-        selectLambdaClosureVarSymbols.add(varAggregatorArray.symbol);
-
         BLangType selectLambdaReturnType = ASTBuilderUtil.createTypeNode(symTable.mapAnydataType);
 
         return createLambdaFunction(pos, new ArrayList<>(Arrays.asList(varSelectFnStreamEvent, varAggregatorArray)),
-                selectLambdaClosureVarSymbols, selectLambdaReturnType);
+                selectLambdaReturnType);
     }
 
     private BLangExpression createGroupByLambdas(BLangSelectClause selectClause) {
@@ -934,10 +930,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     private  BLangLambdaFunction createLambdaWithVarArg(DiagnosticPos pos, BLangSimpleVariable[] varArgs,
                                                        TypeNode typeNode) {
-        Set<BVarSymbol> varArgClosureSymbols = Arrays.stream(varArgs).map(varArg -> varArg.symbol)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-        return createLambdaFunction(pos, Arrays.asList(varArgs),
-                varArgClosureSymbols, typeNode);
+        return createLambdaFunction(pos, Arrays.asList(varArgs), typeNode);
     }
 
     @Override
@@ -1169,17 +1162,13 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             BLangSimpleVariable inputStreamLambdaFunctionVariable = ASTBuilderUtil.createVariable(streamingInput.pos,
                     getVariableName(INPUT_STREAM_PARAM_REFERENCE), lambdaParameterType, null, lambdaParameterVarSymbol);
             inputStreamLambdaFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(lambdaParameterType);
-
-            Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
-            closureVarSymbols.add(nextProcessInvokableTypeVarSymbol);
-            closureVarSymbols.add(inputStreamLambdaFunctionVariable.symbol);
-
+            // Tag variables as closures.
+            nextProcessInvokableTypeVarSymbol.closure = true;
             TypeNode returnType = ASTBuilderUtil.createTypeNode(symTable.nilType);
 
             //Construct lambda function which consumes events
             BLangLambdaFunction streamSubscriberLambdaFunction = createLambdaFunction(streamingInput.pos,
-                    new ArrayList<>(Lists.of(inputStreamLambdaFunctionVariable)), closureVarSymbols,
-                    returnType);
+                    new ArrayList<>(Lists.of(inputStreamLambdaFunctionVariable)), returnType);
             BLangBlockStmt lambdaBody = streamSubscriberLambdaFunction.function.body;
 
             //varRef to the input event
@@ -1608,15 +1597,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         //Create lambda function Variable
         BLangSimpleVariable lambdaFunctionVariable =
                 this.createMapTypeVariable(getVariableName(varName), pos, env);
-
-        Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
-        closureVarSymbols.add(lambdaFunctionVariable.symbol);
-
         BLangType returnType = ASTBuilderUtil.createTypeNode(symTable.booleanType);
 
         //Create new lambda function to process the output events
-        return createLambdaFunction(pos, new ArrayList<>(Lists.of(lambdaFunctionVariable)), closureVarSymbols,
-                                    returnType);
+        return createLambdaFunction(pos, new ArrayList<>(Lists.of(lambdaFunctionVariable)), returnType);
     }
 
     //----------------------------------------- Util Methods ---------------------------------------------------------
@@ -1767,7 +1751,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     private BLangLambdaFunction createLambdaFunction(DiagnosticPos pos,
                                                      List<BLangSimpleVariable> lambdaFunctionVariable,
-                                                     Set<BVarSymbol> closureVarSymbols, TypeNode returnType) {
+                                                     TypeNode returnType) {
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         BLangFunction func = ASTBuilderUtil.createFunction(pos,
                 getFunctionName(FUNC_CALLER));
@@ -1780,7 +1764,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         lambdaFunctionVariable = func.requiredParams;
 
         func.body = lambdaBody;
-        func.closureVarSymbols = closureVarSymbols;
         func.desugared = false;
         lambdaFunction.pos = pos;
         List<BType> paramTypes = new ArrayList<>();

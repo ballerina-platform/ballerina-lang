@@ -26,23 +26,21 @@ type ValType record {
     byte ry?;
 };
 
-type ClosedValType record {
+type ClosedValType record {|
     int cri;
     float crf;
     string crs;
     boolean crb?;
     byte cry?;
-    !...;
-};
+|};
 
-type Foo1 record {
+type Foo1 record {|
     int a;
     float b;
     *ValType;
     string s;
     *ClosedValType;
-    !...;
-};
+|};
 
 function testValRefType() returns Foo1 {
     Foo1 f = {a:10, b:23.45, s:"hello foo", ri:20, crs:"qwerty", rf:45.6, rs:"asdf", cri:20, crf:12.34};
@@ -63,12 +61,11 @@ type Person object {
     }
 };
 
-type Employee record {
+type Employee record {|
     int id;
     string name;
     float salary;
-    !...;
-};
+|};
 
 type Address record {
     string city;
@@ -82,21 +79,19 @@ type RefType record {
     Address ra?;
 };
 
-type ClosedRefType record {
+type ClosedRefType record {|
     json crj?;
     xml crx;
     Person crp;
     Address cra?;
-    !...;
-};
+|};
 
-type Foo2 record {
+type Foo2 record {|
     string s;
     *RefType;
     int i;
     *ClosedRefType;
-    !...;
-};
+|};
 
 function testRefTypes() returns Foo2 {
     Foo2 f = {s:"qwerty", i:10, rx:xml `<book>Count of Monte Cristo</book>`, rp:new("John Doe"), crp:new("Jane Doe"), crx:xml `<book>Count of Monte Cristo</book>`};
@@ -113,17 +108,15 @@ function testRefTypes() returns Foo2 {
 
 // Testing the order of resolving
 
-type Foo3 record {
+type Foo3 record {|
     *OrderTest;
     string s;
-    !...;
-};
+|};
 
-type OrderTest record {
+type OrderTest record {|
     int ri;
     string rs;
-    !...;
-};
+|};
 
 function testOrdering() returns Foo3 {
     Foo3 f = {s:"qwerty", ri:10, rs:"asdf"};
@@ -134,23 +127,20 @@ type AB record {
     int abi;
 };
 
-type CD record {
+type CD record {|
     *EF;
     AB cdr;
-    !...;
-};
+|};
 
-type EF record {
+type EF record {|
     *AB;
     string efs;
-    !...;
-};
+|};
 
-type Foo4 record {
+type Foo4 record {|
     string s;
     *CD;
-    !...;
-};
+|};
 
 function testReferenceChains() returns Foo4 {
     AB ab = {abi:123};
@@ -165,24 +155,21 @@ function testTypeReferencingInBALOs() returns records:BClosedManager {
 
 // TEST DEFAULT VALUE INIT IN TYPE REFERENCED FIELDS
 
-type PersonRec record {
+type PersonRec record {|
     string name = "John Doe";
     int age = 25;
     Address adr = {city: "Colombo", country: "Sri Lanka"};
-    !...;
-};
+|};
 
-type EmployeeRec record {
+type EmployeeRec record {|
     *PersonRec;
     string company = "WSO2";
-    !...;
-};
+|};
 
-type ManagerRec record {
+type ManagerRec record {|
     string dept = "";
     *EmployeeRec;
-    !...;
-};
+|};
 
 function testDefaultValueInit() returns ManagerRec {
     ManagerRec mgr = {};

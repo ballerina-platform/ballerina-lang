@@ -41,14 +41,14 @@ function testToStringOnContentDisposition(mime:ContentDisposition contentDisposi
 function testSetMediaTypeToEntity() returns string? {
     mime:Entity entity = new;
     mime:MediaType mediaType = getMediaTypeTestObj();
-    _ = entity.setContentType(mediaType.toString());
+    checkpanic entity.setContentType(mediaType.toString());
     return entity.getContentType();
 }
 
 function testSetMediaTypeAndGetValueAsHeader() returns string {
     mime:Entity entity = new;
     mime:MediaType mediaType = getMediaTypeTestObj();
-    _ = entity.setContentType(mediaType.toString());
+    checkpanic entity.setContentType(mediaType.toString());
     return entity.getHeader(mime:CONTENT_TYPE);
 }
 
@@ -432,7 +432,7 @@ function testSetBodyAndGetByteChannel((string|xml|json|byte[]|io:ReadableByteCha
 function testGetAnyStreamAsString(io:ReadableByteChannel byteChannel, string contentType) returns string|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel, contentType = contentType);
-    return entity.getBodyAsString();
+    return entity.getText();
 }
 
 function testByteArrayWithContentType(io:ReadableByteChannel byteChannel, string contentTypeValue) returns byte[]|error {
@@ -500,9 +500,9 @@ function getAnyStreamAsStringFromCache(io:ReadableByteChannel byteChannel, strin
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel, contentType = contentType);
     string returnContent;
-    returnContent = check entity.getBodyAsString();
+    returnContent = check entity.getText();
     //String body should be retrieved from the cache the second time this is called
-    returnContent = returnContent + check entity.getBodyAsString();
+    returnContent = returnContent + check entity.getText();
     return returnContent;
 }
 

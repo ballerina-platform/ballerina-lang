@@ -39,6 +39,7 @@ import java.net.SocketException;
 import java.nio.channels.SocketChannel;
 import java.util.Map;
 
+import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_SERVICE_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
@@ -55,7 +56,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Client", structPackage = SOCKET_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {

@@ -44,7 +44,7 @@ public class BallerinaWorkerReceiveExpressionImpl extends BallerinaExpressionImp
   @Override
   @Nullable
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
@@ -56,7 +56,7 @@ public class BallerinaWorkerReceiveExpressionImpl extends BallerinaExpressionImp
   @Override
   @NotNull
   public PsiElement getLarrow() {
-    return notNullChild(findChildByType(LARROW));
+    return findNotNullChildByType(LARROW);
   }
 
   @Override

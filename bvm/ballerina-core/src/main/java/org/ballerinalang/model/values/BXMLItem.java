@@ -29,10 +29,10 @@ import org.apache.axiom.om.impl.common.OMChildrenQNameIterator;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
 import org.apache.axiom.om.impl.dom.CommentImpl;
 import org.apache.axiom.om.impl.dom.TextImpl;
-import org.apache.axiom.om.impl.llom.OMAttributeImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
@@ -176,23 +177,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BString getTextValue() {
-        switch(nodeType) {
-            case ELEMENT:
-                StringBuilder elementTextBuilder = new StringBuilder();
-                Iterator<OMNode> children = ((OMElement) omNode).getChildren();
-                while (children.hasNext()) {
-                    elementTextBuilder.append(getTextValue(children.next()));
-                }
-                return new BString(elementTextBuilder.toString());
-            case TEXT:
-                return new BString(((OMText) omNode).getText());
-            case COMMENT:
-                return BTypes.typeString.getZeroValue();
-            case PI:
-                return BTypes.typeString.getZeroValue();
-            default:
-                return BTypes.typeString.getZeroValue();
-        }
+        return new BString(getTextValue(omNode));
     }
 
     /**
@@ -254,26 +239,17 @@ public final class BXMLItem extends BXML<OMNode> {
             return;
         }
 
+        createAttribute(localName, namespaceUri, prefix, value, node);
+    }
+
+    private void createAttribute(String localName, String namespaceUri, String prefix, String value, OMElement node) {
         // If the namespace is null/empty, only the local part exists. Therefore add a simple attribute.
         if (namespaceUri == null || namespaceUri.isEmpty()) {
-            attr = new OMAttributeImpl();
-            attr.setAttributeValue(value);
-            attr.setLocalName(localName);
-            node.addAttribute(attr);
+            node.addAttribute(localName, value, null);
             return;
         }
 
-        // Attributes cannot cannot be belong to default namespace. Hence, if the current namespace is the default one,
-        // treat this attribute-add operation as a namespace addition.
-        if ((node.getDefaultNamespace() != null && namespaceUri.equals(node.getDefaultNamespace().getNamespaceURI()))
-                || namespaceUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
-
-            node.declareNamespace(value, localName);
-            return;
-        }
-
-        OMNamespace ns = null;
-        if (prefix != null && !prefix.isEmpty()) {
+        if (!(prefix == null || prefix.isEmpty())) {
             OMNamespace existingNs = node.findNamespaceURI(prefix);
 
             // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
@@ -282,35 +258,28 @@ public final class BXMLItem extends BXML<OMNode> {
                         prefix + "' is already bound to namespace '" + existingNs.getNamespaceURI() + "'");
             }
 
-            ns = new OMNamespaceImpl(namespaceUri, prefix);
-            node.addAttribute(localName, value, ns);
+            node.addAttribute(localName, value, new OMNamespaceImpl(namespaceUri, prefix));
             return;
         }
 
-        // We reach here if the namespace prefix is null/empty, and a namespace uri exists
-        if (namespaceUri != null && !namespaceUri.isEmpty()) {
-            prefix = null;
-            // Find a prefix that has the same namespaceUri, out of the defined namespaces
-            Iterator<String> prefixes = node.getNamespaceContext(false).getPrefixes(namespaceUri);
-            while (prefixes.hasNext()) {
-                String definedPrefix = prefixes.next();
-                if (definedPrefix.isEmpty()) {
-                    continue;
-                }
-                prefix = definedPrefix;
-                break;
+        // We reach here if the namespace prefix is null/empty, and a namespace uri exists.
+        // Find a prefix that has the same namespaceUri, out of the defined namespaces
+        Iterator<String> prefixes = node.getNamespaceContext(false).getPrefixes(namespaceUri);
+        if (prefixes.hasNext()) {
+            prefix = prefixes.next();
+            if (prefix.isEmpty()) {
+                node.addAttribute(localName, value, null);
+                return;
             }
-
-            if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
                 // If found, and if its the default namespace, add a namespace decl
                 node.declareNamespace(value, localName);
                 return;
             }
-
-            // else use the prefix. If the prefix is null, it will generate a random prefix.
-            ns = new OMNamespaceImpl(namespaceUri, prefix);
         }
-        node.addAttribute(localName, value, ns);
+
+        // Else use the prefix. If the prefix is null, a random prefix will be generated.
+        node.addAttribute(localName, value, new OMNamespaceImpl(namespaceUri, prefix));
     }
 
     /**
@@ -318,7 +287,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BMap<?, ?> getAttributesMap() {
-        BMap<String, BString> attrMap = new BMap<>(new BMapType(BTypes.typeString));
+        BXmlAttrMap attrMap = new BXmlAttrMap(this);
 
         if (nodeType != XMLNodeType.ELEMENT) {
             return attrMap;
@@ -344,6 +313,7 @@ public final class BXMLItem extends BXML<OMNode> {
             attrMap.put(attr.getQName().toString(), new BString(attr.getAttributeValue()));
         }
 
+        attrMap.finishConstruction();
         return attrMap;
     }
 
@@ -503,15 +473,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         currentNode.removeChildren();
-
-        if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
-            BValueArray childSeq = ((BXMLSequence) seq).value();
-            for (int i = 0; i < childSeq.size(); i++) {
-                currentNode.addChild((OMNode) childSeq.getRefValue(i).value());
-            }
-        } else {
-            currentNode.addChild((OMNode) seq.value());
-        }
+        addChildren(seq);
     }
 
     /**
@@ -636,7 +598,7 @@ public final class BXMLItem extends BXML<OMNode> {
                 case COMMENT:
                     return COMMENT_START + ((OMComment) omNode).getValue() + COMMENT_END;
                 case TEXT:
-                    return ((OMText) omNode).getText();
+                    return getTextValue(omNode);
                 case PI:
                     return PI_START + ((OMProcessingInstruction) omNode).getTarget() + " " +
                             ((OMProcessingInstruction) omNode).getValue() + PI_END;
@@ -706,6 +668,10 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     public long size() {
+        if (getNodeType() == XMLNodeType.TEXT) {
+            String textContent = ((OMText) this.omNode).getText();
+            return textContent.codePointCount(0, textContent.length());
+        }
         return this.omNode == null ? 0 : 1;
     }
 
@@ -788,6 +754,7 @@ public final class BXMLItem extends BXML<OMNode> {
                 nodeType = XMLNodeType.ELEMENT;
                 break;
             case OMNode.TEXT_NODE:
+            case OMNode.SPACE_NODE:
                 nodeType = XMLNodeType.TEXT;
                 break;
             case OMNode.COMMENT_NODE:
@@ -812,7 +779,8 @@ public final class BXMLItem extends BXML<OMNode> {
                 }
                 return sb.toString();
             case OMNode.TEXT_NODE:
-                return ((OMText) node).getText();
+                String text = ((OMText) node).getText();
+                return StringEscapeUtils.escapeXml11(text);
             case OMNode.COMMENT_NODE:
                 return STRING_NULL_VALUE;
             case OMNode.PI_NODE:
@@ -851,7 +819,7 @@ public final class BXMLItem extends BXML<OMNode> {
         public BValue getNext() {
             if (value.getNodeType() == XMLNodeType.TEXT) {
                 if (codePointIterator == null) {
-                    codePointIterator = new BXMLCodePointIterator(value.stringValue());
+                    codePointIterator = createCodePointIterator(value);
                 }
                 cursor++;
                 return codePointIterator.getNext();
@@ -866,11 +834,15 @@ public final class BXMLItem extends BXML<OMNode> {
         public boolean hasNext() {
             if (value.getNodeType() == XMLNodeType.TEXT) {
                 if (codePointIterator == null) {
-                    codePointIterator = new BXMLCodePointIterator(value.stringValue());
+                    codePointIterator = createCodePointIterator(value);
                 }
                 return codePointIterator.hasNext();
             }
             return cursor == 0;
+        }
+
+        private BXMLCodePointIterator createCodePointIterator(BXMLItem value) {
+            return new BXMLCodePointIterator(((OMText) value.omNode).getText());
         }
 
         @Override
@@ -886,6 +858,44 @@ public final class BXMLItem extends BXML<OMNode> {
     public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
         if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
+        }
+    }
+
+    private static class BXmlAttrMap extends BMap {
+        private final BXMLItem bXmlItem;
+        private boolean constructed = false;
+
+        BXmlAttrMap(BXMLItem bXmlItem) {
+            super(new BMapType(BTypes.typeString));
+            this.bXmlItem = bXmlItem;
+        }
+
+        void finishConstruction() {
+            constructed = true;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public void put(Object key, BValue value) {
+            super.put(key, value);
+            if (constructed) {
+                setAttribute((String) key, value.stringValue());
+            }
+        }
+
+        private void setAttribute(String key, String value) {
+            String url = null;
+            String localName = key;
+
+            int endOfUrl = key.lastIndexOf('}');
+            if (endOfUrl != -1) {
+                int startBrace = key.indexOf('{');
+                if (startBrace == 0) {
+                    url = key.substring(startBrace + 1, endOfUrl);
+                    localName = key.substring(endOfUrl + 1);
+                }
+            }
+            bXmlItem.setAttribute(localName, url, null, value);
         }
     }
 }

@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.test.expressions.stamp;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -112,47 +112,47 @@ public class StampInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(recordNegativeTestCompileResult, 0,
                 "incompatible stamp type: type 'Employee' cannot be " +
                         "stamped as type 'xml'",
-                58, 20);
+                56, 20);
 
         //Negative test case to confirm open record to closed record stamp conversion.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 1,
                 "incompatible stamp type: type 'Teacher' cannot be stamped as " +
                         "type 'Employee'",
-                65, 25);
+                63, 25);
 
         //Negative test case to confirm closed record to closed record stamp conversion.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 2,
                 "incompatible stamp type: type 'Person' cannot be stamped as type 'Student'",
-                73, 23);
+                71, 23);
 
         //Negative test case to confirm closed record to object stamp conversion.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 3,
                 "incompatible stamp type: type 'Teacher' cannot be stamped as " +
                         "type 'TeacherObj'",
-                81, 30);
+                79, 30);
 
         //Negative test case to confirm closed record to map stamp conversion.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 4,
                 "incompatible stamp type: type 'Person' cannot be stamped as " +
                         "type 'map<string>'",
-                89, 28);
+                87, 28);
 
         //Negative test case to confirm closed record to array stamp conversion.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 5,
                 "incompatible stamp type: type 'Employee' cannot be stamped as type" +
                         " 'string[]'",
-                96, 28);
+                94, 28);
 
         //Negative test case to confirm closed record to tuple stamp conversion.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 6,
                 "incompatible stamp type: type 'Employee' cannot be stamped as type" +
                         " '(string,string)'",
-                104, 35);
+                102, 35);
 
         //Negative test case to confirm record(with  object) to anydata stamp conversion.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 7,
                 "stamp function on type 'ExtendedEmployee' is not supported",
-                125, 28);
+                123, 28);
     }
 
     @Test
@@ -308,27 +308,27 @@ public class StampInbuiltFunctionNegativeTest {
         //Negative test case to confirm tuple cannot be stamped as record.
         BAssertUtil.validateError(tupleNegativeTestCompileResult, 0,
                 "incompatible stamp type: type '(string,string,string)' cannot be stamped as type 'Employee'",
-                42, 28);
+                41, 28);
 
         //Negative test case to confirm tuple cannot be stamped as json.
         BAssertUtil.validateError(tupleNegativeTestCompileResult, 1,
                 "incompatible stamp type: type '(string,string,string)' cannot be stamped as type 'json'",
-                49, 22);
+                48, 22);
 
         //Negative test case to confirm tuple cannot be stamped as xml.
         BAssertUtil.validateError(tupleNegativeTestCompileResult, 2,
                 "incompatible stamp type: type '(string,string,string)' cannot be stamped as type 'xml'",
-                56, 20);
+                55, 20);
 
         //Negative test case to confirm tuple cannot be stamped as object.
         BAssertUtil.validateError(tupleNegativeTestCompileResult, 3,
                 "incompatible stamp type: type '(string,int)' cannot be stamped as type 'EmployeeObj'",
-                63, 31);
+                62, 31);
 
         //Negative test case to confirm tuple cannot be stamped as map.
         BAssertUtil.validateError(tupleNegativeTestCompileResult, 4,
                 "incompatible stamp type: type '(string,string,string)' cannot be stamped as type 'map'",
-                70, 25);
+                69, 25);
     }
 
     @Test

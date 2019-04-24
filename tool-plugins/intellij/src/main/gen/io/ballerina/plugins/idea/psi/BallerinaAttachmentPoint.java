@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaAttachmentPoint extends BallerinaCompositeElement {
+public interface BallerinaAttachmentPoint extends PsiElement {
 
   @Nullable
   PsiElement getTypeParameter();

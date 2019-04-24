@@ -33,7 +33,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
@@ -95,8 +94,7 @@ public class JWTAuthenticatorTest {
                 "datafiles/keystore/ballerinaTruststore.p12").getPath();
         keyStorePath = getClass().getClassLoader().getResource(
                 "datafiles/keystore/ballerinaKeystore.p12").getPath();
-        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
+        resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
         Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "jwt", BALLERINA_CONF);
         Path ballerinaKeyStorePath = Paths.get(resourceRoot, "datafiles", "keystore", KEY_STORE);
