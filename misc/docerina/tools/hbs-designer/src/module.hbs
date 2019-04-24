@@ -1,49 +1,27 @@
 <!DOCTYPE html>
 <html>
 
-{{> htmlHead title="API Documentation - Module {{ id }} " }}
+{{> htmlHead title="API Documentation - Module " rootPath="../" }}
 
 <body>
   <div class="ui grid">
-    <div class="navi-wrapper two wide column"> 
+    <div class="navi-wrapper two wide column">
       <a href="../index.html">
         <img class="logo" src="../images/ballerina-logo.png">
-        </a>
+      </a>
 
       <div class="primary-list">
-        <h3>{{id}}</h3>
+        <h3>{{mod.id}}</h3>
         <ul>
-          {{#each constructs}}
+          {{#each mod.constructs}}
           <li>
             <a href="#{{@key}}">{{@key}}</a>
           </li>
           {{/each}}
         </ul>
         <div class="ui divider"></div>
-
         <div class="secondary-list">
-          <h4>All Modules</h4>
-
-          {{!-- {{#if all.modules}}1 --}}
-            <ul>
-              {{#each modules}}
-              <li>
-                <a href="{{id}}/index.html">{{id}}</a>
-              </li>
-              {{/each}}
-            </ul>
-          {{!-- {{/if}} --}}
-        <div class="ui divider"></div>
-          {{#if modules}}
-          <div class="module-list">
-            {{#each modules}}
-            <div class="module-title truncate">
-              <a href="{{id}}/index.html">{{id}}</a>
-            </div>
-            <div class="module-desc">{{description}}</div>
-            {{/each}}
-          </div>
-          {{/if}}
+          {{> allModules rootPath="../" }}
         </div>
       </div>
     </div>
@@ -118,13 +96,13 @@
       <div class="ui divider"></div>
 
       <table>
-        {{#if constructs}}
-          {{#each constructs.records}}
-          <tr>
-            <td class="module-title truncate records" id ="{{name}}"><a href="records/{{name}}.html">{{name}}</a></td>
-            <td class="module-desc">{{description}}</td>
-          </tr>
-          {{/each}}
+        {{#if mod.constructs}}
+        {{#each mod.constructs.records}}
+        <tr>
+          <td class="module-title truncate records" id="{{name}}"><a href="records/{{name}}.html">{{name}}</a></td>
+          <td class="module-desc">{{description}}</td>
+        </tr>
+        {{/each}}
         {{/if}}
       </table>
 
@@ -132,14 +110,14 @@
       <h3><a name="objects">Objects</a></h3>
       <div class="ui divider"></div>
 
-      <table> 
-        {{#if constructs}}
-          {{#each constructs.objects}}
-          <tr>
-            <td class="module-title truncate objects" id ="{{name}}"><a href="objects/{{name}}.html">{{name}}</a></td>
-            <td class="module-desc">{{description}}</td>
-          </tr>
-          {{/each}}
+      <table>
+        {{#if mod.constructs}}
+        {{#each mod.constructs.objects}}
+        <tr>
+          <td class="module-title truncate objects" id="{{name}}"><a href="objects/{{name}}.html">{{name}}</a></td>
+          <td class="module-desc">{{description}}</td>
+        </tr>
+        {{/each}}
         {{/if}}
       </table>
 
@@ -147,14 +125,14 @@
       <h3><a name="clients">Clients</a></h3>
       <div class="ui divider"></div>
 
-      <table> 
-        {{#if constructs}}
-          {{#each constructs.clients}}
-          <tr>
-            <td class="module-title truncate clients" id ="{{name}}"><a href="clients/{{name}}.html">{{name}}</a></td>
-            <td class="module-desc">{{description}}</td>
-          </tr>
-          {{/each}}
+      <table>
+        {{#if mod.constructs}}
+        {{#each mod.constructs.clients}}
+        <tr>
+          <td class="module-title truncate clients" id="{{name}}"><a href="clients/{{name}}.html">{{name}}</a></td>
+          <td class="module-desc">{{description}}</td>
+        </tr>
+        {{/each}}
         {{/if}}
       </table>
 
@@ -162,14 +140,14 @@
       <h3><a name="functions">Functions</a></h3>
       <div class="ui divider"></div>
 
-      <table> 
-        {{#if constructs}}
-          {{#each constructs.functions}}
-          <tr>
-            <td class="module-title truncate functions" id ="{{name}}"><a href="functions/functions.html">{{name}}</a></td>
-            <td class="module-desc">{{description}}</td>
-          </tr>
-          {{/each}}
+      <table>
+        {{#if mod.constructs}}
+        {{#each mod.constructs.functions}}
+        <tr>
+          <td class="module-title truncate functions" id="{{name}}"><a href="functions/functions.html">{{name}}</a></td>
+          <td class="module-desc">{{description}}</td>
+        </tr>
+        {{/each}}
         {{/if}}
       </table>
 
@@ -178,14 +156,14 @@
       <h3><a name="constants">Constants</a></h3>
       <div class="ui divider"></div>
 
-      <table> 
-        {{#if constructs}}
-          {{#each constructs.constants}}
-          <tr>
-            <td class="module-title truncate constant" id ="{{name}}"><a href="constants/constants.html">{{name}}</a></td>
-            <td class="module-desc">{{description}}</td>
-          </tr>
-          {{/each}}
+      <table>
+        {{#if mod.constructs}}
+        {{#each mod.constructs.constants}}
+        <tr>
+          <td class="module-title truncate constant" id="{{name}}"><a href="constants/constants.html">{{name}}</a></td>
+          <td class="module-desc">{{description}}</td>
+        </tr>
+        {{/each}}
         {{/if}}
       </table>
 
@@ -194,17 +172,18 @@
       <h3><a name="annotations">Annotations</a></h3>
       <div class="ui divider"></div>
 
-      <table> 
-        {{#if constructs}}
-          {{#each constructs.annotations}}
-          <tr>
-            <td class="module-title truncate annotations" id ="{{name}}"><a href="annotations/annotations.html">{{name}}</a></td>
-            <td class="module-desc">{{description}}</td>
-          </tr>
-          {{/each}}
+      <table>
+        {{#if mod.constructs}}
+        {{#each mod.constructs.annotations}}
+        <tr>
+          <td class="module-title truncate annotations" id="{{name}}"><a
+              href="annotations/annotations.html">{{name}}</a></td>
+          <td class="module-desc">{{description}}</td>
+        </tr>
+        {{/each}}
         {{/if}}
       </table>
 
-      
-  </div>
+
+    </div>
 </body>
