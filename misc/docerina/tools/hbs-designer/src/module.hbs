@@ -1,106 +1,57 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
-  <title>API Documentation</title>
-  <link rel="stylesheet" href="../../styles/css/styles.css">
-  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
-</head>
+{{> htmlHead title="API Documentation - Module {{ id }} " }}
 
 <body>
   <div class="ui grid">
-    <div class="sixteen wide column header-wrapper">
-      <h1>{{id}}</h1>
-      <p>{{description}}</p>
-    </div>
-    <div class="navi-wrapper two wide column">
-      <h3>{{id}}</h3>
-      <div class="ui search">
-        <input class="prompt" type="text" placeholder="Seach Modules..">
-        <div class="results"></div>
-      </div>
+    <div class="navi-wrapper two wide column"> 
+      <a href="../index.html">
+        <img class="logo" src="../images/ballerina-logo.png">
+        </a>
 
       <div class="primary-list">
-        <h4>http Module</h4>
+        <h3>{{id}}</h3>
         <ul>
-          <li>Records</li>
-          <li>Objects</li>
-          <li>Endpoints</li>
-          <li>Functions</li>
-          <li>Type Definitions</li>
-          <li>Constants</li>
-          <li>Annotations</li>
-          <li>Listener</li>
-          <li>Errors</li>
-        </ul>
-        <div class="ui divider"></div>
-        <ul>
-          <li>Primitive types </li>
+          {{#each constructs}}
+          <li>
+            <a href="#{{@key}}">{{@key}}</a>
+          </li>
+          {{/each}}
         </ul>
         <div class="ui divider"></div>
 
         <div class="secondary-list">
-          <h4>http Module</h4>
-          <ul>
-            <li>ballerina/auth</li>
-            <li>ballerina/bir</li>
-            <li>ballerina/builtin</li>
-            <li>ballerina/cache</li>
-            <li>ballerina/config</li>
-            <li>ballerina/crypto</li>
-            <li>ballerina/encoding</li>
-            <li>ballerina/file</li>
-            <li>ballerina/grpc</li>
-            <li>ballerina/h2</li>
-            <li>ballerina/http</li>
-            <li>ballerina/internal</li>
-            <li>ballerina/io</li>
-            <li>ballerina/jms</li>
-            <li>ballerina/llvm</li>
-            <li>ballerina/log</li>
-            <li>ballerina/math</li>
-            <li>ballerina/mime</li>
-            <li>ballerina/mysql</li>
-            <li>ballerina/observe</li>
-            <li>ballerina/privacy</li>
-            <li>ballerina/reflect</li>
-            <li>ballerina/runtime</li>
-            <li>ballerina/socket</li>
-            <li>ballerina/sql</li>
-            <li>ballerina/streams</li>
-            <li>ballerina/swagger</li>
-            <li>ballerina/system</li>
-            <li>ballerina/task</li>
-            <li>ballerina/test</li>
-            <li>ballerina/time</li>
-            <li>ballerina/transactions</li>
-            <li>ballerina/websub</li>
-          </ul>
+          <h4>All Modules</h4>
 
-           {{#if modules}}
+          {{!-- {{#if all.modules}}1 --}}
+            <ul>
+              {{#each modules}}
+              <li>
+                <a href="{{id}}/index.html">{{id}}</a>
+              </li>
+              {{/each}}
+            </ul>
+          {{!-- {{/if}} --}}
+        <div class="ui divider"></div>
+          {{#if modules}}
           <div class="module-list">
             {{#each modules}}
-            <div class="module-title">
+            <div class="module-title truncate">
               <a href="{{id}}/index.html">{{id}}</a>
-              </div>
+            </div>
             <div class="module-desc">{{description}}</div>
             {{/each}}
           </div>
           {{/if}}
         </div>
-
       </div>
     </div>
-    <div class="eleven wide column content-wrapper">
+
+    <div class="fourteen wide column content-wrapper">
       <div class="ui breadcrumb">
         <a href="">
-          <h2 class="section">Modules</h2>
+          <h2 class="section">modules</h2>
         </a>
         <div class="divider"> / </div>
         <h2 class="active section">{{id}}</h2>
@@ -129,8 +80,131 @@
         <code>Client</code> endpoints support Certificate Revocation List (CRL), Online Certificate Status Protocol
         (OCSP) and OCSP Stapling for SSL/TLS connection. They also support HTTP2, keep-alive, chunking, HTTP caching,
         and data compression/decompression.<br><br></p>
-        
-      <p>See <b><u>Client Endpoint Example, Circuit Breaker Example, HTTP Redirects Example</u></b></p>
-    </div>
+
+      <p>See <b><u>Client Endpoint Example</u></b>,
+        <b><u>Circuit Breaker Example</u></b>,
+        <b><u> HTTP Redirects Example</u></b>
+      </p>
+
+      <h3>Listener endpoints</h3>
+      <p>
+        A Service represents a collection of network-accessible <br>entry points and can be exposed via a
+        <code>Listener</code> endpoint.
+        A resource represents one such entry point and can have its own path, HTTP methods, body format, 'consumes' and
+        'produces' content types, CORS headers, etc. In resources, <code>endpoint</code> and <code>http:Request</code>
+        are mandatory parameters
+        while <code>path</code> and <code>body</code> are optional.
+      </p>
+      <p>When a <code>Service</code> receives a request, it is dispatched to the best-matched resource.</p>
+      <p>See
+        <b><u>Listener Endpoint Example</u></b> ,
+        <b><u>HTTP CORS Example</u></b> ,
+        <b><u>HTTP Failover Example</u></b> ,
+        <b><u>HTTP Load Balancer Example</u></b>
+      </p>
+      <p>
+        <code>Listener</code> endpoints can be exposed via SSL. They support Mutual SSL, Hostname Verification, and
+        Server Name
+        Indication (SNI) and Application Layer Protocol Negotiation (ALPN). <code>Listener</code> endpoints also support
+        Certificate
+        Revocation List (CRL), Online Certificate Status Protocol (OCSP), OCSP Stapling, HTTP2, keep-alive, chunking,
+        HTTP caching, and data compression/decompression.
+      </p>
+      <p>See <u><b>Mutual SSL Example.</u></b></p>
+      <p> See <u><b> Caching Example</u></b>, <u><b> HTTP Disable Chunking Example.</u></b></p>
+
+      <div class="ui divider"></div>
+      <h3><a name="records">Records</a></h3>
+      <div class="ui divider"></div>
+
+      <table>
+        {{#if constructs}}
+          {{#each constructs.records}}
+          <tr>
+            <td class="module-title truncate records" id ="{{name}}"><a href="records/{{name}}.html">{{name}}</a></td>
+            <td class="module-desc">{{description}}</td>
+          </tr>
+          {{/each}}
+        {{/if}}
+      </table>
+
+      <div class="ui divider"></div>
+      <h3><a name="objects">Objects</a></h3>
+      <div class="ui divider"></div>
+
+      <table> 
+        {{#if constructs}}
+          {{#each constructs.objects}}
+          <tr>
+            <td class="module-title truncate objects" id ="{{name}}"><a href="objects/{{name}}.html">{{name}}</a></td>
+            <td class="module-desc">{{description}}</td>
+          </tr>
+          {{/each}}
+        {{/if}}
+      </table>
+
+      <div class="ui divider"></div>
+      <h3><a name="clients">Clients</a></h3>
+      <div class="ui divider"></div>
+
+      <table> 
+        {{#if constructs}}
+          {{#each constructs.clients}}
+          <tr>
+            <td class="module-title truncate clients" id ="{{name}}"><a href="clients/{{name}}.html">{{name}}</a></td>
+            <td class="module-desc">{{description}}</td>
+          </tr>
+          {{/each}}
+        {{/if}}
+      </table>
+
+      <div class="ui divider"></div>
+      <h3><a name="functions">Functions</a></h3>
+      <div class="ui divider"></div>
+
+      <table> 
+        {{#if constructs}}
+          {{#each constructs.functions}}
+          <tr>
+            <td class="module-title truncate functions" id ="{{name}}"><a href="functions/functions.html">{{name}}</a></td>
+            <td class="module-desc">{{description}}</td>
+          </tr>
+          {{/each}}
+        {{/if}}
+      </table>
+
+
+      <div class="ui divider"></div>
+      <h3><a name="constants">Constants</a></h3>
+      <div class="ui divider"></div>
+
+      <table> 
+        {{#if constructs}}
+          {{#each constructs.constants}}
+          <tr>
+            <td class="module-title truncate constant" id ="{{name}}"><a href="constants/constants.html">{{name}}</a></td>
+            <td class="module-desc">{{description}}</td>
+          </tr>
+          {{/each}}
+        {{/if}}
+      </table>
+
+
+      <div class="ui divider"></div>
+      <h3><a name="annotations">Annotations</a></h3>
+      <div class="ui divider"></div>
+
+      <table> 
+        {{#if constructs}}
+          {{#each constructs.annotations}}
+          <tr>
+            <td class="module-title truncate annotations" id ="{{name}}"><a href="annotations/annotations.html">{{name}}</a></td>
+            <td class="module-desc">{{description}}</td>
+          </tr>
+          {{/each}}
+        {{/if}}
+      </table>
+
+      
   </div>
 </body>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>API Documentation</title>
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+  <link rel="stylesheet" href="../../styles/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+</head>
+
+<body>
+  <div class="ui grid">
+    <div class="navi-wrapper two wide column">
+      <a href="../../index.html">
+        <img class="logo" src="../../images/ballerina-logo.png">
+        </a>
+      <div class="primary-list">
+        <h3>Functions</h3>
+        <ul>
+         {{#each functions}}
+          <li>
+            {{name}}
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+      <div class="ui divider"></div>
+      <div class="primary-list">
+        <h3>Constructs</h3>
+        {{#if all.modules}}
+        <ul>
+          {{#each all.modules}}
+          {{#if constructs}}
+          {{#each constructs}}
+          <li>
+            <a href="../index.html#{{@key}}">{{@key}}</a>
+          </li>
+          {{/each}}
+          {{/if}}
+          {{/each}}
+        </ul>
+        {{/if}}
+        <div class="ui divider"></div>
+      </div>
+      <div class="primary-list">
+        <h3>All Modules</h3>
+        {{#if all.modules}}
+            <ul>
+              {{#each all.modules}}
+              <li>
+                <a href="../index.html">{{id}}</a>
+              </li>
+              {{/each}}
+            </ul>
+        {{/if}}
+        <div class="ui divider"></div>
+      </div>
+    </div>
+
+    <div class="fourteen wide column content-wrapper">
+      <h1>Functions</h1>
+      <div class="ui divider"></div>
+      <div class="constants">
+        <table class="ui table">
+          {{#each functions}}
+            <tbody>
+              <tr>
+                <td class="functions"><a href="#{{name}}">{{name}}</a></td>
+                <td>{{description}}</td>
+              </tr>
+            </tbody>
+          {{/each}}
+        </table>
+        <div class="ui divider"></div>
+      <div>
+        {{#if functions}}
+        <div>
+        {{#each functions}}
+            <p>{{function_type_label}} <a id="{{name}}"><b class="functions">{{name}}</b> </a>{{function_params}} </h3>
+            <br><b>{{return_label}}</b> {{return_type}}</p>
+          <p>{{description}}</p>
+          <div class="ui divider"></div>
+          {{#if params}}
+            <table class="ui table">
+            {{#each params}}
+              {{#each fields}}
+                <thead>
+                  <tr>
+                    <th>{{param_name_label}}</th>
+                    <th>{{data_type_label}}</th>
+                    <th>{{default_value_label}}</th>
+                    <th>{{description_label}}</th>
+                  </tr>
+                </thead>
+                    {{#each attributes}}
+                    <tbody>
+                      <tr>
+                        <td>{{field_name}}</td>
+                        <td>{{data_type}}</td>
+                        <td>{{default_value}}</td>
+                        <td>{{description}}</td>
+                      </tr>
+                    </tbody>
+                    {{/each}}
+              {{/each}}
+            {{/each}}
+            </table>
+          {{/if}}
+          {{#if returns}}
+            <table class="ui table">
+            {{#each returns}}
+              {{#each fields}}
+                <thead>
+                  <tr>
+                    <th>{{return_type_label}}</th>
+                    <th>{{return_description_label}}</th>
+                  </tr>
+                </thead>
+                    <tbody>
+                      <tr>
+                        <td>{{return_type}}</td>
+                        <td>{{description}}</td>
+                      </tr>
+                    </tbody>
+              {{/each}}
+            {{/each}}
+            </table>
+             <div class="ui divider"></div>
+          {{/if}}
+        {{/each}}
+        </div>
+        {{/if}}
+      </div>
+      </div>
+    </div>
+  </div>
+</body>
