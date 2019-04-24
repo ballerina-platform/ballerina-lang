@@ -168,16 +168,16 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
     |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
-    |   openRecordTypeDescriptor                                                                # openRecordTypeNameLabel
-    |   closedRecordTypeDescriptor                                                              # closedRecordTypeNameLabel
+    |   inclusiveRecordTypeDescriptor                                                           # inclusiveRecordTypeNameLabel
+    |   exclusiveRecordTypeDescriptor                                                           # exclusiveRecordTypeNameLabel
     ;
 
-openRecordTypeDescriptor
-    :   RECORD LEFT_BRACE fieldDescriptor* recordRestFieldDefinition? RIGHT_BRACE
+inclusiveRecordTypeDescriptor
+    :   RECORD LEFT_BRACE fieldDescriptor* RIGHT_BRACE
     ;
 
-closedRecordTypeDescriptor
-    :   RECORD LEFT_CLOSED_RECORD_DELIMITER fieldDescriptor* RIGHT_CLOSED_RECORD_DELIMITER
+exclusiveRecordTypeDescriptor
+    :   RECORD LEFT_CLOSED_RECORD_DELIMITER fieldDescriptor* recordRestFieldDefinition? RIGHT_CLOSED_RECORD_DELIMITER
     ;
 
 fieldDescriptor
