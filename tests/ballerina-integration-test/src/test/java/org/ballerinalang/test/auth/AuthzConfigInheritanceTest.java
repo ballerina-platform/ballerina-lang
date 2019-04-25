@@ -20,7 +20,6 @@ package org.ballerinalang.test.auth;
 
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
