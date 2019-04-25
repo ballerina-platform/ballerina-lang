@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/system;
 
 # The `StreamEvent` object is a wrapper around the actual data being received to the input stream. If a record is
 # receive to a input stream, that record is converted to a map of anydata values and set that map to a field called
