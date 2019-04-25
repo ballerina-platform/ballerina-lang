@@ -654,7 +654,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
         // schedule the init method
-        string lambdaName = io:sprintf("$lambda$%s$%s$%s$", pkgName, initClass, initFuncName);
+        string lambdaName = io:sprintf("$lambda$%s$", initFuncName);
         mv.visitInvokeDynamicInsn(initClass, lambdaName, true);
 
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
@@ -779,7 +779,7 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     if(hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
-            io:sprintf("$lambda$%s$%s$%s$", pkgName, initClass, initFuncName), 
+            io:sprintf("$lambda$%s$", initFuncName),
             io:sprintf("([L%s;)V", OBJECT), (), ());
         mv.visitCode();
          //load strand as first arg
