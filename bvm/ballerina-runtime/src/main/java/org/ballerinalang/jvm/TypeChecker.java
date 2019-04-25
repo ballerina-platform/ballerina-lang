@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -155,20 +154,6 @@ public class TypeChecker {
         return false;
     }
 
-    /**
-     * This method is for use as the first check in checking for cast/assignability for two types.
-     * Checks whether the source type is the same as the target type or if the target type is any type, and if true
-     * the return value would be true.
-     *
-     * @param rhsType   the source type - the type (of the value) being cast/assigned
-     * @param lhsType   the target type against which cast/assignability is checked
-     * @return          true if the lhsType is any or is the same as rhsType
-     */
-    private static boolean isSameOrAnyType(BType rhsType, BType lhsType) {
-        return (lhsType.getTag() == TypeTags.ANY_TAG && rhsType.getTag() != TypeTags.ERROR_TAG) || 
-                rhsType.equals(lhsType);
-    }
-
     public static BType getType(Object value) {
         if (value == null) {
             return BTypes.typeNull;
@@ -206,6 +191,7 @@ public class TypeChecker {
             case TypeTags.BYTE_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
+            case TypeTags.SERVICE_TAG:
                 if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
                     return ((BFiniteType) sourceType).valueSpace.stream()
                                                                 .allMatch(bValue -> checkIsType(bValue, targetType));
@@ -224,12 +210,14 @@ public class TypeChecker {
             case TypeTags.TUPLE_TAG:
                 return checkIsTupleType(sourceType, (BTupleType) targetType, unresolvedTypes);
             case TypeTags.UNION_TAG:
-                return checkIsUnionType(sourceType, (BUnionType) targetType, unresolvedTypes);
+                return ((BUnionType) targetType).getMemberTypes().stream()
+                        .anyMatch(type -> checkIsType(sourceType, type, unresolvedTypes));
             case TypeTags.ANY_TAG:
                 return checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG:
+                return isAnydata(sourceType);
             case TypeTags.OBJECT_TYPE_TAG:
-                return isAssignable(sourceType, targetType, unresolvedTypes);
+                return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkIsFiniteType(sourceType, (BFiniteType) targetType, unresolvedTypes);
             case TypeTags.FUTURE_TAG:
@@ -237,71 +225,6 @@ public class TypeChecker {
             default:
                 return false;
         }
-    }
-
-    private static boolean isAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
-        if (isSameOrAnyType(sourceType, targetType)) {
-            return true;
-        }
-
-        if (targetType.getTag() == TypeTags.UNION_TAG) {
-            return checkUnionAssignable(sourceType, targetType, unresolvedTypes);
-        }
-
-        // TODO: 6/26/18 complete impl. for JSON assignable
-        if (targetType.getTag() == TypeTags.JSON_TAG && sourceType.getTag() == TypeTags.JSON_TAG) {
-            return true;
-        }
-
-        if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            if (((BArrayType) sourceType).getState() == ArrayState.CLOSED_SEALED
-                    && ((BArrayType) targetType).getState() == ArrayState.CLOSED_SEALED
-                    && ((BArrayType) sourceType).getSize() != ((BArrayType) targetType).getSize()) {
-                return false;
-            }
-            return checkArrayCast(((BArrayType) sourceType).getElementType(),
-                                  ((BArrayType) targetType).getElementType(), unresolvedTypes);
-        }
-
-        if (sourceType.getTag() == TypeTags.TUPLE_TAG && targetType.getTag() == TypeTags.TUPLE_TAG) {
-            return checkTupleAssignable(sourceType, targetType, unresolvedTypes);
-        }
-
-        return checkCastByType(sourceType, targetType, unresolvedTypes);
-    }
-
-    private static boolean checkUnionAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() == TypeTags.UNION_TAG) {
-            for (BType sourceMemberType : ((BUnionType) sourceType).getMemberTypes()) {
-                if (!checkUnionAssignable(sourceMemberType, targetType, unresolvedTypes)) {
-                    return false;
-                }
-            }
-            return true;
-        } else {
-            BUnionType targetUnionType = (BUnionType) targetType;
-            for (BType memberType : targetUnionType.getMemberTypes()) {
-                if (isAssignable(sourceType, memberType, unresolvedTypes)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-    private static boolean checkTupleAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
-        List<BType> targetTupleTypes = ((BTupleType) targetType).getTupleTypes();
-        List<BType> sourceTupleTypes = ((BTupleType) sourceType).getTupleTypes();
-
-        if (sourceTupleTypes.size() != targetTupleTypes.size()) {
-            return false;
-        }
-        for (int i = 0; i < sourceTupleTypes.size(); i++) {
-            if (!isAssignable(sourceTupleTypes.get(i), targetTupleTypes.get(i), unresolvedTypes)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private static boolean checkIsMapType(BType sourceType, BMapType targetType, List<TypePair> unresolvedTypes) {
@@ -416,18 +339,6 @@ public class TypeChecker {
         return true;
     }
 
-    private static boolean checkIsUnionType(BType sourceType, BUnionType targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() == TypeTags.UNION_TAG) {
-            return ((BUnionType) sourceType).getMemberTypes().stream()
-                                            .allMatch(type -> checkIsType(type, targetType, unresolvedTypes));
-        } else if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-            return ((BFiniteType) sourceType).valueSpace.stream()
-                                                        .allMatch(bValue -> checkIsType(bValue, targetType));
-        }
-        return targetType.getMemberTypes().stream()
-                         .anyMatch(type -> checkIsType(sourceType, type, unresolvedTypes));
-    }
-
     private static boolean checkIsAnyType(BType sourceType) {
         switch (sourceType.getTag()) {
             case TypeTags.ERROR_TAG:
@@ -506,36 +417,6 @@ public class TypeChecker {
                         : checkPublicObjectsEquivalency(targetType, sourceObjectType, unresolvedTypes);
     }
 
-    private static boolean checkRecordEquivalency(BRecordType lhsType, BRecordType rhsType,
-                                                  List<TypePair> unresolvedTypes) {
-        // Both records should be public or private.
-        // Get the XOR of both flags(masks)
-        // If both are public, then public bit should be 0;
-        // If both are private, then public bit should be 0;
-        // The public bit is on means, one is public, and the other one is private.
-        if (Flags.isFlagOn(lhsType.flags ^ rhsType.flags, Flags.PUBLIC)) {
-            return false;
-        }
-
-        // If both records are private, they should be in the same package.
-        if (!Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
-                !rhsType.getPackagePath().equals(lhsType.getPackagePath())) {
-            return false;
-        }
-
-        // Cannot assign open records to closed record types
-        if (lhsType.sealed && !rhsType.sealed) {
-            return false;
-        }
-
-        // The rest field types should match if they are open records
-        if (!rhsType.sealed && !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
-            return false;
-        }
-
-        return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
-    }
-
     private static boolean checkPrivateObjectsEquivalency(BObjectType lhsType, BObjectType rhsType,
                                                           List<TypePair> unresolvedTypes) {
         Map<String, BField> rhsFields = rhsType.getFields();
@@ -604,34 +485,6 @@ public class TypeChecker {
         return true;
     }
 
-    private static boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType,
-                                                 List<TypePair> unresolvedTypes) {
-        Map<String, BField> rhsFields = rhsType.getFields();
-        Set<String> lhsFieldNames = lhsType.getFields().keySet();
-
-        for (BField lhsField : lhsType.getFields().values()) {
-            BField rhsField = rhsFields.get(lhsField.getFieldName());
-
-            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
-            if (!Flags.isFlagOn(lhsField.flags, Flags.OPTIONAL)
-                    && (rhsField == null || Flags.isFlagOn(rhsField.flags, Flags.OPTIONAL))) {
-                return false;
-            }
-
-            if (rhsField == null || !isAssignable(rhsField.getFieldType(), lhsField.getFieldType(), unresolvedTypes)) {
-                return false;
-            }
-        }
-
-        if (lhsType.sealed) {
-            return lhsFieldNames.containsAll(rhsFields.keySet());
-        }
-
-        return rhsFields.values().stream()
-                        .filter(field -> !lhsFieldNames.contains(field.getFieldName()))
-                        .allMatch(field -> isAssignable(field.getFieldType(), lhsType.restFieldType, unresolvedTypes));
-    }
-
     private static AttachedFunction getMatchingInvokableType(AttachedFunction[] rhsFuncs, AttachedFunction lhsFunc,
                                                              List<TypePair> unresolvedTypes) {
         return Arrays.stream(rhsFuncs).filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
@@ -677,104 +530,6 @@ public class TypeChecker {
         }
 
         return isSameType(source.retType, targetType.retType);
-    }
-
-    private static boolean checkCastByType(BType rhsType, BType lhsType, List<TypePair> unresolvedTypes) {
-        if (rhsType.getTag() == TypeTags.INT_TAG &&
-                (lhsType.getTag() == TypeTags.FLOAT_TAG || lhsType.getTag() == TypeTags.DECIMAL_TAG)) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.DECIMAL_TAG) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.BYTE_TAG && lhsType.getTag() == TypeTags.INT_TAG) {
-            return true;
-        }
-
-        if (lhsType.getTag() == TypeTags.JSON_TAG) {
-            switch (rhsType.getTag()) {
-                case TypeTags.INT_TAG:
-                case TypeTags.FLOAT_TAG:
-                case TypeTags.DECIMAL_TAG:
-                case TypeTags.STRING_TAG:
-                case TypeTags.BOOLEAN_TAG:
-                case TypeTags.NULL_TAG:
-                case TypeTags.JSON_TAG:
-                    return true;
-                case TypeTags.MAP_TAG:
-                    return checkCastByType(((BMapType) rhsType).getConstrainedType(), lhsType, unresolvedTypes);
-                case TypeTags.ARRAY_TAG:
-                    return checkCastByType(((BArrayType) rhsType).getElementType(), lhsType, unresolvedTypes);
-                default:
-                    return false;
-            }
-        }
-
-        if (rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG && lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            return checkObjectEquivalency(rhsType, (BObjectType) lhsType, unresolvedTypes);
-        }
-
-        if (rhsType.getTag() == TypeTags.RECORD_TYPE_TAG && lhsType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            return checkRecordEquivalency((BRecordType) lhsType, (BRecordType) rhsType, unresolvedTypes);
-        }
-
-        if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
-            return checkMapCast(rhsType, lhsType, unresolvedTypes);
-        }
-
-        if (rhsType.getTag() == TypeTags.TABLE_TAG && lhsType.getTag() == TypeTags.TABLE_TAG) {
-            return true;
-        }
-
-        if (rhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG && lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
-            return checkIsFunctionType(rhsType, (BFunctionType) lhsType);
-        }
-
-        return lhsType.getTag() == TypeTags.ANYDATA_TAG && isAnydata(rhsType);
-    }
-
-    private static boolean checkMapCast(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
-        BMapType sourceMapType = (BMapType) sourceType;
-        BMapType targetMapType = (BMapType) targetType;
-
-        if (sourceMapType.equals(targetMapType)) {
-            return true;
-        }
-
-        if (targetMapType.getConstrainedType().getTag() == TypeTags.ANY_TAG) {
-            return true;
-        }
-
-        if (sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG &&
-                targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            return checkObjectEquivalency(sourceMapType.getConstrainedType(),
-                                          (BObjectType) targetMapType.getConstrainedType(), unresolvedTypes);
-        }
-
-        if (sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG &&
-                targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG) {
-            return checkRecordEquivalency((BRecordType) targetMapType.getConstrainedType(),
-                                          (BRecordType) sourceMapType.getConstrainedType(), unresolvedTypes);
-        }
-        return false;
-    }
-
-    private static boolean checkArrayCast(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
-        if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            BArrayType sourceArrayType = (BArrayType) sourceType;
-            BArrayType targetArrayType = (BArrayType) targetType;
-            if (targetArrayType.getDimensions() > sourceArrayType.getDimensions()) {
-                return false;
-            }
-
-            return checkArrayCast(sourceArrayType.getElementType(), targetArrayType.getElementType(), unresolvedTypes);
-        } else if (targetType.getTag() == TypeTags.UNION_TAG) {
-            return checkUnionAssignable(sourceType, targetType, unresolvedTypes);
-        }
-
-        if (targetType.getTag() == TypeTags.ANY_TAG) {
-            return true;
-        }
-
-        return sourceType.equals(targetType);
     }
 
     private static boolean checkContraints(BType sourceConstraint, BType targetConstraint,
@@ -1092,8 +847,8 @@ public class TypeChecker {
                 return isPureType(((BArrayType) type).getElementType(), unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
-                                                                          .map(TypeChecker::getType)
-                                                                          .collect(Collectors.toSet());
+                        .map(TypeChecker::getType)
+                        .collect(Collectors.toSet());
                 return isAnydata(valSpaceTypes, unresolvedTypes);
             default:
                 return false;
