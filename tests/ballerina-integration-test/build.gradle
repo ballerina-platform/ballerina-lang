@@ -58,6 +58,7 @@ dependencies {
     implementation project(':ballerina-socket')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-time')
+    implementation project(':ballerina-filepath')
     implementation project(':ballerina-observability')
     implementation project(':ballerina-activemq-artemis')
     implementation project(':observability-test-utils')
@@ -99,7 +100,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
-    
+
     testCompile project(':ballerina-mime')
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.netty:netty-transport'

@@ -20,16 +20,20 @@ public type Listener object {
     *AbstractListener;
     private Session session;
 
-    public function __init(Session | EndpointConfiguration sesssionOrEndpointConfig) {
-        if (sesssionOrEndpointConfig is Session) {
-            self.session = sesssionOrEndpointConfig;
+    public function __init(Session | EndpointConfiguration sessionOrEndpointConfig) {
+        if (sessionOrEndpointConfig is Session) {
+            self.session = sessionOrEndpointConfig;
         } else {
-            Connection connection = new("tcp://" + sesssionOrEndpointConfig.host + ":"
-                                        + sesssionOrEndpointConfig.port);
-            self.session = new(connection, config = { username: sesssionOrEndpointConfig["username"],
-                    password: sesssionOrEndpointConfig["password"], 
-                    autoCommitSends: false,
-                    autoCommitAcks:  false });
+            Connection connection;
+            var secureSocket = sessionOrEndpointConfig["secureSocket"];
+            if(secureSocket is SecureSocket){
+                connection = new(parseUrl(sessionOrEndpointConfig), config = {secureSocket: secureSocket});
+            } else {
+               connection = new(parseUrl(sessionOrEndpointConfig));
+            }
+            self.session = new(connection, config = { username: sessionOrEndpointConfig["username"],
+                    password: sessionOrEndpointConfig["password"],
+                    autoCommitSends: false, autoCommitAcks:  false });
             self.session.anonymousSession = true;
         }
     }

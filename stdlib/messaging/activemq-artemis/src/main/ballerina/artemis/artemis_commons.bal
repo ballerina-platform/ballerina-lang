@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/io;
+import ballerina/crypto;
+import ballerina/filepath;
 
 # Constant for the artemis error code.
 public const ARTEMIS_ERROR_CODE = "{ballerina/artemis}ArtemisError";
@@ -32,11 +34,20 @@ public type ArtemisError record {|
 # + port - The port
 # + username - The username
 # + password - The password
+# + secureSocket - SSL/TLS related configs
 public type EndpointConfiguration record {|
     string host;
     int port;
     string username?;
     string password?;
+    SecureSocket secureSocket?;
+|};
+
+public type SecureSocket record {|
+    crypto:TrustStore trustStore?;
+    crypto:KeyStore keyStore?;
+    string[] ciphers = [];
+    boolean verifyHost = false;
 |};
 
 # Determines how messages are sent to the queues associated with an address.
@@ -46,3 +57,7 @@ public type RoutingType MULTICAST | ANYCAST;
 public const MULTICAST = "MULTICAST";
 # If you want your messages routed to a single queue within the matching address, in a point-to-point manner.
 public const ANYCAST = "ANYCAST";
+
+function parseUrl(EndpointConfiguration config) returns string {
+    return "tcp://" + config.host + ":" + config.port;
+}

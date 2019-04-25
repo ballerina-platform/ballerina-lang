@@ -18,17 +18,21 @@
 public type Producer client object {
     private Session session;
 
-    public function __init(Session | EndpointConfiguration sesssionOrEndpointConfig, string addressName,
+    public function __init(Session | EndpointConfiguration sessionOrEndpointConfig, string addressName,
                            AddressConfiguration? addressConfig = (), int rate = -1) {
-        if (sesssionOrEndpointConfig is Session) {
-            self.session = sesssionOrEndpointConfig;
+        if (sessionOrEndpointConfig is Session) {
+            self.session = sessionOrEndpointConfig;
         } else {
-            Connection connection = new("tcp://" + sesssionOrEndpointConfig.host + ":"
-                                            + sesssionOrEndpointConfig.port);
-            self.session = new(connection, config = { username: sesssionOrEndpointConfig["username"],
-                    password: sesssionOrEndpointConfig["password"], 
-                    autoCommitSends: false,
-                    autoCommitAcks:  false });
+            Connection connection;
+            var secureSocket = sessionOrEndpointConfig["secureSocket"];
+            if(secureSocket is SecureSocket){
+                connection = new(parseUrl(sessionOrEndpointConfig), config = {secureSocket: secureSocket});
+            } else {
+               connection = new(parseUrl(sessionOrEndpointConfig));
+            }
+            self.session = new(connection, config = { username: sessionOrEndpointConfig["username"],
+                    password: sessionOrEndpointConfig["password"],
+                    autoCommitSends: false, autoCommitAcks:  false});
             self.session.anonymousSession = true;
         }
         AddressConfiguration configuration = {

@@ -49,6 +49,13 @@ public class SimpleConsumerTest extends ArtemisTestCommons {
         String log = "received: Hello World";
         String functionName = "testSimpleSend";
         testSend(result, log, functionName, serverInstance);
+    }
+
+    @Test(description = "Tests the sending of a string message to a queue over ssl")
+    public void testSimpleSslSend() {
+        String log = "received: Sending over ssl";
+        String functionName = "testSimpleSslSend";
+        testSend(result, log, functionName, serverInstance);
 
     }
 }
