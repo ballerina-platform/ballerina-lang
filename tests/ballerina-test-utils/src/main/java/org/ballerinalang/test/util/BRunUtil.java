@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.util;
 
+import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.jvm.Scheduler;
@@ -122,9 +123,8 @@ public class BRunUtil {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException(compileResult.toString());
         }
+
         ProgramFile programFile = compileResult.getProgFile();
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
         PackageInfo packageInfo = programFile.getPackageInfo(packageName);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
         if (functionInfo == null) {
@@ -172,7 +172,7 @@ public class BRunUtil {
         programFile.setDebugger(debugger);
         compileResult.setContext(context);
 
-        BVMExecutor.initProgramFile(programFile);
+        BVMExecutor.invokePackageInitFunctions(programFile);
     }
 
     /**
@@ -188,17 +188,15 @@ public class BRunUtil {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException(compileResult.toString());
         }
-        ProgramFile programFile = compileResult.getProgFile();
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
 
-        PackageInfo packageInfo = programFile.getPackageInfo(programFile.getEntryPkgName());
+        ProgramFile programFile = compileResult.getProgFile();
+        PackageInfo packageInfo = programFile.getPackageInfo(packageName);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
         if (functionInfo == null) {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        BValue[] response = BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
+        BValue[] response = new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
 
         return spreadToBValueArray(response);
     }
@@ -241,19 +239,19 @@ public class BRunUtil {
      */
     private static BValue[] invokeOnJBallerina(CompileResult compileResult, String functionName, BValue[] args) {
         BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
-        return invoke(compileResult.getEntryClass(), function, functionName, args);
+        return invoke(compileResult, function, functionName, args);
     }
 
     /**
      * This method handles the input arguments and output result mapping between BVM types, values to JVM types, values.
      *
-     * @param clazz the class instance to be used to invoke methods
+     * @param compileResult CompileResult instance
      * @param function function model instance from BIR model
      * @param functionName name of the function to be invoked
      * @param bvmArgs input arguments to be used with function invocation
      * @return return the result from function invocation
      */
-    private static BValue[] invoke(Class<?> clazz, BIRNode.BIRFunction function, String functionName,
+    private static BValue[] invoke(CompileResult compileResult, BIRNode.BIRFunction function, String functionName,
                                    BValue[] bvmArgs) {
         List<org.wso2.ballerinalang.compiler.semantics.model.types.BType> bvmParamTypes = function.type.paramTypes;
         Class<?>[] jvmParamTypes = new Class[bvmParamTypes.size() + 1];
@@ -290,9 +288,12 @@ public class BRunUtil {
         }
 
         Object jvmResult;
-
+        BIRNode.BIRPackage birPackage = ((BLangPackage) compileResult.getAST()).symbol.bir;
+        String funcClassName = BFileUtil.getQualifiedClassName(birPackage.org.value, birPackage.name.value,
+                                                               function.pos.src.cUnitName.replaceAll(".bal", ""));
+        Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
         try {
-            Method method = clazz.getDeclaredMethod(functionName, jvmParamTypes);
+            Method method = funcClass.getDeclaredMethod(functionName, jvmParamTypes);
             Function<Object[], Object> func = a -> {
                 try {
                     return method.invoke(null, a);
@@ -544,17 +545,15 @@ public class BRunUtil {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException(compileResult.toString());
         }
-        ProgramFile programFile = compileResult.getProgFile();
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
 
+        ProgramFile programFile = compileResult.getProgFile();
         PackageInfo packageInfo = programFile.getPackageInfo(programFile.getEntryPkgName());
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
         if (functionInfo == null) {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        return BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
+        return new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
     }
 
     /**
