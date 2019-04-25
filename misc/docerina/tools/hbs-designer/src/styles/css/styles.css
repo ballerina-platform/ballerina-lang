@@ -69,6 +69,19 @@ body .ui.grid .content-wrapper {
   position: fixed;
   font-size: 16px;
 }
+body .ui.grid .content-wrapper .param-divider {
+  margin-top: 7px !important;
+  margin-bottom: 15px;
+  border: 0.5px solid #888;
+}
+body .ui.grid .content-wrapper .param-table {
+  margin-left: 20px;
+  border: 1ps solid #ccc !important;
+}
+body .ui.grid .content-wrapper .param-table td,
+body .ui.grid .content-wrapper .param-table th {
+  padding: 10px 0 !important;
+}
 body .ui.grid .content-wrapper .ui.table,
 body .ui.grid .content-wrapper .ui.table tr td {
   border: 0 !important;
@@ -84,6 +97,7 @@ body .ui.grid .content-wrapper .ui.table tr td th {
 body .ui.grid .content-wrapper .ui.table tr,
 body .ui.grid .content-wrapper .ui.table tr td tr {
   padding: 10px 0;
+  border-bottom: 1px solid #e8e9e9;
 }
 body .ui.grid .content-wrapper .ui.table tr td:first-child,
 body .ui.grid .content-wrapper .ui.table tr td tr td:first-child {

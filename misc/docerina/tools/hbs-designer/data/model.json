@@ -653,6 +653,24 @@
                             }
                             
                         ],
+                        "init_method": [
+                            {
+                                    "init_label": "__init",
+                                    "init_param" : "http:AuthnHandlerChain authnHandlerChain",
+                                    "param_name_label": "Parameter Name",
+                                    "data_type_label": "Date Type",
+                                    "default_value_label": "Default Value",
+                                    "description_label": "Description",
+                                    "attributes": 
+                                    {
+                                        "param_name": "authnHandlerChain",
+                                        "data_type": "http:AuthnHandlerChain",
+                                        "default_value": "",
+                                        "description": ""
+                                    }
+                            }
+                            
+                        ],
                         "method": [
                             {
                                 "method_type": "add",
