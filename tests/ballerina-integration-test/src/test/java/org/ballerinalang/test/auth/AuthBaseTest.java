@@ -34,7 +34,7 @@ import java.io.File;
 public class AuthBaseTest extends BaseTest {
 
     protected static BServerInstance serverInstance;
-    protected static EmbeddedDirectoryServer embeddedDirectoryServer;
+    private static EmbeddedDirectoryServer embeddedDirectoryServer;
 
     @BeforeGroups(value = "auth-test", alwaysRun = true)
     public void start() throws Exception {
@@ -58,17 +58,17 @@ public class AuthBaseTest extends BaseTest {
         serverInstance.shutdownServer();
     }
 
-    public void assertOK(HttpResponse response) {
+    void assertOK(HttpResponse response) {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
 
-    public void assertUnauthorized(HttpResponse response) {
+    void assertUnauthorized(HttpResponse response) {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }
 
-    public void assertForbidden(HttpResponse response) {
+    void assertForbidden(HttpResponse response) {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }

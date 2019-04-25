@@ -64,7 +64,7 @@ public class LdapAuthStoreTest extends AuthBaseTest {
     }
 
     @Test(description = "Test the failure of authorization request against ldap auth store")
-    public void testAuthorizatioFailureWithLDAPAuthstore() throws Exception {
+    public void testAuthorizationFailureWithLDAPAuthStore() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(authzServicePort,

@@ -117,8 +117,8 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
                 "18xqUzweCRL-DLAAYwjbzGQ56ekbEdAg02sFco4aozOyt8OUDwS9cH_JlhUn2JEHmVKaatljEnfgRc8fOW6Y5IJ7dOPp7ra5e" +
                 "00sk7JwYY8wKaZWxAGSgRpWgTY6C4XRjGIsR5ZWQdXCAnV27idGDrtR2uG4YQwCWUCzA");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance
-                        .getServiceURLHttps(servicePortForExpiredCertificateTestWithNoExpiryValidation,
-                                "echo/test"), headersMap, serverInstance.getServerHome());
+                .getServiceURLHttps(servicePortForExpiredCertificateTestWithNoExpiryValidation,
+                        "echo/test"), headersMap, serverInstance.getServerHome());
         assertOK(response);
     }
 }
