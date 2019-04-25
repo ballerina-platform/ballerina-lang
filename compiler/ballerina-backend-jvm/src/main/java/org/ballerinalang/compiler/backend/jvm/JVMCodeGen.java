@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.compiler.backend.jvm;
 
-import org.ballerinalang.bre.bvm.BVMExecutor;
+import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.values.BBoolean;
@@ -29,7 +29,6 @@ import org.ballerinalang.nativeimpl.bir.BIRModuleUtils;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
-import org.ballerinalang.util.debugger.Debugger;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BIREmitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -97,13 +96,10 @@ public class JVMCodeGen {
                 packageID.sourceFileName != null ? packageID.sourceFileName.value : packageID.name.value);
         args[3] = new BString(FileUtils.cleanupFileExtension(packagePath));
 
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
         FunctionInfo functionInfo = programFile.getEntryPackage().getFunctionInfo(functionName);
+        BValue result = BLangProgramRunner.runProgram(programFile, functionInfo, args);
 
-        BValue[] result = BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
-
-        Map<String, BValue> jarEntries = ((BMap<String, BValue>) result[0]).getMap();
+        Map<String, BValue> jarEntries = ((BMap<String, BValue>) result).getMap();
         try {
             return getJarContent(jarEntries);
         } catch (IOException e) {

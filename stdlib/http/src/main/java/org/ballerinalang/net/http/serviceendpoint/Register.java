@@ -27,17 +27,11 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
-import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketServerConnectorListener;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 
@@ -78,31 +72,7 @@ public class Register extends AbstractHttpNativeFunction {
         } else {
             httpServicesRegistry.registerService(service);
         }
-        // TODO: 11/24/18 failure need to be validated in the compile time
 
-        if (!isConnectorStarted(serviceEndpoint)) {
-            startServerConnector(serviceEndpoint, httpServicesRegistry, webSocketServicesRegistry);
-        }
         context.setReturnValues();
-    }
-
-    private void startServerConnector(Struct serviceEndpoint, HTTPServicesRegistry httpServicesRegistry,
-                                      WebSocketServicesRegistry webSocketServicesRegistry) {
-        ServerConnector serverConnector = getServerConnector(serviceEndpoint);
-        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        serverConnectorFuture.setHttpConnectorListener(
-                new BallerinaHTTPConnectorListener(httpServicesRegistry, serviceEndpoint
-                        .getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG)));
-        serverConnectorFuture.setWebSocketConnectorListener(new WebSocketServerConnectorListener(
-                webSocketServicesRegistry, serviceEndpoint.getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG)));
-
-        serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
-        try {
-            serverConnectorFuture.sync();
-        } catch (Exception ex) {
-            throw new BallerinaException("failed to start server connector '" + serverConnector.getConnectorID()
-                    + "': " + ex.getMessage(), ex);
-        }
-        serviceEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, true);
     }
 }
