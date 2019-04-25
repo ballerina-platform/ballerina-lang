@@ -66,8 +66,7 @@ public class AuthnWithMultipleHandlersTest extends AuthBaseTest {
                 "DakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Authn success test case with example2 issuer")
@@ -98,8 +97,7 @@ public class AuthnWithMultipleHandlersTest extends AuthBaseTest {
                 "pvcLBUiAaXFeXPb9t4iHFugJzHY68eQQZcxyIxWVyj2eNV4HmBjvqVLQuA");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Authn fail test case with example3 issuer")
@@ -130,8 +128,7 @@ public class AuthnWithMultipleHandlersTest extends AuthBaseTest {
                 "t1xdW40dCnDrSR6urqVGys0Zg_Ru0mnPg4dU2JPuwDLuKzj4KzWXShZ2Il5Ol-IA");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 
     @Test(description = "Authn fail test case with example1 issuer and invalid audience")
@@ -160,7 +157,6 @@ public class AuthnWithMultipleHandlersTest extends AuthBaseTest {
                 "roxJPVxncPTRuewApF-RpXPKdheVEqQ4w");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 }

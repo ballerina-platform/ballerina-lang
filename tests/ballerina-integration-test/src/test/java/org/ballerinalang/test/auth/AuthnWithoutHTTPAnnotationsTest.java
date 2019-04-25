@@ -46,8 +46,7 @@ public class AuthnWithoutHTTPAnnotationsTest extends AuthBaseTest {
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Authn failure test case")
@@ -57,7 +56,6 @@ public class AuthnWithoutHTTPAnnotationsTest extends AuthBaseTest {
         headers.put("Authorization", "Basic aW52YWxpZFVzZXI6YWJj");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 }

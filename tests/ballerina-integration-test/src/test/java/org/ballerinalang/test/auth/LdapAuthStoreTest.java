@@ -43,7 +43,7 @@ public class LdapAuthStoreTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic dmlqaXRoYTp2aWppdGhhQDEyMw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
                 "ldapAuth/disableAuthz"), headersMap, serverInstance.getServerHome());
-        assertResponse(response, 401, "Authentication failure");
+        assertUnauthorized(response);
     }
 
     @Test(description = "Test authenticate request against ldap auth store")
@@ -52,7 +52,7 @@ public class LdapAuthStoreTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
                 "ldapAuth/disableAuthz"), headersMap, serverInstance.getServerHome());
-        assertResponse(response, 200, "Hello, World!!!");
+        assertOK(response);
     }
 
     @Test(description = "Test authenticate and authorize request against ldap auth store")
@@ -61,7 +61,7 @@ public class LdapAuthStoreTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
                 "ldapAuth/enableAuthz"), headersMap, serverInstance.getServerHome());
-        assertResponse(response, 200, "Hello, World!!!");
+        assertOK(response);
     }
 
     @Test(description = "Test the failure of authorization request against ldap auth store")
@@ -70,12 +70,6 @@ public class LdapAuthStoreTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(authzServicePort,
                 "auth/failAuthz"), headersMap, serverInstance.getServerHome());
-        assertResponse(response, 403, "Authorization failure");
-    }
-
-    private void assertResponse(HttpResponse response, int statusCode, String message) {
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), statusCode, "Response code mismatched");
-        Assert.assertEquals(response.getData(), message, "Response message content mismatched.");
+        assertForbidden(response);
     }
 }

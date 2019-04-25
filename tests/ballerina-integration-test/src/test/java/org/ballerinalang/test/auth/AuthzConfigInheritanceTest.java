@@ -42,8 +42,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo1/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Listener - valid scopes, service - valid scopes and resource - invalid scopes")
@@ -52,8 +51,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo1/test2"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Listener - valid scopes, service - valid scopes and resource - scopes not given")
@@ -62,8 +60,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo1/test3"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Listener - valid scopes, service - invalid scopes and resource - valid scopes")
@@ -72,8 +69,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo2/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Listener - valid scopes, service - invalid scopes and resource - invalid scopes")
@@ -82,8 +78,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo2/test2"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Listener - valid scopes, service - invalid scopes and resource - scopes not given")
@@ -92,8 +87,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo2/test3"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Listener - valid scopes, service - scopes not given and resource - valid scopes")
@@ -102,8 +96,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo3/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Listener - valid scopes, service - scopes not given and resource - invalid scopes")
@@ -112,8 +105,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo3/test2"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Listener - valid scopes, service - scopes not given and resource - scopes not given")
@@ -122,8 +114,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo3/test3"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Listener - invalid scopes, service - valid scopes and resource - valid scopes")
@@ -132,8 +123,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo1/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Listener - invalid scopes, service - valid scopes and resource - invalid scopes")
@@ -142,8 +132,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo1/test2"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Listener - invalid scopes, service - valid scopes and resource - scopes not given")
@@ -152,8 +141,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo1/test3"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Listener - invalid scopes, service - invalid scopes and resource - valid scopes")
@@ -162,8 +150,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo2/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Listener - invalid scopes, service - invalid scopes and resource - invalid scopes")
@@ -172,8 +159,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo2/test2"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Listener - invalid scopes, service - invalid scopes and resource - scopes not given")
@@ -182,8 +168,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo2/test3"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Listener - invalid scopes, service - scopes not given and resource - valid scopes")
@@ -192,8 +177,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo3/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Listener - invalid scopes, service - scopes not given and resource - invalid scopes")
@@ -202,8 +186,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo3/test2"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Listener - invalid scopes, service - scopes not given and resource - scopes not given")
@@ -212,8 +195,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo3/test3"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Listener - scopes not given, service - valid scopes and resource - valid scopes")
@@ -222,8 +204,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo1/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Listener - scopes not given, service - valid scopes and resource - invalid scopes")
@@ -232,8 +213,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo1/test2"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Listener - scopes not given, service - valid scopes and resource - scopes not given")
@@ -242,8 +222,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo1/test3"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Listener - scopes not given, service - invalid scopes and resource - valid scopes")
@@ -252,8 +231,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo2/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Listener - scopes not given, service - invalid scopes and resource - invalid scopes")
@@ -262,8 +240,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo2/test2"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Listener - scopes not given, service - invalid scopes and resource - scopes not given")
@@ -272,8 +249,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo2/test3"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Listener - scopes not given, service - scopes not given and resource - valid scopes")
@@ -282,8 +258,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo3/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Listener - scopes not given, service - scopes not given and resource - invalid scopes")
@@ -292,8 +267,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo3/test2"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Listener - scopes not given, service - scopes not given and resource - scopes not given")
@@ -302,7 +276,6 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo3/test3"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 }

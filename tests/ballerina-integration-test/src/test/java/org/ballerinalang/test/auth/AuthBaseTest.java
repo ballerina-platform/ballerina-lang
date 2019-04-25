@@ -20,6 +20,8 @@ package org.ballerinalang.test.auth;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
+import org.ballerinalang.test.util.HttpResponse;
+import org.testng.Assert;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
@@ -54,5 +56,20 @@ public class AuthBaseTest extends BaseTest {
         embeddedDirectoryServer.stopLdapService();
         serverInstance.removeAllLeechers();
         serverInstance.shutdownServer();
+    }
+
+    public void assertOK(HttpResponse response) {
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    public void assertUnauthorized(HttpResponse response) {
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+    }
+
+    public void assertForbidden(HttpResponse response) {
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }
 }

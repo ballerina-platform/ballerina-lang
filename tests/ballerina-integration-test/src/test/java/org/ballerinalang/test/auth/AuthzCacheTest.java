@@ -66,8 +66,7 @@ public class AuthzCacheTest extends AuthBaseTest {
                 "z1BbKC2z79eMe15yx8asas3krgJyKVNISUWlgPWvKHxyfh_RoQYgWPn-rhng1_P8Ag");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
 
         // JWT used in the second request:
         // {
@@ -95,8 +94,7 @@ public class AuthzCacheTest extends AuthBaseTest {
                 "dpwoUnOy9aseNB8iy0AAPQwf1MkpbgCUJFGLAWHAQsUBJXPpCPGMKVJ5CYzFiPC_bX_pUrzrXOJw");
         response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
 
         // JWT used in the third request:
         // {
@@ -124,7 +122,6 @@ public class AuthzCacheTest extends AuthBaseTest {
                 "LbLux8FaxyAglgRoDNgBgaCynbhUYAUnpr2JSx72FN8J0CJB5f31EMmmd4FukTtv-8w");
         response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 }

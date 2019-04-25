@@ -38,8 +38,7 @@ public class TokenPropagationTest extends AuthBaseTest {
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9103, "passthrough"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Test behaviour when JWT Token propagation is disabled, resulting in authn failure")
@@ -48,8 +47,7 @@ public class TokenPropagationTest extends AuthBaseTest {
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9101, "passthrough"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 
     @Test(description = "Test JWT Token propagation with JWT auth as the inbound authentication mechanism, without " +
@@ -65,8 +63,8 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9105, "passthrough"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+
+        assertOK(response);
     }
 
     @Test(description = "Test JWT Token propagation with JWT auth as the inbound authentication mechanism, with " +
@@ -82,8 +80,7 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9107, "passthrough"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Negative test for JWT Token propagation with JWT auth as the inbound authentication " +
@@ -99,7 +96,6 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9109, "passthrough"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 }

@@ -38,32 +38,28 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
     public void testNoAuthHeaders1() throws Exception {
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test1"),
                 serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 
     @Test(description = "Non secured resource, secured service test case with no auth headers")
     public void testNoAuthHeaders2() throws Exception {
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test2"),
                 serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Secured resource, non secured service test case with no auth headers")
     public void testNoAuthHeaders3() throws Exception {
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test1"),
                 serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 
     @Test(description = "Non secured resource, non secured service test case with no auth headers")
     public void testNoAuthHeaders4() throws Exception {
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test2"),
                 serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Secured resource, secured service test case with valid auth headers")
@@ -72,8 +68,7 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Non secured resource, secured service test case with valid auth headers")
@@ -82,8 +77,7 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test2"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Secured resource, non secured service test case with valid auth headers")
@@ -92,8 +86,7 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Non secured resource, non secured service test case with valid auth headers")
@@ -102,8 +95,7 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test2"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Secured resource, secured service test case with invalid auth headers")
@@ -112,8 +104,7 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 
     @Test(description = "Non secured resource, secured service test case with invalid auth headers")
@@ -122,8 +113,7 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test2"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Secured resource, non secured service test case with invalid auth headers")
@@ -132,8 +122,7 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 
     @Test(description = "Non secured resource, non secured service test case with invalid auth headers")
@@ -142,7 +131,6 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test2"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 }

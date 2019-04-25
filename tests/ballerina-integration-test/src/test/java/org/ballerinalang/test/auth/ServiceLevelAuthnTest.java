@@ -42,8 +42,7 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Authn success and authz failure test case")
@@ -52,8 +51,7 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
         headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Authn and authz failure test case")
@@ -62,8 +60,7 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
         headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 
     @Test(description = "Auth with JWT signed with expired trusted certificate")
@@ -93,8 +90,7 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
         HttpResponse response = HttpsClientRequest.doGet(serverInstance
                         .getServiceURLHttps(servicePortForExpiredCertificateTest, "echo/test"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 
     @Test(description = "Auth with JWT signed with expired trusted certificate but with expiry validation off")
@@ -124,7 +120,6 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
         HttpResponse response = HttpsClientRequest.doGet(serverInstance
                         .getServiceURLHttps(servicePortForExpiredCertificateTestWithNoExpiryValidation,
                                 "echo/test"), headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 }
