@@ -46,11 +46,11 @@ public class ExecutorUtils {
      * @param args         arguments passed to the function
      * @return execution results
      */
-    public static BValue[] executeFunction(URI balxResource, String... args) {
+    public static BValue executeFunction(URI balxResource, String... args) {
         initFileSystem(balxResource);
         Path baloFilePath = Paths.get(balxResource);
         ProgramFile programFile = readExecutableProgram(baloFilePath);
-        return BLangProgramRunner.runMainFunc(programFile, args);
+        return BLangProgramRunner.runProgram(programFile, args);
     }
     
     /**
@@ -62,7 +62,7 @@ public class ExecutorUtils {
         initFileSystem(balxResource);
         Path baloFilePath = Paths.get(balxResource);
         ProgramFile programFile = readExecutableProgram(baloFilePath);
-        BLangProgramRunner.runService(programFile);
+        BLangProgramRunner.runProgram(programFile, new String[0]);
     }
 
     /**
