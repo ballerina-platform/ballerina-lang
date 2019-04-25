@@ -62,4 +62,3 @@ public class JarRunFunctionPositiveTestCase extends BaseTest {
         jarFile.delete();
     }
 }
-

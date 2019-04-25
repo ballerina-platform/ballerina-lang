@@ -477,9 +477,7 @@ public class LauncherUtils {
     }
 
     private static String getModuleInitClassName(Path sourcePath) {
-        JarInputStream jarStream;
-        try {
-            jarStream = new JarInputStream(new FileInputStream((sourcePath.toString())));
+        try (JarInputStream jarStream = new JarInputStream(new FileInputStream((sourcePath.toString())))) {
             Manifest mf = jarStream.getManifest();
             Attributes attributes = mf.getMainAttributes();
             String initClassName = attributes.getValue(MAIN_CLASS_MANIFEST_ENTRY);
