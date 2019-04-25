@@ -81,6 +81,34 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
             this.alterTokenText(token);
             return false;
         }
+        /*
+        If the last altered token is => and the current token is Left Brace then the following match pattern clause
+        will be addressed and remove the whole pattern clause
+        Eg: 
+        match expr {
+            12 => 
+            // this whole clause will remove var (a, b) => {printMessage();}
+        }
+        otherwise the pruned source will be
+        match expr {
+            
+            {printMessage();}
+        }
+         */
+        if (type == BallerinaParser.LEFT_BRACE && this.lastAlteredToken == BallerinaParser.EQUAL_GT) {
+            this.leftBraceCount++;
+            this.alterTokenText(token);
+            return false;
+        }
+        if (type == BallerinaParser.RIGHT_BRACE && this.leftBraceCount > 0) {
+            this.leftBraceCount--;
+            this.alterTokenText(token);
+            return false;
+        }
+        if (this.leftBraceCount > 0 || this.leftParenthesisCount > 0) {
+            this.alterTokenText(token);
+            return false;
+        }
         if (type == BallerinaParser.SEMICOLON || type == BallerinaParser.COMMA) {
             this.alterTokenText(token);
         }

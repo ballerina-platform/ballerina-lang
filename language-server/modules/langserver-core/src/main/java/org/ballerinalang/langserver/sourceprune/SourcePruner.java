@@ -31,13 +31,13 @@ import java.util.Optional;
 public class SourcePruner {
     private static final List<Integer> LHS_TRAVERSE_TERMINALS;
     private static final List<Integer> RHS_TRAVERSE_TERMINALS;
-    private static final List<Integer> DEFINITION_KW_TERMINALS;
+    private static final List<Integer> BLOCK_REMOVE_KW_TERMINALS;
     
     static {
         LHS_TRAVERSE_TERMINALS = Arrays.asList(
                 BallerinaParser.LEFT_BRACE, BallerinaParser.RIGHT_BRACE, BallerinaParser.SEMICOLON,
                 BallerinaParser.COMMA, BallerinaParser.LEFT_PARENTHESIS, BallerinaParser.RIGHT_PARENTHESIS,
-                BallerinaParser.LT
+                BallerinaParser.LT, BallerinaParser.RETURNS
         );
         RHS_TRAVERSE_TERMINALS = Arrays.asList(
                 BallerinaParser.SEMICOLON, BallerinaParser.COMMA, BallerinaParser.DocumentationLineStart,
@@ -47,8 +47,9 @@ public class SourcePruner {
                 BallerinaParser.REMOTE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.ANNOTATION,
                 BallerinaParser.CONST
         );
-        DEFINITION_KW_TERMINALS = Arrays.asList(
-                BallerinaParser.SERVICE, BallerinaParser.FUNCTION, BallerinaParser.TYPE
+        BLOCK_REMOVE_KW_TERMINALS = Arrays.asList(
+                BallerinaParser.SERVICE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.MATCH,
+                BallerinaParser.FOREACH
         );
     }
     /**
@@ -84,7 +85,7 @@ public class SourcePruner {
         }
         SourcePruneContext sourcePruneContext = getContext();
         new LHSTokenTraverser(sourcePruneContext).traverseLHS(tokenStream, tokenIndex);
-        new RHSTokenTraverser(sourcePruneContext).traverseRHS(tokenStream, tokenIndex);
+        new RHSTokenTraverser(sourcePruneContext).traverseRHS(tokenStream, tokenIndex + 1);
     }
 
     private static TokenPosition locateCursorAtToken(Token token, int cLine, int cCol) {
@@ -116,7 +117,7 @@ public class SourcePruner {
         context.put(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY, 0);
         context.put(SourcePruneKeys.LHS_TRAVERSE_TERMINALS_KEY, LHS_TRAVERSE_TERMINALS);
         context.put(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY, RHS_TRAVERSE_TERMINALS);
-        context.put(SourcePruneKeys.DEFINITION_KW_TERMINALS_KEY, DEFINITION_KW_TERMINALS);
+        context.put(SourcePruneKeys.BLOCK_REMOVE_KW_TERMINALS_KEY, BLOCK_REMOVE_KW_TERMINALS);
         
         return context;
     }

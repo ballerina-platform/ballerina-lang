@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
  */
 class LHSTokenTraverser extends AbstractTokenTraverser {
     private List<Integer> lhsTraverseTerminals;
-    private List<Integer> definitionKWTerminals;
-    private boolean removeDefinition;
+    private List<Integer> blockRemoveKWTerminals;
+    private boolean removeBlock;
     private int rightParenthesisCount;
     private int rightBraceCount;
     private int ltSymbolCount;
@@ -41,9 +41,9 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
     LHSTokenTraverser(SourcePruneContext sourcePruneContext) {
         this.sourcePruneContext = sourcePruneContext;
         this.lhsTraverseTerminals = sourcePruneContext.get(SourcePruneKeys.LHS_TRAVERSE_TERMINALS_KEY);
-        this.definitionKWTerminals = sourcePruneContext.get(SourcePruneKeys.DEFINITION_KW_TERMINALS_KEY);
+        this.blockRemoveKWTerminals = sourcePruneContext.get(SourcePruneKeys.BLOCK_REMOVE_KW_TERMINALS_KEY);
 
-        this.removeDefinition = false;
+        this.removeBlock = false;
         this.rightParenthesisCount = 0;
         this.rightBraceCount = 0;
         this.ltSymbolCount = 0;
@@ -59,14 +59,14 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                     break;
                 }
             }
-            if (this.definitionKWTerminals.contains(type)) {
-                this.removeDefinition = true;
+            if (this.blockRemoveKWTerminals.contains(type)) {
+                this.removeBlock = true;
             }
             alterTokenText(token.get());
             token = CommonUtil.getPreviousDefaultToken(tokenStream, token.get().getTokenIndex());
         }
         
-        sourcePruneContext.put(SourcePruneKeys.REMOVE_DEFINITION_KEY, this.removeDefinition);
+        sourcePruneContext.put(SourcePruneKeys.REMOVE_DEFINITION_KEY, this.removeBlock);
         sourcePruneContext.put(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY, this.rightParenthesisCount);
         sourcePruneContext.put(SourcePruneKeys.RIGHT_BRACE_COUNT_KEY, this.rightBraceCount);
         sourcePruneContext.put(SourcePruneKeys.LT_COUNT_KEY, this.ltSymbolCount);
@@ -101,7 +101,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         identify blocks. Until the right brace count is zero all the following right braces are altered (refer example)
          */
         if (type == BallerinaParser.RIGHT_BRACE
-                && (this.lastAlteredToken == BallerinaParser.ASSIGN || this.rightBraceCount > 0)) {
+                && (this.lastAlteredToken == BallerinaParser.ASSIGN
+                || this.lastAlteredToken == BallerinaParser.EQUAL_GT || this.rightBraceCount > 0)) {
             this.alterTokenText(token);
             this.rightBraceCount++;
             return false;
@@ -126,7 +127,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 .map(Token::getType)
                 .collect(Collectors.toList())
                 .contains(BallerinaParser.SERVICE);
-        if (token.getType() == BallerinaParser.COMMA || (!onServiceRule && token.getType() == BallerinaParser.ON)) {
+        if (token.getType() == BallerinaParser.COMMA || token.getType() == BallerinaParser.RETURNS
+                || (!onServiceRule && token.getType() == BallerinaParser.ON)) {
             this.alterTokenText(token);
         }
         

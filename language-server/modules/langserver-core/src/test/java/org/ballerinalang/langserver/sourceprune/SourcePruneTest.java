@@ -150,6 +150,22 @@ public class SourcePruneTest {
                 {"src_prune_config39.json"},
                 {"src_prune_config40.json"},
                 {"src_prune_config41.json"},
+                // Match Statement
+                {"src_prune_config42.json"},
+                {"src_prune_config43.json"},
+                {"src_prune_config44.json"},
+                {"src_prune_config45.json"},
+                {"src_prune_config46.json"},
+                // Foreach statement
+                {"src_prune_config47.json"},
+                {"src_prune_config48.json"},
+                {"src_prune_config49.json"},
+                {"src_prune_config50.json"},
+                {"src_prune_config51.json"},
+                // Worker Declaration
+                {"src_prune_config52.json"},
+                {"src_prune_config53.json"},
+                
         };
     }
 }

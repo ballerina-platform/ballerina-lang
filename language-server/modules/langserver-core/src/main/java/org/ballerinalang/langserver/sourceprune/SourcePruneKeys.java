@@ -46,7 +46,7 @@ public class SourcePruneKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<List<Integer>> RHS_TRAVERSE_TERMINALS_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<List<Integer>> DEFINITION_KW_TERMINALS_KEY
+    public static final LSContext.Key<List<Integer>> BLOCK_REMOVE_KW_TERMINALS_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> REMOVE_DEFINITION_KEY
             = new LSContext.Key<>();
