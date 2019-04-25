@@ -38,8 +38,7 @@ public type JWTAuthProvider object {
     # Authenticate with a jwt token.
     #
     # + jwtToken - Jwt token extracted from the authentication header
-    # + return - True if authentication is successful, false otherwise.
-    #            If an error occur during authentication, the error will be returned.
+    # + return - `true` if authentication is successful, othewise `false` or `error` occured during jwt validation
     public function authenticate(string jwtToken) returns boolean|error {
         if (self.jwtAuthProviderConfig.jwtCache.hasKey(jwtToken)) {
             var payload = authenticateFromCache(self.jwtAuthProviderConfig, jwtToken);

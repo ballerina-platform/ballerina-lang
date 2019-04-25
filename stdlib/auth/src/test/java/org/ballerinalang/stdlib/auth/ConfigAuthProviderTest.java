@@ -79,97 +79,94 @@ public class ConfigAuthProviderTest {
     @Test(description = "Test case for authenticating non-existing user")
     public void testAuthenticationOfNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationOfNonExistingUser");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for authenticating with invalid password")
     public void testAuthenticationOfNonExistingPassword() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationOfNonExistingPassword");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for successful authentication")
     public void testAuthentication() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthentication");
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+        assertSuccessOfResults(returns);
     }
 
     @Test(description = "Test case for unsuccessful authentication when username is empty")
     public void testAuthenticationWithEmptyUsername() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyUsername");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for unsuccessful authentication when password is empty")
     public void testAuthenticationWithEmptyPassword() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyPassword");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for unsuccessful authentication when password is empty and username is invalid")
     public void testAuthenticationWithEmptyPasswordAndInvalidUsername() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyPasswordAndInvalidUsername");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for unsuccessful authentication when username and password are empty")
     public void testAuthenticationWithEmptyUsernameAndEmptyPassword() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyUsernameAndEmptyPassword");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for successful authentication with sha-256 hashed password")
     public void testAuthenticationSha256() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha256");
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+        assertSuccessOfResults(returns);
     }
 
     @Test(description = "Test case for successful authentication with sha-384 hashed password")
     public void testAuthenticationSha384() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha384");
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+        assertSuccessOfResults(returns);
     }
 
     @Test(description = "Test case for successful authentication with sha-512 hashed password")
     public void testAuthenticationSha512() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha512");
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+        assertSuccessOfResults(returns);
     }
 
     @Test(description = "Test case for successful authentication with plain text password")
     public void testAuthenticationPlain() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationPlain");
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+        assertSuccessOfResults(returns);
     }
 
     @Test(description = "Test case for unsuccessful authentication with sha-512 hashed password, using invalid " +
             "password")
     public void testAuthenticationSha512Negative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha512Negative");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for unsuccessful authentication with plain text password, using invalid password")
     public void testAuthenticationPlainNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationPlainNegative");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @AfterClass
     public void tearDown() throws IOException {
         Files.deleteIfExists(secretCopyPath);
+    }
+
+    private void assertSuccessOfResults(BValue[] returns) {
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+    }
+
+    private void assertFailureOfResults(BValue[] returns) {
+        Assert.assertNotNull(returns);
+        Assert.assertFalse(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
     }
 }

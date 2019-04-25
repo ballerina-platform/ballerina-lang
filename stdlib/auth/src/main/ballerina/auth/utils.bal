@@ -45,7 +45,8 @@ function extractUsernameAndPassword(string credential) returns (string, string)|
     string decodedHeaderValue = encoding:byteArrayToString(check encoding:decodeBase64(credential));
     string[] decodedCredentials = decodedHeaderValue.split(":");
     if (decodedCredentials.length() != 2) {
-        error err = error(AUTH_ERROR_CODE, {message: "Incorrect credential format. Format should be username:password" });
+        error err = error(AUTH_ERROR_CODE,
+            { message: "Incorrect credential format. Format should be username:password" });
         return err;
     } else {
         return (decodedCredentials[0], decodedCredentials[1]);
