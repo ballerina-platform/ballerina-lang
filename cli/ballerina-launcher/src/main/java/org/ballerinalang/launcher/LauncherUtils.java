@@ -464,7 +464,7 @@ public class LauncherUtils {
             listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
 
         } catch (MalformedURLException e) {
-            throw createLauncherException("jar file failed with given source path " + sourcePath);
+            throw createLauncherException("loading jar file failed with given source path " + sourcePath);
         } catch (ClassNotFoundException e) {
             throw createLauncherException("module init class with name " + initClassName + " cannot be found ");
         } catch (NoSuchMethodException e) {
@@ -482,7 +482,11 @@ public class LauncherUtils {
             jarStream = new JarInputStream(new FileInputStream((sourcePath.toString())));
             Manifest mf = jarStream.getManifest();
             Attributes attributes = mf.getMainAttributes();
-            return attributes.getValue(MAIN_CLASS_MANIFEST_ENTRY);
+            String initClassName = attributes.getValue(MAIN_CLASS_MANIFEST_ENTRY);
+            if (initClassName == null) {
+                throw createLauncherException("Main-class manifest entry cannot be found in jar.");
+            }
+            return initClassName.replaceAll("/", ".");
         } catch (IOException e) {
             throw createLauncherException("error while getting init class name from manifest due to " + e.getMessage());
         }
