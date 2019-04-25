@@ -23,12 +23,15 @@ public class Http2InboundContentListener implements Listener {
     private AtomicBoolean resumeRead = new AtomicBoolean(true);
     private Http2LocalFlowController http2LocalFlowController;
     private ChannelHandlerContext channelHandlerContext;
+    private String inboundType;
 
-    public Http2InboundContentListener(int streamId, ChannelHandlerContext ctx, Http2Connection http2Connection) {
+    public Http2InboundContentListener(int streamId, ChannelHandlerContext ctx, Http2Connection http2Connection,
+                                       String inboundType) {
         this.streamId = streamId;
         this.http2Connection = http2Connection;
         this.http2LocalFlowController = http2Connection.local().flowController();
         this.channelHandlerContext = ctx;
+        this.inboundType = inboundType;
     }
 
     /**
@@ -40,7 +43,8 @@ public class Http2InboundContentListener implements Listener {
     @Override
     public void onAdd(HttpContent httpContent) {
         if (!appConsumeRequired && resumeRead.get()) {
-//            LOG.warn("HTTP/2 inbound onAdd updateLocalFlowController {} ", httpContent.content().readableBytes());
+            LOG.warn("{} Stream {}. HTTP/2 inbound onAdd updateLocalFlowController {} ", inboundType, streamId,
+                     httpContent.content().readableBytes());
             updateLocalFlowController(httpContent.content().readableBytes());
         }
     }
@@ -53,7 +57,8 @@ public class Http2InboundContentListener implements Listener {
     @Override
     public void onRemove(HttpContent httpContent) {
         if (appConsumeRequired && resumeRead.get()) {
-//            LOG.warn("HTTP/2 inbound onRemove updateLocalFlowController {} ", httpContent.content().readableBytes());
+            LOG.warn("{} Stream {}. HTTP/2 inbound onRemove updateLocalFlowController {} ", inboundType, streamId,
+                     httpContent.content().readableBytes());
             updateLocalFlowController(httpContent.content().readableBytes());
         }
     }
@@ -68,7 +73,7 @@ public class Http2InboundContentListener implements Listener {
 
     //Always gets called from ballerina thread
     void stopByteConsumption() {
-//        LOG.warn("Stop byte consumption");
+        LOG.warn("{} Stream {}. Stop byte consumption", inboundType, streamId);
         if (resumeRead.get()) {
             resumeRead.set(false);
         }
@@ -76,8 +81,9 @@ public class Http2InboundContentListener implements Listener {
 
     //Always gets called from I/O thread. TODO:If this is true then there's no need for eventloop execute here.
     void resumeByteConsumption() {
-//        LOG.warn("In thread {}. Resume byte consumption. Unconsumed bytes: {}", Thread.currentThread().getName(),
-//                 getUnConsumedBytes());
+        LOG.warn("{} Stream {}. In thread {}. Resume byte consumption. Unconsumed bytes: {}", inboundType, streamId,
+                 Thread.currentThread().getName(),
+                 getUnConsumedBytes());
         resumeRead.set(true);
         channelHandlerContext.channel().eventLoop().execute(() -> updateLocalFlowController(getUnConsumedBytes()));
     }
@@ -88,11 +94,14 @@ public class Http2InboundContentListener implements Listener {
             try {
                 boolean windowUpdateSent = http2LocalFlowController.consumeBytes(getHttp2Stream(), consumedBytes);
                 if (windowUpdateSent) {
-//                    LOG.warn("windowUpdateSent {} and flushed {} bytes", windowUpdateSent, consumedBytes);
+                    LOG.warn("{} Stream {}. windowUpdateSent {} and flushed {} bytes", inboundType, streamId,
+                             windowUpdateSent,
+                             consumedBytes);
                     channelHandlerContext.flush();
                 }
             } catch (Http2Exception e) {
-                LOG.error("Error updating local flow controller. {} ", e.error().code());
+                LOG.error("{} Error updating local flow controller. Stream {}. ConsumedBytes {}. Error code {} ",
+                          inboundType, streamId, consumedBytes, e.error().name());
             }
         });
     }

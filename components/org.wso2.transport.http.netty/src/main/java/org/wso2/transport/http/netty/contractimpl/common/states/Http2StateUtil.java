@@ -112,7 +112,7 @@ public class Http2StateUtil {
                                                        int streamId) {
         ChannelHandlerContext ctx = http2SourceHandler.getChannelHandlerContext();
         HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest, new Http2InboundContentListener(
-            streamId, ctx, http2SourceHandler.getConnection()));
+            streamId, ctx, http2SourceHandler.getConnection(), "inbound_request_from_caller"));
         sourceReqCMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
         sourceReqCMsg.setProperty(CHNL_HNDLR_CTX, ctx);
         sourceReqCMsg.setProperty(Constants.SRC_HANDLER, http2SourceHandler);

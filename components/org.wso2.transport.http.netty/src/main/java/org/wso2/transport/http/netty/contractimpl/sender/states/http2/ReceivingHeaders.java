@@ -219,7 +219,7 @@ public class ReceivingHeaders implements SenderState {
         }
         // Create HTTP Carbon Response
         HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse, new Http2InboundContentListener(
-            streamId, ctx, http2TargetHandler.getConnection()));
+            streamId, ctx, http2TargetHandler.getConnection(), "inbound_response_from_client"));
 
         // Setting properties of the HTTP Carbon Response
         responseCarbonMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
