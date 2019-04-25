@@ -37,7 +37,7 @@ public class SourcePruner {
         LHS_TRAVERSE_TERMINALS = Arrays.asList(
                 BallerinaParser.LEFT_BRACE, BallerinaParser.RIGHT_BRACE, BallerinaParser.SEMICOLON,
                 BallerinaParser.COMMA, BallerinaParser.LEFT_PARENTHESIS, BallerinaParser.RIGHT_PARENTHESIS,
-                BallerinaParser.LT, BallerinaParser.RETURNS
+                BallerinaParser.LT, BallerinaParser.RETURNS, BallerinaParser.TRANSACTION
         );
         RHS_TRAVERSE_TERMINALS = Arrays.asList(
                 BallerinaParser.SEMICOLON, BallerinaParser.COMMA, BallerinaParser.DocumentationLineStart,
