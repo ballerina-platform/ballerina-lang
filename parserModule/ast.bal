@@ -27,8 +27,9 @@ ERROR_NODE | RECORD_LITERAL_NODE | RECORD_KEY_VALUE_NODE | RECORD_KEY_NODE | TUP
 
 const INT_TYPE = "int";
 const STRING_TYPE = "string";
+const ERROR_VALUE_TYPE = "errorValueType";
 
-type ValueKind INT_TYPE|STRING_TYPE;
+type ValueKind INT_TYPE|STRING_TYPE|ERROR_VALUE_TYPE;
 
 const PLUS_OP = "+";
 const MINUS_OP = "-";
@@ -47,9 +48,12 @@ const NOT_EQUAL_OP = "!=";
 const REF_EQUAL_OP = "===";
 const REF_NOT_EQUAL_OP = "!==";
 const NOT_OP = "!";
+const BIT_COMPLEMENT_OP = "~";
+//untaint type to be a value kind?
+const UNTAINT_TYPE = "untaint";
 
 type OperatorKind PLUS_OP|MINUS_OP|DIVISION_OP|MULTIPLICATION_OP|ERROR_OP|COLON_OP |COMMA_OP |
-MOD_OP | LT_EQUAL_OP | GT_EQUAL_OP | GT_OP | LT_OP | EQUAL_OP | NOT_EQUAL_OP | REF_EQUAL_OP | REF_NOT_EQUAL_OP | NOT_OP ;
+MOD_OP | LT_EQUAL_OP | GT_EQUAL_OP | GT_OP | LT_OP | EQUAL_OP | NOT_EQUAL_OP | REF_EQUAL_OP | REF_NOT_EQUAL_OP | NOT_OP | BIT_COMPLEMENT_OP |UNTAINT_TYPE;
 
 type Node record {
     NodeKind nodeKind;
@@ -106,6 +110,7 @@ type BinaryExpressionNode record {
     ExpressionNode rightExpr;
 };
 
+//as untaint unary expression - Valuekind is also added
 type UnaryExpressionNode record {
    *Node;
     OperatorKind operatorKind;

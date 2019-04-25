@@ -57,13 +57,18 @@ const int NOT_EQUAL = 52;
 //to get the operator procedence, wont be used in builidng the AST
 const int UNARY_MINUS = 53;
 const int UNARY_PLUS = 54;
+
+const int BIT_COMPLEMENT = 55;
+const int UNTAINT = 56;
+
 string[] tokenNames = ["LBRACE", "RBRACE", "LPAREN", "RPAREN", "ADD", "ASSIGN", "SEMICOLON", "IDENTIFIER", "EQUALITY",
 "EOF", "NUMBER", "EQUAL", "REF_EQUAL", "STRING_LITERAL", "DOUBLE_QUOTE", "FUNCTION", "INT", "STRING",
 "SUB", "DIV", "MUL","LEXER_ERROR_TOKEN","COLON","PARSER_ERROR_TOKEN","COMMA",
 "DOT","RANGE","ELLIPSIS","HALF_OPEN_RANGE","LEFT_BRACKET","RIGHT_BRACKET","QUESTION_MARK","ELVIS","HASH",
 "EQUAL_GT","COMPOUND_ADD","RARROW","COMPOUND_SUB","SYNCRARROW","COMPOUND_MUL","COMPOUND_DIV","MOD",
 "NOT","REF_NOT_EQUAL","GT","GT_EQUAL","COMPOUND_RIGHT_SHIFT","COMPOUND_LOGICAL_SHIFT",
-"LT","LT_EQUAL","LARROW","COMPOUND_LEFT_SHIFT","NOT_EQUAL","UNARY_MINUS","UNARY_PLUS"];
+"LT","LT_EQUAL","LARROW","COMPOUND_LEFT_SHIFT","NOT_EQUAL","UNARY_MINUS","UNARY_PLUS",
+"BIT_COMPLEMENT","UNTAINT"];
 
 int position = 0;
 int lineNum = 1;
@@ -243,6 +248,10 @@ public type Lexer object {
 			}else if (currChar == "#"){
 				tokenIndex += 1;
 				return { tokenType: HASH, text: currChar, startPos: position, endPos: position, lineNumber:
+				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+			}else if (currChar == "~"){
+				tokenIndex += 1;
+				return { tokenType: BIT_COMPLEMENT, text: currChar, startPos: position, endPos: position, lineNumber:
 				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
 			}else if (currChar == "/") {
 				if (self.buffer.lookAhead() == "=") {
@@ -491,7 +500,7 @@ function isReserved(string word) returns int {
         "function" => resWord = FUNCTION;
         "int" => resWord = INT;
         "string" => resWord = STRING;
-
+		"untaint" => resWord = UNTAINT;
     }
     return resWord;
 }

@@ -323,7 +323,26 @@ type Parser object {
 				UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator], operatorKind: opKind4,
 				uExpression : expr4 };
 				expStack.push(uExpression);
-			}else{
+			}else if (operator.tokenType == NOT){
+				OperatorKind opKind4 = self.matchOperatorType(operator);
+				ExpressionNode expr4 = expStack.pop();
+				UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator], operatorKind: opKind4,
+				uExpression : expr4 };
+				expStack.push(uExpression);
+			}else if (operator.tokenType == BIT_COMPLEMENT){
+				OperatorKind opKind4 = self.matchOperatorType(operator);
+				ExpressionNode expr4 = expStack.pop();
+				UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator], operatorKind: opKind4,
+				uExpression : expr4 };
+				expStack.push(uExpression);
+			}else if (operator.tokenType == UNTAINT){
+				OperatorKind opKind4 = self.matchOperatorType(operator);
+				ExpressionNode expr4 = expStack.pop();
+				UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator], operatorKind: opKind4,
+				uExpression : expr4 };
+				expStack.push(uExpression);
+			}
+			else{
 				OperatorKind opKind = self.matchOperatorType(operator);
 				ExpressionNode expr2 = expStack.pop();
 				ExpressionNode expr1 = expStack.pop();
@@ -411,7 +430,8 @@ type Parser object {
 			}
 		} else if (self.LAToken(1) == ADD || self.LAToken(1) == SUB || self.LAToken(1) == DIV || self.
 			LAToken(1) == MUL || self.LAToken(1) == MOD || self.LAToken(1) == LT_EQUAL || self.LAToken(1) == GT_EQUAL || self.LAToken(1) == GT
-			 || self.LAToken(1) == LT || self.LAToken(1) == EQUAL || self.LAToken(1) == NOT_EQUAL || self.LAToken(1) == REF_EQUAL || self.LAToken(1) == REF_NOT_EQUAL ) {
+			 || self.LAToken(1) == LT || self.LAToken(1) == EQUAL || self.LAToken(1) == NOT_EQUAL || self.LAToken(1) == REF_EQUAL || self.LAToken(1) == REF_NOT_EQUAL
+			  || self.LAToken(1) == NOT || self.LAToken(1) == BIT_COMPLEMENT || self.LAToken(1) == UNTAINT ) {
 
 			//if the expression stack is empty then that means no prior expression , so this is a unary expr
 			if(expStack.isEmpty() == true){
@@ -419,28 +439,67 @@ type Parser object {
 					Token unarySub = self.matchToken(SUB, EXPRESSION_NODE);
 					unarySub.tokenType = UNARY_MINUS;
 					oprStack.push(unarySub);
-					}
-				else if (self.LAToken(1) == ADD){
+					expOperand = true;
+					return true;
+				}else if (self.LAToken(1) == ADD){
 					Token unaryAdd = self.matchToken(ADD, EXPRESSION_NODE);
 					unaryAdd.tokenType = UNARY_PLUS;
 					oprStack.push(unaryAdd);
-				}
 					expOperand = true;
 					return true;
+				}else if (self.LAToken(1) == NOT){
+					Token unaryNot = self.matchToken(NOT, EXPRESSION_NODE);
+					oprStack.push(unaryNot);
+					expOperand = true;
+					return true;
+				}else if (self.LAToken(1) == BIT_COMPLEMENT){
+					Token unaryBit = self.matchToken(BIT_COMPLEMENT, EXPRESSION_NODE);
+					oprStack.push(unaryBit);
+					expOperand = true;
+					return true;
+				}else if (self.LAToken(1) == UNTAINT){
+					Token unaryUnTaint = self.matchToken(UNTAINT, EXPRESSION_NODE);
+					oprStack.push(unaryUnTaint);
+					expOperand = true;
+					return true;
+				}
+
 			}else if (priorOperator == true) {
 				if(self.LAToken(1) == SUB){
 					Token unarySub = self.matchToken(SUB, EXPRESSION_NODE);
 					unarySub.tokenType = UNARY_MINUS;
 					oprStack.push(unarySub);
+					expOperand = true;
+					priorOperator = false;
+					return true;
 				}
 				else if (self.LAToken(1) == ADD){
 					Token unaryAdd = self.matchToken(ADD, EXPRESSION_NODE);
 					unaryAdd.tokenType = UNARY_PLUS;
 					oprStack.push(unaryAdd);
+					expOperand = true;
+					priorOperator = false;
+					return true;
+				}else if (self.LAToken(1) == NOT){
+					Token unaryNot = self.matchToken(NOT, EXPRESSION_NODE);
+					oprStack.push(unaryNot);
+					expOperand = true;
+					priorOperator = false;
+					return true;
+				}else if (self.LAToken(1) == BIT_COMPLEMENT){
+					Token unaryBit = self.matchToken(BIT_COMPLEMENT, EXPRESSION_NODE);
+					oprStack.push(unaryBit);
+					expOperand = true;
+					priorOperator = false;
+					return true;
+				}else if (self.LAToken(1) == UNTAINT){
+					Token unaryUnTaint = self.matchToken(UNTAINT, EXPRESSION_NODE);
+					oprStack.push(unaryUnTaint);
+					expOperand = true;
+					priorOperator = false;
+					return true;
 				}
-				expOperand = true;
-				priorOperator = false;
-				return true;
+
 			}else{
 				priorOperator = true;
 				while (oprStack.opPrecedence(oprStack.peek()) >= oprStack.opPrecedence(self.LAToken(1))) {
@@ -459,6 +518,27 @@ type Parser object {
 						ExpressionNode expr4 = expStack.pop();
 						UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator], operatorKind: opKind4,
 						uExpression : expr4 };
+						expStack.push(uExpression);
+					}else if (operator.tokenType == NOT){
+						priorOperator = false;
+						OperatorKind opKindNot = self.matchOperatorType(operator);
+						ExpressionNode exprNot = expStack.pop();
+						UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator], operatorKind: opKindNot,
+						uExpression : exprNot };
+						expStack.push(uExpression);
+					}else if (operator.tokenType == BIT_COMPLEMENT){
+						priorOperator = false;
+						OperatorKind opKindBit = self.matchOperatorType(operator);
+						ExpressionNode exprBit = expStack.pop();
+						UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator], operatorKind: opKindBit,
+						uExpression : exprBit };
+						expStack.push(uExpression);
+					}else if (operator.tokenType == UNTAINT){
+						priorOperator = false;
+						OperatorKind opKindBit = self.matchOperatorType(operator);
+						ExpressionNode exprBit = expStack.pop();
+						UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator], operatorKind: opKindBit,
+						uExpression : exprBit };
 						expStack.push(uExpression);
 					}else{
 					OperatorKind opKind = self.matchOperatorType(operator);
@@ -714,8 +794,11 @@ type Parser object {
 	function matchValueType(Token valueTypeTkn) returns ValueKind {
 		if (tokenNames[valueTypeTkn.tokenType] == "INT") {
 			return INT_TYPE;
-		} else {
+		}else if (tokenNames[valueTypeTkn.tokenType] == "STRING")  {
 			return STRING_TYPE;
+		}else{
+			//should be error value type?
+			return ERROR_VALUE_TYPE;
 		}
 	}
 	//check the operator kind of the operator token
@@ -754,6 +837,10 @@ type Parser object {
 			return PLUS_OP;
 		}else if (tokenNames[operator.tokenType] == "NOT"){
 			return NOT_OP;
+		}else if (tokenNames[operator.tokenType] == "BIT_COMPLEMENT"){
+			return BIT_COMPLEMENT_OP;
+		}else if (tokenNames[operator.tokenType] == "UNTAINT")  {
+			return UNTAINT_TYPE;
 		}else{
 			return ERROR_OP;
 		}
@@ -812,7 +899,7 @@ type OperatorStack object {
 			return 4;
 		} else if (opToken == DIV || opToken == MUL || opToken == MOD){
 			return 5;
-		}else if (opToken == UNARY_MINUS || opToken == UNARY_PLUS || opToken == NOT ){
+		}else if (opToken == UNARY_MINUS || opToken == UNARY_PLUS || opToken == NOT || opToken == BIT_COMPLEMENT ){
 			return 6;
 		}else if (opToken == COLON){
 			return 7;
