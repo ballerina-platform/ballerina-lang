@@ -77,7 +77,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     private String httpVersion;
     private ChunkConfig chunkConfig;
     private KeepAliveConfig keepAliveConfig;
-    private boolean isHttp2;
+    private boolean http2;
     private ForwardedExtensionConfig forwardedExtensionConfig;
     private EventLoopGroup clientEventGroup;
     private BootstrapConfiguration bootstrapConfig;
@@ -89,10 +89,19 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         this.senderConfiguration = senderConfiguration;
         initTargetChannelProperties(senderConfiguration);
         if (Float.valueOf(senderConfiguration.getHttpVersion()) == Constants.HTTP_2_0) {
-            isHttp2 = true;
+            http2 = true;
         }
         this.clientEventGroup = clientEventGroup;
         this.bootstrapConfig = bootstrapConfig;
+    }
+
+    private void initTargetChannelProperties(SenderConfiguration senderConfiguration) {
+        this.httpVersion = senderConfiguration.getHttpVersion();
+        this.chunkConfig = senderConfiguration.getChunkingConfig();
+        this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
+        this.sslConfig = senderConfiguration.getClientSSLConfig();
+        this.keepAliveConfig = senderConfiguration.getKeepAliveConfig();
+        this.forwardedExtensionConfig = senderConfiguration.getForwardedExtensionConfig();
     }
 
     @Override
@@ -142,144 +151,24 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
     @Override
     public HttpResponseFuture send(HttpCarbonMessage httpOutboundRequest) {
-        OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest);
-        return send(outboundMsgHolder, httpOutboundRequest);
+        // This holder is needed because we need to handle both http1x as well as http2
+        OutboundMsgHolder outboundRequestHolder = new OutboundMsgHolder(httpOutboundRequest);
+        return send(outboundRequestHolder);
     }
 
-    public HttpResponseFuture send(OutboundMsgHolder outboundMsgHolder, HttpCarbonMessage httpOutboundRequest) {
-        final HttpResponseFuture httpResponseFuture;
-
-        Object sourceHandlerObject = httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
-        SourceHandler srcHandler = null;
-        Http2SourceHandler http2SourceHandler = null;
-
-        if (sourceHandlerObject != null) {
-            if (sourceHandlerObject instanceof SourceHandler) {
-                srcHandler = (SourceHandler) sourceHandlerObject;
-            } else if (sourceHandlerObject instanceof Http2SourceHandler) {
-                http2SourceHandler = (Http2SourceHandler) sourceHandlerObject;
-            }
-        }
-
-        //Cannot directly assign srcHandler and http2SourceHandler to inner class ConnectionAvailabilityListener hence
-        //need two new separate variables
-        final SourceHandler http1xSrcHandlder = srcHandler;
-        final Http2SourceHandler http2SrcHandler = http2SourceHandler;
-
-        if (srcHandler == null && http2SourceHandler == null && LOG.isDebugEnabled()) {
-            LOG.debug(Constants.SRC_HANDLER + " property not found in the message."
-                              + " Message is not originated from the HTTP Server connector");
-        }
-
+    public HttpResponseFuture send(OutboundMsgHolder outboundRequestHolder) {
         try {
-            /*
-             * First try to get a channel from the http2 connection manager. If it is not available
-             * get the channel from the http connection manager. Http2 connection manager never create new channels,
-             * rather http connection manager create new connections and handover to the http2 connection manager
-             * in case of the connection get upgraded to a HTTP/2 connection.
-             */
-            final HttpRoute route = getTargetRoute(senderConfiguration.getScheme(), httpOutboundRequest);
-            if (isHttp2) {
-                // See whether an already upgraded HTTP/2 connection is available
-                Http2ClientChannel activeHttp2ClientChannel = http2ConnectionManager.borrowChannel(http2SourceHandler,
-                                                                                                   route);
+            final HttpResponseFuture httpResponseFuture;
 
-                if (activeHttp2ClientChannel != null) {
-                    outboundMsgHolder.setHttp2ClientChannel(activeHttp2ClientChannel);
-                    new RequestWriteStarter(outboundMsgHolder, activeHttp2ClientChannel).startWritingContent();
-                    httpResponseFuture = outboundMsgHolder.getResponseFuture();
-                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
-                    return httpResponseFuture;
-                }
+            HttpCarbonMessage httpOutboundRequest = outboundRequestHolder.getRequestCarbonMessage();
+            HttpRoute targetRoute = getTargetRoute(senderConfiguration.getScheme(), httpOutboundRequest);
+            if (http2) {
+                httpResponseFuture = sendHttp2Request(outboundRequestHolder, targetRoute);
+            } else {
+                httpResponseFuture = sendHttp1xRequest(outboundRequestHolder, targetRoute);
             }
 
-            // Look for the connection from http connection manager
-            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, http2SourceHandler,
-                                                                                senderConfiguration,
-                                                                                bootstrapConfig, clientEventGroup);
-            Http2ClientChannel freshHttp2ClientChannel = targetChannel.getHttp2ClientChannel();
-            outboundMsgHolder.setHttp2ClientChannel(freshHttp2ClientChannel);
-            httpResponseFuture = outboundMsgHolder.getResponseFuture();
-
-            targetChannel.getConnenctionReadyFuture().setListener(new ConnectionAvailabilityListener() {
-                @Override
-                public void onSuccess(String protocol, ChannelFuture channelFuture) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Created the connection to address: {}",
-                                  route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
-                    }
-
-                    if (Constants.HTTP_SCHEME.equalsIgnoreCase(protocol) && http1xSrcHandlder != null) {
-                        channelFuture.channel().deregister().addListener(future ->
-                                                                             http1xSrcHandlder.getEventLoop()
-                                                                                 .register(channelFuture.channel())
-                                                                                 .addListener(
-                                                                                     future1 ->
-                                                                                         startExecutingOutboundRequest(
-                                                                                         protocol, channelFuture)));
-                    } else if (Constants.HTTP_SCHEME.equalsIgnoreCase(protocol) && http2SrcHandler != null) {
-                        channelFuture.channel().deregister().addListener(future ->
-                                                                             http2SrcHandler.getChannelHandlerContext()
-                                                                                 .channel().eventLoop()
-                                                                                 .register(channelFuture.channel())
-                                                                                 .addListener(future1 ->
-                                                                                         startExecutingOutboundRequest(
-                                                                                         protocol, channelFuture)));
-                    } else {
-                        startExecutingOutboundRequest(protocol, channelFuture);
-                    }
-                }
-
-                private void startExecutingOutboundRequest(String protocol, ChannelFuture channelFuture) {
-                    if (protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL)
-                            || protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL)) {
-                        prepareTargetChannelForHttp2();
-                    } else {
-                        // Response for the upgrade request will arrive in stream 1,
-                        // so use 1 as the stream id.
-                        prepareTargetChannelForHttp(channelFuture);
-                        if (protocol.equalsIgnoreCase(Constants.HTTP_SCHEME) &&
-                                senderConfiguration.getProxyServerConfiguration() != null) {
-                            httpOutboundRequest.setProperty(Constants.IS_PROXY_ENABLED, true);
-                        }
-                        targetChannel.writeContent(httpOutboundRequest);
-                    }
-                }
-
-                private void prepareTargetChannelForHttp2() {
-                    freshHttp2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
-                    connectionManager.getHttp2ConnectionManager().
-                        addHttp2ClientChannel(freshHttp2ClientChannel.getChannel().eventLoop(), route,
-                                              freshHttp2ClientChannel);
-                    freshHttp2ClientChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
-                                                                 new TimeoutHandler(socketIdleTimeout,
-                                                                                    freshHttp2ClientChannel));
-                    new RequestWriteStarter(outboundMsgHolder, freshHttp2ClientChannel).startWritingContent();
-                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
-                }
-
-                private void prepareTargetChannelForHttp(ChannelFuture channelFuture) {
-                    // Response for the upgrade request will arrive in stream 1,
-                    // so use 1 as the stream id.
-                    freshHttp2ClientChannel.putInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID,
-                            outboundMsgHolder);
-                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
-                    targetChannel.setChannel(channelFuture.channel());
-                    targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
-                    targetChannel.setEndPointTimeout(socketIdleTimeout);
-                    targetChannel.setCorrelationIdForLogging();
-                    targetChannel.setHttpVersion(httpVersion);
-                    targetChannel.setChunkConfig(chunkConfig);
-                    handleOutboundConnectionHeader(keepAliveConfig, httpOutboundRequest);
-                    targetChannel
-                            .setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
-                }
-
-                @Override
-                public void onFailure(ClientConnectorException cause) {
-                    httpResponseFuture.notifyHttpListener(cause);
-                }
-            });
+            return httpResponseFuture;
         } catch (NoSuchElementException failedCause) {
             if ("Timeout waiting for idle object".equals(failedCause.getMessage())) {
                 failedCause = new NoSuchElementException(Constants.MAXIMUM_WAIT_TIME_EXCEED);
@@ -288,7 +177,82 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         } catch (Exception failedCause) {
             return notifyListenerAndGetErrorResponseFuture(failedCause);
         }
+    }
+
+    private HttpResponseFuture sendHttp2Request(OutboundMsgHolder outboundRequestHolder, HttpRoute route)
+            throws Exception {
+        HttpResponseFuture httpResponseFuture;
+
+        final Http2SourceHandler http2SourceHandler =
+                getHttp2SourceHandler(outboundRequestHolder.getRequestCarbonMessage());
+        Http2ClientChannel activeHttp2ClientChannel = http2ConnectionManager.borrowChannel(http2SourceHandler, route);
+        if (activeHttp2ClientChannel != null) {
+            httpResponseFuture = writeHttp2Content(outboundRequestHolder, activeHttp2ClientChannel);
+        } else {
+            // Look for the connection from http connection manager
+            TargetChannel targetChannel = connectionManager
+                    .borrowHttp2TargetChannel(route, http2SourceHandler, senderConfiguration, bootstrapConfig,
+                                                                                     clientEventGroup);
+
+            Http2ClientChannel freshHttp2ClientChannel = targetChannel.getHttp2ClientChannel();
+            outboundRequestHolder.setHttp2ClientChannel(freshHttp2ClientChannel);
+            httpResponseFuture = outboundRequestHolder.getResponseFuture();
+
+            targetChannel.getConnenctionReadyFuture().setListener(
+                    new Http2ConnAvailabilityListener(route, targetChannel, freshHttp2ClientChannel,
+                                                      outboundRequestHolder, httpResponseFuture, http2SourceHandler));
+        }
+
         return httpResponseFuture;
+    }
+
+    private HttpResponseFuture writeHttp2Content(OutboundMsgHolder outboundRequestHolder,
+                                                 Http2ClientChannel activeHttp2ClientChannel) {
+        HttpResponseFuture httpResponseFuture;
+        outboundRequestHolder.setHttp2ClientChannel(activeHttp2ClientChannel);
+        new RequestWriteStarter(outboundRequestHolder, activeHttp2ClientChannel).startWritingContent();
+        httpResponseFuture = outboundRequestHolder.getResponseFuture();
+        httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundRequestHolder));
+        return httpResponseFuture;
+    }
+
+    private HttpResponseFuture sendHttp1xRequest(OutboundMsgHolder outboundRequestHolder, HttpRoute route)
+            throws Exception {
+        HttpResponseFuture httpResponseFuture;
+
+        SourceHandler srcHandler = getSourceHandler(outboundRequestHolder.getRequestCarbonMessage());
+        // Look for the connection from http connection manager
+        TargetChannel targetChannel = connectionManager.borrowHttpTargetChannel(route, srcHandler, senderConfiguration,
+                                                                                bootstrapConfig, clientEventGroup);
+        Http2ClientChannel freshHttp2ClientChannel = targetChannel.getHttp2ClientChannel();
+        outboundRequestHolder.setHttp2ClientChannel(freshHttp2ClientChannel);
+        httpResponseFuture = outboundRequestHolder.getResponseFuture();
+
+        targetChannel.getConnenctionReadyFuture().setListener(
+                new Http1xConnAvailabilityListener(route, srcHandler, targetChannel, freshHttp2ClientChannel,
+                                                   outboundRequestHolder, httpResponseFuture));
+
+        return httpResponseFuture;
+    }
+
+    private SourceHandler getSourceHandler(HttpCarbonMessage httpOutboundRequest) {
+        Object sourceHandlerObject = httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
+        SourceHandler srcHandler = null;
+        if (sourceHandlerObject != null) {
+            if (sourceHandlerObject instanceof SourceHandler) {
+                srcHandler = (SourceHandler) sourceHandlerObject;
+            }
+        }
+        return srcHandler;
+    }
+
+    private Http2SourceHandler getHttp2SourceHandler(HttpCarbonMessage httpOutboundRequest) {
+        Http2SourceHandler http2SourceHandler = null;
+        Object sourceHandlerObject = httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
+        if (sourceHandlerObject instanceof Http2SourceHandler) {
+            http2SourceHandler = (Http2SourceHandler) sourceHandlerObject;
+        }
+        return http2SourceHandler;
     }
 
     private HttpResponseFuture notifyListenerAndGetErrorResponseFuture(Exception failedCause) {
@@ -330,15 +294,6 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         return host;
     }
 
-    private void initTargetChannelProperties(SenderConfiguration senderConfiguration) {
-        this.httpVersion = senderConfiguration.getHttpVersion();
-        this.chunkConfig = senderConfiguration.getChunkingConfig();
-        this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
-        this.sslConfig = senderConfiguration.getClientSSLConfig();
-        this.keepAliveConfig = senderConfiguration.getKeepAliveConfig();
-        this.forwardedExtensionConfig = senderConfiguration.getForwardedExtensionConfig();
-    }
-
     private void handleOutboundConnectionHeader(KeepAliveConfig keepAliveConfig,
                                                         HttpCarbonMessage httpOutboundRequest) {
         switch (keepAliveConfig) {
@@ -378,5 +333,138 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         httpOutboundRequest.setHeader(HttpHeaderNames.PROXY_AUTHORIZATION.toString(), authorization);
         authz.release();
         authzBase64.release();
+    }
+
+    class Http1xConnAvailabilityListener implements ConnectionAvailabilityListener {
+
+        final HttpRoute route;
+        final SourceHandler http1xSrcHandler;
+        final HttpCarbonMessage httpOutboundRequest;
+        final TargetChannel targetChannel;
+        final Http2ClientChannel freshHttp2ClientChannel;
+        final OutboundMsgHolder outboundMsgHolder;
+        final HttpResponseFuture httpResponseFuture;
+
+        Http1xConnAvailabilityListener(HttpRoute route, SourceHandler http1xSrcHandler,
+                                       TargetChannel targetChannel, Http2ClientChannel freshHttp2ClientChannel,
+                                       OutboundMsgHolder outboundMsgHolder, HttpResponseFuture httpResponseFuture) {
+            this.route = route;
+            this.http1xSrcHandler = http1xSrcHandler;
+            this.httpOutboundRequest = outboundMsgHolder.getRequestCarbonMessage();
+            this.targetChannel = targetChannel;
+            this.freshHttp2ClientChannel = freshHttp2ClientChannel;
+            this.outboundMsgHolder = outboundMsgHolder;
+            this.httpResponseFuture = httpResponseFuture;
+        }
+
+        @Override
+        public void onSuccess(String protocol, ChannelFuture channelFuture) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Created the connection to address: {}",
+                          route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
+            }
+
+            if (Constants.HTTP_SCHEME.equalsIgnoreCase(protocol) && http1xSrcHandler != null) {
+                channelFuture.channel().deregister()
+                        .addListener(future -> http1xSrcHandler.getEventLoop().register(channelFuture.channel())
+                                .addListener(future1 -> startExecutingOutboundRequest(protocol, channelFuture)));
+            } else {
+                startExecutingOutboundRequest(protocol, channelFuture);
+            }
+
+        }
+
+        void startExecutingOutboundRequest(String protocol, ChannelFuture channelFuture) {
+            // Response for the upgrade request will arrive in stream 1,
+            // so use 1 as the stream id.
+            prepareTargetChannelForHttp(channelFuture);
+            if (protocol.equalsIgnoreCase(Constants.HTTP_SCHEME) &&
+                    senderConfiguration.getProxyServerConfiguration() != null) {
+                httpOutboundRequest.setProperty(Constants.IS_PROXY_ENABLED, true);
+            }
+            targetChannel.writeContent(httpOutboundRequest);
+        }
+
+        void prepareTargetChannelForHttp(ChannelFuture channelFuture) {
+            // Response for the upgrade request will arrive in stream 1,
+            // so use 1 as the stream id.
+            freshHttp2ClientChannel.putInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID,
+                                                       outboundMsgHolder);
+            httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+            targetChannel.setChannel(channelFuture.channel());
+            targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
+            targetChannel.setEndPointTimeout(socketIdleTimeout);
+            targetChannel.setCorrelationIdForLogging();
+            targetChannel.setHttpVersion(httpVersion);
+            targetChannel.setChunkConfig(chunkConfig);
+            handleOutboundConnectionHeader(keepAliveConfig, httpOutboundRequest);
+            targetChannel
+                    .setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
+        }
+
+        @Override
+        public void onFailure(ClientConnectorException cause) {
+            httpResponseFuture.notifyHttpListener(cause);
+        }
+    }
+
+    class Http2ConnAvailabilityListener extends Http1xConnAvailabilityListener {
+
+        final Http2SourceHandler http2SrcHandler;
+
+        Http2ConnAvailabilityListener(HttpRoute route, TargetChannel targetChannel,
+                                      Http2ClientChannel freshHttp2ClientChannel,
+                                      OutboundMsgHolder outboundRequestHolder, HttpResponseFuture httpResponseFuture,
+                                      Http2SourceHandler http2SrcHandler) {
+            super(route, null, targetChannel, freshHttp2ClientChannel,
+                  outboundRequestHolder,
+                  httpResponseFuture);
+            this.http2SrcHandler = http2SrcHandler;
+        }
+
+        @Override
+        public void onSuccess(String protocol, ChannelFuture channelFuture) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Created the connection to address: {}",
+                          route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
+            }
+
+            if (Constants.HTTP_SCHEME.equalsIgnoreCase(protocol) && http2SrcHandler != null) {
+                channelFuture.channel().deregister()
+                        .addListener(future -> http2SrcHandler.getChannelHandlerContext().channel().eventLoop()
+                                .register(channelFuture.channel())
+                                .addListener(future1 -> startExecutingOutboundRequest(protocol, channelFuture)));
+            } else {
+                startExecutingOutboundRequest(protocol, channelFuture);
+            }
+        }
+
+        void startExecutingOutboundRequest(String protocol, ChannelFuture channelFuture) {
+            if (protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL)
+                    || protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL)) {
+                prepareTargetChannelForHttp2();
+            } else {
+                // Response for the upgrade request will arrive in stream 1,
+                // so use 1 as the stream id.
+                prepareTargetChannelForHttp(channelFuture);
+                if (protocol.equalsIgnoreCase(Constants.HTTP_SCHEME) &&
+                        senderConfiguration.getProxyServerConfiguration() != null) {
+                    httpOutboundRequest.setProperty(Constants.IS_PROXY_ENABLED, true);
+                }
+                targetChannel.writeContent(httpOutboundRequest);
+            }
+        }
+
+        private void prepareTargetChannelForHttp2() {
+            freshHttp2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
+            connectionManager.getHttp2ConnectionManager().
+                    addHttp2ClientChannel(freshHttp2ClientChannel.getChannel().eventLoop(), route,
+                                          freshHttp2ClientChannel);
+            freshHttp2ClientChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
+                                                         new TimeoutHandler(socketIdleTimeout,
+                                                                            freshHttp2ClientChannel));
+            new RequestWriteStarter(outboundMsgHolder, freshHttp2ClientChannel).startWritingContent();
+            httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+        }
     }
 }

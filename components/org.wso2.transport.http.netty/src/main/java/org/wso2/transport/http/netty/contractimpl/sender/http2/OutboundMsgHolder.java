@@ -217,4 +217,8 @@ public class OutboundMsgHolder {
     void setFirstContentWritten(boolean firstContentWritten) {
         this.firstContentWritten = firstContentWritten;
     }
+
+    public HttpCarbonMessage getRequestCarbonMessage() {
+        return this.requestCarbonMessage;
+    }
 }
