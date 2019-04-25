@@ -709,8 +709,15 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     private int getTypeLengthWithWS(BLangType typeNode, boolean nested) {
-        List<Whitespace> whitespaces = new ArrayList<>(typeNode.getWS());
         int length = 0;
+
+        // Check whether whitespaces are null for the type node.
+        // If null return length as 0.
+        if (typeNode.getWS() == null) {
+            return length;
+        }
+
+        List<Whitespace> whitespaces = new ArrayList<>(typeNode.getWS());
 
         if (typeNode instanceof BLangUnionTypeNode) {
             length = getUnionTypeLength((BLangUnionTypeNode) typeNode, nested);
