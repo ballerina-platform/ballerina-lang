@@ -86,19 +86,7 @@ public class Compiler {
             throw ProjectDirs.getPackageNotFoundError(sourcePackage);
         }
 
-        return compilePackage(packageID, isBuild, false);
-    }
-
-    public BLangPackage compile(String sourcePackage, boolean isBuild, boolean skipLoadingBuiltInPkg) {
-        if (!isBuild && !this.sourceDirectoryManager.checkIfSourcesExists(sourcePackage)) {
-            throw new BLangCompilerException("no ballerina source files found in module '" + sourcePackage + "'");
-        }
-        PackageID packageID = this.sourceDirectoryManager.getPackageID(sourcePackage);
-        if (packageID == null) {
-            throw ProjectDirs.getPackageNotFoundError(sourcePackage);
-        }
-
-        return compilePackage(packageID, isBuild, skipLoadingBuiltInPkg);
+        return compilePackage(packageID, isBuild);
     }
 
     public List<BLangPackage> build() {
@@ -172,7 +160,7 @@ public class Compiler {
         if (isBuild) {
             outStream.println("Compiling source");
         }
-        List<BLangPackage> compiledPackages = compilePackages(pkgList.stream(), isBuild, false);
+        List<BLangPackage> compiledPackages = compilePackages(pkgList.stream(), isBuild);
         // If it is a build and dlog is not empty, compilation should fail
         if (isBuild && this.dlog.errorCount > 0) {
             throw new BLangCompilerException("compilation contains errors");
@@ -181,13 +169,10 @@ public class Compiler {
     }
     // private methods
 
-    private List<BLangPackage> compilePackages(Stream<PackageID> pkgIdStream, boolean isBuild,
-                                               boolean skipLoadingBuiltInPkg) {
-        if (!skipLoadingBuiltInPkg) {
-            // TODO This is hack to load the builtin package. We will fix this with BALO support
-            this.compilerDriver.loadBuiltinPackage();
-            this.compilerDriver.loadUtilsPackage();
-        }
+    private List<BLangPackage> compilePackages(Stream<PackageID> pkgIdStream, boolean isBuild) {
+        // TODO This is hack to load the builtin package. We will fix this with BALO support
+        this.compilerDriver.loadBuiltinPackage();
+        this.compilerDriver.loadUtilsPackage();
 
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST
@@ -205,8 +190,8 @@ public class Compiler {
         return packages;
     }
 
-    private BLangPackage compilePackage(PackageID packageID, boolean isBuild, boolean skipLoadingBuiltInPkg) {
-        List<BLangPackage> compiledPackages = compilePackages(Stream.of(packageID), isBuild, skipLoadingBuiltInPkg);
+    private BLangPackage compilePackage(PackageID packageID, boolean isBuild) {
+        List<BLangPackage> compiledPackages = compilePackages(Stream.of(packageID), isBuild);
         // TODO: this should check for dlog.errorCount > 0. But currently some errors are
         // not getting added to dlog, hence cannot check for error count. Issue #10454.
         if (compiledPackages.isEmpty()) {
