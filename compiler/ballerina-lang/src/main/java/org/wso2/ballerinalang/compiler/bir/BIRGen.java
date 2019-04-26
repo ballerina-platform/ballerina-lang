@@ -404,6 +404,12 @@ public class BIRGen extends BLangNodeVisitor {
             args.add(this.env.targetOperand);
         }
 
+        BIROperand fp = null;
+        if (invocationExpr.functionPointerInvocation) {
+            invocationExpr.expr.accept(this);
+            fp = this.env.targetOperand;
+        }
+
         BIROperand lhsOp = null;
         if (invocationExpr.type.tag != TypeTags.NIL) {
             // Create a temporary variable to store the return operation result.
@@ -417,9 +423,8 @@ public class BIRGen extends BLangNodeVisitor {
         // TODO: make vCall a new instruction to avoid package id in vCall
         Name funcName = getFuncName((BInvokableSymbol) invocationExpr.symbol);
         if (invocationExpr.functionPointerInvocation) {
-            invocationExpr.expr.accept(this);
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
-                    this.env.targetOperand, args, lhsOp, thenBB);
+                    fp, args, lhsOp, thenBB);
         } else if (invocationExpr.async) {
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
                     isVirtual, invocationExpr.symbol.pkgID, funcName, args, lhsOp, thenBB);
