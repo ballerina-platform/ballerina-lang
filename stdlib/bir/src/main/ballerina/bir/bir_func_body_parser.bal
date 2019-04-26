@@ -173,7 +173,6 @@ public type FuncBodyParser object {
             VariableDcl?[] params = [];
             var numVars = self.reader.readInt32();
             int i = 0;
-            io:println(numVars);
             while (i < numVars) {
                 var dcl = parseVariableDcl(self.reader, self.typeParser);
                 params[i] = dcl;
@@ -263,6 +262,27 @@ public type FuncBodyParser object {
             VarRef lhsOp = self.parseVarRef();
             Wait waitIns = {exprList:exprs, kind:kind, lhsOp:lhsOp};
             return waitIns;
+        } else if (kindTag == INS_FP_CALL) {
+            TerminatorKind kind = TERMINATOR_FP_CALL;
+            VarRef fp = self.parseVarRef();
+            
+            var argsCount = self.reader.readInt32();
+            VarRef?[] args = [];
+            int i = 0;
+            while (i < argsCount) {
+                args[i] = self.parseVarRef();
+                i += 1;
+            }
+
+            var hasLhs = self.reader.readBoolean();
+            VarRef? lhsOp = ();
+            if (hasLhs){
+                lhsOp = self.parseVarRef();
+            }
+
+            BasicBlock thenBB = self.parseBBRef();
+            FPCall fpCall = {kind:kind, fp:fp, lhsOp:lhsOp, args:args, thenBB:thenBB};
+            return fpCall;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;
@@ -368,4 +388,3 @@ public function parseVariableDcl(BirChannelReader reader, TypeParser typeParser)
         };
     return dcl;
 }
-

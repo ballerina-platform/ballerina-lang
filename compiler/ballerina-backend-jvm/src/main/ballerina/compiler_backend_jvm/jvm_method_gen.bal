@@ -257,6 +257,12 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             termGen.genPanicIns(terminator);
         } else if (terminator is bir:Wait) {
             termGen.generateWaitIns(terminator, funcName);
+        } else if (terminator is bir:FPCall) {
+            termGen.genFPCallIns(terminator);
+        } else {
+            error err = error( "JVM generation is not supported for terminator instruction " +
+                                        io:sprintf("%s", terminator));
+            panic err;
         }
         // set next error entry after visiting current error entry.
         if (isTrapped) {
@@ -650,6 +656,12 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", OBJECT);
     } else if (bType is bir:BObjectType) {
         return io:sprintf(")L%s;", OBJECT_VALUE);
+    } else if (bType is bir:BInvokableType) {
+        if (bType.retType is bir:BTypeNil) {
+            return io:sprintf(")L%s;", CONSUMER);
+        } else {
+            return io:sprintf(")L%s;", FUNCTION);
+        }
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;

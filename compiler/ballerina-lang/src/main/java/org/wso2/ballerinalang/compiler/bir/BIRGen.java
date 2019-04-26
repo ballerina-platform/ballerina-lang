@@ -351,6 +351,11 @@ public class BIRGen extends BLangNodeVisitor {
         createCall(invocationExpr, true);
     }
 
+    public void visit(BLangInvocation.BFunctionPointerInvocation invocation) {
+        invocation.functionPointerInvocation = true;
+        createCall(invocation, false);
+    }
+
     private void createWait(BLangWaitExpr waitExpr) {
 
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
@@ -411,7 +416,11 @@ public class BIRGen extends BLangNodeVisitor {
 
         // TODO: make vCall a new instruction to avoid package id in vCall
         Name funcName = getFuncName((BInvokableSymbol) invocationExpr.symbol);
-        if (invocationExpr.async) {
+        if (invocationExpr.functionPointerInvocation) {
+            invocationExpr.expr.accept(this);
+            this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
+                    this.env.targetOperand, args, lhsOp, thenBB);
+        } else if (invocationExpr.async) {
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
                     isVirtual, invocationExpr.symbol.pkgID, funcName, args, lhsOp, thenBB);
         } else {

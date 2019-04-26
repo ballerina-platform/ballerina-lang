@@ -163,6 +163,22 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(birAsyncCall.thenBB.id.value);
     }
 
+    public void visit(BIRTerminator.FPCall fpCall) {
+        buf.writeByte(fpCall.kind.getValue());
+        fpCall.fp.accept(this);
+        buf.writeInt(fpCall.args.size());
+        for (BIROperand arg : fpCall.args) {
+            arg.accept(this);
+        }
+        if (fpCall.lhsOp != null) {
+            buf.writeByte(1);
+            fpCall.lhsOp.accept(this);
+        } else {
+            buf.writeByte(0);
+        }
+        addCpAndWriteString(fpCall.thenBB.id.value);
+    }
+
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
         buf.writeByte(birBinaryOp.kind.getValue());
         birBinaryOp.rhsOp1.accept(this);

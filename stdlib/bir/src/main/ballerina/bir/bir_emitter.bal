@@ -324,6 +324,27 @@ type TerminalEmitter object {
               }
           }
           println(") -> ", term.thenBB.id.value, ";");
+      } else if (term is FPCall) {
+            print(tabs);
+            VarRef? lhsOp = term.lhsOp;
+            if (lhsOp is VarRef) {
+                self.opEmitter.emitOp(lhsOp);
+                print(" = ");
+            }
+            print(term.kind, " ");
+            self.opEmitter.emitOp(term.fp);
+            print("(");
+            int i = 0;
+            foreach var arg in term.args {
+              if (arg is VarRef) {
+                  if (i != 0) {
+                      print(", ");
+                    }
+                  self.opEmitter.emitOp(arg);
+                  i = i + 1;
+                }
+            }
+            println(") -> ", term.thenBB.id.value, ";");
       } else { //if (term is Return) {
             println(tabs, "return;");
         }

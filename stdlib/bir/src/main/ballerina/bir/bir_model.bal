@@ -112,9 +112,10 @@ public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
 public const TERMINATOR_PANIC = "PANIC";
 public const TERMINATOR_WAIT = "WAIT";
+public const TERMINATOR_FP_CALL = "FP_CALL";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
-                                |TERMINATOR_PANIC|TERMINATOR_WAIT;
+                                |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL;
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -422,4 +423,12 @@ public type Return record {|
 public type Panic record {|
     TerminatorKind kind;
     VarRef errorOp;
+|};
+
+public type FPCall record {|
+    TerminatorKind kind;
+    VarRef fp;
+    VarRef? lhsOp;
+    VarRef?[] args;
+    BasicBlock thenBB;
 |};

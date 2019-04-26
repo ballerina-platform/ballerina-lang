@@ -87,6 +87,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRTerminator.FPCall fpCall) {
+        throw new AssertionError();
+    }
+
 
     // Non-terminating instructions
 
