@@ -1035,6 +1035,9 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
 function generateFrameClassForFunction (string pkgName, bir:Function? func, map<byte[]> pkgEntries,
                                         bir:BType? attachedType = ()) {
     bir:Function currentFunc = getFunction(untaint func);
+    if (isExternFunc(currentFunc)) {
+        return;
+    }
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visitSource(currentFunc.pos.sourceFileName);
@@ -1197,4 +1200,8 @@ function getRecordField(bir:BRecordField? recordField) returns bir:BRecordField 
         error err = error("Invalid record field");
         panic err;
     }
+}
+
+function isExternFunc(bir:Function func) returns boolean {
+    return func.isDeclaration;
 }
