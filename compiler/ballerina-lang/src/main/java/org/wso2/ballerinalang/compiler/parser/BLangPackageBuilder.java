@@ -399,14 +399,17 @@ public class BLangPackageBuilder {
     void addUnionType(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangType rhsTypeNode = (BLangType) this.typeNodeStack.pop();
         BLangType lhsTypeNode = (BLangType) this.typeNodeStack.pop();
+        addUnionType(lhsTypeNode, rhsTypeNode, pos, ws);
+    }
 
+    void addUnionType(BLangType lhsTypeNode, BLangType rhsTypeNode, DiagnosticPos pos, Set<Whitespace> ws) {
         BLangUnionTypeNode unionTypeNode;
         if (rhsTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
             unionTypeNode = (BLangUnionTypeNode) rhsTypeNode;
             unionTypeNode.memberTypeNodes.add(0, lhsTypeNode);
-            unionTypeNode.addWS(ws);
-            this.typeNodeStack.push(unionTypeNode);
-            return;
+        } else if (lhsTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
+            unionTypeNode = (BLangUnionTypeNode) lhsTypeNode;
+            unionTypeNode.memberTypeNodes.add(rhsTypeNode);
         } else {
             unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
             unionTypeNode.memberTypeNodes.add(lhsTypeNode);
@@ -512,9 +515,16 @@ public class BLangPackageBuilder {
     }
 
     void markTypeNodeAsNullable(Set<Whitespace> ws) {
-        BLangType typeNode = (BLangType) this.typeNodeStack.peek();
+        BLangType typeNode = (BLangType) this.typeNodeStack.pop();
         typeNode.addWS(ws);
-        typeNode.nullable = true;
+
+        BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        nilTypeNode.pos = typeNode.pos;
+        nilTypeNode.typeKind = TypeKind.NIL;
+
+        addUnionType(typeNode, nilTypeNode, typeNode.pos, ws);
+
+        ((BLangUnionTypeNode) this.typeNodeStack.peek()).nullable = true;
     }
 
     void markTypeNodeAsGrouped(Set<Whitespace> ws) {

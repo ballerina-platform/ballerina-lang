@@ -154,7 +154,7 @@ type TerminatorGenerator object {
     function genStaticCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
         string methodName = callIns.name.value;
         string methodDesc = "(Lorg/ballerinalang/jvm/Strand;";
-        
+
         // load strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
 
@@ -222,8 +222,9 @@ type TerminatorGenerator object {
     }
 
     function visitArg(bir:VarRef? arg) returns string {
-        bir:BType bType = arg.typeValue;
-        int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(arg.variableDcl));
+        bir:VarRef argRef = getVarRef(arg);
+        bir:BType bType = argRef.typeValue;
+        int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(argRef.variableDcl));
         if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
             self.mv.visitVarInsn(LLOAD, argIndex);
             return "J";
@@ -265,7 +266,7 @@ type TerminatorGenerator object {
             return io:sprintf("L%s;", OBJECT);
         } else {
             error err = error( "JVM generation is not supported for type " +
-                                                io:sprintf("%s", arg.typeValue));
+                                                io:sprintf("%s", argRef.typeValue));
             panic err;
         }
     }
@@ -282,11 +283,12 @@ type TerminatorGenerator object {
         
         int paramIndex = 1;
         foreach var arg in callIns.args {
+            bir:VarRef argRef = getVarRef(arg);
             self.mv.visitInsn(DUP);
             self.mv.visitIntInsn(BIPUSH, paramIndex);
-            
-            int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(arg.variableDcl));
-            bir:BType bType = arg.typeValue;
+
+            int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(argRef.variableDcl));
+            bir:BType bType = argRef.typeValue;
 
             if (bType is bir:BTypeInt) {
                 self.mv.visitVarInsn(LLOAD, argIndex);
@@ -316,7 +318,7 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
-                                                    io:sprintf("%s", arg.typeValue));
+                                                    io:sprintf("%s", argRef.typeValue));
                 panic err;
             }
             generateObjectCast(bType, self.mv);
@@ -327,8 +329,8 @@ type TerminatorGenerator object {
         string lambdaName = "$" + funcName + "$lambda$" + self.lambdaIndex + "$";
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         string methodClass = lookupFullQualifiedClassName(currentPackageName + funcName);
-        bir:BType futureType = callIns.lhsOp.typeValue;
-        bir:BType returnType = ();
+        bir:BType? futureType = callIns.lhsOp.typeValue;
+        bir:BType returnType = bir:TYPE_NIL;
         if (futureType is bir:BFutureType) {
             returnType = futureType.returnType;
         }
@@ -338,10 +340,10 @@ type TerminatorGenerator object {
         self.lambdaIndex += 1;
         
         if (isVoid) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
              io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
         } else {
-             self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
+             self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
             io:sprintf("([L%s;L%s;)L%s;", OBJECT, FUNCTION, FUTURE_VALUE), false);
         }
 

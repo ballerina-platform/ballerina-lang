@@ -623,18 +623,19 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
     mv.visitInsn(DUP);
 
     // Create the members array
-    bir:BType[] memberTypes = bType.members;
+    bir:BType?[] memberTypes = bType.members;
     mv.visitLdcInsn(memberTypes.length());
     mv.visitInsn(L2I);
     mv.visitTypeInsn(ANEWARRAY, BTYPE);
     int i = 0;
     foreach var memberType in memberTypes {
+        bir:BType mType = getType(memberType);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(i);
         mv.visitInsn(L2I);
 
         // Load the member type
-        loadType(mv, memberType);
+        loadType(mv, mType);
 
         // Add the member to the array
         mv.visitInsn(AASTORE);
@@ -658,10 +659,11 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, "<init>", "()V", false);
    
-    bir:BType[] tupleTypes = bType.tupleTypes;
+    bir:BType?[] tupleTypes = bType.tupleTypes;
     foreach var tupleType in tupleTypes {
+        bir:BType tType = getType(tupleType);
         mv.visitInsn(DUP);
-        loadType(mv, tupleType);
+        loadType(mv, tType);
         mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
         mv.visitInsn(POP);
     }
