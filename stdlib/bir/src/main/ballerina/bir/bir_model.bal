@@ -214,6 +214,9 @@ public type BTypeByte TYPE_BYTE;
 public const TYPE_JSON = "json";
 public type BJSONType TYPE_JSON;
 
+public const TYPE_DESC = "typedesc";
+public type BTypeDesc TYPE_DESC;
+
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
 
@@ -286,7 +289,7 @@ public type BFiniteType record {|
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BXMLType | BFiniteType;
+                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BFiniteType;
 
 public type ModuleID record {|
     string org = "";
