@@ -33,6 +33,7 @@ dependencies {
     implementation project(':ballerina-packerina')
     implementation project(':ballerina-launcher')   
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
+    implementation 'org.slf4j:slf4j-jdk14'
 
     testCompile 'org.awaitility:awaitility'
     testCompile 'commons-io:commons-io'
@@ -60,6 +61,11 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
 }
 
 description = 'Ballerina - Tools Integration Test'
