@@ -36,8 +36,7 @@
       "sortText": "190",
       "insertText": "service ${1:serviceName} on new http:Listener(8080) {\n\tresource function ${2:newResource}(http:Caller ${3:caller}, http:Request ${5:request}) {\n\t\t\n\t}\n}",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-      ]
+      "additionalTextEdits": []
     },
     {
       "label": "service/webSocket",
@@ -46,8 +45,7 @@
       "sortText": "190",
       "insertText": "service ${1:serviceName} on new http:WebSocketListener(9090) {\n\tresource function onOpen(http:WebSocketCaller caller) {\n\t\t\n\t}\n\tresource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {\n\t\t\n\t}\n\tresource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {\n\t\t\n\t}\n}",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-      ]
+      "additionalTextEdits": []
     },
     {
       "label": "service/webSub",
@@ -178,171 +176,171 @@
     {
       "label": "channel",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Channel",
+      "sortText": "110",
       "insertText": "channel",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "xml",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Xml",
+      "sortText": "110",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TableConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "TableConfig represents properties used during table initialization.\n"
       },
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "TableConfig",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "byte",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Byte",
+      "sortText": "110",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "stream",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Stream",
+      "sortText": "110",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "AbstractListener",
       "kind": "Class",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Object",
+      "sortText": "110",
       "insertText": "AbstractListener",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "map",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Map",
+      "sortText": "110",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "table",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Table",
+      "sortText": "110",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "anydata",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Anydata",
+      "sortText": "110",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "future",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Future",
+      "sortText": "110",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "typedesc",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Typedesc",
+      "sortText": "110",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "float",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Float",
+      "sortText": "110",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "null",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Nil",
+      "sortText": "110",
       "insertText": "null",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "decimal",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Decimal",
+      "sortText": "110",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "string",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "String",
+      "sortText": "110",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "error",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Error",
+      "sortText": "110",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "json",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Json",
+      "sortText": "110",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "any",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Any",
+      "sortText": "110",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "int",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Int",
+      "sortText": "110",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "boolean",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Boolean",
+      "sortText": "110",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "service",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Service",
+      "sortText": "110",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     }

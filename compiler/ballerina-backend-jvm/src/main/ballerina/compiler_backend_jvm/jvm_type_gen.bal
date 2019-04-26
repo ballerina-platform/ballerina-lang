@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 # Name of the class to which the types will be added as static fields.
 string typeOwnerClass = "";
 

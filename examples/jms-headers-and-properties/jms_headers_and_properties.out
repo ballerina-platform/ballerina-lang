@@ -2,7 +2,6 @@
 # Copy the artemis-jms-client-<version>.jar and artemis-selector-<version>.jar files to <BALLERINA_HOME>/bre/lib
 
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run jms_headers_and_properties.bal
-Initiating service(s) in 'jms_headers_and_properties.bal'
 2018-06-14 15:14:30,739 INFO  [ballerina/jms] - Message receiver created for queue MyQueue
