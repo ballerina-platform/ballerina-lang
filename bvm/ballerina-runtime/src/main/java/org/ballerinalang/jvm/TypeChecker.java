@@ -382,7 +382,7 @@ public class TypeChecker {
 
         // If both structs are private, they should be in the same package.
         if (!Flags.isFlagOn(targetType.flags, Flags.PUBLIC) &&
-                !sourceObjectType.getPackagePath().equals(targetType.getPackagePath())) {
+                !sourceObjectType.getPackage().getName().equals(targetType.getPackage().getName())) {
             return false;
         }
 
@@ -397,7 +397,7 @@ public class TypeChecker {
         }
 
         return !Flags.isFlagOn(targetType.flags, Flags.PUBLIC) &&
-                sourceObjectType.getPackagePath().equals(targetType.getPackagePath())
+                sourceObjectType.getPackage().getName().equals(targetType.getPackage().getName())
                         ? checkPrivateObjectsEquivalency(targetType, sourceObjectType, unresolvedTypes)
                         : checkPublicObjectsEquivalency(targetType, sourceObjectType, unresolvedTypes);
     }

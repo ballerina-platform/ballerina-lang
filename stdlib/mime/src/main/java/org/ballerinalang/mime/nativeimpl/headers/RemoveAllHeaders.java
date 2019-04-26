@@ -21,15 +21,14 @@ package org.ballerinalang.mime.nativeimpl.headers;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
  * Remove all headers associated with the entity.
@@ -46,11 +45,18 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 public class RemoveAllHeaders extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-        if (entityStruct.getNativeData(ENTITY_HEADERS) != null) {
-            HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+//        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+//        if (entityStruct.getNativeData(ENTITY_HEADERS) != null) {
+//            HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+//            httpHeaders.clear();
+//        }
+//        context.setReturnValues();
+    }
+
+    public void removeAllHeaders(Strand strand, ObjectValue entityObj) {
+        if (entityObj.getNativeData(ENTITY_HEADERS) != null) {
+            HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
             httpHeaders.clear();
         }
-        context.setReturnValues();
     }
 }

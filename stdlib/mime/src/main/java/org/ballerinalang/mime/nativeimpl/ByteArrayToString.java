@@ -19,6 +19,9 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueArray;
@@ -45,11 +48,19 @@ import java.io.UnsupportedEncodingException;
 public class ByteArrayToString extends BlockingNativeCallableUnit {
 
     public void execute(Context context) {
+//        try {
+//            String encoding = context.getStringArgument(0);
+//            byte[] arr = ((BValueArray) context.getRefArgument(0)).getBytes();
+//            String convertedString = new String(arr, encoding);
+//            context.setReturnValues(new BString(convertedString));
+//        } catch (UnsupportedEncodingException e) {
+//            throw new BallerinaException("Unsupported Encoding of Blob", e);
+//        }
+    }
+
+    public String byteArrayToString(Strand strand, ArrayValue arr, String encoding) {
         try {
-            String encoding = context.getStringArgument(0);
-            byte[] arr = ((BValueArray) context.getRefArgument(0)).getBytes();
-            String convertedString = new String(arr, encoding);
-            context.setReturnValues(new BString(convertedString));
+            return new String(arr.getBytes(), encoding);
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("Unsupported Encoding of Blob", e);
         }

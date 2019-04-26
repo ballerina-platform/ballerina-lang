@@ -20,20 +20,18 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
-import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 
 /**
  * Set byte channel as entity body.
@@ -50,16 +48,25 @@ import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 public class SetByteChannel extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-        BMap<String, BValue> byteChannel = (BMap<String, BValue>) context.getRefArgument(SECOND_PARAMETER_INDEX);
-        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
-        entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData
-                (IOConstants.BYTE_CHANNEL_NAME));
-        BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+//        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+//        BMap<String, BValue> byteChannel = (BMap<String, BValue>) context.getRefArgument(SECOND_PARAMETER_INDEX);
+//        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
+//        entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData
+//                (IOConstants.BYTE_CHANNEL_NAME));
+//        BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+//        if (dataSource != null) { //Clear message data source when the user set a byte channel to entity
+//            entityStruct.addNativeData(MESSAGE_DATA_SOURCE, null);
+//        }
+//        MimeUtil.setMediaTypeToEntity(entityStruct, contentType);
+//        context.setReturnValues();
+    }
+
+    public void setByteChannel(Strand strand, ObjectValue entityObj, ObjectValue byteChannel, String contentType) {
+        entityObj.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME));
+        Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
         if (dataSource != null) { //Clear message data source when the user set a byte channel to entity
-            entityStruct.addNativeData(MESSAGE_DATA_SOURCE, null);
+            entityObj.addNativeData(MESSAGE_DATA_SOURCE, null);
         }
-        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
-        context.setReturnValues();
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType);
     }
 }
