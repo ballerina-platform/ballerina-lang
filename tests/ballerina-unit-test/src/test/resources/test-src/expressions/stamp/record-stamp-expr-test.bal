@@ -42,20 +42,20 @@ type Teacher record {
     string school;
 };
 
-type NonAcademicStaff record {
+type NonAcademicStaff record {|
     string name;
     int age;
     string status;
     string batch;
     string...;
-};
+|};
 
-type AcademicStaff record {
+type AcademicStaff record {|
     string name;
     string status;
     string batch;
     int...;
-};
+|};
 
 type ExtendedEmployee record {
     string name;
@@ -91,12 +91,12 @@ type ExtendedEmployeeWithUnion record {
     map<anydata>|string address;
 };
 
-type ExtendedEmployeeWithUnionRest record {
+type ExtendedEmployeeWithUnionRest record {|
     string name;
     string status;
     string batch;
     map<anydata>|string...;
-};
+|};
 
 //-----------------------Record Stamp -------------------------------------------------------------------
 
@@ -269,14 +269,14 @@ type OpenEmployee record {
     string status;
 };
 
-type TeacherWithAnyRestType record {
+type TeacherWithAnyRestType record {|
     string name;
     int age;
     string status;
     string batch;
     string school;
     any...;
-};
+|};
 
 function stampAnyRecordToRecord() returns OpenEmployee|error {
 

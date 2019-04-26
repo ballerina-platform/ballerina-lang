@@ -90,12 +90,12 @@ function testInvalidFilterOpWithOpenRecords() {
 }
 
 
-type RestrictedGrades record {
+type RestrictedGrades record {|
     int maths;
     int physics;
     int chemistry;
     int...;
-};
+|};
 
 
 function testInvalidChainedItrOpReturns() {
