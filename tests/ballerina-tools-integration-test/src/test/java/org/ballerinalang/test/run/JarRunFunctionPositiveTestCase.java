@@ -21,7 +21,6 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -29,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * This class tests invoking main function in a bal for jvm target via Ballerina Build Command and run it the jar for
@@ -36,15 +36,19 @@ import java.nio.file.Path;
  */
 public class JarRunFunctionPositiveTestCase extends BaseTest {
 
+    private static final String JAR_NAME = "main_test.jar";
+    
     private Path tempProjectDir;
-
-    private String jarPath = "src/test/resources/run/jar/test_main_for_jvm_target.jar";
+    
+    private String jarPath ;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
         tempProjectDir = Files.createTempDirectory("temp-jar-func-test");
+        jarPath = Paths.get(tempProjectDir.toString(), JAR_NAME).toString();
         String[] clientArgs = {
-                "--jvmTarget", (new File("src/test/resources/run/jar/test_main_for_jvm_target.bal")).getAbsolutePath()
+                "--jvmTarget", "-o", jarPath,
+                (new File("src/test/resources/run/jar/test_main_for_jvm_target.bal")).getAbsolutePath()
         };
         balClient.runMain("build", clientArgs, null, new String[0], new LogLeecher[0], tempProjectDir.toString());
     }
@@ -54,11 +58,5 @@ public class JarRunFunctionPositiveTestCase extends BaseTest {
         String output = balClient.runMainAndReadStdOut("run", new String[] { new File(jarPath).getAbsolutePath() },
                                                        tempProjectDir.toString());
         Assert.assertEquals(output, "jvm main {}");
-    }
-
-    @AfterClass()
-    public void cleanUp() {
-        File jarFile = new File(jarPath);
-        jarFile.delete();
     }
 }

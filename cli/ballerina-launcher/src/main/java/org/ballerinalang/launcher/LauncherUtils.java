@@ -482,7 +482,7 @@ public class LauncherUtils {
             Attributes attributes = mf.getMainAttributes();
             String initClassName = attributes.getValue(MAIN_CLASS_MANIFEST_ENTRY);
             if (initClassName == null) {
-                throw createLauncherException("Main-class manifest entry cannot be found in jar.");
+                throw createLauncherException("Main-class manifest entry cannot be found in the jar.");
             }
             return initClassName.replaceAll("/", ".");
         } catch (IOException e) {
