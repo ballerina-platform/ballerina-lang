@@ -72,16 +72,23 @@ public function startSimplePatternQuery() returns (ABCDInfo[]) {
     abcdStream.subscribe(printABCD);
 
     aStream.publish(a1);
-    runtime:sleep(100);
+    runtime:sleep(1000);
 
     bStream.publish(b1);
-    runtime:sleep(100);
-
+    runtime:sleep(1000);
+    //
     cStream.publish(c1);
-    runtime:sleep(100);
-
+    //runtime:sleep(1000);
+    //
     dStream.publish(d2);
-    runtime:sleep(100);
+    //runtime:sleep(1000);
+
+    ////
+    cStream.publish(c1);
+    //runtime:sleep(1000);
+    ////
+    dStream.publish(d2);
+    runtime:sleep(1000);
 
     int count = 0;
     while(true) {
@@ -110,8 +117,6 @@ function runPatternQuery() {
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach map<anydata> m in events {
             // just cast input map into the output type
-            io:println("m is: ", m);
-
             ABCDInfo o = <ABCDInfo>ABCDInfo.convert(m);
             abcdStream.publish(o);
         }
@@ -136,7 +141,7 @@ function runPatternQuery() {
     );
 
     // (A || B) => (C && D)
-    streams:CompoundPatternProcessor abcd = streams:createCompoundPatternProcessor();
+    streams:CompoundPatternProcessor abcd = streams:createCompoundPatternProcessor(withinTimeMillis = 4000);
     streams:CompoundPatternProcessor ab = streams:createCompoundPatternProcessor();
     streams:CompoundPatternProcessor cd = streams:createCompoundPatternProcessor();
 
@@ -204,6 +209,7 @@ function runPatternQuery() {
 
 function printABCD(ABCDInfo abcd) {
     addToGlobalArray(abcd);
+    io:println("final: ", abcdInfoArray);
 }
 
 function addToGlobalArray(ABCDInfo a) {

@@ -15,22 +15,26 @@
 // under the License.
 
 import ballerina/io;
+import ballerina/time;
 
 public type CompoundPatternProcessor object {
     *AbstractPatternProcessor;
     *AbstractOperatorProcessor;
     public AbstractPatternProcessor? processor;
     public StreamEvent?[] fulfilledEvents;
+    // time from initial state to current state should be within this time
+    public int? withinTimeMillis;
 
-    public function __init() {
+    public function __init(int? withinTimeMillis) {
         self.prevProcessor = ();
         self.stateEvents = new;
         self.processor = ();
         self.fulfilledEvents = [];
+        self.withinTimeMillis = withinTimeMillis;
     }
 
     public function process(StreamEvent event, string? processorAlias) returns boolean {
-        io:println("CompoundPatternProcessor:process:33 -> ", event, "|", processorAlias);
+        io:println("CompoundPatternProcessor:process:36 -> ", event, "|", processorAlias);
         boolean promote = false;
         boolean promoted = false;
         // downward traversal
@@ -38,22 +42,30 @@ public type CompoundPatternProcessor object {
         if (processor is AbstractPatternProcessor) {
             // processorAlias is not required when get promoted by
             // its only imidiate descendent. Therefore passing ().
-            io:println("CompoundPatternProcessor:process:41 -> ", event, "|", processorAlias);
+            io:println("CompoundPatternProcessor:process:44 -> ", event, "|", processorAlias);
             promote = processor.process(event, ());
-            io:println("CompoundPatternProcessor:process:43 -> ", event, "|", processorAlias);
+            io:println("CompoundPatternProcessor:process:46 -> ", event, "|", processorAlias);
         }
         // upward traversal
         if (promote) {
+            int currentTime = time:currentTime().time;
+            int? withinTime = self.withinTimeMillis;
             AbstractOperatorProcessor? pProcessor = self.prevProcessor;
             if (pProcessor is AbstractOperatorProcessor) {
                 self.stateEvents.resetToFront();
                 while (self.stateEvents.hasNext()) {
                     StreamEvent s = getStreamEvent(self.stateEvents.next());
                     self.stateEvents.removeCurrent();
-                    io:println("CompoundPatternProcessor:process:53 -> ", s, "|", processorAlias);
-                    pProcessor.promote(s, processorAlias);
-                    io:println("CompoundPatternProcessor:process:55 -> ", s, "|", processorAlias);
-                    promoted = true;
+                    if (withinTime is int && (currentTime - s.timestamp) > withinTime) {
+                        // state haven't fulfilled in within time, therefore evict.
+                        io:println("CompoundPatternProcessor:process:60 -> ", s, "|", processorAlias);
+                        pProcessor.evict(s, processorAlias);
+                    } else {
+                        io:println("CompoundPatternProcessor:process:63 -> ", s, "|", processorAlias);
+                        pProcessor.promote(s, processorAlias);
+                        io:println("CompoundPatternProcessor:process:65 -> ", s, "|", processorAlias);
+                        promoted = true;
+                    }
                 }
             } else {
                 // pProcessor is (). Meaning, this is the root of the
@@ -62,18 +74,20 @@ public type CompoundPatternProcessor object {
                 while (self.stateEvents.hasNext()) {
                     StreamEvent s = getStreamEvent(self.stateEvents.next());
                     self.stateEvents.removeCurrent();
-                    io:println("CompoundPatternProcessor:process:65 -> ", s, "|", processorAlias);
-                    self.emit(s);
-                    promoted = true;
+                    if (!(withinTime is int && (currentTime - s.timestamp) > withinTime)) {
+                        io:println("CompoundPatternProcessor:process:77 -> ", s, "|", processorAlias);
+                        self.emit(s);
+                        promoted = true;
+                    }
                 }
             }
         }
-        io:println("CompoundPatternProcessor:process:71 -> ", event, "|", processorAlias);
+        io:println("CompoundPatternProcessor:process:84 -> ", event, "|", processorAlias);
         return promoted;
     }
 
     public function promote(StreamEvent stateEvent, string? processorAlias) {
-        io:println("CompoundPatternProcessor:promote:76 -> ", stateEvent, "|", processorAlias);
+        io:println("CompoundPatternProcessor:promote:89 -> ", stateEvent, "|", processorAlias);
         self.stateEvents.addLast(stateEvent);
     }
 
@@ -89,14 +103,14 @@ public type CompoundPatternProcessor object {
         // remove matching states from prev processor.
         AbstractOperatorProcessor? pProcessor = self.prevProcessor;
         if (pProcessor is AbstractOperatorProcessor) {
-            io:println("CompoundPatternProcessor:evict:92 -> ", stateEvent, "|", processorAlias);
+            io:println("CompoundPatternProcessor:evict:105 -> ", stateEvent, "|", processorAlias);
             pProcessor.evict(stateEvent, processorAlias);
-            io:println("CompoundPatternProcessor:evict:94 -> ", stateEvent, "|", processorAlias);
+            io:println("CompoundPatternProcessor:evict:107 -> ", stateEvent, "|", processorAlias);
         }
     }
 
     public function emit(StreamEvent stateEvent) {
-        io:println("CompoundPatternProcessor:emit:99 -> ", stateEvent);
+        io:println("CompoundPatternProcessor:emit:112 -> ", stateEvent);
         self.fulfilledEvents[self.fulfilledEvents.length()] = stateEvent;
     }
 
@@ -122,11 +136,15 @@ public type CompoundPatternProcessor object {
             alias = alias + pProcessor.getAlias();
         }
         alias = alias + ")";
+        int? withinTime = self.withinTimeMillis;
+        if (withinTime is int) {
+            alias += " within " + withinTime + "ms ";
+        }
         return alias;
     }
 };
 
-public function createCompoundPatternProcessor() returns CompoundPatternProcessor {
-    CompoundPatternProcessor compoundPatternProcessor = new;
+public function createCompoundPatternProcessor(int? withinTimeMillis = ()) returns CompoundPatternProcessor {
+    CompoundPatternProcessor compoundPatternProcessor = new(withinTimeMillis);
     return compoundPatternProcessor;
 }
