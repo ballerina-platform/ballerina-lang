@@ -89,6 +89,8 @@ public type TypeParser object {
             return TYPE_STRING;
         } else if (typeTag == self.TYPE_TAG_BOOLEAN){
             return TYPE_BOOLEAN;
+        } else if (typeTag == self.TYPE_TAG_TYPEDESC) {
+            return TYPE_DESC;
         } else if (typeTag == self.TYPE_TAG_UNION){
             return self.parseUnionType();
         } else if (typeTag == self.TYPE_TAG_TUPLE){

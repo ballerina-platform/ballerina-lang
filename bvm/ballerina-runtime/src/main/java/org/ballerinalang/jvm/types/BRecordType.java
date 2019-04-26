@@ -43,6 +43,7 @@ public class BRecordType extends BStructureType {
      */
     public BRecordType(String typeName, String pkgPath, int flags, boolean sealed) {
         super(typeName, pkgPath, flags, MapValue.class);
+        this.sealed = sealed;
     }
 
     /**

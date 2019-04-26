@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.util;
 
+import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.jvm.Scheduler;
@@ -122,9 +123,8 @@ public class BRunUtil {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException(compileResult.toString());
         }
+
         ProgramFile programFile = compileResult.getProgFile();
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
         PackageInfo packageInfo = programFile.getPackageInfo(packageName);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
         if (functionInfo == null) {
@@ -172,7 +172,7 @@ public class BRunUtil {
         programFile.setDebugger(debugger);
         compileResult.setContext(context);
 
-        BVMExecutor.initProgramFile(programFile);
+        BVMExecutor.invokePackageInitFunctions(programFile);
     }
 
     /**
@@ -188,17 +188,15 @@ public class BRunUtil {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException(compileResult.toString());
         }
-        ProgramFile programFile = compileResult.getProgFile();
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
 
-        PackageInfo packageInfo = programFile.getPackageInfo(programFile.getEntryPkgName());
+        ProgramFile programFile = compileResult.getProgFile();
+        PackageInfo packageInfo = programFile.getPackageInfo(packageName);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
         if (functionInfo == null) {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        BValue[] response = BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
+        BValue[] response = new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
 
         return spreadToBValueArray(response);
     }
@@ -547,17 +545,15 @@ public class BRunUtil {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException(compileResult.toString());
         }
-        ProgramFile programFile = compileResult.getProgFile();
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
 
+        ProgramFile programFile = compileResult.getProgFile();
         PackageInfo packageInfo = programFile.getPackageInfo(programFile.getEntryPkgName());
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
         if (functionInfo == null) {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        return BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
+        return new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
     }
 
     /**
