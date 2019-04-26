@@ -114,6 +114,8 @@ public type TypeParser object {
             int selfIndex = self.reader.readInt32();
             Self t = {bType: self.compositeStack[self.compositeStackI - 1]};
             return t;
+        } else if(typeTag == self.TYPE_TAG_FINITE) {
+            return self.parseFiniteType();
         }
         error err = error("Unknown type tag :" + typeTag);
         panic err;
@@ -244,5 +246,31 @@ public type TypeParser object {
         }
         error err = error("unknown array state tag " + b);
         panic err;
+    }
+
+    function parseFiniteType() returns BFiniteType {
+        int size = self.reader.readInt32();
+        int c = 0;
+        BFiniteType finiteType = {values:[]};
+        BType valueType = self.parseType();
+        while c < size {
+            finiteType.values[c] = self.getValue(valueType);
+            c = c + 1;
+        }
+        return finiteType;
+    }
+
+    private function getValue(BType valueType) returns (int | string | boolean | float | byte| ()) {
+        if (valueType is BTypeInt || valueType is BTypeByte) {
+            return self.reader.readIntCpRef();
+        } else if (valueType is BTypeString) {
+            return self.reader.readStringCpRef();
+        } else if (valueType is BTypeBoolean) {
+            return self.reader.readInt8() == 1;
+        } else if (valueType is BTypeFloat) {
+            return self.reader.readFloatCpRef();
+        } else if (valueType is ()) {
+            return ();
+        }
     }
 };

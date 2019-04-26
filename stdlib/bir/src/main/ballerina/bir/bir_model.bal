@@ -280,9 +280,13 @@ public type BFutureType record {|
     BType returnType;
 |};
 
+public type BFiniteType record {|
+    (int | string | boolean | float | byte| ()) [] values;
+|};
+
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BXMLType;
+                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BXMLType | BFiniteType;
 
 public type ModuleID record {|
     string org = "";
