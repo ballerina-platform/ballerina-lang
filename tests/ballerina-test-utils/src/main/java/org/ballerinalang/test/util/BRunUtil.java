@@ -23,12 +23,16 @@ import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BMapType;
@@ -47,6 +51,8 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -406,7 +412,6 @@ public class BRunUtil {
                 return new BValueArray(tupleValues, getBVMType(jvmTuple.getType()));
             case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
                 org.ballerinalang.jvm.types.BArrayType arrayType = (org.ballerinalang.jvm.types.BArrayType) type;
-
                 ArrayValue array = (ArrayValue) value;
                 BValueArray bvmArray = new BValueArray(getBVMType(arrayType.getElementType()));
                 for (int i = 0; i < array.size(); i++) {
@@ -456,6 +461,13 @@ public class BRunUtil {
                     bvmObject.put(key, getBVMValue(jvmObject.get(key)));
                 }
                 return bvmObject;
+            case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
+                XMLValue<?> xml = (XMLValue<?>) value;
+                if (xml.getNodeType() != XMLNodeType.SEQUENCE) {
+                    return new BXMLItem(((XMLItem) xml).value());
+                }
+                ArrayValue elements = ((XMLSequence) xml).value();
+                return new BXMLSequence((BValueArray) getBVMValue(elements));
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
@@ -511,6 +523,8 @@ public class BRunUtil {
                 }
                 bvmObjectType.setFields(fields);
                 return bvmObjectType;
+            case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
+                return BTypes.typeXML;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }

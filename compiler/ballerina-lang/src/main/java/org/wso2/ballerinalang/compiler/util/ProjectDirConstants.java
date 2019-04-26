@@ -64,4 +64,8 @@ public class ProjectDirConstants {
 
     public static final String BALLERINA_CENTRAL_ACCESS_TOKEN = "BALLERINA_CENTRAL_ACCESS_TOKEN";
 
+    public static final String MAIN_CLASS_MANIFEST_ENTRY = "Main-Class";
+
+    public static final String JAVA_MAIN = "main";
+
 }
