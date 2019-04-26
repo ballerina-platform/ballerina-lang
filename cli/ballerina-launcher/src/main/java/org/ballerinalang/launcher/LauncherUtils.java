@@ -50,11 +50,17 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -65,6 +71,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
+import java.util.jar.Attributes;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 import java.util.logging.LogManager;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -75,6 +84,9 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAVA_MAIN;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MAIN_CLASS_MANIFEST_ENTRY;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -104,6 +116,10 @@ public class LauncherUtils {
         System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, fullPath.getParent().toString());
         loadConfigurations(fullPath.getParent(), runtimeParams, configFilePath, observeFlag);
 
+        if (srcPathStr.endsWith(BLANG_COMPILED_JAR_EXT)) {
+            runJar(sourcePath, args);
+            return;
+        }
         runBal(sourceRootPath, sourcePath, args, offline, siddhiRuntimeFlag, experimentalFlag, srcPathStr, fullPath);
     }
 
@@ -412,6 +428,53 @@ public class LauncherUtils {
         }
 
         return EXIT_CODE_SUCCESS;
+    }
+
+    private static void runJar(Path sourcePath, String[] args) {
+
+        String initClassName = null;
+        try {
+            URLClassLoader classLoader =
+                    new URLClassLoader(new URL[] { sourcePath.toUri().toURL() }, ClassLoader.getSystemClassLoader());
+
+            initClassName = getModuleInitClassName(sourcePath);
+            Class<?> initClazz = classLoader.loadClass(initClassName);
+            Method mainMethod = initClazz.getDeclaredMethod(JAVA_MAIN, String[].class);
+
+            // TODO: add validation
+            boolean runServicesOnly = false;
+
+            // Load launcher listeners
+            ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
+            listeners.forEach(listener -> listener.beforeRunProgram(runServicesOnly));
+            mainMethod.invoke(null, (Object) args);
+            listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
+
+        } catch (MalformedURLException e) {
+            throw createLauncherException("loading jar file failed with given source path " + sourcePath);
+        } catch (ClassNotFoundException e) {
+            throw createLauncherException("module init class with name " + initClassName + " cannot be found ");
+        } catch (NoSuchMethodException e) {
+            throw createLauncherException("main method cannot be found for init class " + initClassName);
+        } catch (IllegalAccessException | IllegalArgumentException e) {
+            throw createLauncherException("invoking main method failed due to " + e.getMessage());
+        } catch (InvocationTargetException e) {
+            throw createLauncherException("invoking main method failed due to " + e.getCause());
+        }
+    }
+
+    private static String getModuleInitClassName(Path sourcePath) {
+        try (JarInputStream jarStream = new JarInputStream(new FileInputStream((sourcePath.toString())))) {
+            Manifest mf = jarStream.getManifest();
+            Attributes attributes = mf.getMainAttributes();
+            String initClassName = attributes.getValue(MAIN_CLASS_MANIFEST_ENTRY);
+            if (initClassName == null) {
+                throw createLauncherException("Main-class manifest entry cannot be found in the jar.");
+            }
+            return initClassName.replaceAll("/", ".");
+        } catch (IOException e) {
+            throw createLauncherException("error while getting init class name from manifest due to " + e.getMessage());
+        }
     }
 
     private static ProgramFile compileModule(Path sourceRootPath, Path sourcePath, boolean offline,

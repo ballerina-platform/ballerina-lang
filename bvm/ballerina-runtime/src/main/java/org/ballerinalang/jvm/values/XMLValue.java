@@ -124,6 +124,16 @@ public abstract class XMLValue<T> implements RefValue {
     public abstract String getAttribute(String localName, String namespace, String prefix);
 
     /**
+     * Get the value of a single attribute as a string.
+     * 
+     * @param attributeName Qualified name of the attribute
+     * @return Value of the attribute
+     */
+    public String getAttribute(XMLQName attributeName) {
+        return getAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix());
+    }
+
+    /**
      * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
      * Otherwise a new attribute will be added.
      * 
@@ -133,6 +143,17 @@ public abstract class XMLValue<T> implements RefValue {
      * @param value Value of the attribute
      */
     public abstract void setAttribute(String localName, String namespace, String prefix, String value);
+
+    /**
+     * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
+     * Otherwise a new attribute will be added.
+     * 
+     * @param attributeName Qualified name of the attribute
+     * @param value Value of the attribute
+     */
+    public void setAttribute(XMLQName attributeName, String value) {
+        setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value);
+    }
 
     /**
      * Get attributes as a {@link MapValue}.

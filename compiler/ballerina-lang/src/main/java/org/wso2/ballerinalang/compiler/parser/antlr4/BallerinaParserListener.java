@@ -338,18 +338,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitFiniteTypeUnit(BallerinaParser.FiniteTypeUnitContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code openRecordTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeName}.
-	 * @param ctx the parse tree
-	 */
-	void enterOpenRecordTypeNameLabel(BallerinaParser.OpenRecordTypeNameLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code openRecordTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeName}.
-	 * @param ctx the parse tree
-	 */
-	void exitOpenRecordTypeNameLabel(BallerinaParser.OpenRecordTypeNameLabelContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code tupleTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
@@ -374,6 +362,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitUnionTypeNameLabel(BallerinaParser.UnionTypeNameLabelContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code exclusiveRecordTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterExclusiveRecordTypeNameLabel(BallerinaParser.ExclusiveRecordTypeNameLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code exclusiveRecordTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitExclusiveRecordTypeNameLabel(BallerinaParser.ExclusiveRecordTypeNameLabelContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code simpleTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
@@ -397,18 +397,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNullableTypeNameLabel(BallerinaParser.NullableTypeNameLabelContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code closedRecordTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeName}.
-	 * @param ctx the parse tree
-	 */
-	void enterClosedRecordTypeNameLabel(BallerinaParser.ClosedRecordTypeNameLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code closedRecordTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeName}.
-	 * @param ctx the parse tree
-	 */
-	void exitClosedRecordTypeNameLabel(BallerinaParser.ClosedRecordTypeNameLabelContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code arrayTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
@@ -446,25 +434,37 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#openRecordTypeDescriptor}.
+	 * Enter a parse tree produced by the {@code inclusiveRecordTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
-	void enterOpenRecordTypeDescriptor(BallerinaParser.OpenRecordTypeDescriptorContext ctx);
+	void enterInclusiveRecordTypeNameLabel(BallerinaParser.InclusiveRecordTypeNameLabelContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#openRecordTypeDescriptor}.
+	 * Exit a parse tree produced by the {@code inclusiveRecordTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
-	void exitOpenRecordTypeDescriptor(BallerinaParser.OpenRecordTypeDescriptorContext ctx);
+	void exitInclusiveRecordTypeNameLabel(BallerinaParser.InclusiveRecordTypeNameLabelContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#closedRecordTypeDescriptor}.
+	 * Enter a parse tree produced by {@link BallerinaParser#inclusiveRecordTypeDescriptor}.
 	 * @param ctx the parse tree
 	 */
-	void enterClosedRecordTypeDescriptor(BallerinaParser.ClosedRecordTypeDescriptorContext ctx);
+	void enterInclusiveRecordTypeDescriptor(BallerinaParser.InclusiveRecordTypeDescriptorContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#closedRecordTypeDescriptor}.
+	 * Exit a parse tree produced by {@link BallerinaParser#inclusiveRecordTypeDescriptor}.
 	 * @param ctx the parse tree
 	 */
-	void exitClosedRecordTypeDescriptor(BallerinaParser.ClosedRecordTypeDescriptorContext ctx);
+	void exitInclusiveRecordTypeDescriptor(BallerinaParser.InclusiveRecordTypeDescriptorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#exclusiveRecordTypeDescriptor}.
+	 * @param ctx the parse tree
+	 */
+	void enterExclusiveRecordTypeDescriptor(BallerinaParser.ExclusiveRecordTypeDescriptorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#exclusiveRecordTypeDescriptor}.
+	 * @param ctx the parse tree
+	 */
+	void exitExclusiveRecordTypeDescriptor(BallerinaParser.ExclusiveRecordTypeDescriptorContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#fieldDescriptor}.
 	 * @param ctx the parse tree

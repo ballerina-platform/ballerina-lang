@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,27 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
-type Student record {|
-    string name = "";
-    int age = 0;
-    Grades grades = {};
-    string...;
-|};
-
-type Grades record {|
-    int maths = 0;
-    int physics = 0;
-    int chemistry = 0;
-|};
-
-function getThatStudent() returns Student {
-    Grades g = { maths: 100, physics:100, chemistry:100 };
-    Student s = { name: "Mic", age:17, grades:g };
-    return s;
-}
-
-function giveATuple() returns (int ,(string, int, float)) {
-    return (1, ("ABC", 42, 0.012345));
+public function main() returns error? {
+    error e = error("jvm main");
+    return e;
 }

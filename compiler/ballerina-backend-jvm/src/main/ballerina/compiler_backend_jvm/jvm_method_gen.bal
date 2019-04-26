@@ -44,7 +44,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     jvm:MethodVisitor mv = cw.visitMethod(access, funcName, desc, (), ());
     InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
     ErrorHandlerGenerator errorGen = new(mv, indexMap);
-
+    
     mv.visitCode();
 
     if (isModuleInitFunction(module, func)) {
@@ -192,10 +192,17 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             if (inst is bir:ConstantLoad) {
                 instGen.generateConstantLoadIns(inst);
             } else if (inst is bir:Move) {
-                if (inst.kind == "TYPE_CAST") {
+                if (inst.kind == bir:INS_KIND_TYPE_CAST) {
                     instGen.generateCastIns(inst);
-                } else {
+                } else if (inst.kind == bir:INS_KIND_MOVE) {
                     instGen.generateMoveIns(inst);
+                } else if (inst.kind == bir:INS_KIND_XML_SEQ_STORE) {
+                    instGen.generateXMLStoreIns(inst);
+                } else if (inst.kind == bir:INS_KIND_XML_LOAD_ALL) {
+                    instGen.generateXMLLoadAllIns(inst);
+                } else {
+                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
+                    panic err;
                 }
             } else if (inst is bir:BinaryOp) {
                 instGen.generateBinaryOpIns(inst);
@@ -220,12 +227,35 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     instGen.generateObjectStoreIns(inst);
                 } else if (inst.kind == bir:INS_KIND_OBJECT_LOAD) {
                     instGen.generateObjectLoadIns(inst);
+                } else if (inst.kind == bir:INS_KIND_XML_ATTRIBUTE_STORE) {
+                    instGen.generateXMLAttrStoreIns(inst);
+                } else if (inst.kind == bir:INS_KIND_XML_ATTRIBUTE_LOAD) {
+                    instGen.generateXMLAttrLoadIns(inst);
+                } else if (inst.kind == bir:INS_KIND_XML_LOAD || inst.kind == bir:INS_KIND_XML_SEQ_LOAD) {
+                    instGen.generateXMLLoadIns(inst);
                 } else {
                     error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                     panic err;
                 }
             } else if (inst is bir:TypeTest) {
                 instGen.generateTypeTestIns(inst);
+            } else if (inst is bir:NewXMLQName) {
+                instGen.generateNewXMLQNameIns(inst);
+            } else if (inst is bir:NewStringXMLQName) {
+                instGen.generateNewStringXMLQNameIns(inst);
+            } else if (inst is bir:NewXMLElement) {
+                instGen.generateNewXMLElementIns(inst);
+            } else if (inst is bir:NewXMLText) {
+                if (inst.kind == bir:INS_KIND_NEW_XML_TEXT) {
+                    instGen.generateNewXMLTextIns(inst);
+                } else if (inst.kind == bir:INS_KIND_NEW_XML_COMMENT) {
+                    instGen.generateNewXMLCommentIns(inst);
+                } else {
+                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
+                    panic err;
+                }
+            } else if (inst is bir:NewXMLPI) {
+                instGen.generateNewXMLProcIns(inst);
             } else {
                 error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
@@ -336,6 +366,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", OBJECT));
             mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BXMLType) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", XML_VALUE));
+            mv.visitVarInsn(ASTORE, index);
         } else {
             error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
@@ -404,6 +438,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", OBJECT));
+        } else if (bType is bir:BXMLType) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", XML_VALUE));
         } else {
             error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
@@ -521,7 +559,8 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BRecordType ||
                 bType is bir:BTupleType ||
                 bType is bir:BFutureType ||
-                bType is bir:BJSONType) {
+                bType is bir:BJSONType ||
+                bType is bir:BXMLType) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
     } else {
@@ -572,6 +611,8 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return io:sprintf("L%s;", FUTURE_VALUE);
     } else if (bType is bir:BObjectType) {
         return io:sprintf("L%s;", OBJECT_VALUE);
+    } else if (bType is bir:BXMLType) {
+        return io:sprintf("L%s;", XML_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -608,6 +649,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", OBJECT);
     } else if (bType is bir:BObjectType) {
         return io:sprintf(")L%s;", OBJECT_VALUE);
+    } else if (bType is bir:BXMLType) {
+        return io:sprintf(")L%s;", XML_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -656,14 +699,14 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
         // schedule the init method
-        string lambdaName = io:sprintf("$lambda$%s$%s$%s$", pkgName, initClass, initFuncName);
+        string lambdaName = io:sprintf("$lambda$%s$", initFuncName);
         mv.visitInvokeDynamicInsn(initClass, lambdaName, true);
 
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
             io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
         mv.visitInsn(POP);
     }
-
+    
     string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
     bir:BType?[] paramTypes = userMainFunc.typeValue.paramTypes;
 
@@ -739,7 +782,7 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     bir:BType returnType = userMainFunc.typeValue.retType;
     boolean isVoidFunc = returnType is bir:BTypeNil;
-
+    
     jvm:MethodVisitor mv;
     if (isVoidFunc) {
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$lambda$main$",
@@ -783,7 +826,7 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     if(hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
-            io:sprintf("$lambda$%s$%s$%s$", pkgName, initClass, initFuncName),
+            io:sprintf("$lambda$%s$", initFuncName),
             io:sprintf("([L%s;)V", OBJECT), (), ());
         mv.visitCode();
          //load strand as first arg
@@ -800,7 +843,7 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
 }
 
 # Generate cast instruction from String to target type
-#
+# 
 # + targetType - target type to be casted
 # + mv - method visitor
 function castFromString(bir:BType targetType, jvm:MethodVisitor mv) {
@@ -996,6 +1039,9 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
 function generateFrameClassForFunction (string pkgName, bir:Function? func, map<byte[]> pkgEntries,
                                         bir:BType? attachedType = ()) {
     bir:Function currentFunc = getFunction(untaint func);
+    if (isExternFunc(currentFunc)) {
+        return;
+    }
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visitSource(currentFunc.pos.sourceFileName);
@@ -1062,6 +1108,8 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
         typeSig = io:sprintf("L%s;", FUTURE_VALUE);
     } else if (bType is bir:BObjectType) {
         typeSig = io:sprintf("L%s;", OBJECT_VALUE);
+    } else if (bType is bir:BXMLType) {
+        typeSig = io:sprintf("L%s;", XML_VALUE);
     } else if (bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BUnionType ||
@@ -1156,6 +1204,10 @@ function getRecordField(bir:BRecordField? recordField) returns bir:BRecordField 
         error err = error("Invalid record field");
         panic err;
     }
+}
+
+function isExternFunc(bir:Function func) returns boolean {
+    return func.isDeclaration;
 }
 
 function getVarRef(bir:VarRef? varRef) returns bir:VarRef {

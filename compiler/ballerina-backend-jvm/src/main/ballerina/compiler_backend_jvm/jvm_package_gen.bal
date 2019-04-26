@@ -75,7 +75,10 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
         cw.visitSource(v.sourceFileName);
         // generate methods
         foreach var func in v.functions {
-            generateMethod(getFunction(func), cw, module);
+            bir:Function currentFunc = getFunction(func);
+            if (!isExternFunc(currentFunc)) {
+                generateMethod(currentFunc, cw, module);
+            }
         }
         // generate lambdas created during generating methods
         foreach var (name, call) in lambdas {
@@ -134,7 +137,10 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
         cw.visitSource(v.sourceFileName);
         // generate methods
         foreach var func in v.functions {
-            generateMethod(getFunction(func), cw, module);
+            bir:Function currentFunc = getFunction(func);
+            if (!isExternFunc(currentFunc)) {
+                generateMethod(currentFunc, cw, module);
+            }
         }
         
         // generate lambdas
@@ -194,7 +200,10 @@ function cleanupName(string name) returns string {
     return name.replace(".","_");
 }
 
-
+function cleanupPackageName(string pkgName) returns string {
+    int index = pkgName.lastIndexOf("/");
+    return pkgName.substring(0, index);
+}
 
 # Java Class will be generate for each source file. This method add class mappings to globalVar and filters the 
 # functions based on their source file name and then returns map of associated java class contents.
@@ -229,7 +238,20 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                 class.functions[0] = func;
                 jvmClassMap[moduleClass] = class;
             }
-            fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
+
+            string functionName = getFunction(func).name.value;
+            if (isExternFunc(getFunction(func))) { // if this function is an extern
+                var result = jvm:lookupExternClassName(cleanupPackageName(pkgName), functionName);
+                if (result is string) {
+                    moduleClass = result;
+                } else {
+                    error err = error("cannot find full qualified class name for extern function : " + pkgName +
+                                        functionName);
+                    panic err;
+                }
+            }
+
+            fullQualifiedClassNames[pkgName + functionName] = moduleClass;
         }
     }
     return jvmClassMap;

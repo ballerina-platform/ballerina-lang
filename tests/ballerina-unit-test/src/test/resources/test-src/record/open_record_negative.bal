@@ -1,8 +1,8 @@
-type Person record {
+type Person record {|
     string name = "";
     int age = 0;
     string...;
-};
+|};
 
 function invalidRestField() {
     Person p = {name:"John", age:20, height:6, employed:false, city:"Colombo"};
@@ -30,10 +30,10 @@ function testInvalidRestFieldAddition() {
     p.invField = new Bar();
 }
 
-type Baz record {
+type Baz record {|
     int a;
     anydata...;
-};
+|};
 
 type MyError error<string, map<error>>;
 

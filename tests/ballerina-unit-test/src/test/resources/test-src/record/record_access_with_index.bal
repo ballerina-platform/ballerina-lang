@@ -167,11 +167,11 @@ function testDynamicIndexAccessTypes() returns string {
     return result;
 }
 
-type Bar record {
+type Bar record {|
     int fieldOne;
     string|float fieldTwo;
     boolean...;
-};
+|};
 
 function testDynamicIndexAccessTypesWithRestParam(string arg) returns string {
     Bar f = {
@@ -262,11 +262,11 @@ function getIndex(int index) returns string {
     }
 }
 
-type Qux record {
+type Qux record {|
     int fieldOne?;
     int fieldTwo;
     int...;
-};
+|};
 
 function testDynamicIndexAccessWithSingleType() returns int {
     Qux q = { fieldOne: 95, fieldTwo: 96, fieldThree: 100 };
