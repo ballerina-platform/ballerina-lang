@@ -45,17 +45,8 @@ public class Utils {
      * @return      Ballerina error object.
      */
     public static BError getPathError(String reason, Throwable error) {
-        BError bError;
-        if (error != null) {
-            if (error.getMessage() == null) {
-                bError = getPathError(reason, UNKNOWN_MESSAGE);
-            } else {
-                bError = getPathError(reason, error.getMessage());
-            }
-        } else {
-            bError = getPathError(reason, UNKNOWN_MESSAGE);
-        }
-        return bError;
+        String errorMsg = error != null && error.getMessage() != null ? error.getMessage() : UNKNOWN_MESSAGE;
+        return getPathError(reason, errorMsg);
     }
 
     /**
