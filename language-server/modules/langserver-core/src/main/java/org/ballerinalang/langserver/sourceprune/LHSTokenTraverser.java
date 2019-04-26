@@ -36,7 +36,9 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
     private int rightParenthesisCount;
     private int rightBraceCount;
     private int ltSymbolCount;
+    private boolean capturedAssignToken;
     private SourcePruneContext sourcePruneContext;
+    private Boolean xyz = null;
 
     LHSTokenTraverser(SourcePruneContext sourcePruneContext) {
         this.sourcePruneContext = sourcePruneContext;
@@ -44,6 +46,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         this.blockRemoveKWTerminals = sourcePruneContext.get(SourcePruneKeys.BLOCK_REMOVE_KW_TERMINALS_KEY);
 
         this.removeBlock = false;
+        this.capturedAssignToken = false;
         this.rightParenthesisCount = 0;
         this.rightBraceCount = 0;
         this.ltSymbolCount = 0;
@@ -61,6 +64,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             }
             if (this.blockRemoveKWTerminals.contains(type)) {
                 this.removeBlock = true;
+            } else if (type == BallerinaParser.ASSIGN) {
+                this.capturedAssignToken = true;
             }
             alterTokenText(token.get());
             token = CommonUtil.getPreviousDefaultToken(tokenStream, token.get().getTokenIndex());
@@ -122,13 +127,17 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             this.ltSymbolCount++;
             return false;
         }
+        if (type == BallerinaParser.RETURNS) {
+            this.alterTokenText(token);
+//            List<Token> nTokensToLeft = CommonUtil.getNDefaultTokensToLeft(tokenStream, 2, token.getTokenIndex());
+            return !this.capturedAssignToken;
+        }
         // Handle the ON token replacing since this is used in both service and JSON streaming input
         boolean onServiceRule = CommonUtil.getNDefaultTokensToLeft(tokenStream, 2, token.getTokenIndex()).stream()
                 .map(Token::getType)
                 .collect(Collectors.toList())
                 .contains(BallerinaParser.SERVICE);
-        if (token.getType() == BallerinaParser.COMMA || token.getType() == BallerinaParser.RETURNS
-                || (!onServiceRule && token.getType() == BallerinaParser.ON)) {
+        if (token.getType() == BallerinaParser.COMMA || (!onServiceRule && token.getType() == BallerinaParser.ON)) {
             this.alterTokenText(token);
         }
         

@@ -40,12 +40,12 @@ public class SourcePruner {
                 BallerinaParser.LT, BallerinaParser.RETURNS, BallerinaParser.TRANSACTION
         );
         RHS_TRAVERSE_TERMINALS = Arrays.asList(
-                BallerinaParser.SEMICOLON, BallerinaParser.COMMA, BallerinaParser.DocumentationLineStart,
+                BallerinaParser.SEMICOLON, BallerinaParser.DocumentationLineStart,
                 BallerinaParser.AT, BallerinaParser.LEFT_BRACE, BallerinaParser.RIGHT_BRACE, 
                 BallerinaParser.RIGHT_PARENTHESIS, BallerinaParser.IMPORT, BallerinaParser.GT,
                 BallerinaParser.XMLNS, BallerinaParser.SERVICE, BallerinaParser.PUBLIC, BallerinaParser.PRIVATE,
                 BallerinaParser.REMOTE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.ANNOTATION,
-                BallerinaParser.CONST
+                BallerinaParser.CONST, BallerinaParser.RIGHT_BRACKET
         );
         BLOCK_REMOVE_KW_TERMINALS = Arrays.asList(
                 BallerinaParser.SERVICE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.MATCH,

@@ -165,13 +165,32 @@ public class SourcePruneTest {
                 // Worker Declaration
                 {"src_prune_config52.json"},
                 {"src_prune_config53.json"},
-//                 Transaction statement
+                // Transaction statement
                 {"src_prune_config54.json"},
                 {"src_prune_config55.json"},
                 {"src_prune_config56.json"},
                 // XML Namespace Declaration statement
                 {"src_prune_config57.json"},
-                
+                // Array Literal Expression
+                {"src_prune_config58.json"},
+                // Record Literal Expression
+                {"src_prune_config59.json"},
+                {"src_prune_config60.json"},
+                {"src_prune_config61.json"},
+                // Table Literal expression
+                {"src_prune_config62.json"},
+                {"src_prune_config63.json"},
+                {"src_prune_config64.json"},
+                // Action invocation
+                {"src_prune_config65.json"},
+                {"src_prune_config66.json"},
+                // Function invocation
+                {"src_prune_config67.json"},
+                // Function Pointer
+                {"src_prune_config68.json"},
+                {"src_prune_config69.json"},
+                {"src_prune_config70.json"},
+                {"src_prune_config71.json"},
         };
     }
 }
