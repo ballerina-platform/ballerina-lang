@@ -302,7 +302,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        //        varNode.symbol = null;
+        varNode.symbol = null;
         varNode.type = null;
         if (varNode.typeNode != null) {
             varNode.typeNode.accept(this);
@@ -358,6 +358,9 @@ public class SymbolResetter extends BLangNodeVisitor {
     @Override
     public void visit(BLangBlockStmt blockNode) {
         blockNode.stmts.forEach(statement -> statement.accept(this));
+        if (blockNode.scope != null) {
+            blockNode.scope.entries.clear();
+        }
     }
 
     @Override
