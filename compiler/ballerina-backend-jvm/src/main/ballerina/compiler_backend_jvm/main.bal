@@ -24,6 +24,12 @@ public type JarFile record {|
     map<byte[]> jarEntries;
 |};
 
+public type JavaClass record {|
+    string sourceFileName;
+    string moduleClass;
+    bir:Function?[] functions = [];
+|};
+
 bir:BIRContext currentBIRContext = new;
 
 public function main(string... args) {

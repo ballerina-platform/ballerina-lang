@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -113,8 +114,7 @@ public class GenerateBalo {
         SymbolTable symbolTable = SymbolTable.getInstance(context);
 
         Compiler compiler = Compiler.getInstance(context);
-        compiler.write(compiler.build());
-
+        List<BLangPackage> buildPackages = compiler.compilePackages(false);
 
         List<Diagnostic> diagnostics = diagListner.getDiagnostics();
         if (diagListner.getErrorCount() > 0 || (reportWarnings && diagListner.getWarnCount() > 0)) {
@@ -124,6 +124,8 @@ public class GenerateBalo {
             throw new BLangCompilerException("Compilation failed with " + diagListner.getErrorCount() +
                                              " error(s)" + warnMsg + " " + "\n  " + sj.toString());
         }
+
+        compiler.write(buildPackages);
 
         BinaryFileWriter writer = BinaryFileWriter.getInstance(context);
         BPackageSymbol buitlinSymbol = symbolTable.builtInPackageSymbol;

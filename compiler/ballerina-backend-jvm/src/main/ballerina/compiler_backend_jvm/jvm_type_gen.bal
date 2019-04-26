@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 # Name of the class to which the types will be added as static fields.
 string typeOwnerClass = "";
 
@@ -520,6 +519,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         typeFieldName = "typeAnydata";
     } else if (bType is bir:BJSONType) {
         typeFieldName = "typeJSON";
+    } else if (bType is bir:BXMLType) {
+        typeFieldName = "typeXML";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
@@ -741,7 +742,8 @@ function getTypeDesc(bir:BType bType) returns string {
                bType is bir:BTypeAnyData ||
                bType is bir:BUnionType ||
                bType is bir:BRecordType ||
-               bType is bir:BJSONType) {
+               bType is bir:BJSONType ||
+               bType is bir:BXMLType) {
         return io:sprintf("L%s;", OBJECT);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
