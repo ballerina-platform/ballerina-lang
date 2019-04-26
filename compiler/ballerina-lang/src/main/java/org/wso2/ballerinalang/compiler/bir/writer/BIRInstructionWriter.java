@@ -251,6 +251,16 @@ public class BIRInstructionWriter extends BIRVisitor {
         birTypeTest.rhsOp.accept(this);
     }
 
+    public void visit(BIRNonTerminator.NewTable newTable) {
+        buf.writeByte(newTable.kind.getValue());
+        newTable.type.accept(typeWriter);
+        newTable.lhsOp.accept(this);
+        newTable.columnsOp.accept(this);
+        newTable.dataOp.accept(this);
+        newTable.indexColOp.accept(this);
+        newTable.keyColOp.accept(this);
+    }
+
     // Operands
     public void visit(BIROperand birOperand) {
         buf.writeByte(birOperand.variableDcl.kind.getValue());

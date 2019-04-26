@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
@@ -589,6 +590,11 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
     }
 
+    @Override
+    public void visit(BLangTableLiteral tableLiteral) {
+        generateTableLiteral(tableLiteral);
+    }
+
     public void visit(BLangArrayLiteral astArrayLiteralExpr) {
         generateArrayLiteral(astArrayLiteralExpr);
     }
@@ -940,6 +946,45 @@ public class BIRGen extends BLangNodeVisitor {
             emit(new BIRNonTerminator.FieldAccess(astArrayLiteralExpr.pos, InstructionKind.ARRAY_STORE, toVarRef,
                     arrayIndex, exprIndex));
         }
+        this.env.targetOperand = toVarRef;
+    }
+
+    private void generateTableLiteral(BLangTableLiteral tableLiteral) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(tableLiteral.type, this.env.nextLocalVarId(names),
+                                                       VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        BLangArrayLiteral columnLiteral = new BLangArrayLiteral();
+        columnLiteral.pos = tableLiteral.pos;
+        columnLiteral.type = symTable.stringArrayType;
+        tableLiteral.columns.forEach(col -> {
+            BLangLiteral colLiteral = new BLangLiteral();
+            colLiteral.pos = tableLiteral.pos;
+            colLiteral.type = symTable.stringType;
+            colLiteral.value = col.columnName;
+            columnLiteral.exprs.add(colLiteral);
+        });
+        columnLiteral.accept(this);
+        BIROperand columnsOp = this.env.targetOperand;
+
+
+        BLangArrayLiteral dataLiteral = new BLangArrayLiteral();
+        dataLiteral.pos = tableLiteral.pos;
+        dataLiteral.type = symTable.anydataArrayType;
+        dataLiteral.exprs.addAll(tableLiteral.tableDataRows);
+        dataLiteral.accept(this);
+        BIROperand dataOp = this.env.targetOperand;
+
+        tableLiteral.indexColumnsArrayLiteral.accept(this);
+        BIROperand indexColOp = this.env.targetOperand;
+
+        tableLiteral.keyColumnsArrayLiteral.accept(this);
+        BIROperand keyColOp = this.env.targetOperand;
+
+        emit(new BIRNonTerminator.NewTable(tableLiteral.pos, tableLiteral.type, toVarRef, columnsOp, dataOp,
+                indexColOp, keyColOp));
+
         this.env.targetOperand = toVarRef;
     }
 

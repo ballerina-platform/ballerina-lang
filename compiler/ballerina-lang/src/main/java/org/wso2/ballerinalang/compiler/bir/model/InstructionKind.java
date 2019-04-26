@@ -48,6 +48,7 @@ public enum InstructionKind {
     OBJECT_STORE((byte) 33),
     OBJECT_LOAD((byte) 34),
     PANIC((byte) 35),
+    NEW_TABLE((byte) 36),
 
     // Binary expression related instructions.
     ADD((byte) 50),

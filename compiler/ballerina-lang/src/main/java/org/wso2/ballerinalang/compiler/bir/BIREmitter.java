@@ -199,6 +199,21 @@ public class BIREmitter extends BIRVisitor {
         sb.append("];\n");
     }
 
+    @Override
+    public void visit(BIRNonTerminator.NewTable newTable) {
+        sb.append("\t\t");
+        newTable.lhsOp.accept(this);
+        sb.append(" = ").append(newTable.kind.name().toLowerCase(Locale.ENGLISH)).append(" [");
+        newTable.columnsOp.accept(this);
+        sb.append(", ");
+        newTable.indexColOp.accept(this);
+        sb.append(", ");
+        newTable.keyColOp.accept(this);
+        sb.append(", ");
+        newTable.dataOp.accept(this);
+        sb.append("];\n");
+    }
+
     public void visit(FieldAccess birFieldAccess) {
         sb.append("\t\t");
         birFieldAccess.lhsOp.accept(this);
