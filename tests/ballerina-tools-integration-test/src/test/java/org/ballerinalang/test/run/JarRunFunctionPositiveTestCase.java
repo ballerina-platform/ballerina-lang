@@ -21,6 +21,7 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -30,6 +31,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.test.utils.PackagingTestUtils.deleteFiles;
+
 /**
  * This class tests invoking main function in a bal for jvm target via Ballerina Build Command and run it the jar for
  * testing given outputs.
@@ -37,10 +40,10 @@ import java.nio.file.Paths;
 public class JarRunFunctionPositiveTestCase extends BaseTest {
 
     private static final String JAR_NAME = "main_test.jar";
-    
+
     private Path tempProjectDir;
-    
-    private String jarPath ;
+
+    private String jarPath;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
@@ -58,5 +61,14 @@ public class JarRunFunctionPositiveTestCase extends BaseTest {
         String output = balClient.runMainAndReadStdOut("run", new String[] { new File(jarPath).getAbsolutePath() },
                                                        tempProjectDir.toString());
         Assert.assertEquals(output, "jvm main {}");
+    }
+
+    @AfterClass
+    public void tearDown() throws BallerinaTestException {
+        try {
+            deleteFiles(tempProjectDir);
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error deleting files");
+        }
     }
 }
