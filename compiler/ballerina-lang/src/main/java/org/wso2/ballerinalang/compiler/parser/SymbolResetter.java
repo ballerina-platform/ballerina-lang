@@ -296,7 +296,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-//        varNode.symbol = null;
+        //        varNode.symbol = null;
         varNode.type = null;
         if (varNode.typeNode != null) {
             varNode.typeNode.type = null;
@@ -337,7 +337,11 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        throw new AssertionError();
+        annAttachmentNode.type = null;
+        if (annAttachmentNode.expr != null) {
+            annAttachmentNode.expr.accept(this);
+        }
+        annAttachmentNode.annotationSymbol = null;
     }
 
     // Statements.
@@ -360,7 +364,9 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCompoundAssignment compoundAssignNode) {
-        throw new AssertionError();
+        compoundAssignNode.varRef.accept(this);
+        compoundAssignNode.expr.accept(this);
+        compoundAssignNode.modifiedExpr = null;
     }
 
     @Override
@@ -370,17 +376,17 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        throw new AssertionError();
+        // Do nothing
     }
 
     @Override
     public void visit(BLangContinue continueNode) {
-        throw new AssertionError();
+        // Do nothing
     }
 
     @Override
     public void visit(BLangBreak breakNode) {
-        throw new AssertionError();
+        // Do nothing
     }
 
     @Override
@@ -439,12 +445,17 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
-        throw new AssertionError();
+        whileNode.expr.accept(this);
+        whileNode.body.accept(this);
     }
 
     @Override
     public void visit(BLangLock lockNode) {
-        throw new AssertionError();
+        for (int i = 0; i < lockNode.body.stmts.size(); i++) {
+            lockNode.body.stmts.get(i).accept(this);
+        }
+        lockNode.lockVariables.clear();
+        lockNode.fieldVariables.clear();
     }
 
     @Override
@@ -569,12 +580,26 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        throw new AssertionError();
+        workerSendNode.type = null;
+
+        workerSendNode.expr.accept(this);
+        if (workerSendNode.keyExpr != null) {
+            workerSendNode.keyExpr.accept(this);
+        }
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        throw new AssertionError();
+        workerReceiveNode.type = null;
+        if (workerReceiveNode.keyExpr != null) {
+            workerReceiveNode.keyExpr.accept(this);
+        }
+        workerReceiveNode.env = null;
+//        workerReceiveNode.workerType = symTable.semanticError;
+        workerReceiveNode.matchingSendsError = null;
+        if (workerReceiveNode.sendExpression != null) {
+            workerReceiveNode.sendExpression.accept(this);
+        }
     }
 
     @Override
@@ -586,8 +611,8 @@ public class SymbolResetter extends BLangNodeVisitor {
     // Expressions
     @Override
     public void visit(BLangLiteral literalExpr) {
-//        literalExpr.type = null;
-//        literalExpr.typeChecked = false;
+        //        literalExpr.type = null;
+        //        literalExpr.typeChecked = false;
     }
 
     @Override
@@ -613,7 +638,12 @@ public class SymbolResetter extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
         recordLiteral.typeChecked = false;
-        throw new AssertionError();
+        recordLiteral.type = null;
+        for (int i = 0; i < recordLiteral.keyValuePairs.size(); i++) {
+            BLangRecordLiteral.BLangRecordKeyValue keyValue = recordLiteral.keyValuePairs.get(i);
+            keyValue.key.accept(this);
+            keyValue.valueExpr.accept(this);
+        }
     }
 
     @Override
@@ -716,13 +746,19 @@ public class SymbolResetter extends BLangNodeVisitor {
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
         ternaryExpr.typeChecked = false;
-        throw new AssertionError();
+
+        ternaryExpr.expr.accept(this);
+        ternaryExpr.thenExpr.accept(this);
+        ternaryExpr.elseExpr.accept(this);
     }
 
     @Override
     public void visit(BLangWaitExpr awaitExpr) {
         awaitExpr.typeChecked = false;
-        throw new AssertionError();
+
+        for (int i = 0; i < awaitExpr.exprList.size(); i++) {
+            awaitExpr.exprList.get(i).accept(this);
+        }
     }
 
     @Override
@@ -735,7 +771,6 @@ public class SymbolResetter extends BLangNodeVisitor {
     public void visit(BLangBinaryExpr binaryExpr) {
         binaryExpr.typeChecked = false;
         binaryExpr.type = null;
-        binaryExpr.opKind = null;
         binaryExpr.opSymbol = null;
         binaryExpr.rhsExpr.accept(this);
         binaryExpr.rhsExpr.accept(this);
@@ -765,7 +800,9 @@ public class SymbolResetter extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypedescExpr accessExpr) {
         accessExpr.typeChecked = false;
-        throw new AssertionError();
+        accessExpr.type = null;
+        accessExpr.resolvedType = null;
+        accessExpr.typeNode.accept(this);
     }
 
     @Override
@@ -842,7 +879,16 @@ public class SymbolResetter extends BLangNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.typeChecked = false;
-        throw new AssertionError();
+        bLangArrowFunction.type = null;
+        for (int i = 0; i < bLangArrowFunction.params.size(); i++) {
+            bLangArrowFunction.params.get(i).accept(this);
+        }
+
+        bLangArrowFunction.expression.accept(this);
+        bLangArrowFunction.funcType = null;
+        if (bLangArrowFunction.function != null) {
+            bLangArrowFunction.function.accept(this);
+        }
     }
 
     @Override
@@ -872,7 +918,7 @@ public class SymbolResetter extends BLangNodeVisitor {
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
         bLangNamedArgsExpression.typeChecked = false;
-        throw new AssertionError();
+        bLangNamedArgsExpression.expr.accept(this);
     }
 
     @Override
@@ -933,11 +979,12 @@ public class SymbolResetter extends BLangNodeVisitor {
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         serviceConstructorExpr.typeChecked = false;
-        throw new AssertionError();
+        serviceConstructorExpr.serviceNode.accept(this);
     }
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
+        typeTestExpr.typeChecked = false;
         typeTestExpr.expr.accept(this);
         typeTestExpr.typeNode.accept(this);
     }
@@ -956,7 +1003,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayType arrayType) {
-        throw new AssertionError();
+        arrayType.elemtype.accept(this);
     }
 
     @Override
@@ -971,17 +1018,23 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        throw new AssertionError();
+        userDefinedType.type = null;
     }
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        throw new AssertionError();
+        functionTypeNode.type = null;
+        for (int i = 0; i < functionTypeNode.params.size(); i++) {
+            functionTypeNode.params.get(i).accept(this);
+        }
+        functionTypeNode.returnTypeNode.accept(this);
     }
 
     @Override
     public void visit(BLangUnionTypeNode unionTypeNode) {
-        throw new AssertionError();
+        for (int i = 0; i < unionTypeNode.memberTypeNodes.size(); i++) {
+            unionTypeNode.memberTypeNodes.get(i).accept(this);
+        }
     }
 
     @Override
@@ -1006,7 +1059,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorType errorType) {
-        throw new AssertionError();
+        // Do nothing
     }
 
 
@@ -1233,7 +1286,13 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        throw new AssertionError();
+        for (int i = 0; i < waitForAllExpr.keyValuePairs.size(); i++) {
+            BLangWaitForAllExpr.BLangWaitKeyValue bLangWaitKeyValue = waitForAllExpr.keyValuePairs.get(i);
+            if (bLangWaitKeyValue.keyExpr != null) {
+                bLangWaitKeyValue.keyExpr.accept(this);
+            }
+            bLangWaitKeyValue.valueExpr.accept(this);
+        }
     }
 
     @Override
