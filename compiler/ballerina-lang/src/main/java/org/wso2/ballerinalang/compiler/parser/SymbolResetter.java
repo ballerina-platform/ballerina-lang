@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -498,7 +497,8 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordDestructure stmt) {
-        throw new AssertionError();
+        stmt.varRef.accept(this);
+        stmt.expr.accept(this);
     }
 
     @Override
@@ -515,77 +515,116 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        for (int i = 0; i < forkJoin.workers.size(); i++) {
-            BLangSimpleVariableDef variableDef = forkJoin.workers.get(i);
-            variableDef.accept(this);
-        }
+        forkJoin.workers.forEach(variableDef -> variableDef.accept(this));
     }
 
     @Override
     public void visit(BLangOrderBy orderBy) {
-        throw new AssertionError();
+        orderBy.getVariables().forEach(orderByVariableNode ->
+                ((BLangOrderByVariable) orderByVariableNode).accept(this));
     }
 
     @Override
     public void visit(BLangOrderByVariable orderByVariable) {
-        throw new AssertionError();
+        ((BLangExpression) orderByVariable.getVariableReference()).accept(this);
     }
 
     @Override
     public void visit(BLangLimit limit) {
-        throw new AssertionError();
+        // Do nothing.
     }
 
     @Override
     public void visit(BLangGroupBy groupBy) {
-        throw new AssertionError();
+        groupBy.getVariables().forEach(expressionNode -> ((BLangExpression) expressionNode).accept(this));
     }
 
     @Override
     public void visit(BLangHaving having) {
-        throw new AssertionError();
+        ((BLangExpression) having.getExpression()).accept(this);
     }
 
     @Override
     public void visit(BLangSelectExpression selectExpression) {
-        throw new AssertionError();
+        ((BLangExpression) selectExpression.getExpression()).accept(this);
     }
 
     @Override
     public void visit(BLangSelectClause selectClause) {
-        throw new AssertionError();
+        if (selectClause.getSelectExpressions() != null) {
+            selectClause.getSelectExpressions().forEach(selectExpressionNode ->
+                    ((BLangSelectExpression) selectExpressionNode).accept(this));
+        }
+        if (selectClause.getGroupBy() != null) {
+            ((BLangGroupBy) selectClause.getGroupBy()).accept(this);
+        }
+        if (selectClause.getHaving() != null) {
+            ((BLangHaving) selectClause.getHaving()).accept(this);
+        }
     }
 
     @Override
     public void visit(BLangWhere whereClause) {
-        throw new AssertionError();
+        whereClause.type = null;
+        ((BLangExpression) whereClause.getExpression()).accept(this);
     }
 
     @Override
     public void visit(BLangStreamingInput streamingInput) {
-        ((BLangWhere) streamingInput.getBeforeStreamingCondition()).accept(this);
-        ((BLangWindow) streamingInput.getWindowClause()).accept(this);
-        ((BLangWhere) streamingInput.getAfterStreamingCondition()).accept(this);
-
-        // Todo - streamingInput.getStreamReference()
-
-        // Todo - streamingInput.getPreFunctionInvocations()
-        // Todo - streamingInput.getPostFunctionInvocations()
+        if (streamingInput.getBeforeStreamingCondition() != null) {
+            ((BLangWhere) streamingInput.getBeforeStreamingCondition()).accept(this);
+        }
+        if (streamingInput.getWindowClause() != null) {
+            ((BLangWindow) streamingInput.getWindowClause()).accept(this);
+        }
+        if (streamingInput.getAfterStreamingCondition() != null) {
+            ((BLangWhere) streamingInput.getAfterStreamingCondition()).accept(this);
+        }
+        if (streamingInput.getStreamReference() != null) {
+            ((BLangExpression) streamingInput.getStreamReference()).accept(this);
+        }
+        if (streamingInput.getPreFunctionInvocations() != null) {
+            ((BLangExpression) streamingInput.getPreFunctionInvocations()).accept(this);
+        }
+        if (streamingInput.getPostFunctionInvocations() != null) {
+            ((BLangExpression) streamingInput.getPostFunctionInvocations()).accept(this);
+        }
     }
 
     @Override
     public void visit(BLangJoinStreamingInput joinStreamingInput) {
-        throw new AssertionError();
+        if (joinStreamingInput.getStreamingInput() != null) {
+            ((BLangStreamingInput) joinStreamingInput.getStreamingInput()).accept(this);
+        }
+        if (joinStreamingInput.getOnExpression() != null) {
+            ((BLangExpression) joinStreamingInput.getOnExpression()).accept(this);
+        }
     }
 
     @Override
     public void visit(BLangTableQuery tableQuery) {
-        throw new AssertionError();
+        if (tableQuery.getStreamingInput() != null) {
+            ((BLangStreamingInput) tableQuery.getStreamingInput()).accept(this);
+        }
+        if (tableQuery.getJoinStreamingInput() != null) {
+            ((BLangJoinStreamingInput) tableQuery.getJoinStreamingInput()).accept(this);
+        }
+        if (tableQuery.getSelectClauseNode() != null) {
+            ((BLangSelectClause) tableQuery.getSelectClauseNode()).accept(this);
+        }
+        if (tableQuery.getOrderByNode() != null) {
+            ((BLangOrderBy) tableQuery.getOrderByNode()).accept(this);
+        }
+        if (tableQuery.getLimitClause() != null) {
+            ((BLangLimit) tableQuery.getLimitClause()).accept(this);
+        }
     }
 
     @Override
     public void visit(BLangStreamAction streamAction) {
-        throw new AssertionError();
+        if (streamAction.getInvokableBody() != null) {
+            ((BLangLambdaFunction) streamAction.getInvokableBody()).accept(this);
+        }
     }
 
     @Override
@@ -605,7 +644,9 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWindow windowClause) {
-        throw new AssertionError();
+        if (windowClause.getFunctionInvocation() != null) {
+            ((BLangExpression) windowClause.getFunctionInvocation()).accept(this);
+        }
     }
 
     @Override
@@ -642,14 +683,10 @@ public class SymbolResetter extends BLangNodeVisitor {
     public void visit(BLangForever foreverStatement) {
         foreverStatement.type = null;
 
-        for (int i = 0; i < foreverStatement.getStreamingQueryStatements().size(); i++) {
-            StreamingQueryStatementNode streamingQueryStatementNode =
-                    foreverStatement.getStreamingQueryStatements().get(i);
-            ((BLangStreamingQueryStatement) streamingQueryStatementNode).accept(this);
-        }
-        for (int i = 0; i < foreverStatement.params.size(); i++) {
-            BLangSimpleVariable variable = foreverStatement.params.get(i);
-            variable.accept(this);
+        foreverStatement.getStreamingQueryStatements().forEach(streamingQueryStatementNode ->
+                ((BLangStreamingQueryStatement) streamingQueryStatementNode).accept(this));
+        if (foreverStatement.params != null) {
+            foreverStatement.params.forEach(variable -> variable.accept(this));
         }
     }
 
@@ -672,14 +709,8 @@ public class SymbolResetter extends BLangNodeVisitor {
         tableLiteral.typeChecked = false;
 
         tableLiteral.type = null;
-        for (int i = 0; i < tableLiteral.columns.size(); i++) {
-            BLangTableLiteral.BLangTableColumn bLangTableColumn = tableLiteral.columns.get(i);
-            bLangTableColumn.accept(this);
-        }
-        for (int i = 0; i < tableLiteral.tableDataRows.size(); i++) {
-            BLangExpression bLangExpression = tableLiteral.tableDataRows.get(i);
-            bLangExpression.accept(this);
-        }
+        tableLiteral.columns.forEach(bLangTableColumn -> bLangTableColumn.accept(this));
+        tableLiteral.tableDataRows.forEach(bLangExpression -> bLangExpression.accept(this));
         if (tableLiteral.indexColumnsArrayLiteral != null) {
             tableLiteral.indexColumnsArrayLiteral.accept(this);
         }
@@ -945,10 +976,7 @@ public class SymbolResetter extends BLangNodeVisitor {
         xmlCommentLiteral.typeChecked = false;
 
         xmlCommentLiteral.type = null;
-        for (int i = 0; i < xmlCommentLiteral.textFragments.size(); i++) {
-            BLangExpression bLangExpression = xmlCommentLiteral.textFragments.get(i);
-            bLangExpression.accept(this);
-        }
+        xmlCommentLiteral.textFragments.forEach(bLangExpression -> bLangExpression.accept(this));
         if (xmlCommentLiteral.concatExpr != null) {
             xmlCommentLiteral.concatExpr.accept(this);
         }
@@ -959,10 +987,7 @@ public class SymbolResetter extends BLangNodeVisitor {
         xmlProcInsLiteral.typeChecked = false;
 
         xmlProcInsLiteral.type = null;
-        for (int i = 0; i < xmlProcInsLiteral.dataFragments.size(); i++) {
-            BLangExpression bLangExpression = xmlProcInsLiteral.dataFragments.get(i);
-            bLangExpression.accept(this);
-        }
+        xmlProcInsLiteral.dataFragments.forEach(bLangExpression -> bLangExpression.accept(this));
         if (xmlProcInsLiteral.dataConcatExpr != null) {
             xmlProcInsLiteral.dataConcatExpr.accept(this);
         }
@@ -973,10 +998,7 @@ public class SymbolResetter extends BLangNodeVisitor {
         xmlQuotedString.typeChecked = false;
 
         xmlQuotedString.type = null;
-        for (int i = 0; i < xmlQuotedString.textFragments.size(); i++) {
-            BLangExpression bLangExpression = xmlQuotedString.textFragments.get(i);
-            bLangExpression.accept(this);
-        }
+        xmlQuotedString.textFragments.forEach(bLangExpression -> bLangExpression.accept(this));
         if (xmlQuotedString.concatExpr != null) {
             xmlQuotedString.concatExpr.accept(this);
         }
@@ -1030,7 +1052,9 @@ public class SymbolResetter extends BLangNodeVisitor {
     @Override
     public void visit(BLangTableQueryExpression tableQueryExpression) {
         tableQueryExpression.typeChecked = false;
-        throw new AssertionError();
+
+        tableQueryExpression.type = null;
+        ((BLangTableQuery) tableQueryExpression.getTableQuery()).accept(this);
     }
 
     @Override
@@ -1049,13 +1073,27 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-        ((BLangStreamingInput) streamingQueryStatement.getStreamingInput()).accept(this);
-        ((BLangJoinStreamingInput) streamingQueryStatement.getJoiningInput()).accept(this);
-        ((BLangPatternClause) streamingQueryStatement.getPatternClause()).accept(this);
-        ((BLangSelectClause) streamingQueryStatement.getSelectClause()).accept(this);
-        ((BLangOrderBy) streamingQueryStatement.getOrderbyClause()).accept(this);
-        ((BLangStreamAction) streamingQueryStatement.getStreamingAction()).accept(this);
-        ((BLangOutputRateLimit) streamingQueryStatement.getOutputRateLimitNode()).accept(this);
+        if (streamingQueryStatement.getStreamingInput() != null) {
+            ((BLangStreamingInput) streamingQueryStatement.getStreamingInput()).accept(this);
+        }
+        if (streamingQueryStatement.getJoiningInput() != null) {
+            ((BLangJoinStreamingInput) streamingQueryStatement.getJoiningInput()).accept(this);
+        }
+        if (streamingQueryStatement.getPatternClause() != null) {
+            ((BLangPatternClause) streamingQueryStatement.getPatternClause()).accept(this);
+        }
+        if (streamingQueryStatement.getSelectClause() != null) {
+            ((BLangSelectClause) streamingQueryStatement.getSelectClause()).accept(this);
+        }
+        if (streamingQueryStatement.getOrderbyClause() != null) {
+            ((BLangOrderBy) streamingQueryStatement.getOrderbyClause()).accept(this);
+        }
+        if (streamingQueryStatement.getStreamingAction() != null) {
+            ((BLangStreamAction) streamingQueryStatement.getStreamingAction()).accept(this);
+        }
+        if (streamingQueryStatement.getOutputRateLimitNode() != null) {
+            ((BLangOutputRateLimit) streamingQueryStatement.getOutputRateLimitNode()).accept(this);
+        }
     }
 
     @Override
@@ -1203,7 +1241,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
-        throw new AssertionError();
+        finiteTypeNode.valueSpace.forEach(bLangExpression -> bLangExpression.accept(this));
     }
 
     @Override
@@ -1402,7 +1440,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
-        throw new AssertionError();
+        bLangRecordVariableDef.var.accept(this);
     }
 
     @Override
