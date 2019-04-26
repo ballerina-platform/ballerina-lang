@@ -307,11 +307,11 @@ function performFailoverAction (string path, Request request, HttpOperation requ
         if (endpointResponse is Response) {
             inResponse = endpointResponse;
             int httpStatusCode = endpointResponse.statusCode;
-            // Check whether HTTP status code of the response falls into configued `failoverCodes`
+            // Check whether HTTP status code of the response falls into configured `failoverCodes`
             if (failoverCodeIndex[httpStatusCode] == true) {
                 // If the initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX check successful, that means the first
                 // endpoint configured in the failover endpoints gave the response where its HTTP status code
-                // falls into configued `failoverCodes`
+                // falls into configured `failoverCodes`
                 if (initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX) {
                     if (noOfEndpoints > currentIndex) {
                         // If the execution lands here, that means there are endpoints that haven't tried out by
@@ -319,7 +319,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                         populateFailoverErrorHttpStatusCodes(endpointResponse, failoverActionErrData, currentIndex - 1);
                     } else {
                         // If the execution lands here, that means all the endpoints has been tried out and final
-                        // endpoint gave the response where its HTTP status code falls into configued
+                        // endpoint gave the response where its HTTP status code falls into configured
                         // `failoverCodes`. Therefore appropriate error message needs to be generated and should
                         // return it to the client.
                         return populateErrorsFromLastResponse(endpointResponse, failoverActionErrData, currentIndex - 1);
@@ -329,14 +329,14 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                     // Failover resumed from the last succeeded endpoint.
                     if (initialIndex == currentIndex) {
                         // If the execution lands here, that means all the endpoints has been tried out and final
-                        // endpoint gives the response where its HTTP status code falls into configued
+                        // endpoint gives the response where its HTTP status code falls into configured
                         // `failoverCodes`. Therefore appropriate error message needs to be generated and should
                         // return it to the client.
                         return populateErrorsFromLastResponse(endpointResponse, failoverActionErrData, currentIndex - 1);
                     } else if (noOfEndpoints == currentIndex) {
                         // If the execution lands here, that means the last endpoint has been tried out and
-                        // endpoint gave a response where its HTTP status code falls into configued
-                        // `failoverCodes`. Since failover resumed from the last succeeded endpoint we nned try out
+                        // endpoint gave a response where its HTTP status code falls into configured
+                        // `failoverCodes`. Since failover resumed from the last succeeded endpoint we need try out
                         // remaining endpoints. Therefore currentIndex need to be reset.
                         populateFailoverErrorHttpStatusCodes(endpointResponse, failoverActionErrData, currentIndex - 1);
                         currentIndex = DEFAULT_FAILOVER_EP_STARTING_INDEX;
@@ -354,7 +354,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
         } else {
             error httpConnectorErr = endpointResponse;
             // If the initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX check successful, that means the first
-            // endpoint configured in the failover endpoints gave the errornous response.
+            // endpoint configured in the failover endpoints gave the erroneous response.
             if (initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX) {
                 if (noOfEndpoints > currentIndex) {
                     // If the execution lands here, that means there are endpoints that haven't tried out by
@@ -362,7 +362,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                     failoverActionErrData[currentIndex - 1] = httpConnectorErr;
                 } else {
                     // If the execution lands here, that means all the endpoints has been tried out and final
-                    // endpoint gave an errornous response. Therefore appropriate error message needs to be
+                    // endpoint gave an erroneous response. Therefore appropriate error message needs to be
                     //  generated and should return it to the client.
                     return populateGenericFailoverActionError(failoverActionErrData, httpConnectorErr, currentIndex - 1);
                 }
@@ -371,12 +371,12 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 // Failover resumed from the last succeeded endpoint.
                 if (initialIndex == currentIndex) {
                     // If the execution lands here, that means all the endpoints has been tried out and final
-                    // endpoint gave an errornous response. Therefore appropriate error message needs to be
+                    // endpoint gave an erroneous response. Therefore appropriate error message needs to be
                     //  generated and should return it to the client.
                     return populateGenericFailoverActionError(failoverActionErrData, httpConnectorErr, currentIndex - 1);
                 } else if (noOfEndpoints == currentIndex) {
                     // If the execution lands here, that means the last endpoint has been tried out and endpoint gave
-                    // a errornous response. Since failover resumed from the last succeeded endpoint we need try out
+                    // a erroneous response. Since failover resumed from the last succeeded endpoint we need try out
                     // remaining endpoints. Therefore currentIndex need to be reset.
                     failoverActionErrData[currentIndex - 1] = httpConnectorErr;
                     currentIndex = DEFAULT_FAILOVER_EP_STARTING_INDEX;
