@@ -2002,6 +2002,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        constant.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachPoints.add(AttachPoint.Point.CONST);
+            annotationAttachment.accept(this);
+        });
+
         if (expression.getKind() == NodeKind.LITERAL || expression.getKind() == NodeKind.NUMERIC_LITERAL) {
             BLangLiteral value = (BLangLiteral) constant.value;
             BType resultType;
