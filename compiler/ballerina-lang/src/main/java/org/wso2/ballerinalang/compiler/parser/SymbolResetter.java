@@ -178,7 +178,7 @@ public class SymbolResetter extends BLangNodeVisitor {
         context.put(SYMBOL_CLEANER_KEY, this);
     }
 
-    public void resetTopLevelNode(TopLevelNode node) {
+    void resetTopLevelNode(TopLevelNode node) {
         NodeKind kind = node.getKind();
 
         switch (kind) {
@@ -271,7 +271,8 @@ public class SymbolResetter extends BLangNodeVisitor {
         serviceNode.serviceTypeDefinition.accept(this);
         serviceNode.attachedExprs.forEach(expression -> expression.accept(this));
         if (serviceNode.variableNode != null) {
-            serviceNode.variableNode.accept(this);
+            // Todo - Enabling this will result in a stack overflow in artemis-anycast-session-consumer example.
+            // serviceNode.variableNode.accept(this);
         }
         serviceNode.listenerType = null;
         serviceNode.resourceFunctions.forEach(function -> function.accept(this));
