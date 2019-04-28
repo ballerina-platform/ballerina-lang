@@ -37,7 +37,8 @@ public class SourcePruner {
         LHS_TRAVERSE_TERMINALS = Arrays.asList(
                 BallerinaParser.LEFT_BRACE, BallerinaParser.RIGHT_BRACE, BallerinaParser.SEMICOLON,
                 BallerinaParser.COMMA, BallerinaParser.LEFT_PARENTHESIS, BallerinaParser.RIGHT_PARENTHESIS,
-                BallerinaParser.LT, BallerinaParser.RETURNS, BallerinaParser.TRANSACTION
+                BallerinaParser.LT, BallerinaParser.RETURNS, BallerinaParser.TRANSACTION,
+                BallerinaParser.LEFT_CLOSED_RECORD_DELIMITER
         );
         RHS_TRAVERSE_TERMINALS = Arrays.asList(
                 BallerinaParser.SEMICOLON, BallerinaParser.DocumentationLineStart,
@@ -45,7 +46,7 @@ public class SourcePruner {
                 BallerinaParser.RIGHT_PARENTHESIS, BallerinaParser.IMPORT, BallerinaParser.GT,
                 BallerinaParser.XMLNS, BallerinaParser.SERVICE, BallerinaParser.PUBLIC, BallerinaParser.PRIVATE,
                 BallerinaParser.REMOTE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.ANNOTATION,
-                BallerinaParser.CONST, BallerinaParser.RIGHT_BRACKET
+                BallerinaParser.CONST, BallerinaParser.RIGHT_BRACKET, BallerinaParser.RIGHT_CLOSED_RECORD_DELIMITER
         );
         BLOCK_REMOVE_KW_TERMINALS = Arrays.asList(
                 BallerinaParser.SERVICE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.MATCH,

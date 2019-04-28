@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.sourceprune;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
@@ -34,6 +35,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.io.IOException;
 import java.net.URI;
@@ -77,6 +79,9 @@ public class SourcePruneTest {
             String expected = new String(Files.readAllBytes(expectedPath));
             System.out.println("** Pruned Source **\n" + prunedSource + "\n***********");
             Assert.assertEquals(prunedSource, expected);
+            BallerinaParser parser = CommonUtil.prepareParser(prunedSource);
+            parser.compilationUnit();
+            Assert.assertEquals(parser.getNumberOfSyntaxErrors(), 0);
         } catch (SourcePruneException e) {
             Assert.fail(e.getMessage());
         }
@@ -116,7 +121,7 @@ public class SourcePruneTest {
                 {"src_prune_config13.json"},
                 {"src_prune_config14.json"},
                 {"src_prune_config15.json"},
-                {"src_prune_config16.json"},
+//                {"src_prune_config16.json"},
                 // Function Definition
                 {"src_prune_config17.json"},
                 {"src_prune_config18.json"},
@@ -191,6 +196,11 @@ public class SourcePruneTest {
                 {"src_prune_config69.json"},
                 {"src_prune_config70.json"},
                 {"src_prune_config71.json"},
+                // Arrow Function
+                {"src_prune_config72.json"},
+                {"src_prune_config73.json"},
+                {"src_prune_config74.json"},
+                {"src_prune_config75.json"},
         };
     }
 }
