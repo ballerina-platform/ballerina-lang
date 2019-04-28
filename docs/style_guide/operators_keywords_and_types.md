@@ -2,26 +2,23 @@
 
 ## Single-line formatting
 ### Keywords and types
-* Keep single spaces between the type and a pipe operator when it is in an union type `string | int`.
+* Keep only a single space between the type and a pipe operator when it is in an union type `string | int`.
   
   Example,
   ```ballerina
+  type method "POST" | "GET" | "PUT";
+    
+  (int | string) variable = 0;
+  
   function getValue(string key) returns (string | error) {
-      if (key == "") {
-          error err = error("key '" + key + "' not found", {key: key});
-          return err;
-      } else {
-          return "this is a value";
-      }
+      ...
   }
   
   function getName() returns string | error {
       (string | error) valueOrError = getValue("name");
-      return valueOrError;
+      ...
   }
-  
   ```
-* When accessing a type(Record or Object) from a another module, do not keep spaces around the colon (e.g., `http:Response`).
 * Do not keep spaces between the type and the optional operator `?`.
   
   Example,
@@ -29,13 +26,17 @@
   string? name;
   ```
 ### Operators
-* Do not keep spaces before and after the `=` operator.
+* Keep only a single space before and after the `=` operator.
+  
+  Example,
+  ```ballerina
+  int a = 0;
+  ```
 * Do not keep spaces around the semicolon `;`.
 * Do not keep spaces between the unary operator and expression.
 
   Example,
   ```ballerina
-  int a = 0;
   a = -a;
   ``` 
 
