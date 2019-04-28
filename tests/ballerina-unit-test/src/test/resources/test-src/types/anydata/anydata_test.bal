@@ -907,10 +907,10 @@ type MyRecord record {
     string name;
 };
 
-type MyRecordTwo record {
+type MyRecordTwo record {|
     int id;
     error...;
-};
+|};
 
 function testRecordsWithErrorsAsAnydata() returns boolean {
     MyRecord m1 = { name: "Anne", err: e1 };

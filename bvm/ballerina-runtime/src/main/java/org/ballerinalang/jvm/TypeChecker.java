@@ -68,7 +68,7 @@ public class TypeChecker {
 
     public static long anyToInt(Object sourceVal) {
         if (sourceVal instanceof Long) {
-            return ((Long) sourceVal).longValue();
+            return (Long) sourceVal;
         } else if (sourceVal instanceof Double) {
             return ((Double) sourceVal).longValue();
         } else {
@@ -80,7 +80,7 @@ public class TypeChecker {
         if (sourceVal instanceof Long) {
             return ((Long) sourceVal).doubleValue();
         } else if (sourceVal instanceof Double) {
-            return ((Double) sourceVal).doubleValue();
+            return (Double) sourceVal;
         } else {
             throw getTypeCastError(sourceVal, BTypes.typeFloat);
         }
@@ -88,7 +88,7 @@ public class TypeChecker {
 
     public static boolean anyToBoolean(Object sourceVal) {
         if (sourceVal instanceof Boolean) {
-            return ((Boolean) sourceVal).booleanValue();
+            return (Boolean) sourceVal;
         }
 
         throw getTypeCastError(sourceVal, BTypes.typeBoolean);
@@ -96,7 +96,7 @@ public class TypeChecker {
 
     public static byte anyToByte(Object sourceVal) {
         if (sourceVal instanceof Byte) {
-            return ((Byte) sourceVal).byteValue();
+            return (Byte) sourceVal;
         }
 
         throw getTypeCastError(sourceVal, BTypes.typeByte);
@@ -136,7 +136,7 @@ public class TypeChecker {
      * @param targetType type to test against
      * @return true if the two types are same; false otherwise
      */
-    public static boolean isSameType(BType sourceType, BType targetType) {
+    private static boolean isSameType(BType sourceType, BType targetType) {
         // First check whether both references points to the same object.
         if (sourceType == targetType || sourceType.equals(targetType)) {
             return true;
@@ -192,6 +192,10 @@ public class TypeChecker {
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
             case TypeTags.SERVICE_TAG:
+                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                    return ((BFiniteType) sourceType).valueSpace.stream()
+                                                                .allMatch(bValue -> checkIsType(bValue, targetType));
+                }
                 return sourceType.getTag() == targetType.getTag();
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
@@ -209,7 +213,7 @@ public class TypeChecker {
                 return ((BUnionType) targetType).getMemberTypes().stream()
                         .anyMatch(type -> checkIsType(sourceType, type, unresolvedTypes));
             case TypeTags.ANY_TAG:
-                return true;
+                return checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG:
                 return isAnydata(sourceType);
             case TypeTags.OBJECT_TYPE_TAG:
@@ -335,6 +339,17 @@ public class TypeChecker {
         return true;
     }
 
+    private static boolean checkIsAnyType(BType sourceType) {
+        switch (sourceType.getTag()) {
+            case TypeTags.ERROR_TAG:
+                return false;
+            case TypeTags.UNION_TAG:
+                return ((BUnionType) sourceType).getMemberTypes().stream()
+                                                .allMatch(TypeChecker::checkIsAnyType);
+        }
+        return true;
+    }
+
     private static boolean checkIsFiniteType(BType sourceType, BFiniteType targetType, List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() != TypeTags.FINITE_TYPE_TAG) {
             return false;
@@ -345,7 +360,7 @@ public class TypeChecker {
             return false;
         }
 
-        return sourceFiniteType.valueSpace.stream().allMatch(value -> targetType.valueSpace.contains(value));
+        return targetType.valueSpace.containsAll(sourceFiniteType.valueSpace);
     }
 
     private static boolean checkIsFutureType(BType sourceType, BFutureType targetType, List<TypePair> unresolvedTypes) {
@@ -495,11 +510,7 @@ public class TypeChecker {
             return false;
         }
 
-        if (!checkIsType(source.retType, target.retType, unresolvedTypes)) {
-            return false;
-        }
-
-        return true;
+        return checkIsType(source.retType, target.retType, unresolvedTypes);
     }
 
     private static boolean checkIsFunctionType(BType sourceType, BFunctionType targetType) {
@@ -518,11 +529,7 @@ public class TypeChecker {
             }
         }
 
-        if (!isSameType(source.retType, targetType.retType)) {
-            return false;
-        }
-
-        return true;
+        return isSameType(source.retType, targetType.retType);
     }
 
     private static boolean checkContraints(BType sourceConstraint, BType targetConstraint,
@@ -820,26 +827,27 @@ public class TypeChecker {
 
         switch (type.getTag()) {
             case TypeTags.MAP_TAG:
-                return isAnydata(((BMapType) type).getConstrainedType(), unresolvedTypes);
+                return isPureType(((BMapType) type).getConstrainedType(), unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 if (unresolvedTypes.contains(type)) {
                     return true;
                 }
                 unresolvedTypes.add(type);
                 BRecordType recordType = (BRecordType) type;
-                List<BType> fieldTypes =
-                        recordType.getFields().values().stream().map(BField::getFieldType).collect(Collectors.toList());
-                return isAnydata(fieldTypes, unresolvedTypes) &&
-                        (recordType.sealed || isAnydata(recordType.restFieldType, unresolvedTypes));
+                List<BType> fieldTypes = recordType.getFields().values().stream()
+                                                   .map(BField::getFieldType)
+                                                   .collect(Collectors.toList());
+                return isPureType(fieldTypes, unresolvedTypes) &&
+                        (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION_TAG:
                 return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE_TAG:
-                return isAnydata(((BTupleType) type).getTupleTypes(), unresolvedTypes);
+                return isPureType(((BTupleType) type).getTupleTypes(), unresolvedTypes);
             case TypeTags.ARRAY_TAG:
-                return isAnydata(((BArrayType) type).getElementType(), unresolvedTypes);
+                return isPureType(((BArrayType) type).getElementType(), unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
-                        .map(value -> getType(value))
+                        .map(TypeChecker::getType)
                         .collect(Collectors.toSet());
                 return isAnydata(valSpaceTypes, unresolvedTypes);
             default:
@@ -851,6 +859,19 @@ public class TypeChecker {
         return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
     }
 
+    private static boolean isPureType(BType type, Set<BType> unresolvedTypes) {
+        if (type.getTag() == TypeTags.UNION_TAG) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                                      .allMatch(memType -> isPureType(memType, unresolvedTypes));
+        }
+
+        return type.getTag() == TypeTags.ERROR_TAG || isAnydata(type, unresolvedTypes);
+    }
+
+    private static boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isPureType(bType, unresolvedTypes));
+    }
+    
     /**
      * Type vector of size two, to hold the source and the target types.
      *

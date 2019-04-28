@@ -216,6 +216,8 @@ const string LONG_VALUE = "java/lang/Long";
 const string BOOLEAN_VALUE = "java/lang/Boolean";
 const string DOUBLE_VALUE = "java/lang/Double";
 const string BYTE_VALUE = "java/lang/Byte";
+const string XML_VALUE = "org/ballerinalang/jvm/values/XMLValue";
+const string XML_QNAME = "org/ballerinalang/jvm/values/XMLQName";
 const string FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
 
 const string OBJECT = "java/lang/Object";
@@ -231,6 +233,7 @@ const string FUNCTION = "java/util/function/Function";
 const string CONSUMER = "java/util/function/Consumer";
 const string STRING_BUILDER = "java/lang/StringBuilder";
 const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
+const string XML_FACTORY = "org/ballerinalang/jvm/XMLFactory";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";

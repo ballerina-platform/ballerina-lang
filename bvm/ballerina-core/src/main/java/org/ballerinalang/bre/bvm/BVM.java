@@ -75,7 +75,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.FunctionFlags;
@@ -2071,7 +2070,7 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 xmlVal = (BXML) sf.refRegs[i];
-                sf.refRegs[j] = new BXMLAttributes(xmlVal);
+                sf.refRegs[j] = xmlVal.getAttributesMap();
                 break;
             case InstructionCodes.S2QNAME:
                 i = operands[0];
@@ -2670,11 +2669,8 @@ public class BVM {
                 convertJSONToStruct(ctx, operands, sf);
                 break;
             case InstructionCodes.XMLATTRS2MAP:
-                i = operands[0];
-                j = operands[1];
-                bRefType = sf.refRegs[i];
-                sf.refRegs[j] = ((BXMLAttributes) sf.refRegs[i]).value();
-                break;
+                // should never reach here
+                throw new UnsupportedOperationException();
             case InstructionCodes.XML2S:
                 i = operands[0];
                 j = operands[1];
