@@ -15,7 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.connector.api;
+package org.ballerinalang.jvm.values.connector;
+
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.util.List;
 
@@ -40,7 +43,7 @@ public interface BallerinaServerConnector {
      * @param service to be registered.
      * @throws BallerinaConnectorException if an error occurs
      */
-    void serviceRegistered(Service service) throws BallerinaConnectorException;
+    void serviceRegistered(ObjectValue service) throws BallerinaConnectorException;
 
     /**
      * This will fire a deployment complete event so to the server connector implementation.

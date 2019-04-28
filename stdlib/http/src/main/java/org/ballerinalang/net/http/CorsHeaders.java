@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.ArrayList;

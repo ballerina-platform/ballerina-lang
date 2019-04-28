@@ -17,20 +17,14 @@
 */
 package org.ballerinalang.net.http;
 
-//import org.ballerinalang.connector.api.Annotation;
-//import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-//import org.ballerinalang.connector.api.Resource;
-//import org.ballerinalang.connector.api.Service;
-//import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;
-import org.omg.CORBA.Object;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -43,8 +37,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_INTERRUPTIBLE;
-import static org.ballerinalang.net.http.HttpConstants.AUTO;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_BASE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.DOLLAR;
@@ -77,9 +72,10 @@ public class HttpService implements Cloneable {
     private CorsHeaders corsHeaders;
     private URITemplate<HttpResource, HttpCarbonMessage> uriTemplate;
     private boolean keepAlive = true; //default behavior
-    private String compression = AUTO; //default behavior
+    private MapValue<String, Object> compression;
     private String hostName;
     private boolean interruptible;
+    private String chunkingConfig;
 
     protected HttpService(ObjectValue service) {
         this.balService = service;
@@ -97,8 +93,20 @@ public class HttpService implements Cloneable {
         this.keepAlive = keepAlive;
     }
 
-    public void setCompression(String compression) {
+    private void setCompressionConfig(MapValue<String, Object> compression) {
         this.compression = compression;
+    }
+
+    public MapValue<String, Object> getCompressionConfig() {
+        return this.compression;
+    }
+
+    public void setChunkingConfig(String chunkingConfig) {
+        this.chunkingConfig = chunkingConfig;
+    }
+
+    public String getChunkingConfig() {
+        return chunkingConfig;
     }
 
     public String getName() {
@@ -195,13 +203,13 @@ public class HttpService implements Cloneable {
         List<HttpService> serviceList = new ArrayList<>();
         List<String> basePathList = new ArrayList<>();
         HttpService httpService = new HttpService(service);
-        MapValue serviceConfigAnnotation = getHttpServiceConfigAnnotation(service);
+        MapValue<String, Object> serviceConfig = getHttpServiceConfigAnnotation(service);
         httpService.setInterruptible(hasInterruptibleAnnotation(service));
 
-        if (checkConfigAnnotationAvailability(serviceConfigAnnotation)) {
-            MapValue serviceConfig = serviceConfigAnnotation;
+        if (checkConfigAnnotationAvailability(serviceConfig)) {
 
-            httpService.setCompression(serviceConfig.get(COMPRESSION_FIELD).toString());
+            httpService.setCompressionConfig((MapValue<String, Object>)serviceConfig.get(ANN_CONFIG_ATTR_COMPRESSION));
+            httpService.setChunkingConfig(serviceConfig.get(ANN_CONFIG_ATTR_CHUNKING).toString());
             httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getMapValue(CORS_FIELD)));
             httpService.setHostName(serviceConfig.getStringValue(HOST_FIELD).trim());
 

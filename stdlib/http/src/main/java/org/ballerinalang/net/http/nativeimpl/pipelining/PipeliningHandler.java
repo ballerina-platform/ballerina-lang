@@ -100,10 +100,10 @@ public class PipeliningHandler {
                 //one response has delayed http contents, there's a good chance that the contents of another
                 //response will be sent out before its turn.
                 if (queuedPipelinedResponse.getDataContext() != null &&
-                        queuedPipelinedResponse.getOutboundResponse() != null) {
+                        queuedPipelinedResponse.getOutboundResponseObj() != null) {
                     sendResponseRobust(queuedPipelinedResponse.getDataContext(),
                             queuedPipelinedResponse.getInboundRequestMsg(),
-                            queuedPipelinedResponse.getOutboundResponse(),
+                            queuedPipelinedResponse.getOutboundResponseObj(),
                             queuedPipelinedResponse.getOutboundResponseMsg());
                 } else {
                     responseFuture = sendOutboundResponse(queuedPipelinedResponse.getInboundRequestMsg(),

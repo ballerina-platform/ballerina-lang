@@ -19,7 +19,7 @@
 package org.ballerinalang.test.util;
 
 import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.connector.impl.ServerConnectorRegistry;
+import org.ballerinalang.jvm.values.connector.ServerConnectorRegistry;
 
 /**
  * {@code BServiceUtil} is responsible for initializing an environment for a particular ballerina file.

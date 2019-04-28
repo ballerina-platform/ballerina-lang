@@ -292,7 +292,7 @@ public class WebSocketDispatcher {
             }
 
             @Override
-            public void notifyFailure(BError error) {
+            public void notifyFailure(ErrorValue error) {
                 ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
@@ -325,7 +325,7 @@ public class WebSocketDispatcher {
             }
 
             @Override
-            public void notifyFailure(BError error) {
+            public void notifyFailure(ErrorValue error) {
                 ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
             }
         };
@@ -372,7 +372,7 @@ public class WebSocketDispatcher {
             }
 
             @Override
-            public void notifyFailure(BError error) {
+            public void notifyFailure(ErrorValue error) {
                 ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }

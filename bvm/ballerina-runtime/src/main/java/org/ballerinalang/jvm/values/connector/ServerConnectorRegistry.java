@@ -15,10 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.connector.impl;
+package org.ballerinalang.jvm.values.connector;
 
-import org.ballerinalang.connector.api.BallerinaServerConnector;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 
 import java.util.HashMap;
 import java.util.Map;

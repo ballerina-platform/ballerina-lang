@@ -18,55 +18,70 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-
-import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
-import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 
 /**
  * {@code DataContext} is the wrapper to hold {@code Context} and {@code CallableUnitCallback}.
  */
 public class DataContext {
-    public Context context;
-    public CallableUnitCallback callback;
+    private final Strand strand;
+    private final ObjectValue clientObj;
+    private final ObjectValue requestObj;
+    //    public Context context;
+//    public CallableUnitCallback callback;
     private HttpCarbonMessage correlatedMessage;
 
-    public DataContext(Context context, CallableUnitCallback callback, HttpCarbonMessage correlatedMessage) {
-        this.context = context;
-        this.callback = callback;
-        this.correlatedMessage = correlatedMessage;
+//    public DataContext(Context context, CallableUnitCallback callback, HttpCarbonMessage correlatedMessage) {
+//        this.context = context;
+//        this.callback = callback;
+//        this.correlatedMessage = correlatedMessage;
+//    }
+
+    public DataContext(Strand strand, ObjectValue clientObj, ObjectValue requestObj, HttpCarbonMessage outboundRequestMsg) {
+        this.strand = strand;
+        this.clientObj = clientObj;
+        this.requestObj = requestObj;
+        this.correlatedMessage = outboundRequestMsg;
     }
 
-    public void notifyInboundResponseStatus(BMap<String, BValue> inboundResponse, BError httpConnectorError) {
-        //Make the request associate with this response consumable again so that it can be reused.
-        if (inboundResponse != null) {
-            context.setReturnValues(inboundResponse);
-        } else if (httpConnectorError != null) {
-            context.setReturnValues(httpConnectorError);
-        } else {
-            BMap<String, BValue> err = BLangConnectorSPIUtil.createBStruct(context, PACKAGE_BALLERINA_BUILTIN,
-                    STRUCT_GENERIC_ERROR, "HttpClient failed");
-            context.setReturnValues(err);
-        }
-        callback.notifySuccess();
-    }
+//    public void notifyInboundResponseStatus(BMap<String, BValue> inboundResponse, BError httpConnectorError) {
+//        //Make the request associate with this response consumable again so that it can be reused.
+//        if (inboundResponse != null) {
+//            context.setReturnValues(inboundResponse);
+//        } else if (httpConnectorError != null) {
+//            context.setReturnValues(httpConnectorError);
+//        } else {
+//            BMap<String, BValue> err = BLangConnectorSPIUtil.createBStruct(context, PACKAGE_BALLERINA_BUILTIN,
+//                    STRUCT_GENERIC_ERROR, "HttpClient failed");
+//            context.setReturnValues(err);
+//        }
+//        callback.notifySuccess();
+//    }
 
-    public void notifyOutboundResponseStatus(BError httpConnectorError) {
-        if (httpConnectorError == null) {
-            context.setReturnValues();
-        } else {
-            context.setReturnValues(httpConnectorError);
-        }
-        callback.notifySuccess();
-    }
+//    public void notifyOutboundResponseStatus(BError httpConnectorError) {
+//        if (httpConnectorError == null) {
+//            context.setReturnValues();
+//        } else {
+//            context.setReturnValues(httpConnectorError);
+//        }
+//        callback.notifySuccess();
+//    }
 
     public HttpCarbonMessage getOutboundRequest() {
         return correlatedMessage;
+    }
+
+    public ObjectValue getClientObj() {
+        return clientObj;
+    }
+
+    public ObjectValue getRequestObj() {
+        return requestObj;
+    }
+
+    public Strand getStrand() {
+        return strand;
     }
 }

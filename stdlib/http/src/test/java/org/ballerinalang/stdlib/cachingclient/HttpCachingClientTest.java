@@ -30,8 +30,8 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
-import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
+import org.ballerinalang.net.http.caching.RequestCacheControlObj;
+import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -268,8 +268,8 @@ public class HttpCachingClientTest {
             " acceptable", enabled = false)
     public void testIsStaleResponseAccepted() {
         boolean isSharedCache = false;
-        RequestCacheControlStruct requestCacheControl
-                = new RequestCacheControlStruct(compileResult.getProgFile()
+        RequestCacheControlObj requestCacheControl
+                = new RequestCacheControlObj(compileResult.getProgFile()
                                                         .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
                                                         .getStructInfo(REQUEST_CACHE_CONTROL));
         requestCacheControl.setMaxStale(Long.MAX_VALUE);
@@ -277,10 +277,8 @@ public class HttpCachingClientTest {
         BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                  PROTOCOL_PACKAGE_HTTP,
                                                                  RESPONSE);
-        ResponseCacheControlStruct responseCacheControl
-                = new ResponseCacheControlStruct(compileResult.getProgFile()
-                                                         .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
-                                                         .getStructInfo(RESPONSE_CACHE_CONTROL));
+        ResponseCacheControlObj responseCacheControl
+                = new ResponseCacheControlObj(PROTOCOL_PACKAGE_HTTP, RESPONSE_CACHE_CONTROL);
 
         HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         cachedResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
@@ -288,7 +286,7 @@ public class HttpCachingClientTest {
         cachedResponseMsg.setHeader(CACHE_CONTROL, responseCacheControl.buildCacheControlDirectives());
         initInboundResponse(cachedResponse, cachedResponseMsg);
 
-        BValue[] inputArgs = {requestCacheControl.getStruct(), cachedResponse, new BBoolean(isSharedCache)};
+        BValue[] inputArgs = {requestCacheControl.getObj(), cachedResponse, new BBoolean(isSharedCache)};
         BValue[] returns = BRunUtil.invoke(compileResult, "isStaleResponseAccepted", inputArgs);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
 
@@ -310,17 +308,15 @@ public class HttpCachingClientTest {
     @Test(description = "Test for the isServingStaleProhibited() function which determines whether serving stale " +
             "responses is prohibited.", enabled = false)
     public void testIsServingStaleProhibited() {
-        RequestCacheControlStruct requestCacheControl
-                = new RequestCacheControlStruct(compileResult.getProgFile()
+        RequestCacheControlObj requestCacheControl
+                = new RequestCacheControlObj(compileResult.getProgFile()
                                                         .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
                                                         .getStructInfo(REQUEST_CACHE_CONTROL));
 
-        ResponseCacheControlStruct responseCacheControl
-                = new ResponseCacheControlStruct(compileResult.getProgFile()
-                                                         .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
-                                                         .getStructInfo(RESPONSE_CACHE_CONTROL));
+        ResponseCacheControlObj responseCacheControl
+                = new ResponseCacheControlObj(PROTOCOL_PACKAGE_HTTP, RESPONSE_CACHE_CONTROL);
 
-        BValue[] inputArgs = {requestCacheControl.getStruct(), responseCacheControl.getStruct()};
+        BValue[] inputArgs = {requestCacheControl.getObj(), responseCacheControl.getObj()};
         BValue[] returns;
 
         // No prohibitive directives set
@@ -365,10 +361,8 @@ public class HttpCachingClientTest {
         BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                  PROTOCOL_PACKAGE_HTTP,
                                                                  RESPONSE);
-        ResponseCacheControlStruct responseCacheControl
-                = new ResponseCacheControlStruct(compileResult.getProgFile()
-                                                         .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
-                                                         .getStructInfo(RESPONSE_CACHE_CONTROL));
+        ResponseCacheControlObj responseCacheControl = new ResponseCacheControlObj(PROTOCOL_PACKAGE_HTTP,
+                                                                                   RESPONSE_CACHE_CONTROL);
         responseCacheControl.setSMaxAge(20).setMaxAge(15);
 
         HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
@@ -427,10 +421,8 @@ public class HttpCachingClientTest {
         BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                  PROTOCOL_PACKAGE_HTTP,
                                                                  RESPONSE);
-        ResponseCacheControlStruct responseCacheControl
-                = new ResponseCacheControlStruct(compileResult.getProgFile()
-                                                         .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
-                                                         .getStructInfo(RESPONSE_CACHE_CONTROL));
+        ResponseCacheControlObj responseCacheControl
+                = new ResponseCacheControlObj(PROTOCOL_PACKAGE_HTTP, RESPONSE_CACHE_CONTROL);
         responseCacheControl.setMaxAge(300).setSMaxAge(300);
 
         HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
@@ -488,11 +480,11 @@ public class HttpCachingClientTest {
         HttpUtil.populateInboundResponse(inResponse, entity, mediaType, compileResult.getProgFile(), inResponseMsg);
     }
 
-    private void initOutboundRequest(BMap<String, BValue> outRequest, RequestCacheControlStruct cacheControl) {
+    private void initOutboundRequest(BMap<String, BValue> outRequest, RequestCacheControlObj cacheControl) {
         BMap<String, BValue> entity = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                       PROTOCOL_PACKAGE_MIME, ENTITY);
         outRequest.put(REQUEST_ENTITY_FIELD, entity);
 
-        outRequest.put(REQUEST_CACHE_CONTROL_FIELD, cacheControl.getStruct());
+        outRequest.put(REQUEST_CACHE_CONTROL_FIELD, cacheControl.getObj());
     }
 }

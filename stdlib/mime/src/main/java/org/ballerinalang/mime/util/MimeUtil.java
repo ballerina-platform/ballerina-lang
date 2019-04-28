@@ -175,7 +175,7 @@ public class MimeUtil {
      */
     public static ObjectValue parseMediaType(ObjectValue mediaType, String contentType) {
         try {
-            MapValue parameterMap = new MapValue();
+            MapValue parameterMap = new MapValue<>();
             String suffix, primaryType, subType;
 
             if (contentType != null) {

@@ -18,10 +18,14 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 
 
 /**
@@ -35,15 +39,16 @@ public class Post extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
+//        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
         // Execute the operation
-        executeNonBlockingAction(dataContext, false);
+//        executeNonBlockingAction(dataContext, false);
     }
 
-    @Override
-    protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
-        HttpCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
+    public static void nativePost(Strand strand, ObjectValue clientObj, String path, ObjectValue requestObj) {
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(clientObj, path, requestObj);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_POST);
-        return outboundRequestMsg;
+        DataContext dataContext = new DataContext(strand, clientObj, requestObj, outboundRequestMsg);
+        // Execute the operation
+        executeNonBlockingAction(dataContext, false);
     }
 }

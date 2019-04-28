@@ -35,7 +35,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.Arrays;
 
 import static org.ballerinalang.mime.util.MimeConstants.COMMA;
-import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.PARSER_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 
@@ -85,6 +84,6 @@ public class ParseHeader extends BlockingNativeCallableUnit {
         }
 
         // set parse error
-        context.setReturnValues(MimeUtil.createError(context, MIME_ERROR_CODE, errMsg));
+        context.setReturnValues(MimeUtil.createError(errMsg));
     }
 }

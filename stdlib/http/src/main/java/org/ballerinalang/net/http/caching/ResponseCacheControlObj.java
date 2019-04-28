@@ -19,11 +19,9 @@
 package org.ballerinalang.net.http.caching;
 
 import org.ballerinalang.bre.bvm.BLangVMStructs;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.util.Map;
@@ -48,83 +46,83 @@ import static org.ballerinalang.net.http.HttpUtil.TRUE;
  *
  * @since 0.965.0
  */
-public class ResponseCacheControlStruct {
+public class ResponseCacheControlObj {
 
-    private BMap<String, BValue> responseCacheControl;
+    private ObjectValue responseCacheControl;
 
-    public ResponseCacheControlStruct(StructureTypeInfo structInfo) {
-        responseCacheControl = BLangVMStructs.createBStruct(structInfo);
+    public ResponseCacheControlObj(String pkgName, String objectTypeName) {
+        responseCacheControl = BallerinaValues.createObjectValue(pkgName, objectTypeName);
         init();
     }
 
-    public ResponseCacheControlStruct(BMap<String, BValue> responseCacheControl) {
+    public ResponseCacheControlObj(ObjectValue responseCacheControl) {
         this.responseCacheControl = responseCacheControl;
     }
 
-    public BMap<String, BValue> getStruct() {
+        public ObjectValue getObj() {
         return responseCacheControl;
     }
 
-    public void setStruct(BMap<String, BValue> responseCacheControl) {
+    public void setObj(ObjectValue responseCacheControl) {
         this.responseCacheControl = responseCacheControl;
     }
 
     public void init() {
         // Initialize the struct fields to default values we use
-        responseCacheControl.put(RES_CACHE_CONTROL_NO_TRANSFORM_FIELD, new BBoolean(TRUE));
-        responseCacheControl.put(RES_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(-1));
-        responseCacheControl.put(RES_CACHE_CONTROL_S_MAXAGE_FIELD, new BInteger(-1));
+        responseCacheControl.set(RES_CACHE_CONTROL_NO_TRANSFORM_FIELD, TRUE);
+        responseCacheControl.set(RES_CACHE_CONTROL_MAX_AGE_FIELD, -1);
+        responseCacheControl.set(RES_CACHE_CONTROL_S_MAXAGE_FIELD, -1);
     }
 
-    public ResponseCacheControlStruct setMustRevalidate(boolean mustRevalidate) {
-        responseCacheControl.put(RES_CACHE_CONTROL_MUST_REVALIDATE_FIELD, new BBoolean(mustRevalidate));
+    public ResponseCacheControlObj setMustRevalidate(boolean mustRevalidate) {
+        responseCacheControl.set(RES_CACHE_CONTROL_MUST_REVALIDATE_FIELD, mustRevalidate);
         return this;
     }
 
-    public ResponseCacheControlStruct setNoCache(boolean noCache) {
-        responseCacheControl.put(RES_CACHE_CONTROL_NO_CACHE_FIELD, new BBoolean(noCache));
+    public ResponseCacheControlObj setNoCache(boolean noCache) {
+        responseCacheControl.set(RES_CACHE_CONTROL_NO_CACHE_FIELD, noCache);
         return this;
     }
 
-    public ResponseCacheControlStruct setNoCache(boolean noCache, String[] noCacheFields) {
-        responseCacheControl.put(RES_CACHE_CONTROL_NO_CACHE_FIELD, new BBoolean(noCache));
-        responseCacheControl.put(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD, new BValueArray(noCacheFields));
+    public ResponseCacheControlObj setNoCache(boolean noCache, String[] noCacheFields) {
+        responseCacheControl.set(RES_CACHE_CONTROL_NO_CACHE_FIELD, noCache);
+        responseCacheControl.set(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD, noCacheFields);
         return this;
     }
 
-    public ResponseCacheControlStruct setNoStore(boolean noStore) {
-        responseCacheControl.put(RES_CACHE_CONTROL_NO_STORE_FIELD, new BBoolean(noStore));
+    public ResponseCacheControlObj setNoStore(boolean noStore) {
+        responseCacheControl.set(RES_CACHE_CONTROL_NO_STORE_FIELD, noStore);
         return this;
     }
 
-    public ResponseCacheControlStruct setNoTransform(boolean noTransform) {
-        responseCacheControl.put(RES_CACHE_CONTROL_NO_TRANSFORM_FIELD, new BBoolean(noTransform));
+    public ResponseCacheControlObj setNoTransform(boolean noTransform) {
+        responseCacheControl.set(RES_CACHE_CONTROL_NO_TRANSFORM_FIELD, noTransform);
         return this;
     }
 
-    public ResponseCacheControlStruct setPrivate(boolean isPrivate) {
-        responseCacheControl.put(RES_CACHE_CONTROL_IS_PRIVATE_FIELD, new BBoolean(isPrivate));
+    public ResponseCacheControlObj setPrivate(boolean isPrivate) {
+        responseCacheControl.set(RES_CACHE_CONTROL_IS_PRIVATE_FIELD, isPrivate);
         return this;
     }
 
-    public ResponseCacheControlStruct setPrivate(boolean isPrivate, String[] privateFields) {
-        responseCacheControl.put(RES_CACHE_CONTROL_IS_PRIVATE_FIELD, new BBoolean(isPrivate));
-        responseCacheControl.put(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD, new BValueArray(privateFields));
+    public ResponseCacheControlObj setPrivate(boolean isPrivate, String[] privateFields) {
+        responseCacheControl.set(RES_CACHE_CONTROL_IS_PRIVATE_FIELD, isPrivate);
+        responseCacheControl.set(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD, privateFields);
         return this;
     }
 
-    public ResponseCacheControlStruct setProxyRevalidate(boolean proxyRevalidate) {
-        responseCacheControl.put(RES_CACHE_CONTROL_PROXY_REVALIDATE_FIELD, new BBoolean(proxyRevalidate));
+    public ResponseCacheControlObj setProxyRevalidate(boolean proxyRevalidate) {
+        responseCacheControl.set(RES_CACHE_CONTROL_PROXY_REVALIDATE_FIELD, proxyRevalidate);
         return this;
     }
 
-    public ResponseCacheControlStruct setMaxAge(long maxAge) {
-        responseCacheControl.put(RES_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(maxAge));
+    public ResponseCacheControlObj setMaxAge(long maxAge) {
+        responseCacheControl.set(RES_CACHE_CONTROL_MAX_AGE_FIELD, maxAge);
         return this;
     }
 
-    public ResponseCacheControlStruct setSMaxAge(long sMaxAge) {
-        responseCacheControl.put(RES_CACHE_CONTROL_S_MAXAGE_FIELD, new BInteger(sMaxAge));
+    public ResponseCacheControlObj setSMaxAge(long sMaxAge) {
+        responseCacheControl.set(RES_CACHE_CONTROL_S_MAXAGE_FIELD, sMaxAge);
         return this;
     }
 
@@ -134,51 +132,51 @@ public class ResponseCacheControlStruct {
         controlDirectives.forEach((directive, value) -> {
             switch (directive) {
                 case MUST_REVALIDATE:
-                    responseCacheControl.put(RES_CACHE_CONTROL_MUST_REVALIDATE_FIELD, new BBoolean(TRUE));
+                    responseCacheControl.set(RES_CACHE_CONTROL_MUST_REVALIDATE_FIELD, TRUE);
                     break;
                 case NO_CACHE:
-                    responseCacheControl.put(RES_CACHE_CONTROL_NO_CACHE_FIELD, new BBoolean(TRUE));
+                    responseCacheControl.set(RES_CACHE_CONTROL_NO_CACHE_FIELD, TRUE);
                     if (value != null) {
                         value = value.replace("\"", "");
-                        responseCacheControl.put(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD,
-                                                         new BValueArray(value.split(",")));
+                        responseCacheControl.set(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD,
+                                                         new ArrayValue(value.split(",")));
                     }
                     break;
                 case NO_STORE:
-                    responseCacheControl.put(RES_CACHE_CONTROL_NO_STORE_FIELD, new BBoolean(TRUE));
+                    responseCacheControl.set(RES_CACHE_CONTROL_NO_STORE_FIELD, TRUE);
                     break;
                 case NO_TRANSFORM:
-                    responseCacheControl.put(RES_CACHE_CONTROL_NO_TRANSFORM_FIELD, new BBoolean(TRUE));
+                    responseCacheControl.set(RES_CACHE_CONTROL_NO_TRANSFORM_FIELD, TRUE);
                     break;
                 case PRIVATE:
-                    responseCacheControl.put(RES_CACHE_CONTROL_IS_PRIVATE_FIELD, new BBoolean(TRUE));
+                    responseCacheControl.set(RES_CACHE_CONTROL_IS_PRIVATE_FIELD, TRUE);
                     if (value != null) {
                         value = value.replace("\"", "");
-                        responseCacheControl.put(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD,
-                                                         new BValueArray(value.split(",")));
+                        responseCacheControl.set(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD,
+                                                         new ArrayValue(value.split(",")));
                     }
                     break;
                 case PUBLIC:
-                    responseCacheControl.put(RES_CACHE_CONTROL_IS_PRIVATE_FIELD, new BBoolean(FALSE));
+                    responseCacheControl.set(RES_CACHE_CONTROL_IS_PRIVATE_FIELD, FALSE);
                     break;
                 case PROXY_REVALIDATE:
-                    responseCacheControl.put(RES_CACHE_CONTROL_PROXY_REVALIDATE_FIELD, new BBoolean(TRUE));
+                    responseCacheControl.set(RES_CACHE_CONTROL_PROXY_REVALIDATE_FIELD, TRUE);
                     break;
                 case MAX_AGE:
                     try {
-                        responseCacheControl.put(RES_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(Long.parseLong(value)));
+                        responseCacheControl.set(RES_CACHE_CONTROL_MAX_AGE_FIELD, Long.parseLong(value));
                     } catch (NumberFormatException e) {
                         // Ignore the exception and set 0 as the max-age so that it will be treated as a stale response.
                         // Note that this won't change the value of the actual cache-control header
-                        responseCacheControl.put(RES_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(0));
+                        responseCacheControl.set(RES_CACHE_CONTROL_MAX_AGE_FIELD, 0);
                     }
                     break;
                 case S_MAXAGE:
                     try {
-                        responseCacheControl.put(RES_CACHE_CONTROL_S_MAXAGE_FIELD, new BInteger(Long.parseLong(value)));
+                        responseCacheControl.set(RES_CACHE_CONTROL_S_MAXAGE_FIELD, Long.parseLong(value));
                     } catch (NumberFormatException e) {
                         // Ignore the exception and set 0 as the s-maxage.
-                        responseCacheControl.put(RES_CACHE_CONTROL_S_MAXAGE_FIELD, new BInteger(0));
+                        responseCacheControl.set(RES_CACHE_CONTROL_S_MAXAGE_FIELD, 0);
                     }
                     break;
                 default:
@@ -196,7 +194,7 @@ public class ResponseCacheControlStruct {
 
         if (getBooleanValue(responseCacheControl, RES_CACHE_CONTROL_NO_CACHE_FIELD) == TRUE) {
             directivesBuilder.add("no-cache" + appendFields(
-                    (BValueArray) responseCacheControl.get(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD)));
+                    (ArrayValue) responseCacheControl.get(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD)));
         }
 
         if (getBooleanValue(responseCacheControl, RES_CACHE_CONTROL_NO_STORE_FIELD) == TRUE) {
@@ -209,7 +207,7 @@ public class ResponseCacheControlStruct {
 
         if (getBooleanValue(responseCacheControl, RES_CACHE_CONTROL_IS_PRIVATE_FIELD) == TRUE) {
             directivesBuilder.add("private" + appendFields(
-                    (BValueArray) responseCacheControl.get(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD)));
+                    (ArrayValue) responseCacheControl.get(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD)));
         } else {
             directivesBuilder.add("public");
         }
@@ -229,7 +227,7 @@ public class ResponseCacheControlStruct {
         return directivesBuilder.toString();
     }
 
-    private String appendFields(BValueArray values) {
+    private String appendFields(ArrayValue values) {
         if (values.size() > 0) {
             StringJoiner joiner = new StringJoiner(",");
 
@@ -243,11 +241,11 @@ public class ResponseCacheControlStruct {
         return "";
     }
 
-    private boolean getBooleanValue(BMap<String, BValue> responseCacheControl, String fieldName) {
-        return ((BBoolean) responseCacheControl.get(fieldName)).booleanValue();
+    private boolean getBooleanValue(ObjectValue responseCacheControl, String fieldName) {
+        return (Boolean) responseCacheControl.get(fieldName);
     }
 
-    private long getIntValue(BMap<String, BValue> responseCacheControl, String fieldName) {
-        return ((BInteger) responseCacheControl.get(fieldName)).intValue();
+    private long getIntValue(ObjectValue responseCacheControl, String fieldName) {
+        return (Integer) responseCacheControl.get(fieldName);
     }
 }

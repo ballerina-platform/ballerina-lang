@@ -18,10 +18,9 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.connector.ParamDetail;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.TypeTags;
 
 import java.util.List;
 

@@ -21,6 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
@@ -154,7 +155,7 @@ public class Utils {
     public static void encode(Context context, BValue input, String charset, boolean isMimeSpecific) {
         switch (input.getType().getTag()) {
             case TypeTags.ARRAY_TAG:
-                encodeBlob(context, ((BValueArray) input).getBytes(), isMimeSpecific);
+                encodeBlob(((BValueArray) input).getBytes(), isMimeSpecific);
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -183,7 +184,7 @@ public class Utils {
     public static void decode(Context context, BValue encodedInput, String charset, boolean isMimeSpecific) {
         switch (encodedInput.getType().getTag()) {
             case TypeTags.ARRAY_TAG:
-                decodeBlob(context, ((BValueArray) encodedInput).getBytes(), isMimeSpecific);
+                decodeBlob(((BValueArray) encodedInput).getBytes(), isMimeSpecific);
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -333,36 +334,32 @@ public class Utils {
 
     /**
      * Encode a given blob using Base64 encoding scheme.
-     *
-     * @param context        Represent a ballerina context
-     * @param bytes          Represent the blob that needs to be encoded
+     *  @param bytes          Represent the blob that needs to be encoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
-    public static void encodeBlob(Context context, byte[] bytes, boolean isMimeSpecific) {
+    public static ArrayValue encodeBlob(byte[] bytes, boolean isMimeSpecific) {
         byte[] encodedContent;
         if (isMimeSpecific) {
             encodedContent = Base64.getMimeEncoder().encode(bytes);
         } else {
             encodedContent = Base64.getEncoder().encode(bytes);
         }
-        context.setReturnValues(new BValueArray(encodedContent));
+        return new ArrayValue(encodedContent);
     }
 
 
     /**
      * Decode a given blob using Base64 encoding scheme.
-     *
-     * @param context        Represent a ballerina context
-     * @param encodedContent Represent the blob that needs to be decoded
+     *  @param encodedContent Represent the blob that needs to be decoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
-    public static void decodeBlob(Context context, byte[] encodedContent, boolean isMimeSpecific) {
+    public static ArrayValue decodeBlob(byte[] encodedContent, boolean isMimeSpecific) {
         byte[] decodedContent;
         if (isMimeSpecific) {
             decodedContent = Base64.getMimeDecoder().decode(encodedContent);
         } else {
             decodedContent = Base64.getDecoder().decode(encodedContent);
         }
-        context.setReturnValues(new BValueArray(decodedContent));
+        return new ArrayValue(decodedContent);
     }
 }

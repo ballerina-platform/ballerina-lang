@@ -31,39 +31,37 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.JSONGenerator;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.StreamingJsonValue;
+import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
-import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
+import org.ballerinalang.net.http.caching.RequestCacheControlObj;
+import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.observability.ObserveUtils;
-import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +92,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
@@ -105,21 +102,62 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.*;
+import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.AUTO;
+import static org.ballerinalang.net.http.HttpConstants.COLON;
+import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
+import static org.ballerinalang.net.http.HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION;
+import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_SESSION_TIMEOUT;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
+import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_RECORD;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
+import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
+import static org.ballerinalang.net.http.HttpConstants.NEVER;
+import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
+import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS;
+import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI;
+import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
+import static org.ballerinalang.net.http.HttpConstants.SSL_ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
@@ -171,17 +209,16 @@ public class HttpUtil {
     /**
      * Set new entity to in/out request/response struct.
      *
-     * @param context           ballerina context.
      * @param httpMessageStruct request/response struct.
      * @return created entity.
      */
-    public static BMap<String, BValue> createNewEntity(Context context, BMap<String, BValue> httpMessageStruct) {
-        BMap<String, BValue> entity = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
+    public static ObjectValue createNewEntity(ObjectValue httpMessageStruct) {
+        ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
         HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
-                HttpUtil.createHttpCarbonMessage(isRequestStruct(httpMessageStruct)));
+                HttpUtil.createHttpCarbonMessage(isRequest(httpMessageStruct)));
         entity.addNativeData(ENTITY_HEADERS, httpCarbonMessage.getHeaders());
         entity.addNativeData(ENTITY_BYTE_CHANNEL, null);
-        httpMessageStruct.put(isRequestStruct(httpMessageStruct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD
+        httpMessageStruct.set(isRequest(httpMessageStruct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD
                 , entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
         return entity;
@@ -234,7 +271,7 @@ public class HttpUtil {
             }
             return new BValue[]{entity};
         } catch (Throwable throwable) {
-            return new BValue[]{MimeUtil.createError(context, MIME_ERROR_CODE,
+            return new BValue[]{MimeUtil.createError(
                     "Error occurred during entity construction: " + throwable.getMessage())};
         }
     }
@@ -255,7 +292,7 @@ public class HttpUtil {
         String contentType = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
         if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
                 && context != null) {
-            MultipartDecoder.parseBody(context, entity, contentType,
+            MultipartDecoder.parseBody(entity, contentType,
                                        new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
         } else {
             long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
@@ -272,13 +309,12 @@ public class HttpUtil {
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
     }
 
-    public static BMap<String, BValue> extractEntity(BMap<String, BValue> httpMessageStruct) {
-        Object isEntityBodyAvailable = httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
+    public static ObjectValue extractEntity(ObjectValue request) {
+        Object isEntityBodyAvailable = request.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
         if (isEntityBodyAvailable == null || !((Boolean) isEntityBodyAvailable)) {
             return null;
         }
-        return (BMap<String, BValue>) httpMessageStruct
-                .get(isRequestStruct(httpMessageStruct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
+        return (ObjectValue) request.get(isRequest(request) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
     }
 
     public static void closeMessageOutputStream(OutputStream messageOutputStream) {
@@ -291,24 +327,23 @@ public class HttpUtil {
         }
     }
 
-    public static void prepareOutboundResponse(Context context, HttpCarbonMessage inboundRequestMsg,
+    public static void prepareOutboundResponse(ObjectValue connectionObj, HttpCarbonMessage inboundRequestMsg,
                                                HttpCarbonMessage outboundResponseMsg,
-                                               BMap<String, BValue> outboundResponseStruct) {
-
-        HttpUtil.checkEntityAvailability(context, outboundResponseStruct);
-
-        HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
-        HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
-        HttpUtil.setCompressionHeaders(context, inboundRequestMsg, outboundResponseMsg);
-        HttpUtil.setChunkingHeader(context, outboundResponseMsg);
+                                               ObjectValue outboundResponseObj) {
+        HttpUtil.checkEntityAvailability(outboundResponseObj);
+        HttpUtil.addHTTPSessionAndCorsHeaders(inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseObj);
+        HttpService httpService = (HttpService) connectionObj.getNativeData(HttpConstants.HTTP_SERVICE);
+        HttpUtil.setCompressionHeaders(httpService.getCompressionConfig(), inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.setChunkingHeader(httpService.getChunkingConfig(), outboundResponseMsg);
     }
 
-    public static BMap<String, BValue> createSessionStruct(Context context, Session session) {
-        BMap<String, BValue> sessionStruct = ConnectorUtils
-                .createAndGetStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.SESSION);
+    public static ObjectValue createSessionStruct(Context context, Session session) {
+        ObjectValue sessionObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                                                   HttpConstants.SESSION);
         //Add session to the struct as a native data
-        sessionStruct.addNativeData(HttpConstants.HTTP_SESSION, session);
-        return sessionStruct;
+        sessionObj.addNativeData(HttpConstants.HTTP_SESSION, session);
+        return sessionObj;
     }
 
     public static String getSessionID(String cookieHeader) {
@@ -317,8 +352,7 @@ public class HttpUtil {
                 .findFirst().get().trim().substring(HttpConstants.SESSION_ID.length());
     }
 
-    public static void addHTTPSessionAndCorsHeaders(Context context, HttpCarbonMessage requestMsg,
-                                                    HttpCarbonMessage responseMsg) {
+    private static void addHTTPSessionAndCorsHeaders(HttpCarbonMessage requestMsg, HttpCarbonMessage responseMsg) {
         //TODO Remove once service session LC is introduced
 //        Session session = (Session) requestMsg.getProperty(HttpConstants.HTTP_SESSION);
 //        if (session != null) {
@@ -491,7 +525,7 @@ public class HttpUtil {
         }
     }
 
-    public static HttpCarbonMessage getCarbonMsg(BMap<String, BValue> struct, HttpCarbonMessage defaultMsg) {
+    public static HttpCarbonMessage getCarbonMsg(ObjectValue struct, HttpCarbonMessage defaultMsg) {
         HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) struct.getNativeData(TRANSPORT_MESSAGE);
         if (httpCarbonMessage != null) {
             return httpCarbonMessage;
@@ -507,7 +541,7 @@ public class HttpUtil {
      * @param defaultPushPromise the Http2PushPromise to use if the struct does not have native data of a push promise
      * @return the {@code Http2PushPromise} represented by the PushPromise struct
      */
-    public static Http2PushPromise getPushPromise(BMap<String, BValue> pushPromiseStruct,
+    public static Http2PushPromise getPushPromise(ObjectValue pushPromiseStruct,
                                                   Http2PushPromise defaultPushPromise) {
         Http2PushPromise pushPromise =
                 (Http2PushPromise) pushPromiseStruct.getNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE);
@@ -520,11 +554,10 @@ public class HttpUtil {
 
     /**
      * Populates the push promise struct from native {@code Http2PushPromise}.
-     *
-     * @param pushPromiseStruct the push promise struct
+     *  @param pushPromiseStruct the push promise struct
      * @param pushPromise the native Http2PushPromise
      */
-    public static void populatePushPromiseStruct(BMap<String, BValue> pushPromiseStruct,
+    public static void populatePushPromiseStruct(ObjectValue pushPromiseStruct,
                                                  Http2PushPromise pushPromise) {
         pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
         pushPromiseStruct.put(HttpConstants.PUSH_PROMISE_PATH_FIELD, new BString(pushPromise.getPath()));
@@ -537,7 +570,7 @@ public class HttpUtil {
      * @param struct the PushPromise struct
      * @return the populated the native {@code Http2PushPromise}
      */
-    public static Http2PushPromise createHttpPushPromise(BMap<String, BValue> struct) {
+    public static Http2PushPromise createHttpPushPromise(ObjectValue struct) {
         String method = struct.get(HttpConstants.PUSH_PROMISE_METHOD_FIELD).stringValue();
         if (method == null || method.isEmpty()) {
             method = HttpConstants.HTTP_METHOD_GET;
@@ -550,38 +583,36 @@ public class HttpUtil {
         return new Http2PushPromise(method, path);
     }
 
-    public static void addCarbonMsg(BMap<String, BValue> struct, HttpCarbonMessage httpCarbonMessage) {
+    public static void addCarbonMsg(ObjectValue struct, HttpCarbonMessage httpCarbonMessage) {
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
-    public static void populateInboundRequest(BMap<String, BValue> inboundRequestStruct, BMap<String, BValue> entity,
-                                              BMap<String, BValue> mediaType, HttpCarbonMessage inboundRequestMsg,
-                                              ProgramFile programFile) {
-        inboundRequestStruct.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
-        inboundRequestStruct.addNativeData(REQUEST, true);
+    public static void populateInboundRequest(ObjectValue inboundRequest, ObjectValue entity,
+                                              ObjectValue mediaType, HttpCarbonMessage inboundRequestMsg) {
+        inboundRequest.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
+        inboundRequest.addNativeData(REQUEST, true);
 
         if (inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT) != null) {
-            BMap<String, BValue> mutualSslRecord = BLangConnectorSPIUtil
-                    .createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, MUTUAL_SSL_HANDSHAKE_RECORD);
-            mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
-                    new BString((String) inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT)));
-            inboundRequestStruct.put(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
+            MapValue mutualSslRecord = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP,
+                                                                         MUTUAL_SSL_HANDSHAKE_RECORD);
+            mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS, inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
+            inboundRequest.set(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
         }
 
-        enrichWithInboundRequestInfo(inboundRequestStruct, inboundRequestMsg);
-        enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);
+        enrichWithInboundRequestInfo(inboundRequest, inboundRequestMsg);
+        enrichWithInboundRequestHeaders(inboundRequest, inboundRequestMsg);
 
         populateEntity(entity, mediaType, inboundRequestMsg);
-        inboundRequestStruct.put(REQUEST_ENTITY_FIELD, entity);
-        inboundRequestStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
+        inboundRequest.put(REQUEST_ENTITY_FIELD, entity);
+        inboundRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
 
         String cacheControlHeader = inboundRequestMsg.getHeader(CACHE_CONTROL.toString());
         if (cacheControlHeader != null) {
-            BMap<String, BValue> cacheControlStruct =
-                    BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, REQUEST_CACHE_CONTROL);
-            RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
+            ObjectValue cacheControlObj = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
+                                                                               REQUEST_CACHE_CONTROL);
+            RequestCacheControlObj requestCacheControl = new RequestCacheControlObj(cacheControlObj);
             requestCacheControl.populateStruct(cacheControlHeader);
-            inboundRequestStruct.put(REQUEST_CACHE_CONTROL_FIELD, requestCacheControl.getStruct());
+            inboundRequest.put(REQUEST_CACHE_CONTROL_FIELD, requestCacheControl.getObj());
         }
     }
 
@@ -625,7 +656,6 @@ public class HttpUtil {
 
     /**
      * Populates the HTTP caller with connection information.
-     *
      * @param httpCaller   Represents the HTTP caller
      * @param inboundMsg   Represents the carbon message
      * @param httpResource Represents the Http Resource
@@ -633,20 +663,16 @@ public class HttpUtil {
      */
     public static void enrichHttpCallerWithConnectionInfo(ObjectValue httpCaller, HttpCarbonMessage inboundMsg,
                                                           HttpResource httpResource, MapValue config) {
-        BMap<String, BValue> remote = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
-        BMap<String, BValue> local = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
+        MapValue<String, Object> remote = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
+        MapValue<String, Object> local = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
 
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
             String remoteHost = inetSocketAddress.getHostName();
             long remotePort = inetSocketAddress.getPort();
-            remote.put(HttpConstants.REMOTE_HOST_FIELD, new BString(remoteHost));
-            remote.put(HttpConstants.REMOTE_PORT_FIELD, new BInteger(remotePort));
+            remote.put(HttpConstants.REMOTE_HOST_FIELD, remoteHost);
+            remote.put(HttpConstants.REMOTE_PORT_FIELD, remotePort);
         }
         httpCaller.addNativeData(HttpConstants.REMOTE_STRUCT_FIELD, remote);
 
@@ -655,13 +681,13 @@ public class HttpUtil {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) localSocketAddress;
             String localHost = inetSocketAddress.getHostName();
             long localPort = inetSocketAddress.getPort();
-            local.put(HttpConstants.LOCAL_HOST_FIELD, new BString(localHost));
-            local.put(HttpConstants.LOCAL_PORT_FIELD, new BInteger(localPort));
+            local.put(HttpConstants.LOCAL_HOST_FIELD, localHost);
+            local.put(HttpConstants.LOCAL_PORT_FIELD, localPort);
         }
         httpCaller.addNativeData(HttpConstants.LOCAL_STRUCT_INDEX, local);
-        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
-                new BString((String) inboundMsg.getProperty(HttpConstants.PROTOCOL)));
-//        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
+        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD, inboundMsg.getProperty(HttpConstants.PROTOCOL));
+        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, config);
+        httpCaller.addNativeData(HttpConstants.HTTP_SERVICE, httpResource.getParentService());
     }
 
     /**
@@ -673,37 +699,35 @@ public class HttpUtil {
 *                              response
      * @param inboundResponseMsg      Represent carbon message.
      */
-    public static void populateInboundResponse(BMap<String, BValue> inboundResponse, BMap<String, BValue> entity,
-                                               BMap<String, BValue> mediaType, ProgramFile programFile,
-                                               HttpCarbonMessage inboundResponseMsg) {
+    public static void populateInboundResponse(ObjectValue inboundResponse, ObjectValue entity,
+                                               ObjectValue mediaType, HttpCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
-        inboundResponse.put(RESPONSE_STATUS_CODE_FIELD, new BInteger(statusCode));
-        inboundResponse.put(RESPONSE_REASON_PHRASE_FIELD,
+        inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, new BInteger(statusCode));
+        inboundResponse.set(RESPONSE_REASON_PHRASE_FIELD,
                 new BString(HttpResponseStatus.valueOf(statusCode).reasonPhrase()));
 
         if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
-            inboundResponse.put(HttpConstants.RESPONSE_SERVER_FIELD,
+            inboundResponse.set(HttpConstants.RESPONSE_SERVER_FIELD,
                     new BString(inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString())));
             inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
         }
 
         if (inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI) != null) {
-            inboundResponse.put(RESOLVED_REQUESTED_URI_FIELD,
+            inboundResponse.set(RESOLVED_REQUESTED_URI_FIELD,
                     new BString(inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI).toString()));
         }
 
         String cacheControlHeader = inboundResponseMsg.getHeader(CACHE_CONTROL.toString());
         if (cacheControlHeader != null) {
-            ResponseCacheControlStruct responseCacheControl
-                    = new ResponseCacheControlStruct(
-                            programFile.getPackageInfo(PROTOCOL_PACKAGE_HTTP).getStructInfo(RESPONSE_CACHE_CONTROL));
+            ResponseCacheControlObj responseCacheControl
+                    = new ResponseCacheControlObj(PROTOCOL_PACKAGE_HTTP, RESPONSE_CACHE_CONTROL);
             responseCacheControl.populateStruct(cacheControlHeader);
-            inboundResponse.put(RESPONSE_CACHE_CONTROL_FIELD, responseCacheControl.getStruct());
+            inboundResponse.set(RESPONSE_CACHE_CONTROL_FIELD, responseCacheControl.getObj());
         }
 
         populateEntity(entity, mediaType, inboundResponseMsg);
-        inboundResponse.put(RESPONSE_ENTITY_FIELD, entity);
+        inboundResponse.set(RESPONSE_ENTITY_FIELD, entity);
         inboundResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
     }
 
@@ -735,7 +759,7 @@ public class HttpUtil {
      * @param outboundMsg    transport Http carbon message.
      * @param outboundStruct req/resp struct.
      */
-    public static void enrichOutboundMessage(HttpCarbonMessage outboundMsg, BMap<String, BValue> outboundStruct) {
+    public static void enrichOutboundMessage(HttpCarbonMessage outboundMsg, ObjectValue outboundStruct) {
         setHeadersToTransportMessage(outboundMsg, outboundStruct);
         setPropertiesToTransportMessage(outboundMsg, outboundStruct);
     }
@@ -743,9 +767,9 @@ public class HttpUtil {
     @SuppressWarnings("unchecked")
     private static void setHeadersToTransportMessage(HttpCarbonMessage outboundMsg, BMap<String, BValue> struct) {
         BMap<String, BValue> entityStruct = (BMap<String, BValue>) struct
-                .get(isRequestStruct(struct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
+                .get(isRequest(struct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
         HttpHeaders transportHeaders = outboundMsg.getHeaders();
-        if (isRequestStruct(struct) || isResponseStruct(struct)) {
+        if (isRequest(struct) || isResponse(struct)) {
             addRemovedPropertiesBackToHeadersMap(struct, transportHeaders);
             // Since now the InRequest & OutRequest are merged to a single Request and InResponse & OutResponse
             // are merged to a single Response, without returning need to populate all headers from the struct
@@ -765,17 +789,17 @@ public class HttpUtil {
         }
     }
 
-    public static boolean isRequestStruct(BMap<String, BValue> struct) {
-        return struct.getType().getName().equals(REQUEST);
+    private static boolean isRequest(ObjectValue value) {
+        return value.getType().getName().equals(REQUEST);
     }
 
-    private static boolean isResponseStruct(BMap<String, BValue> struct) {
-        return struct.getType().getName().equals(HttpConstants.RESPONSE);
+    private static boolean isResponse(ObjectValue value) {
+        return value.getType().getName().equals(HttpConstants.RESPONSE);
     }
 
     private static void addRemovedPropertiesBackToHeadersMap(BMap<String, BValue> struct,
                                                              HttpHeaders transportHeaders) {
-        if (isRequestStruct(struct)) {
+        if (isRequest(struct)) {
             BValue userAgent = struct.get(HttpConstants.REQUEST_USER_AGENT_FIELD);
             if (userAgent != null && !userAgent.stringValue().isEmpty()) {
                 transportHeaders.set(HttpHeaderNames.USER_AGENT.toString(), userAgent.stringValue());
@@ -790,7 +814,7 @@ public class HttpUtil {
 
     private static void setPropertiesToTransportMessage(HttpCarbonMessage outboundResponseMsg,
                                                         BMap<String, BValue> struct) {
-        if (isResponseStruct(struct)) {
+        if (isResponse(struct)) {
             long statusCode = ((BInteger) struct.get(RESPONSE_STATUS_CODE_FIELD)).intValue();
             if (statusCode != 0) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, getIntValue(statusCode));
@@ -805,14 +829,12 @@ public class HttpUtil {
     /**
      * Check the existence of entity. Set new entity of not present.
      *
-     * @param context ballerina context.
-     * @param struct  request/response struct.
+     * @param value  request/response struct.
      */
-    public static void checkEntityAvailability(Context context, BMap<String, BValue> struct) {
-        BMap<String, BValue> entity = (BMap<String, BValue>) struct
-                .get(isRequestStruct(struct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
+    public static void checkEntityAvailability(ObjectValue value) {
+        ObjectValue entity = (ObjectValue) value.get(isRequest(value) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
         if (entity == null) {
-            createNewEntity(context, struct);
+            createNewEntity(value);
         }
     }
 
@@ -831,32 +853,23 @@ public class HttpUtil {
     /**
      * Check the existence of the message entity data source.
      *
-     * @param struct  request/response struct.
+     * @param value  request/response struct.
      * @return true if the message entity data source is available else false.
      */
-    public static boolean isEntityDataSourceAvailable(BMap<String, BValue> struct) {
-        BMap<String, BValue> entityStruct = (BMap<String, BValue>) struct
-                .get(isRequestStruct(struct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
-        return (entityStruct != null && EntityBodyHandler.getMessageDataSource(entityStruct) != null);
+    public static boolean isEntityDataSourceAvailable(ObjectValue value) {
+        ObjectValue entityObj = (ObjectValue) value
+                .get(isRequest(value) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
+        return (entityObj != null && EntityBodyHandler.getMessageDataSource(entityObj) != null);
     }
 
-    private static void setCompressionHeaders(Context context, HttpCarbonMessage requestMsg, HttpCarbonMessage
-            outboundResponseMsg) {
-        Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
-                context.getServiceInfo().serviceValue);
-        Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (!checkConfigAnnotationAvailability(configAnnot)) {
-            return;
-        }
+    private static void setCompressionHeaders(MapValue<String, Object> compressionConfig, HttpCarbonMessage requestMsg,
+                                              HttpCarbonMessage outboundResponseMsg) {
         String contentEncoding = outboundResponseMsg.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING);
         if (contentEncoding != null) {
             return;
         }
-
-        Struct compressionConfig = configAnnot.getValue().getStructField(ANN_CONFIG_ATTR_COMPRESSION);
         CompressionConfigState compressionState = getCompressionState(
-                compressionConfig.getStringField(ANN_CONFIG_ATTR_COMPRESSION_ENABLE));
-
+                compressionConfig.getStringValue(ANN_CONFIG_ATTR_COMPRESSION_ENABLE));
         if (compressionState == CompressionConfigState.NEVER) {
             outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, HTTP_TRANSFER_ENCODING_IDENTITY);
             return;
@@ -864,7 +877,7 @@ public class HttpUtil {
 
         String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
         List<String> contentTypesAnnotationValues = getAsStringList(
-                compressionConfig.getArrayField(ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES));
+                compressionConfig.getArrayValue(ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES).getValues());
         String contentType = outboundResponseMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
 
         if (contentTypesAnnotationValues.isEmpty() || isContentTypeMatched(contentTypesAnnotationValues, contentType)) {
@@ -894,13 +907,13 @@ public class HttpUtil {
         return contentType != null && contentTypes.stream().anyMatch(contentType.toLowerCase()::contains);
     }
 
-    private static List<String> getAsStringList(Value[] values) {
+    private static List<String> getAsStringList(Object[] values) {
         List<String> valuesList = new ArrayList<>();
         if (values == null) {
             return valuesList;
         }
-        for (Value val : values) {
-            valuesList.add(val.getStringValue().trim().toLowerCase());
+        for (Object val : values) {
+            valuesList.add(val.toString().trim().toLowerCase());
         }
         return valuesList;
     }
@@ -965,20 +978,20 @@ public class HttpUtil {
         return httpCarbonMessage;
     }
 
-    public static void checkFunctionValidity(BMap<String, BValue> connectionStruct, HttpCarbonMessage reqMsg,
+    public static void checkFunctionValidity(ObjectValue connectionObj, HttpCarbonMessage reqMsg,
                                              HttpCarbonMessage outboundResponseMsg) {
         serverConnectionStructCheck(reqMsg);
         int statusCode = (int) outboundResponseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE);
-        methodInvocationCheck(connectionStruct, reqMsg, statusCode);
+        methodInvocationCheck(connectionObj, reqMsg, statusCode);
     }
 
-    private static void methodInvocationCheck(BMap<String, BValue> bStruct, HttpCarbonMessage reqMsg, int statusCode) {
-        if (bStruct.getNativeData(METHOD_ACCESSED) != null || reqMsg == null) {
+    private static void methodInvocationCheck(ObjectValue connectionObj, HttpCarbonMessage reqMsg, int statusCode) {
+        if (connectionObj.getNativeData(METHOD_ACCESSED) != null || reqMsg == null) {
             throw new IllegalStateException("illegal function invocation");
         }
 
         if (!is100ContinueRequest(reqMsg, statusCode)) {
-            bStruct.addNativeData(METHOD_ACCESSED, true);
+            connectionObj.addNativeData(METHOD_ACCESSED, true);
         }
     }
 
@@ -1122,21 +1135,22 @@ public class HttpUtil {
         return new DefaultHttpWsConnectorFactory();
     }
 
-    public static void checkAndObserveHttpRequest(Context context, HttpCarbonMessage message) {
-        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
-        observerContext.ifPresent(ctx -> {
-            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(ctx));
-            ctx.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
-            ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
-            ctx.addTag(TAG_KEY_PEER_ADDRESS,
-                       message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
-            // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
-            // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
-            // some value to HTTP Status Code to make sure that tags will not change depending on various
-            // circumstances.
-            // HTTP Status code must be a number.
-            ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
-        });
+    public static void checkAndObserveHttpRequest(Strand strand, HttpCarbonMessage message) {
+        // TODO fix observabiltiy utils
+//        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
+//        observerContext.ifPresent(ctx -> {
+//            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(ctx));
+//            ctx.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
+//            ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
+//            ctx.addTag(TAG_KEY_PEER_ADDRESS,
+//                       message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
+//            // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
+//            // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
+//            // some value to HTTP Status Code to make sure that tags will not change depending on various
+//            // circumstances.
+//            // HTTP Status code must be a number.
+//            ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
+//        });
     }
 
     public static void injectHeaders(HttpCarbonMessage msg, Map<String, String> headers) {
@@ -1145,18 +1159,8 @@ public class HttpUtil {
         }
     }
 
-    private static void setChunkingHeader(Context context, HttpCarbonMessage
-            outboundResponseMsg) {
-        Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
-                context.getServiceInfo().serviceValue);
-        Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (!checkConfigAnnotationAvailability(configAnnot)) {
-            return;
-        }
-        String transferValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_CHUNKING).getStringValue();
-        if (transferValue != null) {
+    private static void setChunkingHeader(String transferValue, HttpCarbonMessage outboundResponseMsg) {
             outboundResponseMsg.setProperty(CHUNKING_CONFIG, getChunkConfig(transferValue));
-        }
     }
 
     /**
@@ -1174,12 +1178,11 @@ public class HttpUtil {
         BMap<String, BValue> mediaType =
                 BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
-        HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, context.getProgramFile(),
-                httpCarbonMessage);
+        HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, httpCarbonMessage);
         return responseStruct;
     }
 
-    public static void populateSenderConfigurations(SenderConfiguration senderConfiguration, Struct
+    public static void populateSenderConfigurations(SenderConfiguration senderConfiguration, MapValue<String, Object>
             clientEndpointConfig) {
         ProxyServerConfiguration proxyServerConfiguration;
         Struct secureSocket = clientEndpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
@@ -1231,7 +1234,7 @@ public class HttpUtil {
         senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
     }
 
-    public static ConnectionManager getConnectionManager(BMap<String, BValue> poolStruct) {
+    public static ConnectionManager getConnectionManager(MapValue<String, Integer> poolStruct) {
         ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
         if (poolManager == null) {
             synchronized (poolStruct) {
@@ -1246,7 +1249,7 @@ public class HttpUtil {
         return poolManager;
     }
 
-    public static void populatePoolingConfig(BMap<String, BValue> poolRecord, PoolConfiguration poolConfiguration) {
+    public static void populatePoolingConfig(MapValue<String, Integer> poolRecord, PoolConfiguration poolConfiguration) {
         long maxActiveConnections = ((BInteger) poolRecord
                 .get(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS)).intValue();
         poolConfiguration.setMaxActivePerPool(
@@ -1417,14 +1420,35 @@ public class HttpUtil {
      * @param messageOutputStream   Represent the output stream
      * @throws IOException In case an error occurs while writing to output stream
      */
-    public static void serializeDataSource(BValue outboundMessageSource, BMap<String, BValue> entity,
+    public static void serializeDataSource(Object outboundMessageSource, ObjectValue entity,
                                            OutputStream messageOutputStream) throws IOException {
         if (MimeUtil.generateAsJSON(outboundMessageSource, entity)) {
-            JsonGenerator gen = new JsonGenerator(messageOutputStream);
+            JSONGenerator gen = new JSONGenerator(messageOutputStream);
             gen.serialize(outboundMessageSource);
             gen.flush();
         } else {
-            outboundMessageSource.serialize(messageOutputStream);
+            serialize(outboundMessageSource, messageOutputStream);
+        }
+    }
+
+    public static void serialize(Object value, OutputStream outputStream) {
+        //TODO check the possibility of value being null
+        if (value == null) {
+            throw new BallerinaException("error occurred while serializing null data");
+        } else if (value instanceof ArrayValue) {
+            if (value instanceof StreamingJsonValue) {
+                ((StreamingJsonValue) value).serialize(outputStream);
+            } else {
+                ((ArrayValue) value).serialize(outputStream);
+            }
+        } else if (value instanceof MultipartDataSource) {
+            ((MultipartDataSource) value).serialize(outputStream);
+        } else if (value instanceof XMLItem) {
+            ((XMLItem) value).serialize(outputStream);
+        } else if (value instanceof XMLSequence) {
+            ((XMLSequence) value).serialize(outputStream);
+        } else {
+            ((RefValue) value).serialize(outputStream);
         }
     }
 

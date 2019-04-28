@@ -20,9 +20,8 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -32,6 +31,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Locale;
 
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAvailability;
 
 /**
@@ -45,31 +45,35 @@ public class Forward extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
+//        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
+//        // Execute the operation
+//        executeNonBlockingAction(dataContext, false);
+    }
+
+    public static void nativeForward(Strand strand, ObjectValue clientObj, String path, ObjectValue requestObj) {
+        String serviceUri = clientObj.get(CLIENT_ENDPOINT_SERVICE_URI).toString();
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(serviceUri, path, requestObj);
+        DataContext dataContext = new DataContext(strand, clientObj, requestObj, outboundRequestMsg);
         // Execute the operation
         executeNonBlockingAction(dataContext, false);
     }
 
-    @Override
-    protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
-        String path = context.getStringArgument(1);
-        BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getRefArgument(1));
-
-        if (requestStruct.getNativeData(HttpConstants.REQUEST) == null &&
-                !HttpUtil.isEntityDataSourceAvailable(requestStruct)) {
+    protected static HttpCarbonMessage createOutboundRequestMsg(String serviceUri, String path,
+                                                                ObjectValue requestObj) {
+        if (requestObj.getNativeData(HttpConstants.REQUEST) == null &&
+                !HttpUtil.isEntityDataSourceAvailable(requestObj)) {
             throw new BallerinaException("invalid inbound request parameter");
         }
         HttpCarbonMessage outboundRequestMsg = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+                .getCarbonMsg(requestObj, HttpUtil.createHttpCarbonMessage(true));
 
-        if (HttpUtil.isEntityDataSourceAvailable(requestStruct)) {
-            HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestStruct);
-            prepareOutboundRequest(context, path, outboundRequestMsg,
+        if (HttpUtil.isEntityDataSourceAvailable(requestObj)) {
+            HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestObj);
+            prepareOutboundRequest(serviceUri, path, outboundRequestMsg,
                                    !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
-            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD,
-                    BLangConnectorSPIUtil.toStruct(requestStruct).getStringField(HttpConstants.HTTP_REQUEST_METHOD));
+            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, requestObj.get(HttpConstants.HTTP_REQUEST_METHOD).toString());
         } else {
-            prepareOutboundRequest(context, path, outboundRequestMsg,
+            prepareOutboundRequest(serviceUri, path, outboundRequestMsg,
                                    !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
             String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
             outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));

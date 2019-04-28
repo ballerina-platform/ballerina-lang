@@ -18,6 +18,8 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -35,14 +37,15 @@ public class Get extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
-        executeNonBlockingAction(dataContext, false);
+//        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
+//        executeNonBlockingAction(dataContext, false);
     }
 
-    @Override
-    protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
-        HttpCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
-        outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_GET);
-        return outboundReqMsg;
+    public static void nativeGet(Strand strand, ObjectValue clientObj, String path, ObjectValue requestObj) {
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(clientObj, path, requestObj);
+        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_GET);
+        DataContext dataContext = new DataContext(strand, clientObj, requestObj, outboundRequestMsg);
+        // Execute the operation
+        executeNonBlockingAction(dataContext, false);
     }
 }

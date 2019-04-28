@@ -19,14 +19,12 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,17 +133,17 @@ public class HTTPServicesRegistry {
     private void registerUpgradableWebSocketService(HttpService httpService) {
         httpService.getUpgradeToWebSocketResources().forEach(upgradeToWebSocketResource -> {
             ProgramFile programFile = WebSocketUtil.getProgramFile(upgradeToWebSocketResource.getBalResource());
-            Annotation resourceConfigAnnotation =
+            MapValue resourceConfigAnnotation =
                     HttpUtil.getResourceConfigAnnotation(upgradeToWebSocketResource.getBalResource(),
                                                          HttpConstants.HTTP_PACKAGE_PATH);
             if (resourceConfigAnnotation == null) {
                 throw new BallerinaException("Cannot register WebSocket service without resource config " +
                                                      "annotation in resource " + upgradeToWebSocketResource.getName());
             }
-            Struct webSocketConfig =
-                    resourceConfigAnnotation.getValue().getStructField(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
-            BMap serviceField =
-                    (BMap) webSocketConfig.getServiceField(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
+            MapValue webSocketConfig = resourceConfigAnnotation.getMapValue(
+                    HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
+            MapValue serviceField =
+                    (MapValue) webSocketConfig.get(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
             Service webSocketTypeService = BLangConnectorSPIUtil.getService(programFile, serviceField);
             WebSocketService webSocketService = new WebSocketService(sanitizeBasePath(httpService.getBasePath()),
                                                                      upgradeToWebSocketResource, webSocketTypeService);

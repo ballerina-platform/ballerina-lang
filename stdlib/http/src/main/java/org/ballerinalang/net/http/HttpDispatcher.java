@@ -19,22 +19,18 @@ package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.util.JSONUtils;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.uri.URIUtil;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -54,6 +50,17 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
+
+//import org.ballerinalang.model.types.BArrayType;
+//import org.ballerinalang.model.types.BStructureType;
+//import org.ballerinalang.model.types.BType;
+//import org.ballerinalang.model.types.TypeTags;
+//import org.ballerinalang.model.util.JSONUtils;
+//import org.ballerinalang.model.values.BMap;
+//import org.ballerinalang.model.values.BString;
+//import org.ballerinalang.model.values.BValue;
+//import org.ballerinalang.model.values.BValueArray;
+//import org.ballerinalang.model.values.BXML;
 
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
@@ -149,12 +156,10 @@ public class HttpDispatcher {
         }
     }
 
-    public static BValue[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
+    public static Object[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
                                                   MapValue endpointConfig) {
         //TODO Think of keeping struct type globally rather than creating for each request
-        ProgramFile programFile = httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile();
-
-        ObjectValue serviceEndpoint = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, HTTP_LISTENER_ENDPOINT);
+        ObjectValue listenerEndpoint = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, HTTP_LISTENER_ENDPOINT);
         ObjectValue httpCaller = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, CALLER);
         ObjectValue inRequest = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, REQUEST);
         ObjectValue inRequestEntity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
@@ -162,16 +167,16 @@ public class HttpDispatcher {
 
         HttpUtil.enrichHttpCallerWithConnectionInfo(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);
-        serviceEndpoint.addNativeData(SERVICE_ENDPOINT_CONNECTION_FIELD, httpCaller);
+        listenerEndpoint.addNativeData(SERVICE_ENDPOINT_CONNECTION_FIELD, httpCaller);
 
-//        HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
+        HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
-        BValue[] bValues = new BValue[signatureParams.getParamCount()];
+        Object[] paramValues = new Object[signatureParams.getParamCount()];
 //        bValues[0] = httpCaller;
 //        bValues[1] = inRequest;
         if (signatureParams.getParamCount() == 2) {
-            return bValues;
+            return paramValues;
         }
 
         Map<String, String> resourceArgumentValues =
@@ -190,42 +195,42 @@ public class HttpDispatcher {
                     // application deal with the value.
                 }
             }
-            bValues[i + 2] = new BString(argumentValue);
+            paramValues[i + 2] = argumentValue;
         }
 
         if (signatureParams.getEntityBody() == null) {
-            return bValues;
+            return paramValues;
         }
         try {
-            bValues[bValues.length - 1] = populateAndGetEntityBody(inRequest, inRequestEntity,
+            paramValues[paramValues.length - 1] = populateAndGetEntityBody(inRequest, inRequestEntity,
                                                                    signatureParams.getEntityBody().getVarType());
         } catch (BallerinaException ex) {
             httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_BAD_REQUEST);
             throw new BallerinaConnectorException("data binding failed: " + ex.getMessage());
         }
-        return bValues;
+        return paramValues;
     }
 
-    private static BValue populateAndGetEntityBody(ObjectValue inRequest, ObjectValue inRequestEntity,
+    private static Object populateAndGetEntityBody(ObjectValue inRequest, ObjectValue inRequestEntity,
                                                    org.ballerinalang.jvm.types.BType entityBodyType) {
         HttpUtil.populateEntityBody(null, inRequest, inRequestEntity, true, true);
         try {
             switch (entityBodyType.getTag()) {
                 case TypeTags.STRING_TAG:
-                    BString stringDataSource = EntityBodyHandler.constructStringDataSource(inRequestEntity);
+                    String stringDataSource = EntityBodyHandler.constructStringDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, stringDataSource);
                     return stringDataSource;
                 case TypeTags.JSON_TAG:
-                    BValue bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
+                    Object bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
                     return bjson;
                 case TypeTags.XML_TAG:
-                    BXML bxml = EntityBodyHandler.constructXmlDataSource(inRequestEntity);
+                    XMLValue bxml = EntityBodyHandler.constructXmlDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, bxml);
                     return bxml;
                 case TypeTags.ARRAY_TAG:
-                    if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                        BValueArray blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
+                    if (((BArrayType)entityBodyType).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                        ArrayValue blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
                         EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
                         return blobDataSource;
                     } else if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -254,9 +259,9 @@ public class HttpDispatcher {
      * @param bjson          Represents the json value that needs to be converted
      * @return the relevant ballerina record or object
      */
-    private static BValue getRecord(BType entityBodyType, BValue bjson) {
+    private static Object getRecord(BType entityBodyType, Object bjson) {
         try {
-            return JSONUtils.convertJSONToStruct(bjson, (BStructureType) entityBodyType);
+            return JSONUtils.convertJSONToRecord(bjson, (BStructureType) entityBodyType);
         } catch (NullPointerException ex) {
             throw new BallerinaConnectorException("cannot convert payload to record type: " +
                     entityBodyType.getName());
@@ -270,7 +275,7 @@ public class HttpDispatcher {
      * @param bjson          Represents the json array that needs to be converted
      * @return the relevant ballerina record or object array
      */
-    private static BValue getRecordArray(BType entityBodyType, BValue bjson) {
+    private static Object getRecordArray(BType entityBodyType, Object bjson) {
         try {
             return JSONUtils.convertJSONToBArray(bjson, (BArrayType) entityBodyType);
         } catch (NullPointerException ex) {
@@ -285,8 +290,8 @@ public class HttpDispatcher {
      * @param inRequestEntity Represents inbound request entity
      * @return a ballerina json value
      */
-    private static BValue getBJsonValue(BMap<String, BValue> inRequestEntity) {
-        BValue bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
+    private static Object getBJsonValue(ObjectValue inRequestEntity) {
+        Object bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
         EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
         return bjson;
     }

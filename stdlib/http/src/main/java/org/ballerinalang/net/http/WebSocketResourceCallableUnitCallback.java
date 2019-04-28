@@ -19,7 +19,6 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
@@ -40,7 +39,7 @@ public class WebSocketResourceCallableUnitCallback implements CallableUnitCallba
     }
 
     @Override
-    public void notifyFailure(BError error) {
+    public void notifyFailure(ErrorValue error) {
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
     }

@@ -18,13 +18,10 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
@@ -40,6 +37,8 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
+
+//import org.ballerinalang.model.values.BValue;
 
 /**
  * HTTP connector listener for Ballerina.
@@ -80,7 +79,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             }
         } catch (BallerinaException ex) {
             try {
-//                HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
+                HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
             } catch (Exception e) {
                 log.error("Cannot handle error using the error handler for: " + e.getMessage(), e);
             }
@@ -98,7 +97,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         boolean isInterruptible = httpResource.isInterruptible();
         Map<String, Object> properties = collectRequestProperties(inboundMessage, isTransactionInfectable,
                 isInterruptible, httpResource.isTransactionAnnotated());
-        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
+        Object[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
 //        Resource balResource = httpResource.getBalResource();
 
         ObserverContext observerContext = null;

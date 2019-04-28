@@ -134,7 +134,7 @@ public class MultipartDataSource implements RefValue {
             childBoundaryString = MimeUtil.getNewMultipartDelimiter();
             ObjectValue mediaType = (ObjectValue) childPart.get(MEDIA_TYPE_FIELD);
             MapValue paramMap = (mediaType.get(PARAMETER_MAP_FIELD) != null) ?
-                    (MapValue) mediaType.get(PARAMETER_MAP_FIELD) : new MapValue();
+                    (MapValue) mediaType.get(PARAMETER_MAP_FIELD) : new MapValue<>();
             paramMap.put(BOUNDARY, childBoundaryString);
             mediaType.set(PARAMETER_MAP_FIELD, paramMap);
         }

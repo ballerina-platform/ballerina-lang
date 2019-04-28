@@ -33,7 +33,6 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -145,7 +144,7 @@ public class WebSocketUtil {
             }
 
             @Override
-            public void notifyFailure(BError error) {
+            public void notifyFailure(ErrorValue error) {
                 boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
                         .booleanValue();
                 if (!isReady) {

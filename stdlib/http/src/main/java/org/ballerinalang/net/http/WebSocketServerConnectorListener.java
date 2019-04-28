@@ -24,7 +24,6 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -132,7 +131,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         }
 
         @Override
-        public void notifyFailure(BError error) {
+        public void notifyFailure(ErrorValue error) {
             ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
             WebSocketOpenConnectionInfo connectionInfo =
                     connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId());

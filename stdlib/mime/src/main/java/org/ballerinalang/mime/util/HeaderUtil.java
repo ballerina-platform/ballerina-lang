@@ -104,7 +104,7 @@ public class HeaderUtil {
      * @return Ballerina map
      */
     private static MapValue getHeaderParamBMap(List<String> paramList) {
-        MapValue paramMap = new MapValue();
+        MapValue paramMap = new MapValue<>();
         for (String param : paramList) {
             if (param.contains("=")) {
                 String[] keyValuePair = param.split("=", 2);
