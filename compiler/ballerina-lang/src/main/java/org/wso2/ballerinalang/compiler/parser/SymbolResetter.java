@@ -162,6 +162,12 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+/**
+ * This class is responsible for clearing all the symbols in a compilation unit. This is used to add incremental
+ * compilation support.
+ *
+ * @since 0.995.0
+ */
 public class SymbolResetter extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<SymbolResetter> SYMBOL_CLEANER_KEY = new CompilerContext.Key<>();
@@ -1473,7 +1479,7 @@ public class SymbolResetter extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
+    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause matchStmtStructuredBindingPatternClause) {
         throw new AssertionError();
     }
 
