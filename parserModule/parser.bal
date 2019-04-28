@@ -20,6 +20,8 @@ boolean invalidOccurence = false;
 boolean invalidExpression = false;
 // tuple list expression count
 int tupleListPos = 0;
+//comma list count
+int commaCount = 0;
 //there is a operator in the prior
 boolean priorOperator = false;
 
@@ -431,7 +433,7 @@ type Parser object {
 		} else if (self.LAToken(1) == ADD || self.LAToken(1) == SUB || self.LAToken(1) == DIV || self.
 			LAToken(1) == MUL || self.LAToken(1) == MOD || self.LAToken(1) == LT_EQUAL || self.LAToken(1) == GT_EQUAL || self.LAToken(1) == GT
 			 || self.LAToken(1) == LT || self.LAToken(1) == EQUAL || self.LAToken(1) == NOT_EQUAL || self.LAToken(1) == REF_EQUAL || self.LAToken(1) == REF_NOT_EQUAL
-			  || self.LAToken(1) == NOT || self.LAToken(1) == BIT_COMPLEMENT || self.LAToken(1) == UNTAINT ) {
+			  || self.LAToken(1) == NOT || self.LAToken(1) == BIT_COMPLEMENT || self.LAToken(1) == UNTAINT || self.LAToken(1) == COMMA ) {
 
 			//if the expression stack is empty then that means no prior expression , so this is a unary expr
 			if(expStack.isEmpty() == true){
@@ -503,6 +505,12 @@ type Parser object {
 			}else{
 				priorOperator = true;
 				while (oprStack.opPrecedence(oprStack.peek()) >= oprStack.opPrecedence(self.LAToken(1))) {
+					if(oprStack.peek() == COMMA){
+						Token comma = self.matchToken(COMMA, EXPRESSION_NODE);
+						oprStack.push(comma);
+						expOperand = true;
+						return true;
+					}
 					Token operator = oprStack.pop();
 
 					if (operator.tokenType == UNARY_MINUS){
@@ -588,15 +596,21 @@ type Parser object {
 				}else if (self.LAToken(1) == REF_NOT_EQUAL){
 					Token refNotEqual = self.matchToken(REF_NOT_EQUAL, EXPRESSION_NODE);
 					oprStack.push(refNotEqual);
+				}else if (self.LAToken(1) == COMMA){
+					Token comma = self.matchToken(COMMA, EXPRESSION_NODE);
+					oprStack.push(comma);
 				}
 				expOperand = true;
 				return true;
+
 			}
 
 		} else if (self.LAToken(1) == RPAREN){
 			priorOperator = false;
 			//tuple expression list
 			ExpressionNode[] tupleList = [];
+			//list to keep track of commas
+			Token[] commaList = [];
 			if (expOperand == true) {
 				Token invalidToken = self.deleteToken();
 				errTokens[errCount] = invalidToken;
@@ -605,12 +619,22 @@ type Parser object {
 				return true;
 			} else {
 				Token rParen = self.matchToken(RPAREN, EXPRESSION_NODE);
+				commaList[commaCount] = rParen;
+				commaCount +=1;
 				while (oprStack.peek() != LPAREN) {
 					Token operator = oprStack.pop();
 					if(operator.tokenType == PARSER_ERROR_TOKEN){
 					log:printError("<missing token>");
 					invalidOccurence = true;
 					break;
+					}else if(operator.tokenType == COMMA){
+						commaList[commaCount] = operator;
+						commaCount +=1;
+						ExpressionNode exprComma = expStack.pop();
+						tupleList[tupleListPos] = exprComma;
+						tupleListPos += 1;
+						continue;
+
 					}
 					OperatorKind opKind = self.matchOperatorType(operator);
 					ExpressionNode expr2 = expStack.pop();
@@ -621,18 +645,24 @@ type Parser object {
 				}
 				//popping the lParen
 				Token leftToken = oprStack.pop();
+				commaList[commaCount] = leftToken;
+				commaCount +=1;
 
 				//ExpressionNode parenExpr = expStack.topExpr();
 				ExpressionNode parenExpr = expStack.pop();
-				//if (parenExpr is BinaryExpressionNode) {
-					//Token finalOperator = parenExpr.tokenList[0];
-					//parenExpr.tokenList = [finalOperator, rParen, leftToken];
 					tupleList[tupleListPos] = parenExpr;
 					tupleListPos += 1;
-					TupleLiteralNode tupleLNode = {nodeKind: TUPLE_LITERAL_NODE , tokenList: [rParen , leftToken ],tupleExprList:tupleList };
+					//reversing the array
+					int reverseCount = 0;
+					while(reverseCount < tupleList.length() /2){
+						ExpressionNode temp = tupleList[reverseCount];
+						tupleList[reverseCount] = tupleList[tupleList.length() - reverseCount - 1];
+						tupleList[tupleList.length() - reverseCount - 1] = temp;
+						reverseCount += 1;
+					}
+					TupleLiteralNode tupleLNode = {nodeKind: TUPLE_LITERAL_NODE , tokenList: commaList,tupleExprList:tupleList };
 					expStack.push(tupleLNode);
 
-				//}
 				expOperand = false;
 				return true;
 			}
