@@ -63,7 +63,9 @@ public class Send implements NativeCallableUnit {
             ClientMessage message = (ClientMessage) data.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
             ArtemisTransactionContext transactionContext =
                     (ArtemisTransactionContext) producerObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
-            producer.send(message, message1 -> callableUnitCallback.notifySuccess());
+            // Having to use the blocking function because of an issue in Artemis:
+            // https://issues.apache.org/jira/browse/ARTEMIS-2325
+            producer.send(message);
             if (transactionContext != null) {
                 transactionContext.handleTransactionBlock(context);
             }
@@ -75,6 +77,6 @@ public class Send implements NativeCallableUnit {
 
     @Override
     public boolean isBlocking() {
-        return false;
+        return true;
     }
 }

@@ -106,9 +106,9 @@ public class CreateServiceConsumer extends BlockingNativeCallableUnit {
             if (onMessageResource != null) {
                 consumer.setMessageHandler(
                         clientMessage -> Executor
-                                .submit(onMessageResource, new ResponseCallback(clientMessage, autoAck, sessionObj),
-                                        null, null,
-                                        getSignatureParameters(onMessageResource, clientMessage, sessionObj)));
+                                .execute(onMessageResource, new ResponseCallback(clientMessage, autoAck, sessionObj),
+                                         null, null,
+                                         getSignatureParameters(onMessageResource, clientMessage, sessionObj)));
             }
         } catch (ActiveMQException e) {
             context.setReturnValues(ArtemisUtils.getError(context, e));
