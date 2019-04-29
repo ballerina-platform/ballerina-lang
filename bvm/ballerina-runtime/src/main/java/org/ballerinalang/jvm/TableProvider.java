@@ -86,7 +86,6 @@ public class TableProvider {
         return tableName;
     }
 
-
     public String createTable(String fromTableName, String joinTableName,  String query, BStructureType tableType,
                               ArrayValue params) {
         String newTableName = TableConstants.TABLE_PREFIX + tableType.getName().toUpperCase()

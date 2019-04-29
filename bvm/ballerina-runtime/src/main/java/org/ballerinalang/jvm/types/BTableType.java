@@ -110,5 +110,4 @@ public class BTableType extends BType {
 
         return constraint.equals(other.constraint);
     }
-
 }
