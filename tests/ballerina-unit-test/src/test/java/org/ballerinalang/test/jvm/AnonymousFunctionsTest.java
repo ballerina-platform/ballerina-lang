@@ -45,4 +45,12 @@
          BValue[] result = BRunUtil.invoke(compileResult, "testAnonFunc");
          Assert.assertEquals(result[0].stringValue(), "Hello World.!!!");
      }
+
+     @Test(description = "Test fp passing between methods")
+     public void testFPPassing() {
+         BValue[] result = BRunUtil.invoke(compileResult, "testFPPassing");
+         Assert.assertEquals(result[0].stringValue(), "200");
+     }
+
+
  }
