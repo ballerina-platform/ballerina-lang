@@ -39,8 +39,10 @@
         <completion.contributor implementationClass="org.wso2.lsp4intellij.contributors.LSPCompletionContributor"
                                 id="LSPCompletionContributor" language="any"/>
 
-        <inspectionToolProvider implementation="org.wso2.lsp4intellij.contributors.inspection.LSPInspectionProvider"
-                                id="LSPInspectionProvider"/>
+        <localInspection displayName="LSP"
+                         shortName="LSP"
+                         enabledByDefault="true"
+                         implementationClass="org.wso2.lsp4intellij.contributors.inspection.DummyLSPInspection"/>
 
         <!--Ballerina plugin extensions-->
         <fileTypeFactory implementation="io.ballerina.plugins.idea.BallerinaFileTypeFactory"/>
@@ -85,7 +87,7 @@
 
         <!--formatter-->
         <!--<lang.formatter language="Ballerina"-->
-                        <!--implementationClass="io.ballerina.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>-->
+        <!--implementationClass="io.ballerina.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>-->
         <codeStyleSettingsProvider
                 implementation="io.ballerina.plugins.idea.formatter.settings.BallerinaCodeStyleSettingsProvider"/>
         <langCodeStyleSettingsProvider
