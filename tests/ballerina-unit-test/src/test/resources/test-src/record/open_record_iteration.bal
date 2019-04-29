@@ -19,14 +19,14 @@ type Foo record {
     string e = "";
 };
 
-type RestrictedFoo record {
+type RestrictedFoo record {|
     string a = "";
     string b = "";
     string c = "";
     string d = "";
     string e = "";
     string...;
-};
+|};
 
 type Grades record {
     int maths = 0;
@@ -34,19 +34,19 @@ type Grades record {
     int chemistry = 0;
 };
 
-type RestrictedGrades record {
+type RestrictedGrades record {|
     int maths = 0;
     int physics = 0;
     int chemistry = 0;
     int...;
-};
+|};
 
-type RestrictedBar record {
+type RestrictedBar record {|
     float x = 0.0;
     float y = 0.0;
     float z = 0.0;
     float...;
-};
+|};
 
 function testForeachWithOpenRecords() returns (string[], any[]) {
     Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" } };

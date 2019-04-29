@@ -162,9 +162,10 @@ public type PackageParser object {
         int numTypeDefs = typeDefs.length();
 
         foreach var typeDef in typeDefs {
-            BType typeValue = typeDef.typeValue;
+            TypeDef tDef = getTypeDef(typeDef);
+            BType typeValue = tDef.typeValue;
             if (typeValue is BObjectType || typeValue is BRecordType) {
-                typeDef.attachedFuncs = self.parseFunctions(typeDefs);
+                tDef.attachedFuncs = self.parseFunctions(typeDefs);
             }
         }
     }

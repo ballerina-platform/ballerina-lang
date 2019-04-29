@@ -686,8 +686,10 @@ type InstructionGenerator object {
     }
 };
 
-function addBoxInsn(jvm:MethodVisitor mv, bir:BType bType) {
-    generateCast(mv, bType, "any");
+function addBoxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
+    if (bType is bir:BType) {
+        generateCast(mv, bType, "any");
+    }
 }
 
 function addUnboxInsn(jvm:MethodVisitor mv, bir:BType bType) {
