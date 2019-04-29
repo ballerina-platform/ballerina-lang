@@ -153,11 +153,11 @@ function recordsTest() returns string {
 
    g.physics = 100;
 
-   record {
+   record {|
         string city;
         string country;
         string...;
-    } adr = { city: "London", country: "UK" };
+    |} adr = { city: "London", country: "UK" };
 
     adr.street = "baker";
 

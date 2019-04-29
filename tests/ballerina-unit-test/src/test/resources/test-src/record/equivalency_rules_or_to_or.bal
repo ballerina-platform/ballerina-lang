@@ -98,15 +98,15 @@ function testOptFieldToOptField2() returns (AnotherPerson4, int) {
 
 // Test for rest fields types.
 
-type Foo record {
+type Foo record {|
     string s;
     string|int...;
-};
+|};
 
-type Bar record {
+type Bar record {|
     string s;
     string|int|float...;
-};
+|};
 
 function testRestFieldToRestField1() returns Bar {
     Foo f = {s:"qwerty", rest1:"asdf", rest2:123};

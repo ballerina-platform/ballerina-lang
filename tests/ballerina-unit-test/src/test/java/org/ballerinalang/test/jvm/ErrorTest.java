@@ -123,7 +123,7 @@ public class ErrorTest {
         Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "int value");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSelfReferencingObject() {
         BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingError");
     }
