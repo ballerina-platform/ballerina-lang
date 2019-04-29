@@ -168,13 +168,13 @@ public const ARRAY_STATE_UNSEALED = "UNSEALED";
 
 public type ArrayState ARRAY_STATE_CLOSED_SEALED | ARRAY_STATE_OPEN_SEALED | ARRAY_STATE_UNSEALED;
 
-public type VariableDcl record {
+public type VariableDcl record {|
     VarKind kind = "LOCAL";
     VarScope varScope = VAR_SCOPE_FUNCTION;
     Name name = {};
     BType typeValue = "()";
     anydata...; // This is to type match with Object type fields in subtypes
-};
+|};
 
 public type GlobalVariableDcl record {|
     VarKind kind = "GLOBAL";
@@ -272,11 +272,11 @@ public type BObjectField record {
 };
 
 public type BUnionType record {|
-   BType[]  members;
+   BType?[]  members;
 |};
 
 public type BTupleType record {|
-   BType[]  tupleTypes;
+   BType?[]  tupleTypes;
 |};
 
 public type BFutureType record {|
@@ -300,7 +300,7 @@ public type ModuleID record {|
 |};
 
 public type BInvokableType record {
-    BType[] paramTypes = [];
+    BType?[] paramTypes = [];
     BType retType?;
 };
 

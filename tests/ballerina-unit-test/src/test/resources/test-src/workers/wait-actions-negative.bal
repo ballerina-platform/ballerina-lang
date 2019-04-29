@@ -35,17 +35,17 @@ type sealedRec record {|
     string name = "default";
 |};
 
-type restRec1 record {
+type restRec1 record {|
     int id = 0;
     string name = "default";
     int...;
-};
+|};
 
-type restRec2 record {
+type restRec2 record {|
     int id = 0;
     string name = "default";
     string...;
-};
+|};
 
 function waitForOneTest() {
     future< int > f1 = start getId();
