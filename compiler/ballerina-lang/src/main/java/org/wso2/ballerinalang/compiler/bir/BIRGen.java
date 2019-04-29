@@ -976,6 +976,7 @@ public class BIRGen extends BLangNodeVisitor {
         BLangArrayLiteral columnLiteral = new BLangArrayLiteral();
         columnLiteral.pos = tableLiteral.pos;
         columnLiteral.type = symTable.stringArrayType;
+        columnLiteral.exprs = new ArrayList<>();
         tableLiteral.columns.forEach(col -> {
             BLangLiteral colLiteral = new BLangLiteral();
             colLiteral.pos = tableLiteral.pos;
@@ -990,7 +991,7 @@ public class BIRGen extends BLangNodeVisitor {
         BLangArrayLiteral dataLiteral = new BLangArrayLiteral();
         dataLiteral.pos = tableLiteral.pos;
         dataLiteral.type = symTable.anydataArrayType;
-        dataLiteral.exprs.addAll(tableLiteral.tableDataRows);
+        dataLiteral.exprs = new ArrayList<>(tableLiteral.tableDataRows);
         dataLiteral.accept(this);
         BIROperand dataOp = this.env.targetOperand;
 
