@@ -554,13 +554,13 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     /**
      * The new table instruction.
      * <p>
-     * e.g. table<Employee> tbEmployee = table {
+     * e.g. {@code table<Employee> tbEmployee = table {
      *         { key id, name, salary },
      *         [ { 1, "Mary",  300.5 },
      *           { 2, "John",  200.5 },
      *           { 3, "Jim", 330.5 }
      *         ]
-     *      };
+     *      };}
      *
      * @since 0.995.0
      */

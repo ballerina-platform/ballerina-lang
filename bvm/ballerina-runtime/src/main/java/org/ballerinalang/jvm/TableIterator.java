@@ -345,7 +345,7 @@ public class TableIterator implements DataIterator {
         } else if (firstNonNullElement instanceof Double) {
             refValueArray = createEmptyRefValueArray(BTypes.typeFloat, length);
             for (int i = 0; i < length; i++) {
-                refValueArray.add(i, dataArray[i] != null ? (Double) dataArray[i]: null);
+                refValueArray.add(i, dataArray[i] != null ? (Double) dataArray[i] : null);
             }
         } else if (firstNonNullElement instanceof BigDecimal) {
             refValueArray = createEmptyRefValueArray(BTypes.typeDecimal, length);

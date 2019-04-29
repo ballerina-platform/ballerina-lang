@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.DataIterator;
 import org.ballerinalang.jvm.TableIterator;
@@ -37,7 +36,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 /**
  * The {@code BTable} represents a two dimensional data set in Ballerina.
@@ -215,6 +213,7 @@ public class TableValue implements RefValue, CollectionValue {
      * Performs addition of a record to the database.
      *
      * @param data    The record to be inserted
+     * @return error if something goes wrong
      */
     public Object performAddOperation(MapValue<String, Object> data) {
         synchronized (this) {
