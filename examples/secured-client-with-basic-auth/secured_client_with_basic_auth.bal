@@ -31,7 +31,7 @@ public function main() {
     }
 }
 
-// Create a basic authentication handler with the relevant configurations.
+// Create a Basic authentication handler with the relevant configurations.
 auth:ConfigAuthStoreProvider basicAuthProvider = new;
 http:BasicAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 

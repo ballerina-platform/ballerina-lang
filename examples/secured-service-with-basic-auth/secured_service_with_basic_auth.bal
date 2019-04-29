@@ -2,20 +2,19 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/log;
 
-// Create a Basic authentication handler with the relevant configuration
-// parameters.
+// Create a Basic authentication handler with the relevant configurations.
 auth:ConfigAuthStoreProvider basicAuthProvider = new;
 http:BasicAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 
-// The endpoint used here is `http:Listener`, which by default tries to
-// authenticate and authorize each request. The developer has the option to
-// override the authentication and authorization at the service level and
+// The endpoint used here is the `http:Listener`, which by default tries to
+// authenticate and authorize each request. It is optional to
+// override the authentication and authorization at the service level and/or
 // resource level.
 listener http:Listener ep = new(9090, config = {
     auth: {
         authnHandlers: [basicAuthnHandler]
     },
-    // The secure hello world sample uses https.
+    // The secure hello world sample uses HTTPS.
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -30,10 +29,10 @@ listener http:Listener ep = new(9090, config = {
         scopes: ["scope1"]
     }
 }
-// Auth configuration comprises of two parts - authentication & authorization.
+// The Auth configuration comprises of two parts - authentication & authorization.
 // Authentication can be disabled by setting the `enabled: false` annotation
-// attribute, if needed.
-// Authorization is based on scopes, where a scope maps to one or more groups.
+// attribute.
+// Authorization is based on scopes. A scope maps to one or more groups.
 // For a user to access a resource, the user should be in the same groups as
 // the scope.
 // To specify one or more scopes of a resource, the `scopes` annotation
@@ -47,11 +46,11 @@ service echo on ep {
             scopes: ["scope2"]
         }
     }
-    // The authentication and authorization settings can be overridden at
+    // The authentication and authorization settings can be overridden at the
     // resource level.
     // The hello resource would inherit the `enabled: true` flag from the
-    // service level which is set automatically, and override the scope
-    // defined in the service level (i.e., scope1) with scope2.
+    // service level, which is set automatically. The service level scope  (i.e., scope1) will be overridden
+    // by the scope defined in the resource level (i.e., scope2).
     resource function hello(http:Caller caller, http:Request req) {
         error? result = caller->respond("Hello, World!!!");
         if (result is error) {
