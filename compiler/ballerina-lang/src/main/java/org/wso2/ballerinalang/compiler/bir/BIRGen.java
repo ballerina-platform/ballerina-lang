@@ -17,7 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -41,6 +43,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -53,6 +57,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -64,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -84,6 +92,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -93,17 +109,22 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.XMLConstants;
 
 /**
  * Lower the AST to BIR.
@@ -843,6 +864,187 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = toVarRef;
     }
 
+    @Override
+    public void visit(BLangXMLQName xmlQName) {
+        BIRVariableDcl tempVarDcl =
+                new BIRVariableDcl(xmlQName.type, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        // If the QName is use outside of XML, treat it as string.
+        if (!xmlQName.isUsedInXML) {
+            String qName = xmlQName.namespaceURI == null ? xmlQName.localname.value
+                    : ("{" + xmlQName.namespaceURI + "}" + xmlQName.localname);
+            generateStringLiteral(qName);
+            return;
+        }
+
+        // Else, treat it as QName
+        BIROperand nsURIIndex = generateStringLiteral(xmlQName.namespaceURI);
+        BIROperand localnameIndex = generateStringLiteral(xmlQName.localname.value);
+        BIROperand prefixIndex = generateStringLiteral(xmlQName.prefix.value);
+        BIRNonTerminator.NewXMLQName newXMLQName =
+                new BIRNonTerminator.NewXMLQName(xmlQName.pos, toVarRef, localnameIndex, nsURIIndex, prefixIndex);
+        emit(newXMLQName);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangXMLElementLiteral xmlElementLiteral) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(xmlElementLiteral.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        // Visit in-line namespace declarations. These needs to be visited first before visiting the
+        // attributes, start and end tag names of the element.
+        xmlElementLiteral.inlineNamespaces.forEach(xmlns -> {
+            xmlns.accept(this);
+        });
+
+        // Create start tag name
+        BLangExpression startTagName = (BLangExpression) xmlElementLiteral.getStartTagName();
+        startTagName.accept(this);
+        BIROperand startTagNameIndex = this.env.targetOperand;
+
+        // Create end tag name. If there is no end-tag name (self closing tag),
+        // then consider start tag name as the end tag name too.
+        BIROperand endTagNameIndex;
+        BLangExpression endTagName = (BLangExpression) xmlElementLiteral.getEndTagName();
+        if (endTagName == null) {
+            endTagNameIndex = startTagNameIndex;
+        } else {
+            endTagName.accept(this);
+            endTagNameIndex = this.env.targetOperand;
+        }
+
+        // Create default namespace uri
+        BIROperand defaultNsURIVarRef = generateNamespaceRef(xmlElementLiteral.defaultNsSymbol, xmlElementLiteral.pos);
+
+        // Create xml element
+        BIRNonTerminator.NewXMLElement newXMLElement = new BIRNonTerminator.NewXMLElement(xmlElementLiteral.pos,
+                toVarRef, startTagNameIndex, endTagNameIndex, defaultNsURIVarRef);
+        emit(newXMLElement);
+
+        // Populate the XML by adding namespace declarations, attributes and children
+        populateXML(xmlElementLiteral, toVarRef);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangXMLAttribute attribute) {
+        BIROperand xmlVarRef = this.env.targetOperand;
+
+        attribute.name.accept(this);
+        BIROperand attrNameOp = this.env.targetOperand;
+
+        attribute.value.accept(this);
+        BIROperand attrValueOp = this.env.targetOperand;
+        emit(new BIRNonTerminator.FieldAccess(attribute.pos, InstructionKind.XML_ATTRIBUTE_STORE, xmlVarRef, attrNameOp,
+                attrValueOp));
+    }
+
+    @Override
+    public void visit(BLangXMLTextLiteral xmlTextLiteral) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(xmlTextLiteral.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        xmlTextLiteral.concatExpr.accept(this);
+        BIROperand xmlTextIndex = this.env.targetOperand;
+
+        BIRNonTerminator.NewXMLText newXMLElement =
+                new BIRNonTerminator.NewXMLText(xmlTextLiteral.pos, toVarRef, xmlTextIndex);
+        emit(newXMLElement);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(xmlCommentLiteral.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        xmlCommentLiteral.concatExpr.accept(this);
+        BIROperand xmlCommentIndex = this.env.targetOperand;
+
+        BIRNonTerminator.NewXMLComment newXMLComment =
+                new BIRNonTerminator.NewXMLComment(xmlCommentLiteral.pos, toVarRef, xmlCommentIndex);
+        emit(newXMLComment);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(xmlProcInsLiteral.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        xmlProcInsLiteral.dataConcatExpr.accept(this);
+        BIROperand dataIndex = this.env.targetOperand;
+
+        xmlProcInsLiteral.target.accept(this);
+        BIROperand targetIndex = this.env.targetOperand;
+
+        BIRNonTerminator.NewXMLProcIns newXMLProcIns =
+                new BIRNonTerminator.NewXMLProcIns(xmlProcInsLiteral.pos, toVarRef, dataIndex, targetIndex);
+        emit(newXMLProcIns);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangXMLQuotedString xmlQuotedString) {
+        xmlQuotedString.concatExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+        xmlnsStmtNode.xmlnsDecl.accept(this);
+    }
+
+    @Override
+    public void visit(BLangXMLNS xmlnsNode) {
+        // do nothing
+    }
+
+    @Override
+    public void visit(BLangLocalXMLNS xmlnsNode) {
+        generateXMLNamespace(xmlnsNode);
+    }
+
+    @Override
+    public void visit(BLangPackageXMLNS xmlnsNode) {
+        generateXMLNamespace(xmlnsNode);
+    }
+
+    @Override
+    public void visit(BLangXMLAccessExpr xmlAccessExpr) {
+        generateMappingAccess(xmlAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+        if (xmlAttributeAccessExpr.indexExpr != null) {
+            generateMappingAccess(xmlAttributeAccessExpr);
+            return;
+        }
+
+        // This is getting xml attributes as a map. i.e.: x@
+        // Model as a conversion where source type is xml, and target type is map<string>.
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.mapStringType, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        xmlAttributeAccessExpr.expr.accept(this);
+        BIROperand xmlVarOp = this.env.targetOperand;
+        emit(new BIRNonTerminator.TypeCast(xmlAttributeAccessExpr.pos, toVarRef, xmlVarOp));
+        this.env.targetOperand = toVarRef;
+    }
+
     // private methods
 
     private void genIntermediateErrorEntries(BIRBasicBlock thenBB) {
@@ -1009,7 +1211,10 @@ public class BIRGen extends BLangNodeVisitor {
             astIndexBasedAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
+            if (astIndexBasedAccessExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+                insKind = InstructionKind.XML_ATTRIBUTE_STORE;
+                keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
+            } else if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
                 insKind = InstructionKind.OBJECT_STORE;
             } else {
                 insKind = InstructionKind.MAP_STORE;
@@ -1028,7 +1233,15 @@ public class BIRGen extends BLangNodeVisitor {
             astIndexBasedAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
+            if (astIndexBasedAccessExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+                insKind = InstructionKind.XML_ATTRIBUTE_LOAD;
+                keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
+            } else if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.XML) {
+                generateXMLAccess((BLangXMLAccessExpr) astIndexBasedAccessExpr, tempVarRef, varRefRegIndex,
+                        keyRegIndex);
+                this.varAssignment = variableStore;
+                return;
+            } else if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
                 insKind = InstructionKind.OBJECT_LOAD;
             } else {
                 insKind = InstructionKind.MAP_LOAD;
@@ -1048,5 +1261,114 @@ public class BIRGen extends BLangNodeVisitor {
                     .orElse(symTable.noType).tsymbol;
         }
         return type.tsymbol;
+    }
+
+    private BIROperand generateStringLiteral(String value) {
+        BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        prefixLiteral.value = value;
+
+        if (value == null) {
+            prefixLiteral.type = symTable.nilType;
+        } else {
+            prefixLiteral.type = symTable.stringType;
+        }
+
+        prefixLiteral.accept(this);
+        return this.env.targetOperand;
+    }
+
+    private void generateXMLNamespace(BLangXMLNS xmlnsNode) {
+        BIRVariableDcl birVarDcl = new BIRVariableDcl(xmlnsNode.pos, symTable.stringType,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.LOCAL);
+        this.env.enclFunc.localVars.add(birVarDcl);
+        this.env.symbolVarMap.put(xmlnsNode.symbol, birVarDcl);
+
+        // Visit the namespace uri expression.
+        xmlnsNode.namespaceURI.accept(this);
+
+        // Create a variable reference and
+        BIROperand varRef = new BIROperand(birVarDcl);
+        emit(new Move(xmlnsNode.pos, this.env.targetOperand, varRef));
+    }
+
+    private BIROperand generateNamespaceRef(BXMLNSSymbol nsSymbol, DiagnosticPos pos) {
+        if (nsSymbol == null) {
+            return generateStringLiteral(null);
+        }
+
+        // global-level, object-level, record-level namespace declarations will not have 
+        // any interpolated content. hence the namespace URI is statically known.
+        int ownerTag = nsSymbol.owner.tag;
+        if ((ownerTag & SymTag.PACKAGE) == SymTag.PACKAGE ||
+                (ownerTag & SymTag.OBJECT) == SymTag.OBJECT ||
+                (ownerTag & SymTag.RECORD) == SymTag.RECORD) {
+            return generateStringLiteral(nsSymbol.namespaceURI);
+        }
+
+        BIRVariableDcl nsURIVarDcl = new BIRVariableDcl(symTable.stringType, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(nsURIVarDcl);
+        BIROperand nsURIVarRef = new BIROperand(nsURIVarDcl);
+
+        BIRVariableDcl varDecl = this.env.symbolVarMap.get(nsSymbol);
+        BIROperand fromVarRef = new BIROperand(varDecl);
+        emit(new Move(pos, fromVarRef, nsURIVarRef));
+        return nsURIVarRef;
+    }
+
+    private void populateXML(BLangXMLElementLiteral xmlElementLiteral, BIROperand toVarRef) {
+        // Add namespaces decelerations visible to this element.
+        xmlElementLiteral.namespacesInScope.forEach((name, symbol) -> {
+            BLangXMLQName nsQName = new BLangXMLQName(name.getValue(), XMLConstants.XMLNS_ATTRIBUTE);
+            nsQName.type = symTable.stringType;
+            nsQName.accept(this);
+            BIROperand nsQNameIndex = this.env.targetOperand;
+            BIROperand nsURIIndex = generateNamespaceRef(symbol, xmlElementLiteral.pos);
+            emit(new BIRNonTerminator.FieldAccess(xmlElementLiteral.pos, InstructionKind.XML_ATTRIBUTE_STORE, toVarRef,
+                    nsQNameIndex, nsURIIndex));
+        });
+
+        // Add attributes
+        xmlElementLiteral.attributes.forEach(attribute -> {
+            this.env.targetOperand = toVarRef;
+            attribute.accept(this);
+        });
+
+        // Add children
+        xmlElementLiteral.modifiedChildren.forEach(child -> {
+            child.accept(this);
+            BIROperand childOp = this.env.targetOperand;
+            emit(new BIRNonTerminator.XMLAccess(child.pos, InstructionKind.XML_SEQ_STORE, toVarRef, childOp));
+        });
+    }
+
+    private BIROperand getQNameOP(BLangExpression qnameExpr, BIROperand keyRegIndex) {
+        if (qnameExpr.getKind() == NodeKind.XML_QNAME) {
+            return keyRegIndex;
+        }
+
+        BIRVariableDcl tempQNameVarDcl = new BIRVariableDcl(qnameExpr.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempQNameVarDcl);
+        BIROperand qnameVarRef = new BIROperand(tempQNameVarDcl);
+        emit(new BIRNonTerminator.NewStringXMLQName(qnameExpr.pos, qnameVarRef, keyRegIndex));
+        return qnameVarRef;
+    }
+
+    private void generateXMLAccess(BLangXMLAccessExpr xmlAccessExpr, BIROperand tempVarRef,
+                                   BIROperand varRefRegIndex, BIROperand keyRegIndex) {
+        this.env.targetOperand = tempVarRef;
+        InstructionKind insKind;
+        if (xmlAccessExpr.fieldType == FieldKind.ALL) {
+            emit(new BIRNonTerminator.XMLAccess(xmlAccessExpr.pos, InstructionKind.XML_LOAD_ALL, tempVarRef,
+                    varRefRegIndex));
+            return;
+        } else if (xmlAccessExpr.indexExpr.type.tag == TypeTags.STRING) {
+            insKind = InstructionKind.XML_LOAD;
+        } else {
+            insKind = InstructionKind.XML_SEQ_LOAD;
+        }
+
+        emit(new BIRNonTerminator.FieldAccess(xmlAccessExpr.pos, insKind, tempVarRef, keyRegIndex, varRefRegIndex));
     }
 }

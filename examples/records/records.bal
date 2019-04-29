@@ -2,14 +2,14 @@ import ballerina/io;
 
 // This defines an open record type named `Student` which in addition to the fields defined here, allows additional
 // `string` fields.
-type Student record {
+type Student record {|
     string name;
     int age;
     Grades grades;
     // This is a `string` typed rest field. All additional fields should be of the rest field's type or a subtype of it.
     // In the absence of an explicit rest field, an implicit rest field of type `anydata|error` is assumed.
     string...;
-};
+|};
 
 // This defines a closed record type named `Grades`. Closed records are defined using the `{|` and `|}` delimiters.
 type Grades record {|
