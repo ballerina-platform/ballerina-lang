@@ -67,8 +67,8 @@ function detail(error value) returns anydata = external;
 
 # Get a new Iterator
 #
-# + collection - Data collection
-# + iterator - Iterator for the given data
+# + data - Data collection
+# + return - Iterator for the given data
 function iterate(any data) returns any = external;
 
 # Get length of given value.

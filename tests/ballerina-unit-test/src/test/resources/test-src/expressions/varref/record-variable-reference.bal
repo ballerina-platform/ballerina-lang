@@ -182,17 +182,17 @@ type Object object {
     }
 };
 
-type IntRestRecord record {
+type IntRestRecord record {|
     string name;
     boolean married;
     int...;
-};
+|};
 
-type ObjectRestRecord record {
+type ObjectRestRecord record {|
     string name;
     boolean married;
     Object...;
-};
+|};
 
 function testRestParameterType() returns (boolean, boolean) {
     string name;

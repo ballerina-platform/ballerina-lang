@@ -52,10 +52,10 @@ public type Scheduler object {
                     int timeDiff = timestamp > time:currentTime().time ? timestamp - time:currentTime().time : 0;
                     int timeDelay = timeDiff > 0 ? timeDiff : -1;
 
-                    var e1 = self.timer.stop();
+                    checkpanic self.timer.stop();
                     self.timer = new({ interval: timeDiff, initialDelay: timeDelay, noOfRecurrences: 1 });
-                    var e2 = self.timer.attach(schedulerService, attachment = self);
-                    var e3 = self.timer.start();
+                    checkpanic self.timer.attach(schedulerService, attachment = self);
+                    checkpanic self.timer.start();
                 }
             }
         }
@@ -68,7 +68,7 @@ public type Scheduler object {
     # Creates the timer events.
     # +return - Returns error if sending timer events failed.
     public function sendTimerEvents() returns error? {
-        any? first = self.toNotifyQueue.getFirst();
+        any first = self.toNotifyQueue.getFirst();
         int currentTime = time:currentTime().time;
         while (first != () && <int>first - currentTime <= 0) {
             _ = self.toNotifyQueue.removeFirst();
@@ -82,9 +82,7 @@ public type Scheduler object {
             currentTime = time:currentTime().time;
         }
 
-        var e = self.timer.stop();
-        self.timer = new({ interval: 1 });
-
+        checkpanic self.timer.stop();
         first = self.toNotifyQueue.getFirst();
         currentTime = time:currentTime().time;
 
@@ -93,8 +91,8 @@ public type Scheduler object {
                 _ = self.wrapperFunc();
             } else {
                 self.timer = new({ interval: <int>first - currentTime, noOfRecurrences: 1 });
-                var e1 = self.timer.attach(schedulerService, attachment = self);
-                var e2 = self.timer.start();
+                checkpanic self.timer.attach(schedulerService, attachment = self);
+                checkpanic self.timer.start();
             }
         } else {
             lock {
@@ -102,8 +100,8 @@ public type Scheduler object {
                 if (self.toNotifyQueue.getFirst() != ()) {
                     self.running = true;
                     self.timer = new({ interval: 1, initialDelay: 0, noOfRecurrences: 1 });
-                    var e1 = self.timer.attach(schedulerService, attachment = self);
-                    var e2 = self.timer.start();
+                    checkpanic self.timer.attach(schedulerService, attachment = self);
+                    checkpanic self.timer.start();
                 }
             }
         }

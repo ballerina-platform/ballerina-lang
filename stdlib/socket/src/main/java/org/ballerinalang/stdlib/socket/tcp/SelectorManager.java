@@ -54,11 +54,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
+import static java.nio.channels.SelectionKey.OP_READ;
 import static org.ballerinalang.model.types.BTypes.typeByte;
 import static org.ballerinalang.model.types.BTypes.typeInt;
 import static org.ballerinalang.stdlib.socket.SocketConstants.DEFAULT_EXPECTED_READ_LENGTH;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
-import static java.nio.channels.SelectionKey.OP_READ;
 
 /**
  * This will manage the Selector instance and handle the accept, read and write operations.

@@ -51,10 +51,11 @@ public function serialize(BType bType) returns string {
     panic err;
 }
 
-function serializeTypes(BType[] bTypes, string delimiter) returns string {
+function serializeTypes(BType?[] bTypes, string delimiter) returns string {
     var result = "";
     boolean first = true;
-    foreach var bType in bTypes {
+    foreach var t in bTypes {
+        BType bType = getType(t);
         if (!first){
             result = result + delimiter;
         }

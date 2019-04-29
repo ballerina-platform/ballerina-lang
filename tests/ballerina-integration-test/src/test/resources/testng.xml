@@ -107,7 +107,7 @@
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
             <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
-            <class name="org.ballerinalang.test.auth.OAuthConfigTest"/>
+            <!--<class name="org.ballerinalang.test.auth.OAuthConfigTest"/>-->
             <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
             <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
             <class name="org.ballerinalang.test.auth.AuthnWithMultipleProvidersTest" />
@@ -274,9 +274,9 @@
 
     <test name="artemis-test" parallel="false">
         <classes>
-            <!-- <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons"/> -->
-            <!-- <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest"/> -->
-            <!-- <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/> -->
+            <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons"/>
+            <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest"/>
+            <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/>
         </classes>
     </test>
 </suite>

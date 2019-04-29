@@ -25,7 +25,7 @@ type TwoPhaseCommitTransaction object {
     string coordinationType;
     boolean isInitiated = false; // Indicates whether this is a transaction that was initiated or is participated in
     map<Participant> participants = {};
-    UProtocol[] coordinatorProtocols = [];
+    UProtocol?[] coordinatorProtocols = [];
     int createdTime = time:currentTime().time;
     TransactionState state = TXN_STATE_ACTIVE;
     private boolean possibleMixedOutcome = false;

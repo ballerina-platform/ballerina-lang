@@ -289,7 +289,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         // Since the function definition's super parent is CompilationUnit and it is the only super parent for
         // FunctionDefinition, following cast is safe.
         int annotCount = ((BallerinaParser.CompilationUnitContext) ctx.parent.parent).annotationAttachment().size();
-        this.pkgBuilder.startFunctionDef(annotCount);
+        this.pkgBuilder.startFunctionDef(annotCount, false);
     }
 
     /**
@@ -483,14 +483,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String name = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
 
-        boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
         int annotationCount = ctx.annotationAttachment().size();
 
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean isPublic = ctx.PUBLIC() != null;
 
-        this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable, deprecatedDocExists, annotationCount,
-                isPrivate, isPublic);
+        this.pkgBuilder.addObjectFieldVariable(currentPos, ws, name, exprAvailable, annotationCount, isPrivate,
+                isPublic);
     }
 
     /**
@@ -521,10 +520,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean nativeFunc = ctx.EXTERNAL() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
-        boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate, remoteFunc,
-                resourceFunc, nativeFunc, bodyExists, markdownDocExists, deprecatedDocExists,
-                ctx.annotationAttachment().size());
+                resourceFunc, nativeFunc, bodyExists, markdownDocExists, ctx.annotationAttachment().size());
     }
 
     /**
@@ -695,7 +692,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterOpenRecordTypeDescriptor(BallerinaParser.OpenRecordTypeDescriptorContext ctx) {
+    public void enterInclusiveRecordTypeDescriptor(BallerinaParser.InclusiveRecordTypeDescriptorContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -704,7 +701,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitOpenRecordTypeDescriptor(BallerinaParser.OpenRecordTypeDescriptorContext ctx) {
+    public void exitInclusiveRecordTypeDescriptor(BallerinaParser.InclusiveRecordTypeDescriptorContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -715,15 +712,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
                         ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
                         ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
-
-        boolean hasExplicitRestField = ctx.recordRestFieldDefinition() != null;
 
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, false,
-                                      hasExplicitRestField);
+                                      false);
     }
 
     @Override
-    public void enterClosedRecordTypeDescriptor(BallerinaParser.ClosedRecordTypeDescriptorContext ctx) {
+    public void enterExclusiveRecordTypeDescriptor(BallerinaParser.ExclusiveRecordTypeDescriptorContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -732,7 +727,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitClosedRecordTypeDescriptor(BallerinaParser.ClosedRecordTypeDescriptorContext ctx) {
+    public void exitExclusiveRecordTypeDescriptor(BallerinaParser.ExclusiveRecordTypeDescriptorContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -744,8 +739,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                         ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
                         ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
 
-        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, true,
-                                      false);
+        boolean hasRestField = ctx.recordRestFieldDefinition() != null;
+
+        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous,
+                                      hasRestField, true);
     }
 
     @Override
@@ -3280,18 +3277,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
         this.pkgBuilder.endReturnParameterDocumentationDescription(getWS(ctx), description);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitDeprecatedAttachment(BallerinaParser.DeprecatedAttachmentContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        String contentText = ctx.deprecatedText() != null ? ctx.deprecatedText().getText() : "";
-        this.pkgBuilder.createDeprecatedNode(getCurrentPos(ctx), getWS(ctx), contentText);
     }
 
     @Override

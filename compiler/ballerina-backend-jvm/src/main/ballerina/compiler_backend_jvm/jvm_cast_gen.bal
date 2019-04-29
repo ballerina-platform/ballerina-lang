@@ -49,6 +49,9 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
     } else if (targetType is bir:BJSONType) {
         generateCheckCastToJSON(mv, sourceType);
         return;
+    } else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
+        generateXMLToAttributesMap(mv, sourceType);
+        return;
     }
 
     // do the ballerina checkcast
@@ -187,9 +190,8 @@ function getTargetClass(bir:BType sourceType, bir:BType targetType) returns stri
         targetTypeClass = OBJECT_VALUE;
     } else if (targetType is bir:BErrorType) {
         targetTypeClass = ERROR_VALUE;
-    } else if (targetType is bir:BInvokableType) {
-        error err = error(io:sprintf("Casting is not supported from '%s' to '%s'", sourceType, targetType));
-        panic err;
+    } else if (targetType is bir:BXMLType) {
+        targetTypeClass = XML_VALUE;
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to '%s'", sourceType, targetType));
         panic err;
@@ -330,4 +332,9 @@ function generateCastToAny(jvm:MethodVisitor mv, bir:BType sourceType) {
         // do nothing
         return;
     }
+}
+
+function generateXMLToAttributesMap(jvm:MethodVisitor mv, bir:BType sourceType) {
+    mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttributesMap", 
+            io:sprintf("()L%s;", MAP_VALUE), false);
 }

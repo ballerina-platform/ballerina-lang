@@ -2,7 +2,6 @@
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run tcp_socket_listener.bal
 
-Initiating service(s) in 'tcp_socket_listener.bal'
 
 # The socket listener starts listening to the port 61598 for incoming client requests.
 [ballerina/socket] started socket listener 61598
