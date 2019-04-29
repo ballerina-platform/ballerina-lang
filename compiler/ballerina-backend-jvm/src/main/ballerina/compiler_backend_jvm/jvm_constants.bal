@@ -217,6 +217,7 @@ const string BOOLEAN_VALUE = "java/lang/Boolean";
 const string DOUBLE_VALUE = "java/lang/Double";
 const string BYTE_VALUE = "java/lang/Byte";
 const string FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
+const string TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
 
 const string OBJECT = "java/lang/Object";
 const string MAP = "java/util/Map";
@@ -243,6 +244,7 @@ const string OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";
 const string ERROR_TYPE = "org/ballerinalang/jvm/types/BErrorType";
 const string TUPLE_TYPE = "org/ballerinalang/jvm/types/BTupleType";
 const string FUNCTION_TYPE = "org/ballerinalang/jvm/types/BFunctionType";
+const string TYPEDESC_TYPE = "org/ballerinalang/jvm/types/BTypedesc";
 const string BFIELD = "org/ballerinalang/jvm/types/BField";
 const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
 

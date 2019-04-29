@@ -109,6 +109,8 @@ public type TypeParser object {
             return self.parseFutureType();
         } else if (typeTag == self.TYPE_TAG_JSON){
             return TYPE_JSON;
+        } else if (typeTag == self.TYPE_TAG_TYPEDESC) {
+            return TYPE_TYPEDESC;
         } else if (typeTag == self.TYPE_TAG_SELF){
             int selfIndex = self.reader.readInt32();
             Self t = {bType: self.compositeStack[self.compositeStackI - 1]};

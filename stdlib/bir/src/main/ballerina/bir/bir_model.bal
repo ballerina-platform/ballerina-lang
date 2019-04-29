@@ -193,6 +193,9 @@ public type BTypeString TYPE_STRING;
 public const TYPE_BYTE = "byte";
 public type BTypeByte TYPE_BYTE;
 
+public const TYPE_TYPEDESC = "typedesc";
+public type BTypeTypedesc TYPE_TYPEDESC;
+
 public const TYPE_JSON = "json";
 public type BJSONType TYPE_JSON;
 
@@ -260,7 +263,7 @@ public type BFutureType record {|
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self;
+                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeTypedesc;
 
 public type ModuleID record {|
     string org = "";

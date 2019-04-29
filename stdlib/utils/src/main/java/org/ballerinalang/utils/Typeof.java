@@ -20,6 +20,11 @@ package org.ballerinalang.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.values.AbstractObjectValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypeDesc;
 import org.ballerinalang.model.types.TypeKind;
@@ -51,5 +56,16 @@ public class Typeof extends BlockingNativeCallableUnit {
         BTypeDescValue bTypeDescValue = new BTypeDescValue(bTypeDesc);
         // return a mocked typedesc and start writing tests
         ctx.setReturnValues(bTypeDescValue);
+    }
+
+    public static TypedescValue typeof(Strand strand, Object value) {
+        if (value instanceof AbstractObjectValue) {
+            AbstractObjectValue v = (AbstractObjectValue) value;
+            BObjectType type = v.getType();
+            new TypedescValue()
+        } else if (value instanceof MapValue) {
+            MapValue v = (MapValue) value;
+        }
+        return null;
     }
 }
