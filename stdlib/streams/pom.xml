@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.990.4-SNAPSHOT</version>
+        <version>0.991.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -52,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
+            <artifactId>ballerina-runtime-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -169,7 +169,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
+            <artifactId>ballerina-runtime-api</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -187,6 +187,16 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-stdlib-test-common</artifactId>
+            <type>test-jar</type>
         </dependency>
     </dependencies>
 
@@ -236,6 +246,7 @@
                 </executions>
                 <configuration>
                     <mainClass>org.ballerinalang.stdlib.utils.GenerateBalo</mainClass>
+                    <classpathScope>test</classpathScope>
                 </configuration>
             </plugin>
 
@@ -333,6 +344,8 @@
                     <classpathDependencyExcludes>
                         <classpathDependencyExcludes>org.codehaus.woodstox:woodstox-core-asl</classpathDependencyExcludes>
                         <classpathDependencyExcludes>org.codehaus.woodstox:stax2-api</classpathDependencyExcludes>
+                        <classpathDependencyExcludes>org.slf4j:slf4j-log4j12</classpathDependencyExcludes>
+                        <classpathDependencyExcludes>org.slf4j:slf4j-simple</classpathDependencyExcludes>
                     </classpathDependencyExcludes>
                 </configuration>
             </plugin>

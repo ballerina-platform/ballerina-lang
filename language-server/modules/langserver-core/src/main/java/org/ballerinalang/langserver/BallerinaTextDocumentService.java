@@ -16,13 +16,10 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProvider;
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderException;
+import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
@@ -51,7 +48,6 @@ import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
@@ -91,7 +87,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
@@ -390,13 +385,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            List<CodeLens> lenses = new ArrayList<>();
-
+            List<CodeLens> lenses;
             if (!LSCodeLensesProviderFactory.getInstance().isEnabled()) {
                 // Disabled ballerina codeLens feature
                 clientCapabilities.setCodeLens(null);
                 // Skip code lenses if codeLens disabled
-                return lenses;
+                return new ArrayList<>();
             }
 
             String fileUri = params.getTextDocument().getUri();
@@ -404,46 +398,20 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Path compilationPath = getUntitledFilePath(docSymbolFilePath.toString()).orElse(docSymbolFilePath);
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
-                LSServiceOperationContext codeLensContext = new LSServiceOperationContext();
-                codeLensContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-                BLangPackage bLangPackage = lsCompiler.getBLangPackage(codeLensContext, documentManager, true,
-                                                                       LSCustomErrorStrategy.class, false);
-                Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
-                        .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
-                        .findFirst();
-
-                CompilerContext compilerContext = codeLensContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-                final List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
-                if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-                    CollectDiagnosticListener listener =
-                            (CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class);
-                    diagnostics.addAll(listener.getDiagnostics());
-                    listener.clearAll();
-                }
-
-                codeLensContext.put(CodeLensesProviderKeys.BLANG_PACKAGE_KEY, bLangPackage);
-                codeLensContext.put(CodeLensesProviderKeys.FILE_URI_KEY, fileUri);
-                codeLensContext.put(CodeLensesProviderKeys.DIAGNOSTIC_KEY, diagnostics);
-
-                documentCUnit.ifPresent(cUnit -> {
-                    codeLensContext.put(CodeLensesProviderKeys.COMPILATION_UNIT_KEY, cUnit);
-
-                    List<LSCodeLensesProvider> providers = LSCodeLensesProviderFactory.getInstance().getProviders();
-                    for (LSCodeLensesProvider provider : providers) {
-                        try {
-                            lenses.addAll(provider.getLenses(codeLensContext));
-                        } catch (LSCodeLensesProviderException e) {
-                            LOGGER.error("Error while retrieving lenses from: " + provider.getName());
-                        }
-                    }
-                });
+                // Compile source document
+                lenses = CodeLensUtil.compileAndGetCodeLenses(fileUri, lsCompiler, documentManager);
+                documentManager.setCodeLenses(compilationPath, lenses);
                 return lenses;
+            } catch (LSCompilerException e) {
+                // Source compilation failed, serve from cache
+                return documentManager.getCodeLenses(compilationPath);
             } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
                     LOGGER.error("Error while retrieving code lenses " + ((msg != null) ? ": " + msg : ""), e);
                 }
-                return lenses;
+                // Source compilation failed, serve from cache
+                return documentManager.getCodeLenses(compilationPath);
             } finally {
                 lock.ifPresent(Lock::unlock);
             }
@@ -579,7 +547,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
-        Path changedPath = new LSDocument(params.getTextDocument().getUri()).getPath();
+        String fileUri = params.getTextDocument().getUri();
+        Path changedPath = new LSDocument(fileUri).getPath();
         if (changedPath != null) {
             Path compilationPath = getUntitledFilePath(changedPath.toString()).orElse(changedPath);
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
@@ -590,6 +559,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     Range changesRange = changeEvent.getRange();
                     documentManager.updateFileRange(compilationPath, changesRange, changeEvent.getText());
                 }
+                // Update code lenses
+                List<CodeLens> lenses = documentManager.getCodeLenses(compilationPath);
+                CodeLensUtil.updateCachedCodeLenses(lenses, changes);
                 // Schedule diagnostics
                 LanguageClient client = this.ballerinaLanguageServer.getClient();
                 this.diagPushDebouncer.call(compilationPath, () -> {

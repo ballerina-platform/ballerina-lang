@@ -5,7 +5,7 @@ import ballerina/task;
 int reminderCount = 0;
 
 public function main () {
-    // Appointment data record is used to provide appointment configurations.
+    // The Appointment data record provides the appointment configurations.
     task:AppointmentData appointmentData = {
         seconds: "0/2",
         minutes: "*",

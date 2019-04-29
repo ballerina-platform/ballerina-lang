@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -49,7 +49,7 @@ public class ClosedRecordOptionalFieldsTest {
         int i = 0;
         Assert.assertEquals(negativeResult.getErrorCount(), 2);
         BAssertUtil.validateError(negativeResult, i++, "a default value specified for optional field 'age'", 22, 5);
-        BAssertUtil.validateError(negativeResult, i, "missing non-defaultable required record field 'adrs'", 35, 17);
+        BAssertUtil.validateError(negativeResult, i, "missing non-defaultable required record field 'adrs'", 33, 17);
     }
 
     @Test(description = "Test creating a record with a non-defaultable required field")

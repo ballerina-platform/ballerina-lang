@@ -16,10 +16,9 @@
 
 import ballerina/io;
 
-type ClosedFoo record {
+type ClosedFoo record {|
     string s;
-    !...;
-};
+|};
 
 function testErrorPattern1() returns string {
     any|error a = 13;

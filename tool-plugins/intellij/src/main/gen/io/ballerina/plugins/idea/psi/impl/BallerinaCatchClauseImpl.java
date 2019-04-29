@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaCatchClauseImpl extends BallerinaCompositeElementImpl implements BallerinaCatchClause {
+public class BallerinaCatchClauseImpl extends ASTWrapperPsiElement implements BallerinaCatchClause {
 
   public BallerinaCatchClauseImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaCatchClauseImpl extends BallerinaCompositeElementImpl impl
   @Override
   @Nullable
   public BallerinaBlock getBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
+    return findChildByClass(BallerinaBlock.class);
   }
 
   @Override
   @Nullable
   public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
@@ -80,7 +81,7 @@ public class BallerinaCatchClauseImpl extends BallerinaCompositeElementImpl impl
   @Override
   @NotNull
   public PsiElement getCatch() {
-    return notNullChild(findChildByType(CATCH));
+    return findNotNullChildByType(CATCH);
   }
 
   @Override

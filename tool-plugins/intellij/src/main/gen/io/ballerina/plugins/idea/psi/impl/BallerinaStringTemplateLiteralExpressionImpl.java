@@ -44,7 +44,7 @@ public class BallerinaStringTemplateLiteralExpressionImpl extends BallerinaExpre
   @Override
   @NotNull
   public BallerinaStringTemplateLiteral getStringTemplateLiteral() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaStringTemplateLiteral.class));
+    return findNotNullChildByClass(BallerinaStringTemplateLiteral.class);
   }
 
 }

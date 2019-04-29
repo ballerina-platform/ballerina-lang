@@ -17,10 +17,6 @@
  */
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
@@ -28,6 +24,10 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -73,7 +73,7 @@ public class FunctionsAndNilTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].getClass(), BError.class);
         BError errorValue = (BError) returns[0];
-        Assert.assertEquals("dummy error message", errorValue.reason);
+        Assert.assertEquals("dummy error message", errorValue.getReason());
     }
 
     @Test(description = "Test functions that returns nil type")
@@ -90,7 +90,7 @@ public class FunctionsAndNilTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].getClass(), BError.class);
         BError errorValue = (BError) returns[0];
-        Assert.assertEquals("dummy error message", errorValue.reason);
+        Assert.assertEquals("dummy error message", errorValue.getReason());
     }
 
     @Test(description = "Test functions that returns nil type")

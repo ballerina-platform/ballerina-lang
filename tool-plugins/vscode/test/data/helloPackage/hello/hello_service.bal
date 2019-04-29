@@ -11,6 +11,6 @@ service myService1 on new http:Listener(9090) {
    }
    resource function foo(http:Caller caller, http:Request req) {
        io:println("request received");
-       _ = caller->respond("Hello");
+       checkpanic caller->respond("Hello");
    }
 }

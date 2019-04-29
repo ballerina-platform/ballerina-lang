@@ -35,7 +35,7 @@ function testClientStreamingService() {
         }
     }
     // Once all the messages are sent, the server notifies the caller with a `complete` message.
-    _ = ep->complete();
+    checkpanic ep->complete();
 
     int waitCount = 0;
     while(!completed) {

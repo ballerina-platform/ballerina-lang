@@ -14,7 +14,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,8 +35,7 @@ public class EncryptedConfigsTest {
 
     @BeforeClass
     public void setup() {
-        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
+        resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         sourceRoot = Paths.get(resourceRoot, "test-src");
         confRoot = Paths.get(resourceRoot, "datafiles");
         System.setProperty("ballerina.source.root", sourceRoot.toString());

@@ -14,7 +14,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
-*/
+ */
 package org.ballerinalang.stdlib.task.service;
 
 import org.ballerinalang.bre.Context;
@@ -28,13 +28,15 @@ import org.ballerinalang.stdlib.task.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.impl.TaskServerConnectorImpl;
 import org.ballerinalang.stdlib.task.objects.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.utils.Utils.createError;
+import static org.ballerinalang.stdlib.task.utils.Utils.setError;
 
 /**
  * Native function to start the service attached to the listener.
@@ -53,16 +55,19 @@ import static org.ballerinalang.stdlib.task.utils.Utils.createError;
 )
 public class Stop extends BlockingNativeCallableUnit {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Stop.class);
+
     @Override
     @SuppressWarnings("unchecked")
-    public void execute (Context context) {
+    public void execute(Context context) {
         BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(0);
         Task task = (Task) taskStruct.getNativeData(NATIVE_DATA_TASK_OBJECT);
         TaskServerConnector serverConnector = new TaskServerConnectorImpl(context, task);
         try {
             serverConnector.stop();
         } catch (SchedulingException e) {
-            context.setReturnValues(createError(context, e.getMessage()));
+            LOG.error(e.getMessage(), e);
+            setError(context, e.getMessage());
         }
     }
 }

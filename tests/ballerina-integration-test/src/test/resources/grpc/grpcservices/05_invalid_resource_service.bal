@@ -34,7 +34,7 @@ service HelloWorld98 on ep5 {
         if (err is error) {
             log:printError(err.reason(), err = err);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testInt(grpc:Caller caller, string age) {
@@ -51,7 +51,7 @@ service HelloWorld98 on ep5 {
         } else {
             log:printInfo("display age : " + displayAge);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testFloat(grpc:Caller caller, float salary) {
@@ -63,7 +63,7 @@ service HelloWorld98 on ep5 {
         } else {
             log:printInfo("net salary : " + netSalary);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 }
 

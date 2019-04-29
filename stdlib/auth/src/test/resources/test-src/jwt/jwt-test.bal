@@ -16,7 +16,6 @@
 
 import ballerina/auth;
 import ballerina/crypto;
-import ballerina/internal;
 import ballerina/time;
 
 function testIssueJwt(string keyStorePath) returns (string)|error {

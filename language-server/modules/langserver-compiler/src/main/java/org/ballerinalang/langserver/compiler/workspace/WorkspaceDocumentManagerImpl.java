@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.compiler.workspace;
 
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
+import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -107,6 +110,18 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
      * {@inheritDoc}
      */
     @Override
+    public void setCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException {
+        if (isFileOpen(filePath)) {
+            documentList.get(filePath).getDocument().ifPresent(document -> document.setCodeLenses(codeLens));
+        } else {
+            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void closeFile(Path filePath) throws WorkspaceDocumentException {
         if (isFileOpen(filePath)) {
             Lock lock = documentList.get(filePath).getLock();
@@ -121,6 +136,17 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
         } else {
             throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CodeLens> getCodeLenses(Path filePath) {
+        if (isFileOpen(filePath) && documentList.get(filePath) != null) {
+            return documentList.get(filePath).getDocument().map(WorkspaceDocument::getCodeLenses).orElse(null);
+        }
+        return new ArrayList<>();
     }
 
     /**

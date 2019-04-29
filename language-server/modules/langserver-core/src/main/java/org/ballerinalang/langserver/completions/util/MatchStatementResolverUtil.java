@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.completions.util;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -40,21 +39,13 @@ public class MatchStatementResolverUtil {
     /**
      * Get the variable value destruture pattern.
      *
-     * @param ctx               LS Service Operation context
      * @return {@link String}   Generated Pattern clause
      */
-    public static String getVariableValueDestructurePattern(LSContext ctx) {
-        boolean snippetSupport = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
-                .getSnippetSupport();
+    public static String getVariableValueDestructurePattern() {
         String valueHolder;
         String bodyPlaceHolder;
-        if (snippetSupport) {
-            valueHolder = "${1:value}";
-            bodyPlaceHolder = "${2}";
-        } else {
-            valueHolder = "value";
-            bodyPlaceHolder = " ";
-        }
+        valueHolder = "${1:value}";
+        bodyPlaceHolder = "${2}";
         return valueHolder + " => " + UtilSymbolKeys.OPEN_BRACE_KEY + bodyPlaceHolder + UtilSymbolKeys.CLOSE_BRACE_KEY;
     }
 
@@ -126,21 +117,13 @@ public class MatchStatementResolverUtil {
      * Generate the match pattern clause for the given value.
      *
      * @param matchValue        Match pattern value
-     * @param ctx               LS Service operation context
      * @return {@link String}   Generated clause
      */
-    public static String generateMatchPattern(String matchValue, LSContext ctx) {
-        boolean snippetSupport = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
-                .getSnippetSupport();
+    public static String generateMatchPattern(String matchValue) {
         String valueHolder;
         String bodyPlaceHolder;
-        if (snippetSupport) {
-            valueHolder = "${1:" + matchValue + "}";
-            bodyPlaceHolder = "${2}";
-        } else {
-            valueHolder = matchValue;
-            bodyPlaceHolder = " ";
-        }
+        valueHolder = "${1:" + matchValue + "}";
+        bodyPlaceHolder = "${2}";
         return valueHolder + " => " + UtilSymbolKeys.OPEN_BRACE_KEY + bodyPlaceHolder + UtilSymbolKeys.CLOSE_BRACE_KEY;
     }
 }

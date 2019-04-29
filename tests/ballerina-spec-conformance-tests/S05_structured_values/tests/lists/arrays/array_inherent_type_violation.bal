@@ -105,15 +105,13 @@ function testObjectArrayInherentTypeViolation() {
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_MESSAGE);
 }
 
-public type FooRecordOne record {
+public type FooRecordOne record {|
     string fooFieldOne;
-    !...;
-};
+|};
 
-public type BarRecordOne record {
+public type BarRecordOne record {|
     int barFieldOne;
-    !...;
-};
+|};
 
 public type FooObjectOne object {
     public string fooFieldOne;

@@ -48,7 +48,7 @@ service HelloWorld85 on server4 {
         if (err is error) {
            io:println("Error from Connector: " + err.reason());
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 }
 

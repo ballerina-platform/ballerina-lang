@@ -36,7 +36,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
@@ -56,6 +55,7 @@ public class ServerSocketTest {
     private static final int SERVER2_PORT = 59153;
     private static final int SERVER3_PORT = 59154;
     private static final int SERVER4_PORT = 59155;
+    private static final String SERVER_HOST = "localhost";
     private Path testResourceRoot;
     private CompileResult compileResult;
 
@@ -66,15 +66,15 @@ public class ServerSocketTest {
         compileResult = BServiceUtil.setupProgramFile(this, testResourceRoot.resolve("server_socket.bal").toString());
         boolean connectionStatus;
         int numberOfRetryAttempts = 20;
-        connectionStatus = isConnected(numberOfRetryAttempts, SERVER1_PORT);
+        connectionStatus = TestSocketUtils.isConnected(SERVER_HOST, SERVER1_PORT, numberOfRetryAttempts);
         if (!connectionStatus) {
             Assert.fail("Unable to open connection with the test TCP server: " + SERVER1_PORT);
         }
-        connectionStatus = isConnected(numberOfRetryAttempts, SERVER2_PORT);
+        connectionStatus = TestSocketUtils.isConnected(SERVER_HOST, SERVER2_PORT, numberOfRetryAttempts);
         if (!connectionStatus) {
             Assert.fail("Unable to open connection with the test TCP server: " + SERVER2_PORT);
         }
-        connectionStatus = isConnected(numberOfRetryAttempts, SERVER3_PORT);
+        connectionStatus = TestSocketUtils.isConnected(SERVER_HOST, SERVER3_PORT, numberOfRetryAttempts);
         if (!connectionStatus) {
             Assert.fail("Unable to open connection with the test TCP server: " + SERVER3_PORT);
         }
@@ -184,44 +184,5 @@ public class ServerSocketTest {
     @AfterClass
     public void cleanUp() {
         SelectorManager.getInstance().stop();
-    }
-
-    private boolean isConnected(int numberOfRetries, int port) {
-        Socket temporarySocketConnection = null;
-        boolean isConnected = false;
-        final int retryInterval = 1000;
-        final int initialRetryCount = 0;
-        for (int retryCount = initialRetryCount; retryCount < numberOfRetries && !isConnected; retryCount++) {
-            try {
-                //Attempts to establish a connection with the server
-                temporarySocketConnection = new Socket("localhost", port);
-                isConnected = true;
-            } catch (IOException e) {
-                log.error("Error occurred while establishing a connection with test server", e);
-                sleep(retryInterval);
-            } finally {
-                if (null != temporarySocketConnection) {
-                    //We close the connection once completed.
-                    close(temporarySocketConnection);
-                }
-            }
-        }
-        return isConnected;
-    }
-
-    private void sleep(int retryInterval) {
-        try {
-            Thread.sleep(retryInterval);
-        } catch (InterruptedException ignore) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    private void close(Socket socket) {
-        try {
-            socket.close();
-        } catch (IOException e) {
-            log.error("Error occurred while closing the Socket connection", e);
-        }
     }
 }

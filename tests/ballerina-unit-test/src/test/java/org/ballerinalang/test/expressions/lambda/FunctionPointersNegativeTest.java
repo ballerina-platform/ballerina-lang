@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.test.expressions.lambda;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -52,7 +52,7 @@ public class FunctionPointersNegativeTest {
     public void testFPInStruct() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "function invocation on type 'anydata' is not supported", 17, 16);
+        BAssertUtil.validateError(result, 0, "function invocation on type 'anydata|error' is not supported", 17, 16);
     }
 
     @Test()

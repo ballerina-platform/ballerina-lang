@@ -1,0 +1,212 @@
+{
+  "position": {
+    "line": 0,
+    "character": 7
+  },
+  "source": "toplevel/source/importStatement1.bal",
+  "items": [
+    {
+      "label": "ballerina/transactions",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/transactions"
+    },
+    {
+      "label": "ballerina",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "110",
+      "insertText": "ballerina/"
+    },
+    {
+      "label": "ballerina/websub",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/websub"
+    },
+    {
+      "label": "ballerina/grpc",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/grpc"
+    },
+    {
+      "label": "ballerina/reflect",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/reflect"
+    },
+    {
+      "label": "ballerina/log",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/log"
+    },
+    {
+      "label": "ballerina/time",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/time"
+    },
+    {
+      "label": "ballerina/test",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/test"
+    },
+    {
+      "label": "ballerina/runtime",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/runtime"
+    },
+    {
+      "label": "ballerina/openapi",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/openapi"
+    },
+    {
+      "label": "ballerina/file",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/file"
+    },
+    {
+      "label": "ballerina/sql",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/sql"
+    },
+    {
+      "label": "ballerina/internal",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/internal"
+    },
+    {
+      "label": "ballerina/http",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/http"
+    },
+    {
+      "label": "ballerina/mysql",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/mysql"
+    },
+    {
+      "label": "ballerina/encoding",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/encoding"
+    },
+    {
+      "label": "ballerina/mime",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/mime"
+    },
+    {
+      "label": "ballerina/task",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/task"
+    },
+    {
+      "label": "ballerina/crypto",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/crypto"
+    },
+    {
+      "label": "ballerina/io",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/io"
+    },
+    {
+      "label": "ballerina/artemis",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/artemis"
+    },
+    {
+      "label": "ballerina/utils",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/utils"
+    },
+    {
+      "label": "ballerina/cache",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/cache"
+    },
+    {
+      "label": "ballerina/auth",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/auth"
+    },
+    {
+      "label": "ballerina/jms",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/jms"
+    },
+    {
+      "label": "ballerina/system",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/system"
+    },
+    {
+      "label": "ballerina/h2",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/h2"
+    },
+    {
+      "label": "ballerina/math",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/math"
+    },
+    {
+      "label": "ballerina/config",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/config"
+    }
+  ]
+}

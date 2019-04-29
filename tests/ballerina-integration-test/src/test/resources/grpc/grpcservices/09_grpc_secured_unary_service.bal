@@ -56,7 +56,7 @@ service HelloWorld85 on ep9 {
         } else {
             log:printInfo("Server send response : " + message);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 }
 

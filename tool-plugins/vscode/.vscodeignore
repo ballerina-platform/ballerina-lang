@@ -8,3 +8,4 @@ target
 tsconfig.json
 tslint.json
 docs
+extractedDistribution/**

@@ -40,7 +40,6 @@ import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
@@ -53,10 +52,8 @@ public class RequestNativeFunctionNegativeTest {
     private CompileResult result, resultNegative;
     private final String reqStruct = HttpConstants.REQUEST;
     private final String entityStruct = HttpConstants.ENTITY;
-    private final String mediaTypeStruct = MEDIA_TYPE;
     private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
-    private static final String CONTENT_TYPE = "Content-Type";
 
     @BeforeClass
     public void setup() {
@@ -116,27 +113,8 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertNotNull(returnVals[0]);
         Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
-                "{message:\"Entity body is not json compatible since the received content-type is : text/plain\"}");
-    }
-
-    @Test(description = "Test getTextPayload method with JSON payload")
-    public void testGetTextPayloadMethodWithJsonPayloadNegative() {
-        BMap<String, BValue> inRequest =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        BMap<String, BValue> entity =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-
-        String payload = "{\"code\":\"123\"}";
-        TestEntityUtils.enrichTestEntity(entity, APPLICATION_JSON, payload);
-        inRequest.put(REQUEST_ENTITY_FIELD, entity);
-        inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
-
-        BValue[] inputArg = {inRequest};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetTextPayload", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals[0].stringValue().contains("Entity body is not text compatible since the" +
-                " received content-type is : application/json"), payload);
+                            "{message:\"Error occurred while extracting json data from entity: unrecognized token " +
+                                    "'ballerina' at line: 1 column: 11\"}");
     }
 
     @Test(description = "Test getEntity method on a outRequest without a entity")
@@ -176,6 +154,27 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
                 "{message:\"Error occurred while extracting xml data from entity : Empty content\"}");
+    }
+
+    @Test
+    public void testGetXmlPayloadWithStringPayload() {
+        BMap<String, BValue> inRequest =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BMap<String, BValue> entity =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+
+        String payload = "ballerina";
+        TestEntityUtils.enrichTestEntity(entity, TEXT_PLAIN, payload);
+        inRequest.put(REQUEST_ENTITY_FIELD, entity);
+        inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
+
+        BValue[] inputArg = {inRequest};
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
+        Assert.assertNotNull(returnVals[0]);
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
+                            "{message:\"Error occurred while extracting xml data from entity : Unexpected character " +
+                                    "'b' (code 98) in prolog; expected '<'" + System.lineSeparator() +
+                                    " at [row,col {unknown-source}]: [1,1]\"}");
     }
 
     @Test

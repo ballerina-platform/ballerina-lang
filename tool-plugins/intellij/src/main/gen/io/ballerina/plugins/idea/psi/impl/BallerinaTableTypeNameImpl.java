@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTableTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaTableTypeName {
+public class BallerinaTableTypeNameImpl extends ASTWrapperPsiElement implements BallerinaTableTypeName {
 
   public BallerinaTableTypeNameImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaTableTypeNameImpl extends BallerinaCompositeElementImpl im
   @Override
   @Nullable
   public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
@@ -62,7 +63,7 @@ public class BallerinaTableTypeNameImpl extends BallerinaCompositeElementImpl im
   @Override
   @NotNull
   public PsiElement getTable() {
-    return notNullChild(findChildByType(TABLE));
+    return findNotNullChildByType(TABLE);
   }
 
 }

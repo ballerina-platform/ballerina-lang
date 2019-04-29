@@ -38,7 +38,7 @@ service testService on testEP {
         outJson.queryParams = string `x=${x}&y=${y}`;
 
         res.setJsonPayload(untaint outJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -57,6 +57,6 @@ service testService on testEP {
         outJson.fooParamSize = fooMParams.length();
 
         res.setJsonPayload(untaint outJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

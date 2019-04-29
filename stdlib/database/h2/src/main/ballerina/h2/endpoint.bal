@@ -23,44 +23,31 @@ import ballerina/sql;
 # + password - Password for the database connection
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
-public type InMemoryConfig record {
+public type InMemoryConfig record {|
     string name;
     string username;
     string password;
     sql:PoolOptions poolOptions?;
     map<any> dbOptions = {};
-    !...;
-};
+|};
 
 # The Client endpoint configuration for the server mode of h2 databases.
 #
 # + host - The host name of the database to connect (in case of server based DB)
 # + port - The port of the database to connect (in case of server based DB)
-# + name - The name of the database to connect
-# + username - Username for the database connection
-# + password - Password for the database connection
-# + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
-# + dbOptions - A map of DB specific properties
-public type ServerModeConfig record {
+public type ServerModeConfig record {|
     string host;
     int port = 9092;
     *InMemoryConfig;
-    !...;
-};
+|};
 
 # The Client endpoint configuration for the embedded mode of h2 databases.
 #
 # + path - The path of the database connection (in case of file based DB)
-# + name - The name of the database to connect
-# + username - Username for the database connection
-# + password - Password for the database connection
-# + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
-# + dbOptions - A map of DB specific properties
-public type EmbeddedModeConfig record {
+public type EmbeddedModeConfig record {|
     string path;
     *InMemoryConfig;
-    !...;
-};
+|};
 
 # Represents an H2 client endpoint.
 #
@@ -142,6 +129,7 @@ public type Client client object {
     }
 
     # Stops the JDBC client.
+    # + return - Possible error during closing
     public function stop() returns error? {
         self.clientActive = false;
         return sql:close(self.sqlClient);
@@ -152,4 +140,5 @@ public type Client client object {
     }
 };
 
-extern function createClient(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig config, sql:PoolOptions globalPoolOptions) returns sql:Client;
+function createClient(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig config, sql:PoolOptions globalPoolOptions)
+             returns sql:Client = external;

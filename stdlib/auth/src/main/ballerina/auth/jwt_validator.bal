@@ -16,7 +16,6 @@
 
 import ballerina/crypto;
 import ballerina/encoding;
-import ballerina/internal;
 import ballerina/io;
 import ballerina/log;
 import ballerina/time;
@@ -28,15 +27,14 @@ import ballerina/time;
 # + trustStore - Trust store used for signature verification
 # + certificateAlias - Token signed public key certificate alias
 # + validateCertificate - Validate public key certificate notBefore and notAfter periods
-public type JWTValidatorConfig record {
+public type JWTValidatorConfig record {|
     string issuer?;
     string[] audience?;
     int clockSkew = 0;
     crypto:TrustStore trustStore?;
     string certificateAlias?;
     boolean validateCertificate?;
-    !...;
-};
+|};
 
 # Validity given JWT string.
 #
@@ -128,10 +126,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, 
 
 function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
     JwtHeader jwtHeader = {};
-    map<any> customClaims = {};
-
     string[] keys = jwtHeaderJson.getKeys();
-
     foreach var key in keys {
         if (key == ALG) {
             if (jwtHeaderJson[key].toString() == "RS256") {
@@ -147,22 +142,15 @@ function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
             jwtHeader.cty = jwtHeaderJson[key].toString();
         } else if (key == KID) {
             jwtHeader.kid = jwtHeaderJson[key].toString();
-        } else {
-            if (jwtHeaderJson[key].length() > 0) {
-                customClaims[key] = convertToStringArray(jwtHeaderJson[key]);
-            } else {
-                customClaims[key] = jwtHeaderJson[key].toString();
-            }
         }
     }
-    jwtHeader.customClaims = customClaims;
     return jwtHeader;
 }
 
 function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
     string[] aud = [];
     JwtPayload jwtPayload = {};
-    map<any> customClaims = {};
+    map<json> customClaims = {};
     string[] keys = jwtPayloadJson.getKeys();
     foreach var key in keys {
         if (key == ISS) {
@@ -197,13 +185,8 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
             } else {
                 jwtPayload.iat = 0;
             }
-        }
-        else {
-            if (jwtPayloadJson[key].length() > 0) {
-                customClaims[key] = convertToStringArray(jwtPayloadJson[key]);
-            } else {
-                customClaims[key] = jwtPayloadJson[key].toString();
-            }
+        } else {
+            customClaims[key] = jwtPayloadJson[key];
         }
     }
     jwtPayload.customClaims = customClaims;
@@ -263,7 +246,7 @@ function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, 
     return true;
 }
 
-function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns (boolean) {
+function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns boolean {
     if (jwtHeader.alg == "") {
         return false;
     }
@@ -273,7 +256,7 @@ function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns (boolean)
 function validateCertificate(JWTValidatorConfig config) returns boolean|error {
     crypto:PublicKey publicKey = check crypto:decodePublicKey(keyStore = config.trustStore,
                                                               keyAlias = config.certificateAlias);
-    time:Time currTimeInGmt = time:toTimeZone(time:currentTime(), "GMT");
+    time:Time currTimeInGmt = check time:toTimeZone(time:currentTime(), "GMT");
     int currTimeInGmtMillis = currTimeInGmt.time;
 
     var certificate = publicKey.certificate;
@@ -354,7 +337,7 @@ function validateAudience(JwtPayload jwtPayload, JWTValidatorConfig config) retu
     }
 }
 
-function validateExpirationTime(JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
+function validateExpirationTime(JwtPayload jwtPayload, JWTValidatorConfig config) returns boolean {
     //Convert current time which is in milliseconds to seconds.
     int expTime = jwtPayload.exp;
     if (config.clockSkew > 0){
@@ -363,7 +346,7 @@ function validateExpirationTime(JwtPayload jwtPayload, JWTValidatorConfig config
     return expTime > time:currentTime().time / 1000;
 }
 
-function validateNotBeforeTime(JwtPayload jwtPayload) returns (boolean) {
+function validateNotBeforeTime(JwtPayload jwtPayload) returns boolean {
     return time:currentTime().time > (jwtPayload["nbf"] ?: 0);
 }
 

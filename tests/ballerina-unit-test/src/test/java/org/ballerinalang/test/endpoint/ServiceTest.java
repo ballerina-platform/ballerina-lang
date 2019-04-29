@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.endpoint;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -64,10 +64,10 @@ public class ServiceTest {
         int errIdx = 0;
         BAssertUtil
                 .validateError(compileResult, errIdx++, "resource function can not be invoked with in a service", 7, 9);
-        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'name'", 17, 9);
+        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'name1'", 17, 9);
         BAssertUtil.validateError(compileResult, errIdx++,
-                "incompatible types: expected 'AbstractListener', found 'string'", 17, 17);
-        BAssertUtil.validateError(compileResult, errIdx++, "invalid listener attachment", 17, 17);
+                "incompatible types: expected 'AbstractListener', found 'string'", 17, 18);
+        BAssertUtil.validateError(compileResult, errIdx++, "invalid listener attachment", 17, 18);
         BAssertUtil.validateError(compileResult, errIdx++, "uninitialized field 'id'", 18, 5);
         BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'MyService$$service$2.foo'", 29, 14);
         BAssertUtil.validateError(compileResult, errIdx++, "undefined symbol 'invalidVar'", 50, 12);

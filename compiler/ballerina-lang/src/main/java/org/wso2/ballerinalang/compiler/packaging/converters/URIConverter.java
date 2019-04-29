@@ -124,7 +124,7 @@ public class URIConverter implements Converter<URI> {
                     supportedVersionRange, String.valueOf(isBuild), nightlyBuild);
             // Check if error has occurred or not.
             if (execute.isPresent()) {
-                String errorMessage = getInnerErrorMessage(execute.get());
+                String errorMessage = RepoUtils.getInnerErrorMessage(execute.get());
                 if (!errorMessage.trim().equals("")) {
                     outStream.println(errorMessage);
                 }
@@ -137,19 +137,6 @@ public class URIConverter implements Converter<URI> {
             outStream.println(e.getMessage());
         }
         return Stream.of();
-    }
-    
-    /**
-     * Get nested error message.
-     * @param embeddedExecutorError The execution error.
-     * @return Error message.
-     */
-    private String getInnerErrorMessage(EmbeddedExecutorError embeddedExecutorError) {
-        if (embeddedExecutorError.getCause() == null) {
-            return embeddedExecutorError.getMessage();
-        } else {
-            return getInnerErrorMessage(embeddedExecutorError.getCause());
-        }
     }
 
     @Override

@@ -14,13 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Student record {
+type Student record {|
     string name;
     string status;
     string batch;
     string school;
-    !...;
-};
+|};
 
 type Employee record {
     string name;
@@ -28,13 +27,12 @@ type Employee record {
     string batch;
 };
 
-type Person record {
+type Person record {|
     string name;
     string status;
     string batch;
     string school;
-    !...;
-};
+|};
 
 type Teacher record {
     string name;
@@ -347,7 +345,7 @@ function stampRecordWithNilValuesV2() returns Employee {
     return e;
 }
 
-type ComplexPerson record {
+type ComplexPerson record {|
     string name = "";
     int age = 0;
     ComplexPerson? parent = ();
@@ -358,8 +356,7 @@ type ComplexPerson record {
     float score = 0.0;
     boolean alive = false;
     ComplexPerson[]? children?;
-    !...;
-};
+|};
 
 function stampComplexRecordToJSON() returns map<anydata>|error {
     int[] value = [67, 38, 91];

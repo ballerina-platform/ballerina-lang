@@ -16,9 +16,9 @@
 type ObjectOne object {
     public int age = 0;
 
-    extern function __init(int age);
+    function __init(int age) = external;
 };
 
 public type ObjectTwo object {
-    public extern function __init();
+    public function __init() = external;
 };

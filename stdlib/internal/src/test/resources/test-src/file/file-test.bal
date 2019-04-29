@@ -73,7 +73,7 @@ function testFolderContent(string rootPathValue) returns boolean|error {
     internal:Path childPath = parentPath.resolve("child");
     internal:Path xmlFilePath = rootPath.resolve("parent", "child", "sample.xml");
 
-    _ = testWriteFile(xmlFilePath.getPathValue());
+    checkpanic testWriteFile(xmlFilePath.getPathValue());
 
     var parentDirectory = xmlFilePath.getParentDirectory();
     if (parentDirectory is internal:Path) {
@@ -165,7 +165,7 @@ function testWriteFile(string pathValue) returns error? {
 function testReadFile(string pathValue) returns boolean {
     io:ReadableByteChannel byteChannel = io:openReadableFile(pathValue);
     var readResult = byteChannel.read(100);
-    _ = byteChannel.close();
+    checkpanic byteChannel.close();
     if (readResult is error) {
         log:printError("Error occurred while reading content: " + pathValue, err = readResult);
         return false;

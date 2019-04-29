@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.util.EmbeddedExecutorError;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.InputStream;
@@ -187,5 +188,18 @@ public class RepoUtils {
      */
     public static boolean isANightlyBuild() {
         return getBallerinaVersion().contains("SNAPSHOT");
+    }
+
+    /**
+     * Get nested error message.
+     * @param embeddedExecutorError The execution error.
+     * @return Error message.
+     */
+    public static String getInnerErrorMessage(EmbeddedExecutorError embeddedExecutorError) {
+        if (embeddedExecutorError.getCause() == null) {
+            return embeddedExecutorError.getMessage();
+        } else {
+            return getInnerErrorMessage(embeddedExecutorError.getCause());
+        }
     }
 }

@@ -14,7 +14,7 @@ service hello on new http:MockListener(9397) {
         // Objects and structs can have function calls
         response.setJsonPayload(result, contentType = "application/json");
 
-        _ = caller->respond(response);
+        checkpanic caller->respond(response);
     }
 
 }

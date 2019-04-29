@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 type TestEP client object {
     remote function action1(string s, int i) returns boolean {
         if (i > 5) {
@@ -31,7 +32,6 @@ type TestEP client object {
         return 5;
     }
 };
-
 
 remote function TestEP.action2(string s, boolean b) returns int {
     return 10;
@@ -67,4 +67,34 @@ type TestObject object {
 function test3() returns boolean {
     TestObject x = new;
     return x.test();
+}
+
+function clientObjectDeclaredInLoop() returns int {
+    foreach var index in 1...3 {
+        TestEP x = new;
+        if (4 - 2 == 2) {
+            return x->action2("0", false);
+        }
+    }
+    return 0;
+}
+
+function clientObjectDeclaredInIfStatement() returns int {
+    if (4 - 2 == 2) {
+        TestEP x = new;
+        return x->action2("0", false);
+    }
+    return 0;
+}
+
+function clientObjectDeclaredInIfStatementElseBlock() returns int {
+    if (4 - 2 == 0) {
+        return 0;
+    } else {
+        int i = 0;
+        int j = 100;
+        int k = i + j;
+        TestEP x = new;
+        return x->action2("0", false);
+    }
 }

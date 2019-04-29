@@ -19,8 +19,6 @@
 package org.ballerinalang.test.checkpointing;
 
 import org.ballerinalang.bre.old.WorkerExecutionContext;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
@@ -41,6 +39,8 @@ import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.ballerinalang.test.serializer.json.JsonSerializerTest;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.debug.TestDebugger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

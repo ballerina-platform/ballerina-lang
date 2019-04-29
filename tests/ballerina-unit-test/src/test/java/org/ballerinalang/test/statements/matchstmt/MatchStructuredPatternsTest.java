@@ -18,12 +18,12 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -79,29 +79,29 @@ public class MatchStructuredPatternsTest {
                 "unreachable pattern: preceding patterns are too general or the pattern ordering is not correct";
 
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 34, 14);
+                invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 33, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 35, 14);
+                invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 34, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordPattern + "unknown field 'a' in record type 'ClosedFoo'", 38, 14);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 39, 9);
+                invalidRecordPattern + "unknown field 'a' in record type 'ClosedFoo'", 37, 13);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 38, 9);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 40, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 49, 14);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 50, 9);
+                invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 39, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 48, 13);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 49, 9);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidTuplePattern + "expecting a tuple type but found 'OpenedFoo' in type definition", 51, 13);
+                invalidTuplePattern + "expecting a tuple type but found 'OpenedFoo' in type definition", 50, 13);
 
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid tuple binding pattern; member variable count mismatch with member type count", 61, 13);
+                "invalid tuple binding pattern; member variable count mismatch with member type count", 60, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record binding pattern with type '(string,int,ClosedFoo)'", 62, 14);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 63, 9);
+                "invalid record binding pattern with type '(string,int,ClosedFoo)'", 61, 13);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 62, 9);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 64, 20);
+                invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 63, 20);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 66, 21);
-        BAssertUtil.validateError(resultNegative, ++i, "pattern will always be matched", 76, 9);
+                invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 65, 20);
+        BAssertUtil.validateError(resultNegative, ++i, "pattern will always be matched", 75, 9);
     }
 
     @Test(description = "Test pattern will not be matched 2")
@@ -110,34 +110,34 @@ public class MatchStructuredPatternsTest {
         int i = -1;
         String unreachablePattern = "unreachable pattern: " +
                 "preceding patterns are too general or the pattern ordering is not correct";
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 33, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 35, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 32, 12);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 34, 12);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 46, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 47, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 48, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 62, 14);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 68, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 61, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 67, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 72, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 73, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 74, 14);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 74, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 75, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 76, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 79, 5);
-        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 92, 5);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 95, 14);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 96, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 100, 5);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 107, 14);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 109, 14);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 111, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 122, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 78, 5);
+        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 91, 5);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 94, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 95, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 99, 5);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 106, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 108, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 110, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 121, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 123, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 124, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 125, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 143, 5);
+        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 142, 5);
         BAssertUtil.validateError(resultNegative2, ++i,
-                "match statement has a static value default pattern and a binding value default pattern", 148, 5);
-        BAssertUtil.validateError(resultNegative2, ++i, "this function must return a result", 154, 1);
+                "match statement has a static value default pattern and a binding value default pattern", 147, 5);
+        BAssertUtil.validateError(resultNegative2, ++i, "this function must return a result", 153, 1);
         BAssertUtil.validateError(resultNegative2, ++i,
-                "match statement has a static value default pattern and a binding value default pattern", 156, 5);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 167, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 168, 13);
+                "match statement has a static value default pattern and a binding value default pattern", 155, 5);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 166, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 167, 13);
     }
 }

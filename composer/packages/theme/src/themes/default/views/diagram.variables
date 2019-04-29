@@ -43,6 +43,11 @@
 @dark-diagram-panel-header-text-color: @dark-diagram-base-text-color;
 @light-diagram-panel-body-background-color: @light-diagram-background-color;
 @dark-diagram-panel-body-background-color: @dark-diagram-background-color;
+@light-diagram-expanded-func-frame-color: #bbb;
+@dark-diagram-expanded-func-frame-color: #bbb;
+@light-diagram-collapse-func-color: #aaa;
+@dark-diagram-collapse-func-color: #aaa;
+
 
 
 /*-------------------

@@ -19,7 +19,7 @@ type Address record {
     string country = "Sri Lanka";
 };
 
-function testNonErrorPath () returns any {
+function testNonErrorPath () returns any|error {
     Address adrs = {city:"Colombo"};
     Info inf = {address1 : adrs};
     Person prsn = {info1 : inf};
@@ -28,7 +28,7 @@ function testNonErrorPath () returns any {
     return x;
 }
 
-function testNotNilPath () returns any {
+function testNotNilPath () returns any|error {
     Address adrs = {city:"Colombo"};
     Info inf = {address2 : adrs};
     Person prsn = {info2 : inf};
@@ -37,7 +37,7 @@ function testNotNilPath () returns any {
     return x;
 }
 
-function testErrorInMiddle () returns any {
+function testErrorInMiddle () returns any|error {
     error e = error("custom error");
     Info inf = {address1 : e};
     Person prsn = {info1 : inf};
@@ -46,14 +46,14 @@ function testErrorInMiddle () returns any {
     return x;
 }
 
-function testErrorInFirstVar () returns any {
+function testErrorInFirstVar () returns any|error {
     error e = error("custom error");
     Person|error p = e;
     string|error|() x = p!info1!address1!city;
     return x;
 }
 
-function testNilInMiddle () returns (any,any) {
+function testNilInMiddle () returns (any|error, any|error) {
     Info inf = {address2 : ()};
     Person prsn = {info2 : inf};
     Person|() p = prsn;
@@ -62,7 +62,7 @@ function testNilInMiddle () returns (any,any) {
     return (x, y);
 }
 
-function testNilInFirstVar () returns (any,any) {
+function testNilInFirstVar () returns (any|error, any|error) {
     Person|() p = ();
     string|error|() x = p.info1!address1!city;
     string|error|() y = p.info2.address2.city;
@@ -104,7 +104,7 @@ function testSafeNavigatingNilMap () returns any {
     return m["foo"];
 }
 
-function testSafeNavigatingWithFuncInovc_1 () returns any {
+function testSafeNavigatingWithFuncInovc_1 () returns any|error {
     string|error|() x = getNullablePerson().info1!address1!city;
     return x;
 }

@@ -214,10 +214,9 @@ type A3 record {
     int x = 0;
 };
 
-type B3 record {
+type B3 record {|
     int x = 0;
-    !...;
-};
+|};
 
 function testSealedRecordTypes() returns (boolean, boolean) {
     A3 a3 = {};
@@ -695,20 +694,31 @@ function testFiniteTypeAsBroaderType_2() returns (boolean, boolean) {
 
 type FooBarOneBoolean "foo"|"bar"|1|boolean;
 type FooBarBaz "foo"|"bar"|"baz";
+type FalseFooThree false|"foo"|3;
 type IntTwo int|2.0;
 
-function testFiniteTypeAsFiniteTypeTrue() returns (boolean, boolean) {
+function testUnionWithFiniteTypeAsFiniteTypeTrue() returns (boolean, boolean) {
     FooBarOneBoolean f1 = "foo";
     FooBarOneBoolean f2 = 1;
 
     return (f1 is FooBarBaz, f2 is IntTwo);
 }
 
-function testFiniteTypeAsFiniteTypeFalse() returns (boolean, boolean) {
+function testUnionWithFiniteTypeAsFiniteTypeFalse() returns (boolean, boolean) {
     FooBarOneBoolean f1 = "foo";
     FooBarOneBoolean f2 = 1;
 
     return (f1 is IntTwo, f2 is FooBarBaz);
+}
+
+function testFiniteTypeAsFiniteTypeTrue() returns boolean {
+    FooBarBaz f1 = "foo";
+    return f1 is FalseFooThree;
+}
+
+function testFiniteTypeAsFiniteTypeFalse() returns boolean {
+    FooBarBaz f1 = "bar";
+    return f1 is FalseFooThree;
 }
 
 function testIntersectingUnionTrue() returns (boolean, boolean) {
@@ -760,4 +770,16 @@ function testError_2() returns (boolean, boolean, boolean) {
     MyError e = error(ERR_REASON, { message: "detail message" });
     any|error f = e;
     return (f is MyError, f is error, f is MyErrorTwo);
+}
+
+function testClosedArrayAsOpenArray() returns boolean {
+    (int|string)[3] a = [1, "hello world", 2];
+    any b = a;
+    return b is anydata[] && b is (int|string)[];
+}
+
+function testClosedArrayAsInvalidClosedArray() returns boolean {
+    (int|string)[3] a = [1, "hello world", 2];
+    any b = a;
+    return b is (int|string)[4] || b is (int|string)[2];
 }

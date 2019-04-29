@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaGroupByClauseImpl extends BallerinaCompositeElementImpl implements BallerinaGroupByClause {
+public class BallerinaGroupByClauseImpl extends ASTWrapperPsiElement implements BallerinaGroupByClause {
 
   public BallerinaGroupByClauseImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaGroupByClauseImpl extends BallerinaCompositeElementImpl im
   @Override
   @Nullable
   public BallerinaVariableReferenceList getVariableReferenceList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaVariableReferenceList.class);
+    return findChildByClass(BallerinaVariableReferenceList.class);
   }
 
   @Override
@@ -56,7 +57,7 @@ public class BallerinaGroupByClauseImpl extends BallerinaCompositeElementImpl im
   @Override
   @NotNull
   public PsiElement getGroup() {
-    return notNullChild(findChildByType(GROUP));
+    return findNotNullChildByType(GROUP);
   }
 
 }

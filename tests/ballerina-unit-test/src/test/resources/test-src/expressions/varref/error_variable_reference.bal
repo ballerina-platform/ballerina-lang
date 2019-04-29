@@ -15,9 +15,9 @@
 // under the License.
 
 type SMS error <string, map<string>>;
-type SMA error <string, map<any>>;
+type SMA error <string, map<anydata>>;
 type CMS error <string, map<string>>;
-type CMA error <string, map<any>>;
+type CMA error <string, map<anydata>>;
 
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
@@ -103,7 +103,7 @@ function testBasicErrorVariableWithRecordDetails() returns (string, string, stri
     return (res1, res2, message, fatal, rec);
 }
 
-function testErrorInTuple() returns (int, string, string, any, boolean) {
+function testErrorInTuple() returns (int, string, string, anydata|error, boolean) {
     Foo f = { message: "fooMsg", fatal: true };
     (int, string, error, (error, Foo)) t1 = (12, "Bal", error("Err", { message: "Something Wrong" }),
                                                             (error("Err2", { message: "Something Wrong2" }), f));
@@ -119,13 +119,13 @@ function testErrorInTuple() returns (int, string, string, any, boolean) {
     return (intVar, stringVar, errorVar.reason(), errorVar2.detail().message, fooVar.fatal);
 }
 
-function testErrorInTupleWithDestructure() returns (int, string, string, map<any>, boolean) {
+function testErrorInTupleWithDestructure() returns (int, string, string, map<anydata|error>, boolean) {
     (int, string, (error, boolean)) t1 = (12, "Bal", (error("Err2", { message: "Something Wrong2" }), true));
 
     int intVar;
     string stringVar;
     string reasonVar;
-    map<any> detailVar;
+    map<anydata|error> detailVar;
     boolean booleanVar;
 
     (intVar, stringVar, (error (reasonVar, detailVar), booleanVar)) = t1;
@@ -133,13 +133,13 @@ function testErrorInTupleWithDestructure() returns (int, string, string, map<any
     return (intVar, stringVar, reasonVar, detailVar, booleanVar);
 }
 
-function testErrorInTupleWithDestructure2() returns (int, string, string, any, boolean) {
+function testErrorInTupleWithDestructure2() returns (int, string, string, anydata|error, boolean) {
     (int, string, (error, boolean)) t1 = (12, "Bal", (error("Err2", { message: "Something Wrong2" }), true));
 
     int intVar;
     string stringVar;
     string reasonVar;
-    any message;
+    anydata|error message;
     boolean booleanVar;
 
     (intVar, stringVar, (error (reasonVar, { message }), booleanVar)) = t1;
@@ -152,24 +152,24 @@ type Bar record {
     error e;
 };
 
-function testErrorInRecordWithDestructure() returns (int, string, any) {
+function testErrorInRecordWithDestructure() returns (int, string, anydata|error) {
     Bar b = { x: 1000, e: error("Err3", { message: "Something Wrong3" }) };
 
     int x;
     string reason;
-    map<any> detail;
+    map<anydata|error> detail;
     { x, e: error (reason, detail) } = b;
 
     return (x, reason, detail.message);
 }
 
-function testErrorInRecordWithDestructure2() returns (int, string, any, any) {
+function testErrorInRecordWithDestructure2() returns (int, string, anydata|error, anydata|error) {
     Bar b = { x: 1000, e: error("Err3", { message: "Something Wrong3" }) };
 
     int x;
     string reason;
-    any message;
-    any extra;
+    anydata|error message;
+    anydata|error extra;
 
     { x, e: error (reason, { message, extra }) } = b;
 

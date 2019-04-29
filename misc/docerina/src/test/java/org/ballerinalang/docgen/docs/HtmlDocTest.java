@@ -106,7 +106,7 @@ public class HtmlDocTest {
         Assert.assertTrue(page.constructs.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc = (FunctionDoc) page.constructs.get(0);
         Assert.assertEquals(functionDoc.parameters.get(0).toString(), "string name", "Invalid parameter string value");
-        Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "(string[],int) | error<>", "Invalid return " +
+        Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "(string[],int)|error<>", "Invalid return " +
                 "type");
         Assert.assertEquals(functionDoc.returnParams.get(0).href, "primitive-types.html#string,primitive-types" + "" +
                 ".html#int,builtin.html#error", "Invalid link to return type");
@@ -345,7 +345,7 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.name, "test2", "Invalid function name test2");
         Assert.assertEquals(functionDoc2.parameters.size(), 0);
         Assert.assertEquals(functionDoc2.icon, "fw-function", "test2 function is not detected as a function");
-        Assert.assertEquals(functionDoc2.returnParams.get(0).dataType, "string | error<>", "Invalid return type");
+        Assert.assertEquals(functionDoc2.returnParams.get(0).dataType, "string|error<>", "Invalid return type");
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>returns the string or an error</p>\n");
     }
 

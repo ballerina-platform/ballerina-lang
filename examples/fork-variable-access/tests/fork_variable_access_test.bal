@@ -49,7 +49,7 @@ function testFunc() {
                 // continue;
             } else if (value.equalsIgnoreCase("[reference type variables] before fork: value of name is [Bert] value of city is [New York] value of postcode is [10001]")) {
                 // continue;
-            } else if (value.equalsIgnoreCase("[value type variables] after fork: value of integer variable is [100] value of string variable is [WSO2]")) {
+            } else if (value.equalsIgnoreCase("[value type variables] after fork: value of integer variable is [123] value of string variable is [Ballerina]")) {
                 // continue;
             } else if (value.equalsIgnoreCase("[reference type variables] after fork: value of name is [Moose] value of city is [Manhattan] value of street is [Wall Street] value of postcode is [10001]")) {
                 // continue;

@@ -17,16 +17,16 @@
 */
 package org.ballerinalang.test.types.var;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -205,7 +205,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "incompatible convert operation: 'json' value cannot be converted as 'Person'");
     }
 
@@ -217,7 +217,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "incompatible convert operation: 'json' value cannot be converted as 'PersonA'");
     }
 
@@ -241,7 +241,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "incompatible types: 'B' cannot be cast to 'A'");
     }
 
@@ -251,7 +251,7 @@ public class VarDeclaredAssignmentStmtTest {
 
 
         Assert.assertSame(returns[0].getClass(), BError.class);
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "incompatible types: 'int' cannot be cast to 'string'");
     }
 
@@ -261,7 +261,7 @@ public class VarDeclaredAssignmentStmtTest {
 
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "incompatible types: '()' cannot be cast to 'string'");
     }
 
@@ -272,7 +272,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "incompatible types: 'int' cannot be cast to 'boolean'");
     }
 
@@ -283,7 +283,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "incompatible types: '()' cannot be cast to 'boolean'");
     }
 
@@ -294,7 +294,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "incompatible types: 'string' cannot be cast to 'int'");
     }
 
@@ -305,7 +305,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "incompatible types: '()' cannot be cast to 'int'");
     }
 
@@ -316,7 +316,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "incompatible types: 'string' cannot be cast to 'float'");
     }
 
@@ -327,7 +327,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "incompatible types: '()' cannot be cast to 'float'");
     }
 
@@ -338,7 +338,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "incompatible types: 'string' cannot be cast to 'map'");
     }
 

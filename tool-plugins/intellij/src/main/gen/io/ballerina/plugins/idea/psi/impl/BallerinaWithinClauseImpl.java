@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaWithinClauseImpl extends BallerinaCompositeElementImpl implements BallerinaWithinClause {
+public class BallerinaWithinClauseImpl extends ASTWrapperPsiElement implements BallerinaWithinClause {
 
   public BallerinaWithinClauseImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaWithinClauseImpl extends BallerinaCompositeElementImpl imp
   @Override
   @Nullable
   public BallerinaTimeScale getTimeScale() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTimeScale.class);
+    return findChildByClass(BallerinaTimeScale.class);
   }
 
   @Override
@@ -56,7 +57,7 @@ public class BallerinaWithinClauseImpl extends BallerinaCompositeElementImpl imp
   @Override
   @NotNull
   public PsiElement getWithin() {
-    return notNullChild(findChildByType(WITHIN));
+    return findNotNullChildByType(WITHIN);
   }
 
 }

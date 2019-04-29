@@ -18,23 +18,20 @@ import ballerina/test;
 
 // Both kinds of type descriptor are covariant in the types of their members.
 
-public type ClosedRecordTwo record {
+public type ClosedRecordTwo record {|
     string|int fieldOne;
     boolean|float fieldTwo;
-    !...;
-};
+|};
 
-public type ClosedRecordThree record {
+public type ClosedRecordThree record {|
     float fieldTwo;
     string fieldOne;
-    !...;
-};
+|};
 
-public type ClosedRecordFour record {
+public type ClosedRecordFour record {|
     boolean fieldOne;
     string fieldTwo;
-    !...;
-};
+|};
 
 @test:Config {}
 function testRecordCovariance() {

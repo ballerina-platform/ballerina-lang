@@ -33,8 +33,9 @@ public type Listener object {
         }
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        // ignore param 'name'
+        return self.register(s, {});
     }
 
     public function __start() returns error? {
@@ -45,23 +46,23 @@ public type Listener object {
         return self.stop();
     }
 
-    extern function init() returns error?;
+    function init() returns error? = external;
 
-    extern function register(service s, map<any> annotationData) returns error?;
+    function register(service s, map<any> config) returns error? = external;
 
-    extern function start() returns error?;
+    function start() returns error? = external;
 
-    extern function stop() returns error?;
+    function stop() returns error? = external;
 
-    extern function detachService(service attachedService) returns error?;
+    function detachService(service attachedService) returns error? = external;
 
     # Pauses the task.
     #
     # + return - Returns error if an error is occured while resuming, nil Otherwise.
-    public extern function pause() returns error?;
+    public function pause() returns error? = external;
 
     # Resumes a paused task.
     #
     # + return - Returns error when an error occurred while pausing, nil Otherwise.
-    public extern function resume() returns error?;
+    public function resume() returns error? = external;
 };

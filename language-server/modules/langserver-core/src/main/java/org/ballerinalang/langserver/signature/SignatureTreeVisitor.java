@@ -79,7 +79,6 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     private void init(CompilerContext compilerContext) {
         symTable = SymbolTable.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
-        lsContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, symTable);
     }
 
     @Override

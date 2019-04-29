@@ -16,14 +16,15 @@
  */
 package org.ballerinalang.test.statements.compoundassignment;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXMLSequence;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -319,6 +320,16 @@ public class CompoundAssignmentTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 500);
+    }
+
+    @Test(description = "Test compound assignment with addition.")
+    public void testCompoundAssignmentOfXmlAndString() {
+        BValue[] returns = BRunUtil.invoke(result, "xmlCompoundAssignment");
+        Assert.assertTrue(returns[0] instanceof BXMLSequence);
+        BXMLSequence sequence = (BXMLSequence) returns[0];
+        Assert.assertEquals(sequence.size(), 13);
+        Assert.assertEquals(sequence.stringValue(),
+                "hello<hello xmlns:ns0=\"http://sample.com/wso2/a1\">hi</hello>hahblah");
     }
 
     @Test(description = "Test compound operator negative cases.")

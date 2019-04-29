@@ -25,7 +25,7 @@ service multipartDemoService on new http:Listener(9090) {
             }
             response.setPayload(untaint bodyParts);
         } else {
-            log:printError(string.convert(bodyParts.detail().message));
+            log:printError(<string> bodyParts.detail().message);
             response.setPayload("Error in decoding multiparts!");
             response.statusCode = 500;
         }
@@ -93,7 +93,7 @@ function handleContent(mime:Entity bodyPart) {
             if (payload is xml) {
                 log:printInfo(string.convert(payload));
             } else {
-                log:printError(string.convert(payload.detail().message));
+                log:printError(<string> payload.detail().message);
             }
         } else if (mime:APPLICATION_JSON == baseType) {
             //Extracts `json` data from the body part.
@@ -101,7 +101,7 @@ function handleContent(mime:Entity bodyPart) {
             if (payload is json) {
                 log:printInfo(payload.toString());
             } else {
-                log:printError(string.convert(payload.detail().message));
+                log:printError(<string> payload.detail().message);
             }
         } else if (mime:TEXT_PLAIN == baseType) {
             //Extracts text data from the body part.
@@ -109,7 +109,7 @@ function handleContent(mime:Entity bodyPart) {
             if (payload is string) {
                 log:printInfo(payload);
             } else {
-                log:printError(string.convert(payload.detail().message));
+                log:printError(<string> payload.detail().message);
             }
         }
     }

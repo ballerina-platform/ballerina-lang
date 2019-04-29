@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaInitWithType extends BallerinaCompositeElement {
+public interface BallerinaInitWithType extends PsiElement {
 
   @Nullable
   BallerinaInvocationArgList getInvocationArgList();

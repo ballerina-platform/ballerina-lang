@@ -13,17 +13,33 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/crypto;
 import ballerina/math;
 
+# Abstract object, which should be implemented in order to create a new aggregator.
 public type Aggregator abstract object {
 
+    # Returns a copy of self, but it does not contain the current state.
+    #
+    # + return - A `Aggregator` object.
     public function copy() returns Aggregator;
 
+    # Updates the aggregated value and returns the final aggregated value.
+    #
+    # + value - value being aggregated.
+    # + eventType - Type of the incoming event `streams:CURRENT`, `streams:EXPIRED` or `streams:RESET`. Based on the
+    #               type of the event `value` will be added to the aggregation or removed from the aggregation.
+    #
+    # + return - Updated aggregated value after `value` being aggregated.
     public function process(anydata value, EventType eventType) returns anydata;
 
 };
 
+# Aggregator to perform summation of values in a stream.
+#
+# + iSum - description
+# + fSum - description
 public type Sum object {
     *Aggregator;
     *Snapshotable;
@@ -34,6 +50,14 @@ public type Sum object {
 
     }
 
+    # Updates the current sum of numeric values based on the `eventType`. If the `eventType` is `streams:CURRENT`,
+    # `value` is added to the current sum. If the `eventType` is `streams:EXPIRED`, `value` is subtracted from the
+    # current sum. If the `eventType` is `streams:RESET`, Current summation will be reset, regardless the `value`.
+    #
+    # + value - The numeric value being aggregated to the current sum.
+    # + eventType - Type of the incoming event `streams:CURRENT`, `streams:EXPIRED` or `streams:RESET`.
+    #
+    # + return - aggregated summation after the given `value`.
     public function process(anydata value, EventType eventType) returns anydata {
 
             if (value is int) {
@@ -63,11 +87,17 @@ public type Sum object {
 
     }
 
+    # Returns a copy of the `Sum` aggregator without its current state.
+    #
+    # + return - Returns `Sum` aggregator.
     public function copy() returns Aggregator {
         Sum sumAggregator = new();
         return sumAggregator;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    #
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         return {
             "iSum": self.iSum,
@@ -75,6 +105,9 @@ public type Sum object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    #
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         any iSum = state["iSum"];
         if (iSum is int) {
@@ -87,11 +120,19 @@ public type Sum object {
     }
 };
 
+# Returns a `Sum` aggregator object. The aggregator function name which is used in a streaming query should have the
+# same name as this function's name.
+#
+# + return - A `Aggregator` which perform addition/summation.
 public function sum() returns Aggregator {
     Sum sumAggregator = new();
     return sumAggregator;
 }
 
+# Aggregator to calculate average in streams.
+#
+# + count - description
+# + sum - description
 public type Average object {
     *Aggregator;
     *Snapshotable;
@@ -102,6 +143,16 @@ public type Average object {
 
     }
 
+    # Returns the calculated average after `value` being aggregated into current average. If the `eventType` is
+    # `streams:CURRENT`,`value` is added to the current sum and count is increase by 1. If the `eventType` is
+    # `streams:EXPIRED`,  `value` is subtracted from the current sum and count is descreased by 1. If the `eventType`
+    # is `streams:RESET`, Current  summation and count is reset, regardless the `value`. Then by dividing the sum by
+    # count, the average is calculated.
+    #
+    # + value - The numeric value being aggregated in order to calculate the new average.
+    # + eventType - Type of the incoming event `streams:CURRENT`, `streams:EXPIRED` or `streams:RESET`.
+    #
+    # + return - Updated average value after `value` being aggregated.
     public function process(anydata value, EventType eventType) returns anydata {
         if (value is int) {
             if (eventType == "CURRENT") {
@@ -134,11 +185,17 @@ public type Average object {
         return (self.count > 0) ? (self.sum / self.count) : 0.0;
     }
 
+    # Returns a copy of the `Average` aggregator without its current state.
+    #
+    # + return - Returns `Average` aggregator.
     public function copy() returns Aggregator {
         Average avgAggregator = new();
         return avgAggregator;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    #
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         return {
             "count": self.count,
@@ -146,6 +203,9 @@ public type Average object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    #
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         any c = state["count"];
         if (c is int) {
@@ -158,11 +218,18 @@ public type Average object {
     }
 };
 
+# Returns a `Average` aggregator object. The aggregator function name which is used in a streaming query should have the
+# same name as this function's name.
+#
+# + return - A `Aggregator` object which performs averaging.
 public function avg() returns Aggregator {
     Average avgAggregator = new();
     return avgAggregator;
 }
 
+# Aggregator to count events in streams.
+#
+# + count - description
 public type Count object {
     *Aggregator;
     *Snapshotable;
@@ -172,6 +239,14 @@ public type Count object {
 
     }
 
+    # Updates the current count when a new event arrives and return the updated count. If the `eventType` is
+    # `streams:CURRENT`, count is increase by 1. If the `eventType` is `streams:EXPIRED`, count is descreased by 1.
+    # If the `eventType`is `streams:RESET`, count is reset, regardless the `value`.
+    #
+    # + value - In count aggregator the value is not used.
+    # + eventType - Type of the incoming event `streams:CURRENT`, `streams:EXPIRED` or `streams:RESET`.
+    #
+    # + return - Updated count.
     public function process(anydata value, EventType eventType) returns anydata {
         if (eventType == "CURRENT") {
             self.count += 1;
@@ -183,17 +258,26 @@ public type Count object {
         return self.count;
     }
 
+    # Returns a copy of the `Count` aggregator without its current state.
+    #
+    # + return - Returns `Count` aggregator.
     public function copy() returns Aggregator {
         Count countAggregator = new();
         return countAggregator;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    #
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         return {
             "count": self.count
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    #
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         any c = state["count"];
         if (c is int) {
@@ -202,11 +286,18 @@ public type Count object {
     }
 };
 
+# Returns a `Count` aggregator object. The aggregator function name which is used in a streaming query should have the
+# same name as this function's name.
+#
+# + return - A `Aggregator` object which performs counting.
 public function count() returns Aggregator {
     Count countAggregator = new();
     return countAggregator;
 }
 
+# Aggregator to get the distinct counts of values in streams.
+#
+# + distinctValues - description
 public type DistinctCount object {
     *Aggregator;
     *Snapshotable;
@@ -216,6 +307,14 @@ public type DistinctCount object {
 
     }
 
+    # Updates the current distinct count when a new event arrives and return the updated count. If the `eventType` is
+    # `streams:CURRENT`, count is increased by 1. If the `eventType` is `streams:EXPIRED`, count is descreased by 1.
+    # If the `eventType`is `streams:RESET`, count is reset, regardless of the `value`.
+    #
+    # + value - Value being counted uniquely.
+    # + eventType - Type of the incoming event `streams:CURRENT`, `streams:EXPIRED` or `streams:RESET`.
+    #
+    # + return - Updated distinct count.
     public function process(anydata value, EventType eventType) returns anydata {
         string key = crypto:crc32b(value);
         if (eventType == "CURRENT") {
@@ -236,17 +335,26 @@ public type DistinctCount object {
         return self.distinctValues.length();
     }
 
+    # Returns a copy of the `DistinctCount` aggregator without its current state.
+    #
+    # + return - Returns `DistinctCount` aggregator.
     public function copy() returns Aggregator {
         DistinctCount distinctCountAggregator = new();
         return distinctCountAggregator;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    #
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         return {
             "distinctValues": self.distinctValues
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    #
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         any distinctValues = state["distinctValues"];
         if (distinctValues is map<int>) {
@@ -255,12 +363,21 @@ public type DistinctCount object {
     }
 };
 
+# Returns a `DistinctCount` aggregator object. The aggregator function name which is used in a streaming query should
+# have the same name as this function's name.
+#
+# + return - A `Aggregator` object which represents DistinctCount.
 public function distinctCount() returns Aggregator {
     DistinctCount distinctCountAggregator = new();
     return distinctCountAggregator;
 }
 
-
+# Aggregator to find the maximum value in a stream.
+#
+# + iMaxQueue - description
+# + fMaxQueue- description
+# + iMax - description
+# + fMax - description
 public type Max object {
     *Aggregator;
     *Snapshotable;
@@ -273,6 +390,12 @@ public type Max object {
 
     }
 
+    # Updates the current maximum value and return the updated maximum value.
+    #
+    # + value - Value being checked whether it is greater than the current maximum value.
+    # + eventType - Type of the incoming event `streams:CURRENT`, `streams:EXPIRED` or `streams:RESET`.
+    #
+    # + return - Updated max value.
     public function process(anydata value, EventType eventType) returns anydata {
 
         if (value is int) {
@@ -354,11 +477,17 @@ public type Max object {
         }
     }
 
+    # Returns a copy of the `Max` aggregator without its current state.
+    #
+    # + return - Returns `Max` aggregator.
     public function copy() returns Aggregator {
         Max maxAggregator = new();
         return maxAggregator;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    #
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         any[] iMaxQ = self.iMaxQueue.asArray();
         any[] fMaxQ = self.fMaxQueue.asArray();
@@ -370,6 +499,9 @@ public type Max object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    #
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         any iMaxQ = state["iMaxQ"];
         if (iMaxQ is any[]) {
@@ -392,12 +524,21 @@ public type Max object {
     }
 };
 
+# Returns a `Max` aggregator object. The aggregator function name which is used in a streaming query should
+# have the same name as this function's name.
+#
+# + return - A `Aggregator` which represents `Max`.
 public function max() returns Aggregator {
     Max maxAggregator = new();
     return maxAggregator;
 }
 
-
+# Aggregator to find the minimum value in a stream.
+#
+# + iMinQueue - description
+# + fMinQueue - description
+# + iMin - description
+# + fMin - description
 public type Min object {
     *Aggregator;
     *Snapshotable;
@@ -410,6 +551,12 @@ public type Min object {
 
     }
 
+    # Updates the current minimum value and return the updated minimum value.
+    #
+    # + value - Value being checked whether it is lesser than the current minimum value.
+    # + eventType - Type of the incoming event `streams:CURRENT`, `streams:EXPIRED` or `streams:RESET`.
+    #
+    # + return - Updated minimum value.
     public function process(anydata value, EventType eventType) returns anydata {
         if (value is int) {
             if (eventType == "CURRENT") {
@@ -489,11 +636,17 @@ public type Min object {
         }
     }
 
+    # Returns a copy of the `Min` aggregator.
+    #
+    # + return - A `Aggregator` object which represents `Min` aggregator.
     public function copy() returns Aggregator {
         Min minAggregator = new();
         return minAggregator;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    #
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         any[] iMinQ = self.iMinQueue.asArray();
         any[] fMinQ = self.fMinQueue.asArray();
@@ -505,6 +658,9 @@ public type Min object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    #
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         any iMinQ = state["iMinQ"];
         if (iMinQ is any[]) {
@@ -527,12 +683,21 @@ public type Min object {
     }
 };
 
+# Returns a `Min` aggregator object. The aggregator function name which is used in a streaming query should
+# have the same name as this function's name.
+#
+# + return - A `Aggregator` which represents `Min`.
 public function min() returns Aggregator {
     Min minAggregator = new();
     return minAggregator;
 }
 
-
+# The aggregator object to calculate standard deviation.
+#
+# + mean - description
+# + stdDeviation - description
+# + sumValue - description
+# + count - description
 public type StdDev object {
     *Aggregator;
     *Snapshotable;
@@ -545,6 +710,12 @@ public type StdDev object {
 
     }
 
+    # Updates the current standard deviation as the new values come into the aggregation.
+    #
+    # + value - Value being added or removed from aggregation in order to calculate the new standard deviation.
+    # + eventType - Type of the incoming event `streams:CURRENT`, `streams:EXPIRED` or `streams:RESET`.
+    #
+    # + return - Updated standard deviation.
     public function process(anydata value, EventType eventType) returns anydata {
         float fVal;
         if (value is int) {
@@ -601,11 +772,17 @@ public type StdDev object {
         }
     }
 
+    # Returns a copy of the `StdDev` aggregator.
+    #
+    # + return - A `Aggregator` object which represents `StdDev` aggregator.
     public function copy() returns Aggregator {
         StdDev stdDevAggregator = new();
         return stdDevAggregator;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    #
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         return {
             "mean": self.mean,
@@ -615,6 +792,9 @@ public type StdDev object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    #
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         any mean = state["mean"];
         if (mean is float) {
@@ -635,11 +815,20 @@ public type StdDev object {
     }
 };
 
+# Returns a `StdDev` aggregator object. The aggregator function name which is used in a streaming query should
+# have the same name as this function's name.
+#
+# + return - A `Aggregator` which represents `StdDev`.
 public function stdDev() returns Aggregator {
     StdDev stdDevAggregator = new();
     return stdDevAggregator;
 }
 
+# The aggregator to keep the maximum value received so far. It is similar to `Max` aggregator, but it keeps the maximum
+# value it received so far, forever.
+#
+# + iMax - description
+# + fMax - description
 public type MaxForever object {
     *Aggregator;
     *Snapshotable;
@@ -650,6 +839,12 @@ public type MaxForever object {
 
     }
 
+    # Updates the current maximum value and return the updated maximum value.
+    #
+    # + value - Value being checked whether it is greater than the current maximum value.
+    # + eventType - Type of the incoming event `streams:CURRENT`, `streams:EXPIRED` or `streams:RESET`.
+    #
+    # + return - Updated maximum value.
     public function process(anydata value, EventType eventType) returns anydata {
 
         if (value is int) {
@@ -681,11 +876,17 @@ public type MaxForever object {
         }
     }
 
+    # Returns a copy of the `MaxForever` aggregator.
+    #
+    # + return - A `Aggregator` object which represents `MaxForever` aggregator.
     public function copy() returns Aggregator {
         MaxForever maxForeverAggregator = new();
         return maxForeverAggregator;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    #
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         return {
             "iMax": self.iMax,
@@ -693,6 +894,9 @@ public type MaxForever object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    #
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         any iMax = state["iMax"];
         if (iMax is int) {
@@ -705,11 +909,20 @@ public type MaxForever object {
     }
 };
 
+# Returns a `MaxForever` aggregator object. The aggregator function name which is used in a streaming query should
+# have the same name as this function's name.
+#
+# + return - A `Aggregator` which represents `MaxForever`.
 public function maxForever() returns Aggregator {
     MaxForever maxForeverAggregator = new();
     return maxForeverAggregator;
 }
 
+# The aggregator to keep the minimum value received so far. It is similar to `Min` aggregator, but it keeps the minimum
+# value it received so far, forever.
+#
+# + iMin - description
+# + fMin - description
 public type MinForever object {
     *Aggregator;
     *Snapshotable;
@@ -720,6 +933,12 @@ public type MinForever object {
 
     }
 
+    # Updates the current minimum value and return the updated minimum value.
+    #
+    # + value - Value being checked whether it is lesser than the current minimum value.
+    # + eventType - Type of the incoming event `streams:CURRENT`, `streams:EXPIRED` or `streams:RESET`.
+    #
+    # + return - Updated minimum value.
     public function process(anydata value, EventType eventType) returns anydata {
 
         if (value is int) {
@@ -751,11 +970,17 @@ public type MinForever object {
         }
     }
 
+    # Returns a copy of the `MinForever` aggregator.
+    #
+    # + return - A `Aggregator` object which represents `MinForever` aggregator.
     public function copy() returns Aggregator {
         MinForever minForeverAggregator = new();
         return minForeverAggregator;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    #
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         return {
             "iMin": self.iMin,
@@ -763,6 +988,9 @@ public type MinForever object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    #
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         any iMin = state["iMin"];
         if (iMin is int) {
@@ -775,6 +1003,10 @@ public type MinForever object {
     }
 };
 
+# Returns a `MinForever` aggregator object. The aggregator function name which is used in a streaming query should
+# have the same name as this function's name.
+#
+# + return - A `Aggregator` which represents `MainForever`.
 public function minForever() returns Aggregator {
     MinForever minForeverAggregator = new();
     return minForeverAggregator;

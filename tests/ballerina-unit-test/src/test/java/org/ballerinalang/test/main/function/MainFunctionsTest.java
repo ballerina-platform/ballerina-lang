@@ -91,7 +91,7 @@ public class MainFunctionsTest {
                             "expected the main function to be invoked");
         assertEquals(result.length, 1, "expected the main function to return a single value");
         assertTrue(result[0] instanceof BError, "expected error to be returned");
-        assertEquals(((BError) result[0]).reason, "error return", "invalid error reason");
+        assertEquals(((BError) result[0]).getReason(), "error return", "invalid error reason");
     }
 
     @Test
@@ -103,7 +103,7 @@ public class MainFunctionsTest {
         assertEquals(tempOutStream.toString(), "error? returning main invoked",
                             "expected the main function to be invoked");
         assertTrue(result[0] instanceof BError, "expected error to be returned");
-        assertEquals(((BError) result[0]).reason, "generic error", "invalid error reason");
+        assertEquals(((BError) result[0]).getReason(), "generic error", "invalid error reason");
     }
 
     @Test
@@ -126,8 +126,8 @@ public class MainFunctionsTest {
         assertEquals(tempOutStream.toString(), "error? returning main invoked",
                             "expected the main function to be invoked");
         assertTrue(result[0] instanceof BError, "expected error to be returned");
-        assertEquals(((BError) result[0]).reason, "const error reason", "invalid error reason");
-        assertEquals(((BString) ((BMap) ((BError) result[0]).details).get("message")).stringValue(),
+        assertEquals(((BError) result[0]).getReason(), "const error reason", "invalid error reason");
+        assertEquals(((BString) ((BMap) ((BError) result[0]).getDetails()).get("message")).stringValue(),
                             "error message", "invalid error message");
     }
 

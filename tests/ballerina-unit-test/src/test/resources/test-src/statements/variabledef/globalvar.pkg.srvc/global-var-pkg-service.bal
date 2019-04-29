@@ -37,7 +37,7 @@ service GlobalVar on globalVarEP {
 
         http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     @http:ResourceConfig {
@@ -49,7 +49,7 @@ service GlobalVar on globalVarEP {
         http:Response res = new;
         json responseJson = {"glbVarFloat1":glbVarFloat1};
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     @http:ResourceConfig {
@@ -60,7 +60,7 @@ service GlobalVar on globalVarEP {
         http:Response res = new;
         json responseJson = {"glbVarFunc":glbVarFunc};
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     @http:ResourceConfig {
@@ -71,7 +71,7 @@ service GlobalVar on globalVarEP {
         http:Response res = new;
         json responseJson = {"glbVarPkgFunc":glbVarPkgFunc};
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     @http:ResourceConfig {
@@ -82,7 +82,7 @@ service GlobalVar on globalVarEP {
         http:Response res = new;
         json responseJson = {"serviceVarString":serviceVarString};
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     @http:ResourceConfig {
@@ -93,7 +93,7 @@ service GlobalVar on globalVarEP {
 
         http:Response res = new;
         varpkg:setGlbVarFloatChange(345432.454);
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 }
 
@@ -109,7 +109,7 @@ service GlobalVarSecond on globalVarEP{
         float changeVarFloat = varpkg:getGlbVarFloatChange();
         json responseJson = {"changeVarFloat":changeVarFloat};
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
 }

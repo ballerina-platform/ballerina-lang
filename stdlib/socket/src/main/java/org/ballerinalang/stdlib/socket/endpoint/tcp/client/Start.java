@@ -46,11 +46,12 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnsupportedAddressTypeException;
 
+import static java.nio.channels.SelectionKey.OP_READ;
+import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
-import static java.nio.channels.SelectionKey.OP_READ;
 
 /**
  * Connect to the remote server.
@@ -62,7 +63,7 @@ import static java.nio.channels.SelectionKey.OP_READ;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Client", structPackage = SOCKET_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class Start implements NativeCallableUnit {

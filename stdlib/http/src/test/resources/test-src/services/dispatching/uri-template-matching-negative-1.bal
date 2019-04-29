@@ -15,7 +15,7 @@ service negativeTemplateURI on testEP {
         http:Response res = new;
         json responseJson = {"first":abc, "echo":"echo"};
         res.setJsonPayload(untaint responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -26,6 +26,6 @@ service negativeTemplateURI on testEP {
         http:Response res = new;
         json responseJson = {"first":xyz, "echo":"echo"};
         res.setJsonPayload(untaint responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

@@ -21,7 +21,6 @@ package org.ballerinalang.mime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
@@ -33,12 +32,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.util.Locale;
-
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.MimeConstants.XML_SUFFIX;
-import static org.ballerinalang.mime.util.MimeConstants.XML_TYPE_IDENTIFIER;
 
 /**
  * Get the entity body in xml form.
@@ -60,13 +55,6 @@ public class GetXml extends AbstractGetPayloadHandler {
         try {
             BXML result;
             BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            String baseType = HeaderUtil.getBaseType(entityObj);
-            if (!isXmlContentType(baseType)) {
-                createErrorAndNotify(context, callback, "Entity body is not xml " + COMPATIBLE_SINCE_CONTENT_TYPE +
-                        baseType);
-                return;
-            }
-
             BValue dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
                 if (dataSource instanceof BXML) {
@@ -90,10 +78,5 @@ public class GetXml extends AbstractGetPayloadHandler {
             createErrorAndNotify(context, callback,
                                  "Error occurred while extracting xml data from entity : " + ex.getMessage());
         }
-    }
-
-    private boolean isXmlContentType(String baseType) {
-        return baseType != null && (baseType.toLowerCase(Locale.getDefault()).endsWith(XML_TYPE_IDENTIFIER) ||
-                baseType.toLowerCase(Locale.getDefault()).endsWith(XML_SUFFIX));
     }
 }

@@ -35,7 +35,7 @@ service test on mockEP {
         string contentType = mime:MULTIPART_MIXED + "; boundary=e3a0b9ad7b4e7cdb";
         outResponse.setBodyParts(bodyParts, contentType = contentType);
 
-        _ = caller->respond(outResponse);
+        checkpanic caller->respond(outResponse);
     }
 
     @http:ResourceConfig {
@@ -52,6 +52,6 @@ service test on mockEP {
         } else {
             outResponse.setPayload(untaint <string>bodyParts.detail().message);
         }
-        _ = caller->respond(outResponse);
+        checkpanic caller->respond(outResponse);
     }
 }

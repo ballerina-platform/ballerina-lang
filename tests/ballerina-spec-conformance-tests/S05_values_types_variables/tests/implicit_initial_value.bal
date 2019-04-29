@@ -50,7 +50,7 @@ function testImplicitInitialValueOfFloatType() {
 function testImplicitInitialValueOfDecimalType() {
     decimal[] decimalArray = [];
     decimalArray[1] = 50.9;
-    test:assertEquals(decimalArray[0], <decimal>0.0, msg = "expected implicit initial value of decimal to be 0.0");
+    test:assertEquals(decimalArray[0], 0.0d, msg = "expected implicit initial value of decimal to be 0.0");
 }
 
 @test:Config {}
@@ -175,12 +175,10 @@ function testImplicitInitialValueOfUnions() {
     test:assertEquals(unionArray2[0], expectedVal, msg = "expected implicit initial value of this union should be 0");
 }
 
-public type QuuzRecord record {
+public type QuuzRecord record {|
     int quuzFieldOne;
-    !...;
-};
+|};
 
-public type QuuxRecord record {
+public type QuuxRecord record {|
     string quuxFieldOne;
-    !...;
-};
+|};

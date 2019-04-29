@@ -1,2 +1,0 @@
-// Type assertion is a check for exact type. Type assertion checks if a given value's storage type is exactly a particular type.
-// Type assertion results in panic, if assertion fails (i. e., the value is not of the asserted type).
