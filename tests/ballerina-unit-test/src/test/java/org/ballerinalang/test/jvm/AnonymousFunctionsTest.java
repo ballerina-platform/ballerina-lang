@@ -51,6 +51,4 @@
          BValue[] result = BRunUtil.invoke(compileResult, "testFPPassing");
          Assert.assertEquals(result[0].stringValue(), "200");
      }
-
-
  }

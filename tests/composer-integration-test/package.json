@@ -40,8 +40,5 @@
     "ts-loader": "^5.2.1",
     "typescript": "^3.0.1",
     "vscode-uri": "^1.0.6"
-  },
-  "dependencies": {
-    "@ballerina/composer": "file:../../composer"
   }
 }
