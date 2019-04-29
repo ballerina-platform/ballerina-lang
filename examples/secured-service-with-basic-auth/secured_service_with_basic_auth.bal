@@ -7,9 +7,8 @@ auth:ConfigAuthStoreProvider basicAuthProvider = new;
 http:BasicAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 
 // The endpoint used here is the `http:Listener`, which by default tries to
-// authenticate and authorize each request. It is optional to
-// override the authentication and authorization at the service level and/or
-// resource level.
+// authenticate and authorize each request. It is optional to override the
+// authentication and authorization at the service level and/or resource level.
 listener http:Listener ep = new(9090, config = {
     auth: {
         authnHandlers: [basicAuthnHandler]
@@ -49,8 +48,9 @@ service echo on ep {
     // The authentication and authorization settings can be overridden at the
     // resource level.
     // The hello resource would inherit the `enabled: true` flag from the
-    // service level, which is set automatically. The service level scope  (i.e., scope1) will be overridden
-    // by the scope defined in the resource level (i.e., scope2).
+    // service level, which is set automatically. The service level scope
+    // (i.e., scope1) will be overridden by the scope defined in the resource
+    // level (i.e., scope2).
     resource function hello(http:Caller caller, http:Request req) {
         error? result = caller->respond("Hello, World!!!");
         if (result is error) {

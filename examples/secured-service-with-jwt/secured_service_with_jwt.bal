@@ -17,9 +17,9 @@ auth:JWTAuthProvider jwtAuthProvider = new({
 http:JwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
 
 // The endpoint used here is the `http:Listener`. The JWT authentication
-// handler is set to this endpoint using the `authnHandlers` attribute. It is optional to
-// override the authentication and authorization
-// at the service and resource levels.
+// handler is set to this endpoint using the `authnHandlers` attribute.
+// It is optional to override the authentication and authorization at the
+// service and resource levels.
 listener http:Listener ep = new(9090, config = {
     auth: {
         authnHandlers: [jwtAuthnHandler]

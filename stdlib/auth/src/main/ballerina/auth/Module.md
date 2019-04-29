@@ -16,11 +16,9 @@ When creating a new authentication provider, there is a function that needs to b
 
 ### Config Auth Store Provider
 
-The `auth:ConfigAuthStoreProvider` is an implementation of the `auth:AuthProvider` interface, which uses the Ballerina configuration file
- to store usernames, passwords, scopes, and relevant associations.
+The `auth:ConfigAuthStoreProvider` is an implementation of the `auth:AuthProvider` interface, which uses the Ballerina configuration file to store usernames, passwords, scopes, and relevant associations.
 
-A user is denoted by a section in the configuration file. The password and the scopes assigned to the user are denoted
- as keys under the relevant user section as shown below. 
+A user is denoted by a section in the configuration file. The password and the scopes assigned to the user are denoted as keys under the relevant user section as shown below. 
 
  ```
  [b7a.users.<username>]
