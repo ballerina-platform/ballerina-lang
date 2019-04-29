@@ -23,6 +23,7 @@ public type BirEmitter object {
     private InstructionEmitter insEmitter;
     private TerminalEmitter termEmitter;
     private OperandEmitter opEmitter;
+    private PositionEmitter posEmitter;
 
     public function __init (Package pkg){
         self.pkg = pkg;
@@ -30,6 +31,7 @@ public type BirEmitter object {
         self.insEmitter = new;
         self.termEmitter = new;
         self.opEmitter = new;
+        self.posEmitter= new;
     }
 
 
@@ -72,8 +74,10 @@ public type BirEmitter object {
     function emitTypeDef(TypeDef bTypeDef) {
         string visibility =  bTypeDef.visibility;
         print(visibility.toLower(), " type ", bTypeDef.name.value, " ");
-        if (bTypeDef.typeValue is BObjectType){
-            println("{");
+        var typeValue = bTypeDef.typeValue;
+        if (typeValue is BObjectType){
+            emitObjectTypeWithFields(typeValue, self.typeEmitter, "");
+            println();
             self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
             print("}");
         } else {
@@ -102,19 +106,21 @@ public type BirEmitter object {
     }
 
     function emitFunction(Function bFunction, string tabs) {
+        self.posEmitter.emitPosition(bFunction.pos);
         string visibility =  bFunction.visibility;
         print(tabs, visibility.toLower(), " function ", bFunction.name.value, " ");
         self.typeEmitter.emitType(bFunction.typeValue);
-        println(" {");
+        println(" {", bFunction.isDeclaration ? "\t// extern" : bFunction.isInterface ? "\t// interface" : "");
         foreach var v in bFunction.localVars {
-            self.typeEmitter.emitType(v.typeValue, tabs = tabs + "\t");
+            VariableDcl varDecl = getVariableDcl(v);
+            self.typeEmitter.emitType(varDecl.typeValue, tabs = tabs + "\t");
             print(" ");
-            if (v.name.value == "%0") {
+            if (varDecl.name.value == "%0") {
                 print("%ret");
             } else {
-                print(v.name.value);
+                print(varDecl.name.value);
             }
-            println("\t// ", v.kind);
+            println("\t// ", varDecl.kind);
         }
         println();// empty line
         foreach var b in bFunction.basicBlocks {
@@ -124,7 +130,7 @@ public type BirEmitter object {
             }
         }
         if (bFunction.errorEntries.length() > 0 ) {
-            println("\tError Table \n\t\tBB\t|\terrorOp");
+            println("\t\tError Table \n\t\t\tBB\t|\terrorOp");
         }
         foreach var e in bFunction.errorEntries {
             if (e is ErrorEntry) {
@@ -139,15 +145,15 @@ public type BirEmitter object {
         println(tabs, bBasicBlock.id.value, " {");
         foreach var ins in bBasicBlock.instructions {
             if (ins is Instruction) {
-                self.insEmitter.emitIns(ins, tabs = tabs + "\t");
+                self.insEmitter.emitIns(ins, tabs = tabs);
             }
         }
-        self.termEmitter.emitTerminal(bBasicBlock.terminator, tabs = tabs + "\t");
+        self.termEmitter.emitTerminal(bBasicBlock.terminator, tabs = tabs);
         println(tabs, "}");
     }
 
     function emitErrorEntry(ErrorEntry errorEntry) {
-        print("\t\t");
+        print("\t\t\t");
         print(errorEntry.trapBB.id.value);
         print("\t|\t");
         self.opEmitter.emitOp(errorEntry.errorOp);
@@ -157,13 +163,16 @@ public type BirEmitter object {
 type InstructionEmitter object {
     private OperandEmitter opEmitter;
     private TypeEmitter typeEmitter;
+    private PositionEmitter posEmitter;
 
     function __init() {
         self.opEmitter = new;
         self.typeEmitter = new;
+        self.posEmitter = new;
     }
 
     function emitIns(Instruction ins, string tabs = "") {
+        self.posEmitter.emitPosition(ins.pos);
         if (ins is FieldAccess) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
@@ -240,18 +249,28 @@ type InstructionEmitter object {
             print(" ", ins.kind, " ");
             self.typeEmitter.emitType(ins.typeValue);
             println(";");
+        } else if (ins is FPLoad) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ");
+            print(" ", ins.kind, " ");
+            print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "()");
+            println(";");
         }
     }
 };
 
 type TerminalEmitter object {
     private OperandEmitter opEmitter;
+    private PositionEmitter posEmitter;
 
     function __init() {
         self.opEmitter = new;
+        self.posEmitter = new;
     }
 
     function emitTerminal(Terminator term, string tabs = "") {
+        self.posEmitter.emitPosition(term.pos);
         if (term is Call) {
             print(tabs);
             VarRef? lhsOp = term.lhsOp;
@@ -270,7 +289,7 @@ type TerminalEmitter object {
                     i = i + 1;
                 }
             }
-            print(") -> ", term.thenBB.id.value, ";");
+            println(") -> ", term.thenBB.id.value, ";");
         } else if (term is Branch) {
             print(tabs, "branch ");
             self.opEmitter.emitOp(term.op);
@@ -280,7 +299,43 @@ type TerminalEmitter object {
         } else if (term is Panic) {
             print(tabs, "panic ");
             self.opEmitter.emitOp(term.errorOp);
-            print(";");
+            println(";");
+        } else if (term is Wait) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            int i = 0;
+            foreach var expr in term.exprList {
+                if (i != 0) {
+                    print("|");
+                }
+                if (expr is VarRef) {
+                    self.opEmitter.emitOp(expr);
+                }
+                i = i + 1;
+            }
+            println(";");
+        } else if (term is AsyncCall) {
+          print(tabs);
+          VarRef? lhsOp = term.lhsOp;
+          if (lhsOp is VarRef) {
+              self.opEmitter.emitOp(lhsOp);
+              print(" = ");
+          }
+          print(" START ");
+          print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
+          int i = 0;
+          foreach var arg in term.args {
+              if (arg is VarRef) {
+                  if (i != 0) {
+                      print(", ");
+                  }
+                  self.opEmitter.emitOp(arg);
+                  i = i + 1;
+              }
+          }
+          println(") -> ", term.thenBB.id.value, ";");
         } else { //if (term is Return) {
             println(tabs, "return;");
         }
@@ -332,10 +387,11 @@ type TypeEmitter object {
         if (bRecordType.sealed) {
             print("sealed ");
         }
-        print("record { ");
+        println("record { ");
         foreach var f in bRecordType.fields {
-            self.emitType(f.typeValue, tabs = tabs + "\t");
-            print(" ", f.name.value);
+            BRecordField recField = getRecordField(f);
+            self.emitType(recField.typeValue, tabs = tabs + "\t");
+            println(" ", recField.name.value, ";");
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
         print("...");
@@ -343,15 +399,7 @@ type TypeEmitter object {
     }
 
     function emitObjectType(BObjectType bObjectType, string tabs) {
-        print(tabs, "object {");
-        foreach var f in bObjectType.fields {
-            if (f is BObjectField){
-                string visibility = f.visibility;
-                print(tabs + "\t", visibility.toLower(), " ");
-                self.emitType(f.typeValue);
-                print(" ", f.name.value);
-            }
-        }
+        emitObjectTypeWithFields(bObjectType, self, tabs);
         print(tabs, "}");
     }
 
@@ -360,10 +408,11 @@ type TypeEmitter object {
         // int pCount = bInvokableType.paramTypes.size(); 
         int i = 0;
         foreach var p in bInvokableType.paramTypes {
+            BType pType = getType(p);
             if (i != 0) {
                 print(", ");
             }
-            self.emitType(p);
+            self.emitType(pType);
             i = i + 1;
         }
         print(") -> ");
@@ -381,11 +430,12 @@ type TypeEmitter object {
         int i = 0;
         string tabst = tabs;
         foreach var t in bUnionType.members {
+            BType mType = getType(t);
             if (i != 0) {
                 print(" | ");
                 tabst = "";
             }
-            self.emitType(t, tabs = tabst);
+            self.emitType(mType, tabs = tabst);
             i = i + 1;
         }
     }
@@ -394,10 +444,11 @@ type TypeEmitter object {
         int i = 0;
         print(tabs, "(");
         foreach var t in bUnionType.tupleTypes {
+            BType tType = getType(t);
             if (i != 0) {
                 print(", ");
             }
-            self.emitType(t);
+            self.emitType(tType);
             i = i + 1;
         }
         print(")");
@@ -423,6 +474,39 @@ type TypeEmitter object {
         print("}");
     }
 };
+
+type PositionEmitter object {
+    function emitPosition(DiagnosticPos pos) {
+        if (pos.sLine != -1) {
+            self.appendPos(pos.sLine);
+            print("-");
+            self.appendPos(pos.eLine);
+            print(":");
+            self.appendPos(pos.sCol);
+            print("-");
+            self.appendPos(pos.eCol);
+        }
+    }
+
+     function appendPos(int line) {
+        if (line < 10) {
+            print("0");
+        }
+        print(line);
+    }
+};
+
+function emitObjectTypeWithFields(BObjectType bObjectType, TypeEmitter typeEmitter, string tabs) {
+    println(tabs, bObjectType.isAbstract ? "abstract " : "", "object {");
+    foreach var f in bObjectType.fields {
+        if (f is BObjectField) {
+            string visibility = f.visibility;
+            print(tabs + "\t", visibility.toLower(), " ");
+            typeEmitter.emitType(f.typeValue);
+            println(" ", f.name.value, ";");
+        }
+    }
+}
 
 
 function println(any... vals) {

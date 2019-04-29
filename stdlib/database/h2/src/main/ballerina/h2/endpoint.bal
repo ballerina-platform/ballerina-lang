@@ -35,11 +35,6 @@ public type InMemoryConfig record {|
 #
 # + host - The host name of the database to connect (in case of server based DB)
 # + port - The port of the database to connect (in case of server based DB)
-# + name - The name of the database to connect
-# + username - Username for the database connection
-# + password - Password for the database connection
-# + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
-# + dbOptions - A map of DB specific properties
 public type ServerModeConfig record {|
     string host;
     int port = 9092;
@@ -49,11 +44,6 @@ public type ServerModeConfig record {|
 # The Client endpoint configuration for the embedded mode of h2 databases.
 #
 # + path - The path of the database connection (in case of file based DB)
-# + name - The name of the database to connect
-# + username - Username for the database connection
-# + password - Password for the database connection
-# + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
-# + dbOptions - A map of DB specific properties
 public type EmbeddedModeConfig record {|
     string path;
     *InMemoryConfig;
@@ -139,6 +129,7 @@ public type Client client object {
     }
 
     # Stops the JDBC client.
+    # + return - Possible error during closing
     public function stop() returns error? {
         self.clientActive = false;
         return sql:close(self.sqlClient);

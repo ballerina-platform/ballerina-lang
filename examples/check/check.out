@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run check.bal
 12
 {ballerina}ConversionError {"message":"incompatible convert operation: 'string' value 'invalid' cannot be converted as 'int'"}

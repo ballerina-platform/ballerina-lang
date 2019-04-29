@@ -1,5 +1,3 @@
-import ballerina/io;
-
 function funcReturnNil() {
 }
 
@@ -21,35 +19,18 @@ function testNullableArrayTypes1() returns any {
     return f;
 }
 
-//struct person {
-//    int age;
-//    address? addr;
-//    string[] names;
-//}
+type SearchResultType RESULT_TYPE_MIXED|RESULT_TYPE_RECENT|RESULT_TYPE_POPULAR;
 
-//struct address {
-//    string name = "52 skytop";
-//    int no = 10;
-//    subject? sbjs;
-//}
-//
-//struct subject {
-//    string name;
-//    int id;
-//}
+const RESULT_TYPE_MIXED = "mixed";
+const RESULT_TYPE_RECENT = "recent";
+const RESULT_TYPE_POPULAR = "popular";
 
-//function testNullableTypesInStructs() {
-//    person? p1;
-//    person p2 = {age:12};
-//    io:println(p2.addr);
+function testNilableTypeInTypeTest() returns string {
+    SearchResultType? s = RESULT_TYPE_MIXED;
 
+    if (s is SearchResultType) {
+        return <string>s;
+    }
 
-    //person p2 = {age:12, addr: {name:"ddd", sbjs:null}, names:["ss", "d"]};
-
-    //match p {
-    //    person k => io:println(k);
-    //    any | null => io:println("null here");
-    //}
-
-    //io:println(p.addr);
-//}
+    return "()";
+}

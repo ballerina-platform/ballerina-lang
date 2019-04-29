@@ -13,12 +13,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-public type Person record {
+public type Person record {|
     int id;
     string name;
     float salary;
     string...;
-};
+|};
 
 type Employee record {
     int id;

@@ -31,7 +31,7 @@ service echoServer on server {
                 log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            log:printError("", err = result);
+            log:printError("Unable to read the content", err = result);
         }
     }
 

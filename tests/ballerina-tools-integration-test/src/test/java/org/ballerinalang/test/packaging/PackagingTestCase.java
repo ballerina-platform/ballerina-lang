@@ -38,8 +38,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-import static org.awaitility.Awaitility.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.given;
 
 /**
  * Testing pushing, pulling, searching a package from central and installing package to home repository.

@@ -50,6 +50,7 @@ public type FuncBodyParser object {
     }
 
     public function parseInstruction() returns Instruction {
+        DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var kindTag = self.reader.readInt8();
         InstructionKind kind = INS_KIND_CONST_LOAD;
         // this is hacky to init to a fake val, but ballerina dosn't support un intialized vars
@@ -58,81 +59,81 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess mapStore = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return mapStore;
         } else if (kindTag == INS_MAP_STORE) {
             kind = INS_KIND_MAP_STORE;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess mapStore = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return mapStore;
         } else if (kindTag == INS_MAP_LOAD) {
             kind = INS_KIND_MAP_LOAD;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess mapLoad = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess mapLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return mapLoad;
         } else if (kindTag == INS_OBJECT_STORE) {
             kind = INS_KIND_OBJECT_STORE;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess objectStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess objectStore = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return objectStore;
         } else if (kindTag == INS_OBJECT_LOAD) {
             kind = INS_KIND_OBJECT_LOAD;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess objectLoad = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess objectLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return objectLoad;
         } else if (kindTag == INS_ARRAY_LOAD) {
             kind = INS_KIND_ARRAY_LOAD;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess arrayLoad = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess arrayLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return arrayLoad;
         } else if (kindTag == INS_NEW_ARRAY) {
             var bType = self.typeParser.parseType();
             kind = INS_KIND_NEW_ARRAY;
             var lhsOp = self.parseVarRef();
             var sizeOp = self.parseVarRef();
-            NewArray newArray = {kind:kind, lhsOp:lhsOp, sizeOp:sizeOp, typeValue:bType};
+            NewArray newArray = {pos:pos, kind:kind, lhsOp:lhsOp, sizeOp:sizeOp, typeValue:bType};
             return newArray;
         } else if (kindTag == INS_NEW_MAP) {
             var bType = self.typeParser.parseType();
             kind = INS_KIND_NEW_MAP;
             var lhsOp = self.parseVarRef();
-            NewMap newMap = {kind:kind, lhsOp:lhsOp, typeValue:bType};
+            NewMap newMap = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType};
             return newMap;
         } else if (kindTag == INS_NEW_INST) {
             var defIndex = self.reader.readInt32();
             kind = INS_KIND_NEW_INST;
             var lhsOp = self.parseVarRef();
-            NewInstance newInst = {kind:kind, lhsOp:lhsOp, typeDef: self.findTypeDef(defIndex)};
+            NewInstance newInst = {pos:pos, kind:kind, lhsOp:lhsOp, typeDef: self.findTypeDef(defIndex)};
             return newInst;
         } else if (kindTag == INS_TYPE_CAST) {
             kind = INS_KIND_TYPE_CAST;
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            TypeCast typeCast = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            TypeCast typeCast = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return typeCast;
         } else if (kindTag == INS_IS_LIKE) {
             kind = INS_KIND_IS_LIKE;
             var bType = self.typeParser.parseType();
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            IsLike isLike = {kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
+            IsLike isLike = {pos:pos, kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
             return isLike;
         } else if (kindTag == INS_TYPE_TEST) {
             kind = INS_KIND_TYPE_TEST;
             var bType = self.typeParser.parseType();
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            TypeTest typeTest = {kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
+            TypeTest typeTest = {pos:pos, kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
             return typeTest;
         } else if (kindTag == INS_CONST_LOAD){
             //TODO: remove redundent
@@ -150,42 +151,133 @@ public type FuncBodyParser object {
             } else if (bType is BTypeFloat) {
                 value = self.reader.readFloatCpRef();
             }
-            ConstantLoad constLoad = {kind:kind, lhsOp:lhsOp, typeValue:bType, value:value};
+            ConstantLoad constLoad = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType, value:value};
             return constLoad;
         } else if (kindTag == INS_MOVE){
             kind = INS_KIND_MOVE;
             var rhsOp = self.parseVarRef();
             var lhsOp = self.parseVarRef();
-            Move move = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            Move move = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return move;
         } else if (kindTag == INS_NEW_ERROR) {
             kind = INS_KIND_NEW_ERROR;
             var lhsOp = self.parseVarRef();
             var reasonOp = self.parseVarRef();
             var detailsOp = self.parseVarRef();
-            NewError newError = {kind:kind, lhsOp:lhsOp, reasonOp:reasonOp, detailsOp:detailsOp};
+            NewError newError = {pos:pos, kind:kind, lhsOp:lhsOp, reasonOp:reasonOp, detailsOp:detailsOp};
             return newError;
+        } else if (kindTag == INS_NEW_XML_ELEMENT) {
+            kind = INS_KIND_NEW_XML_ELEMENT;
+            var lhsOp = self.parseVarRef();
+            var startTagOp = self.parseVarRef();
+            var endTagOp = self.parseVarRef();
+            var defaultNsURIOp = self.parseVarRef();
+            NewXMLElement newXMLElement = {pos:pos, kind:kind, lhsOp:lhsOp, startTagOp:startTagOp, endTagOp:endTagOp, 
+                                           defaultNsURIOp:defaultNsURIOp};
+            return newXMLElement;
+        } else if (kindTag == INS_NEW_XML_TEXT) {
+            kind = INS_KIND_NEW_XML_TEXT;
+            var lhsOp = self.parseVarRef();
+            var textOp = self.parseVarRef();
+            NewXMLText newXMLText = {pos:pos, kind:kind, lhsOp:lhsOp, textOp:textOp};
+            return newXMLText;
+        } else if (kindTag == INS_NEW_XML_COMMENT) {
+            kind = INS_KIND_NEW_XML_COMMENT;
+            var lhsOp = self.parseVarRef();
+            var textOp = self.parseVarRef();
+            NewXMLComment newXMLComment = {pos:pos, kind:kind, lhsOp:lhsOp, textOp:textOp};
+            return newXMLComment;
+        } else if (kindTag == INS_NEW_XML_PI) {
+            kind = INS_KIND_NEW_XML_PI;
+            var lhsOp = self.parseVarRef();
+            var dataOp = self.parseVarRef();
+            var targetOp = self.parseVarRef();
+            NewXMLPI newXMLPI = {pos:pos, kind:kind, lhsOp:lhsOp, dataOp:dataOp, targetOp:targetOp};
+            return newXMLPI;
+        } else if (kindTag == INS_NEW_XML_QNAME) {
+            kind = INS_KIND_NEW_XML_QNAME;
+            var lhsOp = self.parseVarRef();
+            var localnameOp = self.parseVarRef();
+            var nsURIOp = self.parseVarRef();
+            var prefixOp = self.parseVarRef();
+            NewXMLQName newXMLQName = {pos:pos, kind:kind, lhsOp:lhsOp, localnameOp:localnameOp, nsURIOp:nsURIOp, 
+                                       prefixOp:prefixOp};
+            return newXMLQName;
+        } else if (kindTag == INS_NEW_STRING_XML_QNAME) {
+            kind = INS_KIND_NEW_STRING_XML_QNAME;
+            var lhsOp = self.parseVarRef();
+            var stringQNameOp = self.parseVarRef();
+            NewStringXMLQName newStringXMLQName = {pos:pos, kind:kind, lhsOp:lhsOp, stringQNameOp:stringQNameOp};
+            return newStringXMLQName;
+        } else if (kindTag == INS_XML_SEQ_STORE) {
+            kind = INS_KIND_XML_SEQ_STORE;
+            var lhsOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            XMLAccess xmlSeqStore = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return xmlSeqStore;
+        } else if (kindTag == INS_XML_SEQ_LOAD) {
+            kind = INS_KIND_XML_SEQ_LOAD;
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess xmlLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return xmlLoad;
+        } else if (kindTag == INS_XML_LOAD) {
+            kind = INS_KIND_XML_LOAD;
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess xmlLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return xmlLoad;
+        } else if (kindTag == INS_XML_LOAD_ALL) {
+            kind = INS_KIND_XML_LOAD_ALL;
+            var lhsOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            XMLAccess xmlLoadAll = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return xmlLoadAll;
+        } else if (kindTag == INS_XML_ATTRIBUTE_STORE) {
+            kind = INS_KIND_XML_ATTRIBUTE_STORE;
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess xmlAttrStore = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return xmlAttrStore;
+        } else if (kindTag == INS_XML_ATTRIBUTE_LOAD) {
+            kind = INS_KIND_XML_ATTRIBUTE_LOAD;
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess xmlAttrLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return xmlAttrLoad;
+        } else if (kindTag == INS_FP_LOAD) {
+            kind = INS_KIND_FP_LOAD;
+            var lhsOp = self.parseVarRef();
+            var pkgId = self.reader.readModuleIDCpRef();
+            var name = self.reader.readStringCpRef();
+            FPLoad fpLoad = {pos:pos, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }};
+            return fpLoad;
         } else {
-            return self.parseBinaryOpInstruction(kindTag);
+            return self.parseBinaryOpInstruction(kindTag, pos);
         }
     }
-    
+
     public function parseTerminator() returns Terminator {
+        DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var kindTag = self.reader.readInt8();
         if (kindTag == INS_BRANCH){
             TerminatorKind kind = TERMINATOR_BRANCH;
             var op = self.parseVarRef();
             BasicBlock trueBB = self.parseBBRef();
             BasicBlock falseBB = self.parseBBRef();
-            Branch branch = {falseBB:falseBB, kind:kind, op:op, trueBB:trueBB};
+            Branch branch = {pos:pos, falseBB:falseBB, kind:kind, op:op, trueBB:trueBB};
             return branch;
         } else if (kindTag == INS_GOTO){
             TerminatorKind kind = TERMINATOR_GOTO;
-            GOTO goto = {kind:kind, targetBB:self.parseBBRef()};
+            GOTO goto = {pos:pos, kind:kind, targetBB:self.parseBBRef()};
             return goto;
         } else if (kindTag == INS_RETURN){
             TerminatorKind kind = TERMINATOR_RETURN;
-            Return ret = {kind:kind};
+            Return ret = {pos:pos, kind:kind};
             return ret;
         } else if (kindTag == INS_CALL){
             TerminatorKind kind = TERMINATOR_CALL;
@@ -206,7 +298,7 @@ public type FuncBodyParser object {
             }
 
             BasicBlock thenBB = self.parseBBRef();
-            Call call = {args:args, kind:kind, isVirtual: isVirtual,
+            Call call = {pos:pos, args:args, kind:kind, isVirtual: isVirtual,
                          lhsOp:lhsOp, pkgID:pkgId,
                          name:{ value: name }, thenBB:thenBB};
             return call;
@@ -228,13 +320,26 @@ public type FuncBodyParser object {
             }
 
             BasicBlock thenBB = self.parseBBRef();
-            AsyncCall call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
+            AsyncCall call = {pos:pos, args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, 
+                                name:{ value: name }, thenBB:thenBB};
             return call;
         } else if (kindTag == INS_PANIC) {
             TerminatorKind kind = TERMINATOR_PANIC;
             var errorOp = self.parseVarRef();
-            Panic panicStmt = { kind:kind, errorOp:errorOp };
+            Panic panicStmt = { pos:pos, kind:kind, errorOp:errorOp };
             return panicStmt;
+        } else if (kindTag == INS_WAIT) {
+            TerminatorKind kind = TERMINATOR_WAIT;
+            var exprCount = self.reader.readInt32();
+            VarRef?[] exprs = [];
+            int i = 0;
+            while (i < exprCount) {
+                exprs[i] = self.parseVarRef();
+                i += 1;
+            }
+            VarRef lhsOp = self.parseVarRef();
+            Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp};
+            return waitIns;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;
@@ -253,7 +358,7 @@ public type FuncBodyParser object {
         return { id: { value: self.reader.readStringCpRef() } };
     }
 
-    public function parseBinaryOpInstruction(int kindTag) returns BinaryOp {
+    public function parseBinaryOpInstruction(int kindTag, DiagnosticPos pos) returns BinaryOp {
         BinaryOpInstructionKind kind = BINARY_ADD;
         if (kindTag == INS_ADD){
             kind = BINARY_ADD;
@@ -283,7 +388,7 @@ public type FuncBodyParser object {
         var rhsOp1 = self.parseVarRef();
         var rhsOp2 = self.parseVarRef();
         var lhsOp = self.parseVarRef();
-        BinaryOp binaryOp = {kind:kind, lhsOp:lhsOp, rhsOp1:rhsOp1, rhsOp2:rhsOp2};
+        BinaryOp binaryOp = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp1:rhsOp1, rhsOp2:rhsOp2};
         return binaryOp;
     }
 
@@ -328,4 +433,3 @@ function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, Va
         panic err;
     }
 }
-

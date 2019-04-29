@@ -77,12 +77,6 @@ public class Scheduler {
                 result = item.function.apply(item.params);
             }
 
-            if (item.future.strand.yield) {
-                item.future.strand.yield = false;
-                runnableList.add(item);
-                continue;
-            }
-
             //TODO: Need to improve for performance and support conditional waits
             if (item.future.strand.blocked) {
                 blockedList.putIfAbsent(item.future.strand.blockedOn, new ArrayList<>());
@@ -90,18 +84,32 @@ public class Scheduler {
                 continue;
             }
 
+            if (item.future.strand.yield) {
+                item.future.strand.yield = false;
+                runnableList.add(item);
+                continue;
+            }
+
             //strand has completed execution
             item.future.result = result;
+            item.future.isDone = true;
             ArrayList<SchedulerItem> blockedItems = blockedList.get(item.future.strand);
             if (blockedItems != null) {
-                blockedItems.forEach(strand -> runnableList.add(item));
+                blockedItems.forEach(blockedItem -> {
+                    blockedItem.future.strand.blocked = false;
+                    blockedItem.future.strand.yield = false;
+                    runnableList.add(blockedItem);
+                });
+                blockedList.remove(item.future.strand);
             }
         }
     }
 
     private FutureValue createFuture() {
         Strand newStrand = new Strand(this);
-        return new FutureValue(newStrand);
+        FutureValue future = new FutureValue(newStrand);
+        future.strand.frames = new Object[100];
+        return future;
     }
 }
 

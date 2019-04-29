@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import org.ballerinalang.model.Name;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -349,6 +351,198 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             this.type = type;
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML element instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLElement extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand startTagOp;
+        public BIROperand endTagOp;
+        public BIROperand defaultNsURIOp;
+
+        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand endTagOp,
+                BIROperand defaultNsURIOp) {
+            super(pos, InstructionKind.NEW_XML_ELEMENT);
+            this.lhsOp = lhsOp;
+            this.startTagOp = startTagOp;
+            this.endTagOp = endTagOp;
+            this.defaultNsURIOp = defaultNsURIOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML QName instruction.
+     * <p>
+     * e.g.: {@code ns0:foo}
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLQName extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand localnameOp;
+        public BIROperand nsURIOp;
+        public BIROperand prefixOp;
+
+        public NewXMLQName(DiagnosticPos pos, BIROperand lhsOp, BIROperand localnameOp, BIROperand nsURIOp,
+                BIROperand prefixOp) {
+            super(pos, InstructionKind.NEW_XML_QNAME);
+            this.lhsOp = lhsOp;
+            this.localnameOp = localnameOp;
+            this.nsURIOp = nsURIOp;
+            this.prefixOp = prefixOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML QName from a string.
+     * <p>
+     * e.g.: {@code "{http://nsuri/}foo"}
+     * 
+     * @since 0.995.0
+     */
+    public static class NewStringXMLQName extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand stringQNameOP;
+
+        public NewStringXMLQName(DiagnosticPos pos, BIROperand lhsOp, BIROperand stringQName) {
+            super(pos, InstructionKind.NEW_STRING_XML_QNAME);
+            this.lhsOp = lhsOp;
+            this.stringQNameOP = stringQName;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML text instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLText extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand textOp;
+
+        public NewXMLText(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp) {
+            super(pos, InstructionKind.NEW_XML_TEXT);
+            this.lhsOp = lhsOp;
+            this.textOp = textOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML text instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLProcIns extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand dataOp;
+        public BIROperand targetOp;
+
+        public NewXMLProcIns(DiagnosticPos pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp) {
+            super(pos, InstructionKind.NEW_XML_PI);
+            this.lhsOp = lhsOp;
+            this.dataOp = dataOp;
+            this.targetOp = targetOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML comment instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLComment extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand textOp;
+
+        public NewXMLComment(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp) {
+            super(pos, InstructionKind.NEW_XML_COMMENT);
+            this.lhsOp = lhsOp;
+            this.textOp = textOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * XML access expression with two operands.
+     * e.g: {@code InstructionKind.XML_SEQ_STORE}, {@code InstructionKind.XML_LOAD_ALL}
+     *
+     * @since 0.995.0
+     */
+    public static class XMLAccess extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+
+        public XMLAccess(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, kind);
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A FP load instruction.
+     * <p>
+     * e.g., function (string, string) returns (string) anonFunction =
+     *             function (string x, string y) returns (string) {
+     *                 return x + y;
+     *             };
+     *
+     * @since 0.995.0
+     */
+    public static class FPLoad extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public Name funcName;
+        public PackageID pkgId;
+
+        public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp) {
+            super(pos, InstructionKind.FP_LOAD);
+            this.lhsOp = lhsOp;
+            this.funcName = funcName;
+            this.pkgId = pkgId;
         }
 
         @Override
