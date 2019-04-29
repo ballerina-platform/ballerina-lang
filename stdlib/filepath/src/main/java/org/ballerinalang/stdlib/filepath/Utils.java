@@ -35,7 +35,7 @@ public class Utils {
     static final String UNKNOWN_REASON = "UNKNOWN";
 
     /**
-     * Returns error struct of input type.
+     * Returns error record for input reason.
      * Error type is generic ballerina error type. This utility to construct error struct from message.
      *
      * @param reason    Reason for creating the error object. If the reason is null, "UNKNOWN" sets by
@@ -50,13 +50,13 @@ public class Utils {
     }
 
     /**
-     * Returns error struct of input type.
+     * Returns error record for input reason and details.
      * Error type is generic ballerina error type. This utility to construct error struct from message.
      *
-     * @param reason    Reason for creating the error object. If the reason is null, "UNKNOWN" sets by
+     * @param reason    Reason for creating the error object. If the reason is null, value "UNKNOWN" is set by
      *                  default.
      * @param details     Java throwable object to capture description of error struct. If throwable object is null,
-     *                  "Unknown Error" sets to message by default.
+     *                  "Unknown Error" is set to message by default.
      * @return      Ballerina error object.
      */
     public static BError getPathError(String reason, String details) {

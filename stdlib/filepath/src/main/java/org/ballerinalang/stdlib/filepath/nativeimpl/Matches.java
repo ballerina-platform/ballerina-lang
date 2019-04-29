@@ -51,25 +51,21 @@ public class Matches extends BlockingNativeCallableUnit {
         String inputPath = context.getStringArgument(0);
         String pattern = context.getStringArgument(1);
         FileSystem fs = FileSystems.getDefault();
-        if (pattern != null) {
-            PathMatcher matcher;
-            try {
-                if (!pattern.startsWith(GLOB_SYNTAX_FLAVOR)) {
-                    matcher = fs.getPathMatcher(GLOB_SYNTAX_FLAVOR + pattern);
-                } else {
-                    matcher = fs.getPathMatcher(pattern);
-                }
-            } catch (PatternSyntaxException ex) {
-                context.setReturnValues(Utils.getPathError("INVALID_PATTERN", ex));
-                return;
+        PathMatcher matcher;
+        try {
+            if (!pattern.startsWith(GLOB_SYNTAX_FLAVOR)) {
+                matcher = fs.getPathMatcher(GLOB_SYNTAX_FLAVOR + pattern);
+            } else {
+                matcher = fs.getPathMatcher(pattern);
             }
-            if (inputPath == null) {
-                context.setReturnValues(new BBoolean(Boolean.FALSE));
-                return;
-            }
-            context.setReturnValues(new BBoolean(matcher.matches(Paths.get(inputPath))));
-        } else {
-            context.setReturnValues(Utils.getPathError("INVALID_PATTERN", "Pattern is null"));
+        } catch (PatternSyntaxException ex) {
+            context.setReturnValues(Utils.getPathError("INVALID_PATTERN", ex));
+            return;
         }
+        if (inputPath == null) {
+            context.setReturnValues(new BBoolean(Boolean.FALSE));
+            return;
+        }
+        context.setReturnValues(new BBoolean(matcher.matches(Paths.get(inputPath))));
     }
 }
