@@ -82,13 +82,13 @@ public type BarObj object {
     public int age = 0;
     public string name = "";
 
-    public function getName() returns (string);
+    function getName() returns (string);
 
     function getAge() returns (int) {
         return self.age;
     }
 };
 
-public function BarObj.getName() returns (string) {
+function BarObj.getName() returns (string) {
     return self.name;
 }

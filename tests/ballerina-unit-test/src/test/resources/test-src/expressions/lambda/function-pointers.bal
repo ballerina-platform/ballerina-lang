@@ -123,11 +123,11 @@ type Student object {
 };
 
 function testFuncPointerConversion() returns (int) {
-    function (Student) returns (int) studentFunc = function (Student s) returns (int) {
+    function (Person) returns (int) personFunc = function (Person s) returns (int) {
                 return s.getAge();
             };
 
-    function (Person) returns (int) personFunc = studentFunc;
+    function (Student) returns (int) studentFunc = personFunc;
     Person p = new Person(20);
     return personFunc.call(p);
 }

@@ -11,6 +11,7 @@ public type userB object {
     public string address = "";
 
     string zipcode = "";
+    string country = "";
 };
 
 public function testRuntimeObjEqNegative() returns (string|error) {
