@@ -86,6 +86,30 @@ Separate both statements and top level definitions by zero or one blank lines.
  > Note: tools and plugins should be able to configure to change the number of minimum and maximum blank lines used when formatting. 
  
 ### Blocks
+* Opening curly braces of a block should be place inline.
+  
+  Dos
+  ```ballerina
+  if (true) {
+  
+  }
+  
+  function setName(string name) {
+  
+  }
+  ```
+  Don'ts
+  ```ballerina
+  if (true)
+  {
+    
+  }
+  
+  function setName(string name)
+  {
+  
+  }
+  ```
 * Add a single space before opening the curly braces. 
 
   Example,
@@ -180,7 +204,6 @@ Separate both statements and top level definitions by zero or one blank lines.
       getPersonNameWithUpperCaseLetters();
   ``` 
 * If a line exceeds the max line length, start from the end of the line and come toward the start of the line until finding a point, which matches the above rules, to break the line.
-  
 * Indent split lines with relation to the starting position of the statement or definition.
   
   Example,
@@ -195,38 +218,7 @@ Separate both statements and top level definitions by zero or one blank lines.
       string searchValue) returns string {
       ...
   }
-  ```
-* Avoid line breaks in constrained types and type casting.
-  
-  Example, 
-  
-  Correct method:
-  
-  ```ballerina
-  map<int | string> // map reference type
-  
-  // or
-  
-  <string>
-  ```
-  
-  Incorrect method:
-
-  ```ballerina
-
-  map<
-      int
-      |
-      string
-  > 
-
-  // or
-
-  <
-      string
-  >
-  ```
-  
+  ```  
 * However, if you cannot add the type casting expression or statement with the constrained type in a single line 
   due to it exceeding the max line length, 
     - Move the casting type with the operators to a new line.
