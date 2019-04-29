@@ -24,7 +24,8 @@ function testCastToStructInDifferentPkg() {
         age: 25,
         parent:{ name: "bbb",
             age: 50,
-            address:{"city": "Colombo", "country": "SriLanka"},
+            address:{"city": "Colombo",
+            "country": "SriLanka"},
             info:{ status: "married"}
         },
         info:{ status: "single"}

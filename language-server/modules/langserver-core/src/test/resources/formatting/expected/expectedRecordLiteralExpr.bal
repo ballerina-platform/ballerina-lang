@@ -29,13 +29,9 @@ function testCastToStructInDifferentPkg() {
                 "city": "Colombo",
                 "country": "SriLanka"
             },
-            info: {
-                status: "married"
-            }
+            info: {status: "married"}
         },
-        info: {
-            status: "single"
-        }
+        info: {status: "single"}
     };
 }
 

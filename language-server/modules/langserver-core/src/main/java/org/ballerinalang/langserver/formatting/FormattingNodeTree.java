@@ -2858,8 +2858,6 @@ public class FormattingNodeTree {
             String indentWithParentIndentation = this.getParentIndentation(formatConfig);
             String parentKind = node.getAsJsonObject(FormattingConstants.PARENT).get("kind").getAsString();
             boolean isTable = parentKind.equals("Table");
-            boolean isArrayLiteral = parentKind.equals("ArrayLiteralExpr");
-            boolean isTernary = parentKind.equals("TernaryExpr");
             boolean isExpression = parentKind.equals("Endpoint") || parentKind.equals("AnnotationAttachment")
                     || parentKind.equals("Service") || parentKind.equals("Variable") || parentKind.equals("Invocation")
                     || parentKind.equals("ErrorConstructor") || parentKind.equals("RecordLiteralExpr")
@@ -2872,6 +2870,23 @@ public class FormattingNodeTree {
 
             // Preserve line separation that already available.
             this.preserveHeight(ws, indentWithParentIndentation);
+
+            // Has at least one line separation in records.
+            boolean lineSeparationAvailable = false;
+            if (node.has("keyValuePairs")) {
+                JsonArray keyValuePairs = node.getAsJsonArray("keyValuePairs");
+                for (JsonElement keyValuePairItem : keyValuePairs) {
+                    JsonObject keyValuePair = keyValuePairItem.getAsJsonObject();
+                    List<JsonObject> sortedWSForKeyValuePair = FormattingSourceGen.extractWS(keyValuePair);
+                    for (JsonObject wsForKeyValuePair : sortedWSForKeyValuePair) {
+                        String currentWS = wsForKeyValuePair.get(FormattingConstants.WS).getAsString();
+                        if (!noNewLine(currentWS)) {
+                            lineSeparationAvailable = true;
+                            break;
+                        }
+                    }
+                }
+            }
 
             // Iterate and update Whitespaces for the node.
             for (JsonElement wsItem : ws) {
@@ -2892,7 +2907,7 @@ public class FormattingNodeTree {
                 // Update whitespace for closing brace.
                 if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.CLOSING_BRACE)
                         && this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
-                    if (isExpression) {
+                    if (lineSeparationAvailable) {
                         if (node.has("keyValuePairs")
                                 && node.getAsJsonArray("keyValuePairs").size() <= 0) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
@@ -2900,7 +2915,7 @@ public class FormattingNodeTree {
                             currentWS.addProperty(FormattingConstants.WS,
                                     FormattingConstants.NEW_LINE + indentWithParentIndentation);
                         }
-                    } else if (isTable) {
+                    } else {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
@@ -2919,20 +2934,19 @@ public class FormattingNodeTree {
                 for (int i = 0; i < keyValuePairs.size(); i++) {
                     JsonObject keyValue = keyValuePairs.get(i).getAsJsonObject();
                     JsonObject keyValueFormatting;
-                    if (i == 0 && (isTable || isArrayLiteral || isTernary)) {
-                        keyValueFormatting = this.getFormattingConfig(0, 0,
-                                this.getWhiteSpaceCount(indentWithParentIndentation), true,
-                                this.getWhiteSpaceCount(indentWithParentIndentation), false);
-                    } else if (isExpression) {
+                    if (lineSeparationAvailable) {
                         keyValueFormatting = this.getFormattingConfig(1, 0,
                                 this.getWhiteSpaceCount(indentWithParentIndentation), true,
                                 this.getWhiteSpaceCount(indentWithParentIndentation), false);
+                    } else if (i == 0) {
+                        keyValueFormatting = this.getFormattingConfig(0, 0,
+                                0, false,
+                                this.getWhiteSpaceCount(indentWithParentIndentation), true);
                     } else {
                         keyValueFormatting = this.getFormattingConfig(0, 1,
-                                this.getWhiteSpaceCount(indentWithParentIndentation), true,
-                                this.getWhiteSpaceCount(indentWithParentIndentation), false);
+                                0, false,
+                                this.getWhiteSpaceCount(indentWithParentIndentation), true);
                     }
-
                     keyValue.getAsJsonObject().add(FormattingConstants.FORMATTING_CONFIG, keyValueFormatting);
                 }
             }
@@ -2953,12 +2967,7 @@ public class FormattingNodeTree {
             // Update whitespace for key value of record literal.
             if (node.has("key")) {
                 JsonObject keyNode = node.getAsJsonObject("key");
-                JsonObject keyNodeFormatConfig = this.getFormattingConfig(
-                        formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt(),
-                        formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt(),
-                        formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(), true,
-                        formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(), false);
-                keyNode.add(FormattingConstants.FORMATTING_CONFIG, keyNodeFormatConfig);
+                keyNode.add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
             }
 
             // Update whitespace for colon of the record literal key value pair.
@@ -3468,6 +3477,10 @@ public class FormattingNodeTree {
                     iterateAndFormatBlockStatements(formatConfig, indentation, resources);
                 }
 
+                // Update whitespaces of markdown documentation attachments.
+                modifyMarkdownDocumentation(node, formatConfig, indentation);
+
+                // Update whitespaces of the annotation attachments.
                 modifyAnnotationAttachments(node, formatConfig, indentation);
 
                 if (node.has("attachedExprs")) {
