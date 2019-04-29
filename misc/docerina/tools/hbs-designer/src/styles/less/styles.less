@@ -2,6 +2,7 @@ body {
     background: #fff;
     color: #464646;
     height: 100vh;
+    font-family: "Fira Sans",sans-serif;
     p {
         font-size: 16px;
     }
@@ -10,7 +11,8 @@ body {
     }
     .ui.grid {
         width: 100%;
-        margin-top: 0rem;
+        margin-top: 0;
+        margin-left: 0;
         .navi-wrapper {
             margin: 0;
             background: #f5f7f8;
@@ -21,7 +23,7 @@ body {
                 width: 150px;
                 height: auto;
                 text-align: center;
-                margin: 30px 20px;
+                margin: 30px 10px;
             }
             &:hover {
                 overflow-y: scroll;
@@ -50,7 +52,7 @@ body {
                         }
                         &,
                         a {
-                            font-weight: 300;
+                            font-weight: 400;
                             &:hover {
                                 color: #333 !important;
                                 font-weight: 600;
@@ -67,25 +69,33 @@ body {
             overflow-y: hidden;
             position: fixed;
             font-size: 16px;
+            .main-wrapper {
+                width: 750px;
+            }
+            
             .param-divider {
-                margin-top: 7px !important;
+                margin-top: 0px !important;
                 margin-bottom: 15px;
                 border: 0.5px solid #888;
             }
             .param-table {
                 margin-left: 20px;
                 border: 1ps solid #ccc !important;
+                width: -webkit-fill-available;
                 td, th {
-                    padding: 10px 0 !important; 
+                    padding: 5px 0 !important; 
+                    color: #3c3c3c;
                 }
-                tr {
-
+                tbody {
+                    border-bottom: 1px solid #e8e9e9 !important;
                 }
             }
             .ui.table,
             .ui.table tr td {
                 border: 0 !important;
                 vertical-align: top;
+                color: #555;
+                word-break: break-word;
                 th {
                     background: none;
                     padding: 10px 0;
@@ -95,11 +105,11 @@ body {
                 tr {
                     padding: 10px 0;
                     border-bottom: 1px solid #e8e9e9;
+                    color: #555;
                     
                     td:first-child {
                         width: 120px;
                         vertical-align: top;
-                        padding: 10px 0 !important;
                     }
                 }
                 td {
@@ -176,6 +186,9 @@ body {
             }
             .constants {
                 margin-top: 20px;
+                h2 {
+                    font-size: 1.52rem;
+                }
                 h3 { 
                     display: inline-block;
                         margin: 0;
@@ -184,6 +197,22 @@ body {
                         display: inline-block;
                         margin: 0;
                         line-height: 22px !important;
+                        color: #555;
+                    }
+                }
+                .method-list { 
+                    padding-left: 20px;
+                    p { 
+                        line-height: 30px;
+                    }
+                }
+                .method-content {
+                    h3 {
+                        margin-top: 20px;
+                    }
+                    .method-types {
+                        font-style: italic;
+                        color: #656565;
                     }
                 }
                 .method-wrapper {
@@ -192,11 +221,12 @@ body {
                         display: inline-block;
                         vertical-align: top;
                         .ui.table {
+                            word-break: break-word;
                             tr {
                                 td:first-child {
                                     width: 180px !important;
                                     vertical-align: top;
-                                    padding : 10px 0;
+                                    padding : 5px 0;
                                 }   
                             }
                         }

@@ -25,25 +25,19 @@
     </div>
 
     <div class="fourteen wide column content-wrapper">
-      <h1>{{ obj.name }}</h1>
+      <div class="main-wrapper">
+        <h1>{{ obj.name }}</h1>
       <div class="ui divider"></div>
 
       <h3>{{obj.type}} <span class="objects">{{obj.name}}</span> {{obj.label}}</h3>
       <p>{{obj.description}}</p>
 
       <div class="constants">
-        {{#if obj.method}}
-        {{#each obj.method}}
-        <p><a href="#{{method_type}}"><b>{{method_type}}</b></a>{{method_params}}<b>
-            {{label_return}}</b>{{return_params}} <br></p>
-        {{/each}}
-        <div class="ui divider"></div>
-        {{/if}}
-
-        
         {{#if obj.init_method}}
         {{#each obj.init_method}}
-        <h3 >{{init_label}}({{init_param}})</h3>
+        <h2>Init Method</h2>
+        <div class="ui divider"></div>
+        <h3 >{{init_label}}</h3><p>({{init_param}})</p>
         <table class="ui table param-table">
           <thead>
             <tr>
@@ -65,8 +59,19 @@
         <div class="ui divider"></div>
         {{/each}} 
         {{/if}}
-       
 
+        {{#if obj.method}}
+        {{#each obj.method}}
+        <h2>Methods</h2>
+        <div class="ui divider"></div>
+        <div class="method-list">
+        <p><a href="#{{method_type}}"><b>{{method_type}}</b></a>{{method_params}}<b>
+            {{label_return}}</b>{{return_params}} <br></p>
+        </div>
+        {{/each}}
+        <div class="ui divider"></div>
+        {{/if}}
+       
         {{#if obj.top_fields}}
         {{#each obj.top_fields}}
         <table class="ui table param-table">
@@ -93,9 +98,11 @@
         
       {{#if obj.method}}
         {{#each obj.method}}
-        <h3 id="{{method_type}}">{{method_type}}{{method_params}}</h3>
-        <div class="ui divider param-divider"></div>
-        <p>{{description}}</p>
+        <div class="method-content">
+          <h3 id="{{method_type}}">{{method_type}}</h3>
+          <p class="method-types"> {{method_params}}</p>
+          <div class="ui divider param-divider"></div>
+          <p>{{description}}</p>
         <table class="ui table param-table">
           <thead>
             {{#if fields}}
@@ -146,10 +153,12 @@
             {{/if}}
           </tbody>
         </table>
+        </div>
         {{/each}}
         {{/if}}
       </div>
       <div class="ui divider"></div>
+      </div>
     </div>
-  </div>
+  </div>s
 </body>
