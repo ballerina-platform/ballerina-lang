@@ -133,11 +133,11 @@ public function complexWorkerTest() returns (int, map<string>) {
     return (i, m1);
 }
 
-public type Student record {
+public type Student record {|
     string name;
     int age;
     string...;
-};
+|};
 
 public function testWithRecords() returns Student {
     Student stu = {name: "John Doe", age: 17};

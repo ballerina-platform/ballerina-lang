@@ -1,6 +1,6 @@
-import ballerina/nats;
 import ballerina/io;
 import ballerina/log;
+import ballerina/nats;
 
 // Represent escape character
 const string ESCAPE = "!q";
@@ -19,7 +19,7 @@ public function main() {
             if (result is error) {
                 io:println("Error occurred while producing the message.");
             } else {
-                io:println("GUID "+result+" received for the produced message.");
+                io:println("GUID " + result + " received for the produced message.");
             }
         }
     }

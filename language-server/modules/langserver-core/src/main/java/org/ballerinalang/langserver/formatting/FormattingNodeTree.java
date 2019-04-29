@@ -2994,6 +2994,7 @@ public class FormattingNodeTree {
     public void formatRecordTypeNode(JsonObject node) {
         if (node.has(FormattingConstants.FORMATTING_CONFIG)) {
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+
             // Update the fields whitespace.
             JsonArray fields = node.getAsJsonArray(FormattingConstants.FIELDS);
             for (int i = 0; i < fields.size(); i++) {
@@ -3006,12 +3007,9 @@ public class FormattingNodeTree {
 
             if (node.has(FormattingConstants.WS)) {
                 JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
-                boolean isSealed = node.has("sealed") && node.get("sealed").getAsBoolean();
                 String indentation = this.getIndentation(formatConfig, false);
 
                 this.preserveHeight(ws, indentation);
-
-                boolean firstPipeVisited = false;
                 for (JsonElement wsItem : ws) {
                     JsonObject currentWS = wsItem.getAsJsonObject();
                     if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
@@ -3024,34 +3022,17 @@ public class FormattingNodeTree {
                             } else {
                                 currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                             }
-                        } else if (text.equals(Tokens.OPENING_BRACE)) {
+                        } else if (text.equals(Tokens.OPENING_BRACE) || text.equals(Tokens.SEAL_OPENING)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                        } else if (text.equals("|")) {
-                            if (firstPipeVisited) {
-                                if (fields.size() <= 0) {
-                                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
-                                            indentation + FormattingConstants.NEW_LINE + indentation);
-                                } else {
-                                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE
-                                            + indentation);
-                                }
-                            } else {
-                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                                firstPipeVisited = true;
-                            }
                         } else if (text.equals(Tokens.ELLIPSIS)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                        } else if (text.equals(Tokens.CLOSING_BRACE)) {
-                            if (isSealed) {
-                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        } else if (text.equals(Tokens.CLOSING_BRACE) || text.equals(Tokens.SEAL_CLOSING)) {
+                            if (fields.size() <= 0) {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
+                                        indentation + FormattingConstants.NEW_LINE + indentation);
                             } else {
-                                if (fields.size() <= 0) {
-                                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
-                                            indentation + FormattingConstants.NEW_LINE + indentation);
-                                } else {
-                                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE
-                                            + indentation);
-                                }
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE
+                                        + indentation);
                             }
                         }
                     }
@@ -3067,7 +3048,6 @@ public class FormattingNodeTree {
                             formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(), false);
                     restFieldType.add(FormattingConstants.FORMATTING_CONFIG, restFieldTypeFormatConfig);
                 }
-
             }
         }
     }

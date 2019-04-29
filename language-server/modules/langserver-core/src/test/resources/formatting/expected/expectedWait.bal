@@ -12,11 +12,11 @@ function waitTest27() returns map<anydata> {
     future<string> f2 = start concat("mello");
     future<string> f3 = start concat("sunshine");
 
-    record {
+    record {|
         int id = 0;
         string name = "default";
         string...;
-    } anonRec = wait {id: f1, name : f2, greet: f3};
+    |} anonRec = wait {id: f1, name : f2, greet: f3};
 
     map<anydata> m = {
     };

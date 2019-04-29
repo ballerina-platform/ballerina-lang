@@ -48,7 +48,6 @@ ballerina-jms-0.991.0.jar                                                       
 ballerina-jvm-0.991.0.jar                                                       jar            apache2   3932
 ballerina-lang-0.991.0.jar                                                      jar            apache2   3881
 ballerina-launcher-0.991.0.jar                                                  jar            apache2   3839
-ballerina-llvm-0.991.0.jar                                                      jar            apache2   3930
 ballerina-log-api-0.991.0.jar                                                   jar            apache2   3829
 ballerina-logging-0.991.0.jar                                                   jar            apache2   3826
 ballerina-math-0.991.0.jar                                                      jar            apache2   3834
@@ -116,13 +115,6 @@ language-server-compiler-0.991.0.jar                                            
 language-server-core-0.991.0.jar                                                jar            apache2   3937
 language-server-stdio-launcher-0.991.0.jar                                      jar            apache2   3936
 libthrift-0.12.0.jar                                                            bundle         apache2   3821
-llvm-6.0.1-1.4.2-linux-x86.jar                                                  jar            apache2   3670
-llvm-6.0.1-1.4.2-linux-x86_64.jar                                               jar            apache2   3669
-llvm-6.0.1-1.4.2-macosx-x86_64.jar                                              jar            apache2   3668
-llvm-6.0.1-1.4.2-windows-x86.jar                                                jar            apache2   3667
-llvm-6.0.1-1.4.2-windows-x86_64.jar                                             jar            apache2   3666
-llvm-6.0.1-1.4.2.jar                                                            jar            apache2   3665
-llvm-platform-6.0.1-1.4.2.jar                                                   jar            apache2   3664
 metrics-core-3.1.0.jar                                                          bundle         apache2   3178
 mimepull-1.9.11.jar                                                             bundle         edl1     3861
 netty-buffer-4.1.34.Final.jar                                                   bundle         apache2   3835

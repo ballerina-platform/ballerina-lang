@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -49,9 +50,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.LinkedList;
 
@@ -66,8 +66,6 @@ public class BIRTypeWriter implements TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
-    private final BMapType anydataMapType =
-            new BMapType(TypeTags.MAP, new BAnydataType(TypeTags.ANYDATA, null), null);
     private LinkedList<Object> compositeStack = new LinkedList<>();
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
@@ -172,7 +170,6 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BStructureType bStructureType) {
-
         throwUnimplementedError(bStructureType);
     }
 
@@ -198,8 +195,14 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BRecordType bRecordType) {
+        BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) bRecordType.tsymbol;
+        if (writeSelfRef(tsymbol)) {
+            return;
+        }
+        compositeStack.push(tsymbol);
+
         buff.writeByte(bRecordType.tag);
-        buff.writeInt(addStringCPEntry(bRecordType.tsymbol.name.value));
+        buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeBoolean(bRecordType.sealed);
         bRecordType.restFieldType.accept(this);
         buff.writeInt(bRecordType.fields.size());
@@ -208,6 +211,8 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeInt(addStringCPEntry(field.name.value));
             field.type.accept(this);
         }
+        
+        compositeStack.pop();
     }
 
     @Override
@@ -220,6 +225,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
         buff.writeByte(bObjectType.tag);
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
+        buff.writeBoolean((tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT); // Abstract object or not
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields) {
             buff.writeInt(addStringCPEntry(field.name.value));
@@ -253,13 +259,8 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     @Override
-    public void visit(BXMLAttributesType bxmlAttributesType) {
-        throwUnimplementedError(bxmlAttributesType);
-    }
-
-    @Override
     public void visit(BXMLType bxmlType) {
-        throwUnimplementedError(bxmlType);
+        buff.writeByte(bxmlType.tag);
     }
 
     private void throwUnimplementedError(BType bType) {

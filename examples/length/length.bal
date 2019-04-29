@@ -76,10 +76,10 @@ public function main() {
     io:println("Row count in table : ", length);
 }
 
-type Student record {
+type Student record {|
     int id;
     string fname;
     string lname;
     int age;
     string...;
-};
+|};

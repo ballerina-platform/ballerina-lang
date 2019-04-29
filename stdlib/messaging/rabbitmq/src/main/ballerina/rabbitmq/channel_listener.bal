@@ -49,7 +49,7 @@ public type ChannelListener object {
     # Binds the ChannelListener to a service.
     #
     # + serviceType - Type descriptor of the service to bind to.
-    # + data - Service annotations.
+    # + name - Name of the service.
     # + return - () or error upon failure to register listener.
     public function __attach(service serviceType, string? name = ()) returns error? {
        self.registerListener(serviceType);
@@ -58,8 +58,6 @@ public type ChannelListener object {
     # Binds the ChannelListener to a service.
     #
     # + serviceType - Type descriptor of the service to bind to.
-    # + data - Service annotations.
-    # + return - () or error upon failure to register listener.
     private function registerListener(service serviceType) = external;
 
     # Stops consuming messages through listener endpoint.

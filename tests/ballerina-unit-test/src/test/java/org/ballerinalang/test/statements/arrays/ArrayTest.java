@@ -269,8 +269,8 @@ public class ArrayTest {
                                   "array element type '1|2|3' does not have an implicit initial value, use '1|2|3?'",
                                   22, 24);
         BAssertUtil.validateError(negResult, 1,
-                                  "array element type '1.0|3.143' does not have an implicit initial value, use " +
-                                          "'1.0|3.143?'",
+                                  "array element type '1.0f|3.143f' does not have an implicit initial value, use " +
+                                          "'1.0f|3.143f?'",
                                   29, 26);
         BAssertUtil.validateError(negResult, 2,
                                   "array element type 'a|b|c' does not have an implicit initial value, use 'a|b|c?'",
