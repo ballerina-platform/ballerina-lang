@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 
 /**
@@ -84,8 +83,6 @@ public interface TypeVisitor {
     void visit(BTupleType bTupleType);
 
     void visit(BUnionType bUnionType);
-
-    void visit(BXMLAttributesType bxmlAttributesType);
 
     void visit(BXMLType bxmlType);
 

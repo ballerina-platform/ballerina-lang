@@ -31,11 +31,12 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a simple queue receiver.
-listener jms:QueueReceiver consumerEP = new({
-    initialContextFactory: "bmbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'",
-    acknowledgementMode: "AUTO_ACKNOWLEDGE"
-}, queueName = "MyQueue");
+listener jms:SimpleQueueReceiver consumerEP = new({
+    initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+    providerUrl: "tcp://localhost:61616",
+    acknowledgementMode: "AUTO_ACKNOWLEDGE",
+    queueName: "MyQueue"
+});
 
 // Bind the created consumer to the listener service.
 service jmsListener on consumerEP {
@@ -60,12 +61,12 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a topic publisher.
-jms:TopicPublisher topicPublisher = new({
-        initialContextFactory: "bmbInitialContextFactory",
-        providerUrl: "amqp://admin:admin@carbon/carbon"
-            + "?brokerlist='tcp://localhost:5672'",
-        acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    }, topicPattern = "MyTopic");
+jms:SimpleTopicPublisher topicPublisher = new({
+    initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+    providerUrl: "tcp://localhost:61616",
+    acknowledgementMode: "AUTO_ACKNOWLEDGE",
+    topicPattern: "BallerinaTopic"
+});
 
 public function main(string... args) {
     // Create a text message.
@@ -91,8 +92,8 @@ import ballerina/log;
 
 // Initialize a JMS connection with the provider.
 jms:Connection conn = new({
-    initialContextFactory: "bmbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'"
+    initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+    providerUrl: "tcp://localhost:61616"
 });
 
 // Initialize a JMS session on top of the created connection.
@@ -131,8 +132,8 @@ import ballerina/log;
 
 // Initialize a JMS connection with the provider.
 jms:Connection jmsConnection = new({
-    initialContextFactory: "bmbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'"
+    initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+    providerUrl: "tcp://localhost:61616"
 });
 
 // Initialize a JMS session on top of the created connection.
@@ -165,8 +166,8 @@ import ballerina/jms;
 import ballerina/log;
 
 jms:Connection conn = new({
-    initialContextFactory: "bmbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+    initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+    providerUrl: "tcp://localhost:61616"
 });
 
 jms:Session jmsSession = new(conn, {
@@ -196,8 +197,8 @@ import ballerina/jms;
 import ballerina/log;
 
 jms:Connection jmsConnection = new({
-    initialContextFactory: "bmbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+    initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+    providerUrl: "tcp://localhost:61616"
 });
 
 jms:Session jmsSession = new(jmsConnection, {

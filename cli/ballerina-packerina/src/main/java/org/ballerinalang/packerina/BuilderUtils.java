@@ -220,10 +220,7 @@ public class BuilderUtils {
 
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage bLangPackage = compiler.build(packagePath);
-        if (dumpBIR) {
-            JVMCodeGen.emitBIRText(bLangPackage.symbol.bir);
-        }
-        byte[] jarContent = JVMCodeGen.generateJarBinary(bLangPackage, context, packagePath);
+        byte[] jarContent = JVMCodeGen.generateJarBinary(dumpBIR, bLangPackage, context, packagePath);
         compiler.write(jarContent, sourceRootPath, targetFileName);
     }
 

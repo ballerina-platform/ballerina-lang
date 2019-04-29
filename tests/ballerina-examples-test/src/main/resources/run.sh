@@ -27,8 +27,7 @@ cd ${1}
 # Change skip tests based on argument
 if [ ${2} ]
 then
-    # skipTest="--skiptests"
-    exit 0
+    skipTest="--skiptests"
 fi
 
 # List of BBEs excluded from building
@@ -48,6 +47,7 @@ exclude=("proto-to-ballerina"
         "kubernetes-deployment"
         "awslambda-deployment"
         "openshift-deployment"
+        "grpc-server-streaming"
         )
 
 packages=($( sed -n 's/.*"url": "\([^"]*\)"/\1/p' index.json ))

@@ -39,7 +39,6 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
     public BLangErrorVariable() {
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
-        this.deprecatedAttachments = new ArrayList<>();
     }
 
     @Override

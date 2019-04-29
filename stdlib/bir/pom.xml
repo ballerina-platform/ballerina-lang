@@ -131,6 +131,7 @@
                                 <argument>${project.version}</argument>
                             </arguments>
                             <mainClass>org.ballerinalang.stdlib.utils.GenerateBalo</mainClass>
+                    <classpathScope>test</classpathScope>
                         </configuration>
                     </execution>
 

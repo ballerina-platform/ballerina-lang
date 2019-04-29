@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -184,6 +183,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord.TaintedStatus;
@@ -456,11 +456,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangDeprecatedNode deprecatedNode) {
         /* ignore */
     }
 

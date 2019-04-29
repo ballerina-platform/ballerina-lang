@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 # The `StreamJoinProcessor` object is responsible for  performing SQLish joins between two or more streams.
 # The `onConditionFunc` is the lambda function which represents the where clause in the join clause. The joining
 # happens only if the condition is statified. `nextProcessor` is the `process` function of the next processor, which
@@ -21,6 +22,16 @@
 # and its attached window is `'rhsWindow`. The `unidirectionalStream` stream defines the stream by which the joining is
 # triggered when the events are received. Usually it is `lhsStream`, in rare cases it can be `rhsStream`. The
 # `joinType` is the type of the join and it can be any value defined by `streams:JoinType`.
+#
+# + onConditionFunc - description
+# + nextProcessor - description
+# + lhsWindow - description
+# + rhsWindow - description
+# + lhsStream - description
+# + rhsStream - description
+# + unidirectionalStream - description
+# + joinType - description
+# + lockField - description
 public type StreamJoinProcessor object {
     private (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? onConditionFunc;
     private function (StreamEvent?[]) nextProcessor;
@@ -233,11 +244,13 @@ public type StreamJoinProcessor object {
 };
 
 # Creates a `StreamJoinProcessor` and returns it.
+#
 # + nextProcessor - The `process` function of the next processor, which can be a `Select` processor, `Aggregator`
 #                   processor, `Having` processor.. etc.
 # + joinType - Type of the join being performed ("JOIN"|"LEFTOUTERJOIN"|"RIGHTOUTERJOIN"|"FULLOUTERJOIN")
-# + confitionFunc - A lambda function which contains the joining condition and return true if the condition satifies
+# + conditionFunc - A lambda function which contains the joining condition and return true if the condition satifies
 #                   the condition.
+#
 # + return - Returns a `StreamJoinProcessor` object.
 public function createStreamJoinProcessor(function (StreamEvent?[]) nextProcessor, JoinType joinType,
                                           (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)?

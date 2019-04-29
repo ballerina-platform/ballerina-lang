@@ -1,11 +1,13 @@
 import ballerina/jms;
 import ballerina/log;
 
-// This creates a queue sender.
+// This creates a queue sender. This example makes use of the ActiveMQ Artemis
+// broker for demonstration while it can be tried with other brokers that
+// support JMS.
 jms:QueueSender queueSender = new({
-        initialContextFactory: "bmbInitialContextFactory",
-        providerUrl: "amqp://admin:admin@carbon/carbon?"
-            + "brokerlist='tcp://localhost:5672'",
+        initialContextFactory: 
+        "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+        providerUrl: "tcp://localhost:61616",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     }, queueName = "MyQueue");
 

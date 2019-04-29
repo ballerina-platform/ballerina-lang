@@ -367,7 +367,8 @@ class SizingVisitor implements Visitor {
             return;
         }
 
-        const label = DiagramUtils.getTextWidth(ASTUtil.genSource(node));
+        const source = ASTUtil.genSource(node);
+        const label = DiagramUtils.getTextWidth(source);
         viewState.bBox.h = config.statement.height;
         viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
         viewState.bBox.label = label.text;
@@ -407,6 +408,7 @@ class SizingVisitor implements Visitor {
             // add space for the expander
             viewState.bBox.w += 10;
             if (viewState.expandContext.expandedSubTree) {
+                viewState.expandContext.labelWidth = DiagramUtils.calcTextLength(source, {bold: true});
                 this.handleExpandedFn(viewState.expandContext.expandedSubTree, viewState);
             }
         }
@@ -453,10 +455,10 @@ class SizingVisitor implements Visitor {
             expandedDefaultWorker.h : expandedBody.h;
 
         viewState.bBox.h = expandedFnHeight + sizes.header + sizes.footer + sizes.bottomMargin;
+        const fullLabelWidth = config.statement.padding.left + viewState.expandContext!.labelWidth
+            + config.statement.expanded.rightMargin + (2 * config.statement.expanded.labelGutter);
 
-        if (expandedFnWidth > viewState.bBox.w) {
-            viewState.bBox.w = expandedFnWidth;
-        }
+        viewState.bBox.w = expandedFnWidth > fullLabelWidth ? expandedFnWidth : fullLabelWidth;
     }
 
     private sizeWorker(node: VariableDef, preWorkerHeight = 0, workerHolder: WorkerTuple[]) {

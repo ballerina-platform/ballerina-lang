@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.jvm;
 
+import org.ballerinalang.jvm.BLangVMErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BError;
@@ -28,17 +29,16 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 /**
  * Test cases to cover error related tests on JBallerina.
  *
  * @since 0.995.0
  */
-@Ignore
 public class ErrorTest {
 
     private CompileResult compileResult;
@@ -57,6 +57,9 @@ public class ErrorTest {
             ErrorValue bError = (ErrorValue) ((InvocationTargetException) e.getCause()).getTargetException();
             Assert.assertEquals(bError.getReason(), "reason foo 2");
             Assert.assertEquals(((MapValue) bError.getDetails()).get("message").toString(), "int value");
+            Assert.assertEquals(getPrintableStackTrace(bError), "reason foo 2 {\"message\":\"int value\"}\n"
+                    + "\tat foo(errors.bal:46)\n"
+                    + "\t   testPanic(errors.bal:18)");
         }
     }
 
@@ -118,5 +121,16 @@ public class ErrorTest {
         bError = (BError) result[0];
         Assert.assertEquals(bError.getReason(), "reason foo 2");
         Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "int value");
+    }
+
+    @Test
+    public void testSelfReferencingObject() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingError");
+    }
+
+    private String getPrintableStackTrace(ErrorValue errorValue) {
+        StackTraceElement[] stackWithoutJavaTests = Arrays.copyOf(errorValue.getStackTrace(), 2);
+        return BLangVMErrors.getPrintableStackTrace(BLangVMErrors.getErrorMessage(errorValue),
+                                                    stackWithoutJavaTests);
     }
 }

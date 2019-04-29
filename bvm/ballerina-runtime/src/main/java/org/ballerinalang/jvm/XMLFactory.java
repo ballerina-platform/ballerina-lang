@@ -71,21 +71,36 @@ public class XMLFactory {
     private static final String XML_DCLR_START = "<?xml";
     private static Canonicalizer canonicalizer = null;
 
+    private static final String CANONICALIZER_OMIT_COMMENTS = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315";
+    private static final String CANONICALIZER_WITH_COMMENTS =
+            "http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments";
+    private static final String CANONICALIZER_EXCL_OMIT_COMMENTS = "http://www.w3.org/2001/10/xml-exc-c14n#";
+    private static final String CANONICALIZER_EXCL_WITH_COMMENTS =
+            "http://www.w3.org/2001/10/xml-exc-c14n#WithComments";
+
     private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
     public static final StAXParserConfiguration STAX_PARSER_CONFIGURATION = StAXParserConfiguration.STANDALONE;
 
     static {
         Canonicalizer.init();
         try {
-            Canonicalizer.register("http://www.w3.org/TR/2001/REC-xml-c14n-20010315",
-                    "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
-            Canonicalizer.register("http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments",
-                    "org.apache.axiom.c14n.impl.Canonicalizer20010315WithComments");
-            Canonicalizer.register("http://www.w3.org/2001/10/xml-exc-c14n#",
-                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclOmitComments");
-            Canonicalizer.register("http://www.w3.org/2001/10/xml-exc-c14n#WithComments",
-                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
-            canonicalizer = Canonicalizer.getInstance("http://www.w3.org/2001/10/xml-exc-c14n#WithComments");
+            if (Canonicalizer.getInstance(CANONICALIZER_OMIT_COMMENTS) == null) {
+                Canonicalizer.register(CANONICALIZER_OMIT_COMMENTS,
+                        "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
+            }
+            if (Canonicalizer.getInstance(CANONICALIZER_WITH_COMMENTS) == null) {
+                Canonicalizer.register(CANONICALIZER_WITH_COMMENTS,
+                        "org.apache.axiom.c14n.impl.Canonicalizer20010315WithComments");
+            }
+            if (Canonicalizer.getInstance(CANONICALIZER_EXCL_OMIT_COMMENTS) == null) {
+                Canonicalizer.register(CANONICALIZER_EXCL_OMIT_COMMENTS,
+                        "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclOmitComments");
+            }
+            if (Canonicalizer.getInstance(CANONICALIZER_EXCL_WITH_COMMENTS) == null) {
+                Canonicalizer.register(CANONICALIZER_EXCL_WITH_COMMENTS,
+                        "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
+            }
+            canonicalizer = Canonicalizer.getInstance(CANONICALIZER_WITH_COMMENTS);
         } catch (InvalidCanonicalizerException | AlgorithmAlreadyRegisteredException e) {
             throw new BallerinaException("Error initializing canonicalizer: " + e.getMessage());
         }

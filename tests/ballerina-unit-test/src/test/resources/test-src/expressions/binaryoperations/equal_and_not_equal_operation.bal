@@ -28,10 +28,10 @@ type ClosedEmployee record {|
     int id = 0;
 |};
 
-type OpenEmployeeTwo record {
+type OpenEmployeeTwo record {|
     string name;
     int...;
-};
+|};
 
 type OpenRecordWithOptionalFieldOne record {
     string name;
@@ -1232,7 +1232,7 @@ public function testSelfAndCyclicReferencingTupleEqualityNegative() returns bool
 
 function testEmptyMapAndRecordEquality() returns boolean {
     map<error> m = {};
-    record { string s?; int...; } r = {};
+    record {| string s?; int...; |} r = {};
     return m == r;
 }
 
