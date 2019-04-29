@@ -51,9 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.LinkedList;
@@ -69,8 +67,6 @@ public class BIRTypeWriter implements TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
-    private final BMapType anydataMapType =
-            new BMapType(TypeTags.MAP, new BAnydataType(TypeTags.ANYDATA, null), null);
     private LinkedList<Object> compositeStack = new LinkedList<>();
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
@@ -180,7 +176,6 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BStructureType bStructureType) {
-
         throwUnimplementedError(bStructureType);
     }
 
@@ -270,13 +265,8 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     @Override
-    public void visit(BXMLAttributesType bxmlAttributesType) {
-        throwUnimplementedError(bxmlAttributesType);
-    }
-
-    @Override
     public void visit(BXMLType bxmlType) {
-        throwUnimplementedError(bxmlType);
+        buff.writeByte(bxmlType.tag);
     }
 
     private void throwUnimplementedError(BType bType) {

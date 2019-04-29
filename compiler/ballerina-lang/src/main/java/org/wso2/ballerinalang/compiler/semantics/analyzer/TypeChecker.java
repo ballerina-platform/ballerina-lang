@@ -3043,6 +3043,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
         xmlTextLiteral.concatExpr = contentExpr;
         xmlTextLiteral.pos = contentExpr.pos;
+        xmlTextLiteral.type = symTable.xmlType;
         return xmlTextLiteral;
     }
 

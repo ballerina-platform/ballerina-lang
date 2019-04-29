@@ -99,14 +99,29 @@ public const INS_KIND_IS_LIKE = "IS_LIKE";
 public const INS_KIND_TYPE_TEST = "TYPE_TEST";
 public const INS_KIND_OBJECT_STORE = "OBJECT_STORE";
 public const INS_KIND_OBJECT_LOAD = "OBJECT_LOAD";
+public const INS_KIND_NEW_XML_ELEMENT = "NEW_XML_ELEMENT";
+public const INS_KIND_NEW_XML_TEXT = "NEW_XML_TEXT";
+public const INS_KIND_NEW_XML_COMMENT = "NEW_XML_COMMENT";
+public const INS_KIND_NEW_XML_PI = "NEW_XML_PI";
+public const INS_KIND_NEW_XML_QNAME = "NEW_XML_QNAME";
+public const INS_KIND_NEW_STRING_XML_QNAME = "NEW_STRING_XML_QNAME";
+public const INS_KIND_XML_SEQ_STORE = "XML_SEQ_STORE";
+public const INS_KIND_XML_SEQ_LOAD = "XML_SEQ_LOAD";
+public const INS_KIND_XML_LOAD = "XML_LOAD";
+public const INS_KIND_XML_LOAD_ALL = "XML_LOAD_ALL";
+public const INS_KIND_XML_ATTRIBUTE_STORE = "XML_ATTRIBUTE_STORE";
+public const INS_KIND_XML_ATTRIBUTE_LOAD = "XML_ATTRIBUTE_LOAD";
 public const INS_KIND_FP_LOAD = "FP_LOAD";
 
-public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST | 
+public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
                                 INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
                                 INS_KIND_MAP_LOAD | INS_KIND_ARRAY_LOAD | INS_KIND_TYPE_CAST | INS_KIND_IS_LIKE |
                                 INS_KIND_TYPE_TEST | BinaryOpInstructionKind | INS_KIND_OBJECT_STORE |
-                                INS_KIND_OBJECT_LOAD | INS_KIND_FP_LOAD;
-
+                                INS_KIND_OBJECT_LOAD | INS_KIND_NEW_XML_ELEMENT | INS_KIND_NEW_XML_QNAME |
+                                INS_KIND_NEW_STRING_XML_QNAME | INS_KIND_XML_SEQ_STORE | INS_KIND_NEW_XML_TEXT |
+                                INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
+                                INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
+                                INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -153,13 +168,13 @@ public const ARRAY_STATE_UNSEALED = "UNSEALED";
 
 public type ArrayState ARRAY_STATE_CLOSED_SEALED | ARRAY_STATE_OPEN_SEALED | ARRAY_STATE_UNSEALED;
 
-public type VariableDcl record {
+public type VariableDcl record {|
     VarKind kind = "LOCAL";
     VarScope varScope = VAR_SCOPE_FUNCTION;
     Name name = {};
     BType typeValue = "()";
     anydata...; // This is to type match with Object type fields in subtypes
-};
+|};
 
 public type GlobalVariableDcl record {|
     VarKind kind = "GLOBAL";
@@ -201,6 +216,9 @@ public type BJSONType TYPE_JSON;
 
 public const TYPE_DESC = "typedesc";
 public type BTypeDesc TYPE_DESC;
+
+public const TYPE_XML = "xml";
+public type BXMLType TYPE_XML;
 
 public type BArrayType record {|
     ArrayState state;
@@ -254,11 +272,11 @@ public type BObjectField record {
 };
 
 public type BUnionType record {|
-   BType[]  members;
+   BType?[]  members;
 |};
 
 public type BTupleType record {|
-   BType[]  tupleTypes;
+   BType?[]  tupleTypes;
 |};
 
 public type BFutureType record {|
@@ -267,7 +285,7 @@ public type BFutureType record {|
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc;
+                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc| BXMLType;
 
 public type ModuleID record {|
     string org = "";
@@ -278,7 +296,7 @@ public type ModuleID record {|
 |};
 
 public type BInvokableType record {
-    BType[] paramTypes = [];
+    BType?[] paramTypes = [];
     BType retType?;
 };
 
@@ -458,4 +476,58 @@ public type Panic record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     VarRef errorOp;
+|};
+
+public type NewXMLElement record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef startTagOp;
+    VarRef endTagOp;
+    VarRef defaultNsURIOp;
+|};
+
+public type NewXMLQName record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef localnameOp;
+    VarRef nsURIOp;
+    VarRef prefixOp;
+|};
+
+public type NewStringXMLQName record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef stringQNameOp;
+|};
+
+public type XMLAccess record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef rhsOp;
+|};
+
+public type NewXMLText record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef textOp;
+|};
+
+public type NewXMLComment record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef textOp;
+|};
+
+public type NewXMLPI record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef dataOp;
+    VarRef targetOp;
 |};

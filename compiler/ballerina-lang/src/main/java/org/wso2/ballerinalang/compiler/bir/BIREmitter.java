@@ -23,9 +23,16 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.IsLike;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -312,7 +319,78 @@ public class BIREmitter extends BIRVisitor {
         birPanic.errorOp.accept(this);
         sb.append(";\n");
     }
-    
+
+    @Override
+    public void visit(NewXMLElement newXMLElement) {
+        sb.append("\t\t");
+        newXMLElement.lhsOp.accept(this);
+        sb.append(" = ").append(newXMLElement.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        newXMLElement.startTagOp.accept(this);
+        sb.append(" ");
+        newXMLElement.endTagOp.accept(this);
+        sb.append(" ");
+        newXMLElement.defaultNsURIOp.accept(this);
+        sb.append(";\n");
+    }
+
+    @Override
+    public void visit(NewXMLQName newXMLQName) {
+        sb.append("\t\t");
+        newXMLQName.lhsOp.accept(this);
+        sb.append(" = ").append(newXMLQName.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        newXMLQName.localnameOp.accept(this);
+        sb.append(" ");
+        newXMLQName.nsURIOp.accept(this);
+        sb.append(" ");
+        newXMLQName.prefixOp.accept(this);
+        sb.append(";\n");
+    }
+
+    @Override
+    public void visit(NewXMLText newXMLQText) {
+        sb.append("\t\t");
+        newXMLQText.lhsOp.accept(this);
+        sb.append(" = ").append(newXMLQText.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        newXMLQText.textOp.accept(this);
+        sb.append(";\n");
+    }
+
+    public void visit(XMLAccess xmlAddChild) {
+        sb.append("\t\t");
+        xmlAddChild.lhsOp.accept(this);
+        sb.append(" = ").append(xmlAddChild.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        xmlAddChild.rhsOp.accept(this);
+        sb.append(";\n");
+    }
+
+    @Override
+    public void visit(NewXMLComment newXMLComment) {
+        sb.append("\t\t");
+        newXMLComment.lhsOp.accept(this);
+        sb.append(" = ").append(newXMLComment.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        newXMLComment.textOp.accept(this);
+        sb.append(";\n");
+    }
+
+    @Override
+    public void visit(NewXMLProcIns newXMLProcIns) {
+        sb.append("\t\t");
+        newXMLProcIns.lhsOp.accept(this);
+        sb.append(" = ").append(newXMLProcIns.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        newXMLProcIns.dataOp.accept(this);
+        sb.append(" ");
+        newXMLProcIns.targetOp.accept(this);
+        sb.append(";\n");
+    }
+
+    public void visit(NewStringXMLQName newStringXMLQName) {
+        sb.append("\t\t");
+        newStringXMLQName.lhsOp.accept(this);
+        sb.append(" = ").append(newStringXMLQName.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        newStringXMLQName.stringQNameOP.accept(this);
+        sb.append(";\n");
+    }
+
     // Operands
     public void visit(BIROperand birOp) {
         sb.append(birOp.variableDcl.name);

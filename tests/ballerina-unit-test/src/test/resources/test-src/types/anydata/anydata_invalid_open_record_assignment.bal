@@ -42,59 +42,59 @@ function testInvalidRecordAssignment() {
     ad = foo7;
 }
 
-type Foo record {
+type Foo record {|
     int aa = 0;
     any a;
     anydata...;
-};
+|};
 
-type Foo1 record {
+type Foo1 record {|
     int ca;
     Bar2 b = {};
     anydata...;
-};
+|};
 
-type Foo2 record {
+type Foo2 record {|
     int ca;
     Bar|() b = ();
     anydata...;
-};
+|};
 
-type Foo3 record {
+type Foo3 record {|
     int ca;
     function (string) returns boolean fp?;
     anydata...;
-};
+|};
 
-type Foo4 record {
+type Foo4 record {|
     int ca;
     typedesc td;
     anydata...;
-};
+|};
 
-type Foo5 record {
+type Foo5 record {|
     int ca;
     map<any> m = {};
     anydata...;
-};
+|};
 
-type Foo6 record {
+type Foo6 record {|
     int ca;
     map<map<Foo2>> m = {};
     anydata...;
-};
+|};
 
-type Foo7 record {
+type Foo7 record {|
     int ca;
     any[] ar = [];
     anydata...;
-};
+|};
 
 type Bar object {
     int oa = 0;
 };
 
-type Bar2 record {
+type Bar2 record {|
     int ra = 0;
     any...;
-};
+|};

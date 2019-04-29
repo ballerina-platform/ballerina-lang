@@ -24,7 +24,14 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -313,7 +320,68 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(birPanic.kind.getValue());
         birPanic.errorOp.accept(this);
     }
-    
+
+    @Override
+    public void visit(NewXMLElement newXMLElement) {
+        writePosition(newXMLElement.pos);
+        buf.writeByte(newXMLElement.kind.getValue());
+        newXMLElement.lhsOp.accept(this);
+        newXMLElement.startTagOp.accept(this);
+        newXMLElement.endTagOp.accept(this);
+        newXMLElement.defaultNsURIOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewXMLText newXMLText) {
+        writePosition(newXMLText.pos);
+        buf.writeByte(newXMLText.kind.getValue());
+        newXMLText.lhsOp.accept(this);
+        newXMLText.textOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewXMLQName newXMLQName) {
+        writePosition(newXMLQName.pos);
+        buf.writeByte(newXMLQName.kind.getValue());
+        newXMLQName.lhsOp.accept(this);
+        newXMLQName.localnameOp.accept(this);
+        newXMLQName.nsURIOp.accept(this);
+        newXMLQName.prefixOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewStringXMLQName newStringXMLQName) {
+        writePosition(newStringXMLQName.pos);
+        buf.writeByte(newStringXMLQName.kind.getValue());
+        newStringXMLQName.lhsOp.accept(this);
+        newStringXMLQName.stringQNameOP.accept(this);
+    }
+
+    @Override
+    public void visit(XMLAccess xmlAccess) {
+        writePosition(xmlAccess.pos);
+        buf.writeByte(xmlAccess.kind.getValue());
+        xmlAccess.lhsOp.accept(this);
+        xmlAccess.rhsOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewXMLComment newXMLComment) {
+        writePosition(newXMLComment.pos);
+        buf.writeByte(newXMLComment.kind.getValue());
+        newXMLComment.lhsOp.accept(this);
+        newXMLComment.textOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewXMLProcIns newXMLProcIns) {
+        writePosition(newXMLProcIns.pos);
+        buf.writeByte(newXMLProcIns.kind.getValue());
+        newXMLProcIns.lhsOp.accept(this);
+        newXMLProcIns.dataOp.accept(this);
+        newXMLProcIns.targetOp.accept(this);
+    }
+
     // Positions
     void writePosition(DiagnosticPos pos) {
         int sLine = 1;
