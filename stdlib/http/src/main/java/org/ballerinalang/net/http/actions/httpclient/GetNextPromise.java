@@ -20,6 +20,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -76,6 +77,12 @@ public class GetNextPromise extends AbstractHTTPAction {
                             HttpConstants.PUSH_PROMISE);
             HttpUtil.populatePushPromiseStruct(pushPromiseStruct, pushPromise);
             dataContext.notifyInboundResponseStatus(pushPromiseStruct, null);
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            BError httpConnectorError = HttpUtil.getError(dataContext.context, throwable);
+            dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }
 }
