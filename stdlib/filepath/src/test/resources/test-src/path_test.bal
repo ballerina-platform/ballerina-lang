@@ -60,3 +60,12 @@ function testPathExtension(string path) returns string|error {
 function testRelativePath(string base, string target) returns string|error {
     return filepath:relative(base, target);
 }
+
+function testResolvePath(string path) returns string|error {
+    string untaintPath = untaint path;
+    return filepath:resolve(untaintPath);
+}
+
+function testPathMatches(string path, string pattern) returns boolean|error {
+    return filepath:matches(path, pattern);
+}

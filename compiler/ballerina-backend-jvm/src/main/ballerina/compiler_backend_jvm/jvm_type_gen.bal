@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 # Name of the class to which the types will be added as static fields.
 string typeOwnerClass = "";
 
@@ -520,6 +519,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         typeFieldName = "typeAnydata";
     } else if (bType is bir:BJSONType) {
         typeFieldName = "typeJSON";
+    } else if (bType is bir:BXMLType) {
+        typeFieldName = "typeXML";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
@@ -622,18 +623,19 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
     mv.visitInsn(DUP);
 
     // Create the members array
-    bir:BType[] memberTypes = bType.members;
+    bir:BType?[] memberTypes = bType.members;
     mv.visitLdcInsn(memberTypes.length());
     mv.visitInsn(L2I);
     mv.visitTypeInsn(ANEWARRAY, BTYPE);
     int i = 0;
     foreach var memberType in memberTypes {
+        bir:BType mType = getType(memberType);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(i);
         mv.visitInsn(L2I);
 
         // Load the member type
-        loadType(mv, memberType);
+        loadType(mv, mType);
 
         // Add the member to the array
         mv.visitInsn(AASTORE);
@@ -657,10 +659,11 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, "<init>", "()V", false);
    
-    bir:BType[] tupleTypes = bType.tupleTypes;
+    bir:BType?[] tupleTypes = bType.tupleTypes;
     foreach var tupleType in tupleTypes {
+        bir:BType tType = getType(tupleType);
         mv.visitInsn(DUP);
-        loadType(mv, tupleType);
+        loadType(mv, tType);
         mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
         mv.visitInsn(POP);
     }
@@ -741,7 +744,8 @@ function getTypeDesc(bir:BType bType) returns string {
                bType is bir:BTypeAnyData ||
                bType is bir:BUnionType ||
                bType is bir:BRecordType ||
-               bType is bir:BJSONType) {
+               bType is bir:BJSONType ||
+               bType is bir:BXMLType) {
         return io:sprintf("L%s;", OBJECT);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));

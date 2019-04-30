@@ -153,10 +153,21 @@ spotbugsTest {
 }
 
 test {
+    testLogging {
+        // Make sure output from standard out or error is shown in Gradle output.
+        showStackTraces = true
+        showStandardStreams = true
+    }
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog"
     testLogging {
         events "failed"
         exceptionFormat "full"
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
     }
 }

@@ -158,6 +158,10 @@ LEFT_BRACKET        : '[' ;
 RIGHT_BRACKET       : ']' ;
 QUESTION_MARK       : '?' ;
 
+// Delimiters
+LEFT_CLOSED_RECORD_DELIMITER     : '{|' ;
+RIGHT_CLOSED_RECORD_DELIMITER    : '|}' ;
+
 // Documentation markdown
 
 fragment

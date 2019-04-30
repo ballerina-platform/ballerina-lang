@@ -2432,7 +2432,7 @@
         <swagger.codegen.version>2.4.2</swagger.codegen.version>
         <io.swagger.version>1.5.22</io.swagger.version>
         <swagger.parser.version>1.0.34</swagger.parser.version>
-        <swagger.models.version>1.5.18</swagger.models.version>
+        <swagger.models.version>1.5.22</swagger.models.version>
         <swagger.v3.parser.version>2.0.11</swagger.v3.parser.version>
         <swagger.v3.models.version>2.0.7</swagger.v3.models.version>
         <swagger.parser.v2.converter.version>2.0.0-rc3</swagger.parser.v2.converter.version>
