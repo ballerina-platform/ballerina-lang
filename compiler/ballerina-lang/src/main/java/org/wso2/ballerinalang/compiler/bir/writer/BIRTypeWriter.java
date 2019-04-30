@@ -315,13 +315,11 @@ public class BIRTypeWriter implements TypeVisitor {
                 buff.writeInt(addFloatCPEntry(doubleVal));
                 break;
             case TypeTags.STRING:
+            case TypeTags.DECIMAL:
                 buff.writeInt(addStringCPEntry((String) value));
                 break;
             case TypeTags.BOOLEAN:
                 buff.writeByte((Boolean) value ? 1 : 0);
-                break;
-            case TypeTags.DECIMAL:
-                buff.writeInt(addStringCPEntry((String) value));
                 break;
             case TypeTags.NIL:
                 break;
