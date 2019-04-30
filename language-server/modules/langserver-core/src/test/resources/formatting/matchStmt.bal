@@ -7,7 +7,8 @@ type Foo record {
 };
 
 function testStructuredMatchPatternsBasic1() returns string {
-    Foo foo1 = {s: "S", i: 23, f: 5.6};
+    Foo foo1 = {
+    s: "S", i: 23, f: 5.6};
 
     match foo1 {
         var {s, i: integer, f} => return "Matched Values : " + s + ", " + integer + ", " + f;
@@ -43,7 +44,8 @@ type Foo1 record {
 };
 
 function testStructuredMatchPatternsBasic4() returns string {
-    Foo1 foo2 = {s: "S", i: 23, fib: (5.6, 3, true)};
+    Foo1 foo2 = {s: "S", i: 23, fib: (5.6, 3,
+    true)};
 
        match foo2 {
         var {s, i: integer, fib: (a, b, c)} => {
