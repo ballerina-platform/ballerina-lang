@@ -254,8 +254,8 @@ public type TypeParser object {
         int size = self.reader.readInt32();
         int c = 0;
         BFiniteType finiteType = {values:[]};
-        BType valueType = self.parseType();
         while c < size {
+            BType valueType = self.parseType();
             finiteType.values[c] = self.getValue(valueType);
             c = c + 1;
         }
@@ -271,7 +271,7 @@ public type TypeParser object {
             return self.reader.readInt8() == 1;
         } else if (valueType is BTypeFloat) {
             return self.reader.readFloatCpRef();
-        } else if (valueType is ()) {
+        } else if (valueType is BTypeNil) {
             return ();
         }
     }

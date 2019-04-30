@@ -32,8 +32,7 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[]
             jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, fieldName, io:sprintf("L%s;", BTYPE));
             fv.visitEnd();
         } else {
-            error err = error("Type definition is not yet supported for " + io:sprintf("%s", bType));
-            panic err;
+            // do not generate anything for other types (e.g.: finite type, unions, etc.)
         }
     }
 }
@@ -58,8 +57,8 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
         } else if (bType is bir:BErrorType) {
             createErrorType(mv, bType, typeDef.name.value);
         } else {
-            error err = error("Type definition is not yet supported for " + io:sprintf("%s", bType));
-            panic err;
+            // do not generate anything for other types (e.g.: finite type, unions, etc.)
+            continue;
         }
 
         mv.visitFieldInsn(PUTSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
@@ -68,10 +67,14 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
     // Populate the field types
     foreach var optionalTypeDef in typeDefs {
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        bir:BType bType = typeDef.typeValue;
+        if !(bType is bir:BRecordType || bType is bir:BObjectType) {
+            continue;
+        }
+
         fieldName = getTypeFieldName(typeDef.name.value);
         mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
 
-        bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
             mv.visitTypeInsn(CHECKCAST, RECORD_TYPE);
             mv.visitInsn(DUP);
@@ -556,6 +559,9 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
             loadType(mv, bType.bType);
         }
         return;
+    } else if (bType is bir:BFiniteType) {
+        loadFiniteType(mv, bType);
+        return;
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -751,4 +757,37 @@ function getTypeDesc(bir:BType bType) returns string {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
     }
+}
+
+function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
+    mv.visitTypeInsn(NEW, FINITE_TYPE);
+    mv.visitInsn(DUP);
+
+    mv.visitTypeInsn(NEW, LINKED_HASH_SET);
+    mv.visitInsn(DUP);
+    mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, "<init>", "()V", false);
+
+    foreach var value in finiteType.values {
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(value);
+
+        if (value is int) {
+            mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
+        } else if (value is boolean) {
+            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
+        } else if (value is float) {
+            mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
+        } else if (value is byte) {
+            mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "valueOf", io:sprintf("(B)L%s;", BYTE_VALUE), false);
+        } else {
+            // if value is string or (), then do nothing
+        }
+
+        // Add the value to the set
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", io:sprintf("(L%s;)Z", OBJECT), true);
+        mv.visitInsn(POP);
+    }
+
+    // initialize the finite type using the value space
+    mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE, "<init>", io:sprintf("(L%s;)V", SET), false);
 }
