@@ -285,10 +285,10 @@ public function CircuitBreakerClient.post(string path, RequestMessage message) r
 
     if (self.currentCircuitState == CB_OPEN_STATE) {
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+        return handleOpenCircuit(self.circuitHealth, cbic);
     } else {
         var serviceResponse = self.httpClient->post(path, <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
     }
 }
 
@@ -298,10 +298,10 @@ public function CircuitBreakerClient.head(string path, RequestMessage message = 
 
     if (self.currentCircuitState == CB_OPEN_STATE) {
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+        return handleOpenCircuit(self.circuitHealth, cbic);
     } else {
         var serviceResponse = self.httpClient->head(path, message = <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
     }
 }
 
@@ -311,10 +311,10 @@ public function CircuitBreakerClient.put(string path, RequestMessage message) re
 
     if (self.currentCircuitState == CB_OPEN_STATE) {
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+        return handleOpenCircuit(self.circuitHealth, cbic);
     } else {
         var serviceResponse = self.httpClient->put(path, <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
     }
 }
 
@@ -324,10 +324,10 @@ public function CircuitBreakerClient.execute(string httpVerb, string path, Reque
 
     if (self.currentCircuitState == CB_OPEN_STATE) {
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+        return handleOpenCircuit(self.circuitHealth, cbic);
     } else {
         var serviceResponse = self.httpClient->execute(httpVerb, path, <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
     }
 }
 
@@ -337,10 +337,10 @@ public function CircuitBreakerClient.patch(string path, RequestMessage message) 
 
     if (self.currentCircuitState == CB_OPEN_STATE) {
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+        return handleOpenCircuit(self.circuitHealth, cbic);
     } else {
         var serviceResponse = self.httpClient->patch(path, <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
     }
 }
 
@@ -350,10 +350,10 @@ public function CircuitBreakerClient.delete(string path, RequestMessage message)
 
     if (self.currentCircuitState == CB_OPEN_STATE) {
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+        return handleOpenCircuit(self.circuitHealth, cbic);
     } else {
         var serviceResponse = self.httpClient->delete(path, <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
     }
 }
 
@@ -363,10 +363,10 @@ public function CircuitBreakerClient.get(string path, RequestMessage message = (
 
     if (self.currentCircuitState == CB_OPEN_STATE) {
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+        return handleOpenCircuit(self.circuitHealth, cbic);
     } else {
         var serviceResponse = self.httpClient->get(path, message = <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
     }
 }
 
@@ -376,10 +376,10 @@ public function CircuitBreakerClient.options(string path, RequestMessage message
 
     if (self.currentCircuitState == CB_OPEN_STATE) {
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+        return handleOpenCircuit(self.circuitHealth, cbic);
     } else {
         var serviceResponse = self.httpClient->options(path, message = <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
     }
 }
 
@@ -392,30 +392,77 @@ public function CircuitBreakerClient.forward(string path, Request request) retur
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
         var serviceResponse = self.httpClient->forward(path, request);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
     }
 }
 
 public function CircuitBreakerClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
-    return self.httpClient->submit(httpVerb, path, <Request>message);
+    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
+
+    if (self.currentCircuitState == CB_OPEN_STATE) {
+        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+    } else {
+        var serviceResponse = self.httpClient->submit(httpVerb, path, <Request>message);
+        if (serviceResponse is HttpFuture) {
+            updateCircuitHealthSuccess(self.circuitHealth, self.circuitBreakerInferredConfig);
+        } else {
+            updateCircuitHealthFailure(self.circuitHealth, self.circuitBreakerInferredConfig);
+        }
+        return serviceResponse;
+    }
 }
 
 public function CircuitBreakerClient.getResponse(HttpFuture httpFuture) returns Response|error {
-    return self.httpClient->getResponse(httpFuture);
+    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
+    if (self.currentCircuitState == CB_OPEN_STATE) {
+        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+        return handleOpenCircuit(self.circuitHealth, cbic);
+    } else {
+        var serviceResponse = self.httpClient->getResponse(httpFuture);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
+    }
 }
 
+// TODO: Check and update the related transport APIs
 public function CircuitBreakerClient.hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient->hasPromise(httpFuture);
 }
 
 public function CircuitBreakerClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-    return self.httpClient->getNextPromise(httpFuture);
+    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
+
+    if (self.currentCircuitState == CB_OPEN_STATE) {
+        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+    } else {
+        var serviceResponse = self.httpClient->getNextPromise(httpFuture);
+        if (serviceResponse is PushPromise) {
+            updateCircuitHealthSuccess(self.circuitHealth, self.circuitBreakerInferredConfig);
+        } else {
+            updateCircuitHealthFailure(self.circuitHealth, self.circuitBreakerInferredConfig);
+        }
+        return serviceResponse;
+    }
 }
 
 public function CircuitBreakerClient.getPromisedResponse(PushPromise promise) returns Response|error {
-    return self.httpClient->getPromisedResponse(promise);
+    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
+
+    if (self.currentCircuitState == CB_OPEN_STATE) {
+        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+        return handleOpenCircuit(self.circuitHealth, cbic);
+    } else {
+        var serviceResponse = self.httpClient->getPromisedResponse(promise);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
+    }
 }
 
+// TODO: Check and update the related transport APIs
 public function CircuitBreakerClient.rejectPromise(PushPromise promise) {
     return self.httpClient->rejectPromise(promise);
 }
@@ -487,15 +534,19 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
 function updataCircuitHealthAndRespond(Response|error serviceResponse, CircuitHealth circuitHealth,
                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns Response|error {
     if (serviceResponse is Response) {
-        updateCircuitHealthSuccess(circuitHealth, serviceResponse, circuitBreakerInferredConfig);
+        if (circuitBreakerInferredConfig.statusCodes[serviceResponse.statusCode] == true) {
+            updateCircuitHealthFailure(circuitHealth, circuitBreakerInferredConfig);
+        } else {
+            updateCircuitHealthSuccess(circuitHealth, circuitBreakerInferredConfig);
+        }
     } else {
-        updateCircuitHealthFailure(circuitHealth, serviceResponse, circuitBreakerInferredConfig);
+        updateCircuitHealthFailure(circuitHealth, circuitBreakerInferredConfig);
     }
     return serviceResponse;
 }
 
 function updateCircuitHealthFailure(CircuitHealth circuitHealth,
-                                    error httpConnectorErr, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
+                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
     lock {
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
         circuitHealth.lastRequestSuccess = false;
@@ -508,22 +559,14 @@ function updateCircuitHealthFailure(CircuitHealth circuitHealth,
     }
 }
 
-function updateCircuitHealthSuccess(CircuitHealth circuitHealth, Response inResponse,
+function updateCircuitHealthSuccess(CircuitHealth circuitHealth,
                                     CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
     lock {
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
         time:Time lastUpdated = time:currentTime();
         updateLastUsedBucketId(currentBucketId, circuitHealth);
-        if (circuitBreakerInferredConfig.statusCodes[inResponse.statusCode] == true) {
-            Bucket bucket = <Bucket>circuitHealth.totalBuckets[currentBucketId];
-            bucket.failureCount += 1;
-            circuitHealth.lastRequestSuccess = false;
-            circuitHealth.lastErrorTime = lastUpdated;
-            circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
-        } else {
-            circuitHealth.lastRequestSuccess = true;
-            circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
-        }
+        circuitHealth.lastRequestSuccess = true;
+        circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
     }
 }
 
