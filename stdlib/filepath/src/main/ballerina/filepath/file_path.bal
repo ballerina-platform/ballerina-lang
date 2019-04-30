@@ -347,6 +347,23 @@ public function relative(string base, string target) returns string|error {
     return cleanTarget.substring(t0, tl);
 }
 
+# Returns the filepath after the evaluation of any symbolic links.
+# If path is relative, the result will be relative to the current directory,
+# unless one of the components is an absolute symbolic link.
+# Resolve calls normalize on the result.
+#
+# + path - String value of file path.
+# + return - Resolved file path
+public function resolve(@sensitive string path) returns string|error = external;
+
+# Reports whether all of filename matches the provided pattern, not just a substring.
+# An error is returned if the pattern is malformed.
+#
+# + path - String value of the file path.
+# + pattern - String value of the target file path.
+# + return - True if filename of the path matches with the pattern, else false
+public function matches(string path, string pattern) returns boolean|error = external;
+
 # Parses the give path and remove redundent slashes.
 #
 # + input - string path value

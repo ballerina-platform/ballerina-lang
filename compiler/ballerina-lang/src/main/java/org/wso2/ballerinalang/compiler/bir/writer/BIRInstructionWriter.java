@@ -178,6 +178,23 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(birAsyncCall.thenBB.id.value);
     }
 
+    public void visit(BIRTerminator.FPCall fpCall) {
+        writePosition(fpCall.pos);
+        buf.writeByte(fpCall.kind.getValue());
+        fpCall.fp.accept(this);
+        buf.writeInt(fpCall.args.size());
+        for (BIROperand arg : fpCall.args) {
+            arg.accept(this);
+        }
+        if (fpCall.lhsOp != null) {
+            buf.writeByte(1);
+            fpCall.lhsOp.accept(this);
+        } else {
+            buf.writeByte(0);
+        }
+        addCpAndWriteString(fpCall.thenBB.id.value);
+    }
+
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
         writePosition(birBinaryOp.pos);
         buf.writeByte(birBinaryOp.kind.getValue());
@@ -301,8 +318,15 @@ public class BIRInstructionWriter extends BIRVisitor {
         int versionCPIndex = addStringCPEntry(pkgId.version.value);
         int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         buf.writeInt(pkgIndex);
-
         buf.writeInt(addStringCPEntry(fpLoad.funcName.getValue()));
+
+        buf.writeInt(fpLoad.params.size());
+        fpLoad.params.forEach(param -> {
+            buf.writeByte(param.kind.getValue());
+            param.type.accept(typeWriter);
+            buf.writeInt(addStringCPEntry(param.name.value));
+        });
+
     }
 
     public void visit(BIRTerminator.Panic birPanic) {

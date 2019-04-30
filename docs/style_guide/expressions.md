@@ -2,13 +2,7 @@
 
 ## Function invocation
 
-* Do not keep spaces between the function name, opening parentheses `(`, first argument, and closing parentheses.
-* Do not keep spaces between the argument and the trailing comma `,`
-
-  Example,
-  ```ballerina
-  setAgeForEmployee(employeeName, employeeID);
-  ```
+* Do not keep spaces between the function name and opening parentheses `(`.
   
 * If it is unable to keep the function invocation in a single line due to it exceeding the max line length,
   split each argument on to its own block-indented line.
@@ -48,13 +42,31 @@
 * You can define the fields in new lines if so make sure all the fields are in a separate line and they
   are block indented.
 
-  Example,
+  Dos
   ```ballerina
   Person p = {
       name: "john",
       age: 20
   };
   ``` 
+  Don'ts
+  ```ballerina
+  Person p = {name: "john",
+      age: 20};
+  
+  //Or
+  
+  Person p = {
+  name: "john",
+  age: 20
+  };
+  
+  //Or
+  
+  Person p = {
+      name: "john",
+      age: 20};
+  ```
 ## Map literal
 
 * For Map literals, follow the same formatting guidelines as [record literals](#record-literals). 
@@ -120,6 +132,19 @@
   Example,
   ```ballerina
   string name = <string>json.name;
+  ```
+* Avoid line breaks in type casting.
+  
+  Dos
+  ```ballerina
+  <string>
+  ```
+  
+  Don'ts
+  ```ballerina
+  <
+      string
+  >
   ```
 ## Table literal
 

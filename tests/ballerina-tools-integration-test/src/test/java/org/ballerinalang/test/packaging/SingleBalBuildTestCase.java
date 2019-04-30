@@ -18,9 +18,8 @@
 package org.ballerinalang.test.packaging;
 
 import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,9 +41,9 @@ public class SingleBalBuildTestCase extends BaseTest {
     private Map<String, String> envVariables;
 
     @BeforeClass()
-    public void setUp() throws BallerinaTestException, IOException {
+    public void setUp() throws IOException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-single-bal-");
-        envVariables = PackagingTestUtils.getEnvVariables();
+        envVariables = TestUtils.getEnvVariables();
         Path tempModule = tempProjectDirectory.resolve("sourcePkg");
         Files.createDirectories(tempModule);
 
@@ -97,6 +96,6 @@ public class SingleBalBuildTestCase extends BaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+        TestUtils.deleteFiles(tempProjectDirectory);
     }
 }

@@ -20,75 +20,42 @@
   Don'ts
   
     ```ballerina
-        import ballerina/http;
+    // This import is indented correctly.
+    import ballerina/http; 
     
-        const int MIN_AGE = 20;
-        int repititions = 0;
+        const int MIN_AGE = 20; // Not indented correctly.
+        int repititions = 0; // Not indented correctly.
         
-        service hello on ep1 {
-            ...
-        }
+       // Not indented correctly.
+       service hello on ep1 {
+           ...
+       }
         
     ```
 ## Imports
 
-* Do not keep spaces between the org name, divider(`/`), and module name.
+* Do not keep spaces between the organization name, divider `/`, and module name.
 
   Example,
   ```ballerina
   import ballerina/http;
   ```
-* Add a single space before identifiers such as version and alias.
-
-  Example,
-  ```ballerina
-  import wso2/twitter version 0.9.0 as twitter;
-
-  import abc/foo.bar version 0.1 as foo;
-  ```
+* Imports should be sorted alphabetically, first by the organization name and then the module name.
 
 ## Function definition
-* Do not keep spaces between the function name and the open parentheses (`(`) of the function signature.
+* Do not keep spaces between the function name and the open parentheses `(` of the function signature.
 
   Example,
   ```ballerina
   function func1() {}
   ```
-
-* If the function body has at least one statement, indent the closing brace (`}`) on a new line to match the
-  start position of the function.
-  
-  Example,
-  ```ballerina
-  function func1() {
-      int a = 0;
-  }
-  ```
-* Do not keep spaces between the last parameter and the closing parentheses.
-
-  Example,
-  ```ballerina
-
-  function func1(int param1, string param2) {}
-
-  ```
  
-* If the function has an object attached to it, do not keep spaces around the `.`. Also, 
-keep a single space between the `function` keyword and the name of the object.
+* If the function has an object attached to it, do not keep spaces around the Dot `.`. Also, keep a single space between the `function` keyword and the name of the object.
 
   Example,
   ```ballerina
   function Person.getName() {}
   ```
-
-* Keep a single space between the closing parentheses and the `returns` keyword.
-
-  Example,
-  ```ballerina
-  function getName() returns string {
-      return "john";
-  }
-  ``` 
 * If function needs to be split in to new lines, due to exceeding max line length
   - can break lines from the parameter list by moving a parameter value only to a 
     new line and indent it with four spaces from the function start position.
@@ -122,7 +89,7 @@ keep a single space between the `function` keyword and the name of the object.
 
 ## Service definition
 
-* Always keep the Inline listener listener on the same line as the service signature.
+* Keep the listener inline to the service signature.
   
   Example,
   ```ballerina
@@ -148,12 +115,12 @@ keep a single space between the `function` keyword and the name of the object.
     }
     ```
 
-* When formatting field definition, block indent each on a own line.
+* Block indent each function definition, resource definition, and field definition inside a service definition.
  
 ## Object definition
 
-* Block indent each field definition in their own line.
-* Also, block indent \function definitions, which are defined in the object.
+* Block indent each field definition and each function definition on their own line.
+* Init function should be placed before all the other functions. 
 * For function definitions in the object definition, follow [function formatting guidelines](#function-definition).
 
   Example,

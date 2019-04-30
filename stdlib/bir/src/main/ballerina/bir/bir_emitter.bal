@@ -112,14 +112,15 @@ public type BirEmitter object {
         self.typeEmitter.emitType(bFunction.typeValue);
         println(" {", bFunction.isDeclaration ? "\t// extern" : bFunction.isInterface ? "\t// interface" : "");
         foreach var v in bFunction.localVars {
-            self.typeEmitter.emitType(v.typeValue, tabs = tabs + "\t");
+            VariableDcl varDecl = getVariableDcl(v);
+            self.typeEmitter.emitType(varDecl.typeValue, tabs = tabs + "\t");
             print(" ");
-            if (v.name.value == "%0") {
+            if (varDecl.name.value == "%0") {
                 print("%ret");
             } else {
-                print(v.name.value);
+                print(varDecl.name.value);
             }
-            println("\t// ", v.kind);
+            println("\t// ", varDecl.kind);
         }
         println();// empty line
         foreach var b in bFunction.basicBlocks {
@@ -316,25 +317,46 @@ type TerminalEmitter object {
             }
             println(";");
         } else if (term is AsyncCall) {
-          print(tabs);
-          VarRef? lhsOp = term.lhsOp;
-          if (lhsOp is VarRef) {
-              self.opEmitter.emitOp(lhsOp);
-              print(" = ");
-          }
-          print(" START ");
-          print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
-          int i = 0;
-          foreach var arg in term.args {
+            print(tabs);
+            VarRef? lhsOp = term.lhsOp;
+            if (lhsOp is VarRef) {
+                self.opEmitter.emitOp(lhsOp);
+                print(" = ");
+            }
+            print(" START ");
+            print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
+            int i = 0;
+            foreach var arg in term.args {
+                if (arg is VarRef) {
+                    if (i != 0) {
+                        print(", ");
+                    }
+                    self.opEmitter.emitOp(arg);
+                    i = i + 1;
+                }
+            }
+            println(") -> ", term.thenBB.id.value, ";");
+        } else if (term is FPCall) {
+            print(tabs);
+            VarRef? lhsOp = term.lhsOp;
+            if (lhsOp is VarRef) {
+                self.opEmitter.emitOp(lhsOp);
+                print(" = ");
+            }
+            print(term.kind, " ");
+            self.opEmitter.emitOp(term.fp);
+            print("(");
+            int i = 0;
+            foreach var arg in term.args {
               if (arg is VarRef) {
                   if (i != 0) {
                       print(", ");
-                  }
+                    }
                   self.opEmitter.emitOp(arg);
                   i = i + 1;
-              }
-          }
-          println(") -> ", term.thenBB.id.value, ";");
+                }
+            }
+            println(") -> ", term.thenBB.id.value, ";");
         } else { //if (term is Return) {
             println(tabs, "return;");
         }
@@ -389,8 +411,9 @@ type TypeEmitter object {
         }
         println("record { ");
         foreach var f in bRecordType.fields {
-            self.emitType(f.typeValue, tabs = tabs + "\t");
-            println(" ", f.name.value, ";");
+            BRecordField recField = getRecordField(f);
+            self.emitType(recField.typeValue, tabs = tabs + "\t");
+            println(" ", recField.name.value, ";");
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
         print("...");
@@ -407,10 +430,11 @@ type TypeEmitter object {
         // int pCount = bInvokableType.paramTypes.size(); 
         int i = 0;
         foreach var p in bInvokableType.paramTypes {
+            BType pType = getType(p);
             if (i != 0) {
                 print(", ");
             }
-            self.emitType(p);
+            self.emitType(pType);
             i = i + 1;
         }
         print(") -> ");
@@ -428,11 +452,12 @@ type TypeEmitter object {
         int i = 0;
         string tabst = tabs;
         foreach var t in bUnionType.members {
+            BType mType = getType(t);
             if (i != 0) {
                 print(" | ");
                 tabst = "";
             }
-            self.emitType(t, tabs = tabst);
+            self.emitType(mType, tabs = tabst);
             i = i + 1;
         }
     }
@@ -441,10 +466,11 @@ type TypeEmitter object {
         int i = 0;
         print(tabs, "(");
         foreach var t in bUnionType.tupleTypes {
+            BType tType = getType(t);
             if (i != 0) {
                 print(", ");
             }
-            self.emitType(t);
+            self.emitType(tType);
             i = i + 1;
         }
         print(")");
@@ -495,7 +521,7 @@ type PositionEmitter object {
 function emitObjectTypeWithFields(BObjectType bObjectType, TypeEmitter typeEmitter, string tabs) {
     println(tabs, bObjectType.isAbstract ? "abstract " : "", "object {");
     foreach var f in bObjectType.fields {
-        if (f is BObjectField){
+        if (f is BObjectField) {
             string visibility = f.visibility;
             print(tabs + "\t", visibility.toLower(), " ");
             typeEmitter.emitType(f.typeValue);

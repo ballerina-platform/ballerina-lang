@@ -121,19 +121,19 @@ function testRecordVarWithUnionType() {
     UnionThree {var1, var2, var3: {var1: var3, var2: var4}, ...rest} = u3;
 }
 
-type UnionRec1 record {
+type UnionRec1 record {|
     string var1;
     string var2;
     string var3?;
     int...;
-};
+|};
 
-type UnionRec2 record {
+type UnionRec2 record {|
     boolean var1;
     boolean var2;
     boolean var3;
     float...;
-};
+|};
 
 function testUnionRecordVariable() returns (string|boolean, string|boolean, string|boolean, int|float) { // incompatible types
     UnionRec1 rec = {var1: "A", var2: "B"};
