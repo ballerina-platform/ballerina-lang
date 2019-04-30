@@ -73,6 +73,7 @@ function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|boolean 
 
     // if resource is not secured, no need to check further
     if (!resourceSecured) {
+        log:printWarn("Resource is not secured. `enabled: false`.");
         return false;
     }
     // check if auth providers are given at resource level
@@ -87,6 +88,7 @@ function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|boolean 
 
     // if service is not secured, no need to check further
     if (!serviceSecured) {
+        log:printWarn("Service is not secured. `enabled: false`.");
         return true;
     }
     // no auth providers found in resource level, try in service level
