@@ -43,20 +43,17 @@ public const OAUTH2 = "OAUTH2";
 # JWT authentication scheme.
 public const JWT_AUTH = "JWT_AUTH";
 
-# Extracts the basic authentication header value from the request.
+# Extracts the Authorization header value from the request.
 #
 # + req - Request instance
-# + return - Value of the basic authentication header, or nil if not found
-public function extractBasicAuthHeaderValue(Request req) returns string? {
+# + return - Value of the basic authentication header, or `error` in case of errors
+public function extractAuthorizationHeaderValue(Request req) returns string|error {
     // extract authorization header
     var headerValue = trap req.getHeader(AUTH_HEADER);
     if (headerValue is string) {
         return headerValue;
     } else {
-        string reason = headerValue.reason();
-        log:printDebug(function () returns string {
-            return "Error in retrieving header " + AUTH_HEADER + ": " + reason;
-        });
+        return prepareError("Error in retrieving header - " + AUTH_HEADER, err = headerValue);
     }
 }
 

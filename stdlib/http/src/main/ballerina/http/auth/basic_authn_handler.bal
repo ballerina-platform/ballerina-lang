@@ -36,32 +36,27 @@ public type BasicAuthnHandler object {
 # Checks if the provided request can be authenticated with basic auth.
 #
 # + req - Request object
-# + return - `true` if it is possible authenticate with basic auth, else `false`
-public function BasicAuthnHandler.handle(Request req) returns boolean {
+# + return - `true` if it is possible authenticate with basic auth, else `false`, or `error` in case of errors
+public function BasicAuthnHandler.handle(Request req) returns boolean|error {
     // extract the header value
-    var basicAuthHeader = extractBasicAuthHeaderValue(req);
+    var basicAuthHeader = extractAuthorizationHeaderValue(req);
     if (basicAuthHeader is string) {
         string credential = basicAuthHeader.substring(5, basicAuthHeader.length()).trim();
-        var authenticated = self.authProvider.authenticate(credential);
-        if (authenticated is boolean) {
-            return authenticated;
-        } else {
-            log:printError("Error while authenticating with BasicAuthnHandler", err = authenticated);
-        }
+        return self.authProvider.authenticate(credential);
     } else {
-        log:printError("Error in extracting basic authentication header");
+        return basicAuthHeader;
     }
-    return false;
 }
 
 # Intercept requests for authentication.
 #
 # + req - Request object
-# + return - `true` if authentication is a success, else `false`
-public function BasicAuthnHandler.canHandle(Request req) returns boolean {
-    var basicAuthHeader = trap req.getHeader(AUTH_HEADER);
+# + return - `true` if authentication is a success, else `false`, or `error` in case of errors
+public function BasicAuthnHandler.canHandle(Request req) returns boolean|error {
+    var basicAuthHeader = extractAuthorizationHeaderValue(req);
     if (basicAuthHeader is string) {
         return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
+    } else {
+        return basicAuthHeader;
     }
-    return false;
 }

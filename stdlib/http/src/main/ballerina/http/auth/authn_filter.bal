@@ -35,13 +35,15 @@ public type AuthnFilter object {
     # + context - A filter context
     # + return - True if the filter succeeds
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        boolean authenticated = true;
+        boolean|error authenticated;
         var authnHandlers = getAuthnHandlers(context);
         if (authnHandlers is AuthnHandler[]) {
             authenticated = handleAuthnRequest(authnHandlers, request);
         } else {
             if (authnHandlers) {
                 authenticated = handleAuthnRequest(self.authnHandlers, request);
+            } else {
+                authenticated = true;
             }
         }
         return isAuthnSuccessful(caller, authenticated);
@@ -52,16 +54,25 @@ public type AuthnFilter object {
     }
 };
 
-function handleAuthnRequest(AuthnHandler[] authnHandlers, Request request) returns boolean {
+function handleAuthnRequest(AuthnHandler[] authnHandlers, Request request) returns boolean|error {
     foreach AuthnHandler authnHandler in authnHandlers {
-        if (authnHandler.canHandle(request)) {
-            boolean authnSuccessful = authnHandler.handle(request);
-            if (authnSuccessful) {
-                // If one of the authenticators from the chain could successfully authenticate the user, it is not
-                // required to look through other providers. The authenticator chain is using "OR" combination of
-                // provider results.
-                return true;
+        var canHandleResponse = authnHandler.canHandle(request);
+        if (canHandleResponse is boolean) {
+            if (canHandleResponse) {
+                var handleResponse = authnHandler.handle(request);
+                if (handleResponse is boolean) {
+                    if (handleResponse) {
+                        // If one of the authenticators from the chain could successfully authenticate the user, it is not
+                        // required to look through other providers. The authenticator chain is using "OR" combination of
+                        // provider results.
+                        return true;
+                    }
+                } else {
+                    return handleResponse;
+                }
             }
+        } else {
+            return canHandleResponse;
         }
     }
     return false;
@@ -70,13 +81,22 @@ function handleAuthnRequest(AuthnHandler[] authnHandlers, Request request) retur
 # Verifies if the authentication is successful. If not responds to the user.
 #
 # + caller - Caller for outbound HTTP responses
-# + authenticated - Authorization status for the request
-# + return - Authorization result to indicate if the filter can proceed(true) or not(false)
-function isAuthnSuccessful(Caller caller, boolean authenticated) returns boolean {
+# + authenticated - Authentication status for the request, or `error` if error occured
+# + return - Authentication result to indicate if the filter can proceed(true) or not(false)
+function isAuthnSuccessful(Caller caller, boolean|error authenticated) returns boolean {
     Response response = new;
-    if (!authenticated) {
-        response.statusCode = 401;
-        response.setTextPayload("Authentication failure");
+    response.statusCode = 401;
+    if (authenticated is boolean) {
+        if (!authenticated) {
+            response.setTextPayload("Authentication failure");
+            var err = caller->respond(response);
+            if (err is error) {
+                panic err;
+            }
+            return false;
+        }
+    } else {
+        response.setTextPayload("Authentication failure. " + authenticated.reason());
         var err = caller->respond(response);
         if (err is error) {
             panic err;

@@ -153,10 +153,9 @@ function matchScopes(string[] resourceScopes, string[] userScopes) returns boole
     return true;
 }
 
-function AuthzHandler.canHandle(Request req) returns boolean {
+function AuthzHandler.canHandle(Request req) returns boolean|error {
     if (runtime:getInvocationContext().principal.username.length() == 0) {
-        log:printError("Username not set in auth context. Unable to authorize");
-        return false;
+        return prepareError("Username not set in auth context. Unable to authorize.");
     }
     return true;
 }

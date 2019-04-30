@@ -39,7 +39,7 @@ public type AuthzFilter object {
     # + context - `FilterContext` instance
     # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        boolean authorized = true;
+        boolean|error authorized;
         var scopes = getScopes(context);
         if (scopes is string[]) {
             authorized = handleAuthzRequest(self.authzHandler, request, context, scopes);
@@ -48,7 +48,11 @@ public type AuthzFilter object {
                 var selfScopes = self.scopes;
                 if (selfScopes is string[]) {
                     authorized = handleAuthzRequest(self.authzHandler, request, context, selfScopes);
+                } else {
+                    authorized = true;
                 }
+            } else {
+                authorized = true;
             }
         }
         return isAuthzSuccessful(caller, authorized);
@@ -59,14 +63,15 @@ public type AuthzFilter object {
     }
 };
 
-function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterContext context, string[] scopes) returns boolean {
-    boolean authorized = true;
+function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterContext context, string[] scopes) returns boolean|error {
+    boolean|error authorized;
     if (scopes.length() > 0) {
-        if (authzHandler.canHandle(request)) {
+        var canHandleResponse = authzHandler.canHandle(request);
+        if (canHandleResponse is boolean && canHandleResponse) {
             authorized = authzHandler.handle(runtime:getInvocationContext().principal.username,
                 context.serviceName, context.resourceName, request.method, scopes);
         } else {
-            authorized = false;
+            authorized = canHandleResponse;
         }
     } else {
         // scopes are not defined, no need to authorize
@@ -78,14 +83,22 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
 # Verifies if the authorization is successful. If not responds to the user.
 #
 # + caller - Caller for outbound HTTP responses
-# + authorized - flag to indicate if authorization is successful or not
-# + return - A boolean flag to indicate if the request flow should be continued(true) or
-#            aborted(false)
-function isAuthzSuccessful(Caller caller, boolean authorized) returns boolean {
+# + authorized - Authorization status for the request, or `error` if error occured
+# + return - Authorization result to indicate if the filter can proceed(true) or not(false)
+function isAuthzSuccessful(Caller caller, boolean|error authorized) returns boolean {
     Response response = new;
-    if (!authorized) {
-        response.statusCode = 403;
-        response.setTextPayload("Authorization failure");
+    response.statusCode = 403;
+    if (authorized is boolean) {
+        if (!authorized) {
+            response.setTextPayload("Authorization failure");
+            var err = caller->respond(response);
+            if (err is error) {
+                panic err;
+            }
+            return false;
+        }
+    } else {
+        response.setTextPayload("Authorization failure. " + authorized.reason());
         var err = caller->respond(response);
         if (err is error) {
             panic err;

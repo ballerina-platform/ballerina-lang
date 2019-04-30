@@ -20,12 +20,12 @@ public type AuthnHandler abstract object {
     # Checks if the request can be authenticated with the relevant `HttpAuthnHandler` implementation
     #
     # + req - `Request` instance
-    # + return - true if can be authenticated, else false
-    public function canHandle(Request req) returns boolean;
+    # + return - `true` if can be authenticated, else `false` or, `error` in case of errors
+    public function canHandle(Request req) returns boolean|error;
 
     # Tries to authenticate the request with the relevant `HttpAuthnHandler` implementation
     #
     # + req - `Request` instance
-    # + return - true if authenticated successfully, else false
-    public function handle(Request req) returns boolean;
+    # + return - `true` if authenticated successfully, else `false` or, `error` in case of errors
+    public function handle(Request req) returns boolean|error;
 };
