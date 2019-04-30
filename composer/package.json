@@ -7,7 +7,7 @@
     "node": ">=10.0.0"
   },
   "scripts": {
-    "prebuild": "check-engines && npm i && lerna bootstrap",
+    "prebuild": "check-engines && npm ci && lerna bootstrap",
     "test": "lerna run test --stream -- -- --coverage",
     "build": "lerna run build --stream",
     "clean": "lerna run clean --stream",

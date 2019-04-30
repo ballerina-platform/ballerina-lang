@@ -31,10 +31,9 @@ before_install:
 
 install:
   - . $HOME/.nvm/nvm.sh
-  - nvm install 8.9.0
-  - nvm use 8.9.0
-  - npm install -g npm@'5.6.0'
-
+  - nvm install 10
+  - nvm use 10
+  
 script:
   - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
   - ./gradlew build jacocoTestReport --console=plain --stacktrace -scan
