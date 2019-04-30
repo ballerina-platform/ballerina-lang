@@ -21,9 +21,8 @@ package org.ballerinalang.utils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.values.AbstractObjectValue;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypeDesc;
@@ -59,12 +58,20 @@ public class Typeof extends BlockingNativeCallableUnit {
     }
 
     public static TypedescValue typeof(Strand strand, Object value) {
-        if (value instanceof AbstractObjectValue) {
-            AbstractObjectValue v = (AbstractObjectValue) value;
-            BObjectType type = v.getType();
-            new TypedescValue()
-        } else if (value instanceof MapValue) {
-            MapValue v = (MapValue) value;
+        if (value instanceof RefValue) {
+            RefValue v = (RefValue) value;
+            org.ballerinalang.jvm.types.BType type = v.getType();
+            return new TypedescValue(type);
+        } else if (value instanceof Double) {
+            return new TypedescValue(BTypes.typeFloat);
+        } else if (value instanceof Long) {
+            return new TypedescValue(BTypes.typeInt);
+        } else if (value instanceof String) {
+            return new TypedescValue(BTypes.typeString);
+        } else if (value instanceof Byte) {
+            return new TypedescValue(BTypes.typeByte);
+        } else if (value instanceof Boolean) {
+            return new TypedescValue(BTypes.typeBoolean);
         }
         return null;
     }

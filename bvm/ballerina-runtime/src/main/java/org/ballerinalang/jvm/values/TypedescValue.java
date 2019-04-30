@@ -18,21 +18,36 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypedescType;
+import org.ballerinalang.jvm.types.BTypes;
 
 import java.util.Map;
 
+/**
+ * Ballerina runtime value representation of a *type*.
+ *
+ * {@code typedesc} is used to describe type of a value in Ballerina.
+ * For example {@code typedesc} of number 5 is {@code int}, where as {@code typedesc} of a record value is the
+ * record type that used to create this particular value instance.
+ *
+ * @since 0.995.0
+ */
 public class TypedescValue implements RefValue {
 
-    BTypedescType type;
+    final BType type;
+    final BType describingType; // Type of the value describe by this typedesc.
 
-    public TypedescValue(BTypedescType type) {
-        this.type = type;
+    public TypedescValue(BType describingType) {
+        this.type = BTypes.typeTypedesc;
+        this.describingType = describingType;
+    }
+
+    public BType getDescribingType() {
+        return describingType;
     }
 
     @Override
     public BType getType() {
-        return null;
+        return type;
     }
 
     @Override
@@ -54,6 +69,4 @@ public class TypedescValue implements RefValue {
     public Object freeze() {
         return this;
     }
-
-    // todo: implement serialize method
 }
