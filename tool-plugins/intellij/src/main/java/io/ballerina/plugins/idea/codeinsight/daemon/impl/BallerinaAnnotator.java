@@ -48,6 +48,7 @@ import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import io.ballerina.plugins.idea.psi.BallerinaWorkerDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaXmlItem;
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.ranges.Range;
 
 /**
  * Handles annotating text in the runtime.
@@ -104,16 +105,18 @@ public class BallerinaAnnotator implements Annotator {
                 annotateText(element, holder);
             } else if (elementType == BallerinaTypes.SYMBOLIC_STRING_LITERAL) {
                 annotateText(element, holder);
-            } else if (elementType == BallerinaTypes.STRING_TEMPLATE_EXPRESSION_START
-                    || elementType == BallerinaTypes.XML_TEMPLATE_TEXT
-                    || elementType == BallerinaTypes.XML_TAG_EXPRESSION_START
+            } else if (elementType == BallerinaTypes.XML_TEMPLATE_TEXT
                     || elementType == BallerinaTypes.XML_SINGLE_QUOTED_TEMPLATE_STRING
                     || elementType == BallerinaTypes.XML_DOUBLE_QUOTED_TEMPLATE_STRING
                     || elementType == BallerinaTypes.XML_PI_TEMPLATE_TEXT
                     || elementType == BallerinaTypes.XML_COMMENT_TEMPLATE_TEXT) {
                 annotateExpressionTemplateStart(element, holder);
-            } else if (elementType == BallerinaTypes.EXPRESSION_END) {
-                annotateStringLiteralTemplateEnd(element, holder);
+            } else if (elementType == BallerinaTypes.STRING_TEMPLATE_EXPRESSION_START) {
+                TextRange textRange = element.getTextRange();
+                int startOffset = textRange.getStartOffset() + element.getText().indexOf('$');
+                TextRange newTextRange = new TextRange(startOffset, startOffset + 1);
+                Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.TEMPLATE_LANGUAGE_COLOR);
             } else if (elementType == BallerinaTypes.SINGLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.DOUBLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.TRIPLE_BACKTICK_CONTENT

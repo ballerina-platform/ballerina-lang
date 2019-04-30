@@ -18,6 +18,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
     private boolean inXmlCommentMode = false;
 
     private boolean inStringTemplate = false;
+    private boolean inStringTemplateExpression = false;
 
     private boolean inDeprecatedTemplate = false;
 
@@ -199,6 +200,7 @@ XML_COMMENT_TEXT_FRAGMENT = {XML_COMMENT_ALLOWED_SEQUENCE}? ({XML_COMMENT_CHAR} 
 XML_COMMENT_CHAR = [^${>\\-] | {XML_BRACES_SEQUENCE} | {XML_ESCAPED_SEQUENCE} | \\\['\]
 XML_COMMENT_ALLOWED_SEQUENCE = {XML_BRACES_SEQUENCE} | {XML_COMMENT_SPECIAL_SEQUENCE} | ({XML_BRACES_SEQUENCE} {XML_COMMENT_SPECIAL_SEQUENCE})+ {XML_BRACES_SEQUENCE}? | ({XML_COMMENT_SPECIAL_SEQUENCE} {XML_BRACES_SEQUENCE})+ {XML_COMMENT_SPECIAL_SEQUENCE}?
 XML_COMMENT_SPECIAL_SEQUENCE = >+ | >? - [^-]
+XML_COMMENT_TEXT = {XML_COMMENT_ALLOWED_SEQUENCE}? ({XML_COMMENT_CHAR}+ {XML_COMMENT_ALLOWED_SEQUENCE}?)
 
 // MARKDOWN_DOCUMENTATION
 MARKDOWN_DOCUMENTATION_LINE_START =  {HASH} {DOCUMENTATION_SPACE}?
@@ -266,8 +268,8 @@ DEPRECATED_ESCAPED_SEQUENCE = '\\\\'
 DEPRECATED_VALID_CHAR_SEQUENCE = '\\' ~'\\'
 
 // STRING_TEMPLATE
-STRING_LITERAL_ESCAPED_SEQUENCE = {DOLLAR}** \\ [\\'\"bnftr\{']
-STRING_TEMPLATE_VALID_CHAR_SEQUENCE = [^'$\{\\] | {DOLLAR}+ [^'$\{\\] | {WHITE_SPACE} | {STRING_LITERAL_ESCAPED_SEQUENCE}
+STRING_LITERAL_ESCAPED_SEQUENCE = {DOLLAR}** \\ [\\'\"bnftr\{`]
+STRING_TEMPLATE_VALID_CHAR_SEQUENCE = [^`$\{\\] | {DOLLAR}+ [^`$\{\\] | {WHITE_SPACE} | {STRING_LITERAL_ESCAPED_SEQUENCE}
 STRING_TEMPLATE_EXPRESSION_START = {STRING_TEMPLATE_TEXT}? {INTERPOLATION_START}
 STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}+ {DOLLAR}* | {DOLLAR}+
 DOLLAR = \$
@@ -403,7 +405,7 @@ DOLLAR = \$
     "."                                         { return DOT; }
     ","                                         { return COMMA; }
     "{"                                         { return LEFT_BRACE; }
-    "}"                                         { return RIGHT_BRACE; }
+    "}"                                         { if (inStringTemplateExpression) { inStringTemplateExpression = false; inStringTemplate = true; yybegin(STRING_TEMPLATE_MODE); } return RIGHT_BRACE; }
     "("                                         { return LEFT_PARENTHESIS; }
     ")"                                         { return RIGHT_PARENTHESIS; }
     "["                                         { return LEFT_BRACKET; }
@@ -578,14 +580,15 @@ DOLLAR = \$
 }
 
 <XML_COMMENT_MODE>{
-    {XML_COMMENT_END}                          { yybegin(XML_MODE); return XML_COMMENT_END; }
+    {XML_COMMENT_END}                           { yybegin(XML_MODE); return XML_COMMENT_END; }
     {XML_COMMENT_TEMPLATE_TEXT}                 { inXmlCommentMode = true; yybegin(YYINITIAL); return XML_COMMENT_TEMPLATE_TEXT; }
+    {XML_COMMENT_TEXT}                          { return XML_COMMENT_TEXT; }
     .                                           { return BAD_CHARACTER; }
 }
 
 <STRING_TEMPLATE_MODE>{
     {STRING_TEMPLATE_LITERAL_END}               { inStringTemplate = false; yybegin(YYINITIAL); return STRING_TEMPLATE_LITERAL_END; }
-    {STRING_TEMPLATE_EXPRESSION_START}          { yybegin(YYINITIAL); return STRING_TEMPLATE_EXPRESSION_START; }
+    {STRING_TEMPLATE_EXPRESSION_START}          { inStringTemplate = false; inStringTemplateExpression = true; yybegin(YYINITIAL); return STRING_TEMPLATE_EXPRESSION_START; }
     {STRING_TEMPLATE_TEXT}                      { return STRING_TEMPLATE_TEXT; }
     .                                           { inStringTemplate = false; yybegin(YYINITIAL); return BAD_CHARACTER; }
 }
