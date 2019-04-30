@@ -131,12 +131,14 @@ type Employee record {
     string name;
 };
 
-function newTable() {
-    table<Employee> d = table {
+function newTable() returns table<Employee> {
+    table<Employee> employeeTable = table {
         {id, name},
         [
             {1, "Employee1"},
             {2, "Employee2"}
         ]
     };
+
+    return employeeTable;
 }
