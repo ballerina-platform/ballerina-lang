@@ -86,7 +86,7 @@ type Bar object {
     int oa = 0;
 };
 
-type Bar2 record {
+type Bar2 record {|
     int ra = 0;
     any...;
-};
+|};

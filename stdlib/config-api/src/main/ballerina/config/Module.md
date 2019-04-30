@@ -87,7 +87,7 @@ When reading a configuration, a default value can be specified as well. If a def
 
 ```ballerina
 // Reads a configuration as a string, and if it does not exist, returns “localhost”.
-string host  = config:getAsString("host", default = "localhost"); 
+string host  = config:getAsString("host", defaultValue = "localhost");
 ```
 
 The `contains()` function is used to check whether a configuration entry exists for the specified key. 

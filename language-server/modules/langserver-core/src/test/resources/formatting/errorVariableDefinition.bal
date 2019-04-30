@@ -7,8 +7,10 @@ const ERROR2 = "Some Error Two";
 
 function testBasicErrorVariableWithMapDetails() returns (string, string, string, string, map<string>, string?, string?,
             string?, map<any>, any, any, any) {
-      SMS  err1 =  error  ( "Error One", { message: "Msg One", detail: "Detail Msg" });
-    SMA err2 = error("Error Two", { message: "Msg Two", fatal: true });
+      SMS  err1 =  error  ( "Error One", { message: "Msg One",
+      detail: "Detail Msg" });
+    SMA err2 = error("Error Two", { message: "Msg Two",
+    fatal: true });
  SMS  error  ( reason11 ,  detail11 )=    err1  ; SMS    error( reason12 , { message: message12, detail: detail12, extra: extra12 })=err1 ;
 
          SMA

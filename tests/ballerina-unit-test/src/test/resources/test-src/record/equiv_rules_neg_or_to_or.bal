@@ -50,11 +50,11 @@ function testMismatchingRestField1() {
     AnotherPerson ap = p;
 }
 
-type Person4 record {
+type Person4 record {|
     string name;
     int age;
     any...;
-};
+|};
 
 function testMismatchingRestField2() {
     Person4 p = {name:"John", age:25};

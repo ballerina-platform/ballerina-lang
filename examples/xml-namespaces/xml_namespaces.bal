@@ -7,7 +7,7 @@ public function main() {
     // `as` keyword is the prefix bound to this namespace name.
     xmlns "http://ballerina.com/bb" as ns1;
 
-    // Namespace declaration without the prefix. This will define a default namespace.
+    // Namespaces can be declared without the prefix. This will define a default namespace.
     xmlns "http://ballerina.com/default";
 
     // Namespaces can be used for XML qualified names.

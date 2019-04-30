@@ -213,13 +213,65 @@ public class ClosedRecordTest {
         Assert.assertEquals(returns[3].stringValue(), "C");
     }
 
+    @Test
+    public void testEmptyClosedRecords() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyClosedRecords");
+        Assert.assertEquals(returns[0].stringValue(), "{}");
+        Assert.assertEquals(returns[1].stringValue(), "{}");
+        Assert.assertEquals(returns[2].stringValue(), "{}");
+        Assert.assertEquals(returns[3].stringValue(), "{}");
+    }
+
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
     public void testRestDescriptorSyntax() {
-        CompileResult result = BCompileUtil.compile("test-src/record/closed_record_negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/record/closed_record_invalid_delimiter.bal");
 
-        BAssertUtil.validateError(result, 0, "invalid record rest descriptor", 5, 9);
-        BAssertUtil.validateError(result, 1, "invalid record rest descriptor", 12, 14);
-        BAssertUtil.validateError(result, 2, "invalid record rest descriptor", 20, 5);
+        BAssertUtil.validateError(result, 0, "extraneous input '}'", 5, 1);
+        BAssertUtil.validateError(result, 1, "extraneous input '|}'", 11, 1);
+        BAssertUtil.validateError(result, 2, "extraneous input '|'", 13, 23);
+        BAssertUtil.validateError(result, 3, "extraneous input '|'", 17, 1);
+        BAssertUtil.validateError(result, 4,
+                                  "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +
+                                          "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
+                                          "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
+                                          "'typedesc', 'future', 'anydata', '(', '|}', '*', '@', Identifier}",
+                                  19, 25);
+        BAssertUtil.validateError(result, 5,
+                                  "mismatched input '}'. expecting {'service', 'function', 'object', 'record', " +
+                                          "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
+                                          "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
+                                          "'typedesc', 'future', 'anydata', '(', '-', DecimalIntegerLiteral, " +
+                                          "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
+                                          "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
+                                          "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",
+                                  19, 27);
+        BAssertUtil.validateError(result, 6, "extraneous input '||'", 21, 25);
+        BAssertUtil.validateError(result, 7, "extraneous input '||'", 23, 25);
+        BAssertUtil.validateError(result, 8,
+                                  "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +
+                                          "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
+                                          "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
+                                          "'typedesc', 'future', 'anydata', '}', '(', '*', '@', Identifier}",
+                                  25, 25);
+        BAssertUtil.validateError(result, 9,
+                                  "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +
+                                          "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
+                                          "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
+                                          "'typedesc', 'future', 'anydata', '(', '-', DecimalIntegerLiteral, " +
+                                          "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
+                                          "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
+                                          "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",
+                                  25, 27);
+        BAssertUtil.validateError(result, 10,
+                                  "mismatched input '}'. expecting {'service', 'function', 'object', 'record', " +
+                                          "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
+                                          "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
+                                          "'typedesc', 'future', 'anydata', '(', '-', DecimalIntegerLiteral, " +
+                                          "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
+                                          "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
+                                          "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",
+                                  25, 29);
+
     }
 
     @Test(description = "Test ambiguous type resolution negative cases")

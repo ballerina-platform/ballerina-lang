@@ -1,5 +1,5 @@
-import ballerina/io;
 import ballerina/http;
+import ballerina/io;
 import ballerina/runtime;
 
 int lockWithinLockInt1 = 0;

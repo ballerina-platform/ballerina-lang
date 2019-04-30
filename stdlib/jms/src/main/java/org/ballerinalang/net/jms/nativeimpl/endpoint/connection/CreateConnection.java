@@ -20,10 +20,10 @@
 package org.ballerinalang.net.jms.nativeimpl.endpoint.connection;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -31,6 +31,8 @@ import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.LoggingExceptionListener;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+
+import java.util.UUID;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -50,27 +52,43 @@ import javax.jms.JMSException;
         },
         isPublic = true
 )
-public class CreateConnection implements NativeCallableUnit {
+public class CreateConnection extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct connectionBObject = BallerinaAdapter.getReceiverObject(context);
-        Struct connectionConfig = connectionBObject.getStructField(JmsConstants.CONNECTION_CONFIG);
+    public void execute(Context context) {
+        @SuppressWarnings(JmsConstants.UNCHECKED)
+        BMap<String, BValue> connectionObject = (BMap<String, BValue>) context.getRefArgument(0);
+        @SuppressWarnings(JmsConstants.UNCHECKED)
+        BMap<String, BValue> connectionConfig =
+                (BMap<String, BValue>) connectionObject.get(JmsConstants.CONNECTION_CONFIG);
 
         Connection connection = JmsUtils.createConnection(connectionConfig);
+        setIfNonDaemonThreadRunningAtAllTimes(connectionObject, connectionConfig);
         try {
+            if (connection.getClientID() == null) {
+                connection.setClientID(UUID.randomUUID().toString());
+            }
             connection.setExceptionListener(new LoggingExceptionListener());
             connection.start();
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error occurred while starting connection.", context, e);
         }
-        connectionBObject.addNativeData(JmsConstants.JMS_CONNECTION, connection);
+        connectionObject.addNativeData(JmsConstants.JMS_CONNECTION, connection);
     }
 
-    @Override
-    public boolean isBlocking() {
-        return true;
+    /**
+     * Most of the brokers keep a single non-daemon thread running at all times in order to prevent the program from
+     * exiting during the JMS asynchronous scenario. This is not always the case for all brokers as it is not in the
+     * JMS spec. One broker (among the brokers tested so far) that deviates is the ActiveMQ Artemis broker. This
+     * method is to see if a non-daemon thread is always running based on broker kind. We check only for Artemis here
+     * because it is the only deviation identified so far.
+     *
+     * @param connectionObject The Ballerina connection object to set the native data on
+     * @param connectionConfig The connection configuration to get the initial context factory
+     */
+    private void setIfNonDaemonThreadRunningAtAllTimes(BMap<String, BValue> connectionObject,
+                                                       BMap<String, BValue> connectionConfig) {
+        connectionObject.addNativeData(JmsConstants.NON_DAEMON_THREAD_RUNNING, !connectionConfig.get(
+                JmsConstants.ALIAS_INITIAL_CONTEXT_FACTORY).stringValue().contains(JmsConstants.ARTEMIS_ICF));
     }
-
-
 }

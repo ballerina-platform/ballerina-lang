@@ -158,11 +158,11 @@ function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string,
 
 function testAnonObjectWithRecordLiteral() returns (int, string) {
     object { 
-        public record {int age; string name;} details; 
+        public record {| int age; string name; anydata...; |} details;
         private int length; 
         private string kind;
         
-        function __init (record {int age; string name;} details, string kind) {
+        function __init (record {| int age; string name; anydata...; |} details, string kind) {
             self.details = details;
             self.kind = kind;
         }
@@ -175,12 +175,12 @@ function testAnonObjectWithRecordLiteral() returns (int, string) {
 }
 
 type Foo object {
-    public record {int age; string name;} details;
+    public record {| int age; string name; anydata...; |} details;
 
     private int length = 0;
     private string kind = "";
 
-    function __init (record {int age; string name;} details, string kind) {
+    function __init (record {| int age; string name; anydata...; |} details, string kind) {
         self.details = details;
         self.kind = kind;
     }

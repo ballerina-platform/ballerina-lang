@@ -1,26 +1,26 @@
-type StringRest record {
+type StringRest record {|
     string name = "";
     int id = 0;
     string...;
-};
+|};
 
-type IntRest record {
+type IntRest record {|
     string name = "";
     int id = 0;
     int...;
-};
+|};
 
-type FloatRest record {
+type FloatRest record {|
     string name = "";
     int id = 0;
     float...;
-};
+|};
 
-type BooleanRest record {
+type BooleanRest record {|
     string name = "";
     int id = 0;
     float...;
-};
+|};
 
 function testEquivOfStringAndIntRestDescriptors() {
     StringRest a = {};
@@ -70,22 +70,22 @@ function testEquivOfBooleanAndFloatRestDescriptors() {
     BooleanRest aa = b;
 }
 
-type StringRest2 record {
+type StringRest2 record {|
     string name = "";
     int id = 0;
     float scale = 0.0;
     string...;
-};
+|};
 
-type RecordRest1 record {
+type RecordRest1 record {|
     string id = "";
     StringRest...;
-};
+|};
 
-type RecordRest2 record {
+type RecordRest2 record {|
     string id = "";
     StringRest2...;
-};
+|};
 
 function testEquivWithRecordsAsRestDescriptors() {
      RecordRest2 a = {};

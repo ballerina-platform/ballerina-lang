@@ -25,7 +25,7 @@ The following example creates a listener, which registers a task with an initial
 import ballerina/log;
 import ballerina/task;
 
-// Task Timer configuration record to configura task listener.
+// Task Timer configuration record to configure task listener.
 task:TimerConfiguration timerConfiguration = {
     interval: 1000,
     initialDelay: 3000,
@@ -108,7 +108,7 @@ Similar to Task Listeners, below are the two types of configurations that an be 
 - `TimerConfiguration`
 - `AppointmentConfiguration`
 
->**Info:** The configurations are as same as of the [`Task Listener`](#task_listeners).
+>**Info:** The configurations are as same as of the [`Task Listener`](#task-listeners).
 
 #### The Timer configuration for a Scheduler
 
@@ -148,7 +148,7 @@ service timerService = service {
 
 A `Scheduler` can also be used to create appointments via its `AppointmentConfiguration`. 
 
-The following example creates a Task Scheduler as an appointment. The `createAppointment()` function creates an appointment using the CRON expression provided as the input parameter. A service can be attached  to the Scheduler using the `attach()` function. Calling the `appointment.start()` function strats the `appointment` Scheduler.
+The following example creates a Task Scheduler as an appointment. The `createAppointment()` function creates an appointment using the CRON expression provided as the input parameter. A service can be attached  to the Scheduler using the `attach()` function. Calling the `appointment.start()` function starts the `appointment` Scheduler.
 
 ```ballerina
 public function createAppointment(string cronExpression, int recurrences) {

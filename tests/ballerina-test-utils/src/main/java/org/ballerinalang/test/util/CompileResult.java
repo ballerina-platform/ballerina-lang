@@ -18,6 +18,7 @@ package org.ballerinalang.test.util;
 
 import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.test.util.jvm.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -39,7 +40,7 @@ public class CompileResult {
     private WorkerExecutionContext context;
     private CompileResultDiagnosticListener diagnosticListener;
 
-    private Class<?> entryClass;
+    JBallerinaInMemoryClassLoader classLoader;
 
     public CompileResult(CompileResultDiagnosticListener diagnosticListener) {
         this.diagnosticListener = diagnosticListener;
@@ -84,12 +85,12 @@ public class CompileResult {
         this.context = context;
     }
 
-    public void setEntryClass(Class<?> clazz) {
-        this.entryClass = clazz;
+    public JBallerinaInMemoryClassLoader getClassLoader() {
+        return classLoader;
     }
 
-    public Class<?> getEntryClass() {
-        return this.entryClass;
+    void setClassLoader(JBallerinaInMemoryClassLoader classLoader) {
+        this.classLoader = classLoader;
     }
 
     @Override

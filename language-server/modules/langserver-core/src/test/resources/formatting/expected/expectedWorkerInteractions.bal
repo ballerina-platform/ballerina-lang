@@ -28,9 +28,7 @@ public function main() {
         vW1 = <- w1;
         (iw, kw) = vW1;
 
-        json jw = {
-            "name": "Ballerina"
-        };
+        json jw = {"name": "Ballerina"};
         jw -> w1;
 
         int lw;
@@ -47,9 +45,7 @@ public function main() {
     }
 
     worker w4 {
-        map<string> keyMap = {
-            myKey: "abc123"
-        };
+        map<string> keyMap = {myKey: "abc123"};
         xml msg = xml `<msg><name>ballerina</name><worker>w2</worker></msg>`;
         msg -> xmlChn, keyMap;
     }

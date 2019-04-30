@@ -35,7 +35,7 @@ public class Utils {
     static final String UNKNOWN_REASON = "UNKNOWN";
 
     /**
-     * Returns error struct of input type.
+     * Returns error record for input reason.
      * Error type is generic ballerina error type. This utility to construct error struct from message.
      *
      * @param reason    Reason for creating the error object. If the reason is null, "UNKNOWN" sets by
@@ -45,18 +45,29 @@ public class Utils {
      * @return      Ballerina error object.
      */
     public static BError getPathError(String reason, Throwable error) {
+        String errorMsg = error != null && error.getMessage() != null ? error.getMessage() : UNKNOWN_MESSAGE;
+        return getPathError(reason, errorMsg);
+    }
+
+    /**
+     * Returns error record for input reason and details.
+     * Error type is generic ballerina error type. This utility to construct error struct from message.
+     *
+     * @param reason    Reason for creating the error object. If the reason is null, value "UNKNOWN" is set by
+     *                  default.
+     * @param details     Java throwable object to capture description of error struct. If throwable object is null,
+     *                  "Unknown Error" is set to message by default.
+     * @return      Ballerina error object.
+     */
+    public static BError getPathError(String reason, String details) {
         BMap<String, BValue> refData = new BMap<>(BTypes.typeError.detailType);
         if (reason != null) {
             reason = Constants.ERROR_REASON_PREFIX + reason;
         } else {
             reason = Constants.ERROR_REASON_PREFIX + UNKNOWN_REASON;
         }
-        if (error != null) {
-            if (error.getMessage() == null) {
-                refData.put("message", new BString(UNKNOWN_MESSAGE));
-            } else {
-                refData.put("message", new BString(error.getMessage()));
-            }
+        if (details != null) {
+            refData.put("message", new BString(details));
         } else {
             refData.put("message", new BString(UNKNOWN_MESSAGE));
         }
