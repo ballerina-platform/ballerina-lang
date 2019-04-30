@@ -261,10 +261,10 @@ function typeGuard3(any matchExpr) returns string {
     }
 }
 
-type RestParam record {
+type RestParam record {|
     int var1;
     boolean...;
-};
+|};
 
 type ClosedRec record {|
     string var1;

@@ -5,4 +5,3 @@
 $ ballerina run artemis_multicast_consumer.bal as follows.
 # The ActiveMQ Artemis consumer runs as a Ballerina service and listens to the subscribed queue.
 
-Initiating service(s) in 'artemis_multicast_consumer.bal'

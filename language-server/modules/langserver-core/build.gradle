@@ -1,8 +1,28 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+ 
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 configurations {
     dist {
       transitive false
+    }
+    dependency {
+        transitive false
     }
 }
 
@@ -67,12 +87,17 @@ dependencies {
     baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-nats', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-activemq-artemis', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 
-    dist 'com.h2database:h2:1.4.199'
-    dist 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.6.0'
-    dist 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.3.0'
-    dist 'commons-io:commons-io:2.6'
+    dependency 'com.h2database:h2:1.4.199'
+    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.6.0'
+    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.6.0'
+    dependency 'commons-io:commons-io:2.6'
     
     testCompile 'org.testng:testng'
 }
@@ -80,7 +105,7 @@ dependencies {
 description = 'Ballerina - Language server - Core'
 
 CopySpec copyJarSpec = copySpec {
-    from configurations.dist
+    from configurations.dependency
     into("lib")
 }
 
@@ -129,7 +154,6 @@ build {
 }
 
 test {
-    exclude '**/*'
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "experimental", "true"
     useTestNG() {

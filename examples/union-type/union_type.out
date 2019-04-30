@@ -1,7 +1,7 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run union_type.bal
 This is a string
 101
 this is a value
-key '' not found {key:""}
+key '' not found {}
