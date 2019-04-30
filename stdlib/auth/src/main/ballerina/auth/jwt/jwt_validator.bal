@@ -68,8 +68,7 @@ public function validateJwt(string jwtToken, JWTValidatorConfig config) returns 
         if (jwtValidity) {
             return payload;
         } else {
-            error jwtError = error(AUTH_ERROR_CODE, { message : "Invalid JWT token" });
-            return jwtError;
+            return prepareError("Invalid JWT token.");
         }
     }
 }
@@ -77,8 +76,7 @@ public function validateJwt(string jwtToken, JWTValidatorConfig config) returns 
 function getJWTComponents(string jwtToken) returns (string[])|error {
     string[] jwtComponents = jwtToken.split("\\.");
     if (jwtComponents.length() < 2 || jwtComponents.length() > 3) {
-        error jwtError = error(AUTH_ERROR_CODE, { message : "Invalid JWT token" });
-        return jwtError;
+        return prepareError("Invalid JWT token.");
     }
     return jwtComponents;
 }
@@ -196,16 +194,14 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
 function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, JwtPayload jwtPayload,
                             JWTValidatorConfig config) returns (boolean|error) {
     if (!validateMandatoryJwtHeaderFields(jwtHeader)) {
-        error jwtError = error(AUTH_ERROR_CODE,
-                        { message : "Mandatory field signing algorithm(alg) is empty in the given JSON Web Token." });
+        return prepareError("Mandatory field signing algorithm(alg) is empty in the given JWT.");
         return jwtError;
     }
     if (config["validateCertificate"] is ()) {
         config.validateCertificate = true;
     }
     if (config.validateCertificate == true && !check validateCertificate(config)) {
-        error jwtError = error(AUTH_ERROR_CODE, { message : "Public key certificate validity period has passed" });
-        return jwtError;
+        return prepareError("Public key certificate validity period has passed.");
     }
     var trustStore = config["trustStore"];
     if (trustStore is crypto:TrustStore) {
@@ -231,15 +227,13 @@ function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, 
     var exp = jwtPayload["exp"];
     if (exp is int) {
         if (!validateExpirationTime(jwtPayload, config)) {
-            error jwtError = error(AUTH_ERROR_CODE, { message : "JWT token is expired" });
-            return jwtError;
+            return prepareError("JWT token is expired.");
         }
     }
     var nbf = jwtPayload["nbf"];
     if (nbf is int) {
         if (!validateNotBeforeTime(jwtPayload)) {
-            error jwtError = error(AUTH_ERROR_CODE, { message : "JWT token is used before Not_Before_Time" });
-            return jwtError;
+            return prepareError("JWT token is used before Not_Before_Time.");
         }
     }
     //TODO : Need to validate jwt id (jti) and custom claims.
@@ -273,12 +267,10 @@ function validateCertificate(JWTValidatorConfig config) returns boolean|error {
 function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config)
 returns boolean|error {
     if (jwtHeader.alg == NONE) {
-        error jwtError = error(AUTH_ERROR_CODE, { message : "Not a valid JWS. Signature algorithm is NONE." });
-        return jwtError;
+        return prepareError("Not a valid JWS. Signature algorithm is NONE.");
     } else {
         if (encodedJWTComponents.length() == 2) {
-            error jwtError = error(AUTH_ERROR_CODE, { message : "Not a valid JWS. Signature is required." });
-            return jwtError;
+            return prepareError("Not a valid JWS. Signature is required.");
         } else {
             string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
             byte[] signPart = check encoding:decodeBase64Url(encodedJWTComponents[2]);
@@ -291,8 +283,7 @@ returns boolean|error {
             } else if (jwtHeader.alg == RS512) {
                 return crypto:verifyRsaSha512Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
             } else {
-                error jwtError = error(AUTH_ERROR_CODE, { message : "Unsupported JWS algorithm" });
-                return jwtError;
+                return prepareError("Unsupported JWS algorithm.");
             }
         }
     }
@@ -302,13 +293,10 @@ function validateIssuer(JwtPayload jwtPayload, JWTValidatorConfig config) return
     var iss = jwtPayload["iss"];
     if (iss is string) {
         if(jwtPayload.iss != config.issuer) {
-            error jwtError = error(AUTH_ERROR_CODE, { message : "JWT contained invalid issuer name : " +
-                                                                jwtPayload.iss });
-            return jwtError;
+            return prepareError("JWT contained invalid issuer name : " + jwtPayload.iss);
         }
     } else {
-        error jwtError = error(AUTH_ERROR_CODE, { message : "JWT must contain a valid issuer name" });
-        return jwtError;
+        return prepareError("JWT must contain a valid issuer name.");
     }
 }
 
@@ -328,12 +316,10 @@ function validateAudience(JwtPayload jwtPayload, JWTValidatorConfig config) retu
             }
         }
         if (!validationStatus) {
-            error jwtError = error(AUTH_ERROR_CODE, { message : "Invalid audience" });
-            return jwtError;
+            return prepareError("Invalid audience.");
         }
     } else {
-        error jwtError = error(AUTH_ERROR_CODE, { message : "JWT must contain a valid audience" });
-        return jwtError;
+        return prepareError("JWT must contain a valid audience.");
     }
 }
 
