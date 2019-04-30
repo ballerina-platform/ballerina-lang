@@ -1102,7 +1102,7 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
         typeSig = io:sprintf("L%s;", ERROR_VALUE);
     } else if (bType is bir:BFutureType) {
         typeSig = io:sprintf("L%s;", FUTURE_VALUE);
-    } else if (bType is bir:BObjectType) {
+    } else if (bType is bir:BObjectType || bType is bir:BServiceType) {
         typeSig = io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BXMLType) {
         typeSig = io:sprintf("L%s;", XML_VALUE);
