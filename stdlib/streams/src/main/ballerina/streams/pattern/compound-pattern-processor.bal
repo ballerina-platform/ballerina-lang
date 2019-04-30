@@ -31,6 +31,7 @@ public type CompoundPatternProcessor object {
         self.processor = ();
         self.fulfilledEvents = [];
         self.withinTimeMillis = withinTimeMillis;
+        self.stateMachine = ();
     }
 
     public function process(StreamEvent event, string? processorAlias) returns boolean {

@@ -33,6 +33,7 @@ public type AndOperatorProcessor object {
         self.rhsProcessor = ();
         self.lhsPartialStates = {};
         self.rhsPartialStates = {};
+        self.stateMachine = ();
     }
 
     public function process(StreamEvent event, string? processorAlias) returns boolean {

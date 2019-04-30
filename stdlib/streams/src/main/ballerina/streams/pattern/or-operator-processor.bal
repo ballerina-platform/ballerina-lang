@@ -29,6 +29,7 @@ public type OrOperatorProcessor object {
         self.stateEvents = new;
         self.lhsProcessor = ();
         self.rhsProcessor = ();
+        self.stateMachine = ();
     }
 
     public function process(StreamEvent event, string? processorAlias) returns boolean {

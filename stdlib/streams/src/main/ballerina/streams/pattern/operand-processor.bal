@@ -25,6 +25,7 @@ public type OperandProcessor object {
         self.prevProcessor = ();
         self.alias = alias;
         self.onConditionFunc = onConditionFunc;
+        self.stateMachine = ();
     }
 
     public function process(StreamEvent event, string? processorAlias) returns boolean {

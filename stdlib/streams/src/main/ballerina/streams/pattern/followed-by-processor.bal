@@ -31,6 +31,7 @@ public type FollowedByProcessor object {
         self.lhsProcessor = ();
         self.rhsProcessor = ();
         self.partialStates = {};
+        self.stateMachine = ();
     }
 
     public function process(StreamEvent event, string? processorAlias) returns boolean {

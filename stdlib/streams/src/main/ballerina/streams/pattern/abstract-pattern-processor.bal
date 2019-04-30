@@ -16,7 +16,7 @@
 
 public type AbstractPatternProcessor abstract object {
     public AbstractOperatorProcessor? prevProcessor;
-    public StateMachine stateMachine;
+    public StateMachine? stateMachine;
     // processorAlias for the calling processor, for identification purposes (lhs, rhs)
     public function process(StreamEvent event, string? processorAlias) returns boolean;
     public function setPreviousProcessor(AbstractOperatorProcessor processor);
