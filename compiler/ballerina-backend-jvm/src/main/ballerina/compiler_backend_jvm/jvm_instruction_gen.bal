@@ -179,6 +179,12 @@ type InstructionGenerator object {
 
             self.mv.visitInsn(DADD);
             self.storeToVar(binaryIns.lhsOp.variableDcl);
+        } else if (bType is bir:BXMLType) {
+            self.loadVar(binaryIns.rhsOp1.variableDcl);
+            self.loadVar(binaryIns.rhsOp2.variableDcl);
+            self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "concatenate",
+                        io:sprintf("(L%s;L%s;)L%s;", XML_VALUE, XML_VALUE, XML_VALUE), false);
+            self.storeToVar(binaryIns.lhsOp.variableDcl);
         } else {
             error err = error( "JVM generation is not supported for type " +
                             io:sprintf("%s", binaryIns.lhsOp.typeValue));
