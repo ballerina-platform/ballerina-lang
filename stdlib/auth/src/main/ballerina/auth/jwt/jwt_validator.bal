@@ -195,7 +195,6 @@ function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, 
                             JWTValidatorConfig config) returns (boolean|error) {
     if (!validateMandatoryJwtHeaderFields(jwtHeader)) {
         return prepareError("Mandatory field signing algorithm(alg) is empty in the given JWT.");
-        return jwtError;
     }
     if (config["validateCertificate"] is ()) {
         config.validateCertificate = true;
