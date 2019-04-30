@@ -84,23 +84,15 @@ public class XMLFactory {
     static {
         Canonicalizer.init();
         try {
-            if (Canonicalizer.getInstance(CANONICALIZER_OMIT_COMMENTS) == null) {
-                Canonicalizer.register(CANONICALIZER_OMIT_COMMENTS,
-                        "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
-            }
-            if (Canonicalizer.getInstance(CANONICALIZER_WITH_COMMENTS) == null) {
-                Canonicalizer.register(CANONICALIZER_WITH_COMMENTS,
-                        "org.apache.axiom.c14n.impl.Canonicalizer20010315WithComments");
-            }
-            if (Canonicalizer.getInstance(CANONICALIZER_EXCL_OMIT_COMMENTS) == null) {
-                Canonicalizer.register(CANONICALIZER_EXCL_OMIT_COMMENTS,
-                        "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclOmitComments");
-            }
-            if (Canonicalizer.getInstance(CANONICALIZER_EXCL_WITH_COMMENTS) == null) {
-                Canonicalizer.register(CANONICALIZER_EXCL_WITH_COMMENTS,
-                        "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
-            }
-            canonicalizer = Canonicalizer.getInstance(CANONICALIZER_WITH_COMMENTS);
+            Canonicalizer.register("http://www.w3.org/TR/2001/REC-xml-c14n-20010315",
+                    "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
+            Canonicalizer.register("http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments",
+                    "org.apache.axiom.c14n.impl.Canonicalizer20010315WithComments");
+            Canonicalizer.register("http://www.w3.org/2001/10/xml-exc-c14n#",
+                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclOmitComments");
+            Canonicalizer.register("http://www.w3.org/2001/10/xml-exc-c14n#WithComments",
+                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
+            canonicalizer = Canonicalizer.getInstance("http://www.w3.org/2001/10/xml-exc-c14n#WithComments");
         } catch (InvalidCanonicalizerException | AlgorithmAlreadyRegisteredException e) {
             throw new BallerinaException("Error initializing canonicalizer: " + e.getMessage());
         }
@@ -239,7 +231,7 @@ public class XMLFactory {
      * @return Concatenated XML sequence
      */
     public static XMLValue<?> concatenate(XMLValue<?> firstSeq, XMLValue<?> secondSeq) {
-        ArrayValue concatSeq = new ArrayValue();
+        ArrayValue concatSeq = new ArrayValue(new BArrayType(firstSeq.getType()), -1);
         int j = 0;
 
         // Load the content fully before concat the two
