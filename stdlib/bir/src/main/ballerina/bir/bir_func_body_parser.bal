@@ -254,7 +254,15 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             var pkgId = self.reader.readModuleIDCpRef();
             var name = self.reader.readStringCpRef();
-            FPLoad fpLoad = {pos:pos, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }};
+            VariableDcl?[] params = [];
+            var numVars = self.reader.readInt32();
+            int i = 0;
+            while (i < numVars) {
+                var dcl = parseVariableDcl(self.reader, self.typeParser);
+                params[i] = dcl;
+                i += 1;
+            }
+            FPLoad fpLoad = {pos:pos, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params};
             return fpLoad;
         } else {
             return self.parseBinaryOpInstruction(kindTag, pos);
@@ -340,6 +348,27 @@ public type FuncBodyParser object {
             VarRef lhsOp = self.parseVarRef();
             Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp};
             return waitIns;
+        } else if (kindTag == INS_FP_CALL) {
+            TerminatorKind kind = TERMINATOR_FP_CALL;
+            VarRef fp = self.parseVarRef();
+            
+            var argsCount = self.reader.readInt32();
+            VarRef?[] args = [];
+            int i = 0;
+            while (i < argsCount) {
+                args[i] = self.parseVarRef();
+                i += 1;
+            }
+
+            var hasLhs = self.reader.readBoolean();
+            VarRef? lhsOp = ();
+            if (hasLhs){
+                lhsOp = self.parseVarRef();
+            }
+
+            BasicBlock thenBB = self.parseBBRef();
+            FPCall fpCall = {pos:pos, kind:kind, fp:fp, lhsOp:lhsOp, args:args, thenBB:thenBB};
+            return fpCall;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;
@@ -436,4 +465,16 @@ function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, Va
         error err = error("local var missing " + varName);
         panic err;
     }
+}
+
+public function parseVariableDcl(BirChannelReader reader, TypeParser typeParser) returns VariableDcl {
+    VarKind kind = parseVarKind(reader);
+    var typeValue = typeParser.parseType();
+    var name = reader.readStringCpRef();
+    VariableDcl dcl = {
+        typeValue: typeValue,
+        name: { value: name },
+            kind: kind
+        };
+    return dcl;
 }

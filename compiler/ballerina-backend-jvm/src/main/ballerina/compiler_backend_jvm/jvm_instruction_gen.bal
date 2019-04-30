@@ -143,7 +143,7 @@ type InstructionGenerator object {
             self.mv.visitInsn(DCMPL);
             self.mv.visitJumpInsn(IFNE, label1);
         } else if (lhsOpType is bir:BTypeBoolean && rhsOpType is bir:BTypeBoolean) {
-            self.mv.visitInsn(IF_ICMPNE, label1);
+            self.mv.visitJumpInsn(IF_ICMPNE, label1);
         } else {
             self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isEqual",
                     io:sprintf("(L%s;L%s;)Z", OBJECT, OBJECT), false);
@@ -177,7 +177,7 @@ type InstructionGenerator object {
             self.mv.visitInsn(DCMPL);
             self.mv.visitJumpInsn(IFEQ, label1);
         } else if (lhsOpType is bir:BTypeBoolean && rhsOpType is bir:BTypeBoolean) {
-            self.mv.visitInsn(IF_ICMPEQ, label1);
+            self.mv.visitJumpInsn(IF_ICMPEQ, label1);
         } else {
             self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isEqual",
                     io:sprintf("(L%s;L%s;)Z", OBJECT, OBJECT), false);
@@ -579,6 +579,23 @@ type InstructionGenerator object {
         }
     }
 
+    function generateFPLoadIns(bir:FPLoad inst) {
+        string lambdaName = inst.name.value + "$lambda$";
+        string methodClass = lookupFullQualifiedClassName(self.currentPackageName + inst.name.value);
+        bir:BType returnType = inst.lhsOp.typeValue;
+        boolean isVoid = false;
+        if (returnType is bir:BInvokableType) {
+            isVoid = returnType.retType is bir:BTypeNil;
+        } else {
+            error err = error( "Expected BInvokableType, found " + io:sprintf("%s", returnType));
+            panic err;
+        }
+        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid);
+        generateVarStore(self.mv, inst.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
+        lambdas[lambdaName] = (inst, methodClass);
+    }
+
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
         self.loadVar(newXMLElement.startTagOp.variableDcl);
         self.loadVar(newXMLElement.endTagOp.variableDcl);
@@ -751,6 +768,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BFutureType ||
                 bType is bir:BObjectType ||
                 bType is bir:BXMLType ||
+                bType is bir:BInvokableType ||
                 bType is bir:BFiniteType) {
         mv.visitVarInsn(ALOAD, valueIndex);
     } else {
@@ -790,6 +808,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BFutureType ||
                     bType is bir:BObjectType ||
                     bType is bir:BXMLType ||
+                    bType is bir:BInvokableType ||
                     bType is bir:BFiniteType) {
         mv.visitVarInsn(ASTORE, valueIndex);
     } else {

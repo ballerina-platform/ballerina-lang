@@ -1,5 +1,5 @@
-import ballerina/runtime;
 import ballerina/io;
+import ballerina/runtime;
 
 int globalResult = 0;
 

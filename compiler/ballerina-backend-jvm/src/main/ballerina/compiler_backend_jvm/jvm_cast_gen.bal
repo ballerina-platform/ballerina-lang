@@ -215,7 +215,7 @@ function generateCheckCastToFiniteType(jvm:MethodVisitor mv, bir:BType sourceTyp
             sourceType is bir:BJSONType) {
         checkCast(mv, targetType);
     } else {
-        // if value types, then ad box instruction
+        // if value types, then add box instruction
         generateCastToAny(mv, sourceType);
     }
 }

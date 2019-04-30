@@ -20,7 +20,7 @@ package org.ballerinalang.test.openapi;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -76,6 +76,6 @@ public class OutputPathCreationTestCase extends BaseTest {
     
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(balProject);
+        TestUtils.deleteFiles(balProject);
     }
 }
