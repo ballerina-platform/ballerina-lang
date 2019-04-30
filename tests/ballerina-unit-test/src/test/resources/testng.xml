@@ -90,6 +90,7 @@ under the License.
         </packages>
 
         <classes>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.AddOperationTest" />
             <class name="org.ballerinalang.test.functions.FunctionSignatureTest" >
                 <methods>
                     <exclude name="testOptionalArgsInNativeFunc" />
