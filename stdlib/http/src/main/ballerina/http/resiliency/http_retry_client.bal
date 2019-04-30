@@ -231,7 +231,7 @@ public remote function RetryClient.getResponse(HttpFuture httpFuture) returns Re
     return performHttp2RetryGetResponse(httpFuture, self);
 }
 
-// Retry logic does not apply to hasPromise
+// TODO: Check and update the related transport APIs
 public remote function RetryClient.hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient->hasPromise(httpFuture);
 }
@@ -244,7 +244,7 @@ public remote function RetryClient.getPromisedResponse(PushPromise promise) retu
     return performHttp2RetryGetPromisedResponse(promise, self);
 }
 
-// Retry logic does not apply to rejectPromise
+// TODO: Check and update the related transport APIs
 public remote function RetryClient.rejectPromise(PushPromise promise) {
     return self.httpClient->rejectPromise(promise);
 }
