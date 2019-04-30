@@ -16,7 +16,7 @@
 
 final map<string> fullQualifiedClassNames = {};
 
-map<(bir:AsyncCall,string)> lambdas = {};
+map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
 
 function lookupFullQualifiedClassName(string key) returns string {
     var result = fullQualifiedClassNames[key];
@@ -214,7 +214,7 @@ function cleanupPackageName(string pkgName) returns string {
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
 function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
-                                 map<(bir:AsyncCall,string)> lambdaCalls) returns map<JavaClass> {
+                                 map<(bir:AsyncCall|bir:FPLoad,string)> lambdaCalls) returns map<JavaClass> {
     
     string orgName = module.org.value;
     string moduleName = module.name.value;
