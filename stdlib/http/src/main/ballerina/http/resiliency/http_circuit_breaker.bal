@@ -389,7 +389,7 @@ public function CircuitBreakerClient.forward(string path, Request request) retur
 
     if (self.currentCircuitState == CB_OPEN_STATE) {
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+        return handleOpenCircuit(self.circuitHealth, cbic);
     } else {
         var serviceResponse = self.httpClient->forward(path, request);
         return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
@@ -402,13 +402,13 @@ public function CircuitBreakerClient.submit(string httpVerb, string path, Reques
 
     if (self.currentCircuitState == CB_OPEN_STATE) {
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+        return handleOpenCircuit(self.circuitHealth, cbic);
     } else {
         var serviceResponse = self.httpClient->submit(httpVerb, path, <Request>message);
         if (serviceResponse is HttpFuture) {
-            updateCircuitHealthSuccess(self.circuitHealth, self.circuitBreakerInferredConfig);
+            updateCircuitHealthSuccess(self.circuitHealth, cbic);
         } else {
-            updateCircuitHealthFailure(self.circuitHealth, self.circuitBreakerInferredConfig);
+            updateCircuitHealthFailure(self.circuitHealth, cbic);
         }
         return serviceResponse;
     }
@@ -437,13 +437,13 @@ public function CircuitBreakerClient.getNextPromise(HttpFuture httpFuture) retur
 
     if (self.currentCircuitState == CB_OPEN_STATE) {
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+        return handleOpenCircuit(self.circuitHealth, cbic);
     } else {
         var serviceResponse = self.httpClient->getNextPromise(httpFuture);
         if (serviceResponse is PushPromise) {
-            updateCircuitHealthSuccess(self.circuitHealth, self.circuitBreakerInferredConfig);
+            updateCircuitHealthSuccess(self.circuitHealth, cbic);
         } else {
-            updateCircuitHealthFailure(self.circuitHealth, self.circuitBreakerInferredConfig);
+            updateCircuitHealthFailure(self.circuitHealth, cbic);
         }
         return serviceResponse;
     }
