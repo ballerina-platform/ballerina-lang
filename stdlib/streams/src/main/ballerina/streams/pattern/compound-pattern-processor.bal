@@ -86,6 +86,14 @@ public type CompoundPatternProcessor object {
         return promoted;
     }
 
+    public function setStateMachine(StateMachine stateMachine) {
+        self.stateMachine = stateMachine;
+        AbstractPatternProcessor? processor = self.processor;
+        if (processor is AbstractPatternProcessor) {
+            processor.setStateMachine(stateMachine);
+        }
+    }
+
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         io:println("CompoundPatternProcessor:promote:89 -> ", stateEvent, "|", processorAlias);
         self.stateEvents.addLast(stateEvent);

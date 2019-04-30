@@ -21,6 +21,7 @@ public type StateMachine object {
     function __init(CompoundPatternProcessor rootProcessor, function (StreamEvent?[]) nextProcessorPointer) {
         self.nextProcessorPointer = nextProcessorPointer;
         self.rootProcessor = rootProcessor;
+        self.rootProcessor.setStateMachine(self);
     }
 
     public function process(StreamEvent?[] streamEvents) {

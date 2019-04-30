@@ -101,6 +101,18 @@ public type AndOperatorProcessor object {
         return promoted;
     }
 
+    public function setStateMachine(StateMachine stateMachine) {
+        self.stateMachine = stateMachine;
+        AbstractPatternProcessor? lProcessor = self.lhsProcessor;
+        if (lProcessor is AbstractPatternProcessor) {
+            lProcessor.setStateMachine(stateMachine);
+        }
+        AbstractPatternProcessor? rProcessor = self.rhsProcessor;
+        if (rProcessor is AbstractPatternProcessor) {
+            rProcessor.setStateMachine(stateMachine);
+        }
+    }
+
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         string pAlias = <string>processorAlias;
         if (pAlias == self.lhsAlias) {

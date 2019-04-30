@@ -53,6 +53,10 @@ public type OperandProcessor object {
         return promoted;
     }
 
+    public function setStateMachine(StateMachine stateMachine) {
+        self.stateMachine = stateMachine;
+    }
+
     public function setPreviousProcessor(AbstractOperatorProcessor processor) {
         self.prevProcessor = processor;
     }

@@ -67,6 +67,18 @@ public type OrOperatorProcessor object {
         return promoted;
     }
 
+    public function setStateMachine(StateMachine stateMachine) {
+        self.stateMachine = stateMachine;
+        AbstractPatternProcessor? lProcessor = self.lhsProcessor;
+        if (lProcessor is AbstractPatternProcessor) {
+            lProcessor.setStateMachine(stateMachine);
+        }
+        AbstractPatternProcessor? rProcessor = self.rhsProcessor;
+        if (rProcessor is AbstractPatternProcessor) {
+            rProcessor.setStateMachine(stateMachine);
+        }
+    }
+
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         io:println("OrOperatorProcessor:promote:71 -> ", stateEvent, "|", processorAlias);
         self.stateEvents.addLast(stateEvent);
