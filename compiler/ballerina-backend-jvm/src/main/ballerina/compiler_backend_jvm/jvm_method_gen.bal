@@ -578,7 +578,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         // load and cast param values
         int paramIndex = 1;
         foreach var paramType in paramTypes {
-            bir:VariableDcl dcl = getVarDcl(paramType);
+            bir:VariableDcl dcl = getVariableDcl(paramType);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitIntInsn(BIPUSH, paramIndex);
             mv.visitInsn(AALOAD);
@@ -1320,15 +1320,6 @@ function getVarRef(bir:VarRef? varRef) returns bir:VarRef {
         return varRef;
     } else {
         error err = error("Invalid variable reference");
-        panic err;
-    }
-}
-
-function getVarDcl(bir:VariableDcl? varDcl) returns bir:VariableDcl {
-    if (varDcl is bir:VariableDcl) {
-        return varDcl;
-    } else {
-        error err = error("Invalid variable declaration");
         panic err;
     }
 }

@@ -60,12 +60,16 @@ public function main() {
     // These are a few sample values that represent orders made by the people who were
     // listed above as person records.
     Order o1 =
-    { personId: 1, orderId: 1234, items: "pen, book, eraser", amount: 34.75 };
+    { personId: 1, orderId: 1234, items: "pen, book, eraser",
+    amount: 34.75 };
     Order o2 =
-    { personId: 1, orderId: 2314, items: "dhal, rice, carrot", amount: 14.75 };
+    { personId: 1, orderId: 2314, items: "dhal, rice, carrot",
+    amount: 14.75 };
     Order o3 =
-    { personId: 2, orderId: 5643, items: "Macbook Pro", amount: 2334.75 };
-    Order o4 = { personId: 3, orderId: 8765, items: "Tshirt", amount: 20.75 };
+    { personId: 2, orderId: 5643, items: "Macbook Pro",
+    amount: 2334.75 };
+    Order o4 = { personId: 3, orderId: 8765, items: "Tshirt",
+    amount: 20.75 };
 
     // This is the in-memory `table` that is constrained by the `Order` type.
     table<Order> orderTable = table {
