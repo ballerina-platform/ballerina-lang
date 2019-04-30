@@ -254,6 +254,7 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             var pkgId = self.reader.readModuleIDCpRef();
             var name = self.reader.readStringCpRef();
+            var closureMaps = self.reader.readInt32();
             VariableDcl?[] params = [];
             var numVars = self.reader.readInt32();
             int i = 0;
@@ -262,7 +263,7 @@ public type FuncBodyParser object {
                 params[i] = dcl;
                 i += 1;
             }
-            FPLoad fpLoad = {pos:pos, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params};
+            FPLoad fpLoad = {pos:pos, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params, closureMaps:closureMaps};
             return fpLoad;
         } else {
             return self.parseBinaryOpInstruction(kindTag, pos);

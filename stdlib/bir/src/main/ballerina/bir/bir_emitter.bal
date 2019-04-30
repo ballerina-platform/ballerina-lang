@@ -254,8 +254,21 @@ type InstructionEmitter object {
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ");
             print(" ", ins.kind, " ");
-            print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "()");
-            println(";");
+            print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "(");
+            int maps = ins.closureMaps;
+            while (maps > 0) {
+                maps -= 1;
+                print("CL_MAP,");
+            }
+            int i = 0;
+            foreach var v in ins.params {
+                if(i != 0) {
+                    print (",");
+                }
+                VariableDcl varDecl = getVariableDcl(v);
+                self.typeEmitter.emitType(varDecl.typeValue);
+            }
+            println(");");
         }
     }
 };

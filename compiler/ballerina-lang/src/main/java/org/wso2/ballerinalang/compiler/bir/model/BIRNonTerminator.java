@@ -540,14 +540,16 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         public Name funcName;
         public PackageID pkgId;
         public List<BIRVariableDcl> params;
+        public int closureMapCount;
 
         public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp,
-                      List<BIRVariableDcl> params) {
+                      List<BIRVariableDcl> params, int closureMapCount) {
             super(pos, InstructionKind.FP_LOAD);
             this.lhsOp = lhsOp;
             this.funcName = funcName;
             this.pkgId = pkgId;
             this.params = params;
+            this.closureMapCount = closureMapCount;
         }
 
         @Override

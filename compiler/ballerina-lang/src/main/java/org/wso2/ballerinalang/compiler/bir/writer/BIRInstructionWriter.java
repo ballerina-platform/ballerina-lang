@@ -320,6 +320,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(fpLoad.funcName.getValue()));
 
+        buf.writeInt(fpLoad.closureMapCount);
         buf.writeInt(fpLoad.params.size());
         fpLoad.params.forEach(param -> {
             buf.writeByte(param.kind.getValue());
