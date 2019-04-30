@@ -30,40 +30,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
     public BallerinaLexer() {
         this((java.io.Reader)null);
     }
-
-    private IElementType checkExpressionEnd() {
-        if (inXmlMode) {
-            inXmlMode = false;
-            yybegin(XML_MODE);
-            return EXPRESSION_END;
-        } else if (inXmlTagMode) {
-            inXmlTagMode = false;
-            yybegin(XML_TAG_MODE);
-            return EXPRESSION_END;
-        } else if (inDoubleQuotedXmlStringMode) {
-            inDoubleQuotedXmlStringMode = false;
-            yybegin(DOUBLE_QUOTED_XML_STRING_MODE);
-            return EXPRESSION_END;
-        } else if (inSingleQuotedXmlStringMode) {
-            inSingleQuotedXmlStringMode = false;
-            yybegin(SINGLE_QUOTED_XML_STRING_MODE);
-            return EXPRESSION_END;
-        } else if (inXmlPiMode) {
-            inXmlPiMode = false;
-            yybegin(XML_PI_MODE);
-            return EXPRESSION_END;
-        } else if (inXmlCommentMode) {
-            inXmlCommentMode = false;
-            yybegin(XML_COMMENT_MODE);
-            return EXPRESSION_END;
-        } else if (inStringTemplate) {
-            yybegin(STRING_TEMPLATE_MODE);
-            return EXPRESSION_END;
-        } else {
-            yypushback(1);
-            return RIGHT_BRACE;
-        }
-    }
 %}
 
 %public
@@ -168,8 +134,7 @@ STRING_TEMPLATE_LITERAL_END = "`"
 DEPRECATED = "deprecated"
 DEPRECATED_TEMPLATE_START = {DEPRECATED} {WHITE_SPACE}* {LEFT_BRACE}
 
-EXPRESSION_START = "{{"
-EXPRESSION_END = "}}"
+INTERPOLATION_START = "${"
 
 HEX_DIGITS = {HEX_DIGIT} ({HEX_DIGIT_OR_UNDERSCORE}* {HEX_DIGIT})?
 HEX_DIGIT_OR_UNDERSCORE = {HEX_DIGIT} | "_"
@@ -185,11 +150,11 @@ XML_TAG_OPEN_SLASH = "</"
 XML_TAG_SPECIAL_OPEN = "<?" ({XML_QNAME} {QNAME_SEPARATOR})? {XML_QNAME} {XML_WS} // Todo - Fix
 XML_TAG_OPEN = "<"
 XML_LITERAL_END = "`"
-XML_TEMPLATE_TEXT = {XML_TEXT_SEQUENCE}? {EXPRESSION_START}
-XML_TEXT_SEQUENCE = {XML_BRACES_SEQUENCE}? ({XML_TEXT_CHAR} {XML_BRACES_SEQUENCE}?)+ | {XML_BRACES_SEQUENCE} ({XML_TEXT_CHAR} {XML_BRACES_SEQUENCE}?)*
-XML_TEXT_CHAR = [^<&`{}] | '\\' [`] | {XML_WS} | {XML_ESCAPED_SEQUENCE}
-XML_ESCAPED_SEQUENCE =  \\\\ | \\\{\{ | \\}}
-XML_BRACES_SEQUENCE = (\{})+ | (}\{) | (\{})* \{ | } (\{})*
+XML_TEMPLATE_TEXT = {XML_TEXT_SEQUENCE}? {INTERPOLATION_START}
+XML_TEXT_SEQUENCE = {XML_BRACES_SEQUENCE}? ({XML_TEXT_CHAR} {XML_BRACES_SEQUENCE}?)+ | {XML_BRACES_SEQUENCE} ({XML_TEXT_CHAR} {XML_BRACES_SEQUENCE}?)* | {XML_BRACES_SEQUENCE}+
+XML_TEXT_CHAR = [^<&$`{}] | '\\' [`] | {XML_WS} | {XML_ESCAPED_SEQUENCE}
+XML_ESCAPED_SEQUENCE =  \\\\ | \\\$\{ | \\} | \\\{ | &(gt|lt|amp);
+XML_BRACES_SEQUENCE = (\{})+ (\{)* (})* | (}\{)+ (\{)* (})* | (\{\{)+ (\{)* (})* | (}})+ (\{)* (})* | (\{})* \{ | } (\{})*
 
 // XML_TAG
 XML_TAG_CLOSE = ">"
@@ -202,41 +167,38 @@ DOUBLE_QUOTE = "\""
 SINGLE_QUOTE = "'"
 XML_QNAME = {NAME_START_CHAR} {NAME_CHAR}*
 XML_TAG_WS = [ \t\r\n]
-XML_TAG_EXPRESSION_START = {EXPRESSION_START}
 HEX_DIGIT = [0-9a-fA-F]
-NAME_CHAR = {NAME_START_CHAR} | "-" | "_" | "." | {DIGIT} | \u00B7 | [\u0300-\u036F] | [\u203F-\u2040]
-NAME_START_CHAR = [a-zA-Z] | [\u2070-\u218F] | [\u2C00-\u2FEF] | [\u3001-\uD7FF] | [\uF900-\uFDCF] | [\uFDF0-\uFFFD]
+NAME_CHAR = {NAME_START_CHAR} | "-" | "." | {DIGIT} | \u00B7 | [\u0300-\u036F] | [\u203F-\u2040]
+NAME_START_CHAR = [a-zA-Z_] | [\u2070-\u218F] | [\u2C00-\u2FEF] | [\u3001-\uD7FF] | [\uF900-\uFDCF] | [\uFDF0-\uFFFD]
 
 // DOUBLE_QUOTED_XML_STRING
 DOUBLE_QUOTE_END = "\""
-XML_DOUBLE_QUOTED_TEMPLATE_STRING = {XML_DOUBLE_QUOTED_STRING_SEQUENCE}? {EXPRESSION_START}
+XML_DOUBLE_QUOTED_TEMPLATE_STRING = {XML_DOUBLE_QUOTED_STRING_SEQUENCE}? {INTERPOLATION_START}
 XML_DOUBLE_QUOTED_STRING_SEQUENCE = {XML_BRACES_SEQUENCE}? ({XMLDoubleQuotedStringChar} {XML_BRACES_SEQUENCE}?)+ | {XML_BRACES_SEQUENCE} ({XMLDoubleQuotedStringChar} {XML_BRACES_SEQUENCE}?)*
-XMLDoubleQuotedStringChar = [^<\"{}\\] | {XML_ESCAPED_SEQUENCE}
+XMLDoubleQuotedStringChar = [^$<\"{}\\] | {XML_ESCAPED_SEQUENCE}
 
 // SINGLE_QUOTED_XML_STRING
 SINGLE_QUOTE_END = "'"
-XML_SINGLE_QUOTED_TEMPLATE_STRING = {XML_SINGLE_QUOTED_STRING_SEQUENCE}? {EXPRESSION_START}
+XML_SINGLE_QUOTED_TEMPLATE_STRING = {XML_SINGLE_QUOTED_STRING_SEQUENCE}? {INTERPOLATION_START}
 XML_SINGLE_QUOTED_STRING_SEQUENCE = {XML_BRACES_SEQUENCE}? ({XMLSingleQuotedStringChar} {XML_BRACES_SEQUENCE}?)+ | {XML_BRACES_SEQUENCE} ({XMLSingleQuotedStringChar} {XML_BRACES_SEQUENCE}?)*
-XMLSingleQuotedStringChar = [^<'{}\\] | {XML_ESCAPED_SEQUENCE}
+XMLSingleQuotedStringChar = [^$<'{}\\] | {XML_ESCAPED_SEQUENCE}
 
 // XML_PI
 XML_PI_END = {XML_TAG_SPECIAL_CLOSE}
 XML_PI_TEXT = {XML_PI_TEXT_FRAGMENT} {XML_PI_END}
-XML_PI_TEMPLATE_TEXT = {XML_PI_TEXT_FRAGMENT} {EXPRESSION_START}
+XML_PI_TEMPLATE_TEXT = {XML_PI_TEXT_FRAGMENT} {INTERPOLATION_START}
 XML_PI_TEXT_FRAGMENT = {XML_PI_ALLOWED_SEQUENCE}? ({XML_PI_CHAR} {XML_PI_ALLOWED_SEQUENCE}?)*
-XML_PI_CHAR = [^{}?>] | {XML_ESCAPED_SEQUENCE}
+XML_PI_CHAR = [^${}?>] | {XML_ESCAPED_SEQUENCE}
 XML_PI_ALLOWED_SEQUENCE = {XML_BRACES_SEQUENCE} | {XML_PI_SPECIAL_SEQUENCE} | ({XML_BRACES_SEQUENCE} {XML_PI_SPECIAL_SEQUENCE})+ {XML_BRACES_SEQUENCE}? | ({XML_PI_SPECIAL_SEQUENCE} {XML_BRACES_SEQUENCE})+ {XML_PI_SPECIAL_SEQUENCE}?
 XML_PI_SPECIAL_SEQUENCE = ">"+ | ">"* "?"+
 
 // XML_COMMENT
 XML_COMMENT_END = "-->"
-XML_COMMENT_TEXT = {XML_COMMENT_TEXT_FRAGMENT} {XML_COMMENT_END}
-XML_COMMENT_TEMPLATE_TEXT = {XML_COMMENT_TEXT_FRAGMENT} {EXPRESSION_START}
+XML_COMMENT_TEMPLATE_TEXT = {XML_COMMENT_TEXT_FRAGMENT} {INTERPOLATION_START}
 XML_COMMENT_TEXT_FRAGMENT = {XML_COMMENT_ALLOWED_SEQUENCE}? ({XML_COMMENT_CHAR} {XML_COMMENT_ALLOWED_SEQUENCE}?)*
-XML_COMMENT_CHAR = [^{}>\\-] | {XML_ESCAPED_SEQUENCE}
+XML_COMMENT_CHAR = [^${>\\-] | {XML_BRACES_SEQUENCE} | {XML_ESCAPED_SEQUENCE} | \\\['\]
 XML_COMMENT_ALLOWED_SEQUENCE = {XML_BRACES_SEQUENCE} | {XML_COMMENT_SPECIAL_SEQUENCE} | ({XML_BRACES_SEQUENCE} {XML_COMMENT_SPECIAL_SEQUENCE})+ {XML_BRACES_SEQUENCE}? | ({XML_COMMENT_SPECIAL_SEQUENCE} {XML_BRACES_SEQUENCE})+ {XML_COMMENT_SPECIAL_SEQUENCE}?
-XML_COMMENT_SPECIAL_SEQUENCE = ">"+ | (">"* "-" ">"+)+ | "-"? ">"* "-"+
-
+XML_COMMENT_SPECIAL_SEQUENCE = >+ | >? - [^-]
 
 // MARKDOWN_DOCUMENTATION
 MARKDOWN_DOCUMENTATION_LINE_START =  {HASH} {DOCUMENTATION_SPACE}?
@@ -304,12 +266,11 @@ DEPRECATED_ESCAPED_SEQUENCE = '\\\\'
 DEPRECATED_VALID_CHAR_SEQUENCE = '\\' ~'\\'
 
 // STRING_TEMPLATE
-STRING_LITERAL_ESCAPED_SEQUENCE = \\\\ | \\\{\{
-STRING_TEMPLATE_VALID_CHAR_SEQUENCE = "{" | "\\" [^\\]
-STRING_TEMPLATE_STRING_CHAR = [^\`\{\\] | \\ [\`\{] | {WHITE_SPACE} | {STRING_LITERAL_ESCAPED_SEQUENCE}
-STRING_TEMPLATE_EXPRESSION_START = {STRING_TEMPLATE_TEXT}? {EXPRESSION_START}
-STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_STRING_CHAR} {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}?)+
-                       | {STRING_TEMPLATE_VALID_CHAR_SEQUENCE} ({STRING_TEMPLATE_STRING_CHAR} {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}?)*
+STRING_LITERAL_ESCAPED_SEQUENCE = {DOLLAR}** \\ [\\'\"bnftr\{']
+STRING_TEMPLATE_VALID_CHAR_SEQUENCE = [^'$\{\\] | {DOLLAR}+ [^'$\{\\] | {WHITE_SPACE} | {STRING_LITERAL_ESCAPED_SEQUENCE}
+STRING_TEMPLATE_EXPRESSION_START = {STRING_TEMPLATE_TEXT}? {INTERPOLATION_START}
+STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}+ {DOLLAR}* | {DOLLAR}+
+DOLLAR = \$
 
 %state XML_MODE
 %state XML_TAG_MODE
@@ -352,18 +313,20 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "catch"                                     { return CATCH; }
     "channel"                                   { return CHANNEL; }
     "check"                                     { return CHECK; }
+    "checkpanic"                                { return CHECKPANIC; }
     "client"                                    { return CLIENT; }
     "committed"                                 { return COMMITTED; }
     "const"                                     { return CONST; }
     "continue"                                  { return CONTINUE; }
 
     "decimal"                                   { return DECIMAL; }
+    "default"                                   { return DEFAULT; }
     "deprecated"                                { return DEPRECATED; }
     "descending"                                { return DESCENDING; }
 
     "else"                                      { return ELSE; }
     "error"                                     { return ERROR; }
-    "extern"                                    { return EXTERN; }
+    "external"                                  { return EXTERNAL; }
 
     "final"                                     { return FINAL; }
     "finally"                                   { return FINALLY; }
@@ -556,7 +519,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 
     {XML_LITERAL_START}                         { yybegin(XML_MODE); return XML_LITERAL_START; }
     {STRING_TEMPLATE_LITERAL_START}             { inStringTemplate = true; yybegin(STRING_TEMPLATE_MODE); return STRING_TEMPLATE_LITERAL_START; }
-    {EXPRESSION_END}                            { return checkExpressionEnd(); }
 
     {RETURN_PARAMETER_DOCUMENTATION_START}      { yybegin(MARKDOWN_DOCUMENTATION_MODE); return RETURN_PARAMETER_DOCUMENTATION_START; }
     {PARAMETER_DOCUMENTATION_START}             { yybegin(MARKDOWN_PARAMETER_DOCUMENTATION_MODE); return PARAMETER_DOCUMENTATION_START; }
@@ -592,7 +554,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {SINGLE_QUOTE}                              { yybegin(SINGLE_QUOTED_XML_STRING_MODE); return SINGLE_QUOTE; }
     {XML_QNAME}                                 { return XML_QNAME; }
     {XML_TAG_WS}                                { } // Todo - Need to return a value?
-    {XML_TAG_EXPRESSION_START}                  { inXmlTagMode = true; yybegin(YYINITIAL); return XML_TAG_EXPRESSION_START; }
     .                                           { return BAD_CHARACTER; }
 }
 
@@ -617,7 +578,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 }
 
 <XML_COMMENT_MODE>{
-    {XML_COMMENT_TEXT}                          { yybegin(XML_MODE); return XML_COMMENT_TEXT; }
+    {XML_COMMENT_END}                          { yybegin(XML_MODE); return XML_COMMENT_END; }
     {XML_COMMENT_TEMPLATE_TEXT}                 { inXmlCommentMode = true; yybegin(YYINITIAL); return XML_COMMENT_TEMPLATE_TEXT; }
     .                                           { return BAD_CHARACTER; }
 }
