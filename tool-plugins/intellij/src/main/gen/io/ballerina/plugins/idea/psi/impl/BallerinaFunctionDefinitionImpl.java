@@ -68,6 +68,12 @@ public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implem
 
   @Override
   @Nullable
+  public PsiElement getAssign() {
+    return findChildByType(ASSIGN);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getDot() {
     return findChildByType(DOT);
   }
@@ -80,8 +86,8 @@ public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implem
 
   @Override
   @Nullable
-  public PsiElement getExtern() {
-    return findChildByType(EXTERN);
+  public PsiElement getExternal() {
+    return findChildByType(EXTERNAL);
   }
 
   @Override

@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordBindingPatternImpl extends ASTWrapperPsiElement implements BallerinaRecordBindingPattern {
+public class BallerinaClosedRecordRefBindingPatternImpl extends ASTWrapperPsiElement implements BallerinaClosedRecordRefBindingPattern {
 
-  public BallerinaRecordBindingPatternImpl(@NotNull ASTNode node) {
+  public BallerinaClosedRecordRefBindingPatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitRecordBindingPattern(this);
+    visitor.visitClosedRecordRefBindingPattern(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,15 +43,21 @@ public class BallerinaRecordBindingPatternImpl extends ASTWrapperPsiElement impl
   }
 
   @Override
-  @Nullable
-  public BallerinaClosedRecordBindingPattern getClosedRecordBindingPattern() {
-    return findChildByClass(BallerinaClosedRecordBindingPattern.class);
+  @NotNull
+  public List<BallerinaFieldRefBindingPattern> getFieldRefBindingPatternList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldRefBindingPattern.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getLeftBrace() {
+    return findNotNullChildByType(LEFT_BRACE);
   }
 
   @Override
   @Nullable
-  public BallerinaOpenRecordBindingPattern getOpenRecordBindingPattern() {
-    return findChildByClass(BallerinaOpenRecordBindingPattern.class);
+  public PsiElement getRightBrace() {
+    return findChildByType(RIGHT_BRACE);
   }
 
 }

@@ -43,21 +43,15 @@ public class BallerinaRestBindingPatternImpl extends ASTWrapperPsiElement implem
   }
 
   @Override
-  @Nullable
-  public BallerinaSealedLiteral getSealedLiteral() {
-    return findChildByClass(BallerinaSealedLiteral.class);
-  }
-
-  @Override
-  @Nullable
+  @NotNull
   public PsiElement getEllipsis() {
-    return findChildByType(ELLIPSIS);
+    return findNotNullChildByType(ELLIPSIS);
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

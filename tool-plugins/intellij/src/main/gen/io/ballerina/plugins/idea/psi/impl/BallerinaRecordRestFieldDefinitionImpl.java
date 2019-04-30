@@ -43,21 +43,15 @@ public class BallerinaRecordRestFieldDefinitionImpl extends ASTWrapperPsiElement
   }
 
   @Override
-  @Nullable
-  public BallerinaSealedLiteral getSealedLiteral() {
-    return findChildByClass(BallerinaSealedLiteral.class);
-  }
-
-  @Override
-  @Nullable
+  @NotNull
   public BallerinaTypeName getTypeName() {
-    return findChildByClass(BallerinaTypeName.class);
+    return findNotNullChildByClass(BallerinaTypeName.class);
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getEllipsis() {
-    return findChildByType(ELLIPSIS);
+    return findNotNullChildByType(ELLIPSIS);
   }
 
   @Override

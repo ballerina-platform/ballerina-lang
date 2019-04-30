@@ -21,9 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaXmlNamespaceName extends PsiElement {
+public interface BallerinaFieldDescriptor extends PsiElement {
 
-  @NotNull
-  PsiElement getQuotedStringLiteral();
+  @Nullable
+  BallerinaFieldDefinition getFieldDefinition();
+
+  @Nullable
+  BallerinaTypeReference getTypeReference();
 
 }

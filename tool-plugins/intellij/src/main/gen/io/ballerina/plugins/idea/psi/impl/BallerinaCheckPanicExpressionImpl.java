@@ -24,17 +24,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordBindingPatternImpl extends ASTWrapperPsiElement implements BallerinaRecordBindingPattern {
+public class BallerinaCheckPanicExpressionImpl extends BallerinaExpressionImpl implements BallerinaCheckPanicExpression {
 
-  public BallerinaRecordBindingPatternImpl(@NotNull ASTNode node) {
+  public BallerinaCheckPanicExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitRecordBindingPattern(this);
+    visitor.visitCheckPanicExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,14 +43,14 @@ public class BallerinaRecordBindingPatternImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
-  public BallerinaClosedRecordBindingPattern getClosedRecordBindingPattern() {
-    return findChildByClass(BallerinaClosedRecordBindingPattern.class);
+  public BallerinaExpression getExpression() {
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
-  @Nullable
-  public BallerinaOpenRecordBindingPattern getOpenRecordBindingPattern() {
-    return findChildByClass(BallerinaOpenRecordBindingPattern.class);
+  @NotNull
+  public PsiElement getCheckpanic() {
+    return findNotNullChildByType(CHECKPANIC);
   }
 
 }

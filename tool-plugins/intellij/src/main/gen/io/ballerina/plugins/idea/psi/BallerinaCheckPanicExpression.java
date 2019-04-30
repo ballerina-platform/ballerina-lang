@@ -21,9 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaXmlTypeName extends PsiElement {
+public interface BallerinaCheckPanicExpression extends BallerinaExpression {
+
+  @Nullable
+  BallerinaExpression getExpression();
 
   @NotNull
-  PsiElement getXml();
+  PsiElement getCheckpanic();
 
 }

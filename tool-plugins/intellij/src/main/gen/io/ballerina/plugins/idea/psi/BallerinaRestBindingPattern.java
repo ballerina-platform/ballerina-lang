@@ -23,13 +23,10 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaRestBindingPattern extends PsiElement {
 
-  @Nullable
-  BallerinaSealedLiteral getSealedLiteral();
-
-  @Nullable
+  @NotNull
   PsiElement getEllipsis();
 
-  @Nullable
+  @NotNull
   PsiElement getIdentifier();
 
 }

@@ -27,12 +27,12 @@ public interface BallerinaWorkerReceiveExpression extends BallerinaExpression {
   BallerinaExpression getExpression();
 
   @Nullable
+  BallerinaPeerWorker getPeerWorker();
+
+  @Nullable
   PsiElement getComma();
 
   @NotNull
   PsiElement getLarrow();
-
-  @Nullable
-  PsiElement getIdentifier();
 
 }

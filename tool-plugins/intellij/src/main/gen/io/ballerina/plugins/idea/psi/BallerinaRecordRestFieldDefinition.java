@@ -23,13 +23,10 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaRecordRestFieldDefinition extends PsiElement {
 
-  @Nullable
-  BallerinaSealedLiteral getSealedLiteral();
-
-  @Nullable
+  @NotNull
   BallerinaTypeName getTypeName();
 
-  @Nullable
+  @NotNull
   PsiElement getEllipsis();
 
   @NotNull

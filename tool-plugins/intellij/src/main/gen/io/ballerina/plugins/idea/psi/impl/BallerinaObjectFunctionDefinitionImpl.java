@@ -74,14 +74,20 @@ public class BallerinaObjectFunctionDefinitionImpl extends ASTWrapperPsiElement 
 
   @Override
   @Nullable
+  public PsiElement getAssign() {
+    return findChildByType(ASSIGN);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getSemicolon() {
     return findChildByType(SEMICOLON);
   }
 
   @Override
   @Nullable
-  public PsiElement getExtern() {
-    return findChildByType(EXTERN);
+  public PsiElement getExternal() {
+    return findChildByType(EXTERNAL);
   }
 
   @Override

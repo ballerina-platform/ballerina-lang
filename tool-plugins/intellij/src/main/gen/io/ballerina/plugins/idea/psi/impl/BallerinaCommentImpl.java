@@ -49,15 +49,15 @@ public class BallerinaCommentImpl extends ASTWrapperPsiElement implements Baller
   }
 
   @Override
-  @NotNull
-  public PsiElement getXmlCommentStart() {
-    return findNotNullChildByType(XML_COMMENT_START);
+  @Nullable
+  public PsiElement getXmlCommentEnd() {
+    return findChildByType(XML_COMMENT_END);
   }
 
   @Override
-  @Nullable
-  public PsiElement getXmlCommentText() {
-    return findChildByType(XML_COMMENT_TEXT);
+  @NotNull
+  public PsiElement getXmlCommentStart() {
+    return findNotNullChildByType(XML_COMMENT_START);
   }
 
 }

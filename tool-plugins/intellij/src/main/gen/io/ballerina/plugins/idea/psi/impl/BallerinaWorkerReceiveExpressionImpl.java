@@ -49,6 +49,12 @@ public class BallerinaWorkerReceiveExpressionImpl extends BallerinaExpressionImp
 
   @Override
   @Nullable
+  public BallerinaPeerWorker getPeerWorker() {
+    return findChildByClass(BallerinaPeerWorker.class);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getComma() {
     return findChildByType(COMMA);
   }
@@ -57,12 +63,6 @@ public class BallerinaWorkerReceiveExpressionImpl extends BallerinaExpressionImp
   @NotNull
   public PsiElement getLarrow() {
     return findNotNullChildByType(LARROW);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
   }
 
 }

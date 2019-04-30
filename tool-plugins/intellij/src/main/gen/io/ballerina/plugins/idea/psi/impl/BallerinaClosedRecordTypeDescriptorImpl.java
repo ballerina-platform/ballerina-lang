@@ -24,17 +24,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordBindingPatternImpl extends ASTWrapperPsiElement implements BallerinaRecordBindingPattern {
+public class BallerinaClosedRecordTypeDescriptorImpl extends BallerinaTypeNameImpl implements BallerinaClosedRecordTypeDescriptor {
 
-  public BallerinaRecordBindingPatternImpl(@NotNull ASTNode node) {
+  public BallerinaClosedRecordTypeDescriptorImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitRecordBindingPattern(this);
+    visitor.visitClosedRecordTypeDescriptor(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,15 +42,27 @@ public class BallerinaRecordBindingPatternImpl extends ASTWrapperPsiElement impl
   }
 
   @Override
-  @Nullable
-  public BallerinaClosedRecordBindingPattern getClosedRecordBindingPattern() {
-    return findChildByClass(BallerinaClosedRecordBindingPattern.class);
+  @NotNull
+  public List<BallerinaFieldDescriptor> getFieldDescriptorList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldDescriptor.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getLeftBrace() {
+    return findNotNullChildByType(LEFT_BRACE);
   }
 
   @Override
   @Nullable
-  public BallerinaOpenRecordBindingPattern getOpenRecordBindingPattern() {
-    return findChildByClass(BallerinaOpenRecordBindingPattern.class);
+  public PsiElement getRightBrace() {
+    return findChildByType(RIGHT_BRACE);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getRecord() {
+    return findNotNullChildByType(RECORD);
   }
 
 }

@@ -21,9 +21,21 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaXmlTypeName extends PsiElement {
+public interface BallerinaOpenRecordTypeDescriptor extends BallerinaTypeName {
 
   @NotNull
-  PsiElement getXml();
+  List<BallerinaFieldDescriptor> getFieldDescriptorList();
+
+  @Nullable
+  BallerinaRecordRestFieldDefinition getRecordRestFieldDefinition();
+
+  @NotNull
+  PsiElement getLeftBrace();
+
+  @NotNull
+  PsiElement getRightBrace();
+
+  @NotNull
+  PsiElement getRecord();
 
 }

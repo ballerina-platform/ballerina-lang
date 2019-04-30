@@ -21,15 +21,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaWorkerSendAsyncExpression extends BallerinaExpression {
+public interface BallerinaWorkerName extends PsiElement {
 
   @NotNull
-  BallerinaExpression getExpression();
-
-  @NotNull
-  PsiElement getSyncrarrow();
-
-  @Nullable
   PsiElement getIdentifier();
 
 }

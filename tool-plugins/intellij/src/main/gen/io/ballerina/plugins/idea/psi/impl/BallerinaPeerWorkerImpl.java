@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordFieldDefinitionListImpl extends ASTWrapperPsiElement implements BallerinaRecordFieldDefinitionList {
+public class BallerinaPeerWorkerImpl extends ASTWrapperPsiElement implements BallerinaPeerWorker {
 
-  public BallerinaRecordFieldDefinitionListImpl(@NotNull ASTNode node) {
+  public BallerinaPeerWorkerImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitRecordFieldDefinitionList(this);
+    visitor.visitPeerWorker(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,21 +43,15 @@ public class BallerinaRecordFieldDefinitionListImpl extends ASTWrapperPsiElement
   }
 
   @Override
-  @NotNull
-  public List<BallerinaFieldDefinition> getFieldDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldDefinition.class);
+  @Nullable
+  public BallerinaWorkerName getWorkerName() {
+    return findChildByClass(BallerinaWorkerName.class);
   }
 
   @Override
   @Nullable
-  public BallerinaRecordRestFieldDefinition getRecordRestFieldDefinition() {
-    return findChildByClass(BallerinaRecordRestFieldDefinition.class);
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaTypeReference> getTypeReferenceList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaTypeReference.class);
+  public PsiElement getDefault() {
+    return findChildByType(DEFAULT);
   }
 
 }

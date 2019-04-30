@@ -24,15 +24,6 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaXmlQualifiedName extends PsiElement {
 
   @Nullable
-  BallerinaExpression getExpression();
-
-  @Nullable
-  PsiElement getExpressionEnd();
-
-  @Nullable
   PsiElement getQnameSeparator();
-
-  @Nullable
-  PsiElement getXmlTagExpressionStart();
 
 }

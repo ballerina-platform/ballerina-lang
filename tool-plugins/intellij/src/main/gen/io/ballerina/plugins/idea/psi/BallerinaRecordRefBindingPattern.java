@@ -24,12 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaRecordRefBindingPattern extends PsiElement {
 
   @Nullable
-  BallerinaEntryRefBindingPattern getEntryRefBindingPattern();
-
-  @NotNull
-  PsiElement getLeftBrace();
+  BallerinaClosedRecordRefBindingPattern getClosedRecordRefBindingPattern();
 
   @Nullable
-  PsiElement getRightBrace();
+  BallerinaOpenRecordRefBindingPattern getOpenRecordRefBindingPattern();
 
 }

@@ -27,6 +27,9 @@ public interface BallerinaWorkerSendAsyncStatement extends PsiElement {
   List<BallerinaExpression> getExpressionList();
 
   @Nullable
+  BallerinaPeerWorker getPeerWorker();
+
+  @Nullable
   PsiElement getComma();
 
   @NotNull
@@ -34,8 +37,5 @@ public interface BallerinaWorkerSendAsyncStatement extends PsiElement {
 
   @Nullable
   PsiElement getSemicolon();
-
-  @Nullable
-  PsiElement getIdentifier();
 
 }

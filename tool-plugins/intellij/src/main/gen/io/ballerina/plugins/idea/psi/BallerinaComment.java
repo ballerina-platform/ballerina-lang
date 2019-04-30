@@ -26,10 +26,10 @@ public interface BallerinaComment extends PsiElement {
   @NotNull
   List<BallerinaExpression> getExpressionList();
 
+  @Nullable
+  PsiElement getXmlCommentEnd();
+
   @NotNull
   PsiElement getXmlCommentStart();
-
-  @Nullable
-  PsiElement getXmlCommentText();
 
 }

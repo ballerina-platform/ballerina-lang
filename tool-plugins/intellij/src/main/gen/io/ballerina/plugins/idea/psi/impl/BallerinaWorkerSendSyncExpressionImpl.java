@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordTypeNameImpl extends BallerinaTypeNameImpl implements BallerinaRecordTypeName {
+public class BallerinaWorkerSendSyncExpressionImpl extends BallerinaExpressionImpl implements BallerinaWorkerSendSyncExpression {
 
-  public BallerinaRecordTypeNameImpl(@NotNull ASTNode node) {
+  public BallerinaWorkerSendSyncExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitRecordTypeName(this);
+    visitor.visitWorkerSendSyncExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,26 +43,20 @@ public class BallerinaRecordTypeNameImpl extends BallerinaTypeNameImpl implement
 
   @Override
   @NotNull
-  public BallerinaRecordFieldDefinitionList getRecordFieldDefinitionList() {
-    return findNotNullChildByClass(BallerinaRecordFieldDefinitionList.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getLeftBrace() {
-    return findNotNullChildByType(LEFT_BRACE);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getRightBrace() {
-    return findNotNullChildByType(RIGHT_BRACE);
+  public BallerinaExpression getExpression() {
+    return findNotNullChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getRecord() {
-    return findChildByType(RECORD);
+  public BallerinaPeerWorker getPeerWorker() {
+    return findChildByClass(BallerinaPeerWorker.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getSyncrarrow() {
+    return findNotNullChildByType(SYNCRARROW);
   }
 
 }

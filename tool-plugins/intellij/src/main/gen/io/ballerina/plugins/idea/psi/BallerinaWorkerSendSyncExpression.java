@@ -21,15 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaRecordFieldDefinitionList extends PsiElement {
+public interface BallerinaWorkerSendSyncExpression extends BallerinaExpression {
 
   @NotNull
-  List<BallerinaFieldDefinition> getFieldDefinitionList();
+  BallerinaExpression getExpression();
 
   @Nullable
-  BallerinaRecordRestFieldDefinition getRecordRestFieldDefinition();
+  BallerinaPeerWorker getPeerWorker();
 
   @NotNull
-  List<BallerinaTypeReference> getTypeReferenceList();
+  PsiElement getSyncrarrow();
 
 }

@@ -27,9 +27,6 @@ public interface BallerinaArrayTypeName extends BallerinaTypeName {
   List<BallerinaIntegerLiteral> getIntegerLiteralList();
 
   @NotNull
-  List<BallerinaSealedLiteral> getSealedLiteralList();
-
-  @NotNull
   BallerinaTypeName getTypeName();
 
 }

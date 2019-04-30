@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaXmlNamespaceNameImpl extends ASTWrapperPsiElement implements BallerinaXmlNamespaceName {
+public class BallerinaClosedRecordBindingPatternImpl extends ASTWrapperPsiElement implements BallerinaClosedRecordBindingPattern {
 
-  public BallerinaXmlNamespaceNameImpl(@NotNull ASTNode node) {
+  public BallerinaClosedRecordBindingPatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitXmlNamespaceName(this);
+    visitor.visitClosedRecordBindingPattern(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,8 +44,20 @@ public class BallerinaXmlNamespaceNameImpl extends ASTWrapperPsiElement implemen
 
   @Override
   @NotNull
-  public PsiElement getQuotedStringLiteral() {
-    return findNotNullChildByType(QUOTED_STRING_LITERAL);
+  public List<BallerinaFieldBindingPattern> getFieldBindingPatternList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldBindingPattern.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getLeftBrace() {
+    return findNotNullChildByType(LEFT_BRACE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRightBrace() {
+    return findChildByType(RIGHT_BRACE);
   }
 
 }

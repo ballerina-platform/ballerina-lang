@@ -50,6 +50,12 @@ public class BallerinaWorkerSendAsyncStatementImpl extends ASTWrapperPsiElement 
 
   @Override
   @Nullable
+  public BallerinaPeerWorker getPeerWorker() {
+    return findChildByClass(BallerinaPeerWorker.class);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getComma() {
     return findChildByType(COMMA);
   }
@@ -64,12 +70,6 @@ public class BallerinaWorkerSendAsyncStatementImpl extends ASTWrapperPsiElement 
   @Nullable
   public PsiElement getSemicolon() {
     return findChildByType(SEMICOLON);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
   }
 
 }

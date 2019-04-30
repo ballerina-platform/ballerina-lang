@@ -24,16 +24,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaWorkerSendAsyncExpressionImpl extends BallerinaExpressionImpl implements BallerinaWorkerSendAsyncExpression {
+public class BallerinaFieldDescriptorImpl extends ASTWrapperPsiElement implements BallerinaFieldDescriptor {
 
-  public BallerinaWorkerSendAsyncExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaFieldDescriptorImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitWorkerSendAsyncExpression(this);
+    visitor.visitFieldDescriptor(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,21 +43,15 @@ public class BallerinaWorkerSendAsyncExpressionImpl extends BallerinaExpressionI
   }
 
   @Override
-  @NotNull
-  public BallerinaExpression getExpression() {
-    return findNotNullChildByClass(BallerinaExpression.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getSyncrarrow() {
-    return findNotNullChildByType(SYNCRARROW);
+  @Nullable
+  public BallerinaFieldDefinition getFieldDefinition() {
+    return findChildByClass(BallerinaFieldDefinition.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+  public BallerinaTypeReference getTypeReference() {
+    return findChildByClass(BallerinaTypeReference.class);
   }
 
 }

@@ -43,42 +43,6 @@ public class BallerinaXmlTypeNameImpl extends ASTWrapperPsiElement implements Ba
   }
 
   @Override
-  @Nullable
-  public BallerinaXmlLocalName getXmlLocalName() {
-    return findChildByClass(BallerinaXmlLocalName.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaXmlNamespaceName getXmlNamespaceName() {
-    return findChildByClass(BallerinaXmlNamespaceName.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getGt() {
-    return findChildByType(GT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLt() {
-    return findChildByType(LT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
-  }
-
-  @Override
   @NotNull
   public PsiElement getXml() {
     return findNotNullChildByType(XML);
