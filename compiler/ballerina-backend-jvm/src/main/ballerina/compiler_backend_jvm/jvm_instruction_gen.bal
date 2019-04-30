@@ -552,7 +552,7 @@ type InstructionGenerator object {
             error err = error( "Expected BInvokableType, found " + io:sprintf("%s", returnType));
             panic err;
         }
-        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid);
+        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid, inst.closureMaps);
         generateVarStore(self.mv, inst.lhsOp.variableDcl, self.currentPackageName, 
             self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         lambdas[lambdaName] = (inst, methodClass);

@@ -505,14 +505,15 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitEnd();
 }
 
-function generateLambdaMethod(bir:AsyncCall|bir:FPLoad callIns, jvm:ClassWriter cw, string className, 
+function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, string className, 
     string lambdaName) {
     bir:BType? lhsType;
-    if (callIns is bir:AsyncCall) {
-        lhsType = callIns.lhsOp.typeValue;
+    if (ins is bir:AsyncCall) {
+        lhsType = ins.lhsOp.typeValue;
     } else {
-        lhsType = callIns.lhsOp.typeValue;
+        lhsType = ins.lhsOp.typeValue;
     }
+
     bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
         returnType = lhsType.returnType;
@@ -524,28 +525,35 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad callIns, jvm:ClassWriter 
         panic err;
     }
 
+   
+    int closureMapsCount = 0;
+    if (ins is bir:FPLoad) {
+        closureMapsCount = ins.closureMaps;
+    }
+    string closureMapsDesc = getMapValueDesc(closureMapsCount);
+
     boolean isVoid = returnType is bir:BTypeNil;
     jvm:MethodVisitor mv;
     if (isVoid) {
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, lambdaName,
-                                io:sprintf("([L%s;)V", OBJECT), (), ());
+                                io:sprintf("(%s[L%s;)V", closureMapsDesc, OBJECT), (), ());
     } else {
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, lambdaName,
-                                io:sprintf("([L%s;)L%s;", OBJECT, OBJECT), (), ());
+                                io:sprintf("(%s[L%s;)L%s;", closureMapsDesc, OBJECT, OBJECT), (), ());
     }
 
     mv.visitCode();
 
     //load strand as first arg
-    mv.visitVarInsn(ALOAD, 0);
+    mv.visitVarInsn(ALOAD, closureMapsCount);
     mv.visitInsn(ICONST_0);
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, STRAND);
 
     bir:BType?[] paramBTypes = [];
     string funcName; 
-    if (callIns is bir:AsyncCall) {
-        bir:VarRef?[] paramTypes = callIns.args;
+    if (ins is bir:AsyncCall) {
+        bir:VarRef?[] paramTypes = ins.args;
         // load and cast param values
         int paramIndex = 1;
         foreach var paramType in paramTypes {
@@ -557,9 +565,16 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad callIns, jvm:ClassWriter 
             paramBTypes[paramIndex -1] = paramType.typeValue;
             paramIndex += 1;
         }
-        funcName = callIns.name.value;
+        funcName = ins.name.value;
     } else {
-        bir:VariableDcl?[] paramTypes = callIns.params;
+        //load closureMaps
+        int i = 0;
+        while (i < closureMapsCount) {
+            mv.visitVarInsn(ALOAD, i);
+            i += 1;
+        }
+
+        bir:VariableDcl?[] paramTypes = ins.params;
         // load and cast param values
         int paramIndex = 1;
         foreach var paramType in paramTypes {
@@ -571,10 +586,10 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad callIns, jvm:ClassWriter 
             paramBTypes[paramIndex -1] = dcl.typeValue;
             paramIndex += 1;
         }
-        funcName = callIns.name.value;
+        funcName = ins.name.value;
     }
 
-    mv.visitMethodInsn(INVOKESTATIC, className, funcName, getMethodDesc(paramBTypes, returnType), false);
+    mv.visitMethodInsn(INVOKESTATIC, className, funcName, getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount), false);
     
     if (isVoid) {
         mv.visitInsn(RETURN);
@@ -624,6 +639,26 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
 
 function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType) returns string {
     string desc = "(Lorg/ballerinalang/jvm/Strand;";
+    int i = 0;
+    while (i < paramTypes.length()) {
+        bir:BType paramType = getType(paramTypes[i]);
+        desc = desc + getArgTypeSignature(paramType);
+        i += 1;
+    }
+    string returnType = generateReturnType(retType);
+    desc =  desc + returnType;
+
+    return desc;
+}
+
+function getLambdaMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, int closureMapsCount) returns string {
+    string desc = "(Lorg/ballerinalang/jvm/Strand;";
+    int j = 0;
+    while(j < closureMapsCount) {
+        j += 1;
+        desc = desc + "L" + MAP_VALUE + ";";
+    }
+
     int i = 0;
     while (i < paramTypes.length()) {
         bir:BType paramType = getType(paramTypes[i]);
@@ -764,7 +799,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
         // schedule the init method
         string lambdaName = io:sprintf("$lambda$%s$", initFuncName);
-        mv.visitInvokeDynamicInsn(initClass, lambdaName, true);
+        mv.visitInvokeDynamicInsn(initClass, lambdaName, true, 0);
 
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
             io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
@@ -791,7 +826,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     // invoke the user's main method
     string lambdaName = "$lambda$main$";
-    mv.visitInvokeDynamicInsn(initClass, lambdaName, isVoidFunction);
+    mv.visitInvokeDynamicInsn(initClass, lambdaName, isVoidFunction, 0);
 
     //submit to the scheduler
     if (isVoidFunction) {
@@ -1305,4 +1340,15 @@ function getType(bir:BType? bType) returns bir:BType {
         error err = error("Invalid type");
         panic err;
     }
+}
+
+function getMapValueDesc(int count) returns string{
+    int i = count;
+    string desc = "";
+    while(i > 0) {
+        desc = desc + "L" + MAP_VALUE + ";";
+        i -= 1;
+    }
+
+    return desc;
 }

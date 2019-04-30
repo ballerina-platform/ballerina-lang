@@ -345,7 +345,7 @@ type TerminatorGenerator object {
             returnType = futureType.returnType;
         }
         boolean isVoid = returnType is bir:BTypeNil;
-        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid);
+        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid, 0);
         lambdas[lambdaName] = (callIns, methodClass);
         self.lambdaIndex += 1;
         
