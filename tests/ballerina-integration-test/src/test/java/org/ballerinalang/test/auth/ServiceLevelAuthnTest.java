@@ -67,7 +67,8 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }
 
-    @Test(description = "Auth with JWT signed with expired trusted certificate but with expiry validation off")
+    @Test(description = "Auth with JWT signed with expired trusted certificate but with expiry validation off", 
+        enabled = false)
     public void testAuthnWithJWTSignedWithExpiredTrustedCertificateWithNoExpiryValidation() throws Exception {
         // JWT used in the test:
         // {

@@ -105,7 +105,8 @@ public class StubGeneratorTestCase {
                 .getFunctionInfo("helloWorldClient.bye"), "Connector not found.");
     }
 
-    @Test(description = "Test service stub generation tool command without specifying output directory path")
+    @Test(description = "Test service stub generation tool command without specifying output directory path", 
+    enabled = true)
     public void testUnaryHelloWorldWithoutOutputPath() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
