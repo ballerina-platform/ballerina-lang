@@ -269,7 +269,7 @@
     {
       "label": "IOError",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "sortText": "171",
       "insertText": "IOError",
       "insertTextFormat": "Snippet",
@@ -292,7 +292,7 @@
     {
       "label": "ReadableByteChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "ReadableByteChannel represents an input resource (i.e file, socket). which could be used to source bytes."
       },
@@ -318,7 +318,7 @@
     {
       "label": "ReadableCharacterChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a channel which could be used to read characters through a given ReadableByteChannel."
       },
@@ -344,7 +344,7 @@
     {
       "label": "ReadableCSVChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a ReadableCSVChannel which could be used to read records from CSV file."
       },
@@ -370,7 +370,7 @@
     {
       "label": "ReadableDataChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a data channel for reading data."
       },
@@ -396,7 +396,7 @@
     {
       "label": "ReadableTextRecordChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a channel which will allow to read"
       },
@@ -422,7 +422,7 @@
     {
       "label": "StringReader",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a reader which will wrap string content as a channel."
       },
@@ -448,7 +448,7 @@
     {
       "label": "WritableByteChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "WritableByteChannel represents an output resource (i.e file, socket). which could be used to sink bytes."
       },
@@ -474,7 +474,7 @@
     {
       "label": "WritableCharacterChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a channel which could be used to write characters through a given WritableCharacterChannel."
       },
@@ -500,7 +500,7 @@
     {
       "label": "WritableCSVChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a WritableCSVChannel which could be used to write records from CSV file."
       },
@@ -526,7 +526,7 @@
     {
       "label": "WritableDataChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a WritableDataChannel for writing data."
       },
@@ -552,7 +552,7 @@
     {
       "label": "WritableTextRecordChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a channel which will allow to write records through a given WritableCharacterChannel."
       },
@@ -578,7 +578,7 @@
     {
       "label": "Format",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Format which will be used to represent the CSV.\n\nDEFAULT - Would default to the format specified by CSVChannel. Presidence will be given to field\n          separator and record separator.\n\nCSV - Field separator would be \",\" and the record separator would be new line.\n\nTDF - Field separator will be tab and record separator will be new line."
       },
@@ -604,7 +604,7 @@
     {
       "label": "Separator",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Field separators which are supported by DelimitedTextRecordChannel."
       },
@@ -630,7 +630,7 @@
     {
       "label": "Mode",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "sortText": "171",
       "insertText": "Mode",
       "insertTextFormat": "Snippet",
@@ -653,7 +653,7 @@
     {
       "label": "ByteOrder",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Finite",
       "documentation": {
         "left": "Represents network byte order.\n\nBIG_ENDIAN - specifies the bytes to be in the order of most significant byte first\n\nLITTLE_ENDIAN - specifies the byte order to be the least significant byte first"
       },

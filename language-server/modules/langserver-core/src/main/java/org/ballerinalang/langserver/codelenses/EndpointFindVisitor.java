@@ -110,7 +110,9 @@ public class EndpointFindVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         this.acceptNode(ifNode.body);
-        this.acceptNode(ifNode.elseStmt);
+        if (ifNode.elseStmt != null) {
+            this.acceptNode(ifNode.elseStmt);
+        }
     }
 
     @Override

@@ -60,7 +60,7 @@ function testRecordFieldValueTypeConformance() {
                             "invalid reason on inherent type violating record update");
 }
 
-function updateRecordFieldOne(record{ any|error...; } r, any val) {
+function updateRecordFieldOne(record {| any|error...; |} r, any val) {
     r.fieldOne = val;
 }
 

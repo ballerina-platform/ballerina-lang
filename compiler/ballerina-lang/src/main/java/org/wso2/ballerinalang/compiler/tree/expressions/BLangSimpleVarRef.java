@@ -52,7 +52,7 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
         if (pkgAlias != null && !pkgAlias.getValue().isEmpty()) {
             br.append(String.valueOf(pkgAlias)).append(":");
         }
-        br.append(String.valueOf(variableName));
+        br.append(variableName == null ? String.valueOf(varSymbol.name) : String.valueOf(variableName));
         return br.toString();
     }
 

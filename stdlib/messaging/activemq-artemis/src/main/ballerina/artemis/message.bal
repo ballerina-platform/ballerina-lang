@@ -67,7 +67,6 @@ public type Message client object {
     #
     # + key - The name of the property
     # + value - The value of the property 
-    # + return - If an error occures while setting the property
     public function putProperty(string key, string | int | float | boolean | byte | byte[] value) = external;
 
     # Get a message property.

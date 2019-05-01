@@ -210,12 +210,12 @@ function test9() returns Person {
 
 // RECORDS
 
-type Student record {
+type Student record {|
     string name;
     int age;
     Grades grades;
     string...;
-};
+|};
 
 type Grades record {
     int maths;
