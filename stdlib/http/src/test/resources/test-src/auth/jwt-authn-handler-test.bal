@@ -2,7 +2,7 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/crypto;
 
-function testCanHandleHttpJwtAuthWithoutHeader() returns boolean {
+function testCanHandleHttpJwtAuthWithoutHeader() returns boolean|error {
     http:JwtAuthnHandler handler = new(createJwtAuthProvider("ballerina/security/ballerinaTruststore.p12"));
     http:Request request = createRequest();
     string authHeaderValue = "Basic xxxxxx";
@@ -10,7 +10,7 @@ function testCanHandleHttpJwtAuthWithoutHeader() returns boolean {
     return handler.canHandle(request);
 }
 
-function testCanHandleHttpJwtAuth() returns boolean {
+function testCanHandleHttpJwtAuth() returns boolean|error {
     http:JwtAuthnHandler handler = new(createJwtAuthProvider("ballerina/security/ballerinaTruststore.p12"));
     http:Request request = createRequest();
     string authHeaderValue = "Bearer xxx.yyy.zzz";
@@ -18,7 +18,7 @@ function testCanHandleHttpJwtAuth() returns boolean {
     return handler.canHandle(request);
 }
 
-function testHandleHttpJwtAuthFailure() returns boolean {
+function testHandleHttpJwtAuthFailure() returns boolean|error {
     http:JwtAuthnHandler handler = new(createJwtAuthProvider("ballerina/security/ballerinaTruststore.p12"));
     http:Request request = createRequest();
     string authHeaderValue = "Bearer xxx.yyy.zzz";
@@ -26,7 +26,7 @@ function testHandleHttpJwtAuthFailure() returns boolean {
     return handler.handle(request);
 }
 
-function testHandleHttpJwtAuth(string token, string trustStorePath) returns boolean {
+function testHandleHttpJwtAuth(string token, string trustStorePath) returns boolean|error {
     http:JwtAuthnHandler handler = new(createJwtAuthProvider(trustStorePath));
     http:Request request = createRequest();
     string authHeaderValue = "Bearer " + token;

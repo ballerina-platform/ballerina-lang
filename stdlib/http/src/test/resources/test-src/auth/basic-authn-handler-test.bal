@@ -1,7 +1,7 @@
 import ballerina/auth;
 import ballerina/http;
 
-function testCanHandleHttpBasicAuthWithoutHeader() returns boolean {
+function testCanHandleHttpBasicAuthWithoutHeader() returns boolean|error {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     http:BasicAuthnHandler handler = new(configAuthStoreProvider);
     http:Request inRequest = createRequest();
@@ -10,7 +10,7 @@ function testCanHandleHttpBasicAuthWithoutHeader() returns boolean {
     return handler.canHandle(inRequest);
 }
 
-function testCanHandleHttpBasicAuth() returns boolean {
+function testCanHandleHttpBasicAuth() returns boolean|error {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     http:BasicAuthnHandler handler = new(configAuthStoreProvider);
     http:Request inRequest = createRequest();
@@ -19,7 +19,7 @@ function testCanHandleHttpBasicAuth() returns boolean {
     return handler.canHandle(inRequest);
 }
 
-function testHandleHttpBasicAuthFailure() returns boolean {
+function testHandleHttpBasicAuthFailure() returns boolean|error {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     http:BasicAuthnHandler handler = new(configAuthStoreProvider);
     http:Request inRequest = createRequest();
@@ -28,7 +28,7 @@ function testHandleHttpBasicAuthFailure() returns boolean {
     return handler.handle(inRequest);
 }
 
-function testHandleHttpBasicAuth() returns boolean {
+function testHandleHttpBasicAuth() returns boolean|error {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     http:BasicAuthnHandler handler = new(configAuthStoreProvider);
     http:Request inRequest = createRequest();
@@ -37,18 +37,18 @@ function testHandleHttpBasicAuth() returns boolean {
     return handler.handle(inRequest);
 }
 
-function testNonExistingBasicAuthHeaderValue() returns string? {
+function testNonExistingBasicAuthHeaderValue() returns string|error {
     // create dummy request
     http:Request inRequest = createRequest();
-    return http:extractBasicAuthHeaderValue(inRequest);
+    return http:extractAuthorizationHeaderValue(inRequest);
 }
 
-function testExtractBasicAuthHeaderValue() returns string? {
+function testExtractBasicAuthHeaderValue() returns string|error {
     // create dummy request
     http:Request inRequest = createRequest();
     string basicAuthHeaderValue = "Basic aXN1cnU6eHh4";
     inRequest.setHeader("Authorization", basicAuthHeaderValue);
-    return http:extractBasicAuthHeaderValue(inRequest);
+    return http:extractAuthorizationHeaderValue(inRequest);
 }
 
 function createRequest() returns http:Request {

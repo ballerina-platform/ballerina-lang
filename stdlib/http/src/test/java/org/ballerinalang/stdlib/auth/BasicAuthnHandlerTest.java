@@ -23,6 +23,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -72,8 +74,7 @@ public class BasicAuthnHandlerTest {
     @Test(description = "Test case for basic auth interceptor canHandle method, without the basic auth header")
     public void testCanHandleHttpBasicAuthWithoutHeader() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpBasicAuthWithoutHeader");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(returns[0] instanceof BError);
     }
 
     @Test(description = "Test case for basic auth interceptor canHandle method")
@@ -100,14 +101,13 @@ public class BasicAuthnHandlerTest {
     @Test(description = "Test case for extracting non existing basic auth header value")
     public void testNonExistingBasicAuthHeaderValue() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistingBasicAuthHeaderValue");
-        Assert.assertNotNull(returns);
-        Assert.assertNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BError);
     }
 
     @Test(description = "Test case for extracting basic auth header value")
     public void testExtractBasicAuthHeaderValue() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractBasicAuthHeaderValue");
-        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns[0] instanceof BString);
         // no error should be returned
         Assert.assertEquals(returns[0].stringValue(), "Basic aXN1cnU6eHh4");
     }
