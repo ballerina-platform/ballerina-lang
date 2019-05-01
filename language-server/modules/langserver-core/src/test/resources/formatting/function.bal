@@ -33,21 +33,18 @@ return ( 0,"");
 }
 
 function name9() returns ( Person ) {
-    return {name:""};
+    return { name:"" };
 }
 
    private      function name10() {
 
 }
 
-     extern     function name11() {
+          function name11()=external   ;
 
-}
+      public       function name12()     =    external ;
 
-      public    extern    function name12() {
-
-}
-
-    private     extern    function name12() {
-
-}
+    private      function name13()
+    =
+    external
+    ;

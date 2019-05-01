@@ -73,7 +73,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.getBLangNode;
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class CreateTestExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "CREATE_TEST";
+    public static final String COMMAND = "CREATE_TEST";
 
     public static String generateTestFileName(Path sourceFilePath) {
         String fileName = FilenameUtils.removeExtension(sourceFilePath.toFile().getName());
@@ -208,11 +208,15 @@ public class CreateTestExecutor implements LSCommandExecutor {
             List<TextEdit> content = TestGenerator.generate(docManager, bLangNodePair, focusLineAcceptor,
                                                             builtSourceFile, pkgRelativeSourceFilePath, testFile);
 
-            // Send edits
+            // If not exists, create a new test file
             List<Either<TextDocumentEdit, ResourceOperation>> edits = new ArrayList<>();
+            if (!testFile.exists()) {
+                edits.add(Either.forRight(new CreateFile(testFile.toPath().toUri().toString())));
+            }
+
+            // Send edits
             VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier();
             identifier.setUri(testFile.toPath().toUri().toString());
-            edits.add(Either.forRight(new CreateFile(testFile.toPath().toUri().toString())));
 
             TextDocumentEdit textEdit = new TextDocumentEdit(identifier, content);
             edits.add(Either.forLeft(textEdit));

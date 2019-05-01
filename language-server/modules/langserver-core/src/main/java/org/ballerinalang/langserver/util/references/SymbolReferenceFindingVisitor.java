@@ -45,12 +45,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -635,6 +637,16 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.acceptNode(conversionExpr.expr);
     }
 
+    @Override
+    public void visit(BLangTypeInit connectorInitExpr) {
+        connectorInitExpr.argsExpr.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
+        this.acceptNode(bLangNamedArgsExpression.expr);
+    }
+
     private void acceptNode(BLangNode node) {
         if (this.terminateVisitor || node == null) {
             return;
@@ -697,8 +709,15 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     private int getTypeLengthWithWS(BLangType typeNode, boolean nested) {
-        List<Whitespace> whitespaces = new ArrayList<>(typeNode.getWS());
         int length = 0;
+
+        // Check whether whitespaces are null for the type node.
+        // If null return length as 0.
+        if (typeNode.getWS() == null) {
+            return length;
+        }
+
+        List<Whitespace> whitespaces = new ArrayList<>(typeNode.getWS());
 
         if (typeNode instanceof BLangUnionTypeNode) {
             length = getUnionTypeLength((BLangUnionTypeNode) typeNode, nested);

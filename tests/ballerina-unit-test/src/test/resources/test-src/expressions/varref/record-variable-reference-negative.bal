@@ -55,7 +55,7 @@ function testClosedRecordVarRef() {
     string format;
     string extraLetter;
     int extraInt;
-    map<any> theMap;
+    map<any|error> theMap;
 
     Age age1 = {age:12, format: "Y", three: "three"};
     Person p1 = {name: "Peter", married: true, age: age1, extra: ("extra", 12)};
@@ -100,7 +100,7 @@ function testInvalidTypes() {
     string lName;
     boolean married;
     Person age;
-    map<any> theMap;
+    map<any|error> theMap;
 
     Person p = {name: "Peter", married: true, age: {age: 12, format: "Y"}};
     {name: fName, age, married, ...theMap} = p; // incompatible types of age field
@@ -140,17 +140,17 @@ type Object object {
     }
 };
 
-type IntRestRecord record {
+type IntRestRecord record {|
     string name;
     boolean married;
     int...;
-};
+|};
 
-type ObjectRestRecord record {
+type ObjectRestRecord record {|
     string name;
     boolean married;
     Object...;
-};
+|};
 
 function testRestParameterType() {
     string name;
@@ -158,8 +158,8 @@ function testRestParameterType() {
     map<anydata> other2 = {};
 
     IntRestRecord rec1 = { name: "A", married: true, age: 19, token: 200 };
-    { name, ...other1 } = rec1; // incompatible types: expected 'map<int>', found 'map<anydata>'
+    { name, ...other1 } = rec1; // incompatible types: expected 'map<int>', found 'map<anydata|error>'
 
     ObjectRestRecord rec2 = { name: "A", married: true, extra: new };
-    { name, ...other2 } = rec2; // incompatible types: expected 'map<anydata>', found 'map'
+    { name, ...other2 } = rec2; // incompatible types: expected 'map<anydata>', found 'map<any|error>'
 }

@@ -22,10 +22,14 @@ package org.ballerinalang.jvm.util.exceptions;
  *
  * @since 0.8.0
  */
-public class BLangRuntimeException extends RuntimeException {
+public class BLangRuntimeException extends BallerinaException {
 
     public BLangRuntimeException(String message) {
         super(message);
+    }
+
+    public BLangRuntimeException(String message, String detail) {
+        super(message, detail);
     }
 
     public BLangRuntimeException(String message, Throwable cause) {

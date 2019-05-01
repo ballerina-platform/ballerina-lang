@@ -1,14 +1,15 @@
 import ballerina/io;
 
 public function main() {
-    string|() x = ();
+    string? x = ();
 
-    // If you need to get the `string` value of x, and if the value of x is `nil`, you may want
-    // to assign a value. This is how you can do it via the type-guard.
+    // If you need to get the value of `x` if it is a `string`, or assign some
+    // other `string` value if `x` is `()`, you can do it using the type-guard
+    // as follows.
     string output = x is string ? "value is string: " + x : "value is nil";
     io:println("The output from the type-guard: " + output);
 
-    // This shows how to achieve the same via the `elvis` operator.
+    // Following is how you can achieve the same using the elvis operator.
     string elvisOutput = x ?: "value is nil";
     io:println("The output from the elvis operator: " + elvisOutput);
 }

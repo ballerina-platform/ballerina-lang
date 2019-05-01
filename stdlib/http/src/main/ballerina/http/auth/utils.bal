@@ -59,7 +59,7 @@ public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
         return headerValue;
     } else {
         string reason = headerValue.reason();
-        log:printDebug(function() returns string {
+        log:printDebug(function () returns string {
             return "Error in retrieving header " + AUTH_HEADER + ": " + reason;
         });
     }

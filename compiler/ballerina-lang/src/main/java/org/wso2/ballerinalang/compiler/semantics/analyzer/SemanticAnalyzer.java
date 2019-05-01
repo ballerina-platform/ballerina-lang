@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -118,6 +119,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -299,6 +301,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE
+                || typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.FINITE_TYPE_NODE) {
             analyzeDef(typeDefinition.typeNode, env);
         }
@@ -341,6 +344,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 this.dlog.error(func.pos, DiagnosticCode.EXTERN_FUNC_ABSTRACT_OBJECT, func.name,
                         objectTypeNode.symbol.name);
             }
+            if (func.flagSet.contains(Flag.RESOURCE) && func.flagSet.contains(Flag.NATIVE)) {
+                this.dlog.error(func.pos, DiagnosticCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, func.name);
+            }
         });
 
         // Validate the referenced functions that don't have implementations within the function.
@@ -378,6 +384,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         recordTypeNode.fields.forEach(field -> analyzeDef(field, recordEnv));
         analyzeDef(recordTypeNode.initFunction, recordEnv);
         validateDefaultable(recordTypeNode);
+    }
+
+    @Override
+    public void visit(BLangErrorType errorType) {
+        BType reasonType = errorType.reasonType.type;
+
+        if (!types.isAssignable(reasonType, symTable.stringType)) {
+            dlog.error(errorType.reasonType.pos, DiagnosticCode.INVALID_ERROR_REASON_TYPE, reasonType);
+        }
+
+        if (errorType.detailType == null) {
+            return;
+        }
+
+        BType detailType = errorType.detailType.type;
+        if (!types.isValidErrorDetailType(detailType)) {
+            dlog.error(errorType.detailType.pos, DiagnosticCode.INVALID_ERROR_DETAIL_TYPE, detailType);
+        }
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -989,9 +1013,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (recordVar.restParam != null) {
-            ((BLangVariable) recordVar.restParam).type =
-                    new BMapType(TypeTags.MAP, recordHasAnyTypeField(recordVarType) ?
-                            symTable.anyType : symTable.anydataType, null);
+            ((BLangVariable) recordVar.restParam).type = getRestParamType(recordVarType);
             symbolEnter.defineNode((BLangNode) recordVar.restParam, env);
         }
 
@@ -1239,6 +1261,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         compoundAssignment.expr,
                         compoundAssignment.opKind,
                         opSymbol);
+                compoundAssignment.modifiedExpr.parent = compoundAssignment;
                 this.types.checkTypes(compoundAssignment.modifiedExpr,
                         Lists.of(compoundAssignment.modifiedExpr.type), expTypes);
             }
@@ -1367,9 +1390,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             if (lhsVarRef.restParam != null) {
-                types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
-                        new BMapType(TypeTags.MAP, recordHasAnyTypeField(rhsRecordType) ?
-                                symTable.anyType : symTable.anydataType, null),
+                types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, getRestParamType(rhsRecordType),
                         ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
             }
         }
@@ -1426,10 +1447,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (lhsVarRef.restParam != null) {
-            types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
-                    new BMapType(TypeTags.MAP, recordHasAnyTypeField(rhsRecordType) ?
-                            symTable.anyType : symTable.anydataType, null),
-                    ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
+            types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, getRestParamType(rhsRecordType),
+                            ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
         }
 
         //Check whether this is an readonly field.
@@ -1438,11 +1457,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         checkConstantAssignment(lhsVarRef);
     }
 
+    private BMapType getRestParamType(BRecordType recordType)  {
+        return new BMapType(TypeTags.MAP, recordHasAnyTypeField(recordType) ?
+                BUnionType.create(null, symTable.anyType, symTable.errorType) : symTable.pureType, null);
+    }
+
     private boolean recordHasAnyTypeField(BRecordType recordType) {
         boolean hasAnyTypedField = recordType.fields.stream()
                 .map(field -> field.type)
-                .anyMatch(fieldType -> !types.isAnydata(fieldType));
-        return hasAnyTypedField || !types.isAnydata(recordType.restFieldType);
+                .anyMatch(fieldType -> !types.isPureType(fieldType));
+        return hasAnyTypedField || !types.isPureType(recordType.restFieldType);
     }
 
     private void checkTupleVarRefEquivalency(DiagnosticPos pos, BLangTupleVarRef varRef, BType rhsType,
@@ -1497,8 +1521,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         if (varRef.detail.getKind() == NodeKind.RECORD_VARIABLE_REF) {
             typeChecker.checkExpr(varRef.detail, env);
-            checkRecordVarRefEquivalency(
-                    pos, (BLangRecordVarRef) varRef.detail, ((BErrorType) rhsType).detailType, rhsPos);
+            checkRecordVarRefEquivalency(pos, (BLangRecordVarRef) varRef.detail, ((BErrorType) rhsType).detailType,
+                                         rhsPos);
             return;
         }
 
@@ -1508,8 +1532,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         setTypeOfVarReferenceInAssignment(varRef.detail);
         // TODO: Once detail var is frozen, do the is like check instead of is Assignable
-        if (!types.isAssignable(rhsErrorType.detailType, varRef.detail.type)) {
-            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.detail.type, rhsErrorType.detailType);
+        BType detailType = rhsErrorType.detailType;
+        if (!types.isAssignable(detailType, varRef.detail.type)) {
+            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.detail.type, detailType);
         }
     }
 
@@ -1928,7 +1953,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPanic panicNode) {
-        this.typeChecker.checkExpr(panicNode.expr, env);
+        this.typeChecker.checkExpr(panicNode.expr, env, symTable.errorType);
         if (panicNode.expr.type.tag != TypeTags.ERROR) {
             dlog.error(panicNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, panicNode.expr.type);
         }
@@ -1959,42 +1984,89 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstant constant) {
         BLangExpression expression = (BLangExpression) constant.value;
-        if (expression.getKind() != NodeKind.LITERAL && expression.getKind() != NodeKind.NUMERIC_LITERAL) {
+        if (!symbolEnter.isValidConstantExpression(expression)) {
             dlog.error(expression.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
             return;
         }
 
-        BLangLiteral value = (BLangLiteral) constant.value;
-        BType resultType;
-        if (constant.typeNode != null) {
-            // Check the type of the value.
-            resultType = typeChecker.checkExpr(value, env, constant.symbol.literalValueType);
-            constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
-        } else {
-            // We don't have any expected type in this case since the type node is not available. So we get the type
-            // from the value.
-            resultType = typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.type.tag));
-            constant.symbol.literalValueTypeTag = value.type.tag;
-        }
+        if (expression.getKind() == NodeKind.LITERAL || expression.getKind() == NodeKind.NUMERIC_LITERAL) {
+            BLangLiteral value = (BLangLiteral) constant.value;
+            BType resultType;
+            if (constant.typeNode != null) {
+                // Check the type of the value.
+                resultType = typeChecker.checkExpr(value, env, constant.symbol.literalValueType);
+                // We need to update the type tag because the type might get changed. i.e.- int -> decimal.
+                constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
+            } else {
+                // We don't have any expected type in this case since the type node is not available. So we get the type
+                // from the value.
+                resultType = typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.type.tag));
+                constant.symbol.literalValueTypeTag = value.type.tag;
+            }
 
-        // We need to update the literal value and the type tag here. Otherwise we will encounter issues when
-        // creating new literal nodes in desugar because we wont be able to identify byte and decimal types.
-        constant.symbol.literalValue = value.value;
+            // We need to update the literal value here. Otherwise we will encounter issues when creating new literal
+            // nodes in desugar because we wont be able to identify byte and decimal types.
+            constant.symbol.literalValue = value.value;
 
-        // We need to check types for the values in value spaces. Otherwise, float, decimal will not be identified in
-        // codegen when retrieving the default value.
-        BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
-        for (BLangExpression literal : typeNode.valueSpace) {
-            if (resultType.tag != TypeTags.SEMANTIC_ERROR) {
+            // We need to check types for the values in value spaces. Otherwise, float, decimal will not be identified
+            // in codegen when retrieving the default value.
+            BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
+            for (BLangExpression literal : typeNode.valueSpace) {
+                if (resultType.tag != TypeTags.SEMANTIC_ERROR) {
                 // Check type for the literals in the value space to update to the correct types. Otherwise, we won't
                 // be able to differentiate between decimal, float and int, byte as the type of the literals in the
                 // above cases would be float and int respectively.
-                typeChecker.checkExpr(literal, env, constant.symbol.literalValueType);
+                    typeChecker.checkExpr(literal, env, constant.symbol.literalValueType);
+                }
             }
+        } else if (expression.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            // Type node is mandatory if the RHS is a record literal.
+            if (constant.typeNode == null) {
+                constant.type = symTable.semanticError;
+                dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS);
+                return;
+            }
+            constant.symbol.type = constant.symbol.literalValueType =
+                    typeChecker.checkExpr(expression, env, constant.typeNode.type);
+            constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
+        } else {
+            throw new RuntimeException("unsupported node kind");
         }
+
+        // Check nested expressions.
+        checkConstantExpression(expression);
     }
 
     // Private methods
+
+    private void checkConstantExpression(BLangExpression expression) {
+        // Recursively check whether all the nested expressions in the provided expression are constants or can be
+        // evaluated to constants.
+        switch (expression.getKind()) {
+            case LITERAL:
+            case NUMERIC_LITERAL:
+                break;
+            case SIMPLE_VARIABLE_REF:
+                BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
+                // Symbol can be null in some invalid scenarios. Eg - const string m = { name: "Ballerina" };
+                if (symbol != null && (symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
+                    dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+                }
+                break;
+            case RECORD_LITERAL_EXPR:
+                ((BLangRecordLiteral) expression).keyValuePairs.forEach(pair -> {
+                    checkConstantExpression(pair.key.expr);
+                    checkConstantExpression(pair.valueExpr);
+                });
+                break;
+            case FIELD_BASED_ACCESS_EXPR:
+                checkConstantExpression(((BLangFieldBasedAccess) expression).expr);
+                break;
+            default:
+                dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+                break;
+        }
+    }
 
     private void visitChannelSend(BLangWorkerSend node, BSymbol channelSymbol) {
         node.isChannel = true;
@@ -2158,7 +2230,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void validateObjectAttachedFunction(BLangFunction funcNode) {
         if (funcNode.attachedOuterFunction) {
             // object outer attached function must have a body
-            if (funcNode.body == null) {
+            if (funcNode.body == null && !Symbols.isNative(funcNode.symbol)) {
                 dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
             }
 

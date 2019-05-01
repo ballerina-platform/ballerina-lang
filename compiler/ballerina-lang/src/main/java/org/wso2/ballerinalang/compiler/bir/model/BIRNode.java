@@ -48,16 +48,19 @@ public abstract class BIRNode {
         public Name org;
         public Name name;
         public Name version;
+        public Name sourceFileName;
         public List<BIRImportModule> importModules;
         public List<BIRTypeDefinition> typeDefs;
         public List<BIRGlobalVariableDcl> globalVars;
         public List<BIRFunction> functions;
 
-        public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version) {
+        public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version,
+                          Name sourceFileName) {
             super(pos);
             this.org = org;
             this.name = name;
             this.version = version;
+            this.sourceFileName = sourceFileName;
             this.importModules = new ArrayList<>();
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();
@@ -166,6 +169,11 @@ public abstract class BIRNode {
         public boolean isDeclaration;
 
         /**
+         * Indicate whether this is a function definition or an interface.
+         */
+        public boolean isInterface;
+
+        /**
          * Visibility of this function.
          * 0 - package_private
          * 1 - private
@@ -197,6 +205,11 @@ public abstract class BIRNode {
          */
         public List<BIRBasicBlock> basicBlocks;
 
+        /**
+         * List of error entries in this function.
+         */
+        public List<BIRErrorEntry> errorTable;
+
         public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type) {
             super(pos);
             this.name = name;
@@ -204,6 +217,7 @@ public abstract class BIRNode {
             this.type = type;
             this.localVars = new ArrayList<>();
             this.basicBlocks = new ArrayList<>();
+            this.errorTable = new ArrayList<>();
         }
 
         @Override
@@ -226,6 +240,7 @@ public abstract class BIRNode {
             super(null);
             this.id = id;
             this.instructions = new ArrayList<>();
+            this.terminator = null;
         }
 
         @Override
@@ -277,6 +292,29 @@ public abstract class BIRNode {
         @Override
         public void accept(BIRVisitor visitor) {
 
+        }
+    }
+
+    /**
+     * An error entry in the error table.
+     *
+     * @since 0.995.0
+     */
+    public static class BIRErrorEntry extends BIRNode {
+
+        public BIRBasicBlock trapBB;
+
+        public BIROperand errorOp;
+
+        public BIRErrorEntry(BIRBasicBlock trapBB, BIROperand errorOp) {
+            super(null);
+            this.trapBB = trapBB;
+            this.errorOp = errorOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
         }
     }
 }

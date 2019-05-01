@@ -76,7 +76,7 @@ var readableRecordsChannel = new io:ReadableTextRecordChannel(readableCharChanne
 while (readableRecordsChannel.hasNext()) {
     var result = readableRecordsChannel.getNext();
     if (result is string[]) {
-        println(record); // Retrieved a record.
+        io:println(result); // Retrieved a record.
     } else {
         return result; // An IO error occurred when reading the records.
     }

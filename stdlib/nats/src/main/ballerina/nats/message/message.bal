@@ -28,5 +28,5 @@ public type Message object {
     # Acknowleges to a given message.
     #
     # + return - an error if the acknowledgment fails.
-    public extern function ack() returns error?;
+    public function ack() returns error? = external;
 };

@@ -31,7 +31,7 @@ public class ClosureNegativeTest {
     @Test(description = "Test private field access")
     public void testPrivateFieldAccess() {
         CompileResult compileResult = BCompileUtil.compile("test-src/closures/closure-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 14);
+        Assert.assertEquals(compileResult.getErrorCount(), 18);
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'functionR'", 6, 56);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'methodInt3'", 17, 49);
@@ -46,6 +46,10 @@ public class ClosureNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 84, 45);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 84, 49);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 87, 41);
-        BAssertUtil.validateError(compileResult, index, "undefined symbol 'm'", 96, 24);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 96, 24);
+        BAssertUtil.validateError(compileResult, index++, "variable 'a' is not initialized", 108, 22);
+        BAssertUtil.validateError(compileResult, index++, "variable 'count' is not initialized", 117, 9);
+        BAssertUtil.validateError(compileResult, index++, "variable 'b' is not initialized", 119, 9);
+        BAssertUtil.validateError(compileResult, index, "variable 'b' is not initialized", 119, 13);
     }
 }

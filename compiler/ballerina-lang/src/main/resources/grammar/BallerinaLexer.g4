@@ -2,7 +2,6 @@ lexer grammar BallerinaLexer;
 
 @members {
     boolean inStringTemplate = false;
-    boolean inDeprecatedTemplate = false;
     boolean inSiddhi = false;
     boolean inTableSqlQuery = false;
     boolean inSiddhiInsertQuery = false;
@@ -16,7 +15,7 @@ IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
 PRIVATE     : 'private' ;
-EXTERN      : 'extern' ;
+EXTERNAL    : 'external' ;
 FINAL       : 'final' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
@@ -32,7 +31,6 @@ REMOTE      : 'remote' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns' ;
 VERSION     : 'version' ;
-DEPRECATED  : 'deprecated' ;
 CHANNEL     : 'channel' ;
 ABSTRACT    : 'abstract' ;
 CLIENT      : 'client' ;
@@ -158,6 +156,10 @@ RIGHT_PARENTHESIS   : ')' ;
 LEFT_BRACKET        : '[' ;
 RIGHT_BRACKET       : ']' ;
 QUESTION_MARK       : '?' ;
+
+// Delimiters
+LEFT_CLOSED_RECORD_DELIMITER     : '{|' ;
+RIGHT_CLOSED_RECORD_DELIMITER    : '|}' ;
 
 // Documentation markdown
 
@@ -289,8 +291,8 @@ HexadecimalFloatingPointLiteral
     ;
 
 DecimalFloatingPointNumber
-    :   DecimalNumeral ExponentPart
-    |   DottedDecimalNumber ExponentPart?
+    :   DecimalNumeral ExponentPart DecimalFloatSelector?
+    |   DottedDecimalNumber ExponentPart? DecimalFloatSelector?
     ;
 
 fragment
@@ -311,6 +313,11 @@ SignedInteger
 fragment
 Sign
     :   [+-]
+    ;
+
+fragment
+DecimalFloatSelector
+    : [dDfF]
     ;
 
 fragment
@@ -452,11 +459,6 @@ ParameterDocumentationStart
 
 ReturnParameterDocumentationStart
     :   HASH DocumentationSpace? ADD DocumentationSpace* RETURN DocumentationSpace* SUB DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
-    ;
-
-
-DeprecatedTemplateStart
-    :   DEPRECATED WS* LEFT_BRACE   { inDeprecatedTemplate = true; } -> pushMode(DEPRECATED_TEMPLATE)
     ;
 
 // Whitespace and comments
@@ -656,6 +658,7 @@ XMLEscapedSequence
     |   '\\${'
     |   '\\}'
     |   '\\{'
+    |   '&' ('gt' | 'lt' | 'amp') ';'
     ;
 
 fragment
@@ -906,54 +909,6 @@ SingleBackTickInlineCode
 fragment
 SingleBackTickInlineCodeChar
     :   ~[`]
-    ;
-
-// Todo - Remove after finalizing the new deprecated annotation
-
-mode DEPRECATED_TEMPLATE;
-
-DeprecatedTemplateEnd
-    :   RIGHT_BRACE { inDeprecatedTemplate = false; }                         -> popMode
-    ;
-
-SBDeprecatedInlineCodeStart
-    :   DeprecatedBackTick                                                     -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
-    ;
-
-DBDeprecatedInlineCodeStart
-    :   DeprecatedBackTick DeprecatedBackTick                                  -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
-    ;
-
-TBDeprecatedInlineCodeStart
-    :   DeprecatedBackTick DeprecatedBackTick DeprecatedBackTick               -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
-    ;
-
-DeprecatedTemplateText
-    :   DeprecatedValidCharSequence? (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)+
-    |   DeprecatedValidCharSequence (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)*
-    ;
-
-fragment
-DeprecatedTemplateStringChar
-    :   ~[`{}\\]
-    |   '\\' [{}`]
-    |   WS
-    |   DeprecatedEscapedSequence
-    ;
-
-fragment
-DeprecatedBackTick
-    :   '`'
-    ;
-
-fragment
-DeprecatedEscapedSequence
-    :   '\\\\'
-    ;
-
-fragment
-DeprecatedValidCharSequence
-    :   '\\' ~'\\'
     ;
 
 mode STRING_TEMPLATE;

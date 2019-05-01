@@ -46,8 +46,7 @@ public type TypeParser object {
     public int TYPE_TAG_VOID = TYPE_TAG_NONE + 1;
     public int TYPE_TAG_XMLNS = TYPE_TAG_VOID + 1;
     public int TYPE_TAG_ANNOTATION = TYPE_TAG_XMLNS + 1;
-    public int TYPE_TAG_XML_ATTRIBUTES = TYPE_TAG_ANNOTATION + 1;
-    public int TYPE_TAG_SEMANTIC_ERROR = TYPE_TAG_XML_ATTRIBUTES + 1;
+    public int TYPE_TAG_SEMANTIC_ERROR = TYPE_TAG_ANNOTATION + 1;
     public int TYPE_TAG_ERROR = TYPE_TAG_SEMANTIC_ERROR + 1;
     public int TYPE_TAG_ITERATOR = TYPE_TAG_ERROR + 1;
     public int TYPE_TAG_TUPLE = TYPE_TAG_ITERATOR + 1;
@@ -60,6 +59,10 @@ public type TypeParser object {
     public int TYPE_TAG_CHANNEL = TYPE_TAG_BYTE_ARRAY + 1;
 
     public int TYPE_TAG_SERVICE = TYPE_TAG_OBJECT;
+    public int TYPE_TAG_SELF = 50;
+
+    BType?[] compositeStack = [];
+    int compositeStackI = 0;
 
     public function __init(BirChannelReader reader) {
         self.reader = reader;
@@ -85,6 +88,8 @@ public type TypeParser object {
             return TYPE_STRING;
         } else if (typeTag == self.TYPE_TAG_BOOLEAN){
             return TYPE_BOOLEAN;
+        } else if (typeTag == self.TYPE_TAG_TYPEDESC) {
+            return TYPE_DESC;
         } else if (typeTag == self.TYPE_TAG_UNION){
             return self.parseUnionType();
         } else if (typeTag == self.TYPE_TAG_TUPLE){
@@ -103,6 +108,14 @@ public type TypeParser object {
             return self.parseErrorType();
         } else if (typeTag == self.TYPE_TAG_FUTURE){
             return self.parseFutureType();
+        } else if (typeTag == self.TYPE_TAG_JSON){
+            return TYPE_JSON;
+        } else if (typeTag == self.TYPE_TAG_XML){
+            return TYPE_XML;
+        } else if (typeTag == self.TYPE_TAG_SELF){
+            int selfIndex = self.reader.readInt32();
+            Self t = {bType: getType(self.compositeStack[self.compositeStackI - 1])};
+            return t;
         }
         error err = error("Unknown type tag :" + typeTag);
         panic err;
@@ -153,9 +166,16 @@ public type TypeParser object {
     }
 
     function parseObjectType() returns BObjectType {
-        return { name: { value: self.reader.readStringCpRef() },
-            fields: self.parseObjectFields(),
-            attachedFunctions:self.parseObjectAttachedFunctions() };
+        BObjectType obj = { name: { value: self.reader.readStringCpRef() },
+            isAbstract: self.reader.readBoolean(),
+            fields: [],
+            attachedFunctions: [] };
+        self.compositeStack[self.compositeStackI] = obj;
+        self.compositeStackI = self.compositeStackI + 1;
+        obj.fields = self.parseObjectFields();
+        obj.attachedFunctions = self.parseObjectAttachedFunctions();
+        return obj;
+
     }
 
     function parseObjectAttachedFunctions() returns BAttachedFunction?[] {
@@ -195,14 +215,19 @@ public type TypeParser object {
     }
 
     function parseErrorType() returns BErrorType {
-        return {reasonType:self.parseType(), detailType:self.parseType()};
+        BErrorType err = {reasonType:TYPE_ANYDATA, detailType:TYPE_ANYDATA};
+        self.compositeStack[self.compositeStackI] = err;
+        self.compositeStackI = self.compositeStackI + 1;
+        err.reasonType = self.parseType();
+        err.detailType = self.parseType();
+        return err;
     }
 
-    function parseTypes() returns BType[] {
+    function parseTypes() returns BType?[] {
         int count = self.reader.readInt32();
         int i = 0;
 
-        BType[] types = [];
+        BType?[] types = [];
         while (i < count) {
             types[types.length()] = self.parseType();
             i = i + 1;

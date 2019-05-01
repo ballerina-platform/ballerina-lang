@@ -17,8 +17,13 @@
  */
 package org.ballerinalang.test.jvm;
 
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -37,10 +42,12 @@ import org.testng.annotations.Test;
 public class TypesTest {
 
     private CompileResult compileResult;
+    private CompileResult objectsResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/jvm/types.bal");
+        objectsResult = BCompileUtil.compile("test-src/jvm/objects.bal");
     }
 
     @Test
@@ -218,12 +225,498 @@ public class TypesTest {
     @Test
     public void testAny() {
         BValue[] result = BRunUtil.invoke(compileResult, "anyTest");
-        Assert.assertEquals((result[0]).stringValue(), "{\"name\":\"Jbal\", \"physics\":75, \"chemistry\":89}");
+        Assert.assertEquals((result[0]).stringValue(), "{name:\"Jbal\", physics:75, chemistry:89}");
     }
 
     @Test
     public void testAnyData() {
         BValue[] result = BRunUtil.invoke(compileResult, "anyDataTest");
         Assert.assertEquals((result[0]).stringValue(), "1000");
+    }
+
+    @Test(description = "Test initializing json with a string")
+    public void testStringAsJsonVal() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringAsJsonVal");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Supun");
+    }
+
+    @Test(description = "Test initializing json with an integer")
+    public void testIntAsJsonVal() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntAsJsonVal");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
+    @Test(description = "Test initializing json with a float")
+    public void testFloatAsJsonVal() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatAsJsonVal");
+        Assert.assertTrue(returns[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 7.65);
+    }
+
+    @Test(description = "Test initializing json with a boolean")
+    public void testBooleanAsJsonVal() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanAsJsonVal");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test initializing json with a null")
+    public void testNullAsJsonVal() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNullAsJsonVal");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test(description = "Test inline initializing of a json")
+    public void testNestedJsonInit() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNestedJsonInit");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"name\":\"aaa\", \"age\":25, " +
+                        "\"parent\":{\"name\":\"bbb\", \"age\":50}, \"address\":{\"city\":\"Colombo\", " +
+                        "\"country\":\"SriLanka\"}, " + "\"array\":[1, 5, 7]}");
+    }
+
+    @Test
+    public void testJsonWithNull() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonWithNull");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":null}");
+        Assert.assertNull(returns[1]);
+    }
+
+    @Test
+    public void testGetString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetString");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Supun");
+        Assert.assertEquals(returns[1].stringValue(), "Setunga");
+    }
+
+    @Test
+    public void testGetInt() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetInt");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 25);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 43);
+    }
+
+    @Test
+    public void testGetFloat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetFloat");
+        Assert.assertTrue(returns[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 9.73, 0.01);
+    }
+
+    @Test
+    public void testGetBoolean() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetBoolean");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testGetJson() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetJson");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"city\":\"Colombo\", \"country\":\"SriLanka\"}");
+    }
+
+    @Test
+    public void testGetNonExistingElement() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetNonExistingElement");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void testAddString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddString");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"fname\":\"Supun\", \"lname\":\"Setunga\"}");
+    }
+
+    @Test
+    public void testAddInt() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddInt");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"fname\":\"Supun\", \"age\":25}");
+    }
+
+    @Test
+    public void testAddFloat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddFloat");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"fname\":\"Supun\", \"score\":4.37}");
+    }
+
+    @Test
+    public void testAddBoolean() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddBoolean");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"fname\":\"Supun\", \"status\":true}");
+    }
+
+    @Test
+    public void testAddJson() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddJson");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"fname\":\"Supun\", \"address\":{\"country\":\"SriLanka\"}}");
+    }
+
+    @Test
+    public void testUpdateString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUpdateString");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"fname\":\"Supun\", \"lname\":\"Setunga\"}");
+    }
+
+    @Test
+    public void testUpdateInt() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUpdateInt");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"fname\":\"Supun\", \"age\":25}");
+    }
+
+    @Test
+    public void testUpdateFloat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUpdateFloat");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"fname\":\"Supun\", \"score\":4.37}");
+    }
+
+    @Test
+    public void testUpdateBoolean() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUpdateBoolean");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"fname\":\"Supun\", \"status\":true}");
+    }
+
+    @Test
+    public void testUpdateJson() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUpdateJson");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"fname\":\"Supun\", \"address\":{\"country\":\"SriLanka\"}}");
+    }
+
+    @Test
+    public void testUpdateStringInArray() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateStringInArray");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"d\", \"c\"]");
+    }
+
+    @Test
+    public void testUpdateIntInArray() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateIntInArray");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", 64, \"c\"]");
+    }
+
+    @Test
+    public void testUpdateFloatInArray() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateFloatInArray");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", 4.72, \"c\"]");
+    }
+
+    @Test
+    public void testUpdateBooleanInArray() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateBooleanInArray");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", true, \"c\"]");
+    }
+
+    @Test
+    public void testUpdateNullInArray() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateNullInArray");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", null, \"c\"]");
+    }
+
+    @Test
+    public void testUpdateJsonInArray() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateJsonInArray");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", {\"country\":\"SriLanka\"}, \"c\"]");
+    }
+
+    @Test
+    public void testUpdateJsonArrayInArray() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateJsonArrayInArray");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", [1, 2, 3], \"c\"]");
+    }
+
+    @Test
+    public void testGetNestedJsonElement() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetNestedJsonElement");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Colombo");
+
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "Colombo");
+
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "Colombo");
+
+        Assert.assertTrue(returns[3] instanceof BString);
+        Assert.assertEquals(returns[3].stringValue(), "Colombo");
+    }
+
+    @Test
+    public void testJsonExprAsIndex() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonExprAsIndex");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Colombo");
+    }
+
+    @Test()
+    public void testSetArrayOutofBoundElement() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testSetArrayOutofBoundElement");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[1, 2, 3, null, null, null, null, 8]");
+    }
+
+    @Test
+    public void testSetToNonArrayWithIndex() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetToNonArrayWithIndex");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertTrue(returns[2] instanceof BBoolean);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\"}");
+        Assert.assertEquals(returns[1].stringValue(), "foo");
+        Assert.assertEquals(returns[2].stringValue(), "true");
+    }
+
+    @Test
+    public void testGetFromNonArrayWithIndex() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetFromNonArrayWithIndex");
+        Assert.assertNull(returns[0]);
+        Assert.assertNull(returns[1]);
+        Assert.assertNull(returns[2]);
+    }
+
+    @Test
+    public void testSetToNonObjectWithKey() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetToNonObjectWithKey");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertTrue(returns[2] instanceof BBoolean);
+        Assert.assertEquals(returns[0].stringValue(), "[1, 2, 3]");
+        Assert.assertEquals(returns[1].stringValue(), "foo");
+        Assert.assertEquals(returns[2].stringValue(), "true");
+    }
+
+    public void testGetFromNonObjectWithKey() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetFromNonObjectWithKey");
+        Assert.assertNull(returns[0]);
+        Assert.assertNull(returns[1]);
+        Assert.assertNull(returns[2]);
+    }
+
+    @Test
+    public void testGetStringInArray() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetStringInArray");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "b");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*failed to get element from json: array index out of " +
+                    "range: index: 5, size: 3.*")
+    public void testGetArrayOutofBoundElement() {
+        BRunUtil.invoke(compileResult, "testGetArrayOutofBoundElement");
+    }
+
+    @Test
+    public void testGetElementFromPrimitive() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetElementFromPrimitive");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void testUpdateNestedElement() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUpdateNestedElement");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"details\":{\"fname\":\"Supun\", \"lname\":\"Setunga\"}}");
+    }
+
+    @Test
+    public void testJsonArrayToJsonCasting() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testJsonArrayToJsonCasting");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[[1, 2, 3], [3, 4, 5], [7, 8, 9]]");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'string'.*")
+    public void testGetFromNull() {
+        BRunUtil.invoke(compileResult, "testGetFromNull");
+    }
+
+    @Test
+    public void testAddToNull() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddToNull");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"Supun\", \"address\":{\"country\":\"SriLanka\"}}");
+    }
+
+    @Test
+    public void testJsonIntToFloat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonIntToFloat");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'int'.*")
+    public void testNullJsonToInt() {
+        BRunUtil.invoke(compileResult, "testNullJsonToInt");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'float'.*")
+    public void testNullJsonToFloat() {
+        BRunUtil.invoke(compileResult, "testNullJsonToFloat");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'string'.*")
+    public void testNullJsonToString() {
+        BRunUtil.invoke(compileResult, "testNullJsonToString");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'boolean'.*")
+    public void testNullJsonToBoolean() {
+        BRunUtil.invoke(compileResult, "testNullJsonToBoolean");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'int\\[\\]'.*")
+    public void testNullJsonToArray() {
+        BRunUtil.invoke(compileResult, "testNullJsonToArray");
+    }
+
+    @Test
+    public void testIntArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntArrayToJsonAssignment");
+        Assert.assertTrue(returns[0] instanceof BNewArray);
+        Assert.assertEquals(returns[0].stringValue(), "[1, 5, 9, 4]");
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 5);
+    }
+
+    @Test
+    public void testFloatArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatArrayToJsonAssignment");
+        Assert.assertTrue(returns[0] instanceof BNewArray);
+        Assert.assertEquals(returns[0].stringValue(), "[1.3, 5.4, 9.4, 4.5]");
+        Assert.assertTrue(returns[1] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 5.4);
+    }
+
+    @Test
+    public void testStringArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringArrayToJsonAssignment");
+        Assert.assertTrue(returns[0] instanceof BNewArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"apple\", \"orange\", \"grape\"]");
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "orange");
+    }
+
+    @Test
+    public void testBooleanArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanArrayToJsonAssignment");
+        Assert.assertTrue(returns[0] instanceof BNewArray);
+        Assert.assertEquals(returns[0].stringValue(), "[true, true, false, true]");
+        Assert.assertTrue(returns[1] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testFutures() {
+        BValue[] result = BRunUtil.invoke(compileResult, "futuresTest");
+        Assert.assertTrue(result[0].stringValue().equals("0") || result[0].stringValue().equals("100") ||
+                result[0].stringValue().equals("200"));
+    }
+
+    @Test
+    public void testBasicStructAsObject() {
+        BValue[] returns = BRunUtil.invoke(objectsResult, "testSimpleObjectAsStruct");
+
+        Assert.assertEquals(returns.length, 4);
+
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BInteger.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(returns[1].stringValue(), "sample name");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
+        Assert.assertEquals(returns[3].stringValue(), "february");
+    }
+
+    @Test
+    public void testBasicStructAsObjectWithJustNew() {
+        BValue[] returns = BRunUtil.invoke(objectsResult, "testSimpleObjectAsStructWithNew");
+
+        Assert.assertEquals(returns.length, 4);
+
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BInteger.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(returns[1].stringValue(), "sample name");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
+        Assert.assertEquals(returns[3].stringValue(), "february");
+    }
+
+    @Test
+    public void testUserInitFunction() {
+        BValue[] returns = BRunUtil.invoke(objectsResult, "testUserInitFunction");
+
+        Assert.assertEquals(returns.length, 4);
+
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BInteger.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(returns[1].stringValue(), "sample name");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
+        Assert.assertEquals(returns[3].stringValue(), "february");
+    }
+
+    @Test
+    public void testWait() {
+        BValue[] result = BRunUtil.invoke(compileResult, "waitTest");
+        Assert.assertEquals(result[0].stringValue(), "wait");
+    }
+
+    @Test
+    public void testWaitOnSame() {
+        BValue[] result = BRunUtil.invoke(compileResult, "waitOnSame");
+        Assert.assertEquals(result[0].stringValue(), "wait1");
+        Assert.assertEquals(result[1].stringValue(), "wait2");
+        Assert.assertEquals(result[2].stringValue(), "00112233");
+    }
+
+    @Test
+    public void testSelfReferencingRecord() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingRecord");
+        Assert.assertEquals((result[0]).stringValue(), "{a:2, f:{a:1}}");
+    }
+
+    @Test
+    public void testSelfReferencingObject() {
+        BValue[] result = BRunUtil.invoke(objectsResult, "testSelfReferencingObject");
+        Assert.assertEquals((result[0]).stringValue(), "{a:3, f:()}");
     }
 }

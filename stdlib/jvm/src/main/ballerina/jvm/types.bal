@@ -19,50 +19,59 @@ public type ClassWriter object {
         self.init(flags);
     }
 
-    extern function init(int flags);
+    function init(int flags) = external;
 
-    public extern function visit(int versionNumber, int access, string name, string? signature, string superName,
-                            string[]? interfaces);
+    public function visit(int versionNumber, int access, string name, string? signature, string superName,
+                            string[]? interfaces) = external;
 
-    public extern function visitMethod(int access, string name, string descriptor, string? signature,
-                            string[]? exceptions) returns MethodVisitor;
+    public function visitMethod(int access, string name, string descriptor, string? signature,
+                            string[]? exceptions) returns MethodVisitor = external;
 
-    public extern function visitField(int access, string name, string descriptor, string? signature = (),
-                            string[]? exceptions = ()) returns FieldVisitor;
+    public function visitField(int access, string name, string descriptor, string? signature = (),
+                            string[]? exceptions = ()) returns FieldVisitor = external;
 
-    public extern function visitEnd();
+    public function visitEnd() = external;
 
-    public extern function toByteArray() returns byte[];
+    public function visitSource(string fileName) = external;
+    
+    public function toByteArray() returns byte[] = external;
 };
 
 
 public type MethodVisitor object {
-    public extern function visitInsn(int opcode);
+    public function visitInsn(int opcode) = external;
 
-    public extern function visitIntInsn(int opcode, int operand);
+    public function visitIntInsn(int opcode, int operand) = external;
 
-    public extern function visitVarInsn(int opcode, int variable);
+    public function visitVarInsn(int opcode, int variable) = external;
 
-    public extern function visitTypeInsn(int opcode, string classType);
+    public function visitTypeInsn(int opcode, string classType) = external;
 
-    public extern function visitFieldInsn(int opcode, string owner, string name, string descriptor);
+    public function visitFieldInsn(int opcode, string owner, string name, string descriptor) = external;
 
-    public extern function visitMethodInsn(int opcode, string owner, string name, string descriptor,
-                            boolean isInterface);
+    public function visitMethodInsn(int opcode, string owner, string name, string descriptor,
+                            boolean isInterface) = external;
 
-    public extern function visitJumpInsn(int opcode, Label label);
+    public function visitJumpInsn(int opcode, Label label) = external;
 
-    public extern function visitLabel(Label label);
+    public function visitLabel(Label label) = external;
 
-    public extern function visitLdcInsn(any value);
+    public function visitLdcInsn(any value) = external;
 
-    public extern function visitMaxs(int maxStack, int maxLocals);
+    public function visitMaxs(int maxStack, int maxLocals) = external;
 
-    public extern function visitCode();
+    public function visitCode() = external;
 
-    public extern function visitEnd();
+    public function visitEnd() = external;
 
-    public extern function visitLookupSwitchInsn(Label defaultLabel, int[] keys, Label[] labels);
+    public function visitLookupSwitchInsn(Label defaultLabel, int[] keys, Label[] labels) = external;
+
+    public function visitInvokeDynamicInsn(string className, string lambdaName, boolean isVoid) = external;
+    
+    public function visitTryCatchBlock(Label startLabel, Label endLabel, Label handlerLabel,
+                                        string exceptionType) = external;
+                                        
+    public function visitLineNumber(int line, Label label) = external;
 };
 
 
@@ -71,9 +80,11 @@ public type Label object {
         self.init();
     }
 
-    extern function init();
+    function init() = external;
 };
 
 public type FieldVisitor object {
-    public extern function visitEnd();
+    public function visitEnd() = external;
 };
+
+public function lookupExternClassName(string pkgName, string functionName) returns string? = external;

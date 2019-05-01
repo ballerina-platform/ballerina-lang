@@ -19,6 +19,7 @@
 package org.ballerinalang.net.uri.parser;
 
 import org.ballerinalang.net.uri.URITemplateException;
+
 import java.util.Map;
 
 /**

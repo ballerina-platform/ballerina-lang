@@ -65,7 +65,7 @@ function testGeneratedKeyOnInsert() returns int|string {
     if (x is sql:UpdateResult) {
         ret = x.generatedKeys.length();
     } else {
-        ret = string.convert(x.detail().message);
+        ret = <string> x.detail().message;
     }
 
     checkpanic testDB.stop();
@@ -89,7 +89,7 @@ function testUpdateReslt() returns int|string {
     if (x is sql:UpdateResult) {
         x.updatedRowCount = 0;
     } else {
-        ret = string.convert(x.detail().message);
+        ret = <string> x.detail().message;
     }
     return ret;
 }
@@ -131,7 +131,7 @@ function testBatchUpdate() returns string {
             returnVal = "success";
         }
     } else {
-        returnVal = string.convert(x.detail().message);
+        returnVal = <string> x.detail().message;
     }
     checkpanic testDB.stop();
     return returnVal;
@@ -161,7 +161,7 @@ function testInvalidArrayofQueryParameters() returns string {
             returnData = j.reason();
         }
     } else {
-        returnData = string.convert(x.detail().message);
+        returnData = <string> x.detail().message;
     }
     checkpanic testDB.stop();
     return returnData;
@@ -174,10 +174,10 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
-            retVal = { "Error": string.convert(jsonConversionResult.detail().message) };
+            retVal = { "Error": <string> jsonConversionResult.detail().message };
         }
     } else {
-        retVal = { "Error": string.convert(tableOrError.detail().message) };
+        retVal = { "Error": <string> tableOrError.detail().message };
     }
     return retVal;
 }

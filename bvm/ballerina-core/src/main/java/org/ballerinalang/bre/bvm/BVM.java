@@ -75,7 +75,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.FunctionFlags;
@@ -96,6 +95,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeDefInfo;
@@ -108,6 +108,7 @@ import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
+import org.ballerinalang.util.codegen.cpentries.MapCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
@@ -212,7 +213,7 @@ public class BVM {
                     cpIndex = operands[0];
                     i = operands[1];
                     String decimalVal = ((UTF8CPEntry) sf.constPool[cpIndex]).getValue();
-                    sf.refRegs[i] = new BDecimal(new BigDecimal(decimalVal, MathContext.DECIMAL128));
+                    sf.refRegs[i] = new BDecimal(decimalVal);
                     break;
                 case InstructionCodes.SCONST:
                     cpIndex = operands[0];
@@ -304,6 +305,7 @@ public class BVM {
                 case InstructionCodes.RGLOAD:
                 case InstructionCodes.MAPLOAD:
                 case InstructionCodes.JSONLOAD:
+                case InstructionCodes.MCONST:
                     execLoadOpcodes(strand, sf, opcode, operands);
                     break;
 
@@ -519,7 +521,7 @@ public class BVM {
                     BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry.getFunctionInfo(),
                             typeEntry.getType());
                     sf.refRegs[j] = functionPointer;
-                    findAndAddAdditionalVarRegIndexes(sf, operands, functionPointer);
+                    findAndAddAdditionalVarRegIndexesInFuncPointerLoad(sf, operands, functionPointer);
                     break;
                 case InstructionCodes.VFPLOAD:
                     i = operands[0];
@@ -542,7 +544,7 @@ public class BVM {
 
                     BFunctionPointer fPointer = new BFunctionPointer(attachedFuncInfo, typeEntry.getType());
                     sf.refRegs[j] = fPointer;
-                    findAndAddAdditionalVarRegIndexes(sf, operands, fPointer);
+                    findAndAddAdditionalVarRegIndexesInVirtualFuncPointerLoad(sf, operands, fPointer);
                     break;
 
                 case InstructionCodes.I2ANY:
@@ -1040,109 +1042,22 @@ public class BVM {
             return invokeCallable(ctx, functionInfo, argRegs, funcCallCPEntry.getRetRegs()[0], flags);
         }
 
+        // There are closure variables.
         int[] newArgRegs = new int[argRegs.length + closureVars.size()];
         System.arraycopy(argRegs, 0, newArgRegs, closureVars.size(), argRegs.length);
         int argRegIndex = 0;
-
-        int longIndex = expandLongRegs(sf, fp);
-        int doubleIndex = expandDoubleRegs(sf, fp);
-        int intIndex = expandIntRegs(sf, fp);
-        int stringIndex = expandStringRegs(sf, fp);
+        // Closure variables will be always passed as maps of <any|error?> type, so they will be always in the ref
+        // registry.
         int refIndex = expandRefRegs(sf, fp);
 
         for (BClosure closure : closureVars) {
-            switch (closure.getType().getTag()) {
-                case TypeTags.INT_TAG: {
-                    sf.longRegs[longIndex] = ((BInteger) closure.value()).intValue();
-                    newArgRegs[argRegIndex++] = longIndex++;
-                    break;
-                }
-                case TypeTags.BYTE_TAG: {
-                    sf.longRegs[longIndex] = ((BByte) closure.value()).byteValue();
-                    newArgRegs[argRegIndex++] = longIndex++;
-                    break;
-                }
-                case TypeTags.FLOAT_TAG: {
-                    sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
-                    newArgRegs[argRegIndex++] = doubleIndex++;
-                    break;
-                }
-                case TypeTags.BOOLEAN_TAG: {
-                    sf.intRegs[intIndex] = ((BBoolean) closure.value()).booleanValue() ? 1 : 0;
-                    newArgRegs[argRegIndex++] = intIndex++;
-                    break;
-                }
-                case TypeTags.STRING_TAG: {
-                    sf.stringRegs[stringIndex] = (closure.value()).stringValue();
-                    newArgRegs[argRegIndex++] = stringIndex++;
-                    break;
-                }
-                default:
-                    sf.refRegs[refIndex] = ((BRefType<?>) closure.value());
-                    newArgRegs[argRegIndex++] = refIndex++;
-            }
+            sf.refRegs[refIndex] = ((BRefType<?>) closure.value());
+            newArgRegs[argRegIndex++] = refIndex++;
         }
 
         return invokeCallable(ctx, functionInfo, newArgRegs, funcCallCPEntry.getRetRegs()[0], flags);
     }
 
-    private static int expandLongRegs(StackFrame sf, BFunctionPointer fp) {
-        int longIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeInt.getTag()) > 0) {
-            if (sf.longRegs == null) {
-                sf.longRegs = new long[0];
-            }
-            long[] newLongRegs = new long[sf.longRegs.length + fp.getAdditionalIndexCount(BTypes.typeInt.getTag())];
-            System.arraycopy(sf.longRegs, 0, newLongRegs, 0, sf.longRegs.length);
-            longIndex = sf.longRegs.length;
-            sf.longRegs = newLongRegs;
-        }
-        return longIndex;
-    }
-
-    private static int expandIntRegs(StackFrame sf, BFunctionPointer fp) {
-        int intIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0) {
-            if (sf.intRegs == null) {
-                sf.intRegs = new int[0];
-            }
-            int[] newIntRegs = new int[sf.intRegs.length + fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag())];
-            System.arraycopy(sf.intRegs, 0, newIntRegs, 0, sf.intRegs.length);
-            intIndex = sf.intRegs.length;
-            sf.intRegs = newIntRegs;
-        }
-        return intIndex;
-    }
-
-    private static int expandDoubleRegs(StackFrame sf, BFunctionPointer fp) {
-        int doubleIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeFloat.getTag()) > 0) {
-            if (sf.doubleRegs == null) {
-                sf.doubleRegs = new double[0];
-            }
-            double[] newDoubleRegs = new double[sf.doubleRegs.length +
-                    fp.getAdditionalIndexCount(BTypes.typeFloat.getTag())];
-            System.arraycopy(sf.doubleRegs, 0, newDoubleRegs, 0, sf.doubleRegs.length);
-            doubleIndex = sf.doubleRegs.length;
-            sf.doubleRegs = newDoubleRegs;
-        }
-        return doubleIndex;
-    }
-
-    private static int expandStringRegs(StackFrame sf, BFunctionPointer fp) {
-        int stringIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeString.getTag()) > 0) {
-            if (sf.stringRegs == null) {
-                sf.stringRegs = new String[0];
-            }
-            String[] newStringRegs = new String[sf.stringRegs.length +
-                    fp.getAdditionalIndexCount(BTypes.typeString.getTag())];
-            System.arraycopy(sf.stringRegs, 0, newStringRegs, 0, sf.stringRegs.length);
-            stringIndex = sf.stringRegs.length;
-            sf.stringRegs = newStringRegs;
-        }
-        return stringIndex;
-    }
 
     private static int expandRefRegs(StackFrame sf, BFunctionPointer fp) {
         int refIndex = 0;
@@ -1159,8 +1074,8 @@ public class BVM {
         return refIndex;
     }
 
-    private static void findAndAddAdditionalVarRegIndexes(StackFrame sf, int[] operands,
-                                                          BFunctionPointer fp) {
+    private static void findAndAddAdditionalVarRegIndexesInFuncPointerLoad(StackFrame sf, int[] operands,
+                                                                           BFunctionPointer fp) {
 
         int h = operands[3];
 
@@ -1169,7 +1084,24 @@ public class BVM {
             return;
         }
 
-        //or else, this is a closure related scenario
+        //or else, this is a closure related scenario.
+        for (int i = 0; i < h; i++) {
+            int operandIndex = i + 4;
+            int index = operands[operandIndex];
+            // Closure variables will be always passed as maps of <any|error?> type, so they will be always in the ref
+            // registry.
+            fp.addClosureVar(new BClosure(sf.refRegs[index], BTypes.typeAny), TypeTags.ANY_TAG);
+        }
+    }
+
+    private static void findAndAddAdditionalVarRegIndexesInVirtualFuncPointerLoad(StackFrame sf, int[] operands,
+                                                                                  BFunctionPointer fp) {
+        int h = operands[3];
+        //if '0', then there are no additional indexes needs to be processed.
+        if (h == 0) {
+            return;
+        }
+        //or else, this is a closure related scenario.
         for (int i = 0; i < h; i++) {
             int operandIndex = i + 4;
             int type = operands[operandIndex];
@@ -1533,6 +1465,13 @@ public class BVM {
                 j = operands[1];
                 k = operands[2];
                 sf.refRegs[k] = JSONUtils.getElement(sf.refRegs[i], sf.stringRegs[j]);
+                break;
+            case InstructionCodes.MCONST:
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                PackageInfo packageInfoEntry = ctx.programFile.getPackageInfoEntries()[pkgIndex];
+                sf.refRegs[j] = ((MapCPEntry) packageInfoEntry.getConstPoolEntries()[i]).getBMap();
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2131,7 +2070,7 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 xmlVal = (BXML) sf.refRegs[i];
-                sf.refRegs[j] = new BXMLAttributes(xmlVal);
+                sf.refRegs[j] = xmlVal.getAttributesMap();
                 break;
             case InstructionCodes.S2QNAME:
                 i = operands[0];
@@ -2730,11 +2669,8 @@ public class BVM {
                 convertJSONToStruct(ctx, operands, sf);
                 break;
             case InstructionCodes.XMLATTRS2MAP:
-                i = operands[0];
-                j = operands[1];
-                bRefType = sf.refRegs[i];
-                sf.refRegs[j] = ((BXMLAttributes) sf.refRegs[i]).value();
-                break;
+                // should never reach here
+                throw new UnsupportedOperationException();
             case InstructionCodes.XML2S:
                 i = operands[0];
                 j = operands[1];
@@ -3712,7 +3648,7 @@ public class BVM {
 
         switch (type.getTag()) {
             case TypeTags.MAP_TAG:
-                return isAnydata(((BMapType) type).getConstrainedType(), unresolvedTypes);
+                return isPureType(((BMapType) type).getConstrainedType(), unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 if (unresolvedTypes.contains(type)) {
                     return true;
@@ -3722,14 +3658,14 @@ public class BVM {
                 List<BType> fieldTypes = recordType.getFields().values().stream()
                                                    .map(BField::getFieldType)
                                                    .collect(Collectors.toList());
-                return isAnydata(fieldTypes, unresolvedTypes) && (recordType.sealed ||
-                        isAnydata(recordType.restFieldType, unresolvedTypes));
+                return isPureType(fieldTypes, unresolvedTypes) &&
+                        (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION_TAG:
                 return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE_TAG:
-                return isAnydata(((BTupleType) type).getTupleTypes(), unresolvedTypes);
+                return isPureType(((BTupleType) type).getTupleTypes(), unresolvedTypes);
             case TypeTags.ARRAY_TAG:
-                return isAnydata(((BArrayType) type).getElementType(), unresolvedTypes);
+                return isPureType(((BArrayType) type).getElementType(), unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
                                                                           .map(BValue::getType)
@@ -3742,6 +3678,23 @@ public class BVM {
 
     private static boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
         return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
+    }
+
+    public static boolean isPureType(BType type) {
+        return isPureType(type,  new HashSet<>());
+    }
+
+    private static boolean isPureType(BType type, Set<BType> unresolvedTypes) {
+        if (type.getTag() == TypeTags.UNION_TAG) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .allMatch(memType -> isPureType(memType, unresolvedTypes));
+        }
+
+        return type.getTag() == TypeTags.ERROR_TAG || isAnydata(type, unresolvedTypes);
+    }
+
+    private static boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isPureType(bType, unresolvedTypes));
     }
 
     private static BType getElementType(BType type) {
@@ -4319,7 +4272,7 @@ public class BVM {
         }
         return null;
     }
-    
+
     private static boolean execWait(Strand strand, int[] operands) {
         int c = operands[0];
         TypeRefCPEntry typeEntry = (TypeRefCPEntry) strand.currentFrame.constPool[operands[1]];
@@ -4380,15 +4333,15 @@ public class BVM {
     private static void handleMapStore(Strand ctx, BMap<String, BRefType> bMap, String fieldName,
                                        BRefType<?> value) {
         BType mapType = bMap.getType();
+        BType valuesType = value == null ? BTypes.typeNull : value.getType();
 
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                if (!isValidMapInsertion(mapType, value)) {
+                if (!checkIsType(value, ((BMapType) mapType).getConstrainedType())) {
                     BType expType = ((BMapType) mapType).getConstrainedType();
                     throw new BLangMapStoreException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
-                                                     BLangExceptionHelper
-                                                             .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
-                                                                              expType, value.getType()));
+                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                                    expType, valuesType));
                 }
                 insertToMap(ctx, bMap, fieldName, value);
                 break;
@@ -4400,7 +4353,7 @@ public class BVM {
                     throw new BLangMapStoreException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                                                      BLangExceptionHelper.getErrorMessage(
                                                              RuntimeErrors.INVALID_OBJECT_FIELD_ADDITION, fieldName,
-                                                             objFieldType, value.getType()));
+                                                             objFieldType, valuesType));
                 }
                 insertToMap(ctx, bMap, fieldName, value);
                 break;
@@ -4428,7 +4381,7 @@ public class BVM {
                     throw new BLangMapStoreException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                                                      BLangExceptionHelper.getErrorMessage(
                                                              RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName,
-                                                             recFieldType, value.getType()));
+                                                             recFieldType, valuesType));
                 }
 
                 insertToMap(ctx, bMap, fieldName, value);
@@ -4453,19 +4406,6 @@ public class BVM {
             ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), errMessage + e.getDetail()));
             handleError(ctx);
         }
-    }
-
-    private static boolean isValidMapInsertion(BType mapType, BValue value) {
-        if (value == null) {
-            return true;
-        }
-
-        BType constraintType = ((BMapType) mapType).getConstrainedType();
-        if (constraintType == BTypes.typeAny || constraintType.equals(value.getType())) {
-            return true;
-        }
-
-        return checkCast(value, constraintType, new ArrayList<>());
     }
 
     public static boolean isAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
@@ -4864,8 +4804,9 @@ public class BVM {
             return false;
         }
 
-        return checkIsLikeType(new BString(((BError) sourceValue).reason), targetType.reasonType, unresolvedValues) &&
-                checkIsLikeType(((BError) sourceValue).details, targetType.detailsType, unresolvedValues);
+        return checkIsLikeType(new BString(((BError) sourceValue).getReason()),
+                               targetType.reasonType, unresolvedValues) &&
+                checkIsLikeType(((BError) sourceValue).getDetails(), targetType.detailType, unresolvedValues);
     }
 
     public static boolean checkIsType(BValue sourceVal, BType targetType) {
@@ -5050,9 +4991,21 @@ public class BVM {
         }
 
         BArrayType sourceArrayType = (BArrayType) sourceType;
-        if (sourceArrayType.getState() != targetType.getState() || sourceArrayType.getSize() != targetType.getSize()) {
-            return false;
+
+        switch (sourceArrayType.getState()) {
+            case UNSEALED:
+                if (targetType.getState() != BArrayState.UNSEALED) {
+                    return false;
+                }
+                break;
+            case CLOSED_SEALED:
+                if (targetType.getState() == BArrayState.CLOSED_SEALED &&
+                        sourceArrayType.getSize() != targetType.getSize()) {
+                    return false;
+                }
+                break;
         }
+
         return checkIsType(sourceArrayType.getElementType(), targetType.getElementType(), unresolvedTypes);
     }
 
@@ -5123,7 +5076,8 @@ public class BVM {
         if (sourceConstraint == null) {
             if (targetConstraint.getTag() == TypeTags.RECORD_TYPE_TAG) {
                 BRecordType targetConstrRecord = (BRecordType) targetConstraint;
-                return !targetConstrRecord.sealed && targetConstrRecord.restFieldType == BTypes.typeAnydata;
+                return !targetConstrRecord.sealed && checkIsType(targetConstrRecord.restFieldType,
+                                                                 BTypes.typePureType, new ArrayList<>());
             }
             return false;
         }
@@ -5137,8 +5091,7 @@ public class BVM {
         }
 
         // All the value types are immutable
-        if (value.getType().getTag() < TypeTags.JSON_TAG || value.getType().getTag() == TypeTags.FINITE_TYPE_TAG ||
-                value.getType().getTag() == TypeTags.ERROR_TAG) { // to be removed once error is frozen
+        if (value.getType().getTag() < TypeTags.JSON_TAG || value.getType().getTag() == TypeTags.FINITE_TYPE_TAG) {
             return false;
         }
 
@@ -5193,6 +5146,9 @@ public class BVM {
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
                 return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue, checkedValues);
+            case TypeTags.ERROR_TAG:
+                return rhsValTypeTag == TypeTags.ERROR_TAG &&
+                        isEqual((BError) lhsValue, (BError) rhsValue, checkedValues);
             case TypeTags.SERVICE_TAG:
                 break;
         }
@@ -5267,6 +5223,24 @@ public class BVM {
         return true;
     }
 
+    /**
+     * Deep equality check for error.
+     *
+     * @param lhsError      The error on the left hand side
+     * @param rhsError      The error on the right hand side
+     * @param checkedValues Errors already compared or being compared
+     * @return True if the error values are equal, else false.
+     */
+    private static boolean isEqual(BError lhsError, BError rhsError, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsError, rhsError);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
+        return isEqual(new BString(lhsError.getReason()), new BString(rhsError.getReason()), checkedValues) &&
+                isEqual((BMap) lhsError.getDetails(), (BMap) rhsError.getDetails(), checkedValues);
+    }
 
     /**
      * Maintains the frozen status of a freezable {@link BValue}.

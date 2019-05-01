@@ -41,15 +41,15 @@ public type Listener object {
         return ();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.register(s, name);
     }
 
-    extern function initEndpoint() returns error?;
+    function initEndpoint() returns error? = external;
 
-    extern function register(service serviceType, map<any> annotationData) returns error?;
+    function register(service serviceType, string? name) returns error? = external;
 
-    extern function start() returns error?;
+    function start() returns error? = external;
 };
 
 # Represents configurations that required for directory listener.

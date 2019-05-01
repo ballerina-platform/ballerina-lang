@@ -29,15 +29,15 @@ public type Connection client object {
         self.createConnection(url, configuration);
     }
 
-    extern function createConnection(string url, ConnectionConfiguration config);
+    function createConnection(string url, ConnectionConfiguration config) = external;
 
     # Returns true if close was already called.
     # 
     # + return - `true` if closed, `false` otherwise
-    public extern function isClosed() returns boolean;
+    public function isClosed() returns boolean = external;
 
     # Closes the connection and release all its resources.
-    public remote extern function close();
+    public remote function close() = external;
 };
 
 # Configurations related to a Artemis `Connection`.

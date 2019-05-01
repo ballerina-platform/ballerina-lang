@@ -45,7 +45,7 @@ public class TypeGuardTest {
     @Test
     public void testTypeGuardNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 52);
+        Assert.assertEquals(negativeResult.getErrorCount(), 54);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 22, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 25, 20);
@@ -141,6 +141,10 @@ public class TypeGuardTest {
                 "incompatible types: expected 'int|string', found 'int|string|boolean'", 307, 24);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'string', found 'int|string|boolean'", 308, 20);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "incompatible types: expected 'string', found 'string|int'", 318, 21);
+        BAssertUtil.validateError(negativeResult, i,
+                                  "incompatible types: expected 'int', found 'string|int'", 320, 17);
     }
 
     @Test
@@ -406,12 +410,6 @@ public class TypeGuardTest {
         Assert.assertEquals(returns[1].stringValue(), "e2");
     }
 
-    @Test
-    public void testUpdatingTypeNarrowedGlobalVar() {
-        BValue[] returns = BRunUtil.invoke(result, "testUpdatingTypeNarrowedGlobalVar");
-        Assert.assertEquals(returns[0].stringValue(), "string: hello");
-    }
-
     @Test(dataProvider = "finiteTypeAsBroaderTypesFunctions")
     public void testFiniteTypeAsBroaderTypes(String function) {
         BValue[] returns = BRunUtil.invoke(result, function);
@@ -443,6 +441,12 @@ public class TypeGuardTest {
     }
 
     @Test
+    public void testFiniteTypeAsFiniteTypeWithIntersectionNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeWithIntersectionNegative");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
     public void testFiniteTypeReassignmentToBroaderType() {
         BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeReassignmentToBroaderType");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -465,13 +469,14 @@ public class TypeGuardTest {
                 {"testFiniteTypeAsBroaderTypesAndFiniteType_2"},
                 {"testFiniteTypeAsBroaderTypesAndFiniteType_3"},
                 {"testFiniteTypeAsBroaderTypesAndFiniteType_4"},
-                {"testFiniteTypeAsComplexFiniteTypes_1"},
-                {"testFiniteTypeAsComplexFiniteTypes_2"},
-                {"testFiniteTypeAsComplexFiniteTypes_3"},
-                {"testFiniteTypeAsComplexFiniteTypes_4"},
-                {"testFiniteTypeAsComplexFiniteTypes_5"},
-                {"testFiniteTypeAsComplexFiniteTypes_6"},
-                {"testFiniteTypeAsComplexFiniteTypes_7"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_1"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_2"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_3"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_4"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_5"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_6"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_7"},
+                {"testFiniteTypeAsFiniteTypeWithIntersectionPositive"},
                 {"testFiniteTypeAsBroaderTypeInStructurePositive"}
         };
     }
@@ -492,6 +497,18 @@ public class TypeGuardTest {
                 {"testTypeNarrowingForValueTypeAsFiniteType_1"},
                 {"testTypeNarrowingForValueTypeAsFiniteType_2"}
         };
+    }
+
+    @Test
+    public void testFiniteTypeUnionAsFiniteTypeUnionPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeUnionAsFiniteTypeUnionPositive");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testFiniteTypeUnionAsFiniteTypeUnionNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeUnionAsFiniteTypeUnionNegative");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test

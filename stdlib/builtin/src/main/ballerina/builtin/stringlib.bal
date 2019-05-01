@@ -18,118 +18,118 @@
 #
 # + anotherString - The string to be compared
 # + return - True if the strings are equal; false otherwise
-public extern function string.equalsIgnoreCase(string anotherString) returns boolean;
+public function string.equalsIgnoreCase(string anotherString) returns boolean = external;
 
 # Returns a string with all the characters converted to uppercase.
 #
 # + return - The string converted to uppercase
-public extern function string.toUpper() returns string;
+public function string.toUpper() returns string = external;
 
 # Returns a new string that is the substring of the specified string.
 #
 # + startIndex - The starting index
 # + endIndex - The ending index
 # + return - The derived sub string
-public extern function string.substring(int startIndex, int endIndex) returns string;
+public function string.substring(int startIndex, int endIndex) returns string = external;
 
 # Returns the first index of the last occurence of the substring within the specified string.
 #
 # + substring - The substring to search for
 # + return - The index of the last occurence of the substring
-public extern function string.lastIndexOf(string substring) returns int;
+public function string.lastIndexOf(string substring) returns int = external;
 
 # Replaces the first instance of the replacePattern with the replaceWith string and returns the result.
 #
 # + regex - The pattern to search for
 # + replaceWith - The replacement string
 # + return - The derived string
-public extern function string.replaceFirst(string regex, string replaceWith) returns string;
+public function string.replaceFirst(string regex, string replaceWith) returns string = external;
 
 # Returns the length of the specified string.
 #
 # + return - The length of the specified string
-public extern function string.length() returns int;
+public function string.length() returns int = external;
 
 # Returns a Boolean value indicating whether a string contains the specified substring.
 #
 # + substring - The substring to be compared
 # + return - True if the string contains the substring; false otherwise
-public extern function string.contains(string substring) returns boolean;
+public function string.contains(string substring) returns boolean = external;
 
 # Returns the first index of the first occurence of the substring within the specified string.
 #
 # + substring - The substring to search for
 # + return - The index of the first occurence of the substring
-public extern function string.indexOf(string substring) returns int;
+public function string.indexOf(string substring) returns int = external;
 
 # Returns a trimmed string by omitting the leading and trailing whitespaces of the original string.
 #
 # + return - The derived string
-public extern function string.trim() returns string;
+public function string.trim() returns string = external;
 
 # Returns a Boolean value indicating whether the string ends with specified suffix.
 #
 # + suffix - The suffix to be compared
 # + return - True if the string ends with the suffix; false otherwise
-public extern function string.hasSuffix(string suffix) returns boolean;
+public function string.hasSuffix(string suffix) returns boolean = external;
 
 # Returns an unescaped string by omitting the escape characters of the original string.
 #
 # + return - The derived string
-public extern function string.unescape() returns string;
+public function string.unescape() returns string = external;
 
 # Returns a string with all the characters converted to lowercase.
 #
 # + return - The string converted to lowercase
-public extern function string.toLower() returns string;
+public function string.toLower() returns string = external;
 
 # Returns a Boolean value indicating whether a string starts with the specified prefix.
 #
 # + prefix - The prefix to be compared
 # + return - True if the string starts with the prefix; false otherwise
-public extern function string.hasPrefix(string prefix) returns boolean;
+public function string.hasPrefix(string prefix) returns boolean = external;
 
 # Replaces each substring of the string that matches the given regular expression with the given replacement.
 #
 # + regex - The regular expression to search for
 # + replaceWith - The replacement string
 # + return - The derived string
-public extern function string.replaceAll(string regex, string replaceWith) returns string;
+public function string.replaceAll(string regex, string replaceWith) returns string = external;
 
 # Replaces all instances of the replacePattern string with the replaceWith string and returns the result.
 #
 # + regex - The pattern to search for
 # + replaceWith - The replacement string
 # + return - The derived string
-public extern function string.replace(string regex, string replaceWith) returns string;
+public function string.replace(string regex, string replaceWith) returns string = external;
 
 # Splits the string with the given regular expression to produce a string array.
 #
 # + regex - The regex to split the string
 # + return - The split string array
-public extern function string.split(string regex) returns string[];
+public function string.split(string regex) returns string[] = external;
 
 # Finds all the strings matching the regular expression.
 #
 # + regex - Regular expression
 # + return - The matching string array.
 #            Error will be returned if there exist a syntax error in pattern
-public extern function string.findAll(string regex) returns string[]|error;
+public function string.findAll(string regex) returns string[]|error = external;
 
 # Returns a Boolean value indicating whether the string matches the regular expression.
 #
 # + regex - Regular expression
 # + return - True if the string matches the regex; false otherwise.
 #            Error will be returned if there exist a syntax error in pattern.
-public extern function string.matches(string regex) returns boolean|error;
+public function string.matches(string regex) returns boolean|error = external;
 
 # Converts string to a byte array.
 #
 # + encoding - Encoding to be used in the conversion
 # + return - The byte array representation of the given String
-public extern function string.toByteArray(string encoding) returns byte[];
+public function string.toByteArray(string encoding) returns byte[] = external;
 
 # Returns a hash code for this string.
 #
 # + return - a hash code value for this string.
-public extern function string.hashCode() returns int;
+public function string.hashCode() returns int = external;

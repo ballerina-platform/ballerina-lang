@@ -134,17 +134,19 @@ function protocolCompatible(string coordinationType, UProtocol?[] participantPro
     boolean participantProtocolIsValid = false;
     string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] ?: [];
     foreach var p in participantProtocols {
-        UProtocol participantProtocol = p;
-        foreach var validProtocol in validProtocols {
-            if (protoName(participantProtocol) == validProtocol) {
-                participantProtocolIsValid = true;
-                break;
-            } else {
-                participantProtocolIsValid = false;
+        if (p is UProtocol) {
+            UProtocol participantProtocol = p;
+            foreach var validProtocol in validProtocols {
+                if (protoName(participantProtocol) == validProtocol) {
+                    participantProtocolIsValid = true;
+                    break;
+                } else {
+                    participantProtocolIsValid = false;
+                }
             }
-        }
-        if (!participantProtocolIsValid) {
-            break;
+            if (!participantProtocolIsValid) {
+                break;
+            }
         }
     }
     return participantProtocolIsValid;
@@ -362,6 +364,6 @@ function getParticipantId(string transactionBlockId) returns string {
     return participantId;
 }
 
-extern function getAvailablePort() returns int;
+function getAvailablePort() returns int = external;
 
-extern function getHostAddress() returns string;
+function getHostAddress() returns string = external;

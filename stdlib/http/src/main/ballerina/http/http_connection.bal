@@ -54,20 +54,20 @@ public type Caller client object {
     #
     # + promise - Push promise message
     # + return - An `error` in case of failures
-    public remote extern function promise(PushPromise promise) returns error?;
+    public remote function promise(PushPromise promise) returns error? = external;
 
     # Sends a promised push response to the caller.
     #
     # + promise - Push promise message
     # + response - The outbound response
     # + return - An `error` in case of failures while responding with the promised response
-    public remote extern function pushPromisedResponse(PushPromise promise, Response response) returns error?;
+    public remote function pushPromisedResponse(PushPromise promise, Response response) returns error? = external;
 
     # Sends an upgrade request with custom headers.
     #
     # + headers - A `map` of custom headers for handshake
     # + return - WebSocket service endpoint
-    public remote extern function acceptWebSocketUpgrade(map<string> headers) returns WebSocketCaller;
+    public remote function acceptWebSocketUpgrade(map<string> headers) returns WebSocketCaller = external;
 
     # Cancels the handshake.
     #
@@ -75,7 +75,7 @@ public type Caller client object {
     #            This error status code need to be 4xx or 5xx else the default status code would be 400.
     # + reason - Reason for cancelling the upgrade
     # + return - An `error` if an error occurs during cancelling the upgrade or nil
-    public remote extern function cancelWebSocketUpgrade(int status, string reason) returns error?;
+    public remote function cancelWebSocketUpgrade(int status, string reason) returns error? = external;
 
     # Sends a `100-continue` response to the caller.
     #
@@ -113,7 +113,7 @@ public type Caller client object {
     public remote function accepted(ResponseMessage message = ()) returns error?;
 };
 
-extern function nativeRespond(Caller caller, Response response) returns error?;
+function nativeRespond(Caller caller, Response response) returns error? = external;
 
 /////////////////////////////////
 /// Ballerina Implementations ///

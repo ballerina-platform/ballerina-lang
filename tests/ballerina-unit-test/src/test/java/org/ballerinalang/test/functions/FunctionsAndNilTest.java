@@ -73,7 +73,7 @@ public class FunctionsAndNilTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].getClass(), BError.class);
         BError errorValue = (BError) returns[0];
-        Assert.assertEquals("dummy error message", errorValue.reason);
+        Assert.assertEquals("dummy error message", errorValue.getReason());
     }
 
     @Test(description = "Test functions that returns nil type")
@@ -90,7 +90,7 @@ public class FunctionsAndNilTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].getClass(), BError.class);
         BError errorValue = (BError) returns[0];
-        Assert.assertEquals("dummy error message", errorValue.reason);
+        Assert.assertEquals("dummy error message", errorValue.getReason());
     }
 
     @Test(description = "Test functions that returns nil type")

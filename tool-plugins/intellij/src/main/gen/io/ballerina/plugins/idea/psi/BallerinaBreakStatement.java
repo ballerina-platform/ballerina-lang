@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaBreakStatement extends BallerinaCompositeElement {
+public interface BallerinaBreakStatement extends PsiElement {
 
   @Nullable
   PsiElement getSemicolon();

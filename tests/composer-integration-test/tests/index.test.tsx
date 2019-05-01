@@ -3,14 +3,14 @@ import { sync as globSync } from 'glob';
 import { balToolsPath } from './server';
 import URI from 'vscode-uri';
 import * as React from "react";
-import { Diagram, DiagramMode } from '@ballerina/diagram';
-import { DiagramUtils } from '@ballerina/diagram/lib/src/diagram/diagram-utils';
-import * as fontUtils from '@ballerina/diagram/lib/src/utils';
-import * as controllerPanel from '@ballerina/diagram/lib/src/diagram/controllers/controller-panel';
+import { Diagram, DiagramMode } from '@ballerina/composer/packages/diagram';
+import { DiagramUtils } from '@ballerina/composer/packages/diagram/lib/src/diagram/diagram-utils';
+import * as fontUtils from '@ballerina/composer/packages/diagram/lib/src/utils';
+import * as controllerPanel from '@ballerina/composer/packages/diagram/lib/src/diagram/controllers/controller-panel';
 import { create } from 'react-test-renderer';
 import { StdioBallerinaLangServer, createStdioLangClient,
-    IBallerinaLangClient, BallerinaAST } from '@ballerina/lang-service';
-import { CompilationUnit } from '../../../composer/packages/ast-model/lib/src';
+    IBallerinaLangClient, BallerinaAST } from '@ballerina/composer/packages/lang-service';
+import { CompilationUnit } from '@ballerina/composer/packages/ast-model/lib/src';
 
 let langServer: StdioBallerinaLangServer;
 let langClient: IBallerinaLangClient;

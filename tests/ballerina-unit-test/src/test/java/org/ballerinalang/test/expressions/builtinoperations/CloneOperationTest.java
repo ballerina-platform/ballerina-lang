@@ -523,7 +523,7 @@ public class CloneOperationTest {
         Assert.assertNotNull(results);
         Assert.assertNotSame(results[0], results[1]);
         Assert.assertSame(results[1].getType().getTag(), TypeTags.ERROR_TAG);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[1]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[1]).getDetails()).get("message").stringValue(),
                 "'clone()' not allowed on '(Employee,any)'");
     }
 
@@ -557,5 +557,17 @@ public class CloneOperationTest {
         Assert.assertNotNull(results);
         Assert.assertNull(results[0]);
         Assert.assertNull(results[1]);
+    }
+
+    @Test
+    public void testCloneArrayWithError() {
+        BValue[] results = BRunUtil.invoke(result, "testCloneArrayWithError");
+        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+    }
+
+    @Test
+    public void testCloneMapWithError() {
+        BValue[] results = BRunUtil.invoke(result, "testCloneMapWithError");
+        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
     }
 }

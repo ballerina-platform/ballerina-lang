@@ -139,7 +139,10 @@ public class FormattingTest {
                 {"expectedErrorVariableReference.bal", "errorVariableReference.bal"},
                 {"expectedErrorType.bal", "errorType.bal"},
                 {"expectedIndexBasedAccess.bal", "indexBasedAccess.bal"},
-//                {"expectedImportOrder.bal", "importOrder.bal"},
+                {"expectedIntegerRangeExpression.bal", "integerRangeExpression.bal"},
+                {"expectedLock.bal", "lock.bal"},
+                {"expectedImportOrder.bal", "importOrder.bal"},
+                {"expectedBlockExpandOnDemand.bal", "blockExpandOnDemand.bal"},
         };
     }
 

@@ -49,14 +49,6 @@ public class TypeSignatureReader<T> {
             case 'K':
                 typeStack.push(typeCreator.getBasicType(typeChar));
                 return index + 1;
-            case 'E':
-                index++;    // skip "("
-                index = createBTypeFromSig(typeCreator, chars, index + 1, typeStack);
-                T reasonType = typeStack.pop();
-                index = createBTypeFromSig(typeCreator, chars, index, typeStack);
-                T detailsType = typeStack.pop();
-                typeStack.push(typeCreator.getErrorType(reasonType, detailsType));
-                return index + 1;
             case 'R':
                 index++;
                 nameIndex = index;
@@ -72,6 +64,7 @@ public class TypeSignatureReader<T> {
             case 'D':
             case 'G':
             case 'Z':
+            case 'E':
                 nameIndex = index;
                 while (chars[nameIndex] != ';') {
                     nameIndex++;
@@ -155,6 +148,7 @@ public class TypeSignatureReader<T> {
             case 'Z':
             case 'G':
             case 'D':
+            case 'E':
                 typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
 
@@ -191,7 +185,6 @@ public class TypeSignatureReader<T> {
             case 'U':
             case 'O':
             case 'P':
-            case 'E':
                 Stack<T> typeStack = new Stack<>();
                 createBTypeFromSig(typeCreator, desc.toCharArray(), 0, typeStack);
                 return typeStack.pop();

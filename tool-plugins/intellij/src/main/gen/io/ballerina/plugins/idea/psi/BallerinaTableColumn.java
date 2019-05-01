@@ -21,6 +21,6 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaTableColumn extends BallerinaCompositeElement {
+public interface BallerinaTableColumn extends PsiElement {
 
 }

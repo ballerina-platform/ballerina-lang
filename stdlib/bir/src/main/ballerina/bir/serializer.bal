@@ -37,16 +37,25 @@ public function serialize(BType bType) returns string {
         return serialize(bType.eType) + "[]";
     } else if (bType is BObjectType) {
         return "object {" + serializeFields(bType.fields) + serializeAttachedFunc(bType.attachedFunctions) + "}";
+    } else if (bType is Self) {
+        return "...";
+    } else if (bType is BMapType) {
+        return "map<"+ serialize(bType.constraint) +">";
+    } else if (bType is BTypeAnyData) {
+        return "anydata";
+    } else if (bType is BErrorType) {
+        return "error (" + serialize(bType.reasonType) + ", " + serialize(bType.detailType) + ")";
     }
 
     error err = error(io:sprintf("Unsupported serialization for type '%s'", bType));
     panic err;
 }
 
-function serializeTypes(BType[] bTypes, string delimiter) returns string {
+function serializeTypes(BType?[] bTypes, string delimiter) returns string {
     var result = "";
     boolean first = true;
-    foreach var bType in bTypes {
+    foreach var t in bTypes {
+        BType bType = getType(t);
         if (!first){
             result = result + delimiter;
         }

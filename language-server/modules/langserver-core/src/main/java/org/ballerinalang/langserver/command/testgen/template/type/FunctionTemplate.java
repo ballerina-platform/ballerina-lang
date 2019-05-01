@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.List;
-import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
@@ -52,10 +51,14 @@ public class FunctionTemplate extends AbstractTestTemplate {
         String functionName = function.name.value;
         this.testFunctionName = getSafeName("test" + upperCaseFirstLetter(functionName));
         this.hasReturnType = (function.returnTypeNode != null && !(function.returnTypeNode.type instanceof BNilType));
-        this.hasParams = (generator.getNamesSpace().length > 1);
+        this.hasParams = generator.getParamsCount() > 0;
         this.functionInvocations = generator.getTargetFuncInvocations();
-        this.dataProviderBasedFunctionInvocation =
-                generator.getTargetFuncReturnType() + " actual = " + generator.getTargetFuncInvocation() + ";";
+        if (hasReturnType) {
+            this.dataProviderBasedFunctionInvocation =
+                    generator.getTargetFuncReturnType() + " actual = " + generator.getTargetFuncInvocation() + ";";
+        } else {
+            this.dataProviderBasedFunctionInvocation = generator.getTargetFuncInvocation() + ";";
+        }
         this.testFunctionParams = generator.getTestFuncParams();
         this.dataProviderReturnType = generator.getDataProviderReturnType();
         this.dataProviderReturnValue = generator.getDataProviderReturnValue();
@@ -69,23 +72,17 @@ public class FunctionTemplate extends AbstractTestTemplate {
      */
     @Override
     public void render(RendererOutput rendererOutput) throws TestGeneratorException {
-        String filename = (hasReturnType) ? "returnTypedFunction.bal" : "voidFunction.bal";
+        String filename = (hasReturnType) ? "returnTypedFunction.bal" :
+                (hasParams) ? "voidFunction.bal" : "voidFunctionNoParams.bal";
         RendererOutput functionOutput = new TemplateBasedRendererOutput(filename);
         functionOutput.put(PlaceHolder.OTHER.get("testFunctionName"), testFunctionName);
-        String functionInvocationLine;
-        if (hasReturnType) {
-            functionInvocationLine = dataProviderBasedFunctionInvocation;
-            functionOutput.put(PlaceHolder.OTHER.get("dataProviderReturnType"), dataProviderReturnType);
-            functionOutput.put(PlaceHolder.OTHER.get("dataProviderReturnValue"), dataProviderReturnValue);
-            functionOutput.put(PlaceHolder.OTHER.get("testFunctionParams"), testFunctionParams);
-        } else {
-            StringJoiner lines = new StringJoiner(LINE_SEPARATOR);
-            if (hasParams) {
-                functionInvocations.forEach(invocation -> lines.add("    " + invocation + ";"));
-            } else {
-                lines.add("    " + functionInvocations.get(0) + ";");
-            }
-            functionInvocationLine = lines.toString();
+        functionOutput.put(PlaceHolder.OTHER.get("dataProviderReturnType"), dataProviderReturnType);
+        functionOutput.put(PlaceHolder.OTHER.get("dataProviderReturnValue"), dataProviderReturnValue);
+        functionOutput.put(PlaceHolder.OTHER.get("testFunctionParams"), testFunctionParams);
+
+        String functionInvocationLine = dataProviderBasedFunctionInvocation;
+        if (!hasReturnType && !hasParams) {
+            functionInvocationLine = "    " + functionInvocations.get(0) + ";";
         }
         functionOutput.put(PlaceHolder.OTHER.get("actual"), functionInvocationLine);
 

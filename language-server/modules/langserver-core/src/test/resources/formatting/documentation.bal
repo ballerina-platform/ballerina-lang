@@ -42,3 +42,20 @@ public type DummyObject abstract object {
       #            `doThatOnObjectAgain` function.
     public function doThatOnObjectAgain(string paramOne) returns (boolean);
 };
+
+    # This is the serviceName1.
+   service serviceName1 on new http:Listener(9090) {
+     # This is the resource function.
+      #
+       # + caller - http caller information.
+       # + request - request information.
+        resource function newResource(http:Caller caller, http:Request request) {
+      json? payload;
+           (http:Response | error | ()) clientResponse;
+         (json | error) jsonMsg = req.getJsonPayload();
+         http:Response res = new;
+         res.setPayload("sd");
+         var d = 0;
+        checkpanic caller->respond(res);
+     }
+ }

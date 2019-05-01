@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaVariableDefinitionStatementWithAssignmentImpl extends BallerinaCompositeElementImpl implements BallerinaVariableDefinitionStatementWithAssignment {
+public class BallerinaVariableDefinitionStatementWithAssignmentImpl extends ASTWrapperPsiElement implements BallerinaVariableDefinitionStatementWithAssignment {
 
   public BallerinaVariableDefinitionStatementWithAssignmentImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,25 +45,25 @@ public class BallerinaVariableDefinitionStatementWithAssignmentImpl extends Ball
   @Override
   @NotNull
   public BallerinaBindingPattern getBindingPattern() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaBindingPattern.class));
+    return findNotNullChildByClass(BallerinaBindingPattern.class);
   }
 
   @Override
   @Nullable
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @Nullable
   public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
   @NotNull
   public PsiElement getAssign() {
-    return notNullChild(findChildByType(ASSIGN));
+    return findNotNullChildByType(ASSIGN);
   }
 
   @Override

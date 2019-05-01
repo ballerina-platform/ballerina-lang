@@ -17,8 +17,12 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BLangVMErrors;
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
+import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,20 +32,22 @@ import java.util.Map;
  *
  * @since 0.995.0
  */
-public class ErrorValue implements RefValue {
+public class ErrorValue extends RuntimeException implements RefValue {
 
-    private BType type;
-    private String reason;
-    private RefValue details;
+    private static final long serialVersionUID = 1L;
+    private final BErrorType type;
+    private final String reason;
+    private final Object details;
 
-    public ErrorValue(String reason, RefValue details) {
+    public ErrorValue(String reason, Object details) {
+        super(reason);
         this.type = BTypes.typeError;
         this.reason = reason;
         this.details = details;
     }
 
     @Override
-    public BType getType() {
+    public BErrorType getType() {
         return type;
     }
 
@@ -57,6 +63,11 @@ public class ErrorValue implements RefValue {
     }
 
     @Override
+    public void attemptFreeze(Status freezeStatus) {
+        // do nothing, since error types are always frozen
+    }
+
+    @Override
     public String toString() {
         return reason + " " + details.toString();
     }
@@ -65,7 +76,15 @@ public class ErrorValue implements RefValue {
         return reason;
     }
 
-    public RefValue getDetails() {
-        return (RefValue) details.copy(new HashMap<>());
+    public Object getDetails() {
+        if (details instanceof RefValue) {
+            return ((RefValue) details).copy(new HashMap<>());
+        }
+        return details;
+    }
+
+    @Override
+    public void printStackTrace() {
+        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(this));
     }
 }

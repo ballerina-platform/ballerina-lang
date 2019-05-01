@@ -10,7 +10,7 @@ options {
 // starting point for parsing a bal file
 compilationUnit
     :   (importDeclaration | namespaceDeclaration)*
-        (documentationString? deprecatedAttachment? annotationAttachment* definition)*
+        (documentationString? annotationAttachment* definition)*
         EOF
     ;
 
@@ -57,7 +57,8 @@ callableUnitBody
     ;
 
 functionDefinition
-    :   (PUBLIC | PRIVATE)? REMOTE? EXTERN? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody |
+     ASSIGN EXTERNAL SEMICOLON)
     ;
 
 lambdaFunction
@@ -90,7 +91,7 @@ typeReference
     ;
 
 objectFieldDefinition
-    :   annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 fieldDefinition
@@ -108,7 +109,7 @@ sealedLiteral
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 objectFunctionDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? EXTERN? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION callableUnitSignature (callableUnitBody | (ASSIGN EXTERNAL)? SEMICOLON)
     ;
 
 annotationDefinition
@@ -116,7 +117,7 @@ annotationDefinition
     ;
 
 constantDefinition
-    :   PUBLIC? CONST typeName? Identifier ASSIGN expression SEMICOLON
+    :   PUBLIC? CONST typeName? Identifier ASSIGN constantExpression SEMICOLON
     ;
 
 globalVariableDefinition
@@ -167,16 +168,16 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
     |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
-    |   openRecordTypeDescriptor                                                                # openRecordTypeNameLabel
-    |   closedRecordTypeDescriptor                                                              # closedRecordTypeNameLabel
+    |   inclusiveRecordTypeDescriptor                                                           # inclusiveRecordTypeNameLabel
+    |   exclusiveRecordTypeDescriptor                                                           # exclusiveRecordTypeNameLabel
     ;
 
-openRecordTypeDescriptor
-    :   RECORD LEFT_BRACE fieldDescriptor* recordRestFieldDefinition? RIGHT_BRACE
+inclusiveRecordTypeDescriptor
+    :   RECORD LEFT_BRACE fieldDescriptor* RIGHT_BRACE
     ;
 
-closedRecordTypeDescriptor
-    :   RECORD LEFT_BRACE PIPE fieldDescriptor* PIPE RIGHT_BRACE
+exclusiveRecordTypeDescriptor
+    :   RECORD LEFT_CLOSED_RECORD_DELIMITER fieldDescriptor* recordRestFieldDefinition? RIGHT_CLOSED_RECORD_DELIMITER
     ;
 
 fieldDescriptor
@@ -426,7 +427,7 @@ openRecordBindingPattern
     ;
 
 closedRecordBindingPattern
-    :   LEFT_BRACE PIPE fieldBindingPattern (COMMA fieldBindingPattern)* PIPE RIGHT_BRACE
+    :   LEFT_CLOSED_RECORD_DELIMITER fieldBindingPattern (COMMA fieldBindingPattern)* RIGHT_CLOSED_RECORD_DELIMITER
     ;
 
 entryBindingPattern
@@ -467,7 +468,7 @@ openRecordRefBindingPattern
     ;
 
 closedRecordRefBindingPattern
-    :   LEFT_BRACE PIPE fieldRefBindingPattern (COMMA fieldRefBindingPattern)* PIPE RIGHT_BRACE
+    :   LEFT_CLOSED_RECORD_DELIMITER fieldRefBindingPattern (COMMA fieldRefBindingPattern)* RIGHT_CLOSED_RECORD_DELIMITER
     ;
 
 errorRefBindingPattern
@@ -721,6 +722,11 @@ expression
     |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
+    ;
+
+constantExpression
+    :   simpleLiteral
+    |   recordLiteral
     ;
 
 typeDescExpr
@@ -1049,35 +1055,6 @@ timeScale
     |   DAY | DAYS
     |   MONTH | MONTHS
     |   YEAR | YEARS
-    ;
-
-// Deprecated parsing.
-
-deprecatedAttachment
-    :   DeprecatedTemplateStart deprecatedText? DeprecatedTemplateEnd
-    ;
-
-deprecatedText
-    :   deprecatedTemplateInlineCode (DeprecatedTemplateText | deprecatedTemplateInlineCode)*
-    |   DeprecatedTemplateText  (DeprecatedTemplateText | deprecatedTemplateInlineCode)*
-    ;
-
-deprecatedTemplateInlineCode
-    :   singleBackTickDeprecatedInlineCode
-    |   doubleBackTickDeprecatedInlineCode
-    |   tripleBackTickDeprecatedInlineCode
-    ;
-
-singleBackTickDeprecatedInlineCode
-    :   SBDeprecatedInlineCodeStart SingleBackTickInlineCode? SingleBackTickInlineCodeEnd
-    ;
-
-doubleBackTickDeprecatedInlineCode
-    :   DBDeprecatedInlineCodeStart DoubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
-    ;
-
-tripleBackTickDeprecatedInlineCode
-    :   TBDeprecatedInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;
 
 // Markdown documentation

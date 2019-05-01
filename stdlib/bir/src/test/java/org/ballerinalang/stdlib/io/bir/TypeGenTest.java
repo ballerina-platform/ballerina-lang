@@ -2,7 +2,7 @@ package org.ballerinalang.stdlib.io.bir;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.ballerinalang.bre.bvm.BVMExecutor;
+import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -87,13 +87,17 @@ public class TypeGenTest {
         ConstantPool cp = new ConstantPool();
         byte[] typeBinary = serializeBType(type, cp);
         byte[] cpBinary = cp.serialize();
-        BValue[] testParseTypes = executeTestFuncInBalx(typeBinary, cpBinary);
-        Assert.assertEquals(testParseTypes[0].stringValue(), source,
-                            "Unable to recover type info from " + Arrays.toString(typeBinary));
+        try {
+            BValue testParseTypes = executeTestFuncInBalx(typeBinary, cpBinary);
+            Assert.assertEquals(testParseTypes.stringValue(), source,
+                                "Unable to recover type info from " + Arrays.toString(typeBinary));
+        } catch (Exception e) {
+            throw new AssertionError("Error deserializeing" + Arrays.toString(typeBinary), e);
+        }
 
     }
 
-    private BValue[] executeTestFuncInBalx(byte[] typeBinary, byte[] cpBinary) {
+    private BValue executeTestFuncInBalx(byte[] typeBinary, byte[] cpBinary) {
         BValue[] args = {new BValueArray(cpBinary), new BValueArray(typeBinary)};
 
         PackageInfo packageInfo = programFile.getPackageInfo(entryPkgName);
@@ -102,7 +106,7 @@ public class TypeGenTest {
             throw new RuntimeException("Function 'testParseType' is not defined");
         }
 
-        return BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
+        return BLangProgramRunner.runProgram(programFile, functionInfo, args);
     }
 
     private byte[] serializeBType(BType type, ConstantPool cp) {

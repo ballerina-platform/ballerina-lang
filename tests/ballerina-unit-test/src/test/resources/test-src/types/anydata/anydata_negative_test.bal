@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo record {
+type Foo record {|
     int ra = 0;
     any...;
-};
+|};
 
 type Bar object {
     int oa = 0;
@@ -147,4 +147,9 @@ function testInvalidMapInsertions() {
 
     DataType dt = "hello world!";
     m.datatype = dt;
+}
+
+function testErrorAsAnydata() {
+    error e = error("test err");
+    anydata ad = e;
 }

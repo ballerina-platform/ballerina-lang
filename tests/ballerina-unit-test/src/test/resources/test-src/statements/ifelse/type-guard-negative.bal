@@ -310,3 +310,13 @@ public function testUpdatingTypeNarrowedVar_3() {
 
     int|string|boolean i = x;
 }
+
+string|int si = "hello world";
+
+function testGlobalVarInTypeGuard() {
+    if (si is string) {
+        string s2 = si;
+    } else {
+        int i = si;
+    }
+}

@@ -250,3 +250,13 @@ function testCompoundAssignmentAdditionWithFunctionInvocation() returns (int){
 function getIncrement() returns (int) {
    return 200;
 }
+
+function xmlCompoundAssignment() returns (xml){
+    xml x = xml `hello`;
+    xml y = xml `<hello>hi</hello>`;
+    xml z = x + y;
+    string blah = "blah";
+    z += "hah";
+    z += blah;
+    return z;
+}

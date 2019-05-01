@@ -62,3 +62,28 @@ function getLocals() returns ((Obj|Obj2|Obj3|Obj4),(Obj|Obj2|Obj3|Obj4)) {
     Obj|Obj2|Obj3|Obj4 localAB = new(5, j=0);
     return (localA, localAB);
 }
+
+type Foo object {
+    Bar? bar = ();
+
+    function test() {
+        string p = "John Doe";
+        self.bar = new(p);
+    }
+};
+
+type Bar object {
+    PersonRec|EmployeeRec p;
+
+    function __init(PersonRec|EmployeeRec p) {
+        self.p = p;
+    }
+};
+
+type PersonRec record {|
+    string name;
+|};
+
+type EmployeeRec record {
+    string name;
+};
