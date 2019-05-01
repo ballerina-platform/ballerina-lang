@@ -664,6 +664,29 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
+    public String stringValue() {
+        try {
+            switch (nodeType) {
+                case COMMENT:
+                    return COMMENT_START + ((OMComment) omNode).getValue() + COMMENT_END;
+                case TEXT:
+                    return getTextValue(omNode);
+                case PI:
+                    return PI_START + ((OMProcessingInstruction) omNode).getTarget() + " " +
+                            ((OMProcessingInstruction) omNode).getValue() + PI_END;
+                default:
+                    return this.omNode.toString();
+            }
+        } catch (Throwable t) {
+            handleXmlException("failed to get xml as string: ", t);
+        }
+        return STRING_NULL_VALUE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Object copy(Map<Object, Object> refs) {
         if (isFrozen()) {
             return this;
@@ -847,12 +870,6 @@ public final class XMLItem extends XMLValue<OMNode> {
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
         }
-    }
-
-    @Override
-    public void stamp(BType type) {
-        // TODO Auto-generated method stub
-
     }
 
     private static class BXmlAttrMap extends MapValue<String, String> {

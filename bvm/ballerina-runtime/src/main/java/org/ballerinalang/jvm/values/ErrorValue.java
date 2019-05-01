@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BLangVMErrors;
+import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
@@ -25,6 +26,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,12 +49,17 @@ public class ErrorValue extends RuntimeException implements RefValue {
     }
 
     @Override
+    public String stringValue() {
+        return reason + " " + details.toString();
+    }
+
+    @Override
     public BErrorType getType() {
         return type;
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
 
     }
 
@@ -65,11 +72,6 @@ public class ErrorValue extends RuntimeException implements RefValue {
     @Override
     public void attemptFreeze(Status freezeStatus) {
         // do nothing, since error types are always frozen
-    }
-
-    @Override
-    public String toString() {
-        return reason + " " + details.toString();
     }
 
     public String getReason() {

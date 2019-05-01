@@ -18,16 +18,18 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
+import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.util.Iterator;
 import java.util.List;
-
 import javax.xml.namespace.QName;
 
 /**
@@ -276,13 +278,12 @@ public abstract class XMLValue<T> implements RefValue {
     }
 
     @Override
-    public void stamp(BType type) {
-        // if (type.getTag() == TypeTags.ANYDATA_TAG) {
-        // type = TypeChecker.resolveMatchingTypeForUnion(this, type);
-        // }
-        // this.type = type;
+    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
+        if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            type = TypeConverter.resolveMatchingTypeForUnion(this, type);
+        }
+        this.type = type;
     }
-
     // private methods
 
     protected static void handleXmlException(String message, Throwable t) {
