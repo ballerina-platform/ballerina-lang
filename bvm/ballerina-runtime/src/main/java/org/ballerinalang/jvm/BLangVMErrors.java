@@ -19,6 +19,7 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.Arrays;
 
@@ -28,6 +29,22 @@ import java.util.Arrays;
  * @since 0.995.0
  */
 public class BLangVMErrors {
+
+    private static final String ERROR_MESSAGE_FIELD = "message";
+
+    public static final String NULL_REF_EXCEPTION = "NullReferenceException";
+
+    public static ErrorValue createError(String reason) {
+        return new ErrorValue(reason, new MapValue<>());
+    }
+
+    public static ErrorValue createError(String reason, String detail) {
+        MapValue<String, Object> detailMap = new MapValue<>();
+        if (detail != null) {
+            detailMap.put(ERROR_MESSAGE_FIELD, detail);
+        }
+        return new ErrorValue(reason, detailMap);
+    }
 
     public static String getPrintableStackTrace(ErrorValue error) {
         return getPrintableStackTrace(getErrorMessage(error), error.getStackTrace());
