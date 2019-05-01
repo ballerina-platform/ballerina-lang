@@ -2609,34 +2609,10 @@ public class Desugar extends BLangNodeVisitor {
                 // which is same as doing a bitwise 2's complement operation.
                 rewriteBitwiseComplementOperator(unaryExpr);
                 break;
-            case TYPEOF:
-                rewriteTypeOfOperator(unaryExpr);
-                break;
             default:
                 unaryExpr.expr = rewriteExpr(unaryExpr.expr);
                 result = unaryExpr;
         }
-    }
-
-    private void rewriteTypeOfOperator(BLangUnaryExpr unaryExpr) {
-        BLangExpression typeofArgExpr;
-        if (types.isValueType(unaryExpr.expr.type)) {
-            typeofArgExpr = createTypeCastExpr(unaryExpr.expr, unaryExpr.expr.type, symTable.anyType);
-        } else {
-            typeofArgExpr = unaryExpr.expr;
-        }
-
-        BLangInvocation typeofCall = (BLangInvocation) TreeBuilder.createInvocationNode();
-        typeofCall.pos = unaryExpr.pos;
-        typeofCall.name = ASTBuilderUtil.createIdentifier(unaryExpr.pos, Names.TYPEOF_OP.value);
-        typeofCall.builtinMethodInvocation = true;
-        typeofCall.builtInMethod = BLangBuiltInMethod.TYPEOF;
-        typeofCall.expr = typeofArgExpr;
-        typeofCall.symbol = symResolver.resolveOperator(Names.TYPEOF_OP, Lists.of(symTable.anyType));
-        typeofCall.type = symTable.typeDesc;
-        typeofCall.originalType = symTable.typeDesc;
-
-        result = rewriteExpr(typeofCall);
     }
 
     /**

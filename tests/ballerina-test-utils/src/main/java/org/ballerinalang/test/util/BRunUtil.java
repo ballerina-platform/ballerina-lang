@@ -534,8 +534,7 @@ public class BRunUtil {
                 return BTypes.typeXML;
             case org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG:
                 BTypedescType typedescType = (BTypedescType) jvmType;
-                BTypeDesc td = new BTypeDesc(typedescType.getName(), typedescType.getPackagePath());
-                return td;
+                return new BTypeDesc(typedescType.getName(), typedescType.getPackagePath());
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }

@@ -660,6 +660,14 @@ type InstructionGenerator object {
         self.storeToVar(xmlLoadIns.lhsOp.variableDcl);
     }
 
+    function generateTypeofIns(bir:UnaryOp unaryOp) {
+        self.loadVar(unaryOp.rhsOp.variableDcl);
+        addBoxInsn(self.mv, unaryOp.rhsOp.variableDcl.typeValue);
+        self.mv.visitMethodInsn(INVOKESTATIC, TYPEDESC_PROVIDER, "typeof",
+                io:sprintf("(L%s;)L%s;", OBJECT, TYPEDESC_VALUE), false);
+        self.storeToVar(unaryOp.lhsOp.variableDcl);
+    }
+
     private function loadVar(bir:VariableDcl varDcl) {
         generateVarLoad(self.mv, varDcl, self.currentPackageName, self.getJVMIndexOfVarRef(varDcl));
     }

@@ -235,6 +235,7 @@ const string CONSUMER = "java/util/function/Consumer";
 const string STRING_BUILDER = "java/lang/StringBuilder";
 const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
 const string XML_FACTORY = "org/ballerinalang/jvm/XMLFactory";
+const string TYPEDESC_PROVIDER = "org/ballerinalang/jvm/TypedescProvider";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";

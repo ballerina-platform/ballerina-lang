@@ -197,6 +197,12 @@ type InstructionEmitter object {
             print(" ");
             self.opEmitter.emitOp(ins.rhsOp2);
             println(";");
+        }  else if (ins is UnaryOp) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.opEmitter.emitOp(ins.rhsOp);
+            println(";");
         } else if (ins is Move) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
