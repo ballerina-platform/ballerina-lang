@@ -22,6 +22,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
@@ -100,5 +103,52 @@ public class Stamp extends BlockingNativeCallableUnit {
             return;
         }
         ctx.setReturnValues(valueToBeStamped);
+    }
+
+    public static Object stamp(Strand strand, org.ballerinalang.jvm.values.BTypeDescValue typeDescValue,
+                               Object valueToBeStamped) {
+        org.ballerinalang.jvm.types.BType stampType = typeDescValue.getType();
+        org.ballerinalang.jvm.types.BType targetType;
+        if (stampType.getTag() == TypeTags.UNION_TAG) {
+            List<org.ballerinalang.jvm.types.BType> memberTypes
+                    = new ArrayList<>(((org.ballerinalang.jvm.types.BUnionType) stampType).getMemberTypes());
+            targetType = new org.ballerinalang.jvm.types.BUnionType(memberTypes);
+
+            Predicate<org.ballerinalang.jvm.types.BType> errorPredicate = e -> e.getTag() == TypeTags.ERROR_TAG;
+            ((org.ballerinalang.jvm.types.BUnionType) targetType).getMemberTypes().removeIf(errorPredicate);
+
+            if (((org.ballerinalang.jvm.types.BUnionType) targetType).getMemberTypes().size() == 1) {
+                targetType = ((org.ballerinalang.jvm.types.BUnionType) stampType).getMemberTypes().get(0);
+            }
+        } else {
+            targetType = stampType;
+        }
+
+        if (valueToBeStamped == null) {
+            if (targetType.getTag() == TypeTags.JSON_TAG) {
+                return null;
+            }
+            return org.ballerinalang.jvm.BLangVMErrors
+                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.STAMP_ERROR,
+                                 org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
+                                         .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
+                                                                  .CANNOT_STAMP_NULL, stampType));
+        }
+        if (!TypeChecker.checkIsLikeType(valueToBeStamped, targetType)) {
+            return org.ballerinalang.jvm.BLangVMErrors
+                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.STAMP_ERROR,
+                                 org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
+                                         .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
+                                                                  .INCOMPATIBLE_STAMP_OPERATION, TypeChecker.getType
+                                                 (valueToBeStamped), targetType));
+        }
+        try {
+            ((RefValue) valueToBeStamped).stamp(targetType, new ArrayList<>());
+        } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
+            return org.ballerinalang.jvm.BLangVMErrors
+                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.STAMP_ERROR,
+                                 e.getDetail());
+        }
+        return valueToBeStamped;
     }
 }

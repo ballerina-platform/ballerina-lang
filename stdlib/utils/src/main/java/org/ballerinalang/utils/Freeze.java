@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -95,7 +94,7 @@ public class Freeze extends BlockingNativeCallableUnit {
         if (refValue.getType().getTag() == TypeTags.ERROR) {
             // If the value is of type error, return an error indicating an error cannot be frozen.
             // Freeze is only allowed on errors if they are part of a structure.
-            return BallerinaErrors
+            return org.ballerinalang.jvm.BLangVMErrors
                     .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.FREEZE_ERROR,
                                  "'freeze()' not allowed on 'error'");
         }
@@ -109,13 +108,14 @@ public class Freeze extends BlockingNativeCallableUnit {
             // if freeze is unsuccessful due to an invalid value, set the frozen status of the value and its
             // constituents to false, and return an error
             freezeStatus.setUnfrozen();
-            return BallerinaErrors.createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.FREEZE_ERROR,
-                                               e.getMessage());
+            return org.ballerinalang.jvm.BLangVMErrors
+                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.FREEZE_ERROR,
+                                 e.getMessage());
         } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
             // if freeze is unsuccessful due to concurrent freeze attempts, set the frozen status of the value
             // and its constituents to false, and panic
             freezeStatus.setUnfrozen();
-            return BallerinaErrors.createError(e.getMessage(), e.getDetail());
+            return org.ballerinalang.jvm.BLangVMErrors.createError(e.getMessage(), e.getDetail());
         }
     }
 }

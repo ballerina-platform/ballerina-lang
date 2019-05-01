@@ -21,6 +21,10 @@ package org.ballerinalang.utils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.TypeConverter;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
@@ -101,6 +105,51 @@ public class SimpleValueConvert extends BlockingNativeCallableUnit {
         }
     }
 
+    public static Object simpleValueConvert(Strand strand, org.ballerinalang.jvm.values.BTypeDescValue typeDescValue,
+                                            Object inputValue) {
+        org.ballerinalang.jvm.types.BType targetType = typeDescValue.getType();
+        Object convertedValue;
+        if (inputValue == null) {
+            return org.ballerinalang.jvm.BLangVMErrors
+                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
+                                 org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
+                                         .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
+                                                                  .CANNOT_CONVERT_NULL, targetType));
+        }
+        try {
+            if (org.ballerinalang.jvm.types.BTypes.isValueType(TypeChecker.getType(inputValue))) {
+                return TypeConverter.convertValues(targetType, inputValue);
+            }
+        } catch (RuntimeException e) {
+            return org.ballerinalang.jvm.BLangVMErrors
+                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
+                                 org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
+                                         .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
+                                                                  .INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                                                          TypeChecker.getType(inputValue), inputValue, targetType));
+        }
+        // Todo: ToString required to be handle with different built in method since it is not covered by convert
+        // function.
+        try {
+            if (targetType.getTag() == TypeTags.STRING_TAG) {
+                return ((RefValue) inputValue).stringValue();
+            }
+            return org.ballerinalang.jvm.BLangVMErrors
+                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
+                                 org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
+                                         .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
+                                                                  .INCOMPATIBLE_CONVERT_OPERATION,
+                                                          TypeChecker.getType(inputValue), targetType));
+        } catch (RuntimeException e) {
+            return org.ballerinalang.jvm.BLangVMErrors
+                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
+                                 org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
+                                         .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
+                                                                  .INCOMPATIBLE_CONVERT_OPERATION,
+                                                          TypeChecker.getType(inputValue), targetType));
+        }
+    }
+    
     private BValue convertValueTypes(BType targetType, BValue inputValue) {
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:

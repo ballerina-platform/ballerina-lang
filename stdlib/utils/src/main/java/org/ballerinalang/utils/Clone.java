@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.RefValue;
@@ -84,7 +83,7 @@ public class Clone extends BlockingNativeCallableUnit {
         RefValue refValue = (RefValue) value;
         if (refValue.getType().getTag() == TypeTags.ERROR || !TypeChecker.checkIsLikeType(refValue, org
                 .ballerinalang.jvm.types.BTypes.typePureType)) {
-            return BallerinaErrors
+            return org.ballerinalang.jvm.BLangVMErrors
                     .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CLONE_ERROR,
                                  org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
                                          .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
