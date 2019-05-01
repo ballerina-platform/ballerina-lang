@@ -2602,17 +2602,14 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
-        switch (unaryExpr.operator) {
-            case BITWISE_COMPLEMENT:
-                // If this is a bitwise complement (~) expression,
-                // then we desugar it to a binary xor expression with -1,
-                // which is same as doing a bitwise 2's complement operation.
-                rewriteBitwiseComplementOperator(unaryExpr);
-                break;
-            default:
-                unaryExpr.expr = rewriteExpr(unaryExpr.expr);
-                result = unaryExpr;
+        if (OperatorKind.BITWISE_COMPLEMENT == unaryExpr.operator) {
+            // If this is a bitwise complement (~) expression, then we desugar it to a binary xor expression with -1,
+            // which is same as doing a bitwise 2's complement operation.
+            rewriteBitwiseComplementOperator(unaryExpr);
+            return;
         }
+        unaryExpr.expr = rewriteExpr(unaryExpr.expr);
+        result = unaryExpr;
     }
 
     /**
@@ -3544,7 +3541,6 @@ public class Desugar extends BLangNodeVisitor {
                 break;
             case REASON:
             case ITERATE:
-            case TYPEOF:
                 result = visitUtilMethodInvocation(iExpr.expr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr));
                 break;
             case CALL:
