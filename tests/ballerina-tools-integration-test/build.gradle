@@ -45,6 +45,7 @@ dependencies {
 }
 
 test {
+    exclude "*/**"
     maxParallelForks = 1
     forkEvery=500
     // make sure ballerina tools zip is built before test run
