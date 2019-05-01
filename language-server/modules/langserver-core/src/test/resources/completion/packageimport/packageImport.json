@@ -6,17 +6,17 @@
   "source": "packageimport/source/packageImport.bal",
     "items": [
         {
-            "label": "extractBasicAuthHeaderValue(http:Request req)(string?)",
+            "label": "extractAuthorizationHeaderValue(http:Request req)(string|error)",
             "kind": "Function",
             "detail": "Function",
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                    "value": "**Package:** _ballerina/http_  \n  \nExtracts the basic authentication header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n  \n  \n**Return**  \nstring?"
+                    "value": "**Package:** _ballerina/http_  \n  \nExtracts the Authorization header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n  \n  \n**Return**  \nstring|error"
                 }
             },
             "sortText": "121",
-            "insertText": "extractBasicAuthHeaderValue(${1:req})",
+            "insertText": "extractAuthorizationHeaderValue(${1:req})",
             "insertTextFormat": "Snippet"
         },
         {
