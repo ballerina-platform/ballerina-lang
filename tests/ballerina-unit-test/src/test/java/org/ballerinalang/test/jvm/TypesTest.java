@@ -719,4 +719,10 @@ public class TypesTest {
         BValue[] result = BRunUtil.invoke(objectsResult, "testSelfReferencingObject");
         Assert.assertEquals((result[0]).stringValue(), "{a:3, f:()}");
     }
+
+    @Test
+    public void testTableType() {
+        BValue[] result = BRunUtil.invoke(objectsResult, "tableFunc");
+        Assert.assertNotNull(result[0]);
+    }
 }

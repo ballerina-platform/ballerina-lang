@@ -215,6 +215,7 @@ public class BIREmitter extends BIRVisitor {
 
     @Override
     public void visit(BIRNonTerminator.NewTable newTable) {
+        writePosition(newTable.pos);
         sb.append("\t\t");
         newTable.lhsOp.accept(this);
         sb.append(" = ").append(newTable.kind.name().toLowerCase(Locale.ENGLISH)).append(" [");

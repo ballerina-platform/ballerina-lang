@@ -98,6 +98,8 @@ public type TypeParser object {
             return self.parseArrayType();
         } else if (typeTag == self.TYPE_TAG_MAP){
             return self.parseMapType();
+        } else if (typeTag == self.TYPE_TAG_TABLE){
+            return self.parseTableType();
         } else if (typeTag == self.TYPE_TAG_INVOKABLE){
             return self.parseInvokableType();
         } else if (typeTag == self.TYPE_TAG_RECORD){
@@ -127,6 +129,10 @@ public type TypeParser object {
 
     function parseMapType() returns BMapType {
         return { constraint:self.parseType() };
+    }
+
+    function parseTableType() returns BTableType {
+        return { tConstraint:self.parseType() };
     }
 
     function parseFutureType() returns BFutureType {

@@ -221,6 +221,20 @@ type InstructionEmitter object {
             print(" = ", ins.kind, " ");
             self.typeEmitter.emitType(ins.typeValue);
             println(";");
+        } else if (ins is NewTable) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.typeEmitter.emitType(ins.typeValue);
+            print(", ");
+            self.opEmitter.emitOp(ins.columnsOp);
+            print(", ");
+            self.opEmitter.emitOp(ins.dataOp);
+            print(", ");
+            self.opEmitter.emitOp(ins.indexColOp);
+            print(", ");
+            self.opEmitter.emitOp(ins.keyColOp);
+            println(";");
         } else if (ins is NewInstance) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
@@ -373,6 +387,8 @@ type TypeEmitter object {
             self.emitTupleType(typeVal, tabs);
         } else if (typeVal is BMapType) {
             self.emitMapType(typeVal, tabs);
+        } else if (typeVal is BTableType) {
+            self.emitTableType(typeVal, tabs);
         } else if (typeVal is BFutureType) {
             self.emitFutureType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
@@ -457,6 +473,12 @@ type TypeEmitter object {
     function emitMapType(BMapType bMapType, string tabs) {
         print(tabs, "map<");
         self.emitType(bMapType.constraint);
+        print(">");
+    }
+
+    function emitTableType(BTableType bTableType, string tabs) {
+        print(tabs, "table<");
+        self.emitType(bTableType.tConstraint);
         print(">");
     }
 
