@@ -25,6 +25,21 @@
   ```ballerina
   string? name;
   ```
+* Avoid line breaks in constrained types.
+  
+  Dos
+  ```ballerina
+    map<int | string> // map reference type
+  ```
+  
+  Don'ts
+  ```ballerina
+  map<
+      int
+      |
+      string
+  > 
+  ```
 ### Operators
 * Keep only a single space before and after the `=` operator.
   
