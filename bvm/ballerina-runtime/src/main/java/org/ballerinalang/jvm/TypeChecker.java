@@ -50,6 +50,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
+import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
+
 /**
  * Responsible for performing runtime type checking.
  * 
@@ -64,42 +67,6 @@ public class TypeChecker {
         }
 
         throw getTypeCastError(sourceVal, targetType);
-    }
-
-    public static long anyToInt(Object sourceVal) {
-        if (sourceVal instanceof Long) {
-            return (Long) sourceVal;
-        } else if (sourceVal instanceof Double) {
-            return ((Double) sourceVal).longValue();
-        } else {
-            throw getTypeCastError(sourceVal, BTypes.typeInt);
-        }
-    }
-
-    public static double anyToFloat(Object sourceVal) {
-        if (sourceVal instanceof Long) {
-            return ((Long) sourceVal).doubleValue();
-        } else if (sourceVal instanceof Double) {
-            return (Double) sourceVal;
-        } else {
-            throw getTypeCastError(sourceVal, BTypes.typeFloat);
-        }
-    }
-
-    public static boolean anyToBoolean(Object sourceVal) {
-        if (sourceVal instanceof Boolean) {
-            return (Boolean) sourceVal;
-        }
-
-        throw getTypeCastError(sourceVal, BTypes.typeBoolean);
-    }
-
-    public static byte anyToByte(Object sourceVal) {
-        if (sourceVal instanceof Byte) {
-            return (Byte) sourceVal;
-        }
-
-        throw getTypeCastError(sourceVal, BTypes.typeByte);
     }
 
     /**
@@ -583,7 +550,7 @@ public class TypeChecker {
         return false;
     }
 
-    private static boolean checkIsLikeType(Object sourceValue, BType targetType, List<TypeValuePair> unresolvedValues) {
+    public static boolean checkIsLikeType(Object sourceValue, BType targetType, List<TypeValuePair> unresolvedValues) {
         BType sourceType = getType(sourceValue);
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
