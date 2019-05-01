@@ -53,7 +53,7 @@
             <class name="org.ballerinalang.test.service.http.sample.ServiceChainingSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.TestReusabilityOfRequest"/>
             <class name="org.ballerinalang.test.service.http.sample.CompressionTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.IdleTimeoutResponseTestCase"/>
+            <!-- <class name="org.ballerinalang.test.service.http.sample.IdleTimeoutResponseTestCase"/> -->
             <class name="org.ballerinalang.test.service.http.sample.HttpPipeliningTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpStatusCodeTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.CipherStrengthSSLTestCase"/>
@@ -64,7 +64,7 @@
 
     <test name="ballerina-resiliency-tests" parallel="methods" thread-count="17">
         <classes>
-            <class name="org.ballerinalang.test.service.resiliency.HttpResiliencyTest"/>
+            <!-- <class name="org.ballerinalang.test.service.resiliency.HttpResiliencyTest"/> -->
         </classes>
     </test>
 
@@ -81,7 +81,7 @@
 
     <test name="ballerina-future-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.future.CancelledFuturesWithTrxTest"/>
+            <!-- <class name="org.ballerinalang.test.future.CancelledFuturesWithTrxTest"/> -->
         </classes>
     </test>
 
@@ -127,7 +127,7 @@
 
     <test name="ballerina-transaction-tests" parallel="false">
         <classes>
-             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
+             <!-- <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/> -->
             <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
         </classes>
     </test>
@@ -141,7 +141,7 @@
         <classes>
             <class name="org.ballerinalang.test.service.websocket.WebSocketTestCommons"/>
             <class name="org.ballerinalang.test.service.websocket.CancelWebSocketUpgradeTest"/>
-            <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
+            <!-- <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/> -->
             <class name="org.ballerinalang.test.service.websocket.ClientServiceTest"/>
             <class name="org.ballerinalang.test.service.websocket.CustomHeaderClientSupportTest"/>
             <class name="org.ballerinalang.test.service.websocket.CustomHeaderServerSupportTest"/>
@@ -183,9 +183,9 @@
             <class name="org.ballerinalang.test.service.grpc.sample.InvalidServiceMethodTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.InvalidMessageTypeTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/>
+            <!-- <class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/> -->
             <class name="org.ballerinalang.test.service.grpc.sample.ProtoBuilderTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>
+            <!-- <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/> -->
             <class name="org.ballerinalang.test.service.grpc.sample.ByteArrayTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEnumTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ErrorServiceTestCase"/>
@@ -193,8 +193,8 @@
             <class name="org.ballerinalang.test.service.grpc.sample.ErrorReturnServiceTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingOneofFieldTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>
+            <!-- <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/> -->
+            <!-- <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/> -->
         </classes>
     </test>
 
@@ -261,7 +261,7 @@
 
     <test name="ballerina-data-streaming-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.data.streaming.TableToXMLStreamingTestCase"/>
+            <!-- <class name="org.ballerinalang.test.data.streaming.TableToXMLStreamingTestCase"/> -->
         </classes>
     </test>
     <test name="ballerina-socket-tests" parallel="false">
