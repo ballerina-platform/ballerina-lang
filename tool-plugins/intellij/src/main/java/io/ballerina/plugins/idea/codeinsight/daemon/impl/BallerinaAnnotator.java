@@ -114,6 +114,11 @@ public class BallerinaAnnotator implements Annotator {
             } else if (elementType == BallerinaTypes.STRING_TEMPLATE_EXPRESSION_START) {
                 TextRange textRange = element.getTextRange();
                 int startOffset = textRange.getStartOffset() + element.getText().indexOf('$');
+                // Highlights xml plain text.
+                TextRange newTextRange2 = new TextRange(textRange.getStartOffset(), startOffset);
+                Annotation annotation2 = holder.createInfoAnnotation(newTextRange2, null);
+                annotation2.setTextAttributes(BallerinaSyntaxHighlightingColors.STRING);
+                // Highlights interpolation start($).
                 TextRange newTextRange = new TextRange(startOffset, startOffset + 1);
                 Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.TEMPLATE_LANGUAGE_COLOR);

@@ -54,6 +54,7 @@ public class BallerinaFunctionNameReferenceImpl extends ASTWrapperPsiElement imp
     return findChildByClass(BallerinaPackageReference.class);
   }
 
+  @Override
   public boolean isInLocalPackage() {
     return BallerinaPsiImplUtil.isInLocalPackage(this);
   }

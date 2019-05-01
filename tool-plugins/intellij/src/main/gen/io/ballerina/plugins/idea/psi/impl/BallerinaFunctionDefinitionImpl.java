@@ -114,11 +114,13 @@ public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implem
     return findChildByType(REMOTE);
   }
 
+  @Override
   @Nullable
   public PsiElement getIdentifier() {
     return BallerinaPsiImplUtil.getIdentifier(this);
   }
 
+  @Override
   @Nullable
   public String getName() {
     return BallerinaPsiImplUtil.getName(this);
