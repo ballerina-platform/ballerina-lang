@@ -5,17 +5,22 @@
 ### If statement
 
 * Always, enclose the condition with parentheses in the If statement.
-* Do not keep spaces between the condition expression and parentheses.
-* Block indent each statement of the `if`, `else if`, and `else` blocks in its own line.
-
-  Example,
+  
+  Dos
   ```ballerina
-  if (sallary >= 2000 && sallary < 2500) {
-      inSallaryRange = true;
-  } else if (sallary >= 25 && sallary < 30) {
-      inProperSallaryRange = true;
-  } else {
-      notInSalaryRange = false;
+  if (true) {
+      ...
+  } else if (false) {
+      ...
+  }
+  ```
+  
+  Don'ts
+  ```ballerina
+  if true {
+      ...
+  } else if false {
+      ...
   }
   ```
 * Keep the `else` and `else if` keywords in the same line with the matching `if` or `else if` block's
@@ -57,16 +62,15 @@
   }
   ```
 * If a pattern clause has more than one statement, block indent each statement in its own line.
+
   Example,
   ```ballerina
   match x {
       var (s, i) if s is string => {
-          string matchedString = "Matched with string : " + s + " added text with " + io:sprintf("%s", i);
-          return matchedString;
+          io:println("string");
       }
       var (s, i) if s is int => {
-          string matchedInt = "Matched with int : " + io:sprintf("%s", s + 4) + " with " + io:sprintf("%s", i);
-          return matchedInt;
+          io:println("int");
       }
   }
   ```

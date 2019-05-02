@@ -23,7 +23,7 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.LogLeecher.LeecherType;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,7 +42,7 @@ import java.util.Map;
  * Integration test cases for building modules.
  */
 public class ModuleBuildTestCase extends BaseTest {
-    private static final String ORG_NAME = "integrationtests";
+    private static final String ORG_NAME = "bcintegrationtest";
     private static final String VERSION = "0.0.1";
     private static final String[] EMPTY_PROJECT_OPTS = {"\n", ORG_NAME + "\n", "\n", "f\n"};
     private static final String[] SINGLE_PKG_PROJECT_OPTS = {"\n", ORG_NAME + "\n", "\n", "m\n", "foo\n", "f\n"};
@@ -52,7 +52,7 @@ public class ModuleBuildTestCase extends BaseTest {
     @BeforeClass()
     public void setUp() throws IOException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-build-module-project-");
-        envVariables = PackagingTestUtils.getEnvVariables();
+        envVariables = TestUtils.getEnvVariables();
     }
 
     /**
@@ -265,7 +265,7 @@ public class ModuleBuildTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("invalidManifest");
         initProject(projectPath, EMPTY_PROJECT_OPTS);
 
-        String invalidContent = "[project]\n org-name = \"integrationtests\"\n version = \"1.0.0";
+        String invalidContent = "[project]\n org-name = \"bcintegrationtest\"\n version = \"1.0.0";
         Files.write(projectPath.resolve("Ballerina.toml"), invalidContent.getBytes(),
                     StandardOpenOption.TRUNCATE_EXISTING);
 
@@ -389,6 +389,6 @@ public class ModuleBuildTestCase extends BaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+        TestUtils.deleteFiles(tempProjectDirectory);
     }
 }

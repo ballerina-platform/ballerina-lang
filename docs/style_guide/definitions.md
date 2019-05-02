@@ -34,12 +34,13 @@
     ```
 ## Imports
 
-* Do not keep spaces between the org name, divider `/`, and module name.
+* Do not keep spaces between the organization name, divider `/`, and module name.
 
   Example,
   ```ballerina
   import ballerina/http;
   ```
+* Imports should be sorted alphabetically, first by the organization name and then the module name.
 
 ## Function definition
 * Do not keep spaces between the function name and the open parentheses `(` of the function signature.

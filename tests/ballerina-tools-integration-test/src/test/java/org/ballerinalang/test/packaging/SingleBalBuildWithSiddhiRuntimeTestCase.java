@@ -19,7 +19,7 @@ package org.ballerinalang.test.packaging;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class SingleBalBuildWithSiddhiRuntimeTestCase extends BaseTest {
     @BeforeClass()
     public void setUp() throws IOException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-packaging-siddhi-bal-");
-        envVariables = PackagingTestUtils.getEnvVariables();
+        envVariables = TestUtils.getEnvVariables();
         Path tempModule = tempProjectDirectory.resolve("sourcePkg");
         Files.createDirectories(tempModule);
 
@@ -118,6 +118,6 @@ public class SingleBalBuildWithSiddhiRuntimeTestCase extends BaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+        TestUtils.deleteFiles(tempProjectDirectory);
     }
 }

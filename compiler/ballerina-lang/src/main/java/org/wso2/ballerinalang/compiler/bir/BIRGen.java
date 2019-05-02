@@ -204,15 +204,24 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangFunction astFunc) {
         Visibility visibility = getVisibility(astFunc.symbol);
         BInvokableType type = astFunc.symbol.getType();
-        Name funcName = getFuncName(astFunc.symbol);
+
+        boolean isTypeAttachedFunction = astFunc.flagSet.contains(Flag.ATTACHED) &&
+                !typeDefs.containsKey(astFunc.receiver.type.tsymbol);
+
+        Name funcName;
+        if (isTypeAttachedFunction) {
+            funcName = names.fromString(astFunc.symbol.name.value);
+        } else {
+            funcName = getFuncName(astFunc.symbol);
+        }
+
         BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type);
         birFunc.isDeclaration = Symbols.isNative(astFunc.symbol);
         birFunc.isInterface = astFunc.interfaceFunction;
         birFunc.argsCount = astFunc.requiredParams.size() +
                             astFunc.defaultableParams.size() + (astFunc.restParam != null ? 1 : 0);
-        if (astFunc.flagSet.contains(Flag.ATTACHED)) {
-            BTypeSymbol tsymbol = astFunc.receiver.type.tsymbol;
-            typeDefs.get(tsymbol).attachedFuncs.add(birFunc);
+        if (astFunc.flagSet.contains(Flag.ATTACHED) && typeDefs.containsKey(astFunc.receiver.type.tsymbol)) {
+            typeDefs.get(astFunc.receiver.type.tsymbol).attachedFuncs.add(birFunc);
         } else {
             this.env.enclPkg.functions.add(birFunc);
         }
@@ -261,7 +270,28 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarLambda);
         BIROperand lhsOp = new BIROperand(tempVarLambda);
         Name funcName = getFuncName(lambdaExpr.function.symbol);
-        emit(new BIRNonTerminator.FPLoad(lambdaExpr.pos, lambdaExpr.function.symbol.pkgID, funcName, lhsOp));
+
+        List<BIRVariableDcl> params = new ArrayList<>();
+
+        lambdaExpr.function.requiredParams.forEach(param -> {
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(param.pos, param.symbol.type,
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG);
+            params.add(birVarDcl);
+        });
+
+        lambdaExpr.function.defaultableParams.forEach(param -> {
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(param.pos, param.var.symbol.type,
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG);
+            params.add(birVarDcl);
+        });
+        BLangSimpleVariable restParam = lambdaExpr.function.restParam;
+        if (restParam != null) {
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(restParam.pos, restParam.symbol.type,
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG);
+            params.add(birVarDcl);
+        }
+
+        emit(new BIRNonTerminator.FPLoad(lambdaExpr.pos, lambdaExpr.function.symbol.pkgID, funcName, lhsOp, params));
         this.env.targetOperand = lhsOp;
     }
 
@@ -358,6 +388,11 @@ public class BIRGen extends BLangNodeVisitor {
         createCall(invocationExpr, true);
     }
 
+    public void visit(BLangInvocation.BFunctionPointerInvocation invocation) {
+        invocation.functionPointerInvocation = true;
+        createCall(invocation, false);
+    }
+
     private void createWait(BLangWaitExpr waitExpr) {
 
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
@@ -406,6 +441,12 @@ public class BIRGen extends BLangNodeVisitor {
             args.add(this.env.targetOperand);
         }
 
+        BIROperand fp = null;
+        if (invocationExpr.functionPointerInvocation) {
+            invocationExpr.expr.accept(this);
+            fp = this.env.targetOperand;
+        }
+
         BIROperand lhsOp = null;
         if (invocationExpr.type.tag != TypeTags.NIL) {
             // Create a temporary variable to store the return operation result.
@@ -418,7 +459,10 @@ public class BIRGen extends BLangNodeVisitor {
 
         // TODO: make vCall a new instruction to avoid package id in vCall
         Name funcName = getFuncName((BInvokableSymbol) invocationExpr.symbol);
-        if (invocationExpr.async) {
+        if (invocationExpr.functionPointerInvocation) {
+            this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
+                    fp, args, lhsOp, thenBB);
+        } else if (invocationExpr.async) {
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
                     isVirtual, invocationExpr.symbol.pkgID, funcName, args, lhsOp, thenBB);
         } else {
