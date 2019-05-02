@@ -130,7 +130,11 @@ under the License.
                     <exclude name="testCheckExprInBinaryExpr7"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.DivisionOperationTest" />
+            <class name="org.ballerinalang.test.expressions.binaryoperations.DivisionOperationTest">
+                <methods>
+                    <exclude name="testIntDivideByZeroExpr"/>
+                </methods>
+            </class>
             <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
             <class name="org.ballerinalang.test.expressions.binaryoperations.BinaryExprTest" />
         </classes>

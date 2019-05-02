@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BTypedescType;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -311,11 +312,10 @@ public class BRunUtil {
                     throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
                 } catch (InvocationTargetException e) {
                     Throwable t = e.getTargetException();
-                    if (t instanceof ErrorValue) {
-                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException("error: " +
-                                BLangVMErrors.getPrintableStackTrace((ErrorValue) t));
+                    if (t instanceof BLangRuntimeException) {
+                        throw (BLangRuntimeException) t;
                     }
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(e.getMessage());
+                    throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
                 }
             };
 
