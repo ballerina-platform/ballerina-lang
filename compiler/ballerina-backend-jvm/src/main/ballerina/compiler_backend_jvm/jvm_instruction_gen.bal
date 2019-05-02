@@ -181,9 +181,7 @@ type InstructionGenerator object {
         } else {
             self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isEqual",
                     io:sprintf("(L%s;L%s;)Z", OBJECT, OBJECT), false);
-            self.storeToVar(binaryIns.lhsOp.variableDcl);
             self.mv.visitJumpInsn(IFNE, label1);
-            return;
         }
 
         self.mv.visitInsn(ICONST_1);
