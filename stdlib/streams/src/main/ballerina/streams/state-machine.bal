@@ -33,6 +33,11 @@ public type StateMachine object {
         StreamEvent?[] events = self.rootProcessor.flushAndGetFulfilledEvents();
         self.nextProcessorPointer.call(events);
     }
+
+    public function inject(StreamEvent streamEvent) {
+        StreamEvent?[] streamEvents = [streamEvent];
+        self.process(streamEvents);
+    }
 };
 
 public function createStateMachine(CompoundPatternProcessor rootProcessor, function (StreamEvent?[]) nextProcPointer)
