@@ -129,6 +129,7 @@ under the License.
                     <exclude name="testCheckExprInBinaryExpr7"/>
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.DivisionOperationTest" />
         </classes>
     </test>
 </suite>
