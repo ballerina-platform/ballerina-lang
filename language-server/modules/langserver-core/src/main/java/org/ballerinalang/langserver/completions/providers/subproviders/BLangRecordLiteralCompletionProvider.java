@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
@@ -39,11 +40,11 @@ import java.util.stream.Collectors;
 /**
  * Completion Item Resolver for BLangRecordLiteral.
  */
-public class BLangRecordLiteralCompletionProvider extends AbstractSubCompletionProvider {
+public class BLangRecordLiteralCompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext completionContext) {
+    public List<CompletionItem> getCompletions(LSContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        BLangNode bLangNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
+        BLangNode bLangNode = completionContext.get(CompletionKeys.SCOPE_NODE_KEY);
         BType recordType = bLangNode.type;
         
         if (!recordType.getKind().equals(TypeKind.RECORD)) {

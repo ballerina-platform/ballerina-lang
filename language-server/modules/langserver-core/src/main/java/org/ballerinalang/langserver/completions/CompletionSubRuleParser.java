@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.AnnotationAttachmentMetaInfo;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.completions.resolvers.CompletionItemScope;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
@@ -92,7 +93,7 @@ public class CompletionSubRuleParser {
             context.put(CompletionKeys.NEXT_NODE_KEY, nextNodeType);
             return;
         }
-        BLangNode symbolEnvNode = context.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
+        BLangNode symbolEnvNode = context.get(CompletionKeys.SCOPE_NODE_KEY);
         if (symbolEnvNode == null || symbolEnvNode instanceof BLangPackage) {
             // Parse with compilation unit context
             parseWithinCompilationUnit(context);
@@ -283,7 +284,7 @@ public class CompletionSubRuleParser {
         ctx.put(CompletionKeys.ANNOTATION_ATTACHMENT_META_KEY,
                 new AnnotationAttachmentMetaInfo(annotationName, fieldsQueue, pkgAlias,
                         getNextNodeTypeFlag(tokenStream, currentTokenIndex, ctx)));
-        ctx.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, new BLangAnnotationAttachment());
+        ctx.put(CompletionKeys.SCOPE_NODE_KEY, new BLangAnnotationAttachment());
         
         return true;
     }

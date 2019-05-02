@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
@@ -39,9 +40,9 @@ import java.util.stream.IntStream;
 /**
  * Statement context provider for resolving the items of the statement context.
  */
-public class StatementCompletionProvider extends AbstractSubCompletionProvider {
+public class StatementCompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext context) {
+    public List<CompletionItem> getCompletions(LSContext context) {
         // Add the visible static completion items
         ArrayList<CompletionItem> completionItems = new ArrayList<>(getStaticCompletionItems(context));
         // Add the statement templates

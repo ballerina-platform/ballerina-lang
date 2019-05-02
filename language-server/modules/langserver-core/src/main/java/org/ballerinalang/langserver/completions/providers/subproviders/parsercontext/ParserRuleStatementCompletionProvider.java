@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.completions.providers.subproviders.parserco
 
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
@@ -33,9 +33,9 @@ import java.util.List;
 /**
  * Parser rule based statement context provider.
  */
-public class ParserRuleStatementCompletionProvider extends AbstractSubCompletionProvider {
+public class ParserRuleStatementCompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext context) {
+    public List<CompletionItem> getCompletions(LSContext context) {
         Either<List<CompletionItem>, List<SymbolInfo>> itemList = SymbolFilters
                 .get(DelimiterBasedContentFilter.class).filterItems(context);
         ArrayList<CompletionItem> completionItems = new ArrayList<>(this.getCompletionItemList(itemList, context));

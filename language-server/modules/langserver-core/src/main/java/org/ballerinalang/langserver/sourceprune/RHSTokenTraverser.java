@@ -15,11 +15,13 @@
  */
 package org.ballerinalang.langserver.sourceprune;
 
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +36,7 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
     private List<Integer> rhsTraverseTerminals;
     private boolean definitionRemoved;
     private int ltTokenCount;
+    private List<CommonToken> removedTokens;
 
     RHSTokenTraverser(SourcePruneContext sourcePruneContext) {
         this.leftBraceCount = sourcePruneContext.get(SourcePruneKeys.LEFT_BRACE_COUNT_KEY);
@@ -41,11 +44,13 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
         this.rhsTraverseTerminals = sourcePruneContext.get(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY);
         this.definitionRemoved = sourcePruneContext.get(SourcePruneKeys.REMOVE_DEFINITION_KEY);
         this.ltTokenCount = sourcePruneContext.get(SourcePruneKeys.LT_COUNT_KEY);
+        this.removedTokens = new ArrayList<>();
     }
 
-    void traverseRHS(TokenStream tokenStream, int tokenIndex) {
+    List<CommonToken>  traverseRHS(TokenStream tokenStream, int tokenIndex) {
         Optional<Token> token = Optional.of(tokenStream.get(tokenIndex));
         while (token.isPresent()) {
+            this.removedTokens.add(new CommonToken(token.get()));
             int type = token.get().getType();
             if (BallerinaParser.RIGHT_BRACE == type && leftBraceCount > 0) {
                 leftBraceCount--;
@@ -62,6 +67,8 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
             this.alterTokenText(token.get());
             token = CommonUtil.getNextDefaultToken(tokenStream, token.get().getTokenIndex());
         }
+        
+        return this.removedTokens;
     }
 
     private boolean terminateRHSTraverse(Token token) {

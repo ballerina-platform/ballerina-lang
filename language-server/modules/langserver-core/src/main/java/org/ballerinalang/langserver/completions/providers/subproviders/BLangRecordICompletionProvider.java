@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.providers.subproviders;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.eclipse.lsp4j.CompletionItem;
@@ -33,9 +34,9 @@ import java.util.stream.Collectors;
 /**
  * Item Resolver for the BLangRecord node context.
  */
-public class BLangRecordICompletionProvider extends AbstractSubCompletionProvider {
+public class BLangRecordICompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext context) {
+    public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         if (this.isInvocationOrInteractionOrFieldAccess(context)) {
             Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters

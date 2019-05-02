@@ -15,11 +15,15 @@
  */
 package org.ballerinalang.langserver.sourceprune;
 
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.bouncycastle.util.Arrays;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,7 +42,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
     private int ltSymbolCount;
     private boolean capturedAssignToken;
     private SourcePruneContext sourcePruneContext;
-    private Boolean xyz = null;
+    private List<CommonToken> removedTokens;
 
     LHSTokenTraverser(SourcePruneContext sourcePruneContext) {
         this.sourcePruneContext = sourcePruneContext;
@@ -50,11 +54,13 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         this.rightParenthesisCount = 0;
         this.rightBraceCount = 0;
         this.ltSymbolCount = 0;
+        this.removedTokens = new ArrayList<>();
     }
 
-    void traverseLHS(TokenStream tokenStream, int tokenIndex) {
+    List<CommonToken> traverseLHS(TokenStream tokenStream, int tokenIndex) {
         Optional<Token> token = Optional.of(tokenStream.get(tokenIndex));
         while (token.isPresent()) {
+            this.removedTokens.add(new CommonToken(token.get()));
             int type = token.get().getType();
             if (this.lhsTraverseTerminals.contains(type)) {
                 boolean terminate = terminateLHSTraverse(token.get(), tokenStream);
@@ -75,6 +81,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         sourcePruneContext.put(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY, this.rightParenthesisCount);
         sourcePruneContext.put(SourcePruneKeys.RIGHT_BRACE_COUNT_KEY, this.rightBraceCount);
         sourcePruneContext.put(SourcePruneKeys.LT_COUNT_KEY, this.ltSymbolCount);
+        Collections.reverse(this.removedTokens);
+        return this.removedTokens;
     }
 
     private boolean terminateLHSTraverse(Token token, TokenStream tokenStream) {
@@ -129,7 +137,6 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         }
         if (type == BallerinaParser.RETURNS) {
             this.alterTokenText(token);
-//            List<Token> nTokensToLeft = CommonUtil.getNDefaultTokensToLeft(tokenStream, 2, token.getTokenIndex());
             return !this.capturedAssignToken;
         }
         // Handle the ON token replacing since this is used in both service and JSON streaming input

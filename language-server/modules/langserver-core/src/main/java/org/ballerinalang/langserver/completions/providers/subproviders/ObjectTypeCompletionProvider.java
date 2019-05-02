@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
@@ -56,13 +57,13 @@ import java.util.stream.Collectors;
 /**
  * Completion item provider for the object type.
  */
-public class ObjectTypeCompletionProvider extends AbstractSubCompletionProvider {
+public class ObjectTypeCompletionProvider extends LSCompletionProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectTypeCompletionProvider.class);
 
     @Override
-    public List<CompletionItem> resolveItems(LSContext context) {
+    public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        BLangNode objectNode = context.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
+        BLangNode objectNode = context.get(CompletionKeys.SCOPE_NODE_KEY);
         
         if (!objectNode.getKind().equals(NodeKind.OBJECT_TYPE)) {
             return completionItems;

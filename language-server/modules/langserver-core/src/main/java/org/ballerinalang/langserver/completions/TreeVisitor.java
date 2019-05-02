@@ -23,6 +23,8 @@ import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.completions.resolvers.CompletionItemScope;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.CompletionVisitorUtil;
 import org.ballerinalang.langserver.completions.util.CursorPositionResolvers;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
@@ -36,6 +38,7 @@ import org.ballerinalang.langserver.completions.util.positioning.resolvers.Recor
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ResourceParamScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ServiceScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.TopLevelNodeScopeResolver;
+import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -49,6 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -99,6 +103,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -181,8 +186,8 @@ public class TreeVisitor extends LSNodeVisitor {
         }
 
         // If the cursor is at an empty document's first line or is bellow the last construct, symbol env node is null
-        if (this.lsContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
-            this.lsContext.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, evalPkg);
+        if (this.lsContext.get(CompletionKeys.SCOPE_NODE_KEY) == null) {
+            this.lsContext.put(CompletionKeys.SCOPE_NODE_KEY, evalPkg);
             this.populateSymbols(this.resolveAllVisibleSymbols(this.getSymbolEnv()), this.getSymbolEnv());
             forceTerminateVisitor();
         }
@@ -216,7 +221,16 @@ public class TreeVisitor extends LSNodeVisitor {
 
         boolean withinParamContext = CompletionVisitorUtil
                 .isWithinParameterContext(functionName, UtilSymbolKeys.FUNCTION_KEYWORD_KEY, funcEnv, lsContext, this);
-        boolean cursorBeforeNode = cpr.isCursorBeforeNode(funcNode.getPosition(), this, this.lsContext, funcNode,
+        DiagnosticPos functionPos = CommonUtil.clonePosition(funcNode.getPosition());
+        if (!funcNode.annAttachments.isEmpty()) {
+            BLangAnnotationAttachment lastItem = CommonUtil.getLastItem(funcNode.annAttachments);
+            List<Whitespace> wsList = new ArrayList<>(funcNode.getWS());
+            String[] firstWSItem = wsList.get(0).getWs().split(CommonUtil.LINE_SEPARATOR_SPLIT);
+            int precedingNewLines = firstWSItem.length - 1;
+            functionPos.sLine = lastItem.pos.eLine + precedingNewLines;
+            functionPos.sCol = firstWSItem[firstWSItem.length - 1].length() + 1;
+        }
+        boolean cursorBeforeNode = cpr.isCursorBeforeNode(functionPos, this, this.lsContext, funcNode,
                 funcNode.symbol);
 
         if (terminateVisitor || cursorBeforeNode || withinParamContext) {
@@ -812,7 +826,7 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     private void populateSymbolEnvNode(BLangNode node) {
-        lsContext.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, node);
+        lsContext.put(CompletionKeys.SCOPE_NODE_KEY, node);
     }
     
     private void visitMatchPatternClause(BLangNode patternNode, BLangBlockStmt body) {

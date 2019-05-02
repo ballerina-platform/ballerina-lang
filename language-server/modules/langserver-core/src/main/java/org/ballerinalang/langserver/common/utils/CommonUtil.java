@@ -218,6 +218,20 @@ public class CommonUtil {
     }
 
     /**
+     * Clone the diagnostic position given
+     *
+     * @param diagnosticPos - diagnostic position to be cloned
+     * @return {@link DiagnosticPos} cloned diagnostic position
+     */
+    public static DiagnosticPos clonePosition(DiagnosticPos diagnosticPos) {
+        int startLine = diagnosticPos.getStartLine();
+        int endLine = diagnosticPos.getEndLine();
+        int startColumn = diagnosticPos.getStartColumn();
+        int endColumn = diagnosticPos.getEndColumn();
+        return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
+    }
+
+    /**
      * Replace and returns a diagnostic position with a new position.
      *
      * @param oldPos old position
@@ -351,7 +365,8 @@ public class CommonUtil {
         return itemList.subList(itemList.size() - n, itemList.size());
     }
 
-    private static Optional<Token> getDefaultTokenToLeftOrRight(TokenStream tokenStream, int startIndex, int direction) {
+    private static Optional<Token> getDefaultTokenToLeftOrRight(TokenStream tokenStream, int startIndex,
+                                                                int direction) {
         Token token = null;
         while (true) {
             startIndex += direction;

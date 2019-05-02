@@ -52,6 +52,6 @@ abstract class AbstractTokenTraverser {
     void replaceCondition(TokenStream tokenStream, int tokenIndex) {
         Optional<Token> nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream, tokenIndex);
         nextDefaultToken.ifPresent(token -> ((CommonToken) token)
-                .setText(String.join("_", Collections.nCopies(token.getText().length()/2, "a"))));
+                .setText(String.join("_", Collections.nCopies(token.getText().length() / 2, "a"))));
     }
 }

@@ -15,14 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completions.providers.subproviders;
+package org.ballerinalang.langserver.completions.providers.scopeproviders;
 
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.AnnotationAttachmentMetaInfo;
 import org.ballerinalang.langserver.common.utils.completion.BLangRecordLiteralUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -32,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
@@ -44,16 +47,19 @@ import java.util.Queue;
 /**
  * Annotation resolver for BLangAnnotationAttachment node context.
  */
-public class BLangAnnotationCompletionProvider extends AbstractSubCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
+public class BLangAnnotationAttachmentProvider extends LSCompletionProvider {
+    public BLangAnnotationAttachmentProvider() {
+        this.attachmentPoints.add(BLangAnnotationAttachment.class);
+    }
     @Override
-    public List<CompletionItem> resolveItems(LSContext ctx) {
-        BLangNode symbolEnvNode = ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-        if (symbolEnvNode instanceof BLangAnnotationAttachment
-                && ((BLangAnnotationAttachment) symbolEnvNode).expr instanceof BLangRecordLiteral) {
-            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) ((BLangAnnotationAttachment) symbolEnvNode).expr;
+    public List<CompletionItem> getCompletions(LSContext ctx) {
+        BLangNode scopeNode = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
+        if (((BLangAnnotationAttachment) scopeNode).expr instanceof BLangRecordLiteral) {
+            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) ((BLangAnnotationAttachment) scopeNode).expr;
             return BLangRecordLiteralUtil.getFieldsForMatchingRecord(recordLiteral, ctx);
-        } else if (symbolEnvNode instanceof BLangAnnotationAttachment
-                && ctx.get(CompletionKeys.ANNOTATION_ATTACHMENT_META_KEY) != null) {
+        }
+        if (ctx.get(CompletionKeys.ANNOTATION_ATTACHMENT_META_KEY) != null) {
             return findAllFieldsFromMetaInfo(ctx);
         }
 

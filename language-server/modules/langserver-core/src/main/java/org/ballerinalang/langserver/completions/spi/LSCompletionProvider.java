@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.providers.subproviders;
+package org.ballerinalang.langserver.completions.spi;
 
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -24,6 +24,8 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+//import org.ballerinalang.langserver.completions.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
@@ -52,8 +54,15 @@ import java.util.stream.Collectors;
 /**
  * Interface for completion item providers.
  */
-public abstract class AbstractSubCompletionProvider {
-    public abstract List<CompletionItem> resolveItems(LSContext completionContext);
+public abstract class LSCompletionProvider {
+
+    protected List<Class> attachmentPoints = new ArrayList<>();
+
+    public List<Class> getAttachmentPoints() {
+        return this.attachmentPoints;
+    }
+
+    public abstract List<CompletionItem> getCompletions(LSContext context);
 
     /**
      * Populate the completion item list by considering the.
@@ -296,6 +305,10 @@ public abstract class AbstractSubCompletionProvider {
                     || (UtilSymbolKeys.SELF_KEYWORD_KEY.equals(bSymbol.getName().getValue())
                     && (bSymbol.owner.flags & Flags.RESOURCE) == Flags.RESOURCE);
         };
+    }
+    
+    protected LSCompletionProvider getProvider(Class providerKey) {
+        return LSCompletionProviderFactory.getInstance().getProvider(providerKey);
     }
 
     // Private Methods

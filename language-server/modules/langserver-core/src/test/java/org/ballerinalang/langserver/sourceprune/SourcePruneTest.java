@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -66,18 +67,20 @@ public class SourcePruneTest {
     @Test(dataProvider = "testDataProvider")
     public void testSourcePrune(String configPath) throws IOException, WorkspaceDocumentException {
         Path sourcePath = configRoot.resolve(configPath);
-        String documentContent = new String(Files.readAllBytes(sourcePath)).replaceAll("\r?\n", LINE_SEPARATOR);
         JsonObject configObject = FileUtils.fileContentAsObject(sourcePath.toString());
         Position position = gson.fromJson(configObject.get("position"), Position.class);
         String source = configObject.getAsJsonPrimitive("source").getAsString();
         LSContext lsContext = this.getLSContext(source, position);
+        String fileUri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
+        Path compilationPath = new LSDocument(fileUri).getPath();
+        String documentContent = new String(Files.readAllBytes(compilationPath)).replaceAll("\r?\n", LINE_SEPARATOR);
 
-        this.documentManager.openFile(sourcePath, documentContent);
+        this.documentManager.openFile(compilationPath, documentContent);
         try {
-            String prunedSource = CompletionUtil.getPrunedSource(lsContext);
+            CompletionUtil.getPrunedSource(lsContext);
+            String prunedSource = documentManager.getFileContent(compilationPath);
             Path expectedPath = expectedRoot.resolve(configObject.getAsJsonPrimitive("expected").getAsString());
             String expected = new String(Files.readAllBytes(expectedPath));
-            System.out.println("** Pruned Source **\n" + prunedSource + "\n***********");
             Assert.assertEquals(prunedSource, expected);
             BallerinaParser parser = CommonUtil.prepareParser(prunedSource);
             parser.compilationUnit();

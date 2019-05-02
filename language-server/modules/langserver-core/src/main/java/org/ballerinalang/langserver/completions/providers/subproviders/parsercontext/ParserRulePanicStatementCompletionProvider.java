@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.providers.subproviders.parserco
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 
@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
 /**
  * Completion Item Resolver for the panic statement context.
  */
-public class ParserRulePanicStatementCompletionProvider extends AbstractSubCompletionProvider {
+public class ParserRulePanicStatementCompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext context) {
+    public List<CompletionItem> getCompletions(LSContext context) {
         List<SymbolInfo> symbolInfoList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         List<SymbolInfo> filteredList = symbolInfoList.stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.type instanceof BErrorType)

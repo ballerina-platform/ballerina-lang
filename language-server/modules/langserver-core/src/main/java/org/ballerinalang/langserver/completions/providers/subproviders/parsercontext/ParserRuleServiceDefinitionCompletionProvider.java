@@ -24,7 +24,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
@@ -43,9 +43,9 @@ import java.util.stream.Collectors;
 /**
  * Completion item provider for service definition context.
  */
-public class ParserRuleServiceDefinitionCompletionProvider extends AbstractSubCompletionProvider {
+public class ParserRuleServiceDefinitionCompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext ctx) {
+    public List<CompletionItem> getCompletions(LSContext ctx) {
         List<CompletionItem> completionItems = new ArrayList<>();
         TokenStream tokenStream = ctx.get(CompletionKeys.TOKEN_STREAM_KEY);
         Stack<Token> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY);

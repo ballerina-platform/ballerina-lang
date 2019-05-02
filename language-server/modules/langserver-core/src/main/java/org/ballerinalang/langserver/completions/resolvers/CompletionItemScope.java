@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * Represents a Completion Item Context.
  */
-public enum CompletionItemsContext {
+public enum CompletionItemScope {
     TOP_LEVEL,
     STATEMENT,
     SERVICE,
@@ -75,15 +75,15 @@ public enum CompletionItemsContext {
      * Resolves into the finest completion context.
      *
      * @param ctx {@link LSContext}
-     * @return {@link CompletionItemsContext}
+     * @return {@link CompletionItemScope}
      */
-    public CompletionItemsContext resolve(LSContext ctx) {
+    public CompletionItemScope resolve(LSContext ctx) {
         ParserRuleContext prCtx = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         ParserRuleContext contextParent = (prCtx != null) ? prCtx.getParent() : null;
         List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
         switch (this) {
             case TOP_LEVEL:
-                CompletionItemsContext resolver = prCtx == null ? this : CompletionItemResolver.get(
+                CompletionItemScope resolver = prCtx == null ? this : CompletionItemResolver.get(
                         prCtx.getClass(), ctx);
                 if (isAnnotationStart(ctx)) {
                     return CompletionItemResolver.get(BallerinaParser.AnnotationAttachmentContext.class, ctx);
@@ -117,7 +117,7 @@ public enum CompletionItemsContext {
                 if (prCtx == null) {
                     return this;
                 }
-                CompletionItemsContext contextResolver = CompletionItemResolver.get(prCtx.getClass(), ctx);
+                CompletionItemScope contextResolver = CompletionItemResolver.get(prCtx.getClass(), ctx);
                 return (contextResolver == null) ? this : contextResolver;
             case BLOCK_STATEMENT:
                 ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);

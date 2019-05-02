@@ -22,8 +22,8 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
-import org.ballerinalang.langserver.completions.providers.subproviders.TopLevelCompletionProvider;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.scopeproviders.TopLevelProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
@@ -40,9 +40,9 @@ import java.util.stream.Collectors;
 /**
  * Parser rule based variable definition statement context resolver.
  */
-public class ParserRuleGlobalVariableDefinitionCompletionProvider extends AbstractSubCompletionProvider {
+public class ParserRuleGlobalVariableDefinitionCompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext ctx) {
+    public List<CompletionItem> getCompletions(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
         
@@ -86,9 +86,9 @@ public class ParserRuleGlobalVariableDefinitionCompletionProvider extends Abstra
             completionItems.addAll(this.getListenersFromPackage(ctx, poppedTokens.get(poppedTokens.size() - 2)));
             // TODO: usage of index
         } else if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
-            completionItems.addAll(new ParserRuleVariableDefinitionCompletionProvider().resolveItems(ctx));
+            completionItems.addAll(new ParserRuleVariableDefinitionCompletionProvider().getCompletions(ctx));
         } else {
-            completionItems.addAll(new TopLevelCompletionProvider().resolveItems(ctx));
+            completionItems.addAll(new TopLevelProvider().getCompletions(ctx));
         }
         return completionItems;
     }

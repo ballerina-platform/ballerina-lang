@@ -25,7 +25,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -48,7 +48,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGener
  *
  * @since v0.982.0
  */
-public class ParserRuleFunctionDefinitionCompletionProvider extends AbstractSubCompletionProvider {
+public class ParserRuleFunctionDefinitionCompletionProvider extends LSCompletionProvider {
     private static List<String> getFuncArguments(BInvokableSymbol bInvokableSymbol) {
         List<String> list = new ArrayList<>();
         if (bInvokableSymbol.type instanceof BInvokableType) {
@@ -68,7 +68,7 @@ public class ParserRuleFunctionDefinitionCompletionProvider extends AbstractSubC
     }
 
     @Override
-    public List<CompletionItem> resolveItems(LSContext context) {
+    public List<CompletionItem> getCompletions(LSContext context) {
         List<CompletionItem> completionItems = new ArrayList<>();
         List<String> consumedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
                 .map(Token::getText)

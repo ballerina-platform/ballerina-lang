@@ -160,12 +160,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 CompletionUtil.getPrunedSource(context);
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                                        CompletionCustomErrorStrategy.class,
+                                                                        null,
                                                                         false);
                 context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
                 context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 CompletionUtil.resolveSymbols(context);
-                CompletionSubRuleParser.parse(context);
+//                CompletionSubRuleParser.parse(context);
                 completions.addAll(CompletionUtil.getCompletionItems(context));
             } catch (Exception | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {

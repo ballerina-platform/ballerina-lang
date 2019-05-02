@@ -15,8 +15,11 @@
  */
 package org.ballerinalang.langserver.sourceprune;
 
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.Arrays;
@@ -46,7 +49,8 @@ public class SourcePruner {
                 BallerinaParser.RIGHT_PARENTHESIS, BallerinaParser.IMPORT, BallerinaParser.GT,
                 BallerinaParser.XMLNS, BallerinaParser.SERVICE, BallerinaParser.PUBLIC, BallerinaParser.PRIVATE,
                 BallerinaParser.REMOTE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.ANNOTATION,
-                BallerinaParser.CONST, BallerinaParser.RIGHT_BRACKET, BallerinaParser.RIGHT_CLOSED_RECORD_DELIMITER
+                BallerinaParser.CONST, BallerinaParser.RIGHT_BRACKET, BallerinaParser.RIGHT_CLOSED_RECORD_DELIMITER,
+                BallerinaParser.RESOURCE, BallerinaParser.LISTENER
         );
         BLOCK_REMOVE_KW_TERMINALS = Arrays.asList(
                 BallerinaParser.SERVICE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.MATCH,
@@ -80,13 +84,15 @@ public class SourcePruner {
         }
     }
 
-    public static void pruneSource(TokenStream tokenStream, int tokenIndex) {
+    public static void pruneSource(TokenStream tokenStream, int tokenIndex, LSContext lsContext) {
         if (tokenIndex < 0 || tokenIndex >= tokenStream.size()) {
             return;
         }
-        SourcePruneContext sourcePruneContext = getContext();
-        new LHSTokenTraverser(sourcePruneContext).traverseLHS(tokenStream, tokenIndex);
-        new RHSTokenTraverser(sourcePruneContext).traverseRHS(tokenStream, tokenIndex + 1);
+        SourcePruneContext sourcePruneCtx = getContext();
+        List<CommonToken> lhsTokens = new LHSTokenTraverser(sourcePruneCtx).traverseLHS(tokenStream, tokenIndex);
+        List<CommonToken> rhsTokens = new RHSTokenTraverser(sourcePruneCtx).traverseRHS(tokenStream, tokenIndex + 1);
+        lsContext.put(CompletionKeys.LHS_TOKENS_KEY, lhsTokens);
+        lsContext.put(CompletionKeys.RHS_TOKENS_KEY, rhsTokens);
     }
 
     private static TokenPosition locateCursorAtToken(Token token, int cLine, int cCol) {
@@ -99,7 +105,8 @@ public class SourcePruner {
         Token which is considered as the token at cursor is the token immediate before the cursor,
          where its end column is cursor column 
          */
-        if (tokenLine == cLine && tokenStartCol < cCol && tokenEndCol >= cCol && token.getType() != BallerinaParser.NEW_LINE) {
+        if (tokenLine == cLine && tokenStartCol < cCol && tokenEndCol >= cCol
+                && token.getType() != BallerinaParser.NEW_LINE) {
             return TokenPosition.ON;
         } else if (cLine > tokenLine || (tokenLine == cLine && cCol > tokenEndCol)) {
             return TokenPosition.RIGHT;

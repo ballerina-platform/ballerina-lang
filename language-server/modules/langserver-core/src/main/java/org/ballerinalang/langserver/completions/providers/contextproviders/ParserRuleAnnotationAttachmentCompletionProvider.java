@@ -16,15 +16,17 @@
 *  under the License.
 */
 
-package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
+package org.ballerinalang.langserver.completions.providers.contextproviders;
 
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +34,15 @@ import java.util.List;
 /**
  * Annotation Attachment Resolver to resolve the corresponding annotation attachments.
  */
-public class ParserRuleAnnotationAttachmentCompletionProvider extends AbstractSubCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
+public class ParserRuleAnnotationAttachmentCompletionProvider extends LSCompletionProvider {
+
+    public ParserRuleAnnotationAttachmentCompletionProvider() {
+        this.attachmentPoints.add(ParserRuleAnnotationAttachmentCompletionProvider.class);
+    }
+
     @Override
-    public List<CompletionItem> resolveItems(LSContext ctx) {
+    public List<CompletionItem> getCompletions(LSContext ctx) {
         if (ctx.get(CompletionKeys.NEXT_NODE_KEY) == null) {
             return new ArrayList<>();
         }

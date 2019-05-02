@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
@@ -38,9 +39,9 @@ import java.util.Optional;
 /**
  * ServiceContextResolver.
  */
-public class ServiceCompletionProvider extends AbstractSubCompletionProvider {
+public class ServiceCompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext ctx) {
+    public List<CompletionItem> getCompletions(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         if (isInvocationOrInteractionOrFieldAccess(ctx)) {
@@ -57,7 +58,7 @@ public class ServiceCompletionProvider extends AbstractSubCompletionProvider {
     }
 
     private Optional<List<CompletionItem>> getResourceFunction(LSContext ctx) {
-        BLangNode symbolEnvNode = ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
+        BLangNode symbolEnvNode = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
         List<CompletionItem> items = new ArrayList<>();
         if (symbolEnvNode instanceof BLangService) {
             BLangService service = (BLangService) symbolEnvNode;
