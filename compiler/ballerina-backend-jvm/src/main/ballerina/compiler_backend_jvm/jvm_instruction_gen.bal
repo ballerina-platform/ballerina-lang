@@ -680,7 +680,7 @@ type InstructionGenerator object {
     function generateTypeofIns(bir:UnaryOp unaryOp) {
         self.loadVar(unaryOp.rhsOp.variableDcl);
         addBoxInsn(self.mv, unaryOp.rhsOp.variableDcl.typeValue);
-        self.mv.visitMethodInsn(INVOKESTATIC, TYPEDESC_PROVIDER, "typeof",
+        self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "getTypedesc",
                 io:sprintf("(L%s;)L%s;", OBJECT, TYPEDESC_VALUE), false);
         self.storeToVar(unaryOp.lhsOp.variableDcl);
     }

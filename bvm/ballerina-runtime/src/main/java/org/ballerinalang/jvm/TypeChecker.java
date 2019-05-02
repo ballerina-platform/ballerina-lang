@@ -38,6 +38,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -172,6 +173,14 @@ public class TypeChecker {
         } else {
             return ((RefValue) value).getType();
         }
+    }
+
+    public static TypedescValue getTypedesc(Object value) {
+        BType type = TypeChecker.getType(value);
+        if (type == null) {
+            return null;
+        }
+        return new TypedescValue(type);
     }
 
     // Private methods
