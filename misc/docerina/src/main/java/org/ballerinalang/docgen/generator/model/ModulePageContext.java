@@ -15,24 +15,18 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
-import java.util.List;
-
 /**
- * Represents a Ballerina Module.
+ * Page context for the module page.
  */
-public class Module {
-
-    public String id;
-    public String summary;
-    public String description;
-
-    // constructs
-    public List<Record> records;
-    public List<Object> objects;
-    public List<Client> clients;
-    public List<Listener> listeners;
-    public List<Function> functions;
-    public List<Constant> constants;
-    public List<Annotation> annotations;
-    public List<Error> errors;
+public class ModulePageContext {
+    public Module module;
+    public Project project;
+    public String rootPath;
+    public String title;
+    public ModulePageContext(Module module, Project project, String rootPath, String title) {
+        this.module = module;
+        this.project = project;
+        this.rootPath = rootPath;
+        this.title = title;
+    }
 }

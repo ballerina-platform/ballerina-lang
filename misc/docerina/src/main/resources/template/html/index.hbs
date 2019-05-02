@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 
-{{> head title="API Documentation" rootPath="" }}
+{{> head }}
 
 <body>
   <div class="ui grid">
@@ -10,12 +10,12 @@
     </div>
     <div class="fourteen wide column content-wrapper">
       <table class="ui table">
-         {{#if modules}}
+         {{#if project.modules}}
         <tbody>
-         {{#each modules}}
+         {{#each project.modules}}
           <tr>
             <td class="module-title modules"><a href="{{id}}/index.html">{{id}}</a></td>
-            <td class="module-desc">{{description}}</td>
+            <td class="module-desc">{{summary}}</td>
           </tr>
           {{/each}}
         </tbody>

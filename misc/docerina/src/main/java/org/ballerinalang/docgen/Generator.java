@@ -21,6 +21,7 @@ package org.ballerinalang.docgen;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.model.AnnotationDoc;
 import org.ballerinalang.docgen.model.ConstantDoc;
 import org.ballerinalang.docgen.model.Documentable;
@@ -83,16 +84,13 @@ public class Generator {
     private static final String EMPTY_STRING = "";
 
     /**
-     * Generate the page when the bal package is passed.
+     * Generate the module constructs model when the bal module is given.
      *
-     * @param balPackage  The current package.
-     * @param packages    List of available packages.
-     * @param description package description.
-     * @param primitives  list of primitives.
-     * @return A page model for the current package.
+     * @param module  module model to fill.
+     * @param balPackage module tree.
+     * @param moduleNames List of available modules in current Project.
      */
-    public static Page generatePage(BLangPackage balPackage, List<Link> packages, String description,
-                                    List<Link> primitives) {
+    public static void generateModuleConstructs(Module module, BLangPackage balPackage, List<String> moduleNames) {
 
         //TODO orgName is not properly set from the ballerina core, hence this work-around
         String currentPackageName = BallerinaDocDataHolder.getInstance().getOrgName() + balPackage.packageID.getName
@@ -155,19 +153,17 @@ public class Generator {
             }
         }
 
-        // Create the links to select which page or package is active
-        List<Link> links = new ArrayList<>();
-        PackageName packageNameHeading = null;
-        for (Link pkgLink : packages) {
-            if (pkgLink.caption.value.equals(currentPackageName)) {
-                packageNameHeading = (PackageName) pkgLink.caption;
-                links.add(new Link(pkgLink.caption, pkgLink.href, true));
-            } else {
-                links.add(new Link(pkgLink.caption, pkgLink.href, false));
-            }
-        }
-
-        return new Page(description, packageNameHeading, documentables, links, primitives);
+//        // Create the links to select which page or package is active
+//        List<Link> links = new ArrayList<>();
+//        PackageName packageNameHeading = null;
+//        for (Link pkgLink : packages) {
+//            if (pkgLink.caption.value.equals(currentPackageName)) {
+//                packageNameHeading = (PackageName) pkgLink.caption;
+//                links.add(new Link(pkgLink.caption, pkgLink.href, true));
+//            } else {
+//                links.add(new Link(pkgLink.caption, pkgLink.href, false));
+//            }
+//        }
     }
 
     /**

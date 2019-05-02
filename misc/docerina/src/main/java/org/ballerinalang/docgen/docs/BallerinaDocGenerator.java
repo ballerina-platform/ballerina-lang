@@ -18,20 +18,18 @@
 
 package org.ballerinalang.docgen.docs;
 
-import org.apache.commons.io.FileUtils;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.Writer;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Module;
+import org.ballerinalang.docgen.generator.model.ModulePageContext;
 import org.ballerinalang.docgen.generator.model.Project;
+import org.ballerinalang.docgen.generator.model.ProjectPageContext;
 import org.ballerinalang.docgen.model.Caption;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.ModuleDoc;
-import org.ballerinalang.docgen.model.PackageName;
-import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -133,88 +132,73 @@ public class BallerinaDocGenerator {
         List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
         moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
 
+        // All available module names
+        List<String> moduleNames = new ArrayList<>(docsMap.keySet());
+
+        // Module level doc resources
+        List<Path> resources = new ArrayList<>();
+
         // Generate project model
         Project project = new Project();
         project.organization = BallerinaDocDataHolder.getInstance().getOrgName();
         project.modules = moduleDocList.stream().map(moduleDoc -> {
+
+            // Generate module models
             Module module = new Module();
             module.id = moduleDoc.bLangPackage.packageID.name.toString();
-            module.description = moduleDoc.summary;
+            module.summary = moduleDoc.summary;
+            module.description = moduleDoc.description;
+
+            // populate module constructs
+            sortModuleConstructs(moduleDoc.bLangPackage);
+            Generator.generateModuleConstructs(module, moduleDoc.bLangPackage, moduleNames);
+
+            // collect module's doc resources
+            resources.addAll(moduleDoc.resources);
+
             return module;
         }).collect(Collectors.toList());
 
         // Generate index.html for the project
         String projectTemplateName = System.getProperty(BallerinaDocConstants.PROJECT_TEMPLATE_NAME_KEY, "index");
         String indexFilePath = output + File.separator + "index" + HTML;
+        ProjectPageContext projectPageContext = new ProjectPageContext(project, "API Documentation", "");
         try {
-            Writer.writeHtmlDocument(project, projectTemplateName, indexFilePath);
+            Writer.writeHtmlDocument(projectPageContext, projectTemplateName, indexFilePath);
         } catch (IOException e) {
             out.println(String.format("docerina: failed to create the index.html. Cause: %s", e.getMessage()));
             log.error("Failed to create the index.html file.", e);
         }
 
+        String moduleTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "module");
+
         // Generate module pages
-
-        // Sort the module names
-        List<String> moduleNames = new ArrayList<>(docsMap.keySet());
-        Collections.sort(moduleNames);
-
-        List<Link> packageNameList = PackageName.convertList(moduleNames);
-
-        String packageTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "page");
-        String packageToCTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TOC_TEMPLATE_NAME_KEY, "toc");
-
-        List<Path> resources = new ArrayList<>();
-
-        //Iterate over the packages to generate the pages
-        for (ModuleDoc moduleDoc : moduleDocList) {
-
+        for (Module module : project.modules) {
             try {
-                BLangPackage bLangPackage = moduleDoc.bLangPackage;
-                String pkgDescription = moduleDoc.description;
-
-                // Sort functions, connectors, structs, type mappers and annotationDefs
-                sortPackageConstructs(bLangPackage);
-
-                String packagePath = refinePackagePath(bLangPackage);
-                if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("docerina: starting to generate docs for module: " + packagePath);
-                }
-
-                // other normal packages
-                Page page = Generator.generatePage(bLangPackage, packageNameList, pkgDescription, primitives);
-                String filePath = output + File.separator + packagePath + HTML;
-                Writer.writeHtmlDocument(page, packageTemplateName, filePath);
-
-                if (ConfigRegistry.getInstance().getAsBoolean(BallerinaDocConstants.GENERATE_TOC)) {
-                    // generates ToC into a separate HTML - requirement of Central
-                    out.println("docerina: generating toc: " + output + File.separator + packagePath + "-toc" + HTML);
-                    String tocFilePath = output + File.separator + packagePath + "-toc" + HTML;
-                    Writer.writeHtmlDocument(page, packageToCTemplateName, tocFilePath);
-                }
-
-                if (Names.BUILTIN_PACKAGE.getValue().equals(packagePath)) {
-                    // primitives are in builtin package
-                    Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packageNameList,
-                            primitives);
-                    String primitivesFilePath = output + File.separator + "primitive-types" + HTML;
-                    Writer.writeHtmlDocument(primitivesPage, packageTemplateName, primitivesFilePath);
-                }
-
-                // collect package resources
-                resources.addAll(moduleDoc.resources);
 
                 if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("docerina: generated docs for module: " + packagePath);
+                    out.println("docerina: starting to generate docs for module: " + module.id);
+                }
+
+                // Create module directory
+                String modDir = output + File.separator + module.id;
+                Files.createDirectories(Paths.get(modDir));
+
+                // Create module index page
+                ModulePageContext modulePageContext = new ModulePageContext(module, project, "../",
+                        "API Documentation for " + module.id + " module");
+                String filePath = modDir + File.separator + "index" + HTML;
+                Writer.writeHtmlDocument(modulePageContext, moduleTemplateName, filePath);
+
+                if (BallerinaDocUtils.isDebugEnabled()) {
+                    out.println("docerina: generated docs for module: " + module.id);
                 }
             } catch (IOException e) {
                 out.println(String.format("docerina: API documentation generation failed for module %s: %s",
-                        moduleDoc.bLangPackage.packageID.toString(), e.getMessage()));
-                log.error(String.format("API documentation generation failed for %s", moduleDoc.bLangPackage
-                        .packageID.toString()), e);
+                        module.id, e.getMessage()));
+                log.error(String.format("API documentation generation failed for %s", module.id), e);
             }
         }
-//
 
         // Copy template resources to output dir
         if (BallerinaDocUtils.isDebugEnabled()) {
@@ -309,7 +293,7 @@ public class BallerinaDocGenerator {
 //        }
     }
 
-    private static void sortPackageConstructs(BLangPackage bLangPackage) {
+    private static void sortModuleConstructs(BLangPackage bLangPackage) {
         bLangPackage.getFunctions().sort(Comparator.comparing(f -> (f.getReceiver() == null ? "" : f
                 .getReceiver().getName()) + f.getName().getValue()));
         bLangPackage.getAnnotations().sort(Comparator.comparing(a -> a.getName().getValue()));

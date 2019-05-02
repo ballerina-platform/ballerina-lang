@@ -65,7 +65,7 @@ public class HtmlDocTest {
         packages.add(new Link(new PackageName("x.y.z", ""), "", false));
 
         BLangPackage bLangPackage = createPackage("");
-        Page page = Generator.generatePage(bLangPackage, packages, null, null);
+        Page page = Generator.generateModuleConstructs(bLangPackage, packages, null, null);
 
         Assert.assertEquals(page.links.size(), 3);
         Assert.assertFalse(page.links.get(0).active);
@@ -702,6 +702,6 @@ public class HtmlDocTest {
     private Page generatePage(BLangPackage balPackage) {
         List<Link> packages = new ArrayList<>();
         packages.add(new Link(new PackageName(balPackage.packageID.name.value, ""), "", false));
-        return Generator.generatePage(balPackage, packages, null, null);
+        return Generator.generateModuleConstructs(balPackage, packages, null, null);
     }
 }
