@@ -66,51 +66,15 @@ public class Writer {
     public static void writeHtmlDocument(Object object, String packageTemplateName, String filePath) throws
             IOException {
         String templatesFolderPath = System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, File
-                .separator + "docerina-templates" + File.separator + "html");
+                .separator + "template" + File.separator + "html");
 
         String templatesClassPath = System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY,
-                "/docerina-templates/html");
+                "/template/html");
         PrintWriter writer = null;
         try {
             Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(templatesClassPath), new
                     FileTemplateLoader(templatesFolderPath));
             handlebars.registerHelpers(StringHelpers.class);
-            handlebars.registerHelper("exists", new Helper<List<Documentable>>() {
-                @Override
-                public Object apply(List<Documentable> context, Options options) throws IOException {
-                    String construct = options.param(0);
-                    switch (construct) {
-                        case "primitive":
-                            return context.stream().anyMatch(c -> c instanceof PrimitiveTypeDoc) ? options.fn(this) :
-                                    options.inverse(this);
-                        case "type":
-                            return context.stream().anyMatch(c -> c instanceof EnumDoc) ? options.fn(this)
-                                                                                        : options.inverse(this);
-                        case "annotation":
-                            return context.stream().anyMatch(c -> c instanceof AnnotationDoc) ? options.fn(this) :
-                                    options.inverse(this);
-                        case "record":
-                            return context.stream().anyMatch(c -> c instanceof RecordDoc) ? options.fn(this) :
-                                    options.inverse(this);
-                        case "object":
-                            return context.stream().anyMatch(c -> c instanceof ObjectDoc) ? options.fn(this)
-                                                                                          : options.inverse(this);
-                        case "endpoint":
-                            return context.stream().anyMatch(c -> c instanceof EndpointDoc) ? options.fn(this) :
-                                   options.inverse(this);
-                        case "function":
-                            return context.stream().anyMatch(c -> c instanceof FunctionDoc) ? options.fn(this) :
-                                    options.inverse(this);
-                        case "globalvar":
-                            return context.stream().anyMatch(c -> c instanceof GlobalVariableDoc) ? options.fn(this)
-                                    : options.inverse(this);
-                        case "constant":
-                            return context.stream().anyMatch(c -> c instanceof ConstantDoc) ? options.fn(this)
-                                    : options.inverse(this);
-                    }
-                    return false;
-                }
-            });
             handlebars.registerHelper("dataTypeLink", new Helper<String>() {
                 @Override
                 public Object apply(String dataType, Options options) throws IOException {

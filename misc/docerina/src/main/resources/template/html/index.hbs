@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+{{> head title="API Documentation" rootPath="" }}
+
+<body>
+  <div class="ui grid">
+    <div class="navi-wrapper two wide column"> 
+      <img class="logo" src="html-template-resources/images/ballerina-logo.png">
+    </div>
+    <div class="fourteen wide column content-wrapper">
+      <table class="ui table">
+         {{#if modules}}
+        <tbody>
+         {{#each modules}}
+          <tr>
+            <td class="module-title modules"><a href="{{id}}/index.html">{{id}}</a></td>
+            <td class="module-desc">{{description}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+        {{/if}}
+      </table>
+    </div>
+  </div>
+</body>

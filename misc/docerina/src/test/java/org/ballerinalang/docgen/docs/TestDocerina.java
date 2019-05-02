@@ -13,11 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.docgen.generator.model;
+package org.ballerinalang.docgen.docs;
 
 /**
- * Represents a Ballerina Type.
+ * esfsef.
  */
-public class Type {
-    public String name;
+public class TestDocerina {
+    public static void main(String[] args) {
+        BallerinaDocGenerator.generateApiDocs(
+                "/Users/kavithlokuhewage/git/ballerina/distribution/zip/ballerina-tools/build/ballerina",
+                "/Users/kavithlokuhewage/git/ballerina/distribution/zip/ballerina-tools/build/ballerina-output",
+                "compression",
+                true,
+                false,
+                "io"
+        );
+    }
 }

@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.docgen.generator.model;
+package org.ballerinalang.docgen.generator;
 
 /**
- * Represents a Ballerina Type.
+ * etst.
  */
-public class Type {
-    public String name;
+public class DocumentationGenerator {
 }

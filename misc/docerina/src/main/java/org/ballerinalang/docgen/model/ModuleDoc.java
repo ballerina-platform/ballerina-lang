@@ -19,6 +19,11 @@ package org.ballerinalang.docgen.model;
 
 
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.commonmark.node.AbstractVisitor;
+import org.commonmark.node.Heading;
+import org.commonmark.node.Node;
+import org.commonmark.node.Paragraph;
+import org.commonmark.node.Text;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
@@ -29,8 +34,9 @@ import java.util.List;
 /**
  * Package documentation.
  */
-public class PackageDoc {
+public class ModuleDoc {
     public final String description;
+    public final String summary;
     public final BLangPackage bLangPackage;
     public final List<Path> resources;
 
@@ -42,8 +48,9 @@ public class PackageDoc {
      * @param bLangPackage    package object.
      * @throws IOException on error.
      */
-    public PackageDoc(Path descriptionPath, List<Path> resources, BLangPackage bLangPackage) throws IOException {
+    public ModuleDoc(Path descriptionPath, List<Path> resources, BLangPackage bLangPackage) throws IOException {
         this.description = getDescription(descriptionPath);
+        this.summary = getSummary(descriptionPath);
         this.resources = resources;
         this.bLangPackage = bLangPackage;
     }
@@ -54,6 +61,34 @@ public class PackageDoc {
             return BallerinaDocUtils.mdToHtml(mdContent);
         }
         return null;
+    }
+
+    private String getSummary(Path descriptionPath) throws IOException {
+        if (descriptionPath != null) {
+            String mdContent = new String(Files.readAllBytes(descriptionPath), "UTF-8");
+            Node document = BallerinaDocUtils.parseMD(mdContent);
+            SummaryVisitor summaryVisitor = new SummaryVisitor();
+            document.accept(summaryVisitor);
+            return summaryVisitor.getSummary();
+        }
+        return null;
+    }
+
+    static class SummaryVisitor extends AbstractVisitor {
+        protected String summary;
+        @Override
+        public void visit(Heading heading) {
+            if (heading.getFirstChild() instanceof Text
+                    && ((Text) heading.getFirstChild()).getLiteral().equals("Module overview")
+                    && heading.getNext() instanceof Paragraph
+            ) {
+                summary = ((Text) ((Paragraph) heading.getNext()).getFirstChild()).getLiteral();
+            }
+        }
+
+        public String getSummary() {
+            return summary;
+        }
     }
 
 }

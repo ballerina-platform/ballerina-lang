@@ -23,6 +23,7 @@ package org.ballerinalang.docgen.docs;
  */
 public class BallerinaDocConstants {
     public static final String BALLERINA_INSTALL_DIR_PROP = "ballerina.home";
+    public static final String PROJECT_TEMPLATE_NAME_KEY = "project.template.name";
     public static final String MODULE_TEMPLATE_NAME_KEY = "module.template.name";
     public static final String MODULE_TOC_TEMPLATE_NAME_KEY = "module.toc.template.name";
     public static final String MODULE_LIST_TEMPLATE_NAME_KEY = "module.list.template.name";

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+{{> htmlHead title="API Documentation - Module Objects " rootPath="../../" }}
+
+<body>
+  <div class="ui grid">
+    <div class="navi-wrapper two wide column">
+      <a href="../../index.html">
+        <img class="logo" src="../../images/ballerina-logo.png">
+      </a>
+      <div class="primary-list">
+        <h3>Objects</h3>
+        <ul>
+          {{#each module.constructs.objects}}
+          <li>
+            <a href="{{name}}.html">{{name}}</a>
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+      <div class="ui divider"></div>
+      {{> currentModule rootPath="../../" }}
+      {{> allModules rootPath="../../" }}
+    </div>
+
+    <div class="fourteen wide column content-wrapper">
+      <h1>{{ obj.name }}</h1>
+      <div class="ui divider"></div>
+
+      <h3>{{obj.type}} <span class="objects">{{obj.name}}</span> {{obj.label}}</h3>
+      <p>{{obj.description}}</p>
+
+      <div class="constants">
+        {{#if obj.method}}
+        {{#each obj.method}}
+        <p><a href="#{{method_type}}"><b>{{method_type}}</b></a>{{method_params}}<b>
+            {{label_return}}</b>{{return_params}} <br></p>
+        {{/each}}
+        <div class="ui divider"></div>
+        {{/if}}
+
+        
+        {{#if obj.init_method}}
+        {{#each obj.init_method}}
+        <h3 >{{init_label}}({{init_param}})</h3>
+        <table class="ui table param-table">
+          <thead>
+            <tr>
+              <th width="20%">{{param_name_label}}</th>
+              <th width="20%">{{data_type_label}}</th>
+              <th width="15%">{{default_value_label}}</th>
+              <th width="35%">{{description_label}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{attributes.param_name}}</td>
+              <td>{{attributes.data_type}}</td>
+              <td>{{attributes.default_value}}</td>
+              <td>{{attributes.description}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="ui divider"></div>
+        {{/each}} 
+        {{/if}}
+       
+
+        {{#if obj.top_fields}}
+        {{#each obj.top_fields}}
+        <table class="ui table param-table">
+          <thead>
+            <tr>
+              <th width="20%">{{field_name_label}}</th>
+              <th width="20%">{{data_type_label}}</th>
+              <th width="15%">{{default_value_label}}</th>
+              <th width="35%">{{description_label}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{attributes.field_name}}</td>
+              <td>{{attributes.data_type}}</td>
+              <td>{{attributes.default_value}}</td>
+              <td>{{attributes.description}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="ui divider"></div>
+        {{/each}} 
+        {{/if}}
+        
+      {{#if obj.method}}
+        {{#each obj.method}}
+        <h3 id="{{method_type}}">{{method_type}}{{method_params}}</h3>
+        <div class="ui divider param-divider"></div>
+        <p>{{description}}</p>
+        <table class="ui table param-table">
+          <thead>
+            {{#if fields}}
+            {{#each fields}}
+            <tr>
+              <th>{{param_name_label}}</th>
+              <th>{{data_type_label}}</th>
+              <th>{{default_value_label}}</th>
+              <th>{{description_label}}</th>
+            </tr>
+            {{/each}}
+            {{/if}}
+          </thead>
+          <tbody>
+            {{#if fields}}
+            {{#each fields}}
+            {{#if attributes}}
+            {{#each attributes}}
+            <tr>
+              <td>{{param_name}}</td>
+              <td>{{data_type}}</td>
+              <td>{{default_value}}</td>
+              <td>{{description}}</td>
+            </tr>
+            {{/each}}
+            {{/if}}
+            {{/each}}
+            {{/if}}
+          </tbody>
+        </table>
+        <table class="ui table param-table">
+          <thead>
+            {{#if return}}
+            {{#each return}}
+            <th width="50%">{{return_type_label}}</th>
+            <th width="50%">{{description_label}}</th>
+            {{/each}}
+            {{/if}}
+          </thead>
+          <tbody>
+            {{#if return}}
+            {{#each return}}
+            <tr>
+              <td width="50%">{{return_type}}</td>
+              <td width="50%">{{description}}</td>
+            </tr>
+            {{/each}}
+            {{/if}}
+          </tbody>
+        </table>
+        {{/each}}
+        {{/if}}
+      </div>
+      <div class="ui divider"></div>
+    </div>
+  </div>
+</body>

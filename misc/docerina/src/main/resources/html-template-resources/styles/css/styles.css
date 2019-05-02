@@ -1,0 +1,256 @@
+body {
+  background: #fff;
+  color: #464646;
+  height: 100vh;
+}
+body p {
+  font-size: 16px;
+}
+body a {
+  color: #333;
+}
+body .ui.grid {
+  width: 100%;
+  margin-top: 0rem;
+}
+body .ui.grid .navi-wrapper {
+  margin: 0;
+  background: #f5f7f8;
+  height: 100vh;
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+body .ui.grid .navi-wrapper .logo {
+  width: 150px;
+  height: auto;
+  text-align: center;
+  margin: 30px 20px;
+}
+body .ui.grid .navi-wrapper:hover {
+  overflow-y: scroll;
+  position: inherit;
+}
+body .ui.grid .navi-wrapper .search input {
+  border-radius: 0;
+  border: 0;
+  margin-bottom: 20px;
+}
+body .ui.grid .navi-wrapper .primary-list {
+  padding-left: 10px;
+}
+body .ui.grid .navi-wrapper .primary-list ul {
+  padding: 0;
+  margin: 0;
+}
+body .ui.grid .navi-wrapper .primary-list ul li {
+  list-style: none !important;
+  line-height: 25px;
+  margin-left: 15px;
+  text-transform: capitalize;
+  font-weight: 300;
+}
+body .ui.grid .navi-wrapper .primary-list ul li:hover {
+  font-weight: 600;
+}
+body .ui.grid .navi-wrapper .primary-list ul li,
+body .ui.grid .navi-wrapper .primary-list ul li a {
+  font-weight: 300;
+}
+body .ui.grid .navi-wrapper .primary-list ul li:hover,
+body .ui.grid .navi-wrapper .primary-list ul li a:hover {
+  color: #333 !important;
+  font-weight: 600;
+}
+body .ui.grid .content-wrapper {
+  padding: 45px 630px 12px 43px !important;
+  margin: 0;
+  height: 100vh;
+  overflow-y: hidden;
+  position: fixed;
+  font-size: 16px;
+}
+body .ui.grid .content-wrapper .param-divider {
+  margin-top: 7px !important;
+  margin-bottom: 15px;
+  border: 0.5px solid #888;
+}
+body .ui.grid .content-wrapper .param-table {
+  margin-left: 20px;
+  border: 1ps solid #ccc !important;
+}
+body .ui.grid .content-wrapper .param-table td,
+body .ui.grid .content-wrapper .param-table th {
+  padding: 10px 0 !important;
+}
+body .ui.grid .content-wrapper .ui.table,
+body .ui.grid .content-wrapper .ui.table tr td {
+  border: 0 !important;
+  vertical-align: top;
+}
+body .ui.grid .content-wrapper .ui.table th,
+body .ui.grid .content-wrapper .ui.table tr td th {
+  background: none;
+  padding: 10px 0;
+  border-top: 1px solid #e8e9e9;
+  border-radius: 0;
+}
+body .ui.grid .content-wrapper .ui.table tr,
+body .ui.grid .content-wrapper .ui.table tr td tr {
+  padding: 10px 0;
+  border-bottom: 1px solid #e8e9e9;
+}
+body .ui.grid .content-wrapper .ui.table tr td:first-child,
+body .ui.grid .content-wrapper .ui.table tr td tr td:first-child {
+  width: 120px;
+  vertical-align: top;
+  padding: 10px 0 !important;
+}
+body .ui.grid .content-wrapper .ui.table td,
+body .ui.grid .content-wrapper .ui.table tr td td {
+  word-break: break-all;
+}
+body .ui.grid .content-wrapper .params-table {
+  padding-top: 20px;
+}
+body .ui.grid .content-wrapper .breadcrumb a {
+  color: #aaa;
+  font-weight: 300;
+}
+body .ui.grid .content-wrapper:hover {
+  overflow-y: auto;
+  position: inherit;
+}
+body .ui.grid .content-wrapper p {
+  line-height: 24px;
+}
+body .ui.grid .content-wrapper code {
+  color: #ea8792;
+  font-style: italic;
+}
+body .ui.grid .content-wrapper .modules {
+  color: #0d4d84;
+}
+body .ui.grid .content-wrapper .modules a {
+  color: #0d4d84;
+}
+body .ui.grid .content-wrapper .records {
+  text-transform: capitalize;
+  color: #2c9ea1;
+}
+body .ui.grid .content-wrapper .records a {
+  color: #2c9ea1;
+}
+body .ui.grid .content-wrapper .objects {
+  text-transform: capitalize;
+  color: #93bd54;
+}
+body .ui.grid .content-wrapper .objects a {
+  color: #93bd54;
+}
+body .ui.grid .content-wrapper .clients {
+  color: #068000;
+  text-transform: capitalize;
+}
+body .ui.grid .content-wrapper .clients a {
+  color: #068000;
+}
+body .ui.grid .content-wrapper .functions {
+  color: #ad448e;
+  text-transform: capitalize;
+}
+body .ui.grid .content-wrapper .functions a {
+  color: #ad448e;
+}
+body .ui.grid .content-wrapper .constant {
+  color: #7B1FA2;
+  text-transform: capitalize;
+}
+body .ui.grid .content-wrapper .constant a {
+  color: #7B1FA2;
+}
+body .ui.grid .content-wrapper .annotations {
+  color: #3F51B5;
+  text-transform: capitalize;
+}
+body .ui.grid .content-wrapper .annotations a {
+  color: #3F51B5;
+}
+body .ui.grid .content-wrapper .constants {
+  margin-top: 20px;
+}
+body .ui.grid .content-wrapper .constants h3 {
+  display: inline-block;
+  margin: 0;
+  line-height: 22px !important;
+}
+body .ui.grid .content-wrapper .constants h3 p {
+  display: inline-block;
+  margin: 0;
+  line-height: 22px !important;
+}
+body .ui.grid .content-wrapper .constants .method-wrapper .method-span {
+  width: auto;
+  display: inline-block;
+  vertical-align: top;
+}
+body .ui.grid .content-wrapper .constants .method-wrapper .method-span .ui.table tr td:first-child {
+  width: 180px !important;
+  vertical-align: top;
+  padding: 10px 0;
+}
+body .ui.grid .content-wrapper .constants .method-wrapper .method-span .ui.table td {
+  padding: 10px 0 !important;
+}
+body .ui.grid .content-wrapper .constants .method-wrapper .method-span .method-table-header {
+  max-width: 180px;
+  width: 180px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 20px;
+}
+body .ui.grid .content-wrapper .constants .method-wrapper .method-type-wrapper {
+  border-bottom: 1px solid #e8e9e9;
+}
+body .ui.grid .content-wrapper .constants .method-wrapper .method-type-wrapper .method-title {
+  line-height: 20px;
+  word-wrap: break-word;
+  margin: 60px 0 10px;
+  border-bottom: 1px solid #ababab;
+  padding-bottom: 8px;
+}
+body .ui.grid .content-wrapper .constants .method-wrapper .method-type-wrapper .method-title p {
+  font-weight: 600;
+}
+body .ui.grid .content-wrapper .constants p {
+  display: inline;
+  color: #333;
+}
+body .ui.grid .content-wrapper .constants .column {
+  margin: 0;
+  padding: 10px;
+}
+body .ui.grid .content-wrapper .module-title {
+  margin-bottom: 10px;
+  font-weight: 300;
+  height: auto;
+  padding: 0;
+  vertical-align: top;
+}
+body .ui.grid .content-wrapper .truncate {
+  max-width: 220px;
+  width: 220px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 20px;
+}
+body .ui.grid .content-wrapper .module-desc {
+  margin-left: 10px;
+  word-wrap: break-word;
+  margin-bottom: 10px;
+  padding: 0;
+  height: auto;
+  padding-bottom: 12px;
+  color: #555;
+}

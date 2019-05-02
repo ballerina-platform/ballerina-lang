@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+{{> htmlHead title="API Documentation - Module Records " rootPath="../../" }}
+
+<body>
+  <div class="ui grid">
+    <div class="navi-wrapper two wide column">
+      <a href="../../index.html">
+        <img class="logo" src="../../images/ballerina-logo.png">
+      </a>
+      <div class="primary-list">
+        <h3>Records</h3>
+        <ul>
+          {{#each module.constructs.records}}
+          <li>
+            <a href="{{name}}.html">{{name}}</a>
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+      <div class="ui divider"></div>
+      {{> currentModule rootPath="../../" }}
+      {{> allModules rootPath="../../" }}
+    </div>
+
+    <div class="fourteen wide column content-wrapper">
+      <h1>{{ rec.name }}</h1>
+      <div class="ui divider"></div>
+
+      <h3>{{rec.type}} <span class="records">{{rec.name}}</span> {{rec.label}}</h3>
+      <p>{{rec.description}}</p>
+
+      <div class="constants">
+        <table class="ui table">
+          <thead>
+            <tr>
+              <th>{{rec.field_name_label}}</th>
+              <th>{{rec.data_type_label}}</th>
+              <th>{{rec.default_value_label}}</th>
+              <th>{{rec.description_label}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#if rec}}
+            {{#rec}}
+            {{#each fields}}
+            <tr>
+              <td>{{field_name}}</td>
+              <td>{{data_type}}</td>
+              <td>{{default_value}}</td>
+              <td>{{description}}</td>
+            </tr>
+            {{/each}}
+            {{/rec}}
+            {{/if}}
+          </tbody>
+        </table>
+      </div>
+      <div class="ui divider"></div>
+    </div>
+  </div>
+</body>

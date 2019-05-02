@@ -16,7 +16,7 @@
 package org.ballerinalang.docgen.generator.model;
 
 /**
- * Represents a language construct in a Ballerina module
+ * Represents a language construct in a Ballerina module.
  */
 public class Construct {
     public String name;
