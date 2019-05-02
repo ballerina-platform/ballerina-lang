@@ -56,10 +56,10 @@ public type TypeParser object {
     public int TYPE_TAG_OBJECT = TYPE_TAG_FINITE + 1;
     public int TYPE_TAG_BYTE_ARRAY = TYPE_TAG_OBJECT + 1;
     public int TYPE_TAG_FUNCTION_POINTER = TYPE_TAG_BYTE_ARRAY + 1;
-    public int TYPE_TAG_CHANNEL = TYPE_TAG_BYTE_ARRAY + 1;
+    public int TYPE_TAG_CHANNEL = TYPE_TAG_FUNCTION_POINTER + 1;
 
-    public int TYPE_TAG_SERVICE = TYPE_TAG_OBJECT;
     public int TYPE_TAG_SELF = 50;
+    public int TYPE_TAG_SERVICE = 51;
 
     BType?[] compositeStack = [];
     int compositeStackI = 0;
@@ -104,6 +104,8 @@ public type TypeParser object {
             return self.parseRecordType();
         } else if (typeTag == self.TYPE_TAG_OBJECT){
             return self.parseObjectType();
+        } else if (typeTag == self.TYPE_TAG_SERVICE){
+            return TYPE_SERVICE;
         } else if (typeTag == self.TYPE_TAG_ERROR){
             return self.parseErrorType();
         } else if (typeTag == self.TYPE_TAG_FUTURE){
@@ -116,6 +118,8 @@ public type TypeParser object {
             int selfIndex = self.reader.readInt32();
             Self t = {bType: getType(self.compositeStack[self.compositeStackI - 1])};
             return t;
+        } else if(typeTag == self.TYPE_TAG_FINITE) {
+            return self.parseFiniteType();
         }
         error err = error("Unknown type tag :" + typeTag);
         panic err;
@@ -246,5 +250,31 @@ public type TypeParser object {
         }
         error err = error("unknown array state tag " + b);
         panic err;
+    }
+
+    function parseFiniteType() returns BFiniteType {
+        int size = self.reader.readInt32();
+        int c = 0;
+        BFiniteType finiteType = {values:[]};
+        while c < size {
+            BType valueType = self.parseType();
+            finiteType.values[c] = self.getValue(valueType);
+            c = c + 1;
+        }
+        return finiteType;
+    }
+
+    private function getValue(BType valueType) returns (int | string | boolean | float | byte| ()) {
+        if (valueType is BTypeInt || valueType is BTypeByte) {
+            return self.reader.readIntCpRef();
+        } else if (valueType is BTypeString) {
+            return self.reader.readStringCpRef();
+        } else if (valueType is BTypeBoolean) {
+            return self.reader.readInt8() == 1;
+        } else if (valueType is BTypeFloat) {
+            return self.reader.readFloatCpRef();
+        } else if (valueType is BTypeNil) {
+            return ();
+        }
     }
 };

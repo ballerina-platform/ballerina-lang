@@ -77,6 +77,8 @@ type InstructionGenerator object {
             self.generateOrIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_LESS_EQUAL) {
             self.generateLessEqualIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_NOT_EQUAL) {
+            self.generateNotEqualIns(binaryIns);
         } else {
             error err = error("JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind));
             panic err;
@@ -132,20 +134,54 @@ type InstructionGenerator object {
         jvm:Label label1 = new;
         jvm:Label label2 = new;
 
-        // It is assumed that both operands are of same type
-        bir:BType opType = binaryIns.rhsOp1.variableDcl.typeValue;
-        if (opType is bir:BTypeInt) {
+        bir:BType lhsOpType = binaryIns.rhsOp1.variableDcl.typeValue;
+        bir:BType rhsOpType = binaryIns.rhsOp2.variableDcl.typeValue;
+        if (lhsOpType is bir:BTypeInt|bir:BTypeByte && rhsOpType is bir:BTypeInt|bir:BTypeByte) {
             self.mv.visitInsn(LCMP);
             self.mv.visitJumpInsn(IFNE, label1);
-        } else if (opType is bir:BTypeFloat ||
-                    opType is bir:BTypeString ||
-                    opType is bir:BTypeBoolean ||
-                    opType is bir:BTypeByte ) {
-            error err = error( "equal operator is not supported for type " +
-                    io:sprintf("%s", opType));
-            panic err;
+        } else if (lhsOpType is bir:BTypeFloat && rhsOpType is bir:BTypeFloat) {
+            self.mv.visitInsn(DCMPL);
+            self.mv.visitJumpInsn(IFNE, label1);
+        } else if (lhsOpType is bir:BTypeBoolean && rhsOpType is bir:BTypeBoolean) {
+            self.mv.visitJumpInsn(IF_ICMPNE, label1);
         } else {
-            self.mv.visitJumpInsn(IF_ACMPNE, label1);
+            self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isEqual",
+                    io:sprintf("(L%s;L%s;)Z", OBJECT, OBJECT), false);
+            self.storeToVar(binaryIns.lhsOp.variableDcl);
+            return;
+        }
+
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitJumpInsn(GOTO, label2);
+
+        self.mv.visitLabel(label1);
+        self.mv.visitInsn(ICONST_0);
+
+        self.mv.visitLabel(label2);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateNotEqualIns(bir:BinaryOp binaryIns) {
+        self.generateBinaryRhsAndLhsLoad(binaryIns);
+
+        jvm:Label label1 = new;
+        jvm:Label label2 = new;
+
+        // It is assumed that both operands are of same type
+        bir:BType lhsOpType = binaryIns.rhsOp1.variableDcl.typeValue;
+        bir:BType rhsOpType = binaryIns.rhsOp2.variableDcl.typeValue;
+        if (lhsOpType is bir:BTypeInt|bir:BTypeByte && rhsOpType is bir:BTypeInt|bir:BTypeByte) {
+            self.mv.visitInsn(LCMP);
+            self.mv.visitJumpInsn(IFEQ, label1);
+        } else if (lhsOpType is bir:BTypeFloat && rhsOpType is bir:BTypeFloat) {
+            self.mv.visitInsn(DCMPL);
+            self.mv.visitJumpInsn(IFEQ, label1);
+        } else if (lhsOpType is bir:BTypeBoolean && rhsOpType is bir:BTypeBoolean) {
+            self.mv.visitJumpInsn(IF_ICMPEQ, label1);
+        } else {
+            self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isEqual",
+                    io:sprintf("(L%s;L%s;)Z", OBJECT, OBJECT), false);
+            self.mv.visitJumpInsn(IFNE, label1);
         }
 
         self.mv.visitInsn(ICONST_1);
@@ -553,7 +589,7 @@ type InstructionGenerator object {
             panic err;
         }
         self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid);
-        generateVarStore(self.mv, inst.lhsOp.variableDcl, self.currentPackageName,
+        generateVarStore(self.mv, inst.lhsOp.variableDcl, self.currentPackageName, 
             self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         lambdas[lambdaName] = (inst, methodClass);
     }
@@ -737,8 +773,9 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BJSONType ||
                 bType is bir:BFutureType ||
                 bType is bir:BObjectType ||
-                bType is bir:BInvokableType ||
                 bType is bir:BXMLType ||
+                bType is bir:BInvokableType ||
+                bType is bir:BFiniteType ||
                 bType is bir:BTypeDesc) {
         mv.visitVarInsn(ALOAD, valueIndex);
     } else {
@@ -777,8 +814,9 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BJSONType ||
                     bType is bir:BFutureType ||
                     bType is bir:BObjectType ||
-                    bType is bir:BInvokableType ||
                     bType is bir:BXMLType ||
+                    bType is bir:BInvokableType ||
+                    bType is bir:BFiniteType ||
                     bType is bir:BTypeDesc) {
         mv.visitVarInsn(ASTORE, valueIndex);
     } else {

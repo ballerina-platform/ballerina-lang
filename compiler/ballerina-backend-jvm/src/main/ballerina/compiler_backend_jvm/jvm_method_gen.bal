@@ -370,10 +370,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BInvokableType) {
             if (bType.retType is bir:BTypeNil) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", CONSUMER));
             } else {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", FUNCTION));
             }
             mv.visitVarInsn(ASTORE, index);
@@ -385,7 +385,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BUnionType ||
-                    bType is bir:BJSONType) {
+                    bType is bir:BJSONType ||
+                    bType is bir:BFiniteType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", OBJECT));
             mv.visitVarInsn(ASTORE, index);
@@ -461,17 +462,18 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BInvokableType) {
             mv.visitVarInsn(ALOAD, index);
             if (bType.retType is bir:BTypeNil) {
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", CONSUMER));
             } else {
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", FUNCTION));
             }
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BUnionType ||
-                    bType is bir:BJSONType) {
+                    bType is bir:BJSONType ||
+                    bType is bir:BFiniteType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", OBJECT));
@@ -516,7 +518,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitEnd();
 }
 
-function generateLambdaMethod(bir:AsyncCall|bir:FPLoad callIns, jvm:ClassWriter cw, string className,
+function generateLambdaMethod(bir:AsyncCall|bir:FPLoad callIns, jvm:ClassWriter cw, string className, 
     string lambdaName) {
     bir:BType? lhsType;
     if (callIns is bir:AsyncCall) {
@@ -527,7 +529,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad callIns, jvm:ClassWriter 
     bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
         returnType = lhsType.returnType;
-    } else if (lhsType is bir:BInvokableType) {
+    } else if (lhsType is bir:BInvokableType) { 
         returnType = lhsType.retType;
     } else {
         error err = error( "JVM generation is not supported for async return type " +
@@ -554,7 +556,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad callIns, jvm:ClassWriter 
     mv.visitTypeInsn(CHECKCAST, STRAND);
 
     bir:BType?[] paramBTypes = [];
-    string funcName;
+    string funcName; 
     if (callIns is bir:AsyncCall) {
         bir:VarRef?[] paramTypes = callIns.args;
         // load and cast param values
@@ -622,8 +624,9 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BTupleType ||
                 bType is bir:BFutureType ||
                 bType is bir:BJSONType ||
-                bType is bir:BInvokableType ||
                 bType is bir:BXMLType ||
+                bType is bir:BInvokableType ||
+                bType is bir:BFiniteType ||
                 bType is bir:BTypeDesc) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
@@ -665,7 +668,8 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return io:sprintf("L%s;", ERROR_VALUE);
     } else if (bType is bir:BTypeAnyData ||
                 bType is bir:BUnionType ||
-                bType is bir:BJSONType) {
+                bType is bir:BJSONType ||
+                bType is bir:BFiniteType) {
         return io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BMapType ||
                 bType is bir:BRecordType ||
@@ -719,7 +723,8 @@ function generateReturnType(bir:BType? bType) returns string {
     } else if (bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BUnionType ||
-                bType is bir:BJSONType) {
+                bType is bir:BJSONType ||
+                bType is bir:BFiniteType) {
         return io:sprintf(")L%s;", OBJECT);
     } else if (bType is bir:BObjectType) {
         return io:sprintf(")L%s;", OBJECT_VALUE);
@@ -990,7 +995,7 @@ function checkCastFromObject(bir:BType? targetType, jvm:MethodVisitor mv) {
 # 
 # + targetType - target type to be casted
 # + mv - method visitor
-function generateObjectCast(bir:BType? targetType, jvm:MethodVisitor mv) {
+function generateObjectCast(bir:BType? targetType, jvm:MethodVisitor mv) {  
     if (targetType is bir:BTypeInt) {
         mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
     } else if (targetType is bir:BTypeFloat) {
@@ -1005,7 +1010,9 @@ function generateObjectCast(bir:BType? targetType, jvm:MethodVisitor mv) {
                 targetType is bir:BUnionType ||
                 targetType is bir:BTypeString ||
                 targetType is bir:BArrayType ||
-                targetType is bir:BMapType) {
+                targetType is bir:BMapType ||
+                targetType is bir:BFiniteType ||
+                targetType is bir:BInvokableType) {
         // do nothing
         return;
     } else {
@@ -1186,7 +1193,7 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
         typeSig = io:sprintf("L%s;", ERROR_VALUE);
     } else if (bType is bir:BFutureType) {
         typeSig = io:sprintf("L%s;", FUTURE_VALUE);
-    } else if (bType is bir:BObjectType) {
+    } else if (bType is bir:BObjectType || bType is bir:BServiceType) {
         typeSig = io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BXMLType) {
         typeSig = io:sprintf("L%s;", XML_VALUE);
@@ -1195,7 +1202,8 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
     } else if (bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BUnionType ||
-                bType is bir:BJSONType) {
+                bType is bir:BJSONType ||
+                bType is bir:BFiniteType) {
         typeSig = io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BInvokableType) {
         if (bType.retType is bir:BTypeNil) {

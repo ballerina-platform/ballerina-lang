@@ -64,8 +64,9 @@ type TerminatorGenerator object {
                 bType is bir:BTupleType ||
                 bType is bir:BJSONType ||
                 bType is bir:BFutureType ||
-                bType is bir:BInvokableType ||
                 bType is bir:BXMLType ||
+                bType is bir:BInvokableType ||
+                bType is bir:BFiniteType ||
                 bType is bir:BTypeDesc) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitInsn(ARETURN);
@@ -128,8 +129,9 @@ type TerminatorGenerator object {
                         bType is bir:BTupleType ||
                         bType is bir:BFutureType ||
                         bType is bir:BJSONType ||
-                        bType is bir:BInvokableType ||
                         bType is bir:BXMLType ||
+                        bType is bir:BInvokableType ||
+                        bType is bir:BFiniteType ||
                         bType is bir:BTypeDesc) {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else {
@@ -270,13 +272,14 @@ type TerminatorGenerator object {
                 return io:sprintf("L%s;", CONSUMER);
             } else {
                 return io:sprintf("L%s;", FUNCTION);
-            }
+            }   
         } else if (bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BTypeNil ||
                     bType is bir:BUnionType ||
                     bType is bir:BJSONType ||
-                    bType is bir:BXMLType) {
+                    bType is bir:BXMLType ||
+                    bType is bir:BFiniteType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             return io:sprintf("L%s;", OBJECT);
         } else {
@@ -330,7 +333,10 @@ type TerminatorGenerator object {
                         bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
                         bType is bir:BUnionType ||
-                        bType is bir:BInvokableType) {
+                        bType is bir:BJSONType ||
+                        bType is bir:BXMLType ||
+                        bType is bir:BInvokableType ||
+                        bType is bir:BFiniteType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
@@ -356,10 +362,10 @@ type TerminatorGenerator object {
         self.lambdaIndex += 1;
         
         if (isVoid) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
                 io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
                 io:sprintf("([L%s;L%s;)L%s;", OBJECT, FUNCTION, FUTURE_VALUE), false);
         }
 
@@ -435,11 +441,11 @@ type TerminatorGenerator object {
         // load function ref
         int fpIndex = self.getJVMIndexOfVarRef(getVariableDcl(fpCall.fp.variableDcl));
         self.mv.visitVarInsn(ALOAD, fpIndex);
-
+        
         // create an object array of args
         self.mv.visitIntInsn(BIPUSH, fpCall.args.length() + 1);
         self.mv.visitTypeInsn(ANEWARRAY, OBJECT);
-
+        
         // load strand
         self.mv.visitInsn(DUP);
         self.mv.visitIntInsn(BIPUSH, 0);
@@ -451,7 +457,7 @@ type TerminatorGenerator object {
         foreach var arg in fpCall.args {
             self.mv.visitInsn(DUP);
             self.mv.visitIntInsn(BIPUSH, paramIndex);
-
+            
             int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(arg.variableDcl));
             bir:BType? bType = arg.typeValue;
 
@@ -504,7 +510,7 @@ type TerminatorGenerator object {
             if (lhsVar is bir:VariableDcl) {
                 generateVarStore(self.mv, lhsVar, currentPackageName, lhsIndex);
             }
-        }
+        }    
     }
 
     function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {

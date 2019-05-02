@@ -76,6 +76,8 @@ public enum InstructionKind {
     GREATER_EQUAL((byte) 58),
     LESS_THAN((byte) 59),
     LESS_EQUAL((byte) 60),
+    AND((byte) 61),
+    OR((byte) 62),
 
     // Unary expression related instructions.
     TYPEOF((byte) 70);

@@ -205,15 +205,24 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangFunction astFunc) {
         Visibility visibility = getVisibility(astFunc.symbol);
         BInvokableType type = astFunc.symbol.getType();
-        Name funcName = getFuncName(astFunc.symbol);
+
+        boolean isTypeAttachedFunction = astFunc.flagSet.contains(Flag.ATTACHED) &&
+                !typeDefs.containsKey(astFunc.receiver.type.tsymbol);
+
+        Name funcName;
+        if (isTypeAttachedFunction) {
+            funcName = names.fromString(astFunc.symbol.name.value);
+        } else {
+            funcName = getFuncName(astFunc.symbol);
+        }
+
         BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type);
         birFunc.isDeclaration = Symbols.isNative(astFunc.symbol);
         birFunc.isInterface = astFunc.interfaceFunction;
         birFunc.argsCount = astFunc.requiredParams.size() +
                             astFunc.defaultableParams.size() + (astFunc.restParam != null ? 1 : 0);
-        if (astFunc.flagSet.contains(Flag.ATTACHED)) {
-            BTypeSymbol tsymbol = astFunc.receiver.type.tsymbol;
-            typeDefs.get(tsymbol).attachedFuncs.add(birFunc);
+        if (astFunc.flagSet.contains(Flag.ATTACHED) && typeDefs.containsKey(astFunc.receiver.type.tsymbol)) {
+            typeDefs.get(astFunc.receiver.type.tsymbol).attachedFuncs.add(birFunc);
         } else {
             this.env.enclPkg.functions.add(birFunc);
         }
@@ -607,8 +616,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeConversionExpr astTypeConversionExpr) {
-
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astTypeConversionExpr.targetType,
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astTypeConversionExpr.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
@@ -617,7 +625,6 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand rhsOp = this.env.targetOperand;
 
         emit(new BIRNonTerminator.TypeCast(astTypeConversionExpr.pos, toVarRef, rhsOp));
-
         this.env.targetOperand = toVarRef;
     }
 
@@ -1147,6 +1154,10 @@ public class BIRGen extends BLangNodeVisitor {
                 return InstructionKind.LESS_THAN;
             case LESS_EQUAL:
                 return InstructionKind.LESS_EQUAL;
+            case AND:
+                return InstructionKind.AND;
+            case OR:
+                return InstructionKind.OR;
             default:
                 throw new IllegalStateException("unsupported binary operation: " + opKind.value());
         }
