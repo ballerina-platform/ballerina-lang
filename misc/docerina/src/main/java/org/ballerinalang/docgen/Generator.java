@@ -26,6 +26,7 @@ import org.ballerinalang.docgen.generator.model.DefaultableVarible;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.Object;
+import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.Type;
 import org.ballerinalang.docgen.generator.model.Variable;
 import org.ballerinalang.docgen.model.AnnotationDoc;
@@ -33,7 +34,6 @@ import org.ballerinalang.docgen.model.ConstantDoc;
 import org.ballerinalang.docgen.model.Documentable;
 import org.ballerinalang.docgen.model.EndpointDoc;
 import org.ballerinalang.docgen.model.Field;
-import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.ObjectDoc;
@@ -222,7 +222,7 @@ public class Generator {
         boolean added = false;
         if (kind == NodeKind.OBJECT_TYPE) {
             BLangObjectTypeNode objectType = (BLangObjectTypeNode) typeNode;
-            addDocForType(objectType, typeDefinition, module);
+            addDocForObjectType(objectType, typeDefinition, module);
             added = true;
         } else if (kind == NodeKind.FINITE_TYPE_NODE) {
             BLangFiniteTypeNode enumNode = (BLangFiniteTypeNode) typeNode;
@@ -237,7 +237,7 @@ public class Generator {
             if (recordNode.isAnonymous) {
                 return;
             }
-            // records.add(createDocForType(typeDefinition, recordNode, typeName));
+            addDocForRecordType(typeDefinition, recordNode, module);
             added = true;
         } else if (kind == NodeKind.UNION_TYPE_NODE) {
             List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) typeNode).memberTypeNodes;
@@ -406,7 +406,7 @@ public class Generator {
                         functionNode.getFlags().contains(Flags.NATIVE),
                         parameters, returnParams);
 
-        //TODO: gen using symbol createDocForType(functionNode.symbol)
+        //TODO: gen using symbol addDocForRecordType(functionNode.symbol)
 //        return new FunctionDoc(functionName, description(functionNode), new ArrayList<>(), parameters, returnParams);
     }
 
@@ -424,20 +424,23 @@ public class Generator {
     /**
      * Create documentation for records.
      *
+     * @param typeDefinition struct name.
      * @param recordType ballerina record node.
-     * @param structName struct name.
-     * @return documentation of the record.
+     * @param module Module.
+     *
      */
-    private static RecordDoc createDocForType(BLangTypeDefinition typeDefinition, BLangRecordTypeNode recordType,
-                                              String structName) {
+    private static void addDocForRecordType(BLangTypeDefinition typeDefinition, BLangRecordTypeNode recordType,
+                                            Module module) {
+        String recordName = typeDefinition.getName().getValue();
         // Check if its an anonymous struct
         if (recordType.isAnonymous) {
-            structName = "Anonymous Record " + structName.substring(structName.lastIndexOf('$') + 1);
+            recordName = "Anonymous Record " + recordName.substring(recordName.lastIndexOf('$') + 1);
         }
         BLangMarkdownDocumentation documentationNode = typeDefinition.getMarkdownDocumentationAttachment();
-        // List<Field> fields = getFields(recordType, recordType.fields, documentationNode);
+        List<DefaultableVarible> fields = getFields(recordType, recordType.fields, documentationNode);
         String documentationText = documentationNode == null ? null : documentationNode.getDocumentation();
-        return new RecordDoc(structName, documentationText, new ArrayList<>(), null);
+
+        module.records.add(new Record(recordName, documentationText, fields));
     }
 
     private static List<DefaultableVarible> getFields(BLangNode node, List<BLangSimpleVariable> allFields,
@@ -474,9 +477,9 @@ public class Generator {
         return BallerinaDocUtils.mdToHtml(parameter.getParameterDocumentation());
     }
 
-    private static void addDocForType(BLangObjectTypeNode objectType,
-                                      BLangTypeDefinition parent,
-                                      Module module) {
+    private static void addDocForObjectType(BLangObjectTypeNode objectType,
+                                            BLangTypeDefinition parent,
+                                            Module module) {
         List<Function> functions = new ArrayList<>();
         String name = parent.getName().getValue();
         String description = description(parent);
