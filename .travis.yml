@@ -19,12 +19,6 @@ sudo: required
 git:
   quiet: true
 
-matrix:
-  include:
-    - env: BUILD_TYPE=MAVEN
-    - env: BUILD_TYPE=GRADLE
-  fast_finish: true
-
 services:
   - docker
 
@@ -42,8 +36,10 @@ install:
   - npm install -g npm@'5.6.0'
 
 script:
-  - if [ "$BUILD_TYPE" = "MAVEN" ]; then mvn install -B -V -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN; fi
-  - if [ "$BUILD_TYPE" = "GRADLE" ]; then ./gradlew build --info --stacktrace -scan; fi
+  - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+  - ./gradlew build jacocoTestReport --console=plain --stacktrace -scan
+  # Killing background sleep loop
+  - kill %1
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

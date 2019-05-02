@@ -43,6 +43,7 @@ public class BRecordType extends BStructureType {
      */
     public BRecordType(String typeName, String pkgPath, int flags, boolean sealed) {
         super(typeName, pkgPath, flags, MapValue.class);
+        this.sealed = sealed;
     }
 
     /**
@@ -85,5 +86,10 @@ public class BRecordType extends BStructureType {
             sj.add(field.getKey() + " : " + field.getValue().type);
         }
         return sj.toString();
+    }
+
+    @Override
+    public String getAnnotationKey() {
+        return this.typeName;
     }
 }

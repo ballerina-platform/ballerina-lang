@@ -15,12 +15,12 @@ public function main() {
             // Log the retrieved text paylod.
             io:println(payload);
         } else {
-            // If an error occurs while retrieving the text payload, log
+            // If an error occurs while retrieving the text payload, print
             // the error.
             io:println(<string> payload.detail().message);
         }
     } else {
-        // If an error occurs when getting the response, log the error.
+        // If an error occurs when getting the response, print the error.
         io:println(<string> resp.detail().message);
     }
 }

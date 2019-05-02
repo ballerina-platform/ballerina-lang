@@ -136,6 +136,38 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     }
 
     /**
+     * A function pointer invocation instruction.
+     * <p>
+     * e.g., _4 = fp.call();
+     *
+     * @since 0.995.0
+     */
+    public static class FPCall extends BIRTerminator {
+        public BIROperand fp;
+        public BIROperand lhsOp;
+        public List<BIROperand> args;
+        public BIRBasicBlock thenBB;
+
+        public FPCall(DiagnosticPos pos,
+                      InstructionKind kind,
+                      BIROperand fp,
+                      List<BIROperand> args,
+                      BIROperand lhsOp,
+                      BIRBasicBlock thenBB) {
+            super(pos, kind);
+            this.fp = fp;
+            this.lhsOp = lhsOp;
+            this.args = args;
+            this.thenBB = thenBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * A return instruction.
      * <p>
      * e.g., return _4
@@ -193,6 +225,29 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public Panic(DiagnosticPos pos, BIROperand errorOp) {
             super(pos, InstructionKind.PANIC);
             this.errorOp = errorOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A wait instruction.
+     * <p>
+     * e.g., wait w1|w2;
+     *
+     * @since 0.995.0
+     */
+    public static class Wait extends BIRTerminator {
+        public List<BIROperand> exprList;
+        public BIROperand lhsOp;
+
+        public Wait(DiagnosticPos pos, List<BIROperand> exprList, BIROperand lhsOp) {
+            super(pos, InstructionKind.WAIT);
+            this.exprList = exprList;
+            this.lhsOp = lhsOp;
         }
 
         @Override

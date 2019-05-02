@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+ 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 configurations {
@@ -19,7 +36,6 @@ dependencies {
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-io')
@@ -29,10 +45,10 @@ dependencies {
     implementation project(':ballerina-internal')
     implementation project(':ballerina-utils')
 
-    testCompile 'io.netty:netty-transport:4.1.34.Final'
-    testCompile 'org.testng:testng:6.13.1'
     testCompile project(':ballerina-launcher')
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.26'
+    testCompile 'io.netty:netty-transport'
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-jdk14'
 
     cliUtils project(':ballerina-cli-utils')
 }
@@ -52,7 +68,7 @@ task genBalx(type: JavaExec) {
     classpath = configurations.cliUtils
     main = 'org.ballerinalang.cli.utils.GenerateBalx'
 
-    def src = "$buildDir/../src/test/ballerina/bir_test"
+    def src = "src/test/ballerina/bir_test"
     def fileName = "bir_test.bal"
     def target = "$buildDir/bir_test.balx"
     args("$src", "$fileName", "$target", "$buildDir")

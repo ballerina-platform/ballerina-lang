@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
@@ -30,7 +29,6 @@ import org.ballerinalang.model.tree.expressions.ConstantNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -52,7 +50,6 @@ public class BLangConstant extends BLangExpression implements ConstantNode, Anno
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
-    public List<BLangDeprecatedNode> deprecatedAttachments;
     public BConstantSymbol symbol;
 
     // Type node defined in the constant definition.
@@ -66,7 +63,6 @@ public class BLangConstant extends BLangExpression implements ConstantNode, Anno
     public BLangConstant() {
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
-        this.deprecatedAttachments = new ArrayList<>();
     }
 
     public void setTypeNode(TypeNode typeNode) {
@@ -109,16 +105,6 @@ public class BLangConstant extends BLangExpression implements ConstantNode, Anno
     @Override
     public void setMarkdownDocumentationAttachment(MarkdownDocumentationNode documentationNode) {
         this.markdownDocumentationAttachment = (BLangMarkdownDocumentation) documentationNode;
-    }
-
-    @Override
-    public List<BLangDeprecatedNode> getDeprecatedAttachments() {
-        return deprecatedAttachments;
-    }
-
-    @Override
-    public void addDeprecatedAttachment(DeprecatedNode deprecatedAttachment) {
-        this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedAttachment);
     }
 
     @Override

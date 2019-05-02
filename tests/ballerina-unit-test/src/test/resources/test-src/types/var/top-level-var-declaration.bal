@@ -3,7 +3,7 @@ var intValue = 10;
 
 var stringValue = "Ballerina";
 
-var decimalValue = <decimal>100;
+var decimalValue = 100.0d;
 
 var booleanValue = true;
 

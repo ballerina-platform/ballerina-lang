@@ -1,8 +1,8 @@
 import ballerina/reflect;
 
-const map<map<boolean>> bm3 = { "key3": bm1, "key4": bm2 };
-const map<boolean> bm1 = { "key1": true };
-const map<boolean> bm2 = { "key2": false };
+const map<map<boolean>> bm3 = { "key5": bm1, "key6": bm2, "key7": { "key8": true, "key9": false }};
+const map<boolean> bm1 = { "key1": true, "key2": false };
+const map<boolean> bm2 = { "key3": false, "key4": true };
 
 function testSimpleBooleanConstMap() returns map<boolean> {
     return bm1;
@@ -14,9 +14,9 @@ function testComplexBooleanConstMap() returns map<map<boolean>> {
 
 // -----------------------------------------------------------
 
-const map<map<int>> im3 = { "key3": im1, "key4": im2 };
-const map<int> im1 = { "key1": 1 };
-const map<int> im2 = { "key2": 2 };
+const map<map<int>> im3 = { "key5": im1, "key6": im2, "key7:": { "key8": 8, "key9": 9 }};
+const map<int> im1 = { "key1": 1, "key2": 2 };
+const map<int> im2 = { "key3": 3, "key4": 4 };
 
 function testSimpleIntConstMap() returns map<int> {
     return im1;
@@ -28,9 +28,9 @@ function testComplexIntConstMap() returns map<map<int>> {
 
 // -----------------------------------------------------------
 
-const map<map<byte>> bytem3 = { "key3": bytem1, "key4": bytem2 };
-const map<byte> bytem1 = { "key1": 10 };
-const map<byte> bytem2 = { "key2": 20 };
+const map<map<byte>> bytem3 = { "key5": bytem1, "key6": bytem2, "key7": { "key8": 80, "key9": 90 }};
+const map<byte> bytem1 = { "key1": 10, "key2": 20 };
+const map<byte> bytem2 = { "key3": 30, "key4": 40 };
 
 function testSimpleByteConstMap() returns map<byte> {
     return bytem1;
@@ -42,9 +42,9 @@ function testComplexByteConstMap() returns map<map<byte>> {
 
 // -----------------------------------------------------------
 
-const map<map<float>> fm3 = { "key3": fm1, "key4": fm2 };
-const map<float> fm1 = { "key1": 2.0 };
-const map<float> fm2 = { "key2": 4.0 };
+const map<map<float>> fm3 = { "key5": fm1, "key6": fm2, "key7": { "key8": 8.0, "key9": 9.0 }};
+const map<float> fm1 = { "key1": 1.0, "key2": 2.0 };
+const map<float> fm2 = { "key3": 3.0, "key4": 4.0 };
 
 function testSimpleFloatConstMap() returns map<float> {
     return fm1;
@@ -56,9 +56,9 @@ function testComplexFloatConstMap() returns map<map<float>> {
 
 // -----------------------------------------------------------
 
-const map<map<decimal>> dm3 = { "key3": dm1, "key4": dm2 };
-const map<decimal> dm1 = { "key1": 100 };
-const map<decimal> dm2 = { "key2": 200 };
+const map<map<decimal>> dm3 = { "key5": dm1, "key6": dm2, "key7": { "key8": 800, "key9": 900 }};
+const map<decimal> dm1 = { "key1": 100, "key2": 200 };
+const map<decimal> dm2 = { "key3": 300, "key4": 400 };
 
 function testSimpleDecimalConstMap() returns map<decimal> {
     return dm1;
@@ -70,9 +70,9 @@ function testComplexDecimalConstMap() returns map<map<decimal>> {
 
 // -----------------------------------------------------------
 
-const map<map<string>> sm3 = { "key3": sm1, "key4": sm2 };
-const map<string> sm1 = { "key1": "value1" };
-const map<string> sm2 = { "key2": "value2" };
+const map<map<string>> sm3 = { "key5": sm1, "key6": sm2, "key7": { "key8": "value8", "key9": "value9" }};
+const map<string> sm1 = { "key1": "value1", "key2": "value2" };
+const map<string> sm2 = { "key3": "value3", "key4": "value4" };
 
 function testSimpleStringConstMap() returns map<string> {
     return sm1;
@@ -84,9 +84,9 @@ function testComplexStringConstMap() returns map<map<string>> {
 
 // -----------------------------------------------------------
 
-const map<map<()>> nm3 = { "key3": nm1, "key4": nm2 };
-const map<()> nm1 = { "key1": () };
-const map<()> nm2 = { "key2": () };
+const map<map<()>> nm3 = { "key5": nm1, "key6": nm2, "key7": { "key8": (), "key9": () }};
+const map<()> nm1 = { "key1": (), "key2": () };
+const map<()> nm2 = { "key3": (), "key4": () };
 
 function testSimpleNilConstMap() returns map<()> {
     return nm1;

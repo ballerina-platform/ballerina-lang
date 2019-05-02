@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.testerina.test;
 
+import org.ballerinalang.launcher.BLauncherException;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
@@ -54,8 +54,7 @@ public class DependsOnTest {
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 0);
     }
 
-    @Test(expectedExceptions = BallerinaException.class,
-        expectedExceptionsMessageRegExp = ".*Cannot find the specified dependsOn function : non-existing")
+    @Test(expectedExceptions = BLauncherException.class)
     public void tesDependsOnFunctionsMissingFunction() {
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on-negative.bal")}, new ArrayList<>());

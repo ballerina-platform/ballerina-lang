@@ -33,7 +33,7 @@ return ( 0,"");
 }
 
 function name9() returns ( Person ) {
-    return {name:""};
+    return { name:"" };
 }
 
    private      function name10() {

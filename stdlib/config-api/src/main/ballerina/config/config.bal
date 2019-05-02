@@ -79,7 +79,7 @@ public function getAsInt(@sensitive string key, int defaultValue = 0) returns in
 # Retrieves the specified configuration value as a float.
 #
 # + key - The configuration to be retrieved
-# + defaultValue - The default value to be use in case there is no mapping for the provided key
+# + defaultVal - The default value to be use in case there is no mapping for the provided key
 # + return - Configuration value mapped by the key
 public function getAsFloat(@sensitive string key, float defaultVal = 0.0) returns float {
     if (contains(key)) {
