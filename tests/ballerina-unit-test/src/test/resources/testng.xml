@@ -66,6 +66,7 @@ under the License.
             <package name="org.ballerinalang.test.serializer.json.*" />
             <package name="org.ballerinalang.test.dataflow.*" />
             <package name="org.ballerinalang.test.error.*" />
+            <package name="org.ballerinalang.test.imports.*" />
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->
