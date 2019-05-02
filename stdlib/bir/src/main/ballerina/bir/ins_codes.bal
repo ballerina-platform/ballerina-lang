@@ -74,3 +74,4 @@ public const int INS_OR = 63;
 
 // Unary expression related instructions.
 public const int INS_TYPEOF = 70;
+public const int INS_NOT = 71;

@@ -1203,6 +1203,8 @@ public class BIRGen extends BLangNodeVisitor {
         switch (opKind) {
             case TYPEOF:
                 return InstructionKind.TYPEOF;
+            case NOT:
+                return InstructionKind.NOT;
             default:
                 throw new IllegalStateException("unsupported unary operator: " + opKind.value());
         }

@@ -726,6 +726,22 @@ type InstructionGenerator object {
         self.storeToVar(unaryOp.lhsOp.variableDcl);
     }
 
+    function generateNotIns(bir:UnaryOp unaryOp) {
+        self.loadVar(unaryOp.rhsOp.variableDcl);
+
+        jvm:Label label1 = new;
+        jvm:Label label2 = new;
+
+        self.mv.visitJumpInsn(IFNE, label1);
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitJumpInsn(GOTO, label2);
+        self.mv.visitLabel(label1);
+        self.mv.visitInsn(ICONST_0);
+        self.mv.visitLabel(label2);
+
+        self.storeToVar(unaryOp.lhsOp.variableDcl);
+    }
+
     private function loadVar(bir:VariableDcl varDcl) {
         generateVarLoad(self.mv, varDcl, self.currentPackageName, self.getJVMIndexOfVarRef(varDcl));
     }
