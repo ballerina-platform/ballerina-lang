@@ -221,6 +221,9 @@ public type BTypeDesc TYPE_DESC;
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
 
+public const TYPE_SERVICE = "service";
+public type BServiceType TYPE_SERVICE;
+
 public type BArrayType record {|
     ArrayState state;
     BType eType;
@@ -290,7 +293,8 @@ public type BFiniteType record {|
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BFiniteType;
+                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType | 
+                  BFiniteType;
 
 public type ModuleID record {|
     string org = "";

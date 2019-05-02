@@ -68,6 +68,7 @@ import java.util.LinkedList;
  */
 public class BIRTypeWriter implements TypeVisitor {
     public static final int TYPE_TAG_SELF = 50;
+    public static final int SERVICE_TYPE_TAG = 51;
     private final ByteBuf buff;
 
     private final ConstantPool cp;
@@ -179,7 +180,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BServiceType bServiceType) {
-        throwUnimplementedError(bServiceType);
+        buff.writeByte(SERVICE_TYPE_TAG);
     }
 
     @Override
