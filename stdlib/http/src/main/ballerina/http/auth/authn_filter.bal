@@ -55,6 +55,7 @@ public type AuthnFilter object {
 };
 
 function handleAuthnRequest(AuthnHandler[] authnHandlers, Request request) returns boolean|error {
+    //TODO: Discuss how we can return the error here.
     foreach AuthnHandler authnHandler in authnHandlers {
         var canHandleResponse = authnHandler.canHandle(request);
         if (canHandleResponse is boolean) {
@@ -68,11 +69,11 @@ function handleAuthnRequest(AuthnHandler[] authnHandlers, Request request) retur
                         return true;
                     }
                 } else {
-                    return handleResponse;
+                    //return handleResponse;
                 }
             }
         } else {
-            return canHandleResponse;
+            //return canHandleResponse;
         }
     }
     return false;
