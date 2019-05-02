@@ -58,14 +58,14 @@ public const int INS_NEW_TABLE = 50;
 
 
 // Binary expression related instructions.
-public const int INS_ADD = 50;
-public const int INS_SUB = 51;
-public const int INS_MUL = 52;
-public const int INS_DIV = 53;
-public const int INS_MOD = 54;
-public const int INS_EQUAL = 55;
-public const int INS_NOT_EQUAL = 56;
-public const int INS_GREATER_THAN = 57;
-public const int INS_GREATER_EQUAL = 58;
-public const int INS_LESS_THAN = 59;
-public const int INS_LESS_EQUAL = 60;
+public const int INS_ADD = 51;
+public const int INS_SUB = 52;
+public const int INS_MUL = 53;
+public const int INS_DIV = 54;
+public const int INS_MOD = 55;
+public const int INS_EQUAL = 56;
+public const int INS_NOT_EQUAL = 57;
+public const int INS_GREATER_THAN = 58;
+public const int INS_GREATER_EQUAL = 59;
+public const int INS_LESS_THAN = 60;
+public const int INS_LESS_EQUAL = 61;
