@@ -76,14 +76,8 @@ function bar() returns (string) {
 }
 
 function test10(string s) returns (Person) {
-    Person tom = {
-        name: "tom",
-        location: "US"
-    };
-    Person bob = {
-        name: "bob",
-        location: "UK"
-    };
+    Person tom = {name: "tom", location: "US"};
+    Person bob = {name: "bob", location: "UK"};
     return s == "tom" ? tom
     : bob;
 }

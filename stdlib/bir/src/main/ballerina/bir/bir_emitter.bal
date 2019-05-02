@@ -317,25 +317,46 @@ type TerminalEmitter object {
             }
             println(";");
         } else if (term is AsyncCall) {
-          print(tabs);
-          VarRef? lhsOp = term.lhsOp;
-          if (lhsOp is VarRef) {
-              self.opEmitter.emitOp(lhsOp);
-              print(" = ");
-          }
-          print(" START ");
-          print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
-          int i = 0;
-          foreach var arg in term.args {
+            print(tabs);
+            VarRef? lhsOp = term.lhsOp;
+            if (lhsOp is VarRef) {
+                self.opEmitter.emitOp(lhsOp);
+                print(" = ");
+            }
+            print(" START ");
+            print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
+            int i = 0;
+            foreach var arg in term.args {
+                if (arg is VarRef) {
+                    if (i != 0) {
+                        print(", ");
+                    }
+                    self.opEmitter.emitOp(arg);
+                    i = i + 1;
+                }
+            }
+            println(") -> ", term.thenBB.id.value, ";");
+        } else if (term is FPCall) {
+            print(tabs);
+            VarRef? lhsOp = term.lhsOp;
+            if (lhsOp is VarRef) {
+                self.opEmitter.emitOp(lhsOp);
+                print(" = ");
+            }
+            print(term.kind, " ");
+            self.opEmitter.emitOp(term.fp);
+            print("(");
+            int i = 0;
+            foreach var arg in term.args {
               if (arg is VarRef) {
                   if (i != 0) {
                       print(", ");
-                  }
+                    }
                   self.opEmitter.emitOp(arg);
                   i = i + 1;
-              }
-          }
-          println(") -> ", term.thenBB.id.value, ";");
+                }
+            }
+            println(") -> ", term.thenBB.id.value, ";");
         } else { //if (term is Return) {
             println(tabs, "return;");
         }
@@ -357,7 +378,8 @@ type TypeEmitter object {
 
     function emitType(BType typeVal, string tabs = "") {
         if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString || typeVal is BTypeBoolean
-                || typeVal is BTypeFloat || typeVal is BTypeAnyData || typeVal is BTypeNone) {
+                || typeVal is BTypeFloat || typeVal is BTypeAnyData || typeVal is BTypeNone
+                || typeVal is BServiceType) {
             print(tabs, typeVal);
         } else if (typeVal is BRecordType) {
             self.emitRecordType(typeVal, tabs);

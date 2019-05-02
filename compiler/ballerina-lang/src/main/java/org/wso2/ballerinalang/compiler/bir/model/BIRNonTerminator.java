@@ -22,6 +22,8 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.List;
+
 /**
  * A non-terminating instruction.
  * <p>
@@ -537,12 +539,15 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         public BIROperand lhsOp;
         public Name funcName;
         public PackageID pkgId;
+        public List<BIRVariableDcl> params;
 
-        public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp) {
+        public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp,
+                      List<BIRVariableDcl> params) {
             super(pos, InstructionKind.FP_LOAD);
             this.lhsOp = lhsOp;
             this.funcName = funcName;
             this.pkgId = pkgId;
+            this.params = params;
         }
 
         @Override

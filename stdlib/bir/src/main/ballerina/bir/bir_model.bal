@@ -130,9 +130,10 @@ public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
 public const TERMINATOR_PANIC = "PANIC";
 public const TERMINATOR_WAIT = "WAIT";
+public const TERMINATOR_FP_CALL = "FP_CALL";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
-                                |TERMINATOR_PANIC|TERMINATOR_WAIT;
+                                |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL;
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -220,6 +221,9 @@ public type BTypeDesc TYPE_DESC;
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
 
+public const TYPE_SERVICE = "service";
+public type BServiceType TYPE_SERVICE;
+
 public type BArrayType record {|
     ArrayState state;
     BType eType;
@@ -285,7 +289,7 @@ public type BFutureType record {|
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc| BXMLType;
+                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc| BXMLType | BServiceType;
 
 public type ModuleID record {|
     string org = "";
@@ -371,6 +375,7 @@ public type FPLoad record {|
     VarRef lhsOp;
     ModuleID pkgID;
     Name name;
+    VariableDcl?[] params;
 |};
 
 public type FieldAccess record {|
@@ -476,6 +481,15 @@ public type Panic record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     VarRef errorOp;
+|};
+
+public type FPCall record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    VarRef fp;
+    VarRef? lhsOp;
+    VarRef?[] args;
+    BasicBlock thenBB;
 |};
 
 public type NewXMLElement record {|

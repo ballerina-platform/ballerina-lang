@@ -541,6 +541,23 @@ type InstructionGenerator object {
         }
     }
 
+    function generateFPLoadIns(bir:FPLoad inst) {
+        string lambdaName = inst.name.value + "$lambda$";
+        string methodClass = lookupFullQualifiedClassName(self.currentPackageName + inst.name.value);
+        bir:BType returnType = inst.lhsOp.typeValue;
+        boolean isVoid = false;
+        if (returnType is bir:BInvokableType) {
+            isVoid = returnType.retType is bir:BTypeNil;
+        } else {
+            error err = error( "Expected BInvokableType, found " + io:sprintf("%s", returnType));
+            panic err;
+        }
+        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid);
+        generateVarStore(self.mv, inst.lhsOp.variableDcl, self.currentPackageName, 
+            self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
+        lambdas[lambdaName] = (inst, methodClass);
+    }
+
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
         self.loadVar(newXMLElement.startTagOp.variableDcl);
         self.loadVar(newXMLElement.endTagOp.variableDcl);
@@ -712,6 +729,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BJSONType ||
                 bType is bir:BFutureType ||
                 bType is bir:BObjectType ||
+                bType is bir:BInvokableType ||
                 bType is bir:BXMLType ) {
         mv.visitVarInsn(ALOAD, valueIndex);
     } else {
@@ -750,6 +768,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BJSONType ||
                     bType is bir:BFutureType ||
                     bType is bir:BObjectType ||
+                    bType is bir:BInvokableType ||
                     bType is bir:BXMLType) {
         mv.visitVarInsn(ASTORE, valueIndex);
     } else {

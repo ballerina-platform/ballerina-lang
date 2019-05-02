@@ -141,7 +141,8 @@ public class FormattingTest {
                 {"expectedIndexBasedAccess.bal", "indexBasedAccess.bal"},
                 {"expectedIntegerRangeExpression.bal", "integerRangeExpression.bal"},
                 {"expectedLock.bal", "lock.bal"},
-//                {"expectedImportOrder.bal", "importOrder.bal"},
+                {"expectedImportOrder.bal", "importOrder.bal"},
+                {"expectedBlockExpandOnDemand.bal", "blockExpandOnDemand.bal"},
         };
     }
 

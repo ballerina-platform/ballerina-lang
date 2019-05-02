@@ -49,7 +49,13 @@ public class ParserRuleGlobalVariableDefinitionCompletionProvider extends Abstra
         if (poppedTokens.isEmpty()) {
             return completionItems;
         }
-        if (poppedTokens.size() <= 2) {
+        if (poppedTokens.size() >= 2
+                && ItemResolverConstants.MAP_KEYWORD.equals(poppedTokens.get(0))
+                && UtilSymbolKeys.LT_SYMBOL_KEY.equals(poppedTokens.get(1))) {
+            if (!UtilSymbolKeys.GT_SYMBOL_KEY.equals(CommonUtil.getLastItem(poppedTokens))) {
+                completionItems.addAll(getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
+            }
+        } else if (poppedTokens.size() <= 2) {
             String firstToken = poppedTokens.get(0);
             String lastToken = CommonUtil.getLastItem(poppedTokens);
             if (poppedTokens.contains(ItemResolverConstants.LISTENER_KEYWORD)) {

@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,7 +42,7 @@ import java.util.Map;
 public class RepoHierarchyTestCase extends BaseTest {
     private Path tempHomeDirectory;
     private Path tempProjectDirectory;
-    private static final String ORG_NAME = "integrationtests";
+    private static final String ORG_NAME = "bcintegrationtest";
     private static final String VERSION = "0.0.1";
     private Map<String, String> envVariables;
     
@@ -53,7 +53,7 @@ public class RepoHierarchyTestCase extends BaseTest {
 
         FileUtils.copyDirectory(new File(getClass().getClassLoader().getResource("repohierarchy")
                 .getPath()), tempProjectDirectory.toFile());
-        envVariables = addEnvVariables(PackagingTestUtils.getEnvVariables());
+        envVariables = addEnvVariables(TestUtils.getEnvVariables());
     }
     
     /**
@@ -185,6 +185,6 @@ public class RepoHierarchyTestCase extends BaseTest {
     
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempHomeDirectory);
+        TestUtils.deleteFiles(tempHomeDirectory);
     }
 }
