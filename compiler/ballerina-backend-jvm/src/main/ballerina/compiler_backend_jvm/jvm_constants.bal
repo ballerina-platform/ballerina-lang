@@ -234,6 +234,8 @@ const string CONSUMER = "java/util/function/Consumer";
 const string STRING_BUILDER = "java/lang/StringBuilder";
 const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
 const string XML_FACTORY = "org/ballerinalang/jvm/XMLFactory";
+const string SET = "java/util/Set";
+const string LINKED_HASH_SET = "java/util/LinkedHashSet";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -248,6 +250,7 @@ const string TUPLE_TYPE = "org/ballerinalang/jvm/types/BTupleType";
 const string FUNCTION_TYPE = "org/ballerinalang/jvm/types/BFunctionType";
 const string BFIELD = "org/ballerinalang/jvm/types/BField";
 const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
+const string FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
 
 // error related classes
 const string BLANG_VM_ERRORS = "org/ballerinalang/jvm/BLangVMErrors";

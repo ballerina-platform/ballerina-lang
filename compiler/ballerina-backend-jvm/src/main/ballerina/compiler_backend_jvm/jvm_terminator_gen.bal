@@ -64,8 +64,9 @@ type TerminatorGenerator object {
                 bType is bir:BTupleType ||
                 bType is bir:BJSONType ||
                 bType is bir:BFutureType ||
+                bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
-                bType is bir:BXMLType) {
+                bType is bir:BFiniteType) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitInsn(ARETURN);
         } else {
@@ -127,8 +128,9 @@ type TerminatorGenerator object {
                         bType is bir:BTupleType ||
                         bType is bir:BFutureType ||
                         bType is bir:BJSONType ||
+                        bType is bir:BXMLType ||
                         bType is bir:BInvokableType ||
-                        bType is bir:BXMLType) {
+                        bType is bir:BFiniteType) {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
@@ -270,7 +272,8 @@ type TerminatorGenerator object {
                     bType is bir:BTypeNil ||
                     bType is bir:BUnionType ||
                     bType is bir:BJSONType ||
-                    bType is bir:BXMLType) {
+                    bType is bir:BXMLType ||
+                    bType is bir:BFiniteType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             return io:sprintf("L%s;", OBJECT);
         } else {
@@ -324,7 +327,10 @@ type TerminatorGenerator object {
                         bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
                         bType is bir:BUnionType ||
-                        bType is bir:BInvokableType) {
+                        bType is bir:BJSONType ||
+                        bType is bir:BXMLType ||
+                        bType is bir:BInvokableType ||
+                        bType is bir:BFiniteType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
