@@ -292,6 +292,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.NewTable newTable) {
+        writePosition(newTable.pos);
         buf.writeByte(newTable.kind.getValue());
         newTable.type.accept(typeWriter);
         newTable.lhsOp.accept(this);
