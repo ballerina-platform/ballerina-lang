@@ -113,6 +113,7 @@ public const INS_KIND_XML_ATTRIBUTE_STORE = "XML_ATTRIBUTE_STORE";
 public const INS_KIND_XML_ATTRIBUTE_LOAD = "XML_ATTRIBUTE_LOAD";
 public const INS_KIND_FP_LOAD = "FP_LOAD";
 public const INS_KIND_NEW_TABLE = "NEW_TABLE";
+public const INS_KIND_TYPEOF = "TYPEOF";
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
                                 INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
@@ -122,7 +123,7 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_NEW_STRING_XML_QNAME | INS_KIND_XML_SEQ_STORE | INS_KIND_NEW_XML_TEXT |
                                 INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
                                 INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
-                                INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_NEW_TABLE;
+                                INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_NEW_TABLE | INS_KIND_TYPEOF;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -566,4 +567,11 @@ public type NewXMLPI record {|
     VarRef lhsOp;
     VarRef dataOp;
     VarRef targetOp;
+|};
+
+public type UnaryOp record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef rhsOp;
 |};

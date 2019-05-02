@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
@@ -93,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -879,6 +881,23 @@ public class BIRGen extends BLangNodeVisitor {
         emit(binaryIns);
     }
 
+    @Override
+    public void visit(BLangUnaryExpr unaryExpr) {
+        unaryExpr.expr.accept(this);
+        BIROperand rhsOp = this.env.targetOperand;
+
+        // Create a temporary variable to store the unary operation result.
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(unaryExpr.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand lhsOp = new BIROperand(tempVarDcl);
+        this.env.targetOperand = lhsOp;
+
+        UnaryOP unaryIns = new UnaryOP(unaryExpr.pos, getUnaryInstructionKind(unaryExpr.operator), lhsOp, rhsOp);
+        emit(unaryIns);
+        this.env.targetOperand = lhsOp;
+    }
+
     public void visit(BLangErrorConstructorExpr errorExpr) {
         // Create a temporary variable to store the error.
         BIRVariableDcl tempVarError = new BIRVariableDcl(errorExpr.type,
@@ -1177,6 +1196,15 @@ public class BIRGen extends BLangNodeVisitor {
                 return InstructionKind.OR;
             default:
                 throw new IllegalStateException("unsupported binary operation: " + opKind.value());
+        }
+    }
+
+    private InstructionKind getUnaryInstructionKind(OperatorKind opKind) {
+        switch (opKind) {
+            case TYPEOF:
+                return InstructionKind.TYPEOF;
+            default:
+                throw new IllegalStateException("unsupported unary operator: " + opKind.value());
         }
     }
 

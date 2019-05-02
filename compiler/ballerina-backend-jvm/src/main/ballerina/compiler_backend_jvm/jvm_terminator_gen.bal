@@ -66,7 +66,8 @@ type TerminatorGenerator object {
                 bType is bir:BFutureType ||
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
-                bType is bir:BFiniteType) {
+                bType is bir:BFiniteType ||
+                bType is bir:BTypeDesc) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitInsn(ARETURN);
         } else {
@@ -130,7 +131,8 @@ type TerminatorGenerator object {
                         bType is bir:BJSONType ||
                         bType is bir:BXMLType ||
                         bType is bir:BInvokableType ||
-                        bType is bir:BFiniteType) {
+                        bType is bir:BFiniteType ||
+                        bType is bir:BTypeDesc) {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
@@ -257,6 +259,10 @@ type TerminatorGenerator object {
         } else if (bType is bir:BFutureType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             return io:sprintf("L%s;", FUTURE_VALUE);
+        } else if (bType is bir:BTypeDesc) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            self.mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
+            return io:sprintf("L%s;", TYPEDESC_VALUE);
         } else if (bType is bir:BErrorType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             return io:sprintf("L%s;", ERROR_VALUE);

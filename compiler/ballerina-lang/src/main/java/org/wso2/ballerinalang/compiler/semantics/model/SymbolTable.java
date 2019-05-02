@@ -667,8 +667,6 @@ public class SymbolTable {
                                                                          this.rootPkgSymbol, opcode, safe);
         rootScope.define(symbol.name, symbol);
     }
-    
-    
 
     private void defineCastOperator(BType sourceType,
                                     BType targetType,

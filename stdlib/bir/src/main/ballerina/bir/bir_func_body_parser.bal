@@ -284,6 +284,12 @@ public type FuncBodyParser object {
             }
             FPLoad fpLoad = {pos:pos, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params, closureMaps:maps};
             return fpLoad;
+        } else if (kindTag == INS_TYPEOF) {
+            kind = INS_KIND_TYPEOF;
+            var rhsOp = self.parseVarRef();
+            var lhsOp = self.parseVarRef();
+            UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return typeofNode;
         } else {
             return self.parseBinaryOpInstruction(kindTag, pos);
         }

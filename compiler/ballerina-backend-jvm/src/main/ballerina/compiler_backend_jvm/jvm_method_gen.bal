@@ -200,6 +200,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     instGen.generateXMLStoreIns(inst);
                 } else if (inst.kind == bir:INS_KIND_XML_LOAD_ALL) {
                     instGen.generateXMLLoadAllIns(inst);
+                } else if (inst.kind == bir:INS_KIND_TYPEOF) {
+                    instGen.generateTypeofIns(inst);
                 } else {
                     error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                     panic err;
@@ -375,6 +377,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     io:sprintf("L%s;", FUNCTION));
             }
             mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BTypeDesc) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", TYPEDESC_VALUE));
+            mv.visitVarInsn(ASTORE, index);
         }   else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
@@ -444,6 +450,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", FUTURE_VALUE));
+        } else if (bType is bir:BTypeDesc) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", TYPEDESC_VALUE));
         } else if (bType is bir:BObjectType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
@@ -632,7 +643,8 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BJSONType ||
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
-                bType is bir:BFiniteType) {
+                bType is bir:BFiniteType ||
+                bType is bir:BTypeDesc) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
     } else {
@@ -707,7 +719,9 @@ function getArgTypeSignature(bir:BType bType) returns string {
             return io:sprintf("L%s;", CONSUMER);
         } else {
             return io:sprintf("L%s;", FUNCTION);
-        }       
+        }
+    } else if (bType is bir:BTypeDesc) {
+        return io:sprintf("L%s;", TYPEDESC_VALUE);
     } else if (bType is bir:BObjectType) {
         return io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BXMLType) {
@@ -741,6 +755,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", ERROR_VALUE);
     } else if (bType is bir:BFutureType) {
         return io:sprintf(")L%s;", FUTURE_VALUE);
+    } else if (bType is bir:BTypeDesc) {
+        return io:sprintf(")L%s;", TYPEDESC_VALUE);
     } else if (bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BUnionType ||
@@ -1153,6 +1169,8 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
         typeSig = io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BXMLType) {
         typeSig = io:sprintf("L%s;", XML_VALUE);
+    } else if (bType is bir:BTypeDesc) {
+        typeSig = io:sprintf("L%s;", TYPEDESC_VALUE);
     } else if (bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BUnionType ||

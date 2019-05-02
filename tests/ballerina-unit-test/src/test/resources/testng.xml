@@ -33,6 +33,7 @@ under the License.
             <run>
                 <exclude name="HSQLDBNotSupported"/>
                 <exclude name="broken"/>
+                <exclude name="no-bvm-support"/>
             </run>
         </groups>
         <packages>
@@ -122,6 +123,7 @@ under the License.
                     <exclude name="testAbstractObjectInObject" />
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
         </classes>
     </test>
 </suite>
