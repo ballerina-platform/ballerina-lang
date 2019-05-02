@@ -17,7 +17,6 @@
 import ballerina/auth;
 import ballerina/encoding;
 import ballerina/http;
-import ballerina/log;
 import ballerina/runtime;
 
 CustomAuthStoreProvider customAuthStoreProvider = new;

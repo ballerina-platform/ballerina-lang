@@ -291,7 +291,7 @@ returns boolean|error {
 function validateIssuer(JwtPayload jwtPayload, JWTValidatorConfig config) returns error? {
     var iss = jwtPayload["iss"];
     if (iss is string) {
-        if(jwtPayload.iss != config.issuer) {
+        if (jwtPayload.iss != config.issuer) {
             return prepareError("JWT contained invalid issuer name : " + jwtPayload.iss);
         }
     } else {

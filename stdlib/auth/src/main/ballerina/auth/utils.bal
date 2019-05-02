@@ -57,7 +57,7 @@ function extractUsernameAndPassword(string credential) returns (string, string)|
 # + err - `error` instance
 # + return - Prepared `error` instance
 function prepareError(string message, error? err = ()) returns error {
-    log:printError(function () returns string { return message; });
+    log:printError(message, err = err);
     error preparedError = error(AUTH_ERROR_CODE, { message: message, reason: err.reason() });
     return preparedError;
 }
