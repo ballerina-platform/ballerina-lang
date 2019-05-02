@@ -34,7 +34,7 @@ public type CompoundPatternProcessor object {
         self.stateMachine = ();
     }
 
-    public function process(StreamEvent event, string? processorAlias) returns boolean {
+    public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         io:println("CompoundPatternProcessor:process:36 -> ", event, "|", processorAlias);
         boolean promote = false;
         boolean promoted = false;
@@ -44,7 +44,8 @@ public type CompoundPatternProcessor object {
             // processorAlias is not required when get promoted by
             // its only imidiate descendent. Therefore passing ().
             io:println("CompoundPatternProcessor:process:44 -> ", event, "|", processorAlias);
-            promote = processor.process(event, ());
+            var (p, n) = processor.process(event, ());
+            promote = p;
             io:println("CompoundPatternProcessor:process:46 -> ", event, "|", processorAlias);
         }
         // upward traversal
@@ -84,7 +85,7 @@ public type CompoundPatternProcessor object {
             }
         }
         io:println("CompoundPatternProcessor:process:84 -> ", event, "|", processorAlias);
-        return promoted;
+        return (promoted, false);
     }
 
     public function setStateMachine(StateMachine stateMachine) {

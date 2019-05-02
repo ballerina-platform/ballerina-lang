@@ -32,7 +32,7 @@ public type OrOperatorProcessor object {
         self.stateMachine = ();
     }
 
-    public function process(StreamEvent event, string? processorAlias) returns boolean {
+    public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         io:println("OrOperatorProcessor:process:35 -> ", event, "|", processorAlias);
         boolean promote = false;
         boolean promoted = false;
@@ -40,14 +40,16 @@ public type OrOperatorProcessor object {
         AbstractPatternProcessor? lProcessor = self.lhsProcessor;
         if (lProcessor is AbstractPatternProcessor) {
             io:println("OrOperatorProcessor:process:41 -> ", event, "|", processorAlias);
-            promote = lProcessor.process(event, self.lhsAlias);
+            var (p, n) = lProcessor.process(event, self.lhsAlias);
+            promote = p;
             io:println("OrOperatorProcessor:process:43 -> ", event, "|", processorAlias);
         }
         // rightward traversal
         AbstractPatternProcessor? rProcessor = self.rhsProcessor;
         if (!promote && rProcessor is AbstractPatternProcessor) {
             io:println("OrOperatorProcessor:process:48 -> ", event, "|", processorAlias);
-            promote = rProcessor.process(event, self.rhsAlias);
+            var (p, n) = rProcessor.process(event, self.rhsAlias);
+            promote = p;
             io:println("OrOperatorProcessor:process:50 -> ", event, "|", processorAlias);
         }
         // upward traversal / promote
@@ -65,7 +67,7 @@ public type OrOperatorProcessor object {
                 }
             }
         }
-        return promoted;
+        return (promoted, false);
     }
 
     public function setStateMachine(StateMachine stateMachine) {

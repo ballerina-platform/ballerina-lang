@@ -36,7 +36,7 @@ public type AndOperatorProcessor object {
         self.stateMachine = ();
     }
 
-    public function process(StreamEvent event, string? processorAlias) returns boolean {
+    public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         io:println("AndOperatorProcessor:process:39 -> ", event, "|", processorAlias);
         boolean promote = false;
         boolean promoted = false;
@@ -52,12 +52,14 @@ public type AndOperatorProcessor object {
                     // stream name into consideration. Therefore, we have to set that.
                     clone.streamName = event.streamName;
                     io:println("AndOperatorProcessor:process:53 -> ", clone, "|", processorAlias);
-                    promote = promote || lProcessor.process(clone, self.lhsAlias);
+                    var (p, n) = lProcessor.process(clone, self.lhsAlias);
+                    promote = promote || p;
                     io:println("AndOperatorProcessor:process:55 -> ", clone, "|", processorAlias);
                 }
             } else {
                 io:println("AndOperatorProcessor:process:58 -> ", event, "|", processorAlias);
-                promote = lProcessor.process(event, self.lhsAlias);
+                var (p, n) = lProcessor.process(event, self.lhsAlias);
+                promote = p;
                 io:println("AndOperatorProcessor:process:60 -> ", event, "|", processorAlias);
             }
         }
@@ -74,12 +76,14 @@ public type AndOperatorProcessor object {
                         // stream name into consideration. Therefore, we have to set that.
                         clone.streamName = event.streamName;
                         io:println("AndOperatorProcessor:process:75 -> ", clone, "|", processorAlias);
-                        promote = promote || rProcessor.process(clone, self.rhsAlias);
+                        var (p, n) = rProcessor.process(clone, self.rhsAlias);
+                        promote = promote || p;
                         io:println("AndOperatorProcessor:process:77 -> ", clone, "|", processorAlias);
                     }
                 } else {
                     io:println("AndOperatorProcessor:process:80 -> ", event, "|", processorAlias);
-                    promote = rProcessor.process(event, self.rhsAlias);
+                    var (p, n) = rProcessor.process(event, self.rhsAlias);
+                    promote = p;
                     io:println("AndOperatorProcessor:process:82 -> ", event, "|", processorAlias);
                 }
             }
@@ -99,7 +103,7 @@ public type AndOperatorProcessor object {
                 }
             }
         }
-        return promoted;
+        return (promoted, false);
     }
 
     public function setStateMachine(StateMachine stateMachine) {

@@ -34,7 +34,7 @@ public type FollowedByProcessor object {
         self.stateMachine = ();
     }
 
-    public function process(StreamEvent event, string? processorAlias) returns boolean {
+    public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         io:println("FollowedByProcessor:process:37 -> ", event, "|", processorAlias);
         boolean promote = false;
         boolean promoted = false;
@@ -42,7 +42,8 @@ public type FollowedByProcessor object {
         AbstractPatternProcessor? lProcessor = self.lhsProcessor;
         if (lProcessor is AbstractPatternProcessor) {
             io:println("FollowedByProcessor:process:43 -> ", event, "|", processorAlias);
-            promote = lProcessor.process(event, self.lhsAlias);
+            var (p, n) = lProcessor.process(event, self.lhsAlias);
+            promote = p;
             io:println("FollowedByProcessor:process:45 -> ", event, "|", processorAlias);
         }
         // rightward traversal
@@ -57,7 +58,8 @@ public type FollowedByProcessor object {
                     // stream name into consideration. Therefore, we have to set that.
                     clone.streamName = event.streamName;
                     io:println("FollowedByProcessor:process:58 -> ", clone, "|", processorAlias);
-                    promote = promote || rProcessor.process(clone, self.rhsAlias);
+                    var (p, n) = rProcessor.process(clone, self.rhsAlias);
+                    promote = promote || p;
                     io:println("FollowedByProcessor:process:60 -> ", clone, "|", processorAlias);
                 }
             }
@@ -78,7 +80,7 @@ public type FollowedByProcessor object {
             }
         }
         io:println("FollowedByProcessor:process:79 -> ", event, "|", processorAlias);
-        return promoted;
+        return (promoted, false);
     }
 
     public function setStateMachine(StateMachine stateMachine) {

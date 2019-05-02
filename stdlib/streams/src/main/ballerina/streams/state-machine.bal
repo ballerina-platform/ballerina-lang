@@ -27,7 +27,7 @@ public type StateMachine object {
     public function process(StreamEvent?[] streamEvents) {
         foreach var e in streamEvents {
             if (e is StreamEvent) {
-                boolean success = self.rootProcessor.process(e, ());
+                (boolean, boolean) success = self.rootProcessor.process(e, ());
             }
         }
         StreamEvent?[] events = self.rootProcessor.flushAndGetFulfilledEvents();

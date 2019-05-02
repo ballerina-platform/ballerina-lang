@@ -28,7 +28,7 @@ public type OperandProcessor object {
         self.stateMachine = ();
     }
 
-    public function process(StreamEvent event, string? processorAlias) returns boolean {
+    public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         boolean promote = false;
         boolean promoted = false;
         string streamName = event.getStreamName();
@@ -51,7 +51,7 @@ public type OperandProcessor object {
                 }
             }
         }
-        return promoted;
+        return (promoted, false);
     }
 
     public function setStateMachine(StateMachine stateMachine) {
