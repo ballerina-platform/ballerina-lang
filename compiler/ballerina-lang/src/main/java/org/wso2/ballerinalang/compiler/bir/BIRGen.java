@@ -614,8 +614,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeConversionExpr astTypeConversionExpr) {
-
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astTypeConversionExpr.targetType,
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astTypeConversionExpr.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
@@ -624,7 +623,6 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand rhsOp = this.env.targetOperand;
 
         emit(new BIRNonTerminator.TypeCast(astTypeConversionExpr.pos, toVarRef, rhsOp));
-
         this.env.targetOperand = toVarRef;
     }
 
@@ -1137,6 +1135,10 @@ public class BIRGen extends BLangNodeVisitor {
                 return InstructionKind.LESS_THAN;
             case LESS_EQUAL:
                 return InstructionKind.LESS_EQUAL;
+            case AND:
+                return InstructionKind.AND;
+            case OR:
+                return InstructionKind.OR;
             default:
                 throw new IllegalStateException("unsupported binary operation: " + opKind.value());
         }
