@@ -223,12 +223,10 @@ public class OutboundMsgHolder {
         this.firstContentWritten = firstContentWritten;
     }
 
-    //Gets called from ballerina thread
     boolean isStreamWritable() {
         return streamWritable.get();
     }
 
-    //Gets called from I/O thread.
     public void setStreamWritable(boolean streamWritable) {
         this.streamWritable.set(streamWritable);
     }

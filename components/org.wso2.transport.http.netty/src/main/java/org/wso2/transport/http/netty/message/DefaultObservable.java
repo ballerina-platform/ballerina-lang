@@ -32,12 +32,9 @@ public class DefaultObservable implements Observable {
         this.listener = listener;
     }
 
-    /**
-     * This method should only be called for HTTP/1.1.
-     */
     @Override
     public void removeListener() {
-            listener = null;
+        listener = null;
     }
 
     @Override

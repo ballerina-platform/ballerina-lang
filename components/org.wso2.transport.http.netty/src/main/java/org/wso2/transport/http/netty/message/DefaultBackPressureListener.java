@@ -43,7 +43,7 @@ public class DefaultBackPressureListener implements BackPressureListener {
     public void onUnWritable() {
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Semaphore acquired in thread {}.", Thread.currentThread().getName());
+            LOG.debug("Semaphore acquired in thread {} ", Thread.currentThread().getName());
         }
         try {
             semaphore.acquire();

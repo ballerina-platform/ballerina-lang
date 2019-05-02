@@ -20,7 +20,7 @@ public class Http2InboundContentListener implements Listener {
     private int streamId;
     private Http2Connection http2Connection;
     private boolean appConsumeRequired = true;
-    private AtomicBoolean resumeRead = new AtomicBoolean(true);
+    private AtomicBoolean consumeInboundContent = new AtomicBoolean(true);
     private Http2LocalFlowController http2LocalFlowController;
     private ChannelHandlerContext channelHandlerContext;
     private String inboundType;
@@ -36,13 +36,14 @@ public class Http2InboundContentListener implements Listener {
 
     /**
      * Updates the flow controller as soon as the content is received from the source. This updates the window size kept
-     * by the sender and prevent the streams from stalling.
+     * by the sender and prevent the streams from stalling. This is needed in the case where the app doesn't start to
+     * consume data until all the content has been received.
      *
-     * @param httpContent of the message
+     * @param httpContent received data content
      */
     @Override
     public void onAdd(HttpContent httpContent) {
-        if (!appConsumeRequired && resumeRead.get()) {
+        if (!appConsumeRequired && consumeInboundContent.get()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Stream {}. HTTP/2 {} onAdd updateLocalFlowController with bytes {} ", streamId, inboundType,
                           httpContent.content().readableBytes());
@@ -54,11 +55,11 @@ public class Http2InboundContentListener implements Listener {
     /**
      * Once the content is removed, update the flow controller with the number of consumed bytes.
      *
-     * @param httpContent of the message
+     * @param httpContent received data content
      */
     @Override
     public void onRemove(HttpContent httpContent) {
-        if (appConsumeRequired && resumeRead.get()) {
+        if (appConsumeRequired && consumeInboundContent.get()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Stream {}. HTTP/2 {} onRemove updateLocalFlowController with bytes {} ", streamId,
                           inboundType, httpContent.content().readableBytes());
@@ -79,8 +80,8 @@ public class Http2InboundContentListener implements Listener {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Stream {}. {} stop byte consumption", streamId, inboundType);
         }
-        if (resumeRead.get()) {
-            resumeRead.set(false);
+        if (consumeInboundContent.get()) {
+            consumeInboundContent.set(false);
         }
     }
 
@@ -89,11 +90,16 @@ public class Http2InboundContentListener implements Listener {
             LOG.debug("Stream {}. In thread {}. {} resume byte consumption. Unconsumed bytes: {}",
                       streamId, Thread.currentThread().getName(), inboundType, getUnConsumedBytes());
         }
-        resumeRead.set(true);
+        consumeInboundContent.set(true);
         channelHandlerContext.channel().eventLoop().execute(() -> updateLocalFlowController(getUnConsumedBytes()));
     }
 
-    //This method content should only be executed in an I/O thread
+    /**
+     * Update the local flow controller with the number of consumed bytes. This method content should only be executed
+     * in an I/O thread.
+     *
+     * @param consumedBytes number of consumed bytes
+     */
     private void updateLocalFlowController(int consumedBytes) {
         channelHandlerContext.channel().eventLoop().execute(() -> {
             try {
@@ -112,7 +118,12 @@ public class Http2InboundContentListener implements Listener {
         });
     }
 
-    //Should always be called from an I/O thread
+    /**
+     * Get the number of unconsumed bytes from the local flow controller. This should only be called from an I/O
+     * thread.
+     *
+     * @return the number of unconsumed bytes
+     */
     private int getUnConsumedBytes() {
         return http2LocalFlowController.unconsumedBytes(getHttp2Stream());
     }

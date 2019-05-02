@@ -27,7 +27,7 @@ import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChanne
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 
 /**
- * Http/2 remote flow control listener for client. Each connection has a single remote flow control listener.
+ * Http/2 remote flow control listener for client. Each HTTP/2 connection has a single remote flow control listener.
  */
 public final class ClientRemoteFlowControlListener implements Http2RemoteFlowController.Listener {
     private static final Logger LOG = LoggerFactory.getLogger(ClientRemoteFlowControlListener.class);
@@ -55,7 +55,7 @@ public final class ClientRemoteFlowControlListener implements Http2RemoteFlowCon
             outboundMsgHolder.getBackPressureObservable().notifyWritable();
         } else {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("In thread {}. Stream {} is not writable. State {}. ", Thread.currentThread().getName(),
+                LOG.debug("In thread {}. Stream {} is not writable. State {} ", Thread.currentThread().getName(),
                           stream.id(), stream.state());
             }
             outboundMsgHolder.setStreamWritable(false);

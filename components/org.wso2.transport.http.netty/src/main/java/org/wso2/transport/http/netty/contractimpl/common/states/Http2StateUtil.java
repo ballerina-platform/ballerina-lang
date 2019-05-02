@@ -57,6 +57,7 @@ import static org.wso2.transport.http.netty.contract.Constants.CHNL_HNDLR_CTX;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION;
+import static org.wso2.transport.http.netty.contract.Constants.INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.contract.Constants.LISTENER_INTERFACE_ID;
 import static org.wso2.transport.http.netty.contract.Constants.LISTENER_PORT;
 import static org.wso2.transport.http.netty.contract.Constants.LOCAL_ADDRESS;
@@ -112,7 +113,7 @@ public class Http2StateUtil {
                                                        int streamId) {
         ChannelHandlerContext ctx = http2SourceHandler.getChannelHandlerContext();
         HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest, new Http2InboundContentListener(
-            streamId, ctx, http2SourceHandler.getConnection(), "inbound_request_from_caller"));
+            streamId, ctx, http2SourceHandler.getConnection(), INBOUND_REQUEST));
         sourceReqCMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
         sourceReqCMsg.setProperty(CHNL_HNDLR_CTX, ctx);
         sourceReqCMsg.setProperty(Constants.SRC_HANDLER, http2SourceHandler);

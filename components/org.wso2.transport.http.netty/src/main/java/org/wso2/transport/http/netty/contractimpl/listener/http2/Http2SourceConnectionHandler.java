@@ -39,6 +39,7 @@ import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 
 import static io.netty.handler.codec.http2.Http2CodecUtil.getEmbeddedHttp2Exception;
+import static org.wso2.transport.http.netty.contract.Constants.ZERO_READABLE_BYTES;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.safelyRemoveHandlers;
 
 /**
@@ -144,8 +145,7 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
             data.skipBytes(readableBytes);
             Http2DataFrame dataFrame = new Http2DataFrame(streamId, forwardedData, endOfStream);
             ctx.fireChannelRead(dataFrame);
-//            return readableBytes + padding;
-            return 0;
+            return ZERO_READABLE_BYTES;
         }
     }
 }

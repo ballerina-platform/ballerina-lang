@@ -49,6 +49,7 @@ import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.wso2.transport.http.netty.contract.Constants.STREAM_ID_ONE;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.notifyRequestListener;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.setupCarbonRequest;
 
@@ -124,9 +125,9 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
                     new HttpVersion(Constants.HTTP_VERSION_2_0, true), upgradedRequest.method(),
                     upgradedRequest.uri(), upgradedRequest.headers());
 
-            HttpCarbonRequest requestCarbonMessage = setupCarbonRequest(httpRequest, this, 1);
+            HttpCarbonRequest requestCarbonMessage = setupCarbonRequest(httpRequest, this, STREAM_ID_ONE);
             requestCarbonMessage.addHttpContent(new DefaultLastHttpContent(upgradedRequest.content()));
-            notifyRequestListener(this, requestCarbonMessage, 1);
+            notifyRequestListener(this, requestCarbonMessage, STREAM_ID_ONE);
         }
     }
 

@@ -33,6 +33,8 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
 
+import static org.wso2.transport.http.netty.contract.Constants.ZERO_READABLE_BYTES;
+
 /**
  * {@code ClientFrameListener} listens to HTTP/2 Events received from the HTTP/2 backend service
  * and construct HTTP/2 frames.
@@ -52,15 +54,13 @@ public class ClientFrameListener extends Http2EventAdapter {
 
         for (Http2DataEventListener listener : http2ClientChannel.getDataEventListeners()) {
             if (!listener.onDataRead(ctx, streamId, data, endOfStream)) {
-//                return data.readableBytes() + padding;
-                return 0;
+                return ZERO_READABLE_BYTES;
             }
         }
 
         Http2DataFrame dataFrame = new Http2DataFrame(streamId, data, endOfStream);
         ctx.fireChannelRead(dataFrame);
-        return 0;
-//        return data.readableBytes() + padding;
+        return ZERO_READABLE_BYTES;
     }
 
     @Override

@@ -395,6 +395,10 @@ public final class Constants {
 
     public static final int HTTP_CARBON_MESSAGE_PROPERTIES_MAP_DEFAULT_SIZE = 64;
 
+    public static final String INBOUND_REQUEST = "INBOUND_REQUEST";
+    public static final String INBOUND_RESPONSE = "INBOUND_RESPONSE";
+    public static final int ZERO_READABLE_BYTES = 0;
+    public static final int STREAM_ID_ONE = 1;
 
     private Constants() {
     }
