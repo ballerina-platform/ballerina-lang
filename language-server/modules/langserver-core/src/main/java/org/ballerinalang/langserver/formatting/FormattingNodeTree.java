@@ -3281,6 +3281,7 @@ public class FormattingNodeTree {
     public void formatRestArgsExprNode(JsonObject node) {
         // TODO: fix formatting for rest arguments expression.
         this.skipFormatting(node, true);
+
     }
 
     /**
@@ -5829,7 +5830,7 @@ public class FormattingNodeTree {
         // If add space is true add spaces to the
         // indentation as provided by the format config
         return addSpaces ? this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt())
-                : indentation;
+                + indentation : indentation;
     }
 
     private String getParentIndentation(JsonObject formatConfig) {
