@@ -397,6 +397,7 @@ public type FPLoad record {|
     ModuleID pkgID;
     Name name;
     VariableDcl?[] params;
+    VarRef?[] closureMaps;
 |};
 
 public type FieldAccess record {|
