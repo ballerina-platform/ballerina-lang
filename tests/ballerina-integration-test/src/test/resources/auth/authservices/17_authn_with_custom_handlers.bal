@@ -56,17 +56,13 @@ public type CustomAuthnHandler object {
     }
 };
 
-public function CustomAuthnHandler.handle(http:Request req) returns boolean {
+public function CustomAuthnHandler.handle(http:Request req) returns boolean|error {
     var customAuthHeader = req.getHeader(http:AUTH_HEADER);
     string credential = customAuthHeader.substring(6, customAuthHeader.length()).trim();
-    var authenticated = self.authProvider.authenticate(credential);
-    if (authenticated is boolean) {
-        return authenticated;
-    }
-    return false;
+    return self.authProvider.authenticate(credential);
 }
 
-public function CustomAuthnHandler.canHandle(http:Request req) returns boolean {
+public function CustomAuthnHandler.canHandle(http:Request req) returns boolean|error {
     var customAuthHeader = req.getHeader(http:AUTH_HEADER);
     return customAuthHeader.hasPrefix("Custom");
 }
