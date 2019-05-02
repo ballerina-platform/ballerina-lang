@@ -1157,7 +1157,7 @@ public class BIRGen extends BLangNodeVisitor {
             case TYPEOF:
                 return InstructionKind.TYPEOF;
             default:
-                throw new IllegalStateException("unsupported binary operation: " + opKind.value());
+                throw new IllegalStateException("unsupported unary operator: " + opKind.value());
         }
     }
 

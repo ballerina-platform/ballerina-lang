@@ -40,29 +40,27 @@ function typeDescOrAObject() returns typedesc {
     return typeof o;
 }
 
-// commented due to missing decimal support.
-//function typeDescOfLiterals() returns
-//    (typedesc, typedesc, typedesc, typedesc, typedesc) {
-//    var a = typeof 1;
-//    var b = typeof 2.0;
-//    var c = typeof 2.1f;
-//    var d = typeof 3.0d;
-//    var e = typeof <byte>1;
-//
-//    return (a, b, c, d, e);
-//}
+function typeDescOfLiterals() returns
+    (typedesc, typedesc, typedesc, typedesc, typedesc, typedesc, typedesc) {
+    var a = typeof 1;
+    var b = typeof 2.0;
+    var c = typeof 2.1f;
+    var d = typeof "str-literal";
+    var e = typeof true;
+    var f = typeof false;
+    var g = typeof ();
+    return (a, b, c, d, e, f, g);
+}
 
-//function typeDescOfExpressionsOfLiterals() returns
-//    (typedesc, typedesc, typedesc) {
-//    int i = 0;
-//    int j = 4;
-//    int k = 4;
-//    float f = 0.0;
-//    float ff = 22.0;
-//    decimal d1 = 11.0d;
-//    decimal d2 = 0.01d;
-//    return (typeof (i+j*k), typeof (f*ff), typeof (d1/d2));
-//}
+function typeDescOfExpressionsOfLiterals() returns
+    (typedesc, typedesc) {
+    int i = 0;
+    int j = 4;
+    int k = 4;
+    float f = 0.0;
+    float ff = 22.0;
+    return (typeof (i+j*k), typeof (f*ff));
+}
 
 function takesATypedescParam(typedesc param) returns typedesc {
     return param;
@@ -72,35 +70,17 @@ function passTypeofToAFunction() returns typedesc {
     typedesc t = typeof 22;
     var t1 = takesATypedescParam(t);
     var t2 = takesATypedescParam(typeof 33);
-    return t1; //takesATypedescParam(t);
+    return t1;
 }
 
 function takeTypeofAsRestParams(typedesc... xs) returns typedesc[] {
     return xs;
 }
 
-//function A(int i) returns int {
-//    return i;
-//}
-//
-//function B(int i) returns int {
-//    return i;
-//}
+function passTypeofAsRestParams() returns typedesc[] {
+    return takeTypeofAsRestParams(typeof 22, typeof 33, typeof 33.33);
+}
 
-//function C() returns int {
-//    xml x = xml `<a>abc</a>`;
-//    //var xa = x@;
-//    int k = 0;
-//    int k1 = B(k);
-//    int j = A(k1);
-//    return j;
-//}
-
-//function passTypeofAsRestParams() returns typedesc[] {
-//    return takeTypeofAsRestParams(typeof 22, typeof 33,
-//                                typeof 33.33, typeof 33.33d);
-//}
-
-//function returnTypeOfInt() returns typedesc {
-//    return typeof -(5 + 1);
-//}
+function returnTypeOfInt() returns typedesc {
+    return typeof (5 + 1);
+}

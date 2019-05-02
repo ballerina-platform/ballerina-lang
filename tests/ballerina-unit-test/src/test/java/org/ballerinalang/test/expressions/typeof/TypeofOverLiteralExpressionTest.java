@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.995
  */
+@Test(groups = "no-bvm-support")
 public class TypeofOverLiteralExpressionTest {
 
     private CompileResult result;
@@ -40,23 +41,23 @@ public class TypeofOverLiteralExpressionTest {
         result = BCompileUtil.compile("test-src/expressions/typeof/typeof.bal");
     }
 
-//    @Test
-//    public void testTypeDescOperatorOnLiterals() {
-//        BValue[] res = BRunUtil.invoke(result, "typeDescOfLiterals");
-//        Assert.assertEquals(res[0].stringValue(), "int");
-//        Assert.assertEquals(res[1].stringValue(), "float");
-//        Assert.assertEquals(res[2].stringValue(), "float");
-//        Assert.assertEquals(res[3].stringValue(), "decimal");
-//        Assert.assertEquals(res[4].stringValue(), "byte");
-//    }
+    @Test
+    public void testTypeDescOperatorOnLiterals() {
+        BValue[] res = BRunUtil.invoke(result, "typeDescOfLiterals");
+        Assert.assertEquals(res[0].stringValue(), "int");
+        Assert.assertEquals(res[1].stringValue(), "float");
+        Assert.assertEquals(res[2].stringValue(), "float");
+        Assert.assertEquals(res[3].stringValue(), "string");
+        Assert.assertEquals(res[4].stringValue(), "boolean");
+        Assert.assertEquals(res[5].stringValue(), "boolean");
+        Assert.assertEquals(res[6].stringValue(), "null");
+    }
 
     @Test
-    @Ignore // because this function uses decimal which BIR doesn't support at the moment (23/04/2019)
     public void testTypeDescOperatorOnExpressionsOfLiterals() {
         BValue[] res = BRunUtil.invoke(result, "typeDescOfExpressionsOfLiterals");
         Assert.assertEquals(res[0].stringValue(), "int");
         Assert.assertEquals(res[1].stringValue(), "float");
-        Assert.assertEquals(res[2].stringValue(), "decimal");
     }
 
     @Test
@@ -68,21 +69,20 @@ public class TypeofOverLiteralExpressionTest {
     @Test
     public void getTypeDescOfASimpleRecordType() {
         BValue[] res = BRunUtil.invoke(result, "typeDescOfARecord");
-        Assert.assertEquals(res[0].stringValue(), "RecType0");
+        Assert.assertEquals(res[0].stringValue(), "pkg:RecType0");
     }
 
     @Test
     public void getTypeDescOfASimpleObjectType() {
         BValue[] res = BRunUtil.invoke(result, "typeDescOrAObject");
-        Assert.assertEquals(res[0].stringValue(), "Obj0");
+        Assert.assertEquals(res[0].stringValue(), "pkg:Obj0");
     }
 
-//    @Test
-//    public void testUsingTypeofOperatorAsRestArgs() {
-//        BValue[] res = BRunUtil.invoke(result, "passTypeofAsRestParams");
-//        Assert.assertEquals(res[0].stringValue(), "int");
-//        Assert.assertEquals(res[1].stringValue(), "int");
-//        Assert.assertEquals(res[2].stringValue(), "float");
-//        Assert.assertEquals(res[3].stringValue(), "decimal");
-//    }
+    @Test
+    public void testUsingTypeofOperatorAsRestArgs() {
+        BValue[] res = BRunUtil.invoke(result, "passTypeofAsRestParams");
+        Assert.assertEquals(res[0].stringValue(), "int");
+        Assert.assertEquals(res[1].stringValue(), "int");
+        Assert.assertEquals(res[2].stringValue(), "float");
+    }
 }

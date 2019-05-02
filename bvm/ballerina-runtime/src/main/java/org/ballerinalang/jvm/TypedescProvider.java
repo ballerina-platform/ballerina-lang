@@ -42,6 +42,8 @@ public class TypedescProvider {
             return new TypedescValue(BTypes.typeByte);
         } else if (value instanceof Boolean) {
             return new TypedescValue(BTypes.typeBoolean);
+        } else if (value == null) {
+            return new TypedescValue(BTypes.typeNull);
         }
         return null;
     }
