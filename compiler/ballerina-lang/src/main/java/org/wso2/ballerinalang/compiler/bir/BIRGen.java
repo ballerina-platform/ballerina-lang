@@ -336,7 +336,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
 
-        // Statements
+    // Statements
 
     public void visit(BLangBlockStmt astBlockStmt) {
         for (BLangStatement astStmt : astBlockStmt.stmts) {
