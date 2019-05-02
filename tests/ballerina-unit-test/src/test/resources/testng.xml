@@ -27,59 +27,59 @@ under the License.
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
 
-    <!-- Ballerina language Test Cases. -->
-    <!--<test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">-->
-        <!--<groups>-->
-            <!--<run>-->
-                <!--<exclude name="HSQLDBNotSupported"/>-->
-                <!--<exclude name="broken"/>-->
-            <!--</run>-->
-        <!--</groups>-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.test.vm.*"/>-->
-            <!--<package name="org.ballerinalang.test.annotations.*"/>-->
-            <!--<package name="org.ballerinalang.test.expressions.*"/>-->
-            <!--<package name="org.ballerinalang.test.documentation.*"/>-->
-            <!--<package name="org.ballerinalang.test.statements.*"/>-->
-            <!--<package name="org.ballerinalang.test.types.*"/>-->
-            <!--<package name="org.ballerinalang.test.typedefs.*"/>-->
-            <!--<package name="org.ballerinalang.test.access.*"/>-->
-            <!--<package name="org.ballerinalang.test.functions.*"/>-->
-            <!--<package name="org.ballerinalang.test.worker.*"/>-->
-            <!--<package name="org.ballerinalang.test.nativeimpl.functions.*"/>-->
-            <!--<package name="org.ballerinalang.test.net.*"/>-->
-            <!--<package name="org.ballerinalang.test.debugger.*"/>-->
-            <!--<package name="org.ballerinalang.test.structs.*"/>-->
-            <!--<package name="org.ballerinalang.test.endpoint.*"/>-->
-            <!--<package name="org.ballerinalang.test.closures.*"/>-->
-            <!--<package name="org.ballerinalang.test.natives.*"/>-->
-            <!--<package name="org.ballerinalang.test.parser.*"/>-->
-            <!--<package name="org.ballerinalang.test.launch.*"/>-->
-            <!--<package name="org.ballerinalang.test.lock.*"/>-->
-            <!--<package name="org.ballerinalang.test.taintchecking.*"/>-->
-            <!--<package name="org.ballerinalang.test.object.*"/>-->
-            <!--<package name="org.ballerinalang.test.record.*"/>-->
-            <!--<package name="org.ballerinalang.test.balo.*" />-->
-            <!--<package name="org.ballerinalang.test.variable.shadowing.*" />-->
-            <!--<package name="org.ballerinalang.test.channels.*" />-->
-            <!--<package name="org.ballerinalang.test.privacy.*" />-->
-            <!--<package name="org.ballerinalang.test.serializer.json.*" />-->
-            <!--<package name="org.ballerinalang.test.dataflow.*" />-->
-            <!--<package name="org.ballerinalang.test.error.*" />-->
-        <!--</packages>-->
+     <!--Ballerina language Test Cases. -->
+    <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+        <groups>
+            <run>
+                <exclude name="HSQLDBNotSupported"/>
+                <exclude name="broken"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="org.ballerinalang.test.vm.*"/>
+            <package name="org.ballerinalang.test.annotations.*"/>
+            <package name="org.ballerinalang.test.expressions.*"/>
+            <package name="org.ballerinalang.test.documentation.*"/>
+            <package name="org.ballerinalang.test.statements.*"/>
+            <package name="org.ballerinalang.test.types.*"/>
+            <package name="org.ballerinalang.test.typedefs.*"/>
+            <package name="org.ballerinalang.test.access.*"/>
+            <package name="org.ballerinalang.test.functions.*"/>
+            <package name="org.ballerinalang.test.worker.*"/>
+            <package name="org.ballerinalang.test.nativeimpl.functions.*"/>
+            <package name="org.ballerinalang.test.net.*"/>
+            <package name="org.ballerinalang.test.debugger.*"/>
+            <package name="org.ballerinalang.test.structs.*"/>
+            <package name="org.ballerinalang.test.endpoint.*"/>
+            <package name="org.ballerinalang.test.closures.*"/>
+            <package name="org.ballerinalang.test.natives.*"/>
+            <package name="org.ballerinalang.test.parser.*"/>
+            <package name="org.ballerinalang.test.launch.*"/>
+            <package name="org.ballerinalang.test.lock.*"/>
+            <package name="org.ballerinalang.test.taintchecking.*"/>
+            <package name="org.ballerinalang.test.object.*"/>
+            <package name="org.ballerinalang.test.record.*"/>
+            <package name="org.ballerinalang.test.balo.*" />
+            <package name="org.ballerinalang.test.variable.shadowing.*" />
+            <package name="org.ballerinalang.test.channels.*" />
+            <package name="org.ballerinalang.test.privacy.*" />
+            <package name="org.ballerinalang.test.serializer.json.*" />
+            <package name="org.ballerinalang.test.dataflow.*" />
+            <package name="org.ballerinalang.test.error.*" />
+        </packages>
 
-		<!--&lt;!&ndash; TODO: remove once constraint tests are fixed &ndash;&gt;-->
-		<!--<classes>-->
-			<!--<class name="org.ballerinalang.test.types.map.BMapValueTest" />-->
-			<!--<class name="org.ballerinalang.test.types.map.MapAccessExprTest" />-->
-			<!--<class name="org.ballerinalang.test.types.map.MapInitializerExprTest" />-->
-		<!--</classes>-->
-    <!--</test>-->
-    <!--<test name="ballerina-main-function-test-suite" preserve-order="true" parallel="false">-->
-        <!--<packages >-->
-            <!--<package name="org.ballerinalang.test.main.function.*"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+		<!-- TODO: remove once constraint tests are fixed -->
+		<classes>
+			<class name="org.ballerinalang.test.types.map.BMapValueTest" />
+			<class name="org.ballerinalang.test.types.map.MapAccessExprTest" />
+			<class name="org.ballerinalang.test.types.map.MapInitializerExprTest" />
+		</classes>
+    </test>
+    <test name="ballerina-main-function-test-suite" preserve-order="true" parallel="false">
+        <packages >
+            <package name="org.ballerinalang.test.main.function.*"/>
+        </packages>
+    </test>
 
     <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
@@ -111,6 +111,7 @@ under the License.
             </class>
             <class name="org.ballerinalang.test.object.AnonymousObjectTest" />
             <class name="org.ballerinalang.test.object.ObjectEquivalencyNegativeTest" />
+            <class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />
             <class name="org.ballerinalang.test.object.AbstractObjectTest">
                 <methods>
                     <!-- Fails because index based access is not implemented -->
