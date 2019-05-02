@@ -718,6 +718,14 @@ type InstructionGenerator object {
         self.storeToVar(xmlLoadIns.lhsOp.variableDcl);
     }
 
+    function generateTypeofIns(bir:UnaryOp unaryOp) {
+        self.loadVar(unaryOp.rhsOp.variableDcl);
+        addBoxInsn(self.mv, unaryOp.rhsOp.variableDcl.typeValue);
+        self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "getTypedesc",
+                io:sprintf("(L%s;)L%s;", OBJECT, TYPEDESC_VALUE), false);
+        self.storeToVar(unaryOp.lhsOp.variableDcl);
+    }
+
     private function loadVar(bir:VariableDcl varDcl) {
         generateVarLoad(self.mv, varDcl, self.currentPackageName, self.getJVMIndexOfVarRef(varDcl));
     }
@@ -772,7 +780,8 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BObjectType ||
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
-                bType is bir:BFiniteType) {
+                bType is bir:BFiniteType ||
+                bType is bir:BTypeDesc) {
         mv.visitVarInsn(ALOAD, valueIndex);
     } else {
         error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
@@ -812,7 +821,8 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BObjectType ||
                     bType is bir:BXMLType ||
                     bType is bir:BInvokableType ||
-                    bType is bir:BFiniteType) {
+                    bType is bir:BFiniteType ||
+                    bType is bir:BTypeDesc) {
         mv.visitVarInsn(ASTORE, valueIndex);
     } else {
         error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));

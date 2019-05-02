@@ -20,16 +20,19 @@ package org.ballerinalang.test.util;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
+import org.ballerinalang.jvm.BLangVMErrors;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -40,6 +43,7 @@ import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypeDesc;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -49,6 +53,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
@@ -468,6 +473,9 @@ public class BRunUtil {
                 }
                 ArrayValue elements = ((XMLSequence) xml).value();
                 return new BXMLSequence((BValueArray) getBVMValue(elements));
+            case org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG:
+                TypedescValue typedescValue = (TypedescValue) value;
+                return new BTypeDescValue(getBVMType(typedescValue.getDescribingType()));
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
@@ -525,6 +533,11 @@ public class BRunUtil {
                 return bvmObjectType;
             case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
                 return BTypes.typeXML;
+            case org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG:
+                BTypedescType typedescType = (BTypedescType) jvmType;
+                return new BTypeDesc(typedescType.getName(), typedescType.getPackagePath());
+            case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
+                return BTypes.typeNull;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }
