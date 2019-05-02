@@ -76,7 +76,9 @@ public enum InstructionKind {
     GREATER_THAN((byte) 58),
     GREATER_EQUAL((byte) 59),
     LESS_THAN((byte) 60),
-    LESS_EQUAL((byte) 61);
+    LESS_EQUAL((byte) 61),
+    AND((byte) 62),
+    OR((byte) 63);
 
     byte value;
 

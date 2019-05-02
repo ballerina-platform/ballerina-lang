@@ -69,3 +69,5 @@ public const int INS_GREATER_THAN = 58;
 public const int INS_GREATER_EQUAL = 59;
 public const int INS_LESS_THAN = 60;
 public const int INS_LESS_EQUAL = 61;
+public const int INS_AND = 62;
+public const int INS_OR = 63;
