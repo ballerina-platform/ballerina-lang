@@ -43,8 +43,10 @@ public class Http2InboundContentListener implements Listener {
     @Override
     public void onAdd(HttpContent httpContent) {
         if (!appConsumeRequired && resumeRead.get()) {
-            LOG.warn("{} Stream {}. HTTP/2 inbound onAdd updateLocalFlowController {} ", inboundType, streamId,
-                     httpContent.content().readableBytes());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Stream {}. HTTP/2 {} onAdd updateLocalFlowController with bytes {} ", streamId, inboundType,
+                          httpContent.content().readableBytes());
+            }
             updateLocalFlowController(httpContent.content().readableBytes());
         }
     }
@@ -57,8 +59,10 @@ public class Http2InboundContentListener implements Listener {
     @Override
     public void onRemove(HttpContent httpContent) {
         if (appConsumeRequired && resumeRead.get()) {
-            LOG.warn("{} Stream {}. HTTP/2 inbound onRemove updateLocalFlowController {} ", inboundType, streamId,
-                     httpContent.content().readableBytes());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Stream {}. HTTP/2 {} onRemove updateLocalFlowController with bytes {} ", streamId,
+                          inboundType, httpContent.content().readableBytes());
+            }
             updateLocalFlowController(httpContent.content().readableBytes());
         }
     }
@@ -71,19 +75,20 @@ public class Http2InboundContentListener implements Listener {
         appConsumeRequired = false;
     }
 
-    //Always gets called from ballerina thread
     void stopByteConsumption() {
-        LOG.warn("{} Stream {}. Stop byte consumption", inboundType, streamId);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Stream {}. {} stop byte consumption", streamId, inboundType);
+        }
         if (resumeRead.get()) {
             resumeRead.set(false);
         }
     }
 
-    //Always gets called from I/O thread. TODO:If this is true then there's no need for eventloop execute here.
     void resumeByteConsumption() {
-        LOG.warn("{} Stream {}. In thread {}. Resume byte consumption. Unconsumed bytes: {}", inboundType, streamId,
-                 Thread.currentThread().getName(),
-                 getUnConsumedBytes());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Stream {}. In thread {}. {} resume byte consumption. Unconsumed bytes: {}",
+                      streamId, Thread.currentThread().getName(), inboundType, getUnConsumedBytes());
+        }
         resumeRead.set(true);
         channelHandlerContext.channel().eventLoop().execute(() -> updateLocalFlowController(getUnConsumedBytes()));
     }
@@ -94,9 +99,10 @@ public class Http2InboundContentListener implements Listener {
             try {
                 boolean windowUpdateSent = http2LocalFlowController.consumeBytes(getHttp2Stream(), consumedBytes);
                 if (windowUpdateSent) {
-                    LOG.warn("{} Stream {}. windowUpdateSent {} and flushed {} bytes", inboundType, streamId,
-                             windowUpdateSent,
-                             consumedBytes);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Stream {}. {} windowUpdateSent and flushed {} bytes", streamId, inboundType,
+                                  consumedBytes);
+                    }
                     channelHandlerContext.flush();
                 }
             } catch (Http2Exception e) {
