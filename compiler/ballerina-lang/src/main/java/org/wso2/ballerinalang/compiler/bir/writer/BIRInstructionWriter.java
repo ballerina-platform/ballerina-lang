@@ -294,6 +294,17 @@ public class BIRInstructionWriter extends BIRVisitor {
         birTypeTest.rhsOp.accept(this);
     }
 
+    public void visit(BIRNonTerminator.NewTable newTable) {
+        writePosition(newTable.pos);
+        buf.writeByte(newTable.kind.getValue());
+        newTable.type.accept(typeWriter);
+        newTable.lhsOp.accept(this);
+        newTable.columnsOp.accept(this);
+        newTable.dataOp.accept(this);
+        newTable.indexColOp.accept(this);
+        newTable.keyColOp.accept(this);
+    }
+
     // Operands
     public void visit(BIROperand birOperand) {
         buf.writeByte(birOperand.variableDcl.kind.getValue());
@@ -322,6 +333,11 @@ public class BIRInstructionWriter extends BIRVisitor {
         int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(fpLoad.funcName.getValue()));
+
+        buf.writeInt(fpLoad.closureMaps.size());
+        for (BIROperand op : fpLoad.closureMaps) {
+            op.accept(this);
+        }
 
         buf.writeInt(fpLoad.params.size());
         fpLoad.params.forEach(param -> {

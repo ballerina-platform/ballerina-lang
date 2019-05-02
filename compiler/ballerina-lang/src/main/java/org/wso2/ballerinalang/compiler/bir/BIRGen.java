@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -88,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
@@ -219,8 +221,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type);
         birFunc.isDeclaration = Symbols.isNative(astFunc.symbol);
         birFunc.isInterface = astFunc.interfaceFunction;
-        birFunc.argsCount = astFunc.requiredParams.size() +
-                            astFunc.defaultableParams.size() + (astFunc.restParam != null ? 1 : 0);
+        birFunc.argsCount = astFunc.requiredParams.size() + astFunc.defaultableParams.size()
+                + (astFunc.restParam != null ? 1 : 0) + astFunc.paramClosureMap.size();
         if (astFunc.flagSet.contains(Flag.ATTACHED) && typeDefs.containsKey(astFunc.receiver.type.tsymbol)) {
             typeDefs.get(astFunc.receiver.type.tsymbol).attachedFuncs.add(birFunc);
         } else {
@@ -235,6 +237,9 @@ public class BIRGen extends BLangNodeVisitor {
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN);
             birFunc.localVars.add(retVarDcl);
         }
+
+        //add closure vars
+        astFunc.paramClosureMap.forEach((k, v) -> addParam(birFunc, v, astFunc.pos));
 
         // Create variable declaration for function params
         astFunc.requiredParams.forEach(requiredParam -> addParam(birFunc, requiredParam));
@@ -292,8 +297,24 @@ public class BIRGen extends BLangNodeVisitor {
             params.add(birVarDcl);
         }
 
-        emit(new BIRNonTerminator.FPLoad(lambdaExpr.pos, lambdaExpr.function.symbol.pkgID, funcName, lhsOp, params));
+        emit(new BIRNonTerminator.FPLoad(lambdaExpr.pos, lambdaExpr.function.symbol.pkgID, funcName, lhsOp, params,
+                getClosureMapOperands(lambdaExpr)));
         this.env.targetOperand = lhsOp;
+    }
+
+    private List<BIROperand> getClosureMapOperands(BLangLambdaFunction lambdaExpr) {
+        List<BIROperand> closureMaps = new ArrayList<>();
+
+        lambdaExpr.function.paramClosureMap.forEach((k, v) -> {
+            BVarSymbol symbol = lambdaExpr.enclMapSymbols.get(k);
+            if (symbol == null) {
+                symbol = lambdaExpr.paramMapSymbolsOfEnclInvokable.get(k);
+            }
+            BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(symbol));
+            closureMaps.add(varRef);
+        });
+
+        return closureMaps;
     }
 
     private Name getFuncName(BInvokableSymbol symbol) {
@@ -314,6 +335,16 @@ public class BIRGen extends BLangNodeVisitor {
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
         this.env.symbolVarMap.put(requiredParam.symbol, birVarDcl);
+    }
+
+    private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, DiagnosticPos pos) {
+        BIRVariableDcl birVarDcl = new BIRVariableDcl(pos, paramSymbol.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG);
+        birFunc.localVars.add(birVarDcl);
+
+        // We maintain a mapping from variable symbol to the bir_variable declaration.
+        // This is required to pull the correct bir_variable declaration for variable references.
+        this.env.symbolVarMap.put(paramSymbol, birVarDcl);
     }
 
 
@@ -670,6 +701,11 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
+    }
+
+    @Override
+    public void visit(BLangTableLiteral tableLiteral) {
+        generateTableLiteral(tableLiteral);
     }
 
     public void visit(BLangArrayLiteral astArrayLiteralExpr) {
@@ -1234,6 +1270,45 @@ public class BIRGen extends BLangNodeVisitor {
             emit(new BIRNonTerminator.FieldAccess(astArrayLiteralExpr.pos, InstructionKind.ARRAY_STORE, toVarRef,
                     arrayIndex, exprIndex));
         }
+        this.env.targetOperand = toVarRef;
+    }
+
+    private void generateTableLiteral(BLangTableLiteral tableLiteral) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(tableLiteral.type, this.env.nextLocalVarId(names),
+                                                       VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        BLangArrayLiteral columnLiteral = new BLangArrayLiteral();
+        columnLiteral.pos = tableLiteral.pos;
+        columnLiteral.type = symTable.stringArrayType;
+        columnLiteral.exprs = new ArrayList<>();
+        tableLiteral.columns.forEach(col -> {
+            BLangLiteral colLiteral = new BLangLiteral();
+            colLiteral.pos = tableLiteral.pos;
+            colLiteral.type = symTable.stringType;
+            colLiteral.value = col.columnName;
+            columnLiteral.exprs.add(colLiteral);
+        });
+        columnLiteral.accept(this);
+        BIROperand columnsOp = this.env.targetOperand;
+
+        BLangArrayLiteral dataLiteral = new BLangArrayLiteral();
+        dataLiteral.pos = tableLiteral.pos;
+        dataLiteral.type = symTable.anydataArrayType;
+        dataLiteral.exprs = new ArrayList<>(tableLiteral.tableDataRows);
+        dataLiteral.accept(this);
+        BIROperand dataOp = this.env.targetOperand;
+
+        tableLiteral.indexColumnsArrayLiteral.accept(this);
+        BIROperand indexColOp = this.env.targetOperand;
+
+        tableLiteral.keyColumnsArrayLiteral.accept(this);
+        BIROperand keyColOp = this.env.targetOperand;
+
+        emit(new BIRNonTerminator.NewTable(tableLiteral.pos, tableLiteral.type, toVarRef, columnsOp, dataOp,
+                indexColOp, keyColOp));
+
         this.env.targetOperand = toVarRef;
     }
 

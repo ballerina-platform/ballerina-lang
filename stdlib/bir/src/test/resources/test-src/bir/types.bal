@@ -12,6 +12,11 @@ type RecursiveDeepL0Obj object{RecursiveDeepL2Obj? a;};
 type RecursiveDeepL1Obj object{RecursiveDeepL0Obj b;};
 type RecursiveDeepL2Obj object{RecursiveDeepL1Obj c;};
 
+type Employee record {
+    int id;
+    string name;
+};
+
 // expected: ()
 () nilType = ();
 
@@ -75,3 +80,14 @@ RecursiveDeepL2Obj deepRec = new;
 // expected: error (string, map<anydata|...>)
 error e = error("not good");
 
+// expected: record {int id; string name; }
+Employee teacher = {id : 2345343, name: "Marco Polo"};
+
+// expected: table<record {int id; string name; }>
+table<Employee> employeeTable = table {
+        {id, name},
+        [
+            {1, "Employee1"},
+            {2, "Employee2"}
+        ]
+    };
