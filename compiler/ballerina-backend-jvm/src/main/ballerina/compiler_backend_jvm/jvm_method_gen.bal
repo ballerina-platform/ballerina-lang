@@ -561,7 +561,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             mv.visitVarInsn(ALOAD, 0);
             mv.visitIntInsn(BIPUSH, paramIndex);
             mv.visitInsn(AALOAD);
-            checkCastFromObject(ref.typeValue, mv);
+            addUnboxInsn(mv, ref.typeValue);
             paramBTypes[paramIndex -1] = paramType.typeValue;
             paramIndex += 1;
         }
@@ -582,7 +582,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             mv.visitVarInsn(ALOAD, closureMapsCount);
             mv.visitIntInsn(BIPUSH, paramIndex);
             mv.visitInsn(AALOAD);
-            checkCastFromObject(dcl.typeValue, mv);
+            addUnboxInsn(mv, dcl.typeValue);
             paramBTypes[paramIndex -1] = dcl.typeValue;
             paramIndex += 1;
         }
@@ -594,7 +594,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     if (isVoid) {
         mv.visitInsn(RETURN);
     } else {
-        generateObjectCast(returnType, mv);
+        addBoxInsn(mv, returnType);
         mv.visitInsn(ARETURN);
     }
     mv.visitMaxs(0,0);
@@ -852,7 +852,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     if (!isVoidFunction) {
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
         bir:BType returnType = userMainFunc.typeValue.retType;
-        checkCastFromObject(returnType, mv);
+        addUnboxInsn(mv, returnType);
         if (returnType is bir:BTypeInt || returnType is bir:BTypeByte) {
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
         } else if (returnType is bir:BTypeFloat) {
@@ -915,7 +915,7 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     if (isVoidFunc) {
         mv.visitInsn(RETURN);
     } else {
-        generateObjectCast(returnType, mv);
+        addBoxInsn(mv, returnType);
         mv.visitInsn(ARETURN);
     }
     mv.visitMaxs(0,0);
@@ -962,69 +962,6 @@ function castFromString(bir:BType targetType, jvm:MethodVisitor mv) {
                 targetType is bir:BTypeNil ||
                 targetType is bir:BUnionType ||
                 targetType is bir:BTypeString) {
-        // do nothing
-        return;
-    } else {
-        error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
-        panic err;
-    }
-}
-
-# Generate cast instruction from Object to target type
-# 
-# + targetType - target type to be casted
-# + mv - method visitor
-function checkCastFromObject(bir:BType? targetType, jvm:MethodVisitor mv) {
-    if (targetType is bir:BTypeInt) {
-        mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
-    } else if (targetType is bir:BTypeFloat) {
-        mv.visitTypeInsn(CHECKCAST, DOUBLE_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, DOUBLE_VALUE, "doubleValue", "()D", false);
-    } else if (targetType is bir:BTypeString) {
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-    } else if (targetType is bir:BTypeBoolean) {
-        mv.visitTypeInsn(CHECKCAST, BOOLEAN_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, BOOLEAN_VALUE, "booleanValue", "()Z", false);
-    } else if (targetType is bir:BTypeByte) {
-        mv.visitTypeInsn(CHECKCAST, BYTE_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, BYTE_VALUE, "byteValue", "()B", false);
-    } else if (targetType is bir:BArrayType) {
-        mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
-    } else if (targetType is bir:BMapType) {
-        mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
-    } else if (targetType is bir:BTypeAny ||
-                targetType is bir:BTypeAnyData ||
-                targetType is bir:BTypeNil ||
-                targetType is bir:BUnionType) {
-        // do nothing
-        return;
-    } else {
-        error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
-        panic err;
-    }
-}
-
-# Cast a given type to object
-# 
-# + targetType - target type to be casted
-# + mv - method visitor
-function generateObjectCast(bir:BType? targetType, jvm:MethodVisitor mv) {  
-    if (targetType is bir:BTypeInt) {
-        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
-    } else if (targetType is bir:BTypeFloat) {
-        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
-    } else if (targetType is bir:BTypeBoolean) {
-        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
-    } else if (targetType is bir:BTypeByte) {
-        mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "valueOf", io:sprintf("(B)L%s;", BYTE_VALUE), false);
-    } else if (targetType is bir:BTypeAny ||
-                targetType is bir:BTypeAnyData ||
-                targetType is bir:BTypeNil ||
-                targetType is bir:BUnionType ||
-                targetType is bir:BTypeString ||
-                targetType is bir:BArrayType ||
-                targetType is bir:BMapType) {
         // do nothing
         return;
     } else {

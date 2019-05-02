@@ -331,7 +331,7 @@ type TerminatorGenerator object {
                                                     io:sprintf("%s", argRef.typeValue));
                 panic err;
             }
-            generateObjectCast(bType, self.mv);
+            addBoxInsn(self.mv, bType);
             self.mv.visitInsn(AASTORE);
             paramIndex += 1;
         }
@@ -420,7 +420,7 @@ type TerminatorGenerator object {
             }  
         }
         self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
-        checkCastFromObject(waitInst.lhsOp.typeValue, self.mv);
+        addUnboxInsn(self.mv, waitInst.lhsOp.typeValue);
         generateVarStore(self.mv, waitInst.lhsOp.variableDcl, currentPackageName, 
                     self.getJVMIndexOfVarRef(waitInst.lhsOp.variableDcl));
     }
@@ -480,7 +480,7 @@ type TerminatorGenerator object {
                                                     io:sprintf("%s", arg.typeValue));
                 panic err;
             }
-            generateObjectCast(bType, self.mv);
+            addBoxInsn(self.mv, bType);
             self.mv.visitInsn(AASTORE);
             paramIndex += 1;
         }
@@ -492,7 +492,10 @@ type TerminatorGenerator object {
             self.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
             // store reult
             int lhsIndex = self.getJVMIndexOfVarRef(getVariableDcl(fpCall.lhsOp.variableDcl));
-            checkCastFromObject(fpCall.lhsOp.typeValue, self.mv);
+            bir:BType? lhsType = fpCall.lhsOp.typeValue;
+            if (lhsType is bir:BType) {
+                addUnboxInsn(self.mv, lhsType);
+            }
             string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
             bir:VariableDcl? lhsVar = fpCall.lhsOp.variableDcl;
             if (lhsVar is bir:VariableDcl) {
