@@ -546,7 +546,9 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
 
     mv.visitCode();
 
-    //load strand as first arg
+    // load strand as first arg
+    // strand and other args are in a object[] param. This param comes after closure maps.
+    // hence the closureMapsCount is equal to the array's param index.
     mv.visitVarInsn(ALOAD, closureMapsCount);
     mv.visitInsn(ICONST_0);
     mv.visitInsn(AALOAD);
@@ -657,7 +659,7 @@ function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType) returns stri
 function getLambdaMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, int closureMapsCount) returns string {
     string desc = "(Lorg/ballerinalang/jvm/Strand;";
     int j = 0;
-    while(j < closureMapsCount) {
+    while (j < closureMapsCount) {
         j += 1;
         desc = desc + "L" + MAP_VALUE + ";";
     }

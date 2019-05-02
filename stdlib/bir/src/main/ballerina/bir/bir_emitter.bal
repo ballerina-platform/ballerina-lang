@@ -264,7 +264,7 @@ type InstructionEmitter object {
             }
             int i = 0;
             foreach var v in ins.params {
-                if(i != 0) {
+                if (i != 0) {
                     print (",");
                 }
                 VariableDcl varDecl = getVariableDcl(v);

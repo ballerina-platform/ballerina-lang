@@ -33,7 +33,6 @@ function testBasicClosure() returns int {
 
 function basicClosure() returns (function (int) returns int) {
     int a = 3;
-   //  int c = 10;
     var foo = function (int b) returns int {
         int c = 34;
         if (b == 3) {
