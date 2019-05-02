@@ -20,4 +20,9 @@ package org.ballerinalang.docgen.generator.model;
  */
 public class DefaultableVarible extends Variable {
     public String defaultValue;
+
+    public DefaultableVarible(String name, String description, Type type, String defaultValue) {
+        super(name, description, type);
+        this.defaultValue = defaultValue;
+    }
 }

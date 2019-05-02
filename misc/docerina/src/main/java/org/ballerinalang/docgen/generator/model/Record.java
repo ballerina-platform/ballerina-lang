@@ -23,4 +23,9 @@ import java.util.List;
 public class Record extends Construct {
 
     public List<DefaultableVarible> fields;
+
+    public Record(String name, String description, List<DefaultableVarible> fields) {
+        super(name, description);
+        this.fields = fields;
+    }
 }

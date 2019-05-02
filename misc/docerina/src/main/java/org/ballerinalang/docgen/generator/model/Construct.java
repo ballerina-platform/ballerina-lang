@@ -21,5 +21,9 @@ package org.ballerinalang.docgen.generator.model;
 public class Construct {
     public String name;
     public String description;
-    public boolean isPublic;
+
+    public Construct(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 }

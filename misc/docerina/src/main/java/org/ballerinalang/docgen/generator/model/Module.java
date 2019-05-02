@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,12 +28,12 @@ public class Module {
     public String description;
 
     // constructs
-    public List<Record> records;
-    public List<Object> objects;
-    public List<Client> clients;
-    public List<Listener> listeners;
-    public List<Function> functions;
-    public List<Constant> constants;
-    public List<Annotation> annotations;
-    public List<Error> errors;
+    public List<Record> records = new ArrayList<>();
+    public List<Object> objects = new ArrayList<>();
+    public List<Client> clients = new ArrayList<>();
+    public List<Listener> listeners = new ArrayList<>();
+    public List<Function> functions = new ArrayList<>();
+    public List<Constant> constants = new ArrayList<>();
+    public List<Annotation> annotations = new ArrayList<>();
+    public List<Error> errors = new ArrayList<>();
 }

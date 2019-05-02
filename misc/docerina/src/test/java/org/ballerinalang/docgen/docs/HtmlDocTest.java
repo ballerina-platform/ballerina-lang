@@ -421,7 +421,7 @@ public class HtmlDocTest {
                 "# + return - int representation of the message\n" +
                 "public function sayHello(string message) returns (int){return 1;}");
 
-        FunctionDoc functionDoc = Generator.createDocForNode(bLangPackage.getFunctions().get(0));
+        FunctionDoc functionDoc = Generator.createDocForFunction(bLangPackage.getFunctions().get(0));
         Assert.assertEquals(functionDoc.name, "sayHello", "Function name should be extracted");
         Assert.assertEquals(functionDoc.description, "<p>This function would say hello</p>\n", "Description of the " +
                 "function should be extracted");
@@ -443,7 +443,7 @@ public class HtmlDocTest {
                 "# + return - int representation of the " +
                 "message\n" + "public function sayHello(string message, int idx) returns (int){return 1;}");
 
-        FunctionDoc functionDoc = Generator.createDocForNode(bLangPackage.getFunctions().get(0));
+        FunctionDoc functionDoc = Generator.createDocForFunction(bLangPackage.getFunctions().get(0));
         Assert.assertEquals(functionDoc.name, "sayHello", "Function name should be extracted");
         Assert.assertEquals(functionDoc.description, "<p>This function would say hello</p>\n", "Description of the " +
                 "function should be extracted");
@@ -476,7 +476,7 @@ public class HtmlDocTest {
                 "action post(string path, string req) (string, int) { return \"value within filter\"; }}";
         BLangPackage bLangPackage = createPackage(source);
 
-        EndpointDoc endpointDoc = null; //Generator.createDocForNode(bLangPackage.getObjects().get(0), true);
+        EndpointDoc endpointDoc = null; //Generator.createDocForFunction(bLangPackage.getObjects().get(0), true);
         Assert.assertEquals(endpointDoc.name, "HttpClient", "Connector name should be extracted");
         Assert.assertEquals(endpointDoc.description, "Http client connector for outbound HTTP requests",
                 "Description of the connector should be extracted");
@@ -507,7 +507,7 @@ public class HtmlDocTest {
                 "@Field {value:\"interval: Retry interval in millisecond\"}" +
                 "struct Message {int interval;int count;}");
 
-        RecordDoc recordDoc = null; // Generator.createDocForNode(bLangPackage.getRecords().get(0));
+        RecordDoc recordDoc = null; // Generator.createDocForFunction(bLangPackage.getRecords().get(0));
         Assert.assertEquals(recordDoc.name, "Message", "Struct name should be extracted");
         Assert.assertEquals(recordDoc.description, "Message sent by the client", "Description of the " +
                 "struct should be extracted");
@@ -525,7 +525,7 @@ public class HtmlDocTest {
         BLangPackage bLangPackage = createPackage(source);
 
         ArrayList<Documentable> union = new ArrayList<>();
-        Generator.addDocForNode(bLangPackage.getTypeDefinitions().get(0), null, null, null, union);
+        Generator.createTypeDefModels(bLangPackage.getTypeDefinitions().get(0), null, null, null, union);
         Assert.assertEquals(union.size(), 1);
         Documentable doc = union.get(0);
         Assert.assertEquals(doc.getClass(), EnumDoc.class);
@@ -542,7 +542,7 @@ public class HtmlDocTest {
         BLangPackage bLangPackage = createPackage("# The Read Append access mode\n" +
                 "final string RA = \"RA\";");
 
-        GlobalVariableDoc globalFinalVariableDoc = Generator.createDocForNode(bLangPackage.getGlobalVariables().get(0));
+        GlobalVariableDoc globalFinalVariableDoc = Generator.createDocForFunction(bLangPackage.getGlobalVariables().get(0));
         Assert.assertEquals(globalFinalVariableDoc.name, "RA", "Global final variable name should be extracted");
         Assert.assertEquals(globalFinalVariableDoc.dataType, "string",
                             "Global final variable type should be extracted");
@@ -565,7 +565,7 @@ public class HtmlDocTest {
                 "}";
         BLangPackage bLangPackage = createPackage(source);
 
-        AnnotationDoc annotationDoc = Generator.createDocForNode(bLangPackage.getAnnotations().get(0));
+        AnnotationDoc annotationDoc = Generator.createDocForFunction(bLangPackage.getAnnotations().get(0));
         Assert.assertEquals(annotationDoc.name, "webSocket", "Annotation name should be extracted");
         Assert.assertEquals(annotationDoc.description, "AnnotationDoc to upgrade connection from HTTP to WS " +
                 "in the same base path", "Description of the annotation should be extracted");

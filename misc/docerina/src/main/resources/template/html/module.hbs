@@ -29,11 +29,11 @@
       <div class="ui divider"></div>
 
       <table>
-        {{#if module.constructs}}
-        {{#each module.constructs.records}}
+        {{#if module.records}}
+        {{#each module.records}}
         <tr>
           <td class="module-title truncate records" id="{{name}}"><a href="records/{{name}}.html">{{name}}</a></td>
-          <td class="module-desc">{{description}}</td>
+          <td class="module-desc">{{{ description }}}</td>
         </tr>
         {{/each}}
         {{/if}}
@@ -44,11 +44,11 @@
       <div class="ui divider"></div>
 
       <table>
-        {{#if module.constructs}}
-        {{#each module.constructs.objects}}
+        {{#if module.objects}}
+        {{#each module.objects}}
         <tr>
           <td class="module-title truncate objects" id="{{name}}"><a href="objects/{{name}}.html">{{name}}</a></td>
-          <td class="module-desc">{{description}}</td>
+          <td class="module-desc">{{{ description }}}</td>
         </tr>
         {{/each}}
         {{/if}}
@@ -59,11 +59,11 @@
       <div class="ui divider"></div>
 
       <table>
-        {{#if module.constructs}}
-        {{#each module.constructs.clients}}
+        {{#if module.clients}}
+        {{#each module.clients}}
         <tr>
           <td class="module-title truncate clients" id="{{name}}"><a href="clients/{{name}}.html">{{name}}</a></td>
-          <td class="module-desc">{{description}}</td>
+          <td class="module-desc">{{{ description }}}</td>
         </tr>
         {{/each}}
         {{/if}}
@@ -74,11 +74,11 @@
       <div class="ui divider"></div>
 
       <table>
-        {{#if module.constructs}}
-        {{#each module.constructs.functions}}
+        {{#if module.functions}}
+        {{#each module.functions}}
         <tr>
           <td class="module-title truncate functions" id="{{name}}"><a href="functions/functions.html">{{name}}</a></td>
-          <td class="module-desc">{{description}}</td>
+          <td class="module-desc">{{{ description }}}</td>
         </tr>
         {{/each}}
         {{/if}}
@@ -90,11 +90,11 @@
       <div class="ui divider"></div>
 
       <table>
-        {{#if module.constructs}}
-        {{#each module.constructs.constants}}
+        {{#if module.constants}}
+        {{#each module.constants}}
         <tr>
           <td class="module-title truncate constant" id="{{name}}"><a href="constants/constants.html">{{name}}</a></td>
-          <td class="module-desc">{{description}}</td>
+          <td class="module-desc">{{{ description }}}</td>
         </tr>
         {{/each}}
         {{/if}}
@@ -106,12 +106,12 @@
       <div class="ui divider"></div>
 
       <table>
-        {{#if module.constructs}}
-        {{#each module.constructs.annotations}}
+        {{#if module.annotations}}
+        {{#each module.annotations}}
         <tr>
           <td class="module-title truncate annotations" id="{{name}}"><a
               href="annotations/annotations.html">{{name}}</a></td>
-          <td class="module-desc">{{description}}</td>
+          <td class="module-desc">{{{ description }}}</td>
         </tr>
         {{/each}}
         {{/if}}

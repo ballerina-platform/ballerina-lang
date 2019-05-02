@@ -25,4 +25,13 @@ public class Function extends Construct {
     public boolean isExtern;
     public List<DefaultableVarible> parameters;
     public List<Variable> returnParameters;
+
+    public Function(String name, String description, boolean isRemote, boolean isExtern,
+                    List<DefaultableVarible> parameters, List<Variable> returnParameters) {
+        super(name, description);
+        this.isRemote = isRemote;
+        this.isExtern = isExtern;
+        this.parameters = parameters;
+        this.returnParameters = returnParameters;
+    }
 }

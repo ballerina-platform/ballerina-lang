@@ -15,8 +15,13 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import java.util.List;
+
 /**
  * Represent documentation for a Listener.
  */
 public class Listener extends Object {
+    public Listener(String name, String description, List<DefaultableVarible> fields, List<Function> methods) {
+        super(name, description, fields, methods);
+    }
 }

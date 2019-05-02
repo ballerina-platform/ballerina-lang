@@ -26,6 +26,12 @@ public class Object extends Construct {
     public List<DefaultableVarible> fields;
     public List<Function> methods;
 
+    public Object(String name, String description, List<DefaultableVarible> fields, List<Function> methods) {
+        super(name, description);
+        this.fields = fields;
+        this.methods = methods;
+    }
+
     public Optional<Function> getInitMethod() {
         return this.methods.stream()
                 .filter(function -> function.name.equals("__init"))

@@ -20,4 +20,9 @@ package org.ballerinalang.docgen.generator.model;
  */
 public class Error extends Construct {
     public Type dataType;
+
+    public Error(String name, String description, Type dataType) {
+        super(name, description);
+        this.dataType = dataType;
+    }
 }

@@ -3,11 +3,46 @@
         <h3>{{module.id}} Module</h3>
     </a>
     <ul>
-        {{#each module.constructs}}
+        {{#if module.records}}
         <li>
-            <a href="{{ ../rootPath }}{{ ../module.id }}/index.html#{{@key}}">{{@key}}</a>
+            <a href="{{ ../rootPath }}{{ ../module.id }}/index.html#records">Records</a>
         </li>
-        {{/each}}
+        {{/if}}
+        {{#if module.objects}}
+            <li>
+                <a href="{{ ../rootPath }}{{ ../module.id }}/index.html#objects">Objects</a>
+            </li>
+        {{/if}}
+        {{#if module.clients}}
+            <li>
+                <a href="{{ ../rootPath }}{{ ../module.id }}/index.html#clients">Clients</a>
+            </li>
+        {{/if}}
+        {{#if module.listeners}}
+            <li>
+                <a href="{{ ../rootPath }}{{ ../module.id }}/index.html#listeners">Listeners</a>
+            </li>
+        {{/if}}
+        {{#if module.functions}}
+            <li>
+                <a href="{{ ../rootPath }}{{ ../module.id }}/index.html#functions">Functions</a>
+            </li>
+        {{/if}}
+        {{#if module.constants}}
+            <li>
+                <a href="{{ ../rootPath }}{{ ../module.id }}/index.html#constants">Constants</a>
+            </li>
+        {{/if}}
+        {{#if module.annotations}}
+            <li>
+                <a href="{{ ../rootPath }}{{ ../module.id }}/index.html#annotations">Annotations</a>
+            </li>
+        {{/if}}
+        {{#if module.errors}}
+            <li>
+                <a href="{{ ../rootPath }}{{ ../module.id }}/index.html#errors">Errors</a>
+            </li>
+        {{/if}}
     </ul>
     <div class="ui divider"></div>
 </div>

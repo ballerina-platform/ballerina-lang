@@ -21,23 +21,26 @@ package org.ballerinalang.docgen;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.ballerinalang.docgen.generator.model.Client;
+import org.ballerinalang.docgen.generator.model.DefaultableVarible;
+import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Module;
+import org.ballerinalang.docgen.generator.model.Object;
+import org.ballerinalang.docgen.generator.model.Type;
+import org.ballerinalang.docgen.generator.model.Variable;
 import org.ballerinalang.docgen.model.AnnotationDoc;
 import org.ballerinalang.docgen.model.ConstantDoc;
 import org.ballerinalang.docgen.model.Documentable;
 import org.ballerinalang.docgen.model.EndpointDoc;
-import org.ballerinalang.docgen.model.EnumDoc;
 import org.ballerinalang.docgen.model.Field;
 import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.ObjectDoc;
-import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
 import org.ballerinalang.docgen.model.RecordDoc;
 import org.ballerinalang.docgen.model.StaticCaption;
-import org.ballerinalang.docgen.model.Variable;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocumentableNode;
@@ -65,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -96,72 +100,51 @@ public class Generator {
         String currentPackageName = BallerinaDocDataHolder.getInstance().getOrgName() + balPackage.packageID.getName
                 ().getValue();
 
-        ArrayList<Documentable> records = new ArrayList<>();
-        ArrayList<Documentable> objects = new ArrayList<>();
-        ArrayList<Documentable> endpoints = new ArrayList<>();
-        ArrayList<Documentable> union = new ArrayList<>();
         // Check for type definitions in the package
         for (BLangTypeDefinition typeDefinition : balPackage.getTypeDefinitions()) {
             if (typeDefinition.getFlags().contains(Flag.PUBLIC)) {
-                addDocForNode(typeDefinition, records, objects, endpoints, union);
-            }
-        }
-        List<Documentable> documentables = new ArrayList<>(records);
-
-        // Check for functions in the package
-        for (BLangFunction function : balPackage.getFunctions()) {
-            if (function.getFlags().contains(Flag.PUBLIC) && !function.getFlags().contains(Flag.ATTACHED)) {
-                if (function.getReceiver() != null) {
-                    for (Documentable parentDocumentable : documentables) {
-                        TypeNode langType = function.getReceiver().getTypeNode();
-                        String typeName = (langType instanceof BLangUserDefinedType ? ((BLangUserDefinedType)
-                                langType).typeName.value : langType.toString());
-
-                        if (typeName.equals(parentDocumentable.name)) {
-                            parentDocumentable.children.add(createDocForNode(function));
-                        }
-                    }
-                } else {
-                    // If there's no receiver type i.e. no struct binding to the function
-                    documentables.add(createDocForNode(function));
-                }
+                createTypeDefModels(typeDefinition, module);
             }
         }
 
-        documentables.addAll(objects);
-        documentables.addAll(endpoints);
-        documentables.addAll(union);
-
-        // Check for annotations
-        for (BLangAnnotation annotation : balPackage.getAnnotations()) {
-            if (annotation.getFlags().contains(Flag.PUBLIC)) {
-                documentables.add(createDocForNode(annotation));
-            }
-        }
-
-        // Check for constants.
-        for (BLangConstant constant : balPackage.getConstants()) {
-            if (constant.getFlags().contains(Flag.PUBLIC)) {
-                documentables.add(createDocForNode(constant));
-            }
-        }
-
-        // Check for global variables
-        for (BLangSimpleVariable var : balPackage.getGlobalVariables()) {
-            if (var.getFlags().contains(Flag.PUBLIC)) {
-                documentables.add(createDocForNode(var));
-            }
-        }
-
-//        // Create the links to select which page or package is active
-//        List<Link> links = new ArrayList<>();
-//        PackageName packageNameHeading = null;
-//        for (Link pkgLink : packages) {
-//            if (pkgLink.caption.value.equals(currentPackageName)) {
-//                packageNameHeading = (PackageName) pkgLink.caption;
-//                links.add(new Link(pkgLink.caption, pkgLink.href, true));
-//            } else {
-//                links.add(new Link(pkgLink.caption, pkgLink.href, false));
+//        // Check for functions in the package
+//        for (BLangFunction function : balPackage.getFunctions()) {
+//            if (function.getFlags().contains(Flag.PUBLIC) && !function.getFlags().contains(Flag.ATTACHED)) {
+//                if (function.getReceiver() != null) {
+//                    for (Documentable parentDocumentable : documentables) {
+//                        TypeNode langType = function.getReceiver().getTypeNode();
+//                        String typeName = (langType instanceof BLangUserDefinedType ? ((BLangUserDefinedType)
+//                                langType).typeName.value : langType.toString());
+//
+//                        if (typeName.equals(parentDocumentable.name)) {
+//                            parentDocumentable.children.add(createDocForFunction(function));
+//                        }
+//                    }
+//                } else {
+//                    // If there's no receiver type i.e. no struct binding to the function
+//                    documentables.add(createDocForFunction(function));
+//                }
+//            }
+//        }
+//
+//        // Check for annotations
+//        for (BLangAnnotation annotation : balPackage.getAnnotations()) {
+//            if (annotation.getFlags().contains(Flag.PUBLIC)) {
+//                documentables.add(createDocForFunction(annotation));
+//            }
+//        }
+//
+//        // Check for constants.
+//        for (BLangConstant constant : balPackage.getConstants()) {
+//            if (constant.getFlags().contains(Flag.PUBLIC)) {
+//                documentables.add(createDocForFunction(constant));
+//            }
+//        }
+//
+//        // Check for global variables
+//        for (BLangSimpleVariable var : balPackage.getGlobalVariables()) {
+//            if (var.getFlags().contains(Flag.PUBLIC)) {
+//                documentables.add(createDocForFunction(var));
 //            }
 //        }
     }
@@ -206,7 +189,7 @@ public class Generator {
                             primitiveTypes.add(primitiveTypeDoc);
                         }
 
-                        primitiveTypeDoc.children.add(createDocForNode(function));
+                       // primitiveTypeDoc.children.add(createDocForFunction(function));
                     }
                 }
             }
@@ -227,52 +210,47 @@ public class Generator {
     }
 
     /**
-     * Create documentation for type definitions.
+     * Create documentation models for type definitions.
      *
      * @param typeDefinition ballerina type definition node.
-     * @param records        list to put resulting records
-     * @param objects        list to put resulting obj
-     * @param endpoints      list to put resulting ep
-     * @param union          list to put resulting unions
+     * @param module Module model.
      */
-    public static void addDocForNode(BLangTypeDefinition typeDefinition, ArrayList<Documentable> records,
-                                     ArrayList<Documentable> objects, ArrayList<Documentable> endpoints,
-                                     ArrayList<Documentable> union) {
+    public static void createTypeDefModels(BLangTypeDefinition typeDefinition, Module module) {
         String typeName = typeDefinition.getName().getValue();
         BLangType typeNode = typeDefinition.typeNode;
         NodeKind kind = typeNode.getKind();
         boolean added = false;
         if (kind == NodeKind.OBJECT_TYPE) {
             BLangObjectTypeNode objectType = (BLangObjectTypeNode) typeNode;
-            addDocForType(objectType, typeDefinition, objects, endpoints);
+            addDocForType(objectType, typeDefinition, module);
             added = true;
         } else if (kind == NodeKind.FINITE_TYPE_NODE) {
             BLangFiniteTypeNode enumNode = (BLangFiniteTypeNode) typeNode;
             String values = enumNode.getValueSet().stream()
-                    .map(Object::toString)
+                    .map(java.lang.Object::toString)
                     .sorted(Collections.reverseOrder())
                     .collect(Collectors.joining(" | "));
-            union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), values));
+            // union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), values));
             added = true;
         } else if (kind == NodeKind.RECORD_TYPE) {
             BLangRecordTypeNode recordNode = (BLangRecordTypeNode) typeNode;
             if (recordNode.isAnonymous) {
                 return;
             }
-            records.add(createDocForType(typeDefinition, recordNode, typeName));
+            // records.add(createDocForType(typeDefinition, recordNode, typeName));
             added = true;
         } else if (kind == NodeKind.UNION_TYPE_NODE) {
             List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) typeNode).memberTypeNodes;
             String values = memberTypeNodes.stream()
-                    .map(Object::toString)
+                    .map(java.lang.Object::toString)
                     .sorted(Collections.reverseOrder())
                     .collect(Collectors.joining(" | "));
-            union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), values));
+            // union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), values));
             added = true;
         } else if (kind == NodeKind.USER_DEFINED_TYPE) {
             BLangUserDefinedType userDefinedType = (BLangUserDefinedType) typeNode;
             String value = userDefinedType.typeName.value;
-            union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), value));
+            // union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), value));
             added = true;
         } else if (kind == NodeKind.ERROR_TYPE) {
             // TODO: Add errors section in API docs
@@ -289,7 +267,7 @@ public class Generator {
      * @param annotationNode ballerina annotation node.
      * @return documentation for annotation.
      */
-    public static AnnotationDoc createDocForNode(BLangAnnotation annotationNode) {
+    public static AnnotationDoc createDocForFunction(BLangAnnotation annotationNode) {
         String annotationName = annotationNode.getName().getValue();
         String dataType = "-", href = EMPTY_STRING;
         if (annotationNode.typeNode != null) {
@@ -351,7 +329,7 @@ public class Generator {
      * @param bLangVariable ballerina variable node.
      * @return documentation for global variables.
      */
-    public static GlobalVariableDoc createDocForNode(BLangSimpleVariable bLangVariable) {
+    public static GlobalVariableDoc createDocForFunction(BLangSimpleVariable bLangVariable) {
         String globalVarName = bLangVariable.getName().getValue();
         String dataType = getTypeName(bLangVariable.getTypeNode());
         String desc = description(bLangVariable);
@@ -359,9 +337,9 @@ public class Generator {
         return new GlobalVariableDoc(globalVarName, desc, new ArrayList<>(), dataType, href);
     }
 
-    public static ConstantDoc createDocForNode(BLangConstant constant) {
+    public static ConstantDoc createDocForFunction(BLangConstant constant) {
         String constantName = constant.getName().getValue();
-        Object value = constant.value;
+        java.lang.Object value = constant.value;
         String desc = description(constant);
 
         String typeNodeType = "";
@@ -379,16 +357,16 @@ public class Generator {
      * Create documentation for functions.
      *
      * @param functionNode ballerina function node.
-     * @return documentation for functions.
+     * @return Function documentation model.
      */
-    public static FunctionDoc createDocForNode(BLangFunction functionNode) {
+    public static Function createDocForFunction(BLangFunction functionNode) {
         String functionName = functionNode.getName().value;
-        List<Field> parameters = new ArrayList<>();
+        List<DefaultableVarible> parameters = new ArrayList<>();
         List<Variable> returnParams = new ArrayList<>();
         // Iterate through the parameters
         if (functionNode.getParameters().size() > 0) {
             for (BLangSimpleVariable param : functionNode.getParameters()) {
-                Field variable = getVariable(functionNode, param);
+                DefaultableVarible variable = getVariable(functionNode, param);
                 parameters.add(variable);
             }
         }
@@ -396,7 +374,7 @@ public class Generator {
         if (functionNode.getDefaultableParameters().size() > 0) {
             for (BLangSimpleVariableDef variableDef : functionNode.getDefaultableParameters()) {
                 BLangSimpleVariable param = variableDef.getVariable();
-                Field variable = getVariable(functionNode, param);
+                DefaultableVarible variable = getVariable(functionNode, param);
                 parameters.add(variable);
             }
         }
@@ -405,7 +383,7 @@ public class Generator {
             SimpleVariableNode restParameter = functionNode.getRestParameters();
             if (restParameter instanceof BLangSimpleVariable) {
                 BLangSimpleVariable param = (BLangSimpleVariable) restParameter;
-                Field variable = getVariable(functionNode, param);
+                DefaultableVarible variable = getVariable(functionNode, param);
                 parameters.add(variable);
             }
         }
@@ -417,17 +395,22 @@ public class Generator {
             if (!dataType.equals("null")) {
                 String desc = returnParamAnnotation(functionNode);
                 String href = extractLink(returnType);
-                Variable variable = new Variable(EMPTY_STRING, dataType, desc, href);
+                Variable variable = new Variable(EMPTY_STRING, desc, new Type(dataType));
                 returnParams.add(variable);
             }
 
         }
 
+        return new Function(functionName,description(functionNode),
+                        functionNode.getFlags().contains(Flags.REMOTE),
+                        functionNode.getFlags().contains(Flags.NATIVE),
+                        parameters, returnParams);
+
         //TODO: gen using symbol createDocForType(functionNode.symbol)
-        return new FunctionDoc(functionName, description(functionNode), new ArrayList<>(), parameters, returnParams);
+//        return new FunctionDoc(functionName, description(functionNode), new ArrayList<>(), parameters, returnParams);
     }
 
-    private static Field getVariable(BLangFunction functionNode, BLangSimpleVariable param) {
+    private static DefaultableVarible getVariable(BLangFunction functionNode, BLangSimpleVariable param) {
         String dataType = type(param);
         String desc = paramAnnotation(functionNode, param);
         String href = param.typeNode != null ? extractLink(param.typeNode) : extractLink(param.type);
@@ -435,7 +418,7 @@ public class Generator {
         if (null != param.getInitialExpression()) {
             defaultValue = param.getInitialExpression().toString();
         }
-        return new Field(param.getName().value, dataType, desc, defaultValue, href);
+        return new DefaultableVarible(param.getName().value, desc, new Type(dataType), defaultValue);
     }
 
     /**
@@ -452,14 +435,14 @@ public class Generator {
             structName = "Anonymous Record " + structName.substring(structName.lastIndexOf('$') + 1);
         }
         BLangMarkdownDocumentation documentationNode = typeDefinition.getMarkdownDocumentationAttachment();
-        List<Field> fields = getFields(recordType, recordType.fields, documentationNode);
+        // List<Field> fields = getFields(recordType, recordType.fields, documentationNode);
         String documentationText = documentationNode == null ? null : documentationNode.getDocumentation();
-        return new RecordDoc(structName, documentationText, new ArrayList<>(), fields);
+        return new RecordDoc(structName, documentationText, new ArrayList<>(), null);
     }
 
-    private static List<Field> getFields(BLangNode node, List<BLangSimpleVariable> allFields,
+    private static List<DefaultableVarible> getFields(BLangNode node, List<BLangSimpleVariable> allFields,
                                          BLangMarkdownDocumentation documentation) {
-        List<Field> fields = new ArrayList<>();
+        List<DefaultableVarible> fields = new ArrayList<>();
         for (BLangSimpleVariable param : allFields) {
             if (param.getFlags().contains(Flag.PUBLIC)) {
                 String name = param.getName().value;
@@ -471,9 +454,8 @@ public class Generator {
                 if (null != param.getInitialExpression()) {
                     defaultValue = param.getInitialExpression().toString();
                 }
-                String href = extractLink(param.getTypeNode());
-                Field variable = new Field(name, dataType, desc, defaultValue, href);
-                fields.add(variable);
+                DefaultableVarible field = new DefaultableVarible(name, desc, new Type(dataType), defaultValue);
+                fields.add(field);
             }
         }
         return fields;
@@ -494,44 +476,38 @@ public class Generator {
 
     private static void addDocForType(BLangObjectTypeNode objectType,
                                       BLangTypeDefinition parent,
-                                      ArrayList<Documentable> objects,
-                                      ArrayList<Documentable> endpoints) {
-        List<Documentable> functions = new ArrayList<>();
+                                      Module module) {
+        List<Function> functions = new ArrayList<>();
         String name = parent.getName().getValue();
         String description = description(parent);
 
-        List<Field> fields = getFields(parent, objectType.fields, parent.getMarkdownDocumentationAttachment());
-        boolean hasConstructor = false;
+        List<DefaultableVarible> fields = getFields(parent, objectType.fields,
+                    parent.getMarkdownDocumentationAttachment());
 
         if (objectType.initFunction != null) {
             BLangFunction constructor = objectType.initFunction;
             if (constructor.flagSet.contains(Flag.PUBLIC)) {
-                FunctionDoc initFunction = createDocForNode(constructor);
+                Function initFunction = createDocForFunction(constructor);
                 // if it's the default constructor, we don't need to document
                 if (initFunction.parameters.size() > 0) {
-                    hasConstructor = true;
                     functions.add(initFunction);
                 }
             }
         }
 
-        //Iterate through the functions of the connectors
+        // Iterate through the functions
         if (objectType.getFunctions().size() > 0) {
-            for (BLangFunction action : objectType.getFunctions()) {
-                if (action.flagSet.contains(Flag.PUBLIC)) {
-                    functions.add(createDocForNode(action));
+            for (BLangFunction function : objectType.getFunctions()) {
+                if (function.flagSet.contains(Flag.PUBLIC)) {
+                    functions.add(createDocForFunction(function));
                 }
             }
         }
 
         if (isEndpoint(objectType)) {
-            functions = objectType.functions.stream()
-                    .filter(IS_REMOTE_FUNCTION)
-                    .map(Generator::createDocForNode)
-                    .collect(Collectors.toList());
-            endpoints.add(createEndpointObject(objectType, name, description, functions, fields, hasConstructor));
+            module.clients.add(new Client(name, description, fields, functions));
         } else {
-            objects.add(createNonEndpointObject(objectType, name, description, functions, fields, hasConstructor));
+            module.objects.add(new Object(name, description, fields, functions));
         }
 
     }
