@@ -24,6 +24,7 @@ import org.commonmark.node.Heading;
 import org.commonmark.node.Node;
 import org.commonmark.node.Paragraph;
 import org.commonmark.node.Text;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
@@ -75,19 +76,19 @@ public class ModuleDoc {
     }
 
     static class SummaryVisitor extends AbstractVisitor {
-        protected String summary;
+        protected Node summary;
         @Override
         public void visit(Heading heading) {
             if (heading.getFirstChild() instanceof Text
                     && ((Text) heading.getFirstChild()).getLiteral().equals("Module overview")
                     && heading.getNext() instanceof Paragraph
             ) {
-                summary = ((Text) ((Paragraph) heading.getNext()).getFirstChild()).getLiteral();
+                summary = heading.getNext();
             }
         }
 
         public String getSummary() {
-            return summary;
+            return HtmlRenderer.builder().build().render(summary);
         }
     }
 
