@@ -528,7 +528,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
    
     int closureMapsCount = 0;
     if (ins is bir:FPLoad) {
-        closureMapsCount = ins.closureMaps;
+        closureMapsCount = ins.closureMaps.length();
     }
     string closureMapsDesc = getMapValueDesc(closureMapsCount);
 
@@ -579,7 +579,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         int paramIndex = 1;
         foreach var paramType in paramTypes {
             bir:VariableDcl dcl = getVariableDcl(paramType);
-            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, closureMapsCount);
             mv.visitIntInsn(BIPUSH, paramIndex);
             mv.visitInsn(AALOAD);
             checkCastFromObject(dcl.typeValue, mv);

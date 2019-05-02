@@ -255,10 +255,12 @@ type InstructionEmitter object {
             print(" = ");
             print(" ", ins.kind, " ");
             print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "(");
-            int maps = ins.closureMaps;
-            while (maps > 0) {
-                maps -= 1;
-                print("CL_MAP,");
+
+            foreach var v in ins.closureMaps {
+                if (v is VarRef) {
+                    self.opEmitter.emitOp(v);
+                    print(",");
+                }
             }
             int i = 0;
             foreach var v in ins.params {
@@ -267,6 +269,7 @@ type InstructionEmitter object {
                 }
                 VariableDcl varDecl = getVariableDcl(v);
                 self.typeEmitter.emitType(varDecl.typeValue);
+                i += 1;
             }
             println(");");
         }

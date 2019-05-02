@@ -286,8 +286,23 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         emit(new BIRNonTerminator.FPLoad(lambdaExpr.pos, lambdaExpr.function.symbol.pkgID, funcName, lhsOp, params,
-                lambdaExpr.function.paramClosureMap.size()));
+                getClosureMapOperands(lambdaExpr)));
         this.env.targetOperand = lhsOp;
+    }
+
+    private List<BIROperand> getClosureMapOperands(BLangLambdaFunction lambdaExpr) {
+        List<BIROperand> closureMaps = new ArrayList<>();
+
+        lambdaExpr.function.paramClosureMap.forEach((k, v) -> {
+            BVarSymbol symbol = lambdaExpr.enclMapSymbols.get(k);
+            if (symbol == null) {
+                symbol = lambdaExpr.paramMapSymbolsOfEnclInvokable.get(k);
+            }
+            BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(symbol));
+            closureMaps.add(varRef);
+        });
+
+        return closureMaps;
     }
 
     private Name getFuncName(BInvokableSymbol symbol) {

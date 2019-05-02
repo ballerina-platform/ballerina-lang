@@ -93,10 +93,10 @@ public class VisitInvokeDynamicInsn extends BlockingNativeCallableUnit {
     }
 
     private String getMapsDesc(long count) {
-        String desc = "";
+        StringBuffer buf = new StringBuffer();
         for (long i = count; i > 0; i--) {
-            desc = desc + MAP_VALUE_DESC;
+            buf.append(MAP_VALUE_DESC);
         }
-        return desc;
+        return buf.toString();
     }
 }
