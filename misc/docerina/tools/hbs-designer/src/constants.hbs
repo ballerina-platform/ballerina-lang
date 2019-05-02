@@ -33,71 +33,14 @@
           {{#each constants}}
           <tbody>
             <tr id="{{name}}" >
-              <td class="constant"><a href="#{{name}}">{{name}}</a></td>
-              <td>{{description}}</td>
+              <td width="30%" class="constant"><a href="#{{name}}">{{name}}</a></td>
+              <td width="70%">{{description}}</td>
             </tr>
           </tbody>
           {{/each}}
         </table>
         <div class="ui divider"></div>
         <div>
-          {{#if constants}}
-          <div>
-            {{#each constants}}
-            <p>{{function_type_label}} <a id="{{name}}"><b class="constant">{{name}}</b> </a>{{function_params}} </h3>
-              <br><b>{{return_label}}</b> {{return_type}}</p>
-            <p>{{description}}</p>
-            <div class="ui divider"></div>
-            {{#if params}}
-            <table class="ui table">
-              {{#each params}}
-              {{#each fields}}
-              <thead>
-                <tr>
-                  <th>{{param_name_label}}</th>
-                  <th>{{data_type_label}}</th>
-                  <th>{{default_value_label}}</th>
-                  <th>{{description_label}}</th>
-                </tr>
-              </thead>
-              {{#each attributes}}
-              <tbody>
-                <tr>
-                  <td>{{field_name}}</td>
-                  <td>{{data_type}}</td>
-                  <td>{{default_value}}</td>
-                  <td>{{description}}</td>
-                </tr>
-              </tbody>
-              {{/each}}
-              {{/each}}
-              {{/each}}
-            </table>
-            {{/if}}
-            {{#if returns}}
-            <table class="ui table">
-              {{#each returns}}
-              {{#each fields}}
-              <thead>
-                <tr>
-                  <th>{{return_type_label}}</th>
-                  <th>{{return_description_label}}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{{return_type}}</td>
-                  <td>{{description}}</td>
-                </tr>
-              </tbody>
-              {{/each}}
-              {{/each}}
-            </table>
-            <div class="ui divider"></div>
-            {{/if}}
-            {{/each}}
-          </div>
-          {{/if}}
         </div>
       </div>
     </div>

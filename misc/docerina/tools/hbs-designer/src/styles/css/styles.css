@@ -2,7 +2,6 @@ body {
   background: #fff;
   color: #464646;
   height: 100vh;
-  font-family: "Fira Sans", sans-serif;
 }
 body p {
   font-size: 16px;
@@ -26,7 +25,7 @@ body .ui.grid .navi-wrapper .logo {
   width: 150px;
   height: auto;
   text-align: center;
-  margin: 30px 10px;
+  margin: 16px;
 }
 body .ui.grid .navi-wrapper:hover {
   overflow-y: scroll;
@@ -45,11 +44,13 @@ body .ui.grid .navi-wrapper .primary-list ul {
   margin: 0;
 }
 body .ui.grid .navi-wrapper .primary-list ul li {
-  list-style: none !important;
+  list-style: none ;
   line-height: 25px;
   margin-left: 15px;
   text-transform: capitalize;
   font-weight: 300;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 body .ui.grid .navi-wrapper .primary-list ul li:hover {
   font-weight: 600;
@@ -60,7 +61,7 @@ body .ui.grid .navi-wrapper .primary-list ul li a {
 }
 body .ui.grid .navi-wrapper .primary-list ul li:hover,
 body .ui.grid .navi-wrapper .primary-list ul li a:hover {
-  color: #333 !important;
+  color: #333;
   font-weight: 600;
 }
 body .ui.grid .content-wrapper {
@@ -75,40 +76,41 @@ body .ui.grid .content-wrapper .main-wrapper {
   width: 750px;
 }
 body .ui.grid .content-wrapper .param-divider {
-  margin-top: 0px !important;
+  margin-top: 0px;
   margin-bottom: 15px;
   border: 0.5px solid #888;
 }
 body .ui.grid .content-wrapper .param-table {
   margin-left: 20px;
-  border: 1ps solid #ccc !important;
+  border: 1ps solid #ccc;
   width: -webkit-fill-available;
+}
+body .ui.grid .content-wrapper .param-table thead tr th {
+  padding: 10px 0;
 }
 body .ui.grid .content-wrapper .param-table td,
 body .ui.grid .content-wrapper .param-table th {
-  padding: 5px 0 !important;
   color: #3c3c3c;
 }
 body .ui.grid .content-wrapper .param-table tbody {
-  border-bottom: 1px solid #e8e9e9 !important;
+  border-bottom: 1px solid #e8e9e9;
 }
 body .ui.grid .content-wrapper .ui.table,
 body .ui.grid .content-wrapper .ui.table tr td {
-  border: 0 !important;
+  border: 0;
   vertical-align: top;
   color: #555;
   word-break: break-word;
+  padding: 5px 0;
 }
 body .ui.grid .content-wrapper .ui.table th,
 body .ui.grid .content-wrapper .ui.table tr td th {
   background: none;
-  padding: 10px 0;
   border-top: 1px solid #e8e9e9;
   border-radius: 0;
 }
 body .ui.grid .content-wrapper .ui.table tr,
 body .ui.grid .content-wrapper .ui.table tr td tr {
-  padding: 10px 0;
   border-bottom: 1px solid #e8e9e9;
   color: #555;
 }
@@ -147,17 +149,23 @@ body .ui.grid .content-wrapper .modules a {
 }
 body .ui.grid .content-wrapper .records {
   text-transform: capitalize;
-  color: #2c9ea1;
+  color: #20b6b0;
 }
 body .ui.grid .content-wrapper .records a {
-  color: #2c9ea1;
+  color: #20b6b0;
+}
+body .ui.grid .content-wrapper .records a:hover {
+  text-decoration: underline;
 }
 body .ui.grid .content-wrapper .objects {
   text-transform: capitalize;
-  color: #93bd54;
+  color: #20b6b0;
 }
 body .ui.grid .content-wrapper .objects a {
-  color: #93bd54;
+  color: #20b6b0;
+}
+body .ui.grid .content-wrapper .objects a:hover {
+  text-decoration: underline;
 }
 body .ui.grid .content-wrapper .clients {
   color: #068000;
@@ -196,12 +204,12 @@ body .ui.grid .content-wrapper .constants h2 {
 body .ui.grid .content-wrapper .constants h3 {
   display: inline-block;
   margin: 0;
-  line-height: 22px !important;
+  line-height: 22px;
 }
 body .ui.grid .content-wrapper .constants h3 p {
   display: inline-block;
   margin: 0;
-  line-height: 22px !important;
+  line-height: 22px;
   color: #555;
 }
 body .ui.grid .content-wrapper .constants .method-list {
@@ -226,16 +234,16 @@ body .ui.grid .content-wrapper .constants .method-wrapper .method-span .ui.table
   word-break: break-word;
 }
 body .ui.grid .content-wrapper .constants .method-wrapper .method-span .ui.table tr td:first-child {
-  width: 180px !important;
+  width: 180px ;
   vertical-align: top;
   padding: 5px 0;
 }
 body .ui.grid .content-wrapper .constants .method-wrapper .method-span .ui.table td {
-  padding: 10px 0 !important;
+  padding: 10px 0 ;
 }
 body .ui.grid .content-wrapper .constants .method-wrapper .method-span .method-table-header {
   max-width: 180px;
-  width: 180px !important;
+  width: 180px ;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -264,14 +272,14 @@ body .ui.grid .content-wrapper .constants .column {
 }
 body .ui.grid .content-wrapper .module-title {
   margin-bottom: 10px;
-  font-weight: 300;
+  font-weight: 400;
   height: auto;
   padding: 0;
   vertical-align: top;
 }
 body .ui.grid .content-wrapper .truncate {
   max-width: 220px;
-  width: 220px !important;
+  width: 220px ;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

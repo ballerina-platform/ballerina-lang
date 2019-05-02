@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 
-{{> htmlHead title="API Documentation - Module Records " rootPath="../../" }}
+{{> htmlHead title="API Documentation - Module recordords " rootPath="../../" }}
 
 <body>
   <div class="ui grid">
@@ -26,25 +26,25 @@
 
     <div class="fourteen wide column content-wrapper">
       <div class="main-wrapper">
-      <h1>{{ rec.name }}</h1>
+      <h1>Record : <span class="records">{{ record.name }}</span></h1>
       <div class="ui divider"></div>
 
-      <h3>{{rec.type}} <span class="records">{{rec.name}}</span> {{rec.label}}</h3>
-      <p>{{rec.description}}</p>
+      <h3>{{record.type}} <span class="records">{{record.name}}</span> record</h3>
+      <p>{{record.description}}</p>
 
       <div class="constants">
         <table class="ui table">
           <thead>
             <tr>
-              <th>{{rec.field_name_label}}</th>
-              <th>{{rec.data_type_label}}</th>
-              <th>{{rec.default_value_label}}</th>
-              <th>{{rec.description_label}}</th>
+              <th>Field Name</th>
+              <th>Data Type</th>
+              <th>Default Value</th>
+              <th>Description</th>
             </tr>
           </thead>
           <tbody>
-            {{#if rec}}
-            {{#rec}}
+            {{#if record}}
+            {{#record}}
             {{#each fields}}
             <tr>
               <td>{{field_name}}</td>
@@ -53,7 +53,7 @@
               <td>{{description}}</td>
             </tr>
             {{/each}}
-            {{/rec}}
+            {{/record}}
             {{/if}}
           </tbody>
         </table>

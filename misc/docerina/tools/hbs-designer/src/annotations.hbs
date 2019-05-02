@@ -34,6 +34,7 @@
             {{#each annotations}}
             <tr>
               <td class="annotations"><a href="#{{name}}">{{name}}</a></td>
+              <div class="ui divider param-divider"></div>
               <td>{{description}}</td>
             </tr>
             {{/each}}
@@ -43,19 +44,15 @@
           {{#if annotations}}
           <div>
             <table class="ui table">
-              <p>{{fields.name_label}}</p>
+              <p>Name</p>
               <thead>
                 {{#each annotations}}
-                {{#if fields}}
-                {{#each fields}}
                 <tr>
-                  <th>{{name_label}}</th>
-                  <th>{{attachment_points_label}}</th>
-                  <th>{{data_type_label}}</th>
-                  <th>{{description_label}}</th>
+                  <th>Name</th>
+                  <th>Attachment Points</th>
+                  <th>Data Type</th>
+                  <th>Description</th>
                 </tr>
-                {{/each}}
-                {{/if}}
                 {{/each}}
               </thead>
               <tbody>

@@ -26,25 +26,25 @@
 
     <div class="fourteen wide column content-wrapper">
       <div class="main-wrapper">
-        <h1>{{ obj.name }}</h1>
+        <h1>{{ object.name }}</h1>
       <div class="ui divider"></div>
 
-      <h3>{{obj.type}} <span class="objects">{{obj.name}}</span> {{obj.label}}</h3>
-      <p>{{obj.description}}</p>
+      <h3>{{object.type}} <span class="objects">{{object.name}}</span> object</h3>
+      <p>{{object.description}}</p>
 
       <div class="constants">
-        {{#if obj.init_method}}
-        {{#each obj.init_method}}
+        {{#if object.init_method}}
+        {{#each object.init_method}}
         <h2>Init Method</h2>
         <div class="ui divider"></div>
-        <h3 >{{init_label}}</h3><p>({{init_param}})</p>
+        <h3 >__init</h3><p>({{init_param}})</p>
         <table class="ui table param-table">
           <thead>
             <tr>
-              <th width="20%">{{param_name_label}}</th>
-              <th width="20%">{{data_type_label}}</th>
-              <th width="15%">{{default_value_label}}</th>
-              <th width="35%">{{description_label}}</th>
+              <th width="20%">Param Name</th>
+              <th width="20%">Data Type</th>
+              <th width="15%">Default Value</th>
+              <th width="35%">Description</th>
             </tr>
           </thead>
           <tbody>
@@ -60,27 +60,27 @@
         {{/each}} 
         {{/if}}
 
-        {{#if obj.method}}
-        {{#each obj.method}}
+        {{#if object.method}}
         <h2>Methods</h2>
         <div class="ui divider"></div>
         <div class="method-list">
+          {{#each object.method}}
         <p><a href="#{{method_type}}"><b>{{method_type}}</b></a>{{method_params}}<b>
-            {{label_return}}</b>{{return_params}} <br></p>
-        </div>
+            returns</b>{{return_params}} <br></p>
         {{/each}}
+        </div>
         <div class="ui divider"></div>
         {{/if}}
        
-        {{#if obj.top_fields}}
-        {{#each obj.top_fields}}
+        {{#if object.top_fields}}
+        {{#each object.top_fields}}
         <table class="ui table param-table">
           <thead>
             <tr>
-              <th width="20%">{{field_name_label}}</th>
-              <th width="20%">{{data_type_label}}</th>
-              <th width="15%">{{default_value_label}}</th>
-              <th width="35%">{{description_label}}</th>
+              <th width="20%">Field Name</th>
+              <th width="20%">Data Type</th>
+              <th width="15%">Default Value</th>
+              <th width="35%">Description</th>
             </tr>
           </thead>
           <tbody>
@@ -96,8 +96,8 @@
         {{/each}} 
         {{/if}}
         
-      {{#if obj.method}}
-        {{#each obj.method}}
+      {{#if object.method}}
+        {{#each object.method}}
         <div class="method-content">
           <h3 id="{{method_type}}">{{method_type}}</h3>
           <p class="method-types"> {{method_params}}</p>
@@ -105,16 +105,12 @@
           <p>{{description}}</p>
         <table class="ui table param-table">
           <thead>
-            {{#if fields}}
-            {{#each fields}}
             <tr>
-              <th>{{param_name_label}}</th>
-              <th>{{data_type_label}}</th>
-              <th>{{default_value_label}}</th>
-              <th>{{description_label}}</th>
+              <th>Parameter Name</th>
+              <th>Data Type</th>
+              <th>Default Value</th>
+              <th>"Description</th>
             </tr>
-            {{/each}}
-            {{/if}}
           </thead>
           <tbody>
             {{#if fields}}
@@ -137,8 +133,8 @@
           <thead>
             {{#if return}}
             {{#each return}}
-            <th width="50%">{{return_type_label}}</th>
-            <th width="50%">{{description_label}}</th>
+            <th width="50%">Return Type</th>
+            <th width="50%">Description</th>
             {{/each}}
             {{/if}}
           </thead>
@@ -160,5 +156,5 @@
       <div class="ui divider"></div>
       </div>
     </div>
-  </div>s
+  </div>
 </body>
