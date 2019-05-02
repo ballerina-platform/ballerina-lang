@@ -97,7 +97,7 @@ type ErrorNode record{
 type VariableDefinitionStatementNode record {
     *Node;
     ValueKind valueKind;
-    VarRefIdentifier varIdentifier;
+    VarRefIdentifier? varIdentifier;
     ExpressionNode? expression;
 };
 

@@ -4,7 +4,7 @@ import ballerina/log;
 
 OperatorStack oprStack = new();
 ExprStack expStack = new();
-boolean recovered = true;
+//boolean recovered = true;
 //keeps track on error recovery
 boolean errorRecovered = true;
 //keep track of error tokens
@@ -107,8 +107,8 @@ type Parser object {
 				return insertSemi;
 			}
 			else{
-				//recovered == false;
-				recovered = false;
+				//recovered = false;
+				errorRecovered = false;
 				int[] exprPanic = [SEMICOLON,RBRACE];
 				while(panicMode){
 					if(self.LAToken(1) == exprPanic[0]){
@@ -149,7 +149,7 @@ type Parser object {
 					errTokens[errCount] = currToken1;
 					errCount += 1;
 				}
-				return { tokenType: mToken, text: "<unexpected Token: Expected " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
+				return { tokenType: PARSER_ERROR_TOKEN, text: "<unexpected Token: Expected " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
 					lineNumber: 0, index: -1, whiteSpace: "" };
 			}
 		}
@@ -192,20 +192,21 @@ type Parser object {
 	//    | IDENTIFIER () make this a callableUnitSignatureNode
 	function parseCallableUnitSignature() returns FunctionSignatureNode? {
 		Token identifier = self.matchToken(IDENTIFIER,FUNCTION_NODE);
-		if(errorRecovered == false){
+		if(identifier.tokenType == PARSER_ERROR_TOKEN){
 		return null;
 		}else{
 			Token lParen = self.matchToken(LPAREN,FUNCTION_NODE);
-			if(errorRecovered == false){
+			if(lParen.tokenType == PARSER_ERROR_TOKEN){
 				io:println(lParen.tokenType);
 				IdentifierNode idNode = { nodeKind: IDENTIFIER_NODE, tokenList: [identifier], identifier: identifier.text };
-				FunctionSignatureNode signature1 = { nodeKind: FN_SIGNATURE_NODE,tokenList: [lParen],functionIdentifier: idNode };
+				FunctionSignatureNode signature1 = { nodeKind: FN_SIGNATURE_NODE,functionIdentifier: idNode };
 			return signature1;
 			}else{
 				Token rParen = self.matchToken(RPAREN,FUNCTION_NODE);
-				if(errorRecovered == false){
+				if(rParen.tokenType == PARSER_ERROR_TOKEN){
 				IdentifierNode idNode = { nodeKind: IDENTIFIER_NODE, tokenList: [identifier], identifier: identifier.text };
-				FunctionSignatureNode signature1 = { nodeKind: FN_SIGNATURE_NODE, tokenList: [lParen,rParen],functionIdentifier: idNode };
+				//i have removed the rParen from the tokenList
+				FunctionSignatureNode signature1 = { nodeKind: FN_SIGNATURE_NODE, tokenList: [lParen],functionIdentifier: idNode };
 				return signature1;
 				}else{
 				IdentifierNode idNode = { nodeKind: IDENTIFIER_NODE, tokenList: [identifier], identifier: identifier.text };
@@ -221,13 +222,14 @@ type Parser object {
 	function parseCallableUnitBody() returns BlockNode {
 		StatementNode[] stsList = [];
 		int pos = 0;
+		//token insertion is lBrace is mismatched
 		Token lBrace = self.matchToken(LBRACE,FUNCTION_NODE);
 		while (self.LAToken(1) != RBRACE) {
 			if(self.LAToken(1) == EOF){
 			break;
 			}
 			StatementNode stNode = self.parseStatement();
-			if(recovered == false || invalidOccurence == true){
+			if(errorRecovered == false || invalidOccurence == true){//this was recovered == false
 				if(errTokens.length()>0){
 					Token errTkn  =  errTokens[0];
 					ErrorNode erNode = {nodeKind: ERROR_NODE,tokenList:[errTkn],errorStatement:stNode};
@@ -238,14 +240,16 @@ type Parser object {
 					}
 					stsList[pos] = erNode;
 					pos += 1;
-					recovered = true;
+					//recovered = true;
+					errorRecovered = true;
 					invalidOccurence = false;
 				}
 				else{
 					ErrorNode erNode = {nodeKind: ERROR_NODE,errorStatement:stNode};
 					stsList[pos] = erNode;
 					pos += 1;
-					recovered = true;
+					//recovered = true;
+					errorRecovered = true;
 					invalidOccurence = false;
 				}
 			}else{
@@ -253,9 +257,17 @@ type Parser object {
 				pos += 1;
 			}
 		}
+		//Token insertion of rBrace not found
+		//BlockNode blNode = { nodeKind: BLOCK_NODE, tokenList: [lBrace, rBrace], statementList: stsList };
 		Token rBrace = self.matchToken(RBRACE,FUNCTION_NODE);
-		BlockNode blNode = { nodeKind: BLOCK_NODE, tokenList: [lBrace, rBrace], statementList: stsList };
-		return blNode;
+		if(rBrace.tokenType == PARSER_ERROR_TOKEN){
+			BlockNode blNode = { nodeKind: BLOCK_NODE, tokenList: [lBrace], statementList: stsList };
+			return blNode;
+		}else{
+			BlockNode blNode = { nodeKind: BLOCK_NODE, tokenList: [lBrace, rBrace], statementList: stsList };
+			return blNode;
+		}
+
 	}
 	//Statement
 	//    |<variable definition statement>
@@ -269,8 +281,21 @@ type Parser object {
 	//    | <valeuTypeName>  IDENTIFIER ASSIGN <expression> SEMICOLON // int a  = b + 8;
 	function parseVariableDefinitionStatementNode() returns VariableDefinitionStatementNode {
 		Token valueTypeTkn = self.parseValueTypeName();
+		//it is not necessary to check the validy of the value type since we only call this method if its a valid value type name???
 		ValueKind valueKind1 = self.matchValueType(valueTypeTkn);
 		Token identifier = self.matchToken(IDENTIFIER,VAR_DEF_STATEMENT_NODE);
+		if(identifier.tokenType == PARSER_ERROR_TOKEN){
+			if (self.LAToken(1) == SEMICOLON) {
+			Token semiC = self.matchToken(SEMICOLON,VAR_DEF_STATEMENT_NODE);
+			VariableDefinitionStatementNode vDef = { nodeKind: VAR_DEF_STATEMENT_NODE, tokenList: [valueTypeTkn, semiC],
+				valueKind: valueKind1, varIdentifier: null, expression: null };
+			return vDef;
+			}else{
+			VariableDefinitionStatementNode vDef2 = { nodeKind: VAR_DEF_STATEMENT_NODE, tokenList: [valueTypeTkn],
+				valueKind: valueKind1, varIdentifier: null, expression: null };
+			return vDef2;
+			}
+		}
 		VarRefIdentifier vRef = { nodeKind: VAR_REF_NODE, tokenList: [identifier], varIdentifier: identifier.text };
 		if (self.LAToken(1) == SEMICOLON) {
 			Token semiC = self.matchToken(SEMICOLON,VAR_DEF_STATEMENT_NODE);
@@ -278,11 +303,13 @@ type Parser object {
 				valueKind: valueKind1, varIdentifier: vRef, expression: null };
 			return vDef;
 		} else {
+			//token insertion for assign token??
 			Token assign = self.matchToken(ASSIGN,VAR_DEF_STATEMENT_NODE);
 			ExpressionNode exprNode = self.expressionBuilder();
 			if(exprNode == null){
 				log:printError("No Expression found");
-				recovered = false;
+				//recovered = false;
+				errorRecovered = false;
 			}
 			Token semiC2 = self.matchToken(SEMICOLON,VAR_DEF_STATEMENT_NODE);
 			VariableDefinitionStatementNode vDef2 = { nodeKind: VAR_DEF_STATEMENT_NODE, tokenList: [valueTypeTkn,assign, semiC2],
@@ -299,7 +326,8 @@ type Parser object {
 			isExpr = self.parseExpression2();
 
 			if(isExpr == false){
-				recovered = false;
+				//recovered = false;
+				errorRecovered = false;
 			}
 		}
 		while (oprStack.peek() != -1) {
@@ -349,7 +377,8 @@ type Parser object {
 				ExpressionNode expr2 = expStack.pop();
 				ExpressionNode expr1 = expStack.pop();
 				if(expr1 == null){
-					recovered = false;
+					//recovered = false;
+					errorRecovered = false;
 					log:printError("no expression found");
 					BinaryExpressionNode bExpr = { nodeKind: BINARY_EXP_NODE, tokenList: [operator], operatorKind: opKind,
 					leftExpr: expr2, rightExpr: expr1 };
@@ -817,7 +846,8 @@ type Parser object {
 			while(self.LAToken(1) != RBRACE && self.LAToken(1) != COMMA && sf2 == true){
 				sf2 = self.parseExpression2();
 				if(sf2 == false){
-				recovered = false;
+				//recovered = false;
+				errorRecovered = false;
 				}
 			}
 			while (oprStack.peek() != LBRACE) {
@@ -857,7 +887,8 @@ type Parser object {
 			while(self.LAToken(1) != RBRACE && self.LAToken(1) != COMMA && sf3 == true){
 				sf3 = self.parseExpression2();
 				if(sf3 == false){
-				recovered = false;
+				//recovered = false;
+				errorRecovered = false;
 				}
 			}
 			while (oprStack.peek() != LBRACE) {
@@ -882,9 +913,12 @@ type Parser object {
 		if (self.LAToken(1) == INT) {
 			Token int1 = self.matchToken(INT,STATEMENT_NODE);
 			return int1;
-		} else {
+		}else if (self.LAToken(1) == STRING) {
 			Token string1 = self.matchToken(STRING,STATEMENT_NODE);
 			return string1;
+		}else{
+			return  { tokenType: PARSER_ERROR_TOKEN, text: "<unexpected " + tokenNames[self.LAToken(1)] + ">" , startPos: -1 , endPos:-1,
+			lineNumber: 0, index: -1, whiteSpace: "" };
 		}
 	}
 
@@ -895,7 +929,6 @@ type Parser object {
 		}else if (tokenNames[valueTypeTkn.tokenType] == "STRING")  {
 			return STRING_TYPE;
 		}else{
-			//should be error value type?
 			return ERROR_VALUE_TYPE;
 		}
 	}
