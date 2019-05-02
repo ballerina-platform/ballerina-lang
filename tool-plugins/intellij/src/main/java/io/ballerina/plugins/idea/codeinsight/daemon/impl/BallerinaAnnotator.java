@@ -48,7 +48,6 @@ import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import io.ballerina.plugins.idea.psi.BallerinaWorkerDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaXmlItem;
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.ranges.Range;
 
 /**
  * Handles annotating text in the runtime.
