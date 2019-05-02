@@ -76,9 +76,3 @@ function iterate(any data) returns any = external;
 # + value - Value to get the length
 # + return - Length of the given value
 function length(anydata value) returns int = external;
-
-# Get typedesc of given value.
-#
-# + value - Value to get the typedesc
-# + return - typedesc
-function ^"typeof"(any value) returns typedesc = external;

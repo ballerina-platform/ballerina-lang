@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.util.Lists;
 /**
  * {@code BTypeofOperatorSymbol} represents symbol for typeof operator.
  *
- * @since 0.991
+ * @since 0.995
  */
 public class BTypeofOperatorSymbol extends BOperatorSymbol {
 
