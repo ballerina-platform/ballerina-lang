@@ -74,6 +74,12 @@ public class ErrorValue extends RuntimeException implements RefValue {
         // do nothing, since error types are always frozen
     }
 
+    @Override
+    public String toString() {
+        return stringValue();
+    }
+
+
     public String getReason() {
         return reason;
     }
