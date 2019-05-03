@@ -80,8 +80,6 @@ import javax.net.ssl.SSLParameters;
 
 import static org.wso2.transport.http.netty.contract.Constants.COLON;
 import static org.wso2.transport.http.netty.contract.Constants.HEADER_VAL_100_CONTINUE;
-import static org.wso2.transport.http.netty.contract.Constants.HTTP2_VERSION;
-import static org.wso2.transport.http.netty.contract.Constants.HTTP_1_1_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_HOST;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_PORT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
@@ -879,20 +877,12 @@ public class Util {
     private static void setPassthroughBackOffListener(HttpCarbonMessage outboundMessage,
                                                       BackPressureHandler backpressureHandler,
                                                       ChannelHandlerContext ctx) {
-        String httpVersion = (String) outboundMessage.getProperty(Constants.HTTP_VERSION);
-        //Which passthough listener to use should be decided based on the version instead of inbound listener type
-        //because in HTTP/1.1, inbound listener is completely removed if its a passthrough scenario.
-        if (HTTP_1_1_VERSION.equals(httpVersion)) {
-            if (ctx != null) {
-                backpressureHandler.getBackPressureObservable().setListener(
-                    new PassthroughBackPressureListener(ctx));
-            }
-        } else if (HTTP2_VERSION.equals(httpVersion)) {
-            Listener inboundListener = outboundMessage.getListener();
-            if (inboundListener instanceof Http2InboundContentListener) {
-                backpressureHandler.getBackPressureObservable().setListener(
-                    new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
-            }
+        Listener inboundListener = outboundMessage.getListener();
+        if (inboundListener instanceof Http2InboundContentListener) {
+            backpressureHandler.getBackPressureObservable().setListener(
+                new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
+        } else if (inboundListener instanceof DefaultListener && ctx != null) {
+            backpressureHandler.getBackPressureObservable().setListener(new PassthroughBackPressureListener(ctx));
         }
     }
 

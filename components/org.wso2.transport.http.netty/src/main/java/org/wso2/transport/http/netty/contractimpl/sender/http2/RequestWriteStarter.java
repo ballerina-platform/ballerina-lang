@@ -66,8 +66,6 @@ public class RequestWriteStarter {
      * Backoff scenarios involved here are (request HTTP/2-HTTP/2) and (request HTTP/1.1-HTTP/2).
      */
     private void setPassthroughBackOffListener() {
-        //Passthrough listener can be set based on the inbound listener type instead of version because HTTP/2 inbound
-        //listener is never removed for HTTP/2.
         Listener inboundListener = outboundMsgHolder.getRequest().getListener();
         if (inboundListener instanceof Http2InboundContentListener) {
             outboundMsgHolder.getBackPressureObservable().setListener(
