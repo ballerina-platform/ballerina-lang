@@ -20,7 +20,6 @@ package org.ballerinalang.test.util;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
-import org.ballerinalang.jvm.BLangVMErrors;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
