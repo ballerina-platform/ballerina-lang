@@ -14,15 +14,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
-http:AuthProvider basicAuthProvider04 = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+auth:JWTAuthProvider jwtAuthProvider06_1 = new({
+    issuer: "example1",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
+    }
+});
 
-listener http:Listener listener04 = new(9093, config = {
-    authProviders: [basicAuthProvider04],
+auth:JWTAuthProvider jwtAuthProvider06_2 = new({
+    issuer: "example2",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
+    }
+});
+
+
+http:JwtAuthnHandler jwtAuthnHandler06_1 = new(jwtAuthProvider06_1);
+http:JwtAuthnHandler jwtAuthnHandler06_2 = new(jwtAuthProvider06_2);
+
+listener http:Listener listener06 = new(9097, config = {
+    auth: {
+        authnHandlers: [jwtAuthnHandler06_1, jwtAuthnHandler06_2]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -34,17 +56,9 @@ listener http:Listener listener04 = new(9093, config = {
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service echo04 on listener04 {
+service echo06 on listener06 {
 
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/test",
-        authConfig: {
-            authentication: { enabled: true },
-            scopes: ["scope2"]
-        }
-    }
-    resource function echo(http:Caller caller, http:Request req) {
+    resource function test(http:Caller caller, http:Request req) {
         checkpanic caller->respond(());
     }
 }

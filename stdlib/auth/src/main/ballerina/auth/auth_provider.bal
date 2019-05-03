@@ -14,26 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
+# Represents the auth provider. Any type of implementation, such as LDAP, JDBC, file based, etc.
+# should be object-wise similar
+public type AuthProvider abstract object {
 
-http:AuthProvider basicAuthProvider07 = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
+    # Authenticate with credential value passed.
+    #
+    # + credential - Credential value
+    # + return - True if authentication is a success, else false or `error` occurred
+    public function authenticate(string credential) returns boolean|error;
 };
-
-listener http:Listener listener07 = new(9098, config = {
-    authProviders: [basicAuthProvider07],
-    secureSocket: {
-        keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
-        }
-    }
-});
-
-service echo7 on listener07 {
-
-    resource function test7(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
-    }
-}

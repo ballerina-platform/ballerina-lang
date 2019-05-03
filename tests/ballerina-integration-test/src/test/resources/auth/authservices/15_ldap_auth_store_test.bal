@@ -17,7 +17,7 @@
 import ballerina/auth;
 import ballerina/http;
 
-auth:LdapAuthProviderConfig ldapAuthProviderConfig = {
+auth:LdapAuthStoreProviderConfig ldapConfig02 = {
     domainName: "ballerina.io",
     connectionURL: "ldap://localhost:9389",
     connectionName: "uid=admin,ou=system",
@@ -40,15 +40,13 @@ auth:LdapAuthProviderConfig ldapAuthProviderConfig = {
     retryAttempts: 3
 };
 
-http:AuthProvider basicAuthProvider = {
-    id: "basic01",
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:LDAP_AUTH_STORE,
-    config: ldapAuthProviderConfig
-};
+auth:LdapAuthStoreProvider ldapAuthStoreProvider02 = new(ldapConfig02, "ldap01");
+http:BasicAuthnHandler ldapAuthnHandler02 = new(ldapAuthStoreProvider02);
 
-listener http:Listener ep = new(9096, config = {
-    authProviders: [basicAuthProvider],
+listener http:Listener ep = new(9111, config = {
+    auth: {
+        authnHandlers: [ldapAuthnHandler02]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -59,8 +57,8 @@ listener http:Listener ep = new(9096, config = {
 
 @http:ServiceConfig {
     basePath: "/ldapAuth",
-    authConfig: {
-        authentication: { enabled: true }
+    auth: {
+        enabled: true
     }
 }
 service helloService on ep {
@@ -76,7 +74,7 @@ service helloService on ep {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/enableAuthz",
-        authConfig: {
+        auth: {
             scopes: ["test"]
         }
     }
@@ -87,7 +85,7 @@ service helloService on ep {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/failAuthz",
-        authConfig: {
+        auth: {
             scopes: ["admin", "support"]
         }
     }

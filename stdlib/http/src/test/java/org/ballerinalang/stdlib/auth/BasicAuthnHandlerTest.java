@@ -23,7 +23,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -37,9 +37,9 @@ import java.nio.file.Paths;
 import java.util.Collections;
 
 /**
- * Authentication handler chain Testcase.
+ * Authentication handler testcase.
  */
-public class AuthnHandlerChainTest {
+public class BasicAuthnHandlerTest {
 
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
@@ -52,7 +52,7 @@ public class AuthnHandlerChainTest {
         Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider", BALLERINA_CONF);
 
         // Copy the ballerina.conf to the source root before starting the tests
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("authn-handler-chain-test.bal").toString());
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("basic-authn-handler-test.bal").toString());
 
         String secretFile = "secret.txt";
         Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);
@@ -70,39 +70,40 @@ public class AuthnHandlerChainTest {
         Files.copy(Paths.get(from), Paths.get(to));
     }
 
-    @Test(description = "Test case for creating authn handler chain")
-    public void testCreateAuthnHandlerChain() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateAuthnHandlerChain");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertNotNull(returns[0]);
-    }
-
-    @Test(description = "Test case for authn handler chain authn failure scenario")
-    public void testAuthFailure() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthFailure");
+    @Test(description = "Test case for basic auth interceptor canHandle method, without the basic auth header")
+    public void testCanHandleHttpBasicAuthWithoutHeader() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpBasicAuthWithoutHeader");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for authn handler chain authn failure scenario with specific handlers")
-    public void testAuthFailureWithSpecificHandlers() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthFailureWithSpecificHandlers");
+    @Test(description = "Test case for basic auth interceptor canHandle method")
+    public void testCanHandleHttpBasicAuth() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpBasicAuth");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for basic auth interceptor authentication failure")
+    public void testHandleHttpBasicAuthFailure() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpBasicAuthFailure");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for authn handler chain authn success scenario")
-    public void testAuthSuccessWithSpecificHandlers() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthSuccessWithSpecificHandlers");
+    @Test(description = "Test case for basic auth interceptor authentication success")
+    public void testHandleHttpBasicAuth() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpBasicAuth");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for authn handler chain authn success scenario with specific handlers")
-    public void testAuthSuccess() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthSuccess");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    @Test(description = "Test case for extracting basic auth header value")
+    public void testExtractBasicAuthHeaderValue() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testExtractBasicAuthHeaderValue");
+        Assert.assertTrue(returns[0] instanceof BString);
+        // no error should be returned
+        Assert.assertEquals(returns[0].stringValue(), "Basic aXN1cnU6eHh4");
     }
 
     @AfterClass

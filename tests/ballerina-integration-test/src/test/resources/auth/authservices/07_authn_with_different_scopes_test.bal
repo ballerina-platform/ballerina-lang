@@ -14,15 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
-http:AuthProvider basicAuthProvider02 = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+auth:JWTAuthProvider jwtAuthProvider07 = new({
+    issuer: "ballerina",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
+    }
+});
 
-listener http:Listener listener02 = new(9091, config = {
-    authProviders: [basicAuthProvider02],
+http:JwtAuthnHandler jwtAuthnHandler07 = new(jwtAuthProvider07);
+
+listener http:Listener listener07 = new(9098, config = {
+    auth: {
+        authnHandlers: [jwtAuthnHandler07]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -33,21 +43,13 @@ listener http:Listener listener02 = new(9091, config = {
 
 @http:ServiceConfig {
     basePath: "/echo",
-    authConfig: {
-        authentication: { enabled: false },
-        scopes: ["xxx", "aaa"]
+    auth: {
+        scopes: ["test-scope"]
     }
 }
-service echo02 on listener02 {
+service echo07 on listener07 {
 
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/test",
-        authConfig: {
-            authentication: { enabled: true }
-        }
-    }
-    resource function echo(http:Caller caller, http:Request req) {
+    resource function test(http:Caller caller, http:Request req) {
         checkpanic caller->respond(());
     }
 }
