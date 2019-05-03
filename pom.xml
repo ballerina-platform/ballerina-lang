@@ -51,9 +51,9 @@
     </developers>
 
     <scm>
-        <url>https://github.com/ballerinalang/ballerina.git</url>
-        <developerConnection>scm:git:https://github.com/ballerinalang/ballerina.git</developerConnection>
-        <connection>scm:git:https://github.com/ballerinalang/ballerina.git</connection>
+        <url>https://github.com/ballerina-platform/ballerina-lang.git</url>
+        <developerConnection>scm:git:https://github.com/ballerina-platform/ballerina-lang.git</developerConnection>
+        <connection>scm:git:https://github.com/ballerina-platform/ballerina-lang.git</connection>
         <tag>HEAD</tag>
     </scm>
 
