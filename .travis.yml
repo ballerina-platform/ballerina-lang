@@ -12,34 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-language: java
+language: shell
 
 sudo: required
 
 git:
   quiet: true
 
+os:
+  - windows
+
 services:
   - docker
 
-before_install:
-  - if [ $TRAVIS_OS_NAME == "linux" ]; then
-      export CXX="g++-4.9" CC="gcc-4.9" DISPLAY=:99.0;
-      sh -e /etc/init.d/xvfb start;
-      sleep 3;
-    fi
-
 install:
-  - . $HOME/.nvm/nvm.sh
-  - nvm install 8.9.0
-  - nvm use 8.9.0
-  - npm install -g npm@'5.6.0'
+  - choco install jdk8 -params 'installdir=c:\\java8'
+  - choco install nvm
+  - export JAVA_HOME="c:\\java8"
+  - choco install nodejs --version 8.16.0
 
 script:
-  - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
   - ./gradlew build jacocoTestReport --console=plain --stacktrace -scan
-  # Killing background sleep loop
-  - kill %1
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
