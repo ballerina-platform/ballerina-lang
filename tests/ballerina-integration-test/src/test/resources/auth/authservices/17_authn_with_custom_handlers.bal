@@ -61,7 +61,7 @@ public function CustomAuthnHandler.handle(http:Request req) returns boolean|erro
     return self.authProvider.authenticate(credential);
 }
 
-public function CustomAuthnHandler.canHandle(http:Request req) returns boolean|error {
+public function CustomAuthnHandler.canHandle(http:Request req) returns boolean {
     var customAuthHeader = req.getHeader(http:AUTH_HEADER);
     return customAuthHeader.hasPrefix("Custom");
 }
