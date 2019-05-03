@@ -62,7 +62,7 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
         assertUnauthorized(response);
     }
 
-    @Test(description = "Auth with JWT signed with expired trusted certificate")
+    @Test(description = "Auth with JWT signed with expired trusted certificate", enabled = false)
     public void testAuthnWithJWTSignedWithExpiredTrustedCertificate() throws Exception {
         // JWT used in the test:
         // {

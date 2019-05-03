@@ -39,6 +39,7 @@ dependencies {
 }
 
 test {
+    exclude "*/**"
     doFirst {
         copy {
             from "$buildDir/generated-balo/repo/ballerina"

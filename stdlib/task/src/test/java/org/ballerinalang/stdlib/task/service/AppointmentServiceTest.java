@@ -46,7 +46,8 @@ public class AppointmentServiceTest {
         });
     }
 
-    @Test(description = "Tests the functionality of initiating a Task Timer Listener with AppointmentData record.")
+    @Test(description = "Tests the functionality of initiating a Task Timer Listener with AppointmentData record.", 
+        enabled = false)
     public void testAppointmentDataConfigs() {
         CompileResult compileResult = BCompileUtil.compileAndSetup(
                 "listener/appointment/appointment_data_configs.bal");
