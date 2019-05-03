@@ -19,70 +19,52 @@ import ballerina/log;
 
 # Representation of JWT Auth handler for HTTP traffic
 #
-# + name - Name of the auth handler
-# + jwtAuthenticator - `JWTAuthenticator` instance
-public type HttpJwtAuthnHandler object {
+# + authProvider - `JWTAuthProvider` instance
+public type JwtAuthnHandler object {
 
-    public string name = "jwt";
-    public auth:JWTAuthProvider jwtAuthenticator;
+    *AuthnHandler;
 
-    public function __init(auth:JWTAuthProvider jwtAuthenticator) {
-        self.jwtAuthenticator = jwtAuthenticator;
+    public auth:AuthProvider authProvider;
+
+    public function __init(auth:AuthProvider authProvider) {
+        self.authProvider = authProvider;
     }
-
-    # Checks if the request can be authenticated with JWT
-    #
-    # + req - `Request` instance
-    # + return - true if can be authenticated, else false
-    public function canHandle(Request req) returns boolean;
-
-    # Authenticates the incoming request using JWT authentication
-    #
-    # + req - `Request` instance
-    # + return - true if authenticated successfully, else false
-    public function handle(Request req) returns boolean;
 };
 
-public function HttpJwtAuthnHandler.canHandle(Request req) returns boolean {
-    string authHeader = "";
-    var headerValue = trap req.getHeader(AUTH_HEADER);
-    if (headerValue is string) {
-        authHeader = headerValue;
-    } else {
-        string reason = headerValue.reason();
-        log:printDebug(function () returns string {
-            return "Error in retrieving header " + AUTH_HEADER + ": " + reason;
-        });
-        return false;
-    }
-
-    if (authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
-        string[] authHeaderComponents = authHeader.split(" ");
-        if (authHeaderComponents.length() == 2) {
-            string[] jwtComponents = authHeaderComponents[1].split("\\.");
-            if (jwtComponents.length() == 3) {
-                return true;
+# Checks if the request can be authenticated with JWT
+#
+# + req - `Request` instance
+# + return - `true` if can be authenticated, else `false`
+public function JwtAuthnHandler.canHandle(Request req) returns boolean {
+    if (req.hasHeader(AUTH_HEADER)) {
+        string headerValue = extractAuthorizationHeaderValue(req);
+        if (headerValue.hasPrefix(AUTH_SCHEME_BEARER)) {
+            string[] authHeaderComponents = headerValue.split(" ");
+            if (authHeaderComponents.length() == 2) {
+                string[] jwtComponents = authHeaderComponents[1].split("\\.");
+                if (jwtComponents.length() == 3) {
+                    return true;
+                }
             }
         }
     }
     return false;
 }
 
-public function HttpJwtAuthnHandler.handle(Request req) returns boolean {
+# Authenticates the incoming request using JWT authentication
+#
+# + req - `Request` instance
+# + return - `true` if authenticated successfully, else `false`, or `error` in case of errors
+public function JwtAuthnHandler.handle(Request req) returns boolean|error {
     string jwtToken = extractJWTToken(req);
-    var authenticated = self.jwtAuthenticator.authenticate(jwtToken);
+    var authenticated = self.authProvider.authenticate(jwtToken);
     if (authenticated is boolean) {
         return authenticated;
     } else {
-        log:printError("Error while validating JWT token ", err = authenticated);
+        return prepareError("Error while validating JWT token");
     }
-    return false;
 }
 
-# Extracts the JWT from the incoming request
-#
-# + req - `Request` instance
-# + return - Extracted JWT string
 function extractJWTToken(Request req) returns string {
     string authHeader = req.getHeader(AUTH_HEADER);
     string[] authHeaderComponents = authHeader.split(" ");

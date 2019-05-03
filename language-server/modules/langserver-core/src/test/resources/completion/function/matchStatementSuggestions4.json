@@ -6,14 +6,14 @@
   "source": "function/source/matchStatementSuggestions4.bal",
   "items": [
     {
-      "label":"extractBasicAuthHeaderValue(req)",
+      "label":"extractAuthorizationHeaderValue(req)",
       "kind":"Function",
       "detail":"Snippet",
       "documentation":{
-        "left":"Extracts the basic authentication header value from the request.\n"
+        "left":"Extracts the Authorization header value from the request.\n"
       },
       "sortText":"120",
-      "insertText":"extractBasicAuthHeaderValue(req) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText":"extractAuthorizationHeaderValue(req) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
     },
     {

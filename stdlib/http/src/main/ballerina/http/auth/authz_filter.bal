@@ -14,20 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/auth;
 import ballerina/cache;
 import ballerina/reflect;
 
 # Representation of the Authorization filter
 #
-# + authzHandler - `HttpAuthzHandler` instance for handling authorization
+# + authzHandler - `AuthzHandler` instance for handling authorization
+# + scopes - Array of scopes
 public type AuthzFilter object {
 
-    public HttpAuthzHandler authzHandler;
+    public AuthzHandler authzHandler;
+    public string[]? scopes;
 
-    public function __init(HttpAuthzHandler authzHandler) {
+    public function __init(AuthzHandler authzHandler, string[]? scopes) {
         self.authzHandler = authzHandler;
+        self.scopes = scopes;
     }
 
     # Filter function implementation which tries to authorize the request
@@ -37,35 +39,23 @@ public type AuthzFilter object {
     # + context - `FilterContext` instance
     # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        // first check if the resource is marked to be authenticated. If not, no need to authorize.
-        ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
-            reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
-        ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
-            reflect:getServiceAnnotations(context.serviceRef));
-        if (!isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn)) {
-            // not secured, no need to authorize
-            return isAuthzSuccessfull(caller, true);
-        }
-
-        string[]? scopes = getScopesForResource(resourceLevelAuthAnn, serviceLevelAuthAnn);
-        boolean authorized;
+        boolean|error authorized;
+        var scopes = getScopes(context);
         if (scopes is string[]) {
-            if (scopes.length() > 0) {
-                if (self.authzHandler.canHandle(request)) {
-                    authorized = self.authzHandler.handle(runtime:getInvocationContext().principal.username,
-                        context.serviceName, context.resourceName, request.method, scopes);
+            authorized = handleAuthzRequest(self.authzHandler, request, context, scopes);
+        } else {
+            if (scopes) {
+                var selfScopes = self.scopes;
+                if (selfScopes is string[]) {
+                    authorized = handleAuthzRequest(self.authzHandler, request, context, selfScopes);
                 } else {
-                    authorized = false;
+                    authorized = true;
                 }
             } else {
-                // scopes are not defined, no need to authorize
                 authorized = true;
             }
-        } else {
-            // scopes are not defined, no need to authorize
-            authorized = true;
         }
-        return isAuthzSuccessfull(caller, authorized);
+        return isAuthzSuccessful(caller, authorized);
     }
 
     public function filterResponse(Response response, FilterContext context) returns boolean {
@@ -73,17 +63,42 @@ public type AuthzFilter object {
     }
 };
 
+function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterContext context, string[] scopes) returns boolean|error {
+    boolean|error authorized;
+    if (scopes.length() > 0) {
+        var canHandleResponse = authzHandler.canHandle(request);
+        if (canHandleResponse is boolean && canHandleResponse) {
+            authorized = authzHandler.handle(runtime:getInvocationContext().principal.username,
+                context.serviceName, context.resourceName, request.method, scopes);
+        } else {
+            authorized = canHandleResponse;
+        }
+    } else {
+        // scopes are not defined, no need to authorize
+        authorized = true;
+    }
+    return authorized;
+}
+
 # Verifies if the authorization is successful. If not responds to the user.
 #
 # + caller - Caller for outbound HTTP responses
-# + authorized - flag to indicate if authorization is successful or not
-# + return - A boolean flag to indicate if the request flow should be continued(true) or
-#            aborted(false)
-function isAuthzSuccessfull(Caller caller, boolean authorized) returns boolean {
+# + authorized - Authorization status for the request, or `error` if error occured
+# + return - Authorization result to indicate if the filter can proceed(true) or not(false)
+function isAuthzSuccessful(Caller caller, boolean|error authorized) returns boolean {
     Response response = new;
-    if (!authorized) {
-        response.statusCode = 403;
-        response.setTextPayload("Authorization failure");
+    response.statusCode = 403;
+    if (authorized is boolean) {
+        if (!authorized) {
+            response.setTextPayload("Authorization failure");
+            var err = caller->respond(response);
+            if (err is error) {
+                panic err;
+            }
+            return false;
+        }
+    } else {
+        response.setTextPayload("Authorization failure. " + authorized.reason());
         var err = caller->respond(response);
         if (err is error) {
             panic err;
@@ -91,21 +106,4 @@ function isAuthzSuccessfull(Caller caller, boolean authorized) returns boolean {
         return false;
     }
     return true;
-}
-
-# Retrieves the scope for the resource, if any
-#
-# + resourceLevelAuthAnn - `ListenerAuthConfig` instance denoting resource level auth annotation details
-# + serviceLevelAuthAnn - `ListenerAuthConfig` instance denoting service level auth annotation details
-# + return - Array of scopes for the given resource or nil of no scopes are defined
-function getScopesForResource (ListenerAuthConfig? resourceLevelAuthAnn, ListenerAuthConfig? serviceLevelAuthAnn)
-                                                                                            returns (string[]|()) {
-    if (resourceLevelAuthAnn.scopes is string[]) {
-        return resourceLevelAuthAnn.scopes;
-    } else {
-        if (serviceLevelAuthAnn.scopes is string[]) {
-            return serviceLevelAuthAnn.scopes;
-        }
-        return ();
-    }
 }

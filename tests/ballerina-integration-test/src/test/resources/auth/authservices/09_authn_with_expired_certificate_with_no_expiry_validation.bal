@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,15 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
-http:AuthProvider basicAuthProvider03 = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+auth:JWTAuthProvider jwtAuthProvider09 = new({
+    issuer:"ballerina",
+    audience: ["ballerina.io"],
+    certificateAlias: "cert",
+    validateCertificate: false,
+    trustStore: {
+        path: "../../../src/test/resources/auth/testtruststore.p12",
+        password: "ballerina"
+    }
+});
 
-listener http:Listener listener03 = new(9092, config = {
-    authProviders: [basicAuthProvider03],
+http:JwtAuthnHandler jwtAuthnHandler09 = new(jwtAuthProvider09);
+
+listener http:Listener listener09 = new(9100, config = {
+    auth: {
+        authnHandlers: [jwtAuthnHandler09]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -32,22 +43,11 @@ listener http:Listener listener03 = new(9092, config = {
 });
 
 @http:ServiceConfig {
-    basePath: "/echo",
-    authConfig: {
-        authentication: { enabled: true },
-        scopes: ["xxx"]
-    }
+    basePath: "/echo"
 }
-service echo03 on listener03 {
+service echo09 on listener09 {
 
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/test",
-        authConfig: {
-            scopes: ["scope2", "scope4"]
-        }
-    }
-    resource function echo(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+    resource function test(http:Caller caller, http:Request req) {
+        checkpanic caller -> respond(());
     }
 }

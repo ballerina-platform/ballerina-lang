@@ -14,15 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
-http:AuthProvider basicAuthProvider05 = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+auth:ConfigAuthStoreProvider basicAuthProvider04 = new;
+http:BasicAuthnHandler basicAuthnHandler04 = new(basicAuthProvider04);
 
-listener http:Listener listener05 = new(9094, config = {
-    authProviders: [basicAuthProvider05],
+listener http:Listener listener04 = new(9095, config = {
+    auth: {
+        authnHandlers: [basicAuthnHandler04]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -33,26 +34,17 @@ listener http:Listener listener05 = new(9094, config = {
 
 @http:ServiceConfig {
     basePath: "/echo",
-    authConfig: {
-        authentication: { enabled: true },
-        scopes: ["scope2"]
+    auth: {
+        enabled: true,
+        scopes: ["scope4"]
     }
 }
-service echo05 on listener05 {
+service echo04 on listener04 {
 
     @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/test"
+        methods: ["GET"]
     }
-    resource function echo(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
-    }
-
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/path/{id}"
-    }
-    resource function path(http:Caller caller, http:Request req, string id) {
+    resource function test(http:Caller caller, http:Request req) {
         checkpanic caller->respond(());
     }
 }
