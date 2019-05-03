@@ -3546,6 +3546,9 @@ public class Desugar extends BLangNodeVisitor {
             case CALL:
                 visitCallBuiltInMethodInvocation(iExpr);
                 break;
+            case NEXT:
+                result = visitNextBuiltInMethodInvocation(iExpr);
+                break;
             default:
                 result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
         }
@@ -3563,6 +3566,20 @@ public class Desugar extends BLangNodeVisitor {
         BLangInvocation invocationExprMethod = ASTBuilderUtil
                 .createInvocationExprMethod(pos, invokableSymbol, requiredArgs,
                                             new ArrayList<>(), new ArrayList<>(), symResolver);
+        return rewrite(invocationExprMethod, env);
+    }
+
+    private BLangInvocation visitNextBuiltInMethodInvocation(BLangInvocation iExpr) {
+        BInvokableSymbol invokableSymbol =
+                (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(symTable.utilsPackageSymbol),
+                        names.fromString(iExpr.builtInMethod.getName()), SymTag.FUNCTION);
+        BLangTypedescExpr typeDecExpr = new BLangTypedescExpr();
+        typeDecExpr.type = symTable.typeDesc;
+        typeDecExpr.resolvedType = iExpr.type;
+        List<BLangExpression> requiredArgs = Lists.of(iExpr.expr, typeDecExpr);
+
+        BLangInvocation invocationExprMethod = ASTBuilderUtil.createInvocationExprMethod(iExpr.pos, invokableSymbol,
+                requiredArgs, new ArrayList<>(), new ArrayList<>(), symResolver);
         return rewrite(invocationExprMethod, env);
     }
 

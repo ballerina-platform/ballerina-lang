@@ -662,3 +662,10 @@ public function testSelfReferencingRecord() returns Foo {
     Foo f2 = {a:2, f:f1};
     return f2;
 }
+
+public function testIterator() returns any {
+    map<string> m = {"name":"John"};
+    foreach var entry in m {
+        return entry;
+    } 
+}
