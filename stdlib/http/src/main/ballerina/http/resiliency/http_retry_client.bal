@@ -421,8 +421,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
 
 function getWaitTime(float backOffFactor, int maxWaitTime, int interval) returns int {
     int waitTime = math:round(interval * backOffFactor);
-    waitTime = waitTime > maxWaitTime ? maxWaitTime : waitTime;
-    return waitTime;
+    return (waitTime > maxWaitTime ? maxWaitTime : waitTime);
 }
 
 function calculateEffectiveIntervalAndRetryCount(RetryClient retryClient, int currentRetryCount, int currentDelay)
