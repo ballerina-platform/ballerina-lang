@@ -553,12 +553,12 @@ workerSendAsyncStatement
     ;
 
 peerWorker
-    : workerName
-    | DEFAULT
+    :   workerName
+    |   DEFAULT
     ;
 
 workerName
-    : Identifier
+    :   Identifier
     ;
 
 flushWorker

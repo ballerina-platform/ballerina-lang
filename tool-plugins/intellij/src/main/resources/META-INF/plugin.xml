@@ -37,11 +37,9 @@
 
         <!--lsp4intellij extensions-->
         <completion.contributor implementationClass="org.wso2.lsp4intellij.contributors.LSPCompletionContributor"
-                                id="LSPCompletionContributor" language="any"/>
+                                id="LSPCompletionContributor" language="Ballerina"/>
 
-        <localInspection displayName="LSP"
-                         shortName="LSP"
-                         enabledByDefault="true"
+        <localInspection displayName="LSP" shortName="LSP" enabledByDefault="true"
                          implementationClass="org.wso2.lsp4intellij.contributors.inspection.DummyLSPInspection"/>
 
         <!--Ballerina plugin extensions-->
