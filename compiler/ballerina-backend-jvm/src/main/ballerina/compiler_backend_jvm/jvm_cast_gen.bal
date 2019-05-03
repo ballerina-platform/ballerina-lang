@@ -75,7 +75,7 @@ function generateCheckCastToInt(jvm:MethodVisitor mv, bir:BType sourceType) {
             sourceType is bir:BUnionType ||
             sourceType is bir:BJSONType ||
             sourceType is bir:BFiniteType) {
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", io:sprintf("(L%s;)J", OBJECT), false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "anyToInt", io:sprintf("(L%s;)J", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'int'", sourceType));
         panic err;
