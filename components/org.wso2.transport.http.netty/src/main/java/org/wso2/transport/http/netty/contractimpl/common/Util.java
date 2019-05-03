@@ -850,7 +850,7 @@ public class Util {
      * Sets the backPressure listener the to the Observable of the handler.
      *
      * @param outboundMessage     represents the outbound request or response
-     * @param backpressureHandler the handler that checks for writability
+     * @param backpressureHandler the handler that checks the writability
      * @param ctx                 represents channel handler context
      */
     public static void setBackPressureListener(HttpCarbonMessage outboundMessage,
@@ -871,7 +871,7 @@ public class Util {
      * and (response HTTP/2-HTTP/1.1).
      *
      * @param outboundMessage     represent the outbound request or response
-     * @param backpressureHandler the handler that checks for writability
+     * @param backpressureHandler the handler that checks the writability
      * @param ctx                 represents channel handler context
      */
     private static void setPassthroughBackOffListener(HttpCarbonMessage outboundMessage,
