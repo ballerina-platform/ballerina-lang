@@ -55,26 +55,26 @@ public type AuthnFilter object {
 };
 
 function handleAuthnRequest(AuthnHandler[] authnHandlers, Request request) returns boolean|error {
-    //TODO: Discuss how we can return the error here.
+    error? err = ();
     foreach AuthnHandler authnHandler in authnHandlers {
-        var canHandleResponse = authnHandler.canHandle(request);
-        if (canHandleResponse is boolean) {
-            if (canHandleResponse) {
-                var handleResponse = authnHandler.handle(request);
-                if (handleResponse is boolean) {
-                    if (handleResponse) {
-                        // If one of the authenticators from the chain could successfully authenticate the user, it is not
-                        // required to look through other providers. The authenticator chain is using "OR" combination of
-                        // provider results.
-                        return true;
-                    }
-                } else {
-                    //return handleResponse;
+        boolean canHandleResponse = authnHandler.canHandle(request);
+        if (canHandleResponse) {
+            var handleResponse = authnHandler.handle(request);
+            if (handleResponse is boolean) {
+                if (handleResponse) {
+                    // If one of the authenticators from the chain could successfully authenticate the user, it is not
+                    // required to look through other providers. The authenticator chain is using "OR" combination of
+                    // provider results.
+                    return true;
                 }
+            } else {
+                err = handleResponse;
             }
-        } else {
-            //return canHandleResponse;
         }
+    }
+
+    if (err is error) {
+        return err;
     }
     return false;
 }

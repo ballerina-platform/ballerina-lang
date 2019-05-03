@@ -46,15 +46,10 @@ public const JWT_AUTH = "JWT_AUTH";
 # Extracts the Authorization header value from the request.
 #
 # + req - Request instance
-# + return - Value of the basic authentication header, or `error` in case of errors
-public function extractAuthorizationHeaderValue(Request req) returns string|error {
+# + return - Value of the Authorization header
+public function extractAuthorizationHeaderValue(Request req) returns string {
     // extract authorization header
-    var headerValue = trap req.getHeader(AUTH_HEADER);
-    if (headerValue is string) {
-        return headerValue;
-    } else {
-        return prepareError("Error in retrieving header - " + AUTH_HEADER, err = headerValue);
-    }
+    return req.getHeader(AUTH_HEADER);
 }
 
 # Tries to retrieve the authentication handlers hierarchically - first from the resource level and then

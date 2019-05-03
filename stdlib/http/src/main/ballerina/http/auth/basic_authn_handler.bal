@@ -38,25 +38,19 @@ public type BasicAuthnHandler object {
 # + req - Request object
 # + return - `true` if it is possible authenticate with basic auth, else `false`, or `error` in case of errors
 public function BasicAuthnHandler.handle(Request req) returns boolean|error {
-    // extract the header value
-    var basicAuthHeader = extractAuthorizationHeaderValue(req);
-    if (basicAuthHeader is string) {
-        string credential = basicAuthHeader.substring(5, basicAuthHeader.length()).trim();
-        return self.authProvider.authenticate(credential);
-    } else {
-        return basicAuthHeader;
-    }
+    string basicAuthHeader = extractAuthorizationHeaderValue(req);
+    string credential = basicAuthHeader.substring(5, basicAuthHeader.length()).trim();
+    return self.authProvider.authenticate(credential);
 }
 
 # Intercept requests for authentication.
 #
 # + req - Request object
-# + return - `true` if authentication is a success, else `false`, or `error` in case of errors
-public function BasicAuthnHandler.canHandle(Request req) returns boolean|error {
-    var basicAuthHeader = extractAuthorizationHeaderValue(req);
-    if (basicAuthHeader is string) {
+# + return - `true` if authentication is a success, else `false`
+public function BasicAuthnHandler.canHandle(Request req) returns boolean {
+    if (req.hasHeader(AUTH_HEADER)) {
+        string basicAuthHeader = extractAuthorizationHeaderValue(req);
         return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
-    } else {
-        return basicAuthHeader;
     }
+    return false;
 }
