@@ -137,14 +137,15 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
 
     private static void updateBallerinaPathModificationTracker(Project project, ProjectStatus status) {
         String balSdkPath = getBallerinaSdk(project);
-        if (balSdkPath != null) {
-            Path balxPath = Paths.get(balSdkPath, ballerinaSourcePath);
-            if (balxPath.toFile().isDirectory()) {
-                if (status == ProjectStatus.OPENED) {
-                    BallerinaPathModificationTracker.addPath(balxPath.toString());
-                } else if (status == ProjectStatus.CLOSED) {
-                    BallerinaPathModificationTracker.removePath(balxPath.toString());
-                }
+        if (balSdkPath == null) {
+            return;
+        }
+        Path balxPath = Paths.get(balSdkPath, ballerinaSourcePath);
+        if (balxPath.toFile().isDirectory()) {
+            if (status == ProjectStatus.OPENED) {
+                BallerinaPathModificationTracker.addPath(balxPath.toString());
+            } else if (status == ProjectStatus.CLOSED) {
+                BallerinaPathModificationTracker.removePath(balxPath.toString());
             }
         }
     }
@@ -169,8 +170,8 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         String balBatchScript = Paths.get(sdkPath, "bin", "ballerina.bat").toString();
         String launcherShellScript = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.sh").toString();
         String launcherBatchScript = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.bat").toString();
-        return (new File(balShellScript).exists() || new File(balBatchScript).exists())
-                && (new File(launcherShellScript).exists() || new File(launcherBatchScript).exists());
+        return (new File(balShellScript).exists() || new File(launcherShellScript).exists()) && (
+                new File(balBatchScript).exists() || new File(launcherBatchScript).exists());
     }
 
     private enum ProjectStatus {

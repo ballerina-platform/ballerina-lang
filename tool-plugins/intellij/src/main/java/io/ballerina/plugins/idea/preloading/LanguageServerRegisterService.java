@@ -15,6 +15,7 @@
  */
 package io.ballerina.plugins.idea.preloading;
 
+import io.ballerina.plugins.idea.extensions.BallerinaLSPExtensionManager;
 import org.wso2.lsp4intellij.IntellijLanguageClient;
 import org.wso2.lsp4intellij.client.languageserver.serverdefinition.RawCommandServerDefinition;
 
@@ -25,5 +26,6 @@ public class LanguageServerRegisterService {
 
     static void register(String[] args) {
         IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal", args));
+        IntellijLanguageClient.addExtensionManager("bal", new BallerinaLSPExtensionManager());
     }
 }
