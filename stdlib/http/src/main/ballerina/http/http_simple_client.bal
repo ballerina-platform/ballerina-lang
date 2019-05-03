@@ -118,13 +118,13 @@ public type HttpClient client object {
     # + return - An HTTP response message, or an `error` if the invocation fails
     public remote function getResponse(HttpFuture httpFuture) returns Response|error;
 
-    # Retrieves the next available `PushPromise` for a previously submitted request.
+    # Check whether there exists a `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
     public remote function hasPromise(HttpFuture httpFuture) returns (boolean);
 
-    # Retrieves the promised server push `Response` message.
+    # Retrieves the next available `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP `PushPromise` message, or an `error` if the invocation fails
