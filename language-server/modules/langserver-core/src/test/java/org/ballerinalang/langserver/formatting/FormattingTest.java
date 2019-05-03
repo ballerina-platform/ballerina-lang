@@ -144,6 +144,7 @@ public class FormattingTest {
                 {"expectedImportOrder.bal", "importOrder.bal"},
                 {"expectedBlockExpandOnDemand.bal", "blockExpandOnDemand.bal"},
                 {"expectedNamedArgsExpr.bal", "namedArgsExpr.bal"},
+                {"expectedRestArgsExpr.bal", "restArgsExpr.bal"},
         };
     }
 
