@@ -16,6 +16,11 @@
 
 function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module, bir:BType? attachedType = ()) {
 
+    // skip code generation, if this is an extern function
+    if (isExternFunc(func)) {
+        return;
+    }
+
     string currentPackageName = getPackageName(module.org.value, module.name.value);
 
     BalToJVMIndexMap indexMap = new;
