@@ -74,7 +74,8 @@ public class BasicAuthnHandlerTest {
     @Test(description = "Test case for basic auth interceptor canHandle method, without the basic auth header")
     public void testCanHandleHttpBasicAuthWithoutHeader() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpBasicAuthWithoutHeader");
-        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test case for basic auth interceptor canHandle method")
@@ -96,12 +97,6 @@ public class BasicAuthnHandlerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpBasicAuth");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test(description = "Test case for extracting non existing basic auth header value")
-    public void testNonExistingBasicAuthHeaderValue() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistingBasicAuthHeaderValue");
-        Assert.assertTrue(returns[0] instanceof BError);
     }
 
     @Test(description = "Test case for extracting basic auth header value")

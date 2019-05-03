@@ -17,7 +17,7 @@
 import ballerina/auth;
 import ballerina/http;
 
-function testCanHandleHttpBasicAuthWithoutHeader() returns boolean|error {
+function testCanHandleHttpBasicAuthWithoutHeader() returns boolean {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     http:BasicAuthnHandler handler = new(configAuthStoreProvider);
     http:Request inRequest = createRequest();
@@ -26,7 +26,7 @@ function testCanHandleHttpBasicAuthWithoutHeader() returns boolean|error {
     return handler.canHandle(inRequest);
 }
 
-function testCanHandleHttpBasicAuth() returns boolean|error {
+function testCanHandleHttpBasicAuth() returns boolean {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     http:BasicAuthnHandler handler = new(configAuthStoreProvider);
     http:Request inRequest = createRequest();
@@ -51,12 +51,6 @@ function testHandleHttpBasicAuth() returns boolean|error {
     string basicAuthHeaderValue = "Basic aXN1cnU6eHh4";
     inRequest.setHeader("Authorization", basicAuthHeaderValue);
     return handler.handle(inRequest);
-}
-
-function testNonExistingBasicAuthHeaderValue() returns string|error {
-    // create dummy request
-    http:Request inRequest = createRequest();
-    return http:extractAuthorizationHeaderValue(inRequest);
 }
 
 function testExtractBasicAuthHeaderValue() returns string|error {
