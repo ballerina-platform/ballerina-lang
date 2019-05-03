@@ -55,7 +55,7 @@ import java.util.Map;
  * @param <RunningState> Running state of the Ballerina program
  */
 public abstract class BallerinaRunConfigurationBase<RunningState extends BallerinaRunningState>
-        extends ModuleBasedConfiguration<BallerinaModuleBasedConfiguration>
+        extends ModuleBasedConfiguration<BallerinaModuleBasedConfiguration, Element>
         implements RunConfigurationWithSuppressedDefaultRunAction, RunConfigurationWithSuppressedDefaultDebugAction {
 
     private static final String WORKING_DIRECTORY_NAME = "working_directory";
