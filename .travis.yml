@@ -12,24 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-language: shell
+language: node_js
+node_js:
+  - "8"
 
 sudo: required
 
 git:
   quiet: true
 
-os:
-  - windows
+matrix:
+  include:
+  - os: windows
+    language: node_js
 
 services:
   - docker
 
 install:
   - choco install jdk8 -params 'installdir=c:\\java8'
-  - choco install nvm
   - export JAVA_HOME="c:\\java8"
-  - choco install nodejs --version 8.16.0
 
 script:
   - ./gradlew build jacocoTestReport --console=plain --stacktrace -scan --no-daemon
