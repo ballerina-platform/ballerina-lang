@@ -56,6 +56,8 @@ import org.wso2.transport.http.netty.contractimpl.sender.CertificateValidationHa
 import org.wso2.transport.http.netty.contractimpl.sender.OCSPStaplingHandler;
 import org.wso2.transport.http.netty.message.DefaultBackPressureListener;
 import org.wso2.transport.http.netty.message.DefaultListener;
+import org.wso2.transport.http.netty.message.Http2InboundContentListener;
+import org.wso2.transport.http.netty.message.Http2PassthroughBackPressureListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
@@ -78,6 +80,8 @@ import javax.net.ssl.SSLParameters;
 
 import static org.wso2.transport.http.netty.contract.Constants.COLON;
 import static org.wso2.transport.http.netty.contract.Constants.HEADER_VAL_100_CONTINUE;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP2_VERSION;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_1_1_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_HOST;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_PORT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
@@ -847,19 +851,47 @@ public class Util {
     /**
      * Sets the backPressure listener the to the Observable of the handler.
      *
-     * @param passthrough         true if passthrough
-     * @param backpressureHandler the handler that checks for writability.
-     * @param inContext           {@link ChannelHandlerContext} of a handler in the incoming channel.
+     * @param outboundMessage     represents the outbound request or response
+     * @param backpressureHandler the handler that checks for writability
+     * @param ctx                 represents channel handler context
      */
-    public static void setBackPressureListener(boolean passthrough, BackPressureHandler backpressureHandler,
-                                               ChannelHandlerContext inContext) {
+    public static void setBackPressureListener(HttpCarbonMessage outboundMessage,
+                                               BackPressureHandler backpressureHandler, ChannelHandlerContext ctx) {
         if (backpressureHandler != null) {
-            if (inContext != null && passthrough) {
-                backpressureHandler.getBackPressureObservable().setListener(
-                        new PassthroughBackPressureListener(inContext));
+            if (outboundMessage.isPassthrough()) {
+                setPassthroughBackOffListener(outboundMessage, backpressureHandler, ctx);
             } else {
                 backpressureHandler.getBackPressureObservable().setListener(
-                        new DefaultBackPressureListener());
+                    new DefaultBackPressureListener());
+            }
+        }
+    }
+
+    /**
+     * Based on the incoming request/response version, sets the relevant backpressure listener. Passthrough scenarios
+     * that are applicable here are (request HTTP/1.1-HTTP/1.1), (request HTTP/2-HTTP/1.1), (response HTTP/1.1-HTTP/1.1)
+     * and (response HTTP/2-HTTP/1.1).
+     *
+     * @param outboundMessage     represent the outbound request or response
+     * @param backpressureHandler the handler that checks for writability
+     * @param ctx                 represents channel handler context
+     */
+    private static void setPassthroughBackOffListener(HttpCarbonMessage outboundMessage,
+                                                      BackPressureHandler backpressureHandler,
+                                                      ChannelHandlerContext ctx) {
+        String httpVersion = (String) outboundMessage.getProperty(Constants.HTTP_VERSION);
+        //Which passthough listener to use should be decided based on the version instead of inbound listener type
+        //because in HTTP/1.1, inbound listener is completely removed if its a passthrough scenario.
+        if (HTTP_1_1_VERSION.equals(httpVersion)) {
+            if (ctx != null) {
+                backpressureHandler.getBackPressureObservable().setListener(
+                    new PassthroughBackPressureListener(ctx));
+            }
+        } else if (HTTP2_VERSION.equals(httpVersion)) {
+            Listener inboundListener = outboundMessage.getListener();
+            if (inboundListener instanceof Http2InboundContentListener) {
+                backpressureHandler.getBackPressureObservable().setListener(
+                    new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
             }
         }
     }

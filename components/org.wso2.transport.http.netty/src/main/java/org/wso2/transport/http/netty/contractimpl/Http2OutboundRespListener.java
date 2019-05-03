@@ -36,11 +36,13 @@ import org.wso2.transport.http.netty.contractimpl.listener.states.http2.SendingH
 import org.wso2.transport.http.netty.message.BackPressureObservable;
 import org.wso2.transport.http.netty.message.DefaultBackPressureListener;
 import org.wso2.transport.http.netty.message.DefaultBackPressureObservable;
+import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.Http2InboundContentListener;
 import org.wso2.transport.http.netty.message.Http2PassthroughBackPressureListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.Listener;
+import org.wso2.transport.http.netty.message.PassthroughBackPressureListener;
 
 import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -191,13 +193,26 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     private void setBackPressureListener(HttpCarbonMessage outboundResponseMsg, ResponseWriter writer) {
         if (outboundResponseMsg.isPassthrough()) {
-            Listener inboundListener = outboundResponseMsg.getListener();
-            if (inboundListener instanceof Http2InboundContentListener) {
-                writer.getBackPressureObservable().setListener(
-                    new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
-            }
+            setPassthroughBackOffListener(outboundResponseMsg, writer);
         } else {
             writer.getBackPressureObservable().setListener(new DefaultBackPressureListener());
+        }
+    }
+
+    /**
+     * Passthrough backoff scenarios involved here are (response HTTP/2-HTTP/2) and (response HTTP/1.1-HTTP/2).
+     *
+     * @param outboundResponseMsg outbound response message
+     * @param writer              HTTP/2 response writer
+     */
+    private void setPassthroughBackOffListener(HttpCarbonMessage outboundResponseMsg, ResponseWriter writer) {
+        Listener inboundListener = outboundResponseMsg.getListener();
+        if (inboundListener instanceof Http2InboundContentListener) {
+            writer.getBackPressureObservable().setListener(
+                new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
+        } else if (inboundListener instanceof DefaultListener) {
+            writer.getBackPressureObservable().setListener(
+                new PassthroughBackPressureListener(outboundResponseMsg.getTargetContext()));
         }
     }
 

@@ -22,9 +22,11 @@ package org.wso2.transport.http.netty.contractimpl.sender.http2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.DefaultBackPressureListener;
+import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.Http2InboundContentListener;
 import org.wso2.transport.http.netty.message.Http2PassthroughBackPressureListener;
 import org.wso2.transport.http.netty.message.Listener;
+import org.wso2.transport.http.netty.message.PassthroughBackPressureListener;
 
 /**
  * Starts writing HTTP/2 request content.
@@ -54,13 +56,25 @@ public class RequestWriteStarter {
 
     private void setBackPressureListener() {
         if (outboundMsgHolder.getRequest().isPassthrough()) {
-            Listener inboundListener = outboundMsgHolder.getRequest().getListener();
-            if (inboundListener instanceof Http2InboundContentListener) {
-                outboundMsgHolder.getBackPressureObservable().setListener(
-                    new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
-            }
+            setPassthroughBackOffListener();
         } else {
             outboundMsgHolder.getBackPressureObservable().setListener(new DefaultBackPressureListener());
+        }
+    }
+
+    /**
+     * Backoff scenarios involved here are (request HTTP/2-HTTP/2) and (request HTTP/1.1-HTTP/2).
+     */
+    private void setPassthroughBackOffListener() {
+        //Passthrough listener can be set based on the inbound listener type instead of version because HTTP/2 inbound
+        //listener is never removed for HTTP/2.
+        Listener inboundListener = outboundMsgHolder.getRequest().getListener();
+        if (inboundListener instanceof Http2InboundContentListener) {
+            outboundMsgHolder.getBackPressureObservable().setListener(
+                new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
+        } else if (inboundListener instanceof DefaultListener) {
+            outboundMsgHolder.getBackPressureObservable().setListener(
+                new PassthroughBackPressureListener(outboundMsgHolder.getRequest().getSourceContext()));
         }
     }
 
