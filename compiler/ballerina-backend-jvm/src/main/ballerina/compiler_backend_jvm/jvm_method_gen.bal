@@ -207,6 +207,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     instGen.generateXMLLoadAllIns(inst);
                 } else if (inst.kind == bir:INS_KIND_TYPEOF) {
                     instGen.generateTypeofIns(inst);
+                } else if (inst.kind == bir:INS_KIND_NOT) {
+                    instGen.generateNotIns(inst);
                 } else {
                     error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                     panic err;
