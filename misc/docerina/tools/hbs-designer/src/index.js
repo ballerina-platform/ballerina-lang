@@ -33,28 +33,28 @@ function buildModules(modules) {
 function buildRecords(mod, records) {
     const recordHBS = fs.readFileSync(path.join(__dirname, "records.hbs")).toString();
     const recordTemplate = Handlebars.compile(recordHBS);
-    records.forEach((rec) => {
-        const recOutDir = path.join(outPath, mod.id, 'records');
-        fs.ensureDirSync(recOutDir);
-        fs.writeFileSync(path.join(recOutDir, rec.name + ".html"), recordTemplate({ rec, module: mod, data }));
+    records.forEach((record) => {
+        const recordOutDir = path.join(outPath, mod.id, 'records');
+        fs.ensureDirSync(recordOutDir);
+        fs.writeFileSync(path.join(recordOutDir, record.name + ".html"), recordTemplate({ record, module: mod, data }));
     });
 }
 function buildObjects(mod, objects) {
     const objectsHBS = fs.readFileSync(path.join(__dirname, "objects.hbs")).toString();
     const objectsTemplate = Handlebars.compile(objectsHBS);
-    objects.forEach((obj) => {
-        const objOutDir = path.join(outPath, mod.id, 'objects');
-        fs.ensureDirSync(objOutDir);
-        fs.writeFileSync(path.join(objOutDir, obj.name + ".html"), objectsTemplate({ obj, module: mod, data }));
+    objects.forEach((object) => {
+        const objectOutDir = path.join(outPath, mod.id, 'objects');
+        fs.ensureDirSync(objectOutDir);
+        fs.writeFileSync(path.join(objectOutDir, object.name + ".html"), objectsTemplate({ object, module: mod, data }));
     });
 }
 function buildClients(mod, clients) {
     const clientsHBS = fs.readFileSync(path.join(__dirname, "clients.hbs")).toString();
     const clientsTemplate = Handlebars.compile(clientsHBS);
-    clients.forEach((clnt) => {
-        const clntOutDir = path.join(outPath, mod.id, 'clients');
-        fs.ensureDirSync(clntOutDir);
-        fs.writeFileSync(path.join(clntOutDir, clnt.name + ".html"), clientsTemplate({ clnt, module: mod, data }));
+    clients.forEach((client) => {
+        const clientOutDir = path.join(outPath, mod.id, 'clients');
+        fs.ensureDirSync(clientOutDir);
+        fs.writeFileSync(path.join(clientOutDir, client.name + ".html"), clientsTemplate({ client, module: mod, data }));
     });
 }
 

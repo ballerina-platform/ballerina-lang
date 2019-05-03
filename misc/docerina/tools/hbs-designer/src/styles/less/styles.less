@@ -2,6 +2,7 @@ body {
     background: #fff;
     color: #464646;
     height: 100vh;
+    // font-family: "Fira Sans",sans-serif;
     p {
         font-size: 16px;
     }
@@ -10,7 +11,8 @@ body {
     }
     .ui.grid {
         width: 100%;
-        margin-top: 0rem;
+        margin-top: 0;
+        margin-left: 0;
         .navi-wrapper {
             margin: 0;
             background: #f5f7f8;
@@ -21,7 +23,7 @@ body {
                 width: 150px;
                 height: auto;
                 text-align: center;
-                margin: 30px 20px;
+                margin: 16px;
             }
             &:hover {
                 overflow-y: scroll;
@@ -40,19 +42,21 @@ body {
                     padding: 0;
                     margin: 0;
                     li {
-                        list-style: none !important;
+                        list-style: none ;
                         line-height: 25px;
                         margin-left: 15px;
                         text-transform: capitalize;
                         font-weight: 300;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
                         &:hover {
                             font-weight: 600;
                         }
                         &,
                         a {
-                            font-weight: 300;
+                            font-weight: 400;
                             &:hover {
-                                color: #333 !important;
+                                color: #333 ;
                                 font-weight: 600;
                             }
                         }
@@ -67,39 +71,52 @@ body {
             overflow-y: hidden;
             position: fixed;
             font-size: 16px;
+            .main-wrapper {
+                width: 750px;
+            }
+            
             .param-divider {
-                margin-top: 7px !important;
+                margin-top: 0px;
                 margin-bottom: 15px;
                 border: 0.5px solid #888;
             }
             .param-table {
                 margin-left: 20px;
-                border: 1ps solid #ccc !important;
-                td, th {
-                    padding: 10px 0 !important; 
+                border: 1ps solid #ccc;
+                width: -webkit-fill-available;
+                thead {
+                    tr {
+                        th {
+                            padding: 10px 0;
+                        }
+                    }
                 }
-                tr {
-
+                td, th {
+                    color: #3c3c3c;
+                }
+                tbody {
+                    border-bottom: 1px solid #e8e9e9 ;
                 }
             }
             .ui.table,
             .ui.table tr td {
-                border: 0 !important;
+                border: 0;
                 vertical-align: top;
+                color: #555;
+                word-break: break-word;
+                padding: 5px 0;
                 th {
                     background: none;
-                    padding: 10px 0;
                     border-top: 1px solid #e8e9e9;
                     border-radius: 0;
                 }
                 tr {
-                    padding: 10px 0;
                     border-bottom: 1px solid #e8e9e9;
+                    color: #555;
                     
                     td:first-child {
                         width: 120px;
                         vertical-align: top;
-                        padding: 10px 0 !important;
                     }
                 }
                 td {
@@ -134,16 +151,22 @@ body {
             }
             .records {
                 text-transform: capitalize;
-                color: #2c9ea1;
+                color: #20b6b0;
                 a {
-                    color: #2c9ea1;
+                    color: #20b6b0;
+                    &:hover {
+                        text-decoration: underline;
+                    }
                 }
             }
             .objects {
                 text-transform: capitalize;
-                color: #93bd54;
+                color: #20b6b0;
                 a {
-                    color: #93bd54;
+                    color: #20b6b0;
+                    &:hover {
+                        text-decoration: underline;
+                    }
                 }
             }
             .clients {
@@ -176,14 +199,33 @@ body {
             }
             .constants {
                 margin-top: 20px;
+                h2 {
+                    font-size: 1.52rem;
+                }
                 h3 { 
                     display: inline-block;
                         margin: 0;
-                        line-height: 22px !important;
+                        line-height: 22px;
                     & p {
                         display: inline-block;
                         margin: 0;
-                        line-height: 22px !important;
+                        line-height: 22px;
+                        color: #555;
+                    }
+                }
+                .method-list { 
+                    padding-left: 20px;
+                    p { 
+                        line-height: 30px;
+                    }
+                }
+                .method-content {
+                    h3 {
+                        margin-top: 20px;
+                    }
+                    .method-types {
+                        font-style: italic;
+                        color: #656565;
                     }
                 }
                 .method-wrapper {
@@ -192,20 +234,21 @@ body {
                         display: inline-block;
                         vertical-align: top;
                         .ui.table {
+                            word-break: break-word;
                             tr {
                                 td:first-child {
-                                    width: 180px !important;
+                                    width: 180px ;
                                     vertical-align: top;
-                                    padding : 10px 0;
+                                    padding : 5px 0;
                                 }   
                             }
                         }
                         .ui.table td {
-                            padding : 10px 0 !important;
+                            padding : 10px 0 ;
                         }
                         .method-table-header {
                             max-width: 180px;
-                            width: 180px !important;
+                            width: 180px ;
                             white-space: nowrap;
                             overflow: hidden;
                             text-overflow: ellipsis;
@@ -237,14 +280,14 @@ body {
             }
             .module-title {
                 margin-bottom: 10px;
-                font-weight: 300;
+                font-weight: 400;
                 height: auto;
                 padding: 0;
                 vertical-align: top;
             }
             .truncate {
                 max-width: 220px;
-                width: 220px !important;
+                width: 220px ;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;

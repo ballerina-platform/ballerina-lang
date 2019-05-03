@@ -14,7 +14,7 @@
         <ul>
           {{#each module.constructs.clients}}
           <li>
-            <a href="{{name}}">{{name}}</a>
+            <a href="{{name}}.html">{{name}}</a>
           </li>
           {{/each}}
         </ul>
@@ -25,26 +25,27 @@
     </div>
 
     <div class="fourteen wide column content-wrapper">
-      <h1>{{ clnt.name }}</h1>
+      <div class="main-wrapper">
+        <h1>{{ client.name }}</h1>
       <div class="ui divider"></div>
 
-      <h3 class="clients">{{clnt.type}} <span class="clients"> {{clnt.name}} </span> {{clnt.label}}</h3>
-      <p>{{clnt.description}}</p>
+      <h3 class="clients">{{client.type}} <span class="clients"> {{client.name}} </span> {{client.label}}</h3>
+      <p>{{client.description}}</p>
 
       <div class="constants">
         <table class="ui table">
           <thead>
-            {{#if clnt}}
-            {{#clnt}}
-            {{#each fields}}
+            {{#if client}}
+            {{#client}}
             <tr>
-              <th width="20%">{{field_name_label}}</th>
-              <th width="20%">{{data_type_label}}</th>
-              <th width="15%">{{default_value_label}}</th>
-              <th width="45%">{{description_label}}</th>
+              <th width="20%">Field Name</th>
+              <th width="20%">Data Type</th>
+              <th width="15%">Default Value</th>
+              <th width="45%">Description</th>
             </tr>
           </thead>
           <tbody>
+            {{#each fields}}
             {{#if attributes}}
             {{#each attributes}}
             <tr>
@@ -56,15 +57,15 @@
             {{/each}}
             {{/if}}
             {{/each}}
-            {{/clnt}}
+            {{/client}}
             {{/if}}
           </tbody>
         </table>
 
         <div class="ui divider"></div>
         <div class="method-wrapper">
-          {{#if clnt}}
-          {{#clnt}}
+          {{#if client}}
+          {{#client}}
           {{#each method}}
           <div class="method-span">
             <table class="ui table">
@@ -87,20 +88,12 @@
             <p>{{description}}</p>
             <table class="ui table params-table">
               <thead>
-                {{#if params }}
-                {{#each params }}
-                {{#if fields}}
-                {{#each fields}}
                 <tr>
-                  <th width="20%">{{param_name_label}}</th>
-                  <th width="20%">{{data_type_label}}</th>
-                  <th width="15%">{{default_value_label}}</th>
-                  <th width="45%">{{description_label}}</th>
+                  <th width="20%">Param Name</th>
+                  <th width="20%">Data Type</th>
+                  <th width="15%">Default Value</th>
+                  <th width="45%">Description</th>
                 </tr>
-                {{/each}}
-                {{/if}}
-                {{/each}}
-                {{/if}}
               </thead>
               {{#if params }}
               {{#each params }}
@@ -155,11 +148,12 @@
             </table>
           </div>
           {{/each}}
-          {{/clnt}}
+          {{/client}}
           {{/if}}
         </div>
       </div>
 
     </div>
-  </div>
+      </div>
+    </div>
 </body>

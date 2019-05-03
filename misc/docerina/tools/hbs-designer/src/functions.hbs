@@ -25,6 +25,7 @@
     </div>
 
     <div class="fourteen wide column content-wrapper">
+      <div class="main-wrapper">
       <h1>Functions</h1>
       <div class="ui divider"></div>
       <div class="constants">
@@ -43,8 +44,8 @@
           {{#if functions}}
           <div>
             {{#each functions}}
-            <p>{{function_type_label}} <a id="{{name}}"><b class="functions">{{name}}</b> </a>{{function_params}} </h3>
-              <br><b>{{return_label}}</b> {{return_type}}</p>
+            <p>public function <a id="{{name}}"><b class="functions">{{name}}</b> </a>{{function_params}} </h3>
+              <br><b>Return</b> {{return_type}}</p>
             <p>{{description}}</p>
             <div class="ui divider"></div>
             {{#if params}}
@@ -99,6 +100,7 @@
           {{/if}}
         </div>
       </div>
+    </div>
     </div>
   </div>
 </body>
