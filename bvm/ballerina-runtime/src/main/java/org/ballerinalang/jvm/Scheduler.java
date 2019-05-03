@@ -41,8 +41,8 @@ public class Scheduler {
      * @param function - function to be executed
      * @return - Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Function function) {
-        FutureValue future = createFuture();
+    public FutureValue schedule(Object[] params, Function function, Strand parent) {
+        FutureValue future = createFuture(parent);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         runnableList.add(item);
@@ -55,8 +55,8 @@ public class Scheduler {
      * @param consumer - consumer to be executed
      * @return - Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Consumer consumer) {
-        FutureValue future = createFuture();
+    public FutureValue schedule(Object[] params, Consumer consumer, Strand parent) {
+        FutureValue future = createFuture(parent);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         runnableList.add(item);
@@ -105,8 +105,8 @@ public class Scheduler {
         }
     }
 
-    private FutureValue createFuture() {
-        Strand newStrand = new Strand(this);
+    private FutureValue createFuture(Strand parent) {
+        Strand newStrand = new Strand(this, parent);
         FutureValue future = new FutureValue(newStrand);
         future.strand.frames = new Object[100];
         return future;

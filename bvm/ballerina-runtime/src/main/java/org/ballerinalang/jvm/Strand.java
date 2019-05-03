@@ -33,8 +33,17 @@ public class Strand {
     public boolean blocked;
     public Strand blockedOn;
     public Scheduler scheduler;
+    public Strand parent = null;
+    public WDChannels wdChannels;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
+        this.wdChannels = new WDChannels();
+    }
+
+    public Strand(Scheduler scheduler, Strand parent) {
+        this.scheduler = scheduler;
+        this.parent = parent;
+        this.wdChannels = new WDChannels();
     }
 }

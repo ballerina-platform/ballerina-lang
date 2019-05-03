@@ -361,18 +361,7 @@ type TerminatorGenerator object {
         lambdas[lambdaName] = (callIns, methodClass);
         self.lambdaIndex += 1;
         
-        if (isVoid) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
-                io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
-        } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
-                io:sprintf("([L%s;L%s;)L%s;", OBJECT, FUNCTION, FUTURE_VALUE), false);
-        }
-
-        // store return
-        bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp.variableDcl;
-        // store the returned strand as the future
-        self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(getVariableDcl(lhsOpVarDcl)));
+        self.submitToScheduler(callIns.lhsOp);
 
         self.mv.visitVarInsn(ALOAD, 0);
         self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
@@ -539,13 +528,14 @@ type TerminatorGenerator object {
                             io:sprintf("%s", futureType));
             panic err;
         }
-
+        // load strand
+        self.mv.visitVarInsn(ALOAD, 0);
         if (isVoid) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
-                io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
+                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, CONSUMER, STRAND, FUTURE_VALUE), false);
         } else {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
-                io:sprintf("([L%s;L%s;)L%s;", OBJECT, FUNCTION, FUTURE_VALUE), false);
+                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION, STRAND, FUTURE_VALUE), false);
         }
 
         // store return
