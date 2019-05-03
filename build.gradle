@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = 'org.ballerinalang'
-    version = '0.990.4-SNAPSHOT'
+    version = '0.991.1-SNAPSHOT'
 
     task printPath {
         doLast{
