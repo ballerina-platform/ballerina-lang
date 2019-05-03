@@ -6,13 +6,13 @@
   "source": "toplevel/source/topLevelPackageContentAccess.bal",
   "items": [
     {
-      "label": "extractAuthorizationHeaderValue(http:Request req)(string|error)",
+      "label": "extractAuthorizationHeaderValue(http:Request req)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts the Authorization header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n  \n  \n**Return**  \nstring|error"
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts the Authorization header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n  \n  \n**Return**  \nstring"
         }
       },
       "insertText": "extractAuthorizationHeaderValue(${1:req})",
