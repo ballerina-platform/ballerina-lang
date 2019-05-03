@@ -112,10 +112,12 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      */
     public static class UnaryOP extends BIRNonTerminator implements BIRAssignInstruction {
         public BIROperand lhsOp;
+        public BIROperand rhsOp;
 
-        public UnaryOP(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp) {
+        public UnaryOP(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, kind);
             this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
         }
 
         @Override
@@ -208,7 +210,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     /**
      * A new array instruction.
      * <p>
-     * e.g., map a = {}
+     * e.g., int[] a = {}
      *
      * @since 0.980.0
      */
@@ -540,14 +542,55 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         public Name funcName;
         public PackageID pkgId;
         public List<BIRVariableDcl> params;
+        public List<BIROperand> closureMaps;
 
         public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp,
-                      List<BIRVariableDcl> params) {
+                      List<BIRVariableDcl> params, List<BIROperand> closureMaps) {
             super(pos, InstructionKind.FP_LOAD);
             this.lhsOp = lhsOp;
             this.funcName = funcName;
             this.pkgId = pkgId;
             this.params = params;
+            this.closureMaps = closureMaps;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * The new table instruction.
+     * <p>
+     * e.g. {@code table<Employee> tbEmployee = table {
+     *         { key id, name, salary },
+     *         [ { 1, "Mary",  300.5 },
+     *           { 2, "John",  200.5 },
+     *           { 3, "Jim", 330.5 }
+     *         ]
+     *      };}
+     *
+     * @since 0.995.0
+     */
+    public static class NewTable extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand columnsOp;
+        public BIROperand dataOp;
+        public BIROperand indexColOp;
+        public BIROperand keyColOp;
+        public BType type;
+
+        public NewTable(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand columnsOp,
+                        BIROperand dataOp, BIROperand indexColOp,
+                        BIROperand keyColOp) {
+            super(pos, InstructionKind.NEW_TABLE);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.columnsOp = columnsOp;
+            this.dataOp = dataOp;
+            this.indexColOp = indexColOp;
+            this.keyColOp = keyColOp;
         }
 
         @Override
