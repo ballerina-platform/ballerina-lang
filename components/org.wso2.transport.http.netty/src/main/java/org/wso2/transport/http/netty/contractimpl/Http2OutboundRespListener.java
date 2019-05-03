@@ -43,6 +43,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.Listener;
 import org.wso2.transport.http.netty.message.PassthroughBackPressureListener;
+import org.wso2.transport.http.netty.message.ServerRemoteFlowControlListener;
 
 import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -153,7 +154,10 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         });
     }
 
-    class ResponseWriter {
+    /**
+     * Responsible for writing HTTP/2 outbound response to the caller.
+     */
+    public class ResponseWriter {
         private int streamId;
         private AtomicBoolean streamWritable = new AtomicBoolean(true);
         private final BackPressureObservable backPressureObservable = new DefaultBackPressureObservable();
@@ -178,7 +182,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             return streamId;
         }
 
-        void setStreamWritable(boolean streamWritable) {
+        public void setStreamWritable(boolean streamWritable) {
             this.streamWritable.set(streamWritable);
         }
 
@@ -186,7 +190,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             return streamWritable.get();
         }
 
-        BackPressureObservable getBackPressureObservable() {
+        public BackPressureObservable getBackPressureObservable() {
             return backPressureObservable;
         }
     }

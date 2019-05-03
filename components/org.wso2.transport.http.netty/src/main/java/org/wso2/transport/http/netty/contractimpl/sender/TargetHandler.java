@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.contractimpl.ClientRemoteFlowControlListener;
 import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
@@ -39,6 +38,7 @@ import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandle
 import org.wso2.transport.http.netty.contractimpl.sender.http2.TimeoutHandler;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
+import org.wso2.transport.http.netty.message.ClientRemoteFlowControlListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contractimpl.common.Util.createInboundRespCarbonMsg;

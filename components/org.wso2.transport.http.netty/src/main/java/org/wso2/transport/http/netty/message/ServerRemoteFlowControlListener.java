@@ -17,12 +17,13 @@
  *
  */
 
-package org.wso2.transport.http.netty.contractimpl;
+package org.wso2.transport.http.netty.message;
 
 import io.netty.handler.codec.http2.Http2RemoteFlowController;
 import io.netty.handler.codec.http2.Http2Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -62,11 +63,11 @@ public class ServerRemoteFlowControlListener implements Http2RemoteFlowControlle
         }
     }
 
-    void addResponseWriter(Http2OutboundRespListener.ResponseWriter responseWriter) {
+    public void addResponseWriter(Http2OutboundRespListener.ResponseWriter responseWriter) {
         responseWriters.put(responseWriter.getStreamId(), responseWriter);
     }
 
-    void removeResponseWriter(Http2OutboundRespListener.ResponseWriter responseWriter) {
+    public void removeResponseWriter(Http2OutboundRespListener.ResponseWriter responseWriter) {
         if (responseWriter != null) {
             responseWriters.remove(responseWriter.getStreamId(), responseWriter);
         }

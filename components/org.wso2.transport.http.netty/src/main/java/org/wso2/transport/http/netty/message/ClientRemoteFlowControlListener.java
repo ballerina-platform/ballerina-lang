@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.transport.http.netty.contractimpl;
+package org.wso2.transport.http.netty.message;
 
 import io.netty.handler.codec.http2.Http2RemoteFlowController;
 import io.netty.handler.codec.http2.Http2Stream;
