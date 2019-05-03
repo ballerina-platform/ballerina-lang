@@ -897,6 +897,9 @@ public class Util {
         if (backpressureHandler != null) {
             Channel channel = context.channel();
             if (!channel.isWritable() && channel.isActive()) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.warn("HTTP/1.1 channel is not writable in thread {} ", Thread.currentThread().getName());
+                }
                 backpressureHandler.getBackPressureObservable().notifyUnWritable();
             }
         }

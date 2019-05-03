@@ -20,8 +20,11 @@ package org.wso2.transport.http.netty.contractimpl.common;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.BackPressureObservable;
 import org.wso2.transport.http.netty.message.DefaultBackPressureObservable;
+import org.wso2.transport.http.netty.message.Http2InboundContentListener;
 
 /**
  * Handles backpressure.
@@ -29,18 +32,24 @@ import org.wso2.transport.http.netty.message.DefaultBackPressureObservable;
  * handling backpressure.
  */
 public class BackPressureHandler extends ChannelInboundHandlerAdapter {
-
+    private static final Logger LOG = LoggerFactory.getLogger(ChannelInboundHandlerAdapter.class);
     private final BackPressureObservable backPressureObservable = new DefaultBackPressureObservable();
 
     @Override
     public void channelWritabilityChanged(ChannelHandlerContext ctx) {
         if (ctx.channel().isWritable()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("HTTP/1.1 channel writable in thread {} ", Thread.currentThread().getName());
+            }
             backPressureObservable.notifyWritable();
         }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("HTTP/1.1 channel inactive and notifyWritable in thread {} ", Thread.currentThread().getName());
+        }
         backPressureObservable.notifyWritable();
         ctx.fireChannelInactive();
     }
