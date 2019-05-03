@@ -4,11 +4,8 @@ All notable changes to this project will be documented in this file. When sendin
 ## [Unreleased]
 
 ### Language
-
-- [Add codeLens feature](https://github.com/ballerina-platform/ballerina-lang/pull/13297)
-- [Add auto module-imports for the Completion Snippets](https://github.com/ballerina-platform/ballerina-lang/pull/13736)
-- [Revamp and add SPIs for Completions](https://github.com/ballerina-platform/ballerina-lang/pull/14054)
-- [Add partial text document sync](https://github.com/ballerina-platform/ballerina-lang/pull/14121)
+-
+-
 
 ### Standard Libraries
 
@@ -20,3 +17,7 @@ All notable changes to this project will be documented in this file. When sendin
 - Added feature of function invocation collapsing to the diagram editor.
 - Added Import sorting to the formatting tool.
 - Added features to formatting tool to close the gap between style guideline and tool.
+- [Add codeLens feature](https://github.com/ballerina-platform/ballerina-lang/pull/13297)
+- [Add auto module-imports for the Completion Snippets](https://github.com/ballerina-platform/ballerina-lang/pull/13736)
+- [Revamp and add SPIs for Completions](https://github.com/ballerina-platform/ballerina-lang/pull/14054)
+- [Add partial text document sync](https://github.com/ballerina-platform/ballerina-lang/pull/14121)
