@@ -1014,7 +1014,7 @@
         "column": 3,
         "category": "Working over the network",
         "samples": [{
-                "name": "TCP Socket Basic Example",
+                "name": "Basic TCP Socket",
                 "url": "tcp-socket-listener-client"
             },
             {
