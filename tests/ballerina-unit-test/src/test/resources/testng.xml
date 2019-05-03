@@ -27,12 +27,13 @@ under the License.
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
 
-    <!-- Ballerina language Test Cases. -->
+    <!--Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <groups>
             <run>
                 <exclude name="HSQLDBNotSupported"/>
                 <exclude name="broken"/>
+                <exclude name="no-bvm-support"/>
             </run>
         </groups>
         <packages>
@@ -112,6 +113,7 @@ under the License.
             </class>
             <class name="org.ballerinalang.test.object.AnonymousObjectTest" />
             <class name="org.ballerinalang.test.object.ObjectEquivalencyNegativeTest" />
+            <class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />
             <class name="org.ballerinalang.test.object.AbstractObjectTest">
                 <methods>
                     <!-- Fails because index based access is not implemented -->
@@ -121,6 +123,7 @@ under the License.
                     <exclude name="testAbstractObjectInObject" />
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
         </classes>
     </test>
 </suite>

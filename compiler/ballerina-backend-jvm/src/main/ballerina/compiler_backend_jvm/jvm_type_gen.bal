@@ -524,6 +524,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         typeFieldName = "typeJSON";
     } else if (bType is bir:BXMLType) {
         typeFieldName = "typeXML";
+    } else if (bType is bir:BTypeDesc) {
+        typeFieldName = "typeTypedesc";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
@@ -744,6 +746,8 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", ERROR_VALUE);
     } else if (bType is bir:BMapType) {
         return io:sprintf("L%s;", MAP_VALUE);
+    } else if (bType is bir:BTypeDesc) {
+        return io:sprintf("L%s;", TYPEDESC_TYPE);
     } else if (bType is bir:BObjectType) {
         return io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BTypeAny ||

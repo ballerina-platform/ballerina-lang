@@ -66,7 +66,8 @@ type TerminatorGenerator object {
                 bType is bir:BFutureType ||
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
-                bType is bir:BFiniteType) {
+                bType is bir:BFiniteType ||
+                bType is bir:BTypeDesc) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitInsn(ARETURN);
         } else {
@@ -130,7 +131,8 @@ type TerminatorGenerator object {
                         bType is bir:BJSONType ||
                         bType is bir:BXMLType ||
                         bType is bir:BInvokableType ||
-                        bType is bir:BFiniteType) {
+                        bType is bir:BFiniteType ||
+                        bType is bir:BTypeDesc) {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
@@ -257,6 +259,10 @@ type TerminatorGenerator object {
         } else if (bType is bir:BFutureType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             return io:sprintf("L%s;", FUTURE_VALUE);
+        } else if (bType is bir:BTypeDesc) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            self.mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
+            return io:sprintf("L%s;", TYPEDESC_VALUE);
         } else if (bType is bir:BErrorType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             return io:sprintf("L%s;", ERROR_VALUE);
@@ -337,7 +343,7 @@ type TerminatorGenerator object {
                                                     io:sprintf("%s", argRef.typeValue));
                 panic err;
             }
-            generateObjectCast(bType, self.mv);
+            addBoxInsn(self.mv, bType);
             self.mv.visitInsn(AASTORE);
             paramIndex += 1;
         }
@@ -351,7 +357,7 @@ type TerminatorGenerator object {
             returnType = futureType.returnType;
         }
         boolean isVoid = returnType is bir:BTypeNil;
-        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid);
+        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid, 0);
         lambdas[lambdaName] = (callIns, methodClass);
         self.lambdaIndex += 1;
         
@@ -426,7 +432,7 @@ type TerminatorGenerator object {
             }  
         }
         self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
-        checkCastFromObject(waitInst.lhsOp.typeValue, self.mv);
+        addUnboxInsn(self.mv, waitInst.lhsOp.typeValue);
         generateVarStore(self.mv, waitInst.lhsOp.variableDcl, currentPackageName, 
                     self.getJVMIndexOfVarRef(waitInst.lhsOp.variableDcl));
     }
@@ -486,7 +492,7 @@ type TerminatorGenerator object {
                                                     io:sprintf("%s", arg.typeValue));
                 panic err;
             }
-            generateObjectCast(bType, self.mv);
+            addBoxInsn(self.mv, bType);
             self.mv.visitInsn(AASTORE);
             paramIndex += 1;
         }
@@ -498,7 +504,10 @@ type TerminatorGenerator object {
             self.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
             // store reult
             int lhsIndex = self.getJVMIndexOfVarRef(getVariableDcl(fpCall.lhsOp.variableDcl));
-            checkCastFromObject(fpCall.lhsOp.typeValue, self.mv);
+            bir:BType? lhsType = fpCall.lhsOp.typeValue;
+            if (lhsType is bir:BType) {
+                addUnboxInsn(self.mv, lhsType);
+            }
             string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
             bir:VariableDcl? lhsVar = fpCall.lhsOp.variableDcl;
             if (lhsVar is bir:VariableDcl) {

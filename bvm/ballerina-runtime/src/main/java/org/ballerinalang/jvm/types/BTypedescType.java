@@ -23,9 +23,9 @@ package org.ballerinalang.jvm.types;
  *
  * @since 0.995.0
  */
-public class BTypeDesc extends BType {
+public class BTypedescType extends BType {
 
-    public BTypeDesc(String typeName, String pkgPath) {
+    public BTypedescType(String typeName, String pkgPath) {
         super(typeName, pkgPath, Object.class);
     }
 
