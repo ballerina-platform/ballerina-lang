@@ -35,18 +35,18 @@ public type CompoundPatternProcessor object {
     }
 
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
-        io:println("CompoundPatternProcessor:process:36 -> ", event, "|", processorAlias);
+        io:println("CompoundPatternProcessor:process:38 -> ", event, "|", processorAlias);
         boolean promote = false;
         boolean promoted = false;
+        boolean isNotProc = false;
         // downward traversal
         AbstractPatternProcessor? processor = self.processor;
         if (processor is AbstractPatternProcessor) {
             // processorAlias is not required when get promoted by
             // its only imidiate descendent. Therefore passing ().
-            io:println("CompoundPatternProcessor:process:44 -> ", event, "|", processorAlias);
-            var (p, n) = processor.process(event, ());
-            promote = p;
-            io:println("CompoundPatternProcessor:process:46 -> ", event, "|", processorAlias);
+            io:println("CompoundPatternProcessor:process:47 -> ", event, "|", processorAlias);
+            (promote, isNotProc) = processor.process(event, ());
+            io:println("CompoundPatternProcessor:process:49 -> ", event, "|", processorAlias);
         }
         // upward traversal
         if (promote) {
@@ -60,12 +60,12 @@ public type CompoundPatternProcessor object {
                     self.stateEvents.removeCurrent();
                     if (withinTime is int && (currentTime - s.timestamp) > withinTime) {
                         // state haven't fulfilled in within time, therefore evict.
-                        io:println("CompoundPatternProcessor:process:60 -> ", s, "|", processorAlias);
+                        io:println("CompoundPatternProcessor:process:63 -> ", s, "|", processorAlias);
                         pProcessor.evict(s, processorAlias);
                     } else {
-                        io:println("CompoundPatternProcessor:process:63 -> ", s, "|", processorAlias);
+                        io:println("CompoundPatternProcessor:process:66 -> ", s, "|", processorAlias);
                         pProcessor.promote(s, processorAlias);
-                        io:println("CompoundPatternProcessor:process:65 -> ", s, "|", processorAlias);
+                        io:println("CompoundPatternProcessor:process:68 -> ", s, "|", processorAlias);
                         promoted = true;
                     }
                 }
@@ -77,15 +77,15 @@ public type CompoundPatternProcessor object {
                     StreamEvent s = getStreamEvent(self.stateEvents.next());
                     self.stateEvents.removeCurrent();
                     if (!(withinTime is int && (currentTime - s.timestamp) > withinTime)) {
-                        io:println("CompoundPatternProcessor:process:77 -> ", s, "|", processorAlias);
+                        io:println("CompoundPatternProcessor:process:80 -> ", s, "|", processorAlias);
                         self.emit(s);
                         promoted = true;
                     }
                 }
             }
         }
-        io:println("CompoundPatternProcessor:process:84 -> ", event, "|", processorAlias);
-        return (promoted, false);
+        io:println("CompoundPatternProcessor:process:87 -> ", event, "|", processorAlias);
+        return (promoted, isNotProc);
     }
 
     public function setStateMachine(StateMachine stateMachine) {
@@ -97,7 +97,7 @@ public type CompoundPatternProcessor object {
     }
 
     public function promote(StreamEvent stateEvent, string? processorAlias) {
-        io:println("CompoundPatternProcessor:promote:89 -> ", stateEvent, "|", processorAlias);
+        io:println("CompoundPatternProcessor:promote:100 -> ", stateEvent, "|", processorAlias);
         self.stateEvents.addLast(stateEvent);
     }
 
@@ -113,14 +113,14 @@ public type CompoundPatternProcessor object {
         // remove matching states from prev processor.
         AbstractOperatorProcessor? pProcessor = self.prevProcessor;
         if (pProcessor is AbstractOperatorProcessor) {
-            io:println("CompoundPatternProcessor:evict:105 -> ", stateEvent, "|", processorAlias);
+            io:println("CompoundPatternProcessor:evict:116 -> ", stateEvent, "|", processorAlias);
             pProcessor.evict(stateEvent, processorAlias);
-            io:println("CompoundPatternProcessor:evict:107 -> ", stateEvent, "|", processorAlias);
+            io:println("CompoundPatternProcessor:evict:118 -> ", stateEvent, "|", processorAlias);
         }
     }
 
     public function emit(StreamEvent stateEvent) {
-        io:println("CompoundPatternProcessor:emit:112 -> ", stateEvent);
+        io:println("CompoundPatternProcessor:emit:123 -> ", stateEvent);
         self.fulfilledEvents[self.fulfilledEvents.length()] = stateEvent;
     }
 

@@ -33,24 +33,23 @@ public type OrOperatorProcessor object {
     }
 
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
-        io:println("OrOperatorProcessor:process:35 -> ", event, "|", processorAlias);
+        io:println("OrOperatorProcessor:process:36 -> ", event, "|", processorAlias);
         boolean promote = false;
         boolean promoted = false;
+        boolean isNotProc = false;
         // leftward traversal
         AbstractPatternProcessor? lProcessor = self.lhsProcessor;
         if (lProcessor is AbstractPatternProcessor) {
-            io:println("OrOperatorProcessor:process:41 -> ", event, "|", processorAlias);
-            var (p, n) = lProcessor.process(event, self.lhsAlias);
-            promote = p;
             io:println("OrOperatorProcessor:process:43 -> ", event, "|", processorAlias);
+            (promote, isNotProc) = lProcessor.process(event, self.lhsAlias);
+            io:println("OrOperatorProcessor:process:45 -> ", event, "|", processorAlias);
         }
         // rightward traversal
         AbstractPatternProcessor? rProcessor = self.rhsProcessor;
         if (!promote && rProcessor is AbstractPatternProcessor) {
-            io:println("OrOperatorProcessor:process:48 -> ", event, "|", processorAlias);
-            var (p, n) = rProcessor.process(event, self.rhsAlias);
-            promote = p;
             io:println("OrOperatorProcessor:process:50 -> ", event, "|", processorAlias);
+            (promote, isNotProc) = rProcessor.process(event, self.rhsAlias);
+            io:println("OrOperatorProcessor:process:52 -> ", event, "|", processorAlias);
         }
         // upward traversal / promote
         if (promote) {
@@ -60,14 +59,14 @@ public type OrOperatorProcessor object {
                 while (self.stateEvents.hasNext()) {
                     StreamEvent s = getStreamEvent(self.stateEvents.next());
                     self.stateEvents.removeCurrent();
-                    io:println("OrOperatorProcessor:process:60 -> ", s, "|", processorAlias);
-                    pProcessor.promote(s, processorAlias);
                     io:println("OrOperatorProcessor:process:62 -> ", s, "|", processorAlias);
+                    pProcessor.promote(s, processorAlias);
+                    io:println("OrOperatorProcessor:process:64 -> ", s, "|", processorAlias);
                     promoted = true;
                 }
             }
         }
-        return (promoted, false);
+        return (promoted, isNotProc);
     }
 
     public function setStateMachine(StateMachine stateMachine) {
@@ -83,7 +82,7 @@ public type OrOperatorProcessor object {
     }
 
     public function promote(StreamEvent stateEvent, string? processorAlias) {
-        io:println("OrOperatorProcessor:promote:71 -> ", stateEvent, "|", processorAlias);
+        io:println("OrOperatorProcessor:promote:85 -> ", stateEvent, "|", processorAlias);
         self.stateEvents.addLast(stateEvent);
     }
 
@@ -99,9 +98,9 @@ public type OrOperatorProcessor object {
         // remove matching states from prev processor.
         AbstractOperatorProcessor? pProcessor = self.prevProcessor;
         if (pProcessor is AbstractOperatorProcessor) {
-            io:println("OrOperatorProcessor:evict:87 -> ", stateEvent, "|", processorAlias);
+            io:println("OrOperatorProcessor:evict:101 -> ", stateEvent, "|", processorAlias);
             pProcessor.evict(stateEvent, processorAlias);
-            io:println("OrOperatorProcessor:evict:89 -> ", stateEvent, "|", processorAlias);
+            io:println("OrOperatorProcessor:evict:103 -> ", stateEvent, "|", processorAlias);
         }
     }
 
