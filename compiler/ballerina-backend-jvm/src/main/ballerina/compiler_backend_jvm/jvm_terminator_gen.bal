@@ -437,10 +437,16 @@ type TerminatorGenerator object {
                     self.getJVMIndexOfVarRef(waitInst.lhsOp.variableDcl));
     }
 
-    function genFPCallIns(bir:FPCall fpCall) {
-        // load function ref
-        int fpIndex = self.getJVMIndexOfVarRef(getVariableDcl(fpCall.fp.variableDcl));
-        self.mv.visitVarInsn(ALOAD, fpIndex);
+    function genFPCallIns(bir:FPCall fpCall, string funcName) {
+        if (fpCall.isAsync) {
+            // Load the scheduler from strand
+            self.mv.visitVarInsn(ALOAD, 0);
+            self.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));    
+        } else {
+            // load function ref, going to directly call the fp
+            int fpIndex = self.getJVMIndexOfVarRef(getVariableDcl(fpCall.fp.variableDcl));
+            self.mv.visitVarInsn(ALOAD, fpIndex);
+        }
         
         // create an object array of args
         self.mv.visitIntInsn(BIPUSH, fpCall.args.length() + 1);
@@ -497,8 +503,13 @@ type TerminatorGenerator object {
             paramIndex += 1;
         }
 
-        // call function.apply with array
-        if (fpCall.lhsOp is ()) {
+        // if async, we submit this to sceduler (worker scenario)
+        if (fpCall.isAsync) {
+            // load function ref now
+            int fpIndex = self.getJVMIndexOfVarRef(getVariableDcl(fpCall.fp.variableDcl));
+            self.mv.visitVarInsn(ALOAD, fpIndex);
+            self.submitToScheduler(fpCall.lhsOp);           
+        } else if (fpCall.lhsOp is ()) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, CONSUMER, "accept", io:sprintf("(L%s;)V", OBJECT), true);
         } else {
             self.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
@@ -513,7 +524,47 @@ type TerminatorGenerator object {
             if (lhsVar is bir:VariableDcl) {
                 generateVarStore(self.mv, lhsVar, currentPackageName, lhsIndex);
             }
-        }    
+        }
+
+        self.genYieldCheck(fpCall.thenBB, funcName);   
+    }
+
+    function submitToScheduler(bir:VarRef? lhsOp) {
+        bir:BType? futureType = lhsOp.typeValue;
+        boolean isVoid;
+        if (futureType is bir:BFutureType) {
+            isVoid = futureType.returnType is bir:BTypeNil;
+        } else {
+            error err = error( "Invalid return type for async function pointer call" +
+                            io:sprintf("%s", futureType));
+            panic err;
+        }
+
+        if (isVoid) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
+                io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
+        } else {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
+                io:sprintf("([L%s;L%s;)L%s;", OBJECT, FUNCTION, FUTURE_VALUE), false);
+        }
+
+        // store return
+        if(lhsOp is bir:VarRef) {
+            bir:VariableDcl? lhsOpVarDcl = lhsOp.variableDcl;
+            // store the returned strand as the future
+            self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(getVariableDcl(lhsOpVarDcl)));
+        }
+    }
+
+    function genYieldCheck(bir:BasicBlock thenBB, string funcName) {
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
+        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
+        self.mv.visitJumpInsn(IFNE, yieldLabel);
+
+        // goto thenBB
+        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + thenBB.id.value);
+        self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
     function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {
