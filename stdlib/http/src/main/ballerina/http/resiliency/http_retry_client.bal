@@ -146,8 +146,8 @@ public type RetryClient client object {
     public remote function options(string path, RequestMessage message = ()) returns Response|error;
 
     # Submits an HTTP request to a service with the specified HTTP verb.
-	#cThe `submit()` function does not give out a `Response` as the result,
-	#crather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
+	# The `submit()` function does not give out a `Response` as the result,
+	# rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value
     # + path - The resource path
@@ -299,9 +299,8 @@ function performHttp2RetryGetResponse(HttpFuture httpFuture, RetryClient retryCl
     //TODO : Initialize the record type correctly once it is fixed.
     error httpConnectorErr = error("http connection err");
 
-    HttpFuture inFuture = httpFuture;
     while (currentRetryCount < (retryCount + 1)) {
-        var backendResponse = httpClient->getResponse(inFuture);
+        var backendResponse = httpClient->getResponse(httpFuture);
         if (backendResponse is Response) {
             int responseStatusCode = backendResponse.statusCode;
             if (statusCodeIndex.length() > responseStatusCode && (statusCodeIndex[responseStatusCode] == true)
@@ -331,9 +330,8 @@ function performHttp2RetryGetNextPromise(HttpFuture httpFuture, RetryClient retr
     //TODO : Initialize the record type correctly once it is fixed.
     error httpConnectorErr = error("http connection err");
 
-    HttpFuture inFuture = httpFuture;
     while (currentRetryCount < (retryCount + 1)) {
-        var nextPromise = httpClient->getNextPromise(inFuture);
+        var nextPromise = httpClient->getNextPromise(httpFuture);
         if (nextPromise is PushPromise) {
             return nextPromise;
         } else {

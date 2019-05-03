@@ -223,7 +223,9 @@ public type CircuitBreakerClient object {
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function forward(string path, Request request) returns Response|error;
 
-    # Circuit breaking not supported. Defaults to the `submit()` function of the underlying HTTP remote functions provider.
+    # Submits an HTTP request to a service with the specified HTTP verb.
+    # The `submit()` function does not give out a `Response` as the result,
+    # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value
     # + path - The resource path
@@ -232,28 +234,25 @@ public type CircuitBreakerClient object {
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     public function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error;
 
-    # Circuit breaking not supported. Defaults to the `getResponse()` function of the underlying HTTP
-    # remote functions provider.
+    # Retrieves the `Response` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
     # + return - An HTTP response message, or an `error` if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns Response|error;
 
     # Circuit breaking not supported. Defaults to the `hasPromise()` function of the underlying HTTP remote functions provider.
-
+    #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
     public function hasPromise(HttpFuture httpFuture) returns (boolean);
 
-    # Circuit breaking not supported. Defaults to the `getNextPromise()` function of the underlying HTTP
-    # remote functions provider.
+    # Retrieves the next available `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP `PushPromise` message, or an `error` if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
-    # Circuit breaking not supported. Defaults to the `getPromisedResponse()` function of the underlying HTTP
-    # remote functions provider.
+    # Retrieves the promised server push `Response` message.
     #
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
