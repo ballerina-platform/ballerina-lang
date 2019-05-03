@@ -21,10 +21,11 @@ package org.ballerinalang.utils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
@@ -105,10 +106,8 @@ public class SimpleValueConvert extends BlockingNativeCallableUnit {
         }
     }
 
-    public static Object simpleValueConvert(Strand strand, org.ballerinalang.jvm.values.BTypeDescValue typeDescValue,
-                                            Object inputValue) {
-        org.ballerinalang.jvm.types.BType targetType = typeDescValue.getType();
-        Object convertedValue;
+    public static Object simpleValueConvert(Strand strand, TypedescValue typedescValue, Object inputValue) {
+        org.ballerinalang.jvm.types.BType targetType = typedescValue.getType();
         if (inputValue == null) {
             return org.ballerinalang.jvm.BLangVMErrors
                     .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,

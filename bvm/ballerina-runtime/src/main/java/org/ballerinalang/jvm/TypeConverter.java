@@ -115,12 +115,12 @@ public class TypeConverter {
         throw getNumericConversionError(sourceVal, BTypes.typeBoolean);
     }
 
-    public static byte anyToByte(Object sourceVal) {
+    public static long anyToByte(Object sourceVal) {
         if (sourceVal instanceof Long) {
             if (!isByteLiteral((Long) sourceVal)) {
                 throw getNumericConversionError(sourceVal, BTypes.typeByte);
             }
-            return (byte) sourceVal;
+            return (long) sourceVal;
         } else if (sourceVal instanceof Double) {
 
             Double value = (Double) sourceVal;
@@ -131,12 +131,12 @@ public class TypeConverter {
             if (!isByteLiteral(intVal)) {
                 throw getNumericConversionError(sourceVal, BTypes.typeByte);
             }
-            return (byte) intVal;
+            return  intVal;
 
         } else if (sourceVal instanceof Byte) {
-            return (Byte) sourceVal;
+            return (long) sourceVal;
         } else if (sourceVal instanceof Boolean) {
-            return (byte) ((Boolean) sourceVal ? 0 : 1);
+            return ((Boolean) sourceVal ? 0 : 1);
         } 
         throw getNumericConversionError(sourceVal, BTypes.typeByte);
     }

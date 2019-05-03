@@ -25,6 +25,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
@@ -107,8 +108,7 @@ public class Convert extends BlockingNativeCallableUnit {
         ctx.setReturnValues(convertedValue);
     }
 
-    public static Object convert(Strand strand, org.ballerinalang.jvm.values.BTypeDescValue typeDescValue,
-                                 Object inputValue) {
+    public static Object convert(Strand strand, TypedescValue typeDescValue, Object inputValue) {
         org.ballerinalang.jvm.types.BType convertType = typeDescValue.getType();
         Object convertedValue;
         org.ballerinalang.jvm.types.BType targetType;

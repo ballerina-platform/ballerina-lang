@@ -25,6 +25,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
@@ -105,9 +106,8 @@ public class Stamp extends BlockingNativeCallableUnit {
         ctx.setReturnValues(valueToBeStamped);
     }
 
-    public static Object stamp(Strand strand, org.ballerinalang.jvm.values.BTypeDescValue typeDescValue,
-                               Object valueToBeStamped) {
-        org.ballerinalang.jvm.types.BType stampType = typeDescValue.getType();
+    public static Object stamp(Strand strand, TypedescValue typedescValue, Object valueToBeStamped) {
+        org.ballerinalang.jvm.types.BType stampType = typedescValue.getType();
         org.ballerinalang.jvm.types.BType targetType;
         if (stampType.getTag() == TypeTags.UNION_TAG) {
             List<org.ballerinalang.jvm.types.BType> memberTypes
