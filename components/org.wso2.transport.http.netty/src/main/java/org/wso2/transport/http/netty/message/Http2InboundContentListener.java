@@ -87,9 +87,10 @@ public class Http2InboundContentListener implements Listener {
     }
 
     /**
-     * This method should only be executed in an I/O thread. Do not use updateLocalFlowController() method inside loop
-     * execute since both the consumeBytes() and getUnConsumedBytes() should be executed in a single netty task. Calling
-     * updateLocalFlowController() will produce two netty tasks which will result in an incorrect execution order.
+     * This method should only be executed in an I/O thread. Do not use {@link #updateLocalFlowController(int)} method
+     * inside loop execute since both the {@link #consumeBytes(int)} and {@link #getUnConsumedBytes()} should be
+     * executed in a single netty task. Calling {@link #updateLocalFlowController(int)} will produce two netty tasks
+     * which will result in an incorrect execution order.
      */
     void resumeByteConsumption() {
         channelHandlerContext.channel().eventLoop().execute(() -> {
