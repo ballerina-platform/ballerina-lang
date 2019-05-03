@@ -35,7 +35,10 @@ listener http:Listener listener17 = new(9113, config = {
         }
     });
 
-service echo on listener17 {
+@http:ServiceConfig {
+    basePath: "/echo"
+}
+service echo17 on listener17 {
     resource function test(http:Caller caller, http:Request req) {
         checkpanic caller->respond("Hello Ballerina!");
     }
