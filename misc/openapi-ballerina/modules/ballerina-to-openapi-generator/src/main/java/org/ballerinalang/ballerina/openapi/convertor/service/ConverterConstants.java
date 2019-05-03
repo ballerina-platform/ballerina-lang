@@ -31,7 +31,6 @@ public class ConverterConstants {
     public static final String ATTR_HEADER_TYPE = "headerType";
     public static final String ATTR_IN = "inInfo";
     public static final String ATTR_REQUIRED = "required";
-    public static final String ATTR_ALLOW_EMPTY = "allowEmptyValue";
     public static final String ATTR_SUMMARY = "summary";
     public static final String ATTR_PARAM = "parameters";
     public static final String ATTR_URL = "url";

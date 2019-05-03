@@ -178,6 +178,23 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(birAsyncCall.thenBB.id.value);
     }
 
+    public void visit(BIRTerminator.FPCall fpCall) {
+        writePosition(fpCall.pos);
+        buf.writeByte(fpCall.kind.getValue());
+        fpCall.fp.accept(this);
+        buf.writeInt(fpCall.args.size());
+        for (BIROperand arg : fpCall.args) {
+            arg.accept(this);
+        }
+        if (fpCall.lhsOp != null) {
+            buf.writeByte(1);
+            fpCall.lhsOp.accept(this);
+        } else {
+            buf.writeByte(0);
+        }
+        addCpAndWriteString(fpCall.thenBB.id.value);
+    }
+
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
         writePosition(birBinaryOp.pos);
         buf.writeByte(birBinaryOp.kind.getValue());
@@ -187,7 +204,10 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.UnaryOP birUnaryOp) {
-        throw new AssertionError();
+        writePosition(birUnaryOp.pos);
+        buf.writeByte(birUnaryOp.kind.getValue());
+        birUnaryOp.rhsOp.accept(this);
+        birUnaryOp.lhsOp.accept(this);
     }
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
@@ -274,6 +294,17 @@ public class BIRInstructionWriter extends BIRVisitor {
         birTypeTest.rhsOp.accept(this);
     }
 
+    public void visit(BIRNonTerminator.NewTable newTable) {
+        writePosition(newTable.pos);
+        buf.writeByte(newTable.kind.getValue());
+        newTable.type.accept(typeWriter);
+        newTable.lhsOp.accept(this);
+        newTable.columnsOp.accept(this);
+        newTable.dataOp.accept(this);
+        newTable.indexColOp.accept(this);
+        newTable.keyColOp.accept(this);
+    }
+
     // Operands
     public void visit(BIROperand birOperand) {
         buf.writeByte(birOperand.variableDcl.kind.getValue());
@@ -301,8 +332,20 @@ public class BIRInstructionWriter extends BIRVisitor {
         int versionCPIndex = addStringCPEntry(pkgId.version.value);
         int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         buf.writeInt(pkgIndex);
-
         buf.writeInt(addStringCPEntry(fpLoad.funcName.getValue()));
+
+        buf.writeInt(fpLoad.closureMaps.size());
+        for (BIROperand op : fpLoad.closureMaps) {
+            op.accept(this);
+        }
+
+        buf.writeInt(fpLoad.params.size());
+        fpLoad.params.forEach(param -> {
+            buf.writeByte(param.kind.getValue());
+            param.type.accept(typeWriter);
+            buf.writeInt(addStringCPEntry(param.name.value));
+        });
+
     }
 
     public void visit(BIRTerminator.Panic birPanic) {

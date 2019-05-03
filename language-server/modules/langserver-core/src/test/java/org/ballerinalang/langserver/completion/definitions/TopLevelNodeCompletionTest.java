@@ -39,6 +39,7 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
                 {"topLevelEmptyFirstLine.json", "toplevel"},
                 {"topLevelFirstLineWithPublicKeyword.json", "toplevel"},
                 {"topLevelFirstLineWithPublicDefStart.json", "toplevel"},
+                {"mapTest1.json", "toplevel"},
                 {"recordTest1.json", "toplevel"},
                 {"recordTest2.json", "toplevel"},
                 {"globalVarDef1.json", "toplevel"},

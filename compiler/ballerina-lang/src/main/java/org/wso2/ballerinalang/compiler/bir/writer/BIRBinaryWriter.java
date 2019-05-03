@@ -191,7 +191,6 @@ public class BIRBinaryWriter {
             buf.writeInt(addStringCPEntry(localVar.name.value));
         }
 
-
         // Write basic blocks
         insWriter.writeBBs(birFunction.basicBlocks);
 

@@ -36,9 +36,7 @@ function name8() returns (int, string) {
 }
 
 function name9() returns (Person) {
-    return {
-        name: ""
-    };
+    return {name: ""};
 }
 
 private function name10() {

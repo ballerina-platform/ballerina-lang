@@ -22,6 +22,8 @@ import org.testng.Assert;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +33,7 @@ import java.util.Map;
  *
  * @since 0.982.0
  */
-public class PackagingTestUtils {
+public class TestUtils {
 
     /**
      * Delete files inside directories.
@@ -82,5 +84,25 @@ public class PackagingTestUtils {
             builder.append(alpha.charAt(character));
         }
         return builder.toString();
+    }
+
+    /**
+     * Get token of ballerina-central-bot required to push the module.
+     *
+     * @return token required to push the module.
+     */
+    public static String getToken() {
+        return new String(Base64.getDecoder().decode("MTAzNDcwNDUtOTViOS0zOGVkLTgwNGUtYWYwMmZhMDllNjdi"));
+    }
+
+    /**
+     * Create Settings.toml inside the home repository.
+     *
+     * @throws IOException i/o exception when writing to file
+     */
+    public static void createSettingToml(Path dirPath) throws IOException {
+        String content = "[central]\n accesstoken = \"" + getToken() + "\"";
+        Files.write(dirPath.resolve("Settings.toml"), content.getBytes(), StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING);
     }
 }

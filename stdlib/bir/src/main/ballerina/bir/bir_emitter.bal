@@ -112,14 +112,15 @@ public type BirEmitter object {
         self.typeEmitter.emitType(bFunction.typeValue);
         println(" {", bFunction.isDeclaration ? "\t// extern" : bFunction.isInterface ? "\t// interface" : "");
         foreach var v in bFunction.localVars {
-            self.typeEmitter.emitType(v.typeValue, tabs = tabs + "\t");
+            VariableDcl varDecl = getVariableDcl(v);
+            self.typeEmitter.emitType(varDecl.typeValue, tabs = tabs + "\t");
             print(" ");
-            if (v.name.value == "%0") {
+            if (varDecl.name.value == "%0") {
                 print("%ret");
             } else {
-                print(v.name.value);
+                print(varDecl.name.value);
             }
-            println("\t// ", v.kind);
+            println("\t// ", varDecl.kind);
         }
         println();// empty line
         foreach var b in bFunction.basicBlocks {
@@ -196,6 +197,12 @@ type InstructionEmitter object {
             print(" ");
             self.opEmitter.emitOp(ins.rhsOp2);
             println(";");
+        }  else if (ins is UnaryOp) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.opEmitter.emitOp(ins.rhsOp);
+            println(";");
         } else if (ins is Move) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
@@ -219,6 +226,20 @@ type InstructionEmitter object {
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
             self.typeEmitter.emitType(ins.typeValue);
+            println(";");
+        } else if (ins is NewTable) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.typeEmitter.emitType(ins.typeValue);
+            print(", ");
+            self.opEmitter.emitOp(ins.columnsOp);
+            print(", ");
+            self.opEmitter.emitOp(ins.dataOp);
+            print(", ");
+            self.opEmitter.emitOp(ins.indexColOp);
+            print(", ");
+            self.opEmitter.emitOp(ins.keyColOp);
             println(";");
         } else if (ins is NewInstance) {
             print(tabs);
@@ -253,8 +274,24 @@ type InstructionEmitter object {
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ");
             print(" ", ins.kind, " ");
-            print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "()");
-            println(";");
+            print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "(");
+
+            foreach var v in ins.closureMaps {
+                if (v is VarRef) {
+                    self.opEmitter.emitOp(v);
+                    print(",");
+                }
+            }
+            int i = 0;
+            foreach var v in ins.params {
+                if (i != 0) {
+                    print (",");
+                }
+                VariableDcl varDecl = getVariableDcl(v);
+                self.typeEmitter.emitType(varDecl.typeValue);
+                i += 1;
+            }
+            println(");");
         }
     }
 };
@@ -316,25 +353,46 @@ type TerminalEmitter object {
             }
             println(";");
         } else if (term is AsyncCall) {
-          print(tabs);
-          VarRef? lhsOp = term.lhsOp;
-          if (lhsOp is VarRef) {
-              self.opEmitter.emitOp(lhsOp);
-              print(" = ");
-          }
-          print(" START ");
-          print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
-          int i = 0;
-          foreach var arg in term.args {
+            print(tabs);
+            VarRef? lhsOp = term.lhsOp;
+            if (lhsOp is VarRef) {
+                self.opEmitter.emitOp(lhsOp);
+                print(" = ");
+            }
+            print(" START ");
+            print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
+            int i = 0;
+            foreach var arg in term.args {
+                if (arg is VarRef) {
+                    if (i != 0) {
+                        print(", ");
+                    }
+                    self.opEmitter.emitOp(arg);
+                    i = i + 1;
+                }
+            }
+            println(") -> ", term.thenBB.id.value, ";");
+        } else if (term is FPCall) {
+            print(tabs);
+            VarRef? lhsOp = term.lhsOp;
+            if (lhsOp is VarRef) {
+                self.opEmitter.emitOp(lhsOp);
+                print(" = ");
+            }
+            print(term.kind, " ");
+            self.opEmitter.emitOp(term.fp);
+            print("(");
+            int i = 0;
+            foreach var arg in term.args {
               if (arg is VarRef) {
                   if (i != 0) {
                       print(", ");
-                  }
+                    }
                   self.opEmitter.emitOp(arg);
                   i = i + 1;
-              }
-          }
-          println(") -> ", term.thenBB.id.value, ";");
+                }
+            }
+            println(") -> ", term.thenBB.id.value, ";");
         } else { //if (term is Return) {
             println(tabs, "return;");
         }
@@ -356,7 +414,8 @@ type TypeEmitter object {
 
     function emitType(BType typeVal, string tabs = "") {
         if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString || typeVal is BTypeBoolean
-                || typeVal is BTypeFloat || typeVal is BTypeAnyData || typeVal is BTypeNone) {
+                || typeVal is BTypeFloat || typeVal is BTypeAnyData || typeVal is BTypeNone
+                || typeVal is BServiceType) {
             print(tabs, typeVal);
         } else if (typeVal is BRecordType) {
             self.emitRecordType(typeVal, tabs);
@@ -372,6 +431,8 @@ type TypeEmitter object {
             self.emitTupleType(typeVal, tabs);
         } else if (typeVal is BMapType) {
             self.emitMapType(typeVal, tabs);
+        } else if (typeVal is BTableType) {
+            self.emitTableType(typeVal, tabs);
         } else if (typeVal is BFutureType) {
             self.emitFutureType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
@@ -388,8 +449,9 @@ type TypeEmitter object {
         }
         println("record { ");
         foreach var f in bRecordType.fields {
-            self.emitType(f.typeValue, tabs = tabs + "\t");
-            println(" ", f.name.value, ";");
+            BRecordField recField = getRecordField(f);
+            self.emitType(recField.typeValue, tabs = tabs + "\t");
+            println(" ", recField.name.value, ";");
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
         print("...");
@@ -406,10 +468,11 @@ type TypeEmitter object {
         // int pCount = bInvokableType.paramTypes.size(); 
         int i = 0;
         foreach var p in bInvokableType.paramTypes {
+            BType pType = getType(p);
             if (i != 0) {
                 print(", ");
             }
-            self.emitType(p);
+            self.emitType(pType);
             i = i + 1;
         }
         print(") -> ");
@@ -427,11 +490,12 @@ type TypeEmitter object {
         int i = 0;
         string tabst = tabs;
         foreach var t in bUnionType.members {
+            BType mType = getType(t);
             if (i != 0) {
                 print(" | ");
                 tabst = "";
             }
-            self.emitType(t, tabs = tabst);
+            self.emitType(mType, tabs = tabst);
             i = i + 1;
         }
     }
@@ -440,10 +504,11 @@ type TypeEmitter object {
         int i = 0;
         print(tabs, "(");
         foreach var t in bUnionType.tupleTypes {
+            BType tType = getType(t);
             if (i != 0) {
                 print(", ");
             }
-            self.emitType(t);
+            self.emitType(tType);
             i = i + 1;
         }
         print(")");
@@ -452,6 +517,12 @@ type TypeEmitter object {
     function emitMapType(BMapType bMapType, string tabs) {
         print(tabs, "map<");
         self.emitType(bMapType.constraint);
+        print(">");
+    }
+
+    function emitTableType(BTableType bTableType, string tabs) {
+        print(tabs, "table<");
+        self.emitType(bTableType.tConstraint);
         print(">");
     }
 
@@ -494,7 +565,7 @@ type PositionEmitter object {
 function emitObjectTypeWithFields(BObjectType bObjectType, TypeEmitter typeEmitter, string tabs) {
     println(tabs, bObjectType.isAbstract ? "abstract " : "", "object {");
     foreach var f in bObjectType.fields {
-        if (f is BObjectField){
+        if (f is BObjectField) {
             string visibility = f.visibility;
             print(tabs + "\t", visibility.toLower(), " ");
             typeEmitter.emitType(f.typeValue);

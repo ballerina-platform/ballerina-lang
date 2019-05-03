@@ -27,7 +27,7 @@ public class BFutureType extends BType {
     private BType constraint;
 
     /**
-     * Create a {@code BTableType} which represents the SQL Result Set.
+     * Create a {@code {@link BFutureType}} which represents the future value.
      *
      * @param typeName string name of the type
      * @param pkgPath of the type

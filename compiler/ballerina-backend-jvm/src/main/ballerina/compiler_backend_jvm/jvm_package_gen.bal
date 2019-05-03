@@ -16,7 +16,7 @@
 
 final map<string> fullQualifiedClassNames = {};
 
-map<(bir:AsyncCall,string)> lambdas = {};
+map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
 
 function lookupFullQualifiedClassName(string key) returns string {
     var result = fullQualifiedClassNames[key];
@@ -75,10 +75,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
         cw.visitSource(v.sourceFileName);
         // generate methods
         foreach var func in v.functions {
-            bir:Function currentFunc = getFunction(func);
-            if (!isExternFunc(currentFunc)) {
-                generateMethod(currentFunc, cw, module);
-            }
+            generateMethod(getFunction(func), cw, module);
         }
         // generate lambdas created during generating methods
         foreach var (name, call) in lambdas {
@@ -137,10 +134,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
         cw.visitSource(v.sourceFileName);
         // generate methods
         foreach var func in v.functions {
-            bir:Function currentFunc = getFunction(func);
-            if (!isExternFunc(currentFunc)) {
-                generateMethod(currentFunc, cw, module);
-            }
+            generateMethod(getFunction(func), cw, module);
         }
         
         // generate lambdas
@@ -214,7 +208,7 @@ function cleanupPackageName(string pkgName) returns string {
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
 function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
-                                 map<(bir:AsyncCall,string)> lambdaCalls) returns map<JavaClass> {
+                                 map<(bir:AsyncCall|bir:FPLoad,string)> lambdaCalls) returns map<JavaClass> {
     
     string orgName = module.org.value;
     string moduleName = module.name.value;

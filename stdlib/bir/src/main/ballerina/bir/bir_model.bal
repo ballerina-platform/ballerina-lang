@@ -112,6 +112,9 @@ public const INS_KIND_XML_LOAD_ALL = "XML_LOAD_ALL";
 public const INS_KIND_XML_ATTRIBUTE_STORE = "XML_ATTRIBUTE_STORE";
 public const INS_KIND_XML_ATTRIBUTE_LOAD = "XML_ATTRIBUTE_LOAD";
 public const INS_KIND_FP_LOAD = "FP_LOAD";
+public const INS_KIND_NEW_TABLE = "NEW_TABLE";
+public const INS_KIND_TYPEOF = "TYPEOF";
+public const INS_KIND_NOT = "NOT";
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
                                 INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
@@ -121,7 +124,8 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_NEW_STRING_XML_QNAME | INS_KIND_XML_SEQ_STORE | INS_KIND_NEW_XML_TEXT |
                                 INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
                                 INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
-                                INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD;
+                                INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_NEW_TABLE | INS_KIND_TYPEOF |
+                                INS_KIND_NOT;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -130,9 +134,10 @@ public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
 public const TERMINATOR_PANIC = "PANIC";
 public const TERMINATOR_WAIT = "WAIT";
+public const TERMINATOR_FP_CALL = "FP_CALL";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
-                                |TERMINATOR_PANIC|TERMINATOR_WAIT;
+                                |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL;
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -168,13 +173,13 @@ public const ARRAY_STATE_UNSEALED = "UNSEALED";
 
 public type ArrayState ARRAY_STATE_CLOSED_SEALED | ARRAY_STATE_OPEN_SEALED | ARRAY_STATE_UNSEALED;
 
-public type VariableDcl record {
+public type VariableDcl record {|
     VarKind kind = "LOCAL";
     VarScope varScope = VAR_SCOPE_FUNCTION;
     Name name = {};
     BType typeValue = "()";
     anydata...; // This is to type match with Object type fields in subtypes
-};
+|};
 
 public type GlobalVariableDcl record {|
     VarKind kind = "GLOBAL";
@@ -220,6 +225,9 @@ public type BTypeDesc TYPE_DESC;
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
 
+public const TYPE_SERVICE = "service";
+public type BServiceType TYPE_SERVICE;
+
 public type BArrayType record {|
     ArrayState state;
     BType eType;
@@ -227,6 +235,10 @@ public type BArrayType record {|
 
 public type BMapType record {|
     BType constraint;
+|};
+
+public type BTableType record {|
+    BType tConstraint;
 |};
 
 public type BErrorType record {|
@@ -272,20 +284,25 @@ public type BObjectField record {
 };
 
 public type BUnionType record {|
-   BType[]  members;
+   BType?[]  members;
 |};
 
 public type BTupleType record {|
-   BType[]  tupleTypes;
+   BType?[]  tupleTypes;
 |};
 
 public type BFutureType record {|
     BType returnType;
 |};
 
+public type BFiniteType record {|
+    (int | string | boolean | float | byte| ()) [] values;
+|};
+
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc| BXMLType;
+                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType |
+                  BFiniteType | BTableType;
 
 public type ModuleID record {|
     string org = "";
@@ -296,7 +313,7 @@ public type ModuleID record {|
 |};
 
 public type BInvokableType record {
-    BType[] paramTypes = [];
+    BType?[] paramTypes = [];
     BType retType?;
 };
 
@@ -342,6 +359,17 @@ public type NewMap record {|
     BType typeValue;
 |};
 
+public type NewTable record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef columnsOp;
+    VarRef dataOp;
+    VarRef indexColOp;
+    VarRef keyColOp;
+    BType typeValue;
+|};
+
 public type NewInstance record {|
     DiagnosticPos pos;
     InstructionKind kind;
@@ -371,6 +399,8 @@ public type FPLoad record {|
     VarRef lhsOp;
     ModuleID pkgID;
     Name name;
+    VariableDcl?[] params;
+    VarRef?[] closureMaps;
 |};
 
 public type FieldAccess record {|
@@ -478,6 +508,15 @@ public type Panic record {|
     VarRef errorOp;
 |};
 
+public type FPCall record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    VarRef fp;
+    VarRef? lhsOp;
+    VarRef?[] args;
+    BasicBlock thenBB;
+|};
+
 public type NewXMLElement record {|
     DiagnosticPos pos;
     InstructionKind kind;
@@ -530,4 +569,11 @@ public type NewXMLPI record {|
     VarRef lhsOp;
     VarRef dataOp;
     VarRef targetOp;
+|};
+
+public type UnaryOp record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef rhsOp;
 |};
