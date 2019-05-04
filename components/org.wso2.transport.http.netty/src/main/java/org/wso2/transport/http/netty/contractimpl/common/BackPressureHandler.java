@@ -31,7 +31,7 @@ import org.wso2.transport.http.netty.message.DefaultBackPressureObservable;
  * handling backpressure.
  */
 public class BackPressureHandler extends ChannelInboundHandlerAdapter {
-    private static final Logger LOG = LoggerFactory.getLogger(ChannelInboundHandlerAdapter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BackPressureHandler.class);
     private final BackPressureObservable backPressureObservable = new DefaultBackPressureObservable();
 
     @Override

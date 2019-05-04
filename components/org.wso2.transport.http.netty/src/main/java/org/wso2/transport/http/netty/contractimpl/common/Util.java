@@ -866,7 +866,7 @@ public class Util {
     }
 
     /**
-     * Based on the incoming request/response version, sets the relevant backpressure listener. Passthrough scenarios
+     * Based on the inbound listener type, sets the relevant backpressure listener. Passthrough scenarios
      * that are applicable here are (request HTTP/1.1-HTTP/1.1), (request HTTP/2-HTTP/1.1), (response HTTP/1.1-HTTP/1.1)
      * and (response HTTP/2-HTTP/1.1).
      *
@@ -898,7 +898,7 @@ public class Util {
             Channel channel = context.channel();
             if (!channel.isWritable() && channel.isActive()) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.warn("HTTP/1.1 channel is not writable in thread {} ", Thread.currentThread().getName());
+                    LOG.debug("HTTP/1.1 channel is not writable in thread {} ", Thread.currentThread().getName());
                 }
                 backpressureHandler.getBackPressureObservable().notifyUnWritable();
             }
