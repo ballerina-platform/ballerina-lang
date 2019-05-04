@@ -19,13 +19,13 @@ package org.ballerinalang.net.http.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -59,9 +59,37 @@ public class ParseHeader extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+//        String errMsg;
+//        try {
+//            String headerValue = context.getStringArgument(0);
+//            if (headerValue.contains(COMMA)) {
+//                headerValue = headerValue.substring(0, headerValue.indexOf(COMMA));
+//            }
+//
+//            // Set value and param map
+//            String value = headerValue.trim();
+//            if (headerValue.contains(SEMICOLON)) {
+//                value = HeaderUtil.getHeaderValue(value);
+//            }
+//            BValueArray contentTuple = new BValueArray(parseHeaderTupleType);
+//            contentTuple.add(0, new BString(value));
+//            contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
+//
+//            context.setReturnValues(contentTuple);
+//            return;
+//        } catch (BLangNullReferenceException ex) {
+//            errMsg = PARSER_ERROR + "header value cannot be null";
+//        } catch (BallerinaException ex) {
+//            errMsg = PARSER_ERROR + ex.getMessage();
+//        }
+//
+//        // set parse error
+//        context.setReturnValues(MimeUtil.createError(errMsg));
+    }
+
+    public static Object parseHeader(Strand strand, String headerValue) {
         String errMsg;
         try {
-            String headerValue = context.getStringArgument(0);
             if (headerValue.contains(COMMA)) {
                 headerValue = headerValue.substring(0, headerValue.indexOf(COMMA));
             }
@@ -71,12 +99,10 @@ public class ParseHeader extends BlockingNativeCallableUnit {
             if (headerValue.contains(SEMICOLON)) {
                 value = HeaderUtil.getHeaderValue(value);
             }
-            BValueArray contentTuple = new BValueArray(parseHeaderTupleType);
-            contentTuple.add(0, new BString(value));
+            ArrayValue contentTuple = new ArrayValue(parseHeaderTupleType);
+            contentTuple.add(0, value);
             contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
-
-            context.setReturnValues(contentTuple);
-            return;
+            return contentTuple;
         } catch (BLangNullReferenceException ex) {
             errMsg = PARSER_ERROR + "header value cannot be null";
         } catch (BallerinaException ex) {
@@ -84,6 +110,6 @@ public class ParseHeader extends BlockingNativeCallableUnit {
         }
 
         // set parse error
-        context.setReturnValues(MimeUtil.createError(errMsg));
+        return MimeUtil.createError(errMsg);
     }
 }

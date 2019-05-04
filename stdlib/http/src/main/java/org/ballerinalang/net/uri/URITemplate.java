@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.uri;
 
+import org.ballerinalang.net.http.HttpResourceArguments;
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.net.uri.parser.DataElementFactory;
 import org.ballerinalang.net.uri.parser.DataReturnAgent;
@@ -41,7 +42,7 @@ public class URITemplate<DataType, InboundMsgType> {
         this.syntaxTree = syntaxTree;
     }
 
-    public DataType matches(String uri, Map<String, String> variables, InboundMsgType inboundMsg) {
+    public DataType matches(String uri, HttpResourceArguments variables, InboundMsgType inboundMsg) {
         DataReturnAgent<DataType> dataReturnAgent = new DataReturnAgent<>();
         boolean isFound = syntaxTree.matchAll(uri, variables, 0, inboundMsg, dataReturnAgent);
         if (isFound) {

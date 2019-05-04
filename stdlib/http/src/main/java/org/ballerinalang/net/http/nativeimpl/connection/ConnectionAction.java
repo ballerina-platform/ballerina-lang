@@ -20,8 +20,6 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.DataContext;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -52,12 +50,12 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         outResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
     }
 
-    void serializeMsgDataSource(BValue outboundMessageSource, ObjectValue entityStruct,
+    static void serializeMsgDataSource(Object outboundMessageSource, ObjectValue entityStruct,
                                 OutputStream messageOutputStream) {
         serializeDataSource(outboundMessageSource, entityStruct, messageOutputStream);
     }
 
-    HttpMessageDataStreamer getMessageDataStreamer(HttpCarbonMessage outboundResponse) {
+    static HttpMessageDataStreamer getMessageDataStreamer(HttpCarbonMessage outboundResponse) {
         return getResponseDataStreamer(outboundResponse);
     }
 

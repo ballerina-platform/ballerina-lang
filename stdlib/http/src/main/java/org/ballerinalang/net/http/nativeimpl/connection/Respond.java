@@ -25,6 +25,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -109,8 +110,11 @@ public class Respond extends ConnectionAction {
     }
 
     public static void nativeRespond(Strand strand, ObjectValue connectionObj, ObjectValue outboundResponseObj) {
+        //TODO : TempCallableUnitCallback is used to handle non blocking call
+        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
-        DataContext dataContext = new DataContext(strand, null, null, inboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, false, callback, null, null, inboundRequestMsg);
         HttpCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseObj, HttpUtil.createHttpCarbonMessage(false));
         outboundResponseMsg.setPipeliningEnabled(inboundRequestMsg.isPipeliningEnabled());
@@ -145,6 +149,8 @@ public class Respond extends ConnectionAction {
             } else {
                 sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseObj, outboundResponseMsg);
             }
+            //TODO : Temporary block the call. Remove this callback once the support is available
+            callback.sync();
         } catch (EncoderException e) {
             //Exception is already notified by http transport.
             log.debug("Couldn't complete outbound response", e);

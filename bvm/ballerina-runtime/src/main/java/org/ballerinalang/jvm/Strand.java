@@ -37,4 +37,12 @@ public class Strand {
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
     }
+
+    public void block() {
+
+    }
+
+    public void resume(Object returnValue) {
+
+    }
 }

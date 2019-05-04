@@ -62,7 +62,7 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
 //        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 //
 //        ParamDetail param;
-//        if (service.getResources().length > 0 && (param = service.getResources()[0].getParamDetails().get(0)) != null) {
+//        if (service.getResources().length > 0 && (param = service.getResources()[0].getParamTypes().get(0)) != null) {
 //            String callerType = param.getVarType().toString();
 //            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
 //                httpServicesRegistry.registerService(service);

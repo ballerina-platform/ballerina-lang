@@ -18,17 +18,16 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -71,7 +70,6 @@ public class ResponseWriter {
         HttpConnectorListener outboundResStatusConnectorListener =
                 new ResponseWriter.HttpResponseConnectorListener(dataContext, outboundMsgDataStreamer);
         outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
-
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
         if (entityObj != null) {
             if (boundaryString != null) {
@@ -167,7 +165,7 @@ public class ResponseWriter {
 
         @Override
         public void onMessage(HttpCarbonMessage httpCarbonMessage) {
-//            this.dataContext.notifyOutboundResponseStatus(null);
+            this.dataContext.notifyOutboundResponseStatus(null);
         }
 
         @Override
@@ -181,7 +179,7 @@ public class ResponseWriter {
                             .setIoException(new IOException(throwable.getMessage(), throwable));
                 }
             }
-//            this.dataContext.notifyOutboundResponseStatus(httpConnectorError);
+            this.dataContext.notifyOutboundResponseStatus(httpConnectorError);
         }
     }
 }

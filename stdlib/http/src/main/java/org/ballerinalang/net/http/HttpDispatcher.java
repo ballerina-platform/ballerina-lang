@@ -51,17 +51,6 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
 
-//import org.ballerinalang.model.types.BArrayType;
-//import org.ballerinalang.model.types.BStructureType;
-//import org.ballerinalang.model.types.BType;
-//import org.ballerinalang.model.types.TypeTags;
-//import org.ballerinalang.model.util.JSONUtils;
-//import org.ballerinalang.model.values.BMap;
-//import org.ballerinalang.model.values.BString;
-//import org.ballerinalang.model.values.BValue;
-//import org.ballerinalang.model.values.BValueArray;
-//import org.ballerinalang.model.values.BXML;
-
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
  *
@@ -173,20 +162,19 @@ public class HttpDispatcher {
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
         Object[] paramValues = new Object[signatureParams.getParamCount()];
-//        bValues[0] = httpCaller;
-//        bValues[1] = inRequest;
+        paramValues[0] = httpCaller;
+        paramValues[1] = inRequest;
         if (signatureParams.getParamCount() == 2) {
             return paramValues;
         }
 
-        Map<String, String> resourceArgumentValues =
-                (Map<String, String>) httpCarbonMessage.getProperty(HttpConstants.RESOURCE_ARGS);
+        HttpResourceArguments resourceArgumentValues =
+                (HttpResourceArguments) httpCarbonMessage.getProperty(HttpConstants.RESOURCE_ARGS);
         for (int i = 0; i < signatureParams.getPathParams().size(); i++) {
             //No need for validation as validation already happened at deployment time,
             //only string parameters can be found here.
-            //TODO : fix argumentValue
-//            String argumentValue = resourceArgumentValues.get(signatureParams.getPathParams().get(i).getVarName());
-            String argumentValue = "";
+            //TODO : fix argumentValue order issue
+            String argumentValue = resourceArgumentValues.getList().get(i);
             if (argumentValue != null) {
                 try {
                     argumentValue = URLDecoder.decode(argumentValue, "UTF-8");
@@ -203,7 +191,7 @@ public class HttpDispatcher {
         }
         try {
             paramValues[paramValues.length - 1] = populateAndGetEntityBody(inRequest, inRequestEntity,
-                                                                   signatureParams.getEntityBody().getVarType());
+                                                                   signatureParams.getEntityBody());
         } catch (BallerinaException ex) {
             httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_BAD_REQUEST);
             throw new BallerinaConnectorException("data binding failed: " + ex.getMessage());
@@ -213,7 +201,7 @@ public class HttpDispatcher {
 
     private static Object populateAndGetEntityBody(ObjectValue inRequest, ObjectValue inRequestEntity,
                                                    org.ballerinalang.jvm.types.BType entityBodyType) {
-        HttpUtil.populateEntityBody(null, inRequest, inRequestEntity, true, true);
+        HttpUtil.populateEntityBody(inRequest, inRequestEntity, true, true);
         try {
             switch (entityBodyType.getTag()) {
                 case TypeTags.STRING_TAG:

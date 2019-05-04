@@ -19,12 +19,10 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.jvm.values.connector.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +130,7 @@ public class HTTPServicesRegistry {
 
     private void registerUpgradableWebSocketService(HttpService httpService) {
         httpService.getUpgradeToWebSocketResources().forEach(upgradeToWebSocketResource -> {
-            ProgramFile programFile = WebSocketUtil.getProgramFile(upgradeToWebSocketResource.getBalResource());
+//            ProgramFile programFile = WebSocketUtil.getProgramFile(upgradeToWebSocketResource.getBalResource());
             MapValue resourceConfigAnnotation =
                     HttpUtil.getResourceConfigAnnotation(upgradeToWebSocketResource.getBalResource(),
                                                          HttpConstants.HTTP_PACKAGE_PATH);
@@ -142,11 +140,12 @@ public class HTTPServicesRegistry {
             }
             MapValue webSocketConfig = resourceConfigAnnotation.getMapValue(
                     HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
-            MapValue serviceField =
-                    (MapValue) webSocketConfig.get(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
-            Service webSocketTypeService = BLangConnectorSPIUtil.getService(programFile, serviceField);
+            ObjectValue serviceField =
+                    (ObjectValue) webSocketConfig.get(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
+            //TODO Test following line whether need to create a service here
+//            ObjectValue webSocketTypeService = BLangConnectorSPIUtil.getService(serviceField);
             WebSocketService webSocketService = new WebSocketService(sanitizeBasePath(httpService.getBasePath()),
-                                                                     upgradeToWebSocketResource, webSocketTypeService);
+                                                                     upgradeToWebSocketResource, serviceField);
             webSocketServicesRegistry.registerService(webSocketService);
         });
     }

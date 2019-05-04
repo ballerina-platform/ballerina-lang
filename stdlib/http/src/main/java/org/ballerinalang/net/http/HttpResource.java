@@ -281,15 +281,15 @@ public class HttpResource {
         signatureParams.validate();
     }
 
-    public List<ParamDetail> getParamDetails() {
+    public List<BType> getParamTypes() {
         // TODO remove paramDetail class
-        List<ParamDetail> paramDetails = new ArrayList<>();
+        List<BType> paramDetails = new ArrayList<>();
         for (BType paramType : this.balResource.getParameterType()) {
             //TODO:Get this clarified
             if (paramType.getName().equals("self")) {
                 continue;
             }
-            paramDetails.add(new ParamDetail(paramType));
+            paramDetails.add(paramType);
         }
         return paramDetails;
     }

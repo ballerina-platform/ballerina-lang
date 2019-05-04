@@ -18,9 +18,16 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
 
 /**
  * {@code DataContext} is the wrapper to hold {@code Context} and {@code CallableUnitCallback}.
@@ -29,7 +36,8 @@ public class DataContext {
     private final Strand strand;
     private final ObjectValue clientObj;
     private final ObjectValue requestObj;
-    //    public Context context;
+    private final TempCallableUnitCallback callback;
+//    public Context context;
 //    public CallableUnitCallback callback;
     private HttpCarbonMessage correlatedMessage;
 
@@ -39,35 +47,59 @@ public class DataContext {
 //        this.correlatedMessage = correlatedMessage;
 //    }
 
-    public DataContext(Strand strand, ObjectValue clientObj, ObjectValue requestObj, HttpCarbonMessage outboundRequestMsg) {
+    public DataContext(Strand strand, ObjectValue clientObj, ObjectValue requestObj,
+                       HttpCarbonMessage outboundRequestMsg) {
         this.strand = strand;
         this.clientObj = clientObj;
         this.requestObj = requestObj;
         this.correlatedMessage = outboundRequestMsg;
+        this.callback = null;
     }
 
-//    public void notifyInboundResponseStatus(BMap<String, BValue> inboundResponse, BError httpConnectorError) {
-//        //Make the request associate with this response consumable again so that it can be reused.
-//        if (inboundResponse != null) {
-//            context.setReturnValues(inboundResponse);
-//        } else if (httpConnectorError != null) {
-//            context.setReturnValues(httpConnectorError);
-//        } else {
-//            BMap<String, BValue> err = BLangConnectorSPIUtil.createBStruct(context, PACKAGE_BALLERINA_BUILTIN,
-//                    STRUCT_GENERIC_ERROR, "HttpClient failed");
-//            context.setReturnValues(err);
-//        }
-//        callback.notifySuccess();
-//    }
+    public DataContext(Strand strand, Boolean blocking, TempCallableUnitCallback callback, ObjectValue clientObj, ObjectValue requestObj,
+                       HttpCarbonMessage outboundRequestMsg) {
+        this.strand = strand;
+        //TODO : TempCallableUnitCallback is used to handle non blocking call
+        this.callback = callback;
+        this.clientObj = clientObj;
+        this.requestObj = requestObj;
+        this.correlatedMessage = outboundRequestMsg;
+        if (!blocking) {
+            // Thread is not blocked(released to the pool) but the ballerina execution is blocked until the
+            // returnValue is retrieved.
+            strand.block();
+        }
+    }
 
-//    public void notifyOutboundResponseStatus(BError httpConnectorError) {
-//        if (httpConnectorError == null) {
-//            context.setReturnValues();
-//        } else {
-//            context.setReturnValues(httpConnectorError);
-//        }
-//        callback.notifySuccess();
-//    }
+    public void notifyInboundResponseStatus(ObjectValue inboundResponse, ErrorValue httpConnectorError) {
+        //Make the request associate with this response consumable again so that it can be reused.
+        if (inboundResponse != null) {
+            callback.setReturnValues(inboundResponse);
+            strand.resume(inboundResponse);
+        } else if (httpConnectorError != null) {
+            callback.setReturnValues(httpConnectorError);
+            strand.resume(httpConnectorError);
+        } else {
+            MapValue<String, Object> err = BallerinaValues.createRecordValue(PACKAGE_BALLERINA_BUILTIN,
+                                                                             STRUCT_GENERIC_ERROR);
+            callback.setReturnValues(err);
+            strand.resume(err);
+        }
+        //TODO remove this call back
+        callback.notifySuccess();
+    }
+
+    public void notifyOutboundResponseStatus(ErrorValue httpConnectorError) {
+        if (httpConnectorError == null) {
+            callback.setReturnValues(null);
+            strand.resume(null);
+        } else {
+            callback.setReturnValues(httpConnectorError);
+            strand.resume(httpConnectorError);
+        }
+        //TODO remove this call back
+        callback.notifySuccess();
+    }
 
     public HttpCarbonMessage getOutboundRequest() {
         return correlatedMessage;
