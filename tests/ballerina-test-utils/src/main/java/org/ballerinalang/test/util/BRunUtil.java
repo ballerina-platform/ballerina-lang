@@ -313,10 +313,10 @@ public class BRunUtil {
                 } catch (InvocationTargetException e) {
                     Throwable t = e.getTargetException();
                     if (t instanceof BLangRuntimeException) {
-                        throw (BLangRuntimeException) t;
+                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
                     if (t instanceof ErrorValue) {
-                        throw new BLangRuntimeException("error: " + BLangVMErrors
+                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException("error: " + BLangVMErrors
                                 .getPrintableStackTrace((ErrorValue) t));
                     }
                     throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
