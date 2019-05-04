@@ -34,7 +34,10 @@ install:
   - export JAVA_HOME="c:\\java8"
 
 script:
+  - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
   - ./gradlew build jacocoTestReport --console=plain --stacktrace -scan --no-daemon
+  # Killing background sleep loop
+  - kill %1
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
