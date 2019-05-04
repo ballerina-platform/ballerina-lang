@@ -51,7 +51,7 @@ public function main() {
     // This creates a tuple with two members.
     (int, string) tupleVar = (10, "John");
 
-    // This prints the size of the tuple.
+    // This prints the size of the tuple i.e. the number of members in the tuple.
     length = tupleVar.length();
     io:println("Tuple size: ", length);
 
@@ -71,15 +71,15 @@ public function main() {
         ]
     };
 
-    // This prints the number of rows of the in-memory table constrained table.
+    // This prints the number of rows in the in-memory table.
     length = tbStudent.length();
     io:println("Row count in table : ", length);
 }
 
-type Student record {
+type Student record {|
     int id;
     string fname;
     string lname;
     int age;
     string...;
-};
+|};

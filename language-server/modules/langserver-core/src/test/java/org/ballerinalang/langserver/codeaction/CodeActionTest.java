@@ -90,13 +90,14 @@ public class CodeActionTest {
 
         Assert.assertEquals(numberOfCommands, result.size());
         result.forEach(element -> {
-            JsonObject left = element.getAsJsonObject().get("left").getAsJsonObject();
+            JsonObject left = element.getAsJsonObject().get("right").getAsJsonObject();
             String title = left.get("title").getAsString();
-            String command = left.get("command").getAsString();
+            JsonObject cmd = left.get("command").getAsJsonObject();
+            String command = cmd.get("command").getAsString();
             switch (command) {
                 case AddDocumentationExecutor.COMMAND:
                     Assert.assertEquals(title, "Document This");
-                    JsonArray args = left.get("arguments").getAsJsonArray();
+                    JsonArray args = cmd.get("arguments").getAsJsonArray();
                     JsonArray documentThisArr = documentThis.getAsJsonArray("arguments");
                     Assert.assertTrue(TestUtil.isArgumentsSubArray(args, documentThisArr));
                     break;
@@ -137,9 +138,11 @@ public class CodeActionTest {
         boolean codeActionFound = false;
         JsonObject responseJson = this.getResponseJson(res);
         for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
-            JsonObject leftItem = jsonElement.getAsJsonObject().get("left").getAsJsonObject();
-            if (leftItem.get("title").toString().equals(title) && leftItem.get("command").toString().equals(command)
-                    && TestUtil.isArgumentsSubArray(leftItem.get("arguments").getAsJsonArray(), args)) {
+            JsonObject leftItem = jsonElement.getAsJsonObject().get("right").getAsJsonObject();
+            JsonObject cmd = leftItem.get("command").getAsJsonObject();
+            if (leftItem.get("title").toString().equals(title) &&
+                    cmd.get("command").toString().equals(command)
+                    && TestUtil.isArgumentsSubArray(cmd.get("arguments").getAsJsonArray(), args)) {
                 codeActionFound = true;
                 break;
             }
@@ -148,7 +151,7 @@ public class CodeActionTest {
         Assert.assertTrue(codeActionFound, "Cannot find expected Code Action for: " + title);
     }
 
-    @Test(dataProvider = "codeaction-testgen-data-provider", enabled = false)
+    @Test(dataProvider = "codeaction-testgen-data-provider")
     public void testCodeActionWithTestGen(String config, Path source) throws IOException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -174,8 +177,10 @@ public class CodeActionTest {
             boolean codeActionFound = false;
             JsonObject responseJson = this.getResponseJson(res);
             for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
-                if (jsonElement.getAsJsonObject().get("title").toString().equals(title)
-                        && jsonElement.getAsJsonObject().get("command").toString().equals(command)) {
+                JsonElement right = jsonElement.getAsJsonObject().get("right");
+                if (right.getAsJsonObject().get("title").toString().equals(title)
+                        && right.getAsJsonObject().get("command").getAsJsonObject().get("command").toString().equals(
+                        command)) {
                     codeActionFound = true;
                     break;
                 }

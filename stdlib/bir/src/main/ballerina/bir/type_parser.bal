@@ -46,8 +46,7 @@ public type TypeParser object {
     public int TYPE_TAG_VOID = TYPE_TAG_NONE + 1;
     public int TYPE_TAG_XMLNS = TYPE_TAG_VOID + 1;
     public int TYPE_TAG_ANNOTATION = TYPE_TAG_XMLNS + 1;
-    public int TYPE_TAG_XML_ATTRIBUTES = TYPE_TAG_ANNOTATION + 1;
-    public int TYPE_TAG_SEMANTIC_ERROR = TYPE_TAG_XML_ATTRIBUTES + 1;
+    public int TYPE_TAG_SEMANTIC_ERROR = TYPE_TAG_ANNOTATION + 1;
     public int TYPE_TAG_ERROR = TYPE_TAG_SEMANTIC_ERROR + 1;
     public int TYPE_TAG_ITERATOR = TYPE_TAG_ERROR + 1;
     public int TYPE_TAG_TUPLE = TYPE_TAG_ITERATOR + 1;
@@ -57,12 +56,12 @@ public type TypeParser object {
     public int TYPE_TAG_OBJECT = TYPE_TAG_FINITE + 1;
     public int TYPE_TAG_BYTE_ARRAY = TYPE_TAG_OBJECT + 1;
     public int TYPE_TAG_FUNCTION_POINTER = TYPE_TAG_BYTE_ARRAY + 1;
-    public int TYPE_TAG_CHANNEL = TYPE_TAG_BYTE_ARRAY + 1;
+    public int TYPE_TAG_CHANNEL = TYPE_TAG_FUNCTION_POINTER + 1;
 
-    public int TYPE_TAG_SERVICE = TYPE_TAG_OBJECT;
     public int TYPE_TAG_SELF = 50;
+    public int TYPE_TAG_SERVICE = 51;
 
-    BType[] compositeStack = [];
+    BType?[] compositeStack = [];
     int compositeStackI = 0;
 
     public function __init(BirChannelReader reader) {
@@ -89,6 +88,8 @@ public type TypeParser object {
             return TYPE_STRING;
         } else if (typeTag == self.TYPE_TAG_BOOLEAN){
             return TYPE_BOOLEAN;
+        } else if (typeTag == self.TYPE_TAG_TYPEDESC) {
+            return TYPE_DESC;
         } else if (typeTag == self.TYPE_TAG_UNION){
             return self.parseUnionType();
         } else if (typeTag == self.TYPE_TAG_TUPLE){
@@ -97,22 +98,30 @@ public type TypeParser object {
             return self.parseArrayType();
         } else if (typeTag == self.TYPE_TAG_MAP){
             return self.parseMapType();
+        } else if (typeTag == self.TYPE_TAG_TABLE){
+            return self.parseTableType();
         } else if (typeTag == self.TYPE_TAG_INVOKABLE){
             return self.parseInvokableType();
         } else if (typeTag == self.TYPE_TAG_RECORD){
             return self.parseRecordType();
         } else if (typeTag == self.TYPE_TAG_OBJECT){
             return self.parseObjectType();
+        } else if (typeTag == self.TYPE_TAG_SERVICE){
+            return TYPE_SERVICE;
         } else if (typeTag == self.TYPE_TAG_ERROR){
             return self.parseErrorType();
         } else if (typeTag == self.TYPE_TAG_FUTURE){
             return self.parseFutureType();
         } else if (typeTag == self.TYPE_TAG_JSON){
             return TYPE_JSON;
+        } else if (typeTag == self.TYPE_TAG_XML){
+            return TYPE_XML;
         } else if (typeTag == self.TYPE_TAG_SELF){
             int selfIndex = self.reader.readInt32();
-            Self t = {bType: self.compositeStack[self.compositeStackI - 1]};
+            Self t = {bType: getType(self.compositeStack[self.compositeStackI - 1])};
             return t;
+        } else if(typeTag == self.TYPE_TAG_FINITE) {
+            return self.parseFiniteType();
         }
         error err = error("Unknown type tag :" + typeTag);
         panic err;
@@ -124,6 +133,10 @@ public type TypeParser object {
 
     function parseMapType() returns BMapType {
         return { constraint:self.parseType() };
+    }
+
+    function parseTableType() returns BTableType {
+        return { tConstraint:self.parseType() };
     }
 
     function parseFutureType() returns BFutureType {
@@ -164,6 +177,7 @@ public type TypeParser object {
 
     function parseObjectType() returns BObjectType {
         BObjectType obj = { name: { value: self.reader.readStringCpRef() },
+            isAbstract: self.reader.readBoolean(),
             fields: [],
             attachedFunctions: [] };
         self.compositeStack[self.compositeStackI] = obj;
@@ -219,11 +233,11 @@ public type TypeParser object {
         return err;
     }
 
-    function parseTypes() returns BType[] {
+    function parseTypes() returns BType?[] {
         int count = self.reader.readInt32();
         int i = 0;
 
-        BType[] types = [];
+        BType?[] types = [];
         while (i < count) {
             types[types.length()] = self.parseType();
             i = i + 1;
@@ -242,5 +256,31 @@ public type TypeParser object {
         }
         error err = error("unknown array state tag " + b);
         panic err;
+    }
+
+    function parseFiniteType() returns BFiniteType {
+        int size = self.reader.readInt32();
+        int c = 0;
+        BFiniteType finiteType = {values:[]};
+        while c < size {
+            BType valueType = self.parseType();
+            finiteType.values[c] = self.getValue(valueType);
+            c = c + 1;
+        }
+        return finiteType;
+    }
+
+    private function getValue(BType valueType) returns (int | string | boolean | float | byte| ()) {
+        if (valueType is BTypeInt || valueType is BTypeByte) {
+            return self.reader.readIntCpRef();
+        } else if (valueType is BTypeString) {
+            return self.reader.readStringCpRef();
+        } else if (valueType is BTypeBoolean) {
+            return self.reader.readInt8() == 1;
+        } else if (valueType is BTypeFloat) {
+            return self.reader.readFloatCpRef();
+        } else if (valueType is BTypeNil) {
+            return ();
+        }
     }
 };

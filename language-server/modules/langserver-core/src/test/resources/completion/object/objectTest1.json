@@ -8,19 +8,19 @@
     {
       "label":"channel",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Channel",
       "insertText":"channel"
     },
     {
       "label":"xml",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Xml",
       "insertText":"xml"
     },
     {
       "label":"TableConfig",
       "kind":"Class",
-      "detail":"BType",
+      "detail":"Record",
       "documentation": {
         "left": "TableConfig represents properties used during table initialization.\n"
       },
@@ -29,121 +29,121 @@
     {
       "label":"byte",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Byte",
       "insertText":"byte"
     },
     {
       "label":"stream",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Stream",
       "insertText":"stream"
     },
     {
       "label":"testObject",
       "kind":"Class",
-      "detail":"BType",
+      "detail":"Object",
       "insertText":"testObject"
     },
     {
       "label":"AbstractListener",
       "kind":"Class",
-      "detail":"BType",
+      "detail":"Object",
       "insertText":"AbstractListener"
     },
     {
       "label":"map",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Map",
       "insertText":"map"
     },
     {
       "label":"table",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Table",
       "insertText":"table"
     },
     {
       "label":"anydata",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Anydata",
       "insertText":"anydata"
     },
     {
       "label":"future",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Future",
       "insertText":"future"
     },
     {
       "label":"typedesc",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Typedesc",
       "insertText":"typedesc"
     },
     {
       "label":"float",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Float",
       "insertText":"float"
     },
     {
       "label":"testEmptyObject",
       "kind":"Class",
-      "detail":"BType",
+      "detail":"Object",
       "insertText":"testEmptyObject"
     },
     {
       "label":"null",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Nil",
       "insertText":"null"
     },
     {
       "label":"decimal",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Decimal",
       "insertText":"decimal"
     },
     {
       "label":"string",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"String",
       "insertText":"string"
     },
     {
       "label":"error",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Error",
       "insertText":"error"
     },
     {
       "label":"json",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Json",
       "insertText":"json"
     },
     {
       "label":"any",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Any",
       "insertText":"any"
     },
     {
       "label":"int",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Int",
       "insertText":"int"
     },
     {
       "label":"boolean",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Boolean",
       "insertText":"boolean"
     },
     {
       "label":"service",
       "kind":"Keyword",
-      "detail":"BType",
+      "detail":"Service",
       "insertText":"service"
     },
     {

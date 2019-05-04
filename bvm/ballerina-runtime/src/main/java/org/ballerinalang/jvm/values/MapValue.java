@@ -87,6 +87,34 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
         }
     }
 
+    public Long getIntValue(String key) {
+        return (Long) get(key);
+    }
+
+    public Double getFloatValue(String key) {
+        return (Double) get(key);
+    }
+
+    public String getStringValue(String key) {
+        return (String) get(key);
+    }
+
+    public Boolean getBooleanValue(String key) {
+        return (Boolean) get(key);
+    }
+
+    public MapValue getMapValue(String key) {
+        return (MapValue) get(key);
+    }
+
+    public ObjectValue getObjectValue(String key) {
+        return (ObjectValue) get(key);
+    }
+
+    public ArrayValue getArrayValue(String key) {
+        return (ArrayValue) get(key);
+    }
+
     /**
      * Retrieve the value for the given key from map.
      * A {@link BallerinaException} will be thrown if the key does not exists.

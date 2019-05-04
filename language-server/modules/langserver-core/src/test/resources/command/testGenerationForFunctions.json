@@ -253,6 +253,44 @@
                 ],
                 "services": []
             }
+        },
+        {
+            "arguments": {
+                "node.line": 66,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log",
+                    "ballerina/http"
+                ],
+                "globals": [],
+                "functions": [
+                    "testErrorAsParam",
+                    "testErrorAsParamDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 70,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log",
+                    "ballerina/http"
+                ],
+                "globals": [],
+                "functions": [
+                    "testVoidFunc",
+                    "testVoidFuncDataProvider"
+                ],
+                "services": []
+            }
         }
     ]
 }

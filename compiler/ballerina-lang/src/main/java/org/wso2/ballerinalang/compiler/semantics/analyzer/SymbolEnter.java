@@ -120,6 +120,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -139,6 +140,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final BLangDiagnosticLog dlog;
     private final Types types;
     private List<BLangTypeDefinition> unresolvedTypes;
+    private List<PackageID> importedPackages;
     private int typePrecedence;
 
     private SymbolEnv env;
@@ -161,6 +163,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
+        this.importedPackages = new ArrayList<>();
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -203,10 +206,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
 
+        // Add the current package node's ID to the imported package list. This is used to identify cyclic module
+        // imports.
+        importedPackages.add(pkgNode.packageID);
+
         defineConstructs(pkgNode, pkgEnv);
         pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv,
                                                                                    pkgNode.imports));
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
+
+        // After we have visited a package node, we need to remove it from the imports list.
+        importedPackages.remove(pkgNode.packageID);
     }
 
     private void defineConstructs(BLangPackage pkgNode, SymbolEnv pkgEnv) {
@@ -318,6 +328,47 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (pkgId.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
             dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
+            return;
+        }
+
+        // Detect cyclic module dependencies. This will not detect cycles which starts with the entry package because
+        // entry package has a version. So we check import cycles which starts with the entry package in next step.
+        if (importedPackages.contains(pkgId)) {
+            int index = importedPackages.indexOf(pkgId);
+            // Generate the import cycle.
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = index; i < importedPackages.size(); i++) {
+                stringBuilder.append(importedPackages.get(i).toString()).append(" -> ");
+            }
+            // Append the current package to complete the cycle.
+            stringBuilder.append(pkgId);
+            dlog.error(importPkgNode.pos, DiagnosticCode.CYCLIC_MODULE_IMPORTS_DETECTED, stringBuilder.toString());
+            return;
+        }
+
+        boolean samePkg = false;
+        // Get the entry package.
+        PackageID entryPackage = importedPackages.get(0);
+        if (entryPackage.isUnnamed == pkgId.isUnnamed) {
+            samePkg = (!entryPackage.isUnnamed) || (entryPackage.sourceFileName.equals(pkgId.sourceFileName));
+        }
+        // Check whether the package which we have encountered is the same as the entry package. We don't need to
+        // check the version here because we cannot import two different versions of the same package at the moment.
+        if (samePkg && entryPackage.orgName.equals(pkgId.orgName) && entryPackage.name.equals(pkgId.name)) {
+            StringBuilder stringBuilder = new StringBuilder();
+            String entryPackageString = importedPackages.get(0).toString();
+            // We need to remove the package.
+            int packageIndex = entryPackageString.indexOf(":");
+            if (packageIndex != -1) {
+                entryPackageString = entryPackageString.substring(0, packageIndex);
+            }
+            // Generate the import cycle.
+            stringBuilder.append(entryPackageString).append(" -> ");
+            for (int i = 1; i < importedPackages.size(); i++) {
+                stringBuilder.append(importedPackages.get(i).toString()).append(" -> ");
+            }
+            stringBuilder.append(pkgId);
+            dlog.error(importPkgNode.pos, DiagnosticCode.CYCLIC_MODULE_IMPORTS_DETECTED, stringBuilder.toString());
             return;
         }
 

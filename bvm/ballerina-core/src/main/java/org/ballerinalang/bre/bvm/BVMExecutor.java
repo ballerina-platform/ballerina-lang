@@ -53,45 +53,12 @@ import java.util.Map;
 public class BVMExecutor {
 
     /**
-     * Execution API to execute package init and package start functions for the whole program file.
-     *
-     * @param programFile to be initialized
-     */
-    public static void initProgramFile(ProgramFile programFile) {
-        invokePackageInitFunctions(programFile);
-        invokePackageStartFunctions(programFile);
-    }
-
-    /**
-     * This will invoke package start functions.
+     * This will invoke package stop functions.
      *
      * @param programFile to be invoked.
      */
     public static void stopProgramFile(ProgramFile programFile) {
         invokePackageStopFunctions(programFile);
-    }
-
-    /**
-     * Execution API to execute program file starting from the given callable unit.
-     * this will call package init and start functions as well.
-     *
-     * @param programFile  to be executed
-     * @param functionInfo to be executed
-     * @param args         to be passed to the invokable unit
-     * @return results
-     */
-    public static BValue[] executeEntryFunction(ProgramFile programFile, FunctionInfo functionInfo, BValue... args) {
-        int requiredArgNo = functionInfo.getParamTypes().length;
-        int providedArgNo = args.length;
-        if (requiredArgNo != providedArgNo) {
-            throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
-                    providedArgNo + ".");
-        }
-        initProgramFile(programFile);
-//        new BalxEmitter().emit(programFile);
-        BValue[] result = new BValue[]{execute(programFile, functionInfo, args, null, true)};
-        BVMScheduler.waitForStrandCompletion();
-        return result;
     }
 
     /**
@@ -109,6 +76,7 @@ public class BVMExecutor {
             throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
                     providedArgNo + ".");
         }
+//        new BalxEmitter().emit(programFile);
         BValue[] result = new BValue[]{execute(programFile, functionInfo, args, null, true)};
         return result;
     }
@@ -262,7 +230,7 @@ public class BVMExecutor {
      *
      * @param programFile to be invoked.
      */
-    private static void invokePackageInitFunctions(ProgramFile programFile) {
+    public static void invokePackageInitFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
             BValue result = execute(programFile, info.getInitFunctionInfo(), new BValue[0], null, true);
             validateInvocationError(result);
@@ -275,7 +243,7 @@ public class BVMExecutor {
      *
      * @param programFile to be invoked.
      */
-    private static void invokePackageStartFunctions(ProgramFile programFile) {
+    public static void invokePackageStartFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
             BValue result = execute(programFile, info.getStartFunctionInfo(), new BValue[0], null, true);
             validateInvocationError(result);

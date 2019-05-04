@@ -1211,11 +1211,6 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return eligibility to use as the source type for 'convert' function
      */
     private boolean isConvertSupportedForSourceType(BType sourceType) {
-        switch (sourceType.tag) {
-            case TypeTags.XML_ATTRIBUTES:
-                return true;
-            default:
-                return types.isLikeAnydataOrNotNil(sourceType);
-        }
+        return types.isLikeAnydataOrNotNil(sourceType);
     }
 }

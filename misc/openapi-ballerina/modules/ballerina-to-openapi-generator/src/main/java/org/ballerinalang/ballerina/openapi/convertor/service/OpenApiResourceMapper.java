@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
 import javax.ws.rs.core.MediaType;
 
 import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
@@ -374,10 +375,6 @@ public class OpenApiResourceMapper {
                 if (paramAttributes.containsKey(ConverterConstants.ATTR_REQUIRED)) {
                     param.setRequired(Boolean.parseBoolean(ConverterUtils
                             .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_REQUIRED))));
-                }
-                if (paramAttributes.containsKey(ConverterConstants.ATTR_ALLOW_EMPTY)) {
-                    param.setAllowEmptyValue(Boolean.parseBoolean(ConverterUtils
-                            .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_ALLOW_EMPTY))));
                 }
                 // TODO: 5/2/18 Set Param Schema Details
 

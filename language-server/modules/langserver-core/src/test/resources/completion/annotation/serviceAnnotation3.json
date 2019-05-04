@@ -62,11 +62,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "authConfig",
+      "label": "auth",
       "kind": "Field",
       "detail": "Field",
       "sortText": "120",
-      "insertText": "authConfig: ${1:{}} // Values allowed: ballerina/http:ListenerAuthConfig|()",
+      "insertText": "auth: {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -74,7 +74,7 @@
       "kind": "Property",
       "detail": "none",
       "sortText": "110",
-      "insertText": "endpoints: [],\nhost: \"\",\nbasePath: \"\",\ncompression: {},\nchunking: \"AUTO\", // Values allowed: AUTO|ALWAYS|NEVER,\ncors: {},\nversioning: {},\nauthConfig: {} // Values allowed: ballerina/http:ListenerAuthConfig|()",
+      "insertText": "endpoints: [],\nhost: \"\",\nbasePath: \"\",\ncompression: {},\nchunking: \"AUTO\", // Values allowed: AUTO|ALWAYS|NEVER,\ncors: {},\nversioning: {},\nauth: {}",
       "insertTextFormat": "Snippet"
     }
   ]

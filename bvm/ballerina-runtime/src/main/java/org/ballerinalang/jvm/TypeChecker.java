@@ -18,8 +18,8 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BAttachedFunction;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BFiniteType;
 import org.ballerinalang.jvm.types.BFunctionType;
@@ -36,15 +36,20 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.XMLValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,7 +73,7 @@ public class TypeChecker {
 
     public static long anyToInt(Object sourceVal) {
         if (sourceVal instanceof Long) {
-            return ((Long) sourceVal).longValue();
+            return (Long) sourceVal;
         } else if (sourceVal instanceof Double) {
             return ((Double) sourceVal).longValue();
         } else {
@@ -80,7 +85,7 @@ public class TypeChecker {
         if (sourceVal instanceof Long) {
             return ((Long) sourceVal).doubleValue();
         } else if (sourceVal instanceof Double) {
-            return ((Double) sourceVal).doubleValue();
+            return (Double) sourceVal;
         } else {
             throw getTypeCastError(sourceVal, BTypes.typeFloat);
         }
@@ -88,15 +93,19 @@ public class TypeChecker {
 
     public static boolean anyToBoolean(Object sourceVal) {
         if (sourceVal instanceof Boolean) {
-            return ((Boolean) sourceVal).booleanValue();
+            return (Boolean) sourceVal;
         }
 
         throw getTypeCastError(sourceVal, BTypes.typeBoolean);
     }
 
-    public static byte anyToByte(Object sourceVal) {
+    public static long anyToByte(Object sourceVal) {
         if (sourceVal instanceof Byte) {
-            return ((Byte) sourceVal).byteValue();
+            return (Byte) sourceVal;
+        } else if (sourceVal instanceof Long) {
+            return (Long) sourceVal;
+        } else if (sourceVal instanceof Double) {
+            return ((Double) sourceVal).longValue();
         }
 
         throw getTypeCastError(sourceVal, BTypes.typeByte);
@@ -136,7 +145,7 @@ public class TypeChecker {
      * @param targetType type to test against
      * @return true if the two types are same; false otherwise
      */
-    public static boolean isSameType(BType sourceType, BType targetType) {
+    private static boolean isSameType(BType sourceType, BType targetType) {
         // First check whether both references points to the same object.
         if (sourceType == targetType || sourceType.equals(targetType)) {
             return true;
@@ -174,6 +183,51 @@ public class TypeChecker {
         }
     }
 
+    /**
+     * Deep value equality check for anydata.
+     *
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value on the right hand side
+     * @return True if values are equal, else false.
+     */
+    public static boolean isEqual(Object lhsValue, Object rhsValue) {
+        return isEqual(lhsValue, rhsValue, Collections.emptyList());
+    }
+
+    /**
+     * Reference equality check for values. If both the values are simple basic types, returns the same
+     * result as {@link #isEqual(Object, Object, List)}
+     *
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value on the right hand side
+     * @return True if values are reference equal or in the case of simple basic types if the values are equal,
+     *         else false.
+     */
+    public static boolean isReferenceEqual(Object lhsValue, Object rhsValue) {
+        if (lhsValue == rhsValue) {
+            return true;
+        }
+
+        // if one is null, the other also needs to be null to be true
+        if (lhsValue == null || rhsValue == null) {
+            return false;
+        }
+
+        if (isSimpleBasicType(getType(lhsValue)) && isSimpleBasicType(getType(rhsValue))) {
+            return isEqual(lhsValue, rhsValue);
+        }
+
+        return false;
+    }
+
+    public static TypedescValue getTypedesc(Object value) {
+        BType type = TypeChecker.getType(value);
+        if (type == null) {
+            return null;
+        }
+        return new TypedescValue(type);
+    }
+
     // Private methods
 
     private static boolean checkIsType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
@@ -192,6 +246,10 @@ public class TypeChecker {
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
             case TypeTags.SERVICE_TAG:
+                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                    return ((BFiniteType) sourceType).valueSpace.stream()
+                                                                .allMatch(bValue -> checkIsType(bValue, targetType));
+                }
                 return sourceType.getTag() == targetType.getTag();
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
@@ -209,7 +267,7 @@ public class TypeChecker {
                 return ((BUnionType) targetType).getMemberTypes().stream()
                         .anyMatch(type -> checkIsType(sourceType, type, unresolvedTypes));
             case TypeTags.ANY_TAG:
-                return true;
+                return checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG:
                 return isAnydata(sourceType);
             case TypeTags.OBJECT_TYPE_TAG:
@@ -335,6 +393,17 @@ public class TypeChecker {
         return true;
     }
 
+    private static boolean checkIsAnyType(BType sourceType) {
+        switch (sourceType.getTag()) {
+            case TypeTags.ERROR_TAG:
+                return false;
+            case TypeTags.UNION_TAG:
+                return ((BUnionType) sourceType).getMemberTypes().stream()
+                                                .allMatch(TypeChecker::checkIsAnyType);
+        }
+        return true;
+    }
+
     private static boolean checkIsFiniteType(BType sourceType, BFiniteType targetType, List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() != TypeTags.FINITE_TYPE_TAG) {
             return false;
@@ -345,7 +414,7 @@ public class TypeChecker {
             return false;
         }
 
-        return sourceFiniteType.valueSpace.stream().allMatch(value -> targetType.valueSpace.contains(value));
+        return targetType.valueSpace.containsAll(sourceFiniteType.valueSpace);
     }
 
     private static boolean checkIsFutureType(BType sourceType, BFutureType targetType, List<TypePair> unresolvedTypes) {
@@ -412,14 +481,14 @@ public class TypeChecker {
             }
         }
 
-        BAttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
-        BAttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
-        for (BAttachedFunction lhsFunc : lhsFuncs) {
+        AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
+        AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
+        for (AttachedFunction lhsFunc : lhsFuncs) {
             if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
                 continue;
             }
 
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
+            AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null) {
                 return false;
             }
@@ -443,9 +512,9 @@ public class TypeChecker {
             }
         }
 
-        BAttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
-        BAttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
-        for (BAttachedFunction lhsFunc : lhsFuncs) {
+        AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
+        AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
+        for (AttachedFunction lhsFunc : lhsFuncs) {
             if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
                 continue;
             }
@@ -454,14 +523,14 @@ public class TypeChecker {
                 return false;
             }
 
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
+            AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null || !Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
                 return false;
             }
         }
 
         // Check for private attached function in RHS type
-        for (BAttachedFunction rhsFunc : rhsFuncs) {
+        for (AttachedFunction rhsFunc : rhsFuncs) {
             if (!Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
                 return false;
             }
@@ -470,8 +539,8 @@ public class TypeChecker {
         return true;
     }
 
-    private static BAttachedFunction getMatchingInvokableType(BAttachedFunction[] rhsFuncs, BAttachedFunction lhsFunc,
-                                                              List<TypePair> unresolvedTypes) {
+    private static AttachedFunction getMatchingInvokableType(AttachedFunction[] rhsFuncs, AttachedFunction lhsFunc,
+                                                             List<TypePair> unresolvedTypes) {
         return Arrays.stream(rhsFuncs).filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
                 .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.type, lhsFunc.type, unresolvedTypes))
                 .findFirst().orElse(null);
@@ -495,11 +564,7 @@ public class TypeChecker {
             return false;
         }
 
-        if (!checkIsType(source.retType, target.retType, unresolvedTypes)) {
-            return false;
-        }
-
-        return true;
+        return checkIsType(source.retType, target.retType, unresolvedTypes);
     }
 
     private static boolean checkIsFunctionType(BType sourceType, BFunctionType targetType) {
@@ -518,11 +583,7 @@ public class TypeChecker {
             }
         }
 
-        if (!isSameType(source.retType, targetType.retType)) {
-            return false;
-        }
-
-        return true;
+        return isSameType(source.retType, targetType.retType);
     }
 
     private static boolean checkContraints(BType sourceConstraint, BType targetConstraint,
@@ -820,26 +881,27 @@ public class TypeChecker {
 
         switch (type.getTag()) {
             case TypeTags.MAP_TAG:
-                return isAnydata(((BMapType) type).getConstrainedType(), unresolvedTypes);
+                return isPureType(((BMapType) type).getConstrainedType(), unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 if (unresolvedTypes.contains(type)) {
                     return true;
                 }
                 unresolvedTypes.add(type);
                 BRecordType recordType = (BRecordType) type;
-                List<BType> fieldTypes =
-                        recordType.getFields().values().stream().map(BField::getFieldType).collect(Collectors.toList());
-                return isAnydata(fieldTypes, unresolvedTypes) &&
-                        (recordType.sealed || isAnydata(recordType.restFieldType, unresolvedTypes));
+                List<BType> fieldTypes = recordType.getFields().values().stream()
+                                                   .map(BField::getFieldType)
+                                                   .collect(Collectors.toList());
+                return isPureType(fieldTypes, unresolvedTypes) &&
+                        (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION_TAG:
                 return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE_TAG:
-                return isAnydata(((BTupleType) type).getTupleTypes(), unresolvedTypes);
+                return isPureType(((BTupleType) type).getTupleTypes(), unresolvedTypes);
             case TypeTags.ARRAY_TAG:
-                return isAnydata(((BArrayType) type).getElementType(), unresolvedTypes);
+                return isPureType(((BArrayType) type).getElementType(), unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
-                        .map(value -> getType(value))
+                        .map(TypeChecker::getType)
                         .collect(Collectors.toSet());
                 return isAnydata(valSpaceTypes, unresolvedTypes);
             default:
@@ -849,6 +911,160 @@ public class TypeChecker {
 
     private static boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
         return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
+    }
+
+    private static boolean isPureType(BType type, Set<BType> unresolvedTypes) {
+        if (type.getTag() == TypeTags.UNION_TAG) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                                      .allMatch(memType -> isPureType(memType, unresolvedTypes));
+        }
+
+        return type.getTag() == TypeTags.ERROR_TAG || isAnydata(type, unresolvedTypes);
+    }
+
+    private static boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isPureType(bType, unresolvedTypes));
+    }
+
+    private static boolean isSimpleBasicType(BType type) {
+        return type.getTag() < TypeTags.JSON_TAG;
+    }
+
+    /**
+     * Deep value equality check for anydata.
+     *
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value on the right hand side
+     * @param checkedValues Structured value pairs already compared or being compared
+     * @return True if values are equal, else false.
+     */
+    private static boolean isEqual(Object lhsValue, Object rhsValue, List<ValuePair> checkedValues) {
+        if (lhsValue == rhsValue) {
+            return true;
+        }
+
+        if (null == lhsValue || null == rhsValue) {
+            return false;
+        }
+
+        int lhsValTypeTag = getType(lhsValue).getTag();
+        int rhsValTypeTag = getType(rhsValue).getTag();
+
+        switch (lhsValTypeTag) {
+            case TypeTags.STRING_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
+            case TypeTags.BOOLEAN_TAG:
+            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
+                return lhsValue.equals(rhsValue);
+            case TypeTags.XML_TAG:
+                return XMLFactory.isEqual((XMLValue) lhsValue, (XMLValue) rhsValue);
+            case TypeTags.TABLE_TAG:
+                // TODO: 10/8/18
+                break;
+            case TypeTags.MAP_TAG:
+            case TypeTags.JSON_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
+                return isMappingType(rhsValTypeTag) && isEqual((MapValue) lhsValue, (MapValue) rhsValue, checkedValues);
+            case TypeTags.TUPLE_TAG:
+            case TypeTags.ARRAY_TAG:
+                return isListType(rhsValTypeTag) &&
+                        isEqual((ArrayValue) lhsValue, (ArrayValue) rhsValue, checkedValues);
+            case TypeTags.ERROR_TAG:
+                return rhsValTypeTag == TypeTags.ERROR_TAG &&
+                        isEqual((ErrorValue) lhsValue, (ErrorValue) rhsValue, checkedValues);
+            case TypeTags.SERVICE_TAG:
+                break;
+        }
+        return false;
+    }
+
+    private static boolean isListType(int typeTag) {
+        return typeTag == TypeTags.ARRAY_TAG || typeTag == TypeTags.TUPLE_TAG;
+    }
+
+    private static boolean isMappingType(int typeTag) {
+        return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG || typeTag == TypeTags.JSON_TAG;
+    }
+
+    /**
+     * Deep equality check for an array/tuple.
+     *
+     * @param lhsList The array/tuple on the left hand side
+     * @param rhsList The array/tuple on the right hand side
+     * @param checkedValues Structured value pairs already compared or being compared
+     * @return True if the array/tuple values are equal, else false.
+     */
+    private static boolean isEqual(ArrayValue lhsList, ArrayValue rhsList, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsList, rhsList);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
+        if (lhsList.size() != rhsList.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsList.size(); i++) {
+            if (!isEqual(lhsList.getRefValue(i), rhsList.getRefValue(i), checkedValues)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Deep equality check for a map.
+     *
+     * @param lhsMap Map on the left hand side
+     * @param rhsMap Map on the right hand side
+     * @param checkedValues Structured value pairs already compared or being compared
+     * @return True if the map values are equal, else false.
+     */
+    private static boolean isEqual(MapValue lhsMap, MapValue rhsMap, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsMap, rhsMap);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
+        if (lhsMap.size() != rhsMap.size()) {
+            return false;
+        }
+
+        if (!lhsMap.keySet().containsAll(rhsMap.keySet())) {
+            return false;
+        }
+
+        Iterator<Map.Entry<String, Object>> mapIterator = lhsMap.entrySet().iterator();
+        while (mapIterator.hasNext()) {
+            Map.Entry<String, Object> lhsMapEntry = mapIterator.next();
+            if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()), checkedValues)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Deep equality check for error.
+     *
+     * @param lhsError The error on the left hand side
+     * @param rhsError The error on the right hand side
+     * @param checkedValues Errors already compared or being compared
+     * @return True if the error values are equal, else false.
+     */
+    private static boolean isEqual(ErrorValue lhsError, ErrorValue rhsError, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsError, rhsError);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
+        return isEqual(lhsError.getReason(), rhsError.getReason(), checkedValues) &&
+                isEqual((MapValue) lhsError.getDetails(), (MapValue) rhsError.getDetails(), checkedValues);
     }
 
     /**
@@ -873,6 +1089,30 @@ public class TypeChecker {
 
             TypePair other = (TypePair) obj;
             return this.sourceType.equals(other.sourceType) && this.targetType.equals(other.targetType);
+        }
+    }
+
+    /**
+     * Unordered value vector of size two, to hold two values being compared.
+     *
+     * @since 0.995.0
+     */
+    private static class ValuePair {
+        List<Object> valueList = new ArrayList<>(2);
+
+        ValuePair(Object valueOne, Object valueTwo) {
+            valueList.add(valueOne);
+            valueList.add(valueTwo);
+        }
+
+        @Override
+        public boolean equals(Object otherPair) {
+            if (!(otherPair instanceof ValuePair)) {
+                return false;
+            }
+
+            return ((ValuePair) otherPair).valueList.containsAll(valueList) &&
+                    valueList.containsAll(((ValuePair) otherPair).valueList);
         }
     }
 }

@@ -50,35 +50,7 @@ import org.ballerinalang.langserver.completions.providers.subproviders.parsercon
 import org.ballerinalang.langserver.completions.providers.subproviders.parsercontext.ParserRuleTriggerWorkerCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.subproviders.parsercontext.ParserRuleVariableDefinitionCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.subproviders.parsercontext.ParserRuleWorkerReplyCompletionProvider;
-import org.ballerinalang.langserver.completions.resolvers.BLangAnnotationAttachmentContext;
-import org.ballerinalang.langserver.completions.resolvers.BLangMatchContext;
-import org.ballerinalang.langserver.completions.resolvers.BLangMatchExpressionContext;
-import org.ballerinalang.langserver.completions.resolvers.BLangRecordContext;
-import org.ballerinalang.langserver.completions.resolvers.BLangRecordLiteralContext;
 import org.ballerinalang.langserver.completions.resolvers.CompletionItemsContext;
-import org.ballerinalang.langserver.completions.resolvers.FunctionContext;
-import org.ballerinalang.langserver.completions.resolvers.ObjectTypeContext;
-import org.ballerinalang.langserver.completions.resolvers.PackageNameContext;
-import org.ballerinalang.langserver.completions.resolvers.ParameterContext;
-import org.ballerinalang.langserver.completions.resolvers.ResourceContext;
-import org.ballerinalang.langserver.completions.resolvers.ServiceContext;
-import org.ballerinalang.langserver.completions.resolvers.StatementContext;
-import org.ballerinalang.langserver.completions.resolvers.TopLevelContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.EndpointDeclarationContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAnnotationAttachmentContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAttachmentPointContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleConditionalClauseContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleDefinitionContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleFunctionDefinitionContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleMatchStatementContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRulePanicStatementContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleServiceDefinitionContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleServiceEndpointAttachmentContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleStatementContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTriggerWorkerContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleVariableDefinitionStatementContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleWorkerReplyContext;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.HashMap;
@@ -90,65 +62,65 @@ import java.util.Map;
  */
 @JavaSPIService("org.ballerinalang.langserver.completions.LSCompletionProvider")
 public class LSDefaultCompletionItemProvider implements LSCompletionProvider {
-    private static Map<Class<? extends CompletionItemsContext>, AbstractSubCompletionProvider> contextToProvider =
+    private static Map<CompletionItemsContext, AbstractSubCompletionProvider> contextToProvider =
             new HashMap<>();
 
     public LSDefaultCompletionItemProvider() {
-        contextToProvider.put(ParserRuleAnnotationAttachmentContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_ANNOTATION_ATTACHMENT,
                               new ParserRuleAnnotationAttachmentCompletionProvider());
-        contextToProvider.put(EndpointDeclarationContext.class,
+        contextToProvider.put(CompletionItemsContext.ENDPOINT_DECLARATION,
                               new EndpointDeclarationCompletionProvider());
-        contextToProvider.put(ParserRuleAttachmentPointContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_ATTACHMENT_POINT,
                               new ParserRuleAttachmentPointCompletionProvider());
-        contextToProvider.put(ParserRuleConditionalClauseContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_CONDITIONAL_CLAUSE,
                               new ParserRuleConditionalClauseCompletionProvider());
-        contextToProvider.put(ParserRuleDefinitionContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_DEFINITION,
                               new ParserRuleDefinitionCompletionProvider());
-        contextToProvider.put(ParserRuleFunctionDefinitionContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_FUNCTION_DEFINITION,
                               new ParserRuleFunctionDefinitionCompletionProvider());
-        contextToProvider.put(ParserRuleMatchStatementContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_MATCH_STATEMENT,
                               new ParserRuleMatchStatementCompletionProvider());
-        contextToProvider.put(ParserRulePanicStatementContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_PANIC_STATEMENT,
                               new ParserRulePanicStatementCompletionProvider());
-        contextToProvider.put(ParserRuleServiceDefinitionContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_SERVICE_DEFINITION,
                               new ParserRuleServiceDefinitionCompletionProvider());
-        contextToProvider.put(ParserRuleServiceEndpointAttachmentContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_SERVICE_ENDPOINT_ATTACHMENT,
                               new ParserRuleServiceEndpointAttachmentCompletionProvider());
-        contextToProvider.put(ParserRuleStatementContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_STATEMENT,
                               new ParserRuleStatementCompletionProvider());
-        contextToProvider.put(ParserRuleTriggerWorkerContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_WORKER_TRIGGER_WORKER_STMT,
                               new ParserRuleTriggerWorkerCompletionProvider());
-        contextToProvider.put(ParserRuleVariableDefinitionStatementContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_VARIABLE_DEFINITION,
                               new ParserRuleVariableDefinitionCompletionProvider());
-        contextToProvider.put(ParserRuleGlobalVariableDefinitionContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_GLOBAL_VARIABLE_DEFINITION,
                               new ParserRuleGlobalVariableDefinitionCompletionProvider());
-        contextToProvider.put(ParserRuleWorkerReplyContext.class,
+        contextToProvider.put(CompletionItemsContext.PR_WORKER_REPLY,
                               new ParserRuleWorkerReplyCompletionProvider());
-        contextToProvider.put(BLangAnnotationAttachmentContext.class,
+        contextToProvider.put(CompletionItemsContext.ANNOTATION_ATTACHMENT,
                               new BLangAnnotationCompletionProvider());
-        contextToProvider.put(BLangMatchContext.class,
+        contextToProvider.put(CompletionItemsContext.MATCH,
                               new BLangMatchCompletionProvider());
-        contextToProvider.put(BLangMatchExpressionContext.class,
+        contextToProvider.put(CompletionItemsContext.MATCH_EXPRESSION,
                               new BLangMatchExpressionProvider());
-        contextToProvider.put(BLangRecordContext.class,
+        contextToProvider.put(CompletionItemsContext.RECORD,
                               new BLangRecordICompletionProvider());
-        contextToProvider.put(BLangRecordLiteralContext.class,
+        contextToProvider.put(CompletionItemsContext.RECORD_LITERAL,
                               new BLangRecordLiteralCompletionProvider());
-        contextToProvider.put(FunctionContext.class,
+        contextToProvider.put(CompletionItemsContext.FUNCTION,
                               new FunctionCompletionProvider());
-        contextToProvider.put(ObjectTypeContext.class,
+        contextToProvider.put(CompletionItemsContext.OBJECT_TYPE,
                               new ObjectTypeCompletionProvider());
-        contextToProvider.put(PackageNameContext.class,
+        contextToProvider.put(CompletionItemsContext.PACKAGE_NAME,
                               new PackageNameCompletionProvider());
-        contextToProvider.put(ParameterContext.class,
+        contextToProvider.put(CompletionItemsContext.PARAMETER,
                               new ParameterCompletionProvider());
-        contextToProvider.put(ResourceContext.class,
+        contextToProvider.put(CompletionItemsContext.RESOURCE,
                               new ResourceCompletionProvider());
-        contextToProvider.put(ServiceContext.class,
+        contextToProvider.put(CompletionItemsContext.SERVICE,
                               new ServiceCompletionProvider());
-        contextToProvider.put(StatementContext.class,
+        contextToProvider.put(CompletionItemsContext.STATEMENT,
                               new StatementCompletionProvider());
-        contextToProvider.put(TopLevelContext.class,
+        contextToProvider.put(CompletionItemsContext.TOP_LEVEL,
                               new TopLevelCompletionProvider());
     }
 
@@ -160,7 +132,11 @@ public class LSDefaultCompletionItemProvider implements LSCompletionProvider {
     @Override
     public List<CompletionItem> getCompletions(LSContext context, CompletionItemsContext completionItemsContext)
             throws LSCompletionProviderException {
-        AbstractSubCompletionProvider subItemProvider = contextToProvider.get(completionItemsContext.getClass());
-        return subItemProvider.resolveItems(context);
+        AbstractSubCompletionProvider subItemProvider = contextToProvider.get(completionItemsContext);
+        if (subItemProvider != null) {
+            return subItemProvider.resolveItems(context);
+        }
+        throw new LSCompletionProviderException(
+                "Couldn't find completion item provider for the context: " + completionItemsContext.name());
     }
 }

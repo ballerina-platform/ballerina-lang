@@ -37,9 +37,24 @@ public type PackageParser object {
         return dcl;
     }
 
+    function parseFunctions(TypeDef?[] typeDefs) returns Function?[] {
+        var numFuncs = self.reader.readInt32();
+        Function?[] funcs = [];
+        int i = 0;
+        while (i < numFuncs) {
+            funcs[i] = self.parseFunction(typeDefs);
+            i += 1;
+        }
+        return funcs;
+    }
+
     public function parseFunction(TypeDef?[] typeDefs) returns Function {
+        map<VariableDcl> localVarMap = {};
+        FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap, typeDefs);
+        DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var name = self.reader.readStringCpRef();
         var isDeclaration = self.reader.readBoolean();
+        var isInterface = self.reader.readBoolean();
         var visibility = parseVisibility(self.reader);
         var typeTag = self.reader.readInt8();
         if (typeTag != self.typeParser.TYPE_TAG_INVOKABLE) {
@@ -51,7 +66,6 @@ public type PackageParser object {
         var numLocalVars = self.reader.readInt32();
 
         VariableDcl?[] dcls = [];
-        map<VariableDcl> localVarMap = {};
         int i = 0;
         while (i < numLocalVars) {
             var dcl = self.parseVariableDcl();
@@ -59,12 +73,13 @@ public type PackageParser object {
             localVarMap[dcl.name.value] = dcl;
             i += 1;
         }
-        FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap, typeDefs);
         BasicBlock?[] basicBlocks = self.getBasicBlocks(bodyParser);
         ErrorEntry?[] errorEntries = self.getErrorEntries(bodyParser);
         return {
+            pos: pos,
             name: { value: name },
             isDeclaration: isDeclaration,
+            isInterface:isInterface,
             visibility: visibility,
             localVars: dcls,
             basicBlocks: basicBlocks,
@@ -79,20 +94,14 @@ public type PackageParser object {
         ImportModule[] importModules = self.parseImportMods();
         TypeDef?[] typeDefs = self.parseTypeDefs();
         GlobalVariableDcl?[] globalVars = self.parseGlobalVars();
-        var numFuncs = self.reader.readInt32();
-        Function?[] funcs = [];
-        int i = 0;
-        while (i < numFuncs) {
-            funcs[i] = self.parseFunction(typeDefs);
-            i += 1;
-        }
 
-       //BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, globalVars:globalVars,
-       //                             functions: funcs, name: {value: pkgId.name}, org: {value: pkgId.org},
-       //                             versionValue: {value: pkgId.modVersion}});
-       //emitter.emitPackage();
+        // Parse type def bodies after parsing global vars.
+        // This is done avoid cyclic dependencies.
+        self.parseTypeDefBodies(typeDefs);
 
-        return { importModules : importModules, 
+        Function?[] funcs = self.parseFunctions(typeDefs);
+
+        return { importModules : importModules,
                     typeDefs : typeDefs, 
                     globalVars : globalVars, 
                     functions : funcs,
@@ -149,23 +158,24 @@ public type PackageParser object {
         return typeDefs;
     }
 
+    function parseTypeDefBodies(TypeDef?[] typeDefs) {
+        int numTypeDefs = typeDefs.length();
+
+        foreach var typeDef in typeDefs {
+            TypeDef tDef = getTypeDef(typeDef);
+            BType typeValue = tDef.typeValue;
+            if (typeValue is BObjectType || typeValue is BRecordType) {
+                tDef.attachedFuncs = self.parseFunctions(typeDefs);
+            }
+        }
+    }
+
     function parseTypeDef() returns TypeDef {
+        DiagnosticPos pos = parseDiagnosticPos(self.reader);
         string name = self.reader.readStringCpRef();
         Visibility visibility = parseVisibility(self.reader);
         var bType = self.typeParser.parseType();
-        Function?[]? attachedFuncs = ();
-        if (bType is BObjectType || bType is BRecordType) {
-            Function?[] funcs = [];
-            var numFuncs = self.reader.readInt32();
-            int i = 0;
-            while (i < numFuncs) {
-                funcs[i] = self.parseFunction([]);
-                i += 1;
-            }
-            attachedFuncs = funcs;
-        }
-
-        return { name: { value: name }, visibility: visibility, typeValue: bType, attachedFuncs: attachedFuncs };
+        return { pos:pos, name: { value: name }, visibility: visibility, typeValue: bType, attachedFuncs: () };
     }
 
     function parseGlobalVars() returns GlobalVariableDcl?[] {       
@@ -247,5 +257,14 @@ public function parseVisibility(BirChannelReader reader) returns Visibility {
     }
     error err = error("unknown variable visiblity tag " + b);
         panic err;
+}
+
+public function parseDiagnosticPos(BirChannelReader reader) returns DiagnosticPos {
+    int sLine = reader.readInt32();
+    int eLine = reader.readInt32();
+    int sCol = reader.readInt32();
+    int eCol = reader.readInt32();
+    string sourceFileName = reader.readStringCpRef();
+    return { sLine:sLine, eLine:eLine, sCol:sCol, eCol:eCol, sourceFileName:sourceFileName };
 }
 

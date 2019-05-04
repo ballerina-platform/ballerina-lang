@@ -1,5 +1,5 @@
-// Constants are known values at compile time. Only value type constants (boolean, byte, decimal, float, int, string)
-// are supported at the moment. The constants are useful for defining enumeration types.
+// Constants are values known at compile time. As of now only value type constants (i.e., constants of `boolean`, `byte`,
+// `decimal`, `float`, `int` and `string` types) are supported. Constants are useful for defining enumeration types.
 //
 // We can use these constants just like any other value type variable except the value of these constants cannot be
 // changed after initializing. The difference between the final variables and constants is that the value of the final

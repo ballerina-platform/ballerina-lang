@@ -25,6 +25,7 @@ package org.ballerinalang.util.diagnostic;
 public enum DiagnosticCode {
 
     UNDEFINED_MODULE("undefined.module"),
+    CYCLIC_MODULE_IMPORTS_DETECTED("cyclic.module.imports.detected"),
     UNUSED_IMPORT_MODULE("unused.import.module"),
     MODULE_NOT_FOUND("module.not.found"),
     REDECLARED_IMPORT_MODULE("redeclared.import.module"),

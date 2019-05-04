@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import integrationtests/b;
+import bcintegrationtest/b;
 
 public function main(string... args) {
     b:printB();
