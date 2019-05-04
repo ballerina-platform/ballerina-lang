@@ -34,7 +34,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -55,9 +54,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
-import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
-
 /**
  * Responsible for performing runtime type checking.
  * 
@@ -71,7 +67,25 @@ public class TypeChecker {
             return sourceVal;
         }
 
-        throw getTypeCastError(sourceVal, targetType);
+        throw BLangVMErrors.createTypeCastError(sourceVal, targetType);
+    }
+
+    public static long anyToInt(Object sourceVal) {
+        return TypeConverter.anyToInt(sourceVal, () -> BLangVMErrors.createTypeCastError(sourceVal, BTypes.typeInt));
+    }
+
+    public static double anyToFloat(Object sourceVal) {
+        return TypeConverter.anyToFloat(sourceVal, () -> BLangVMErrors.createTypeCastError(sourceVal,
+                                                                                           BTypes.typeFloat));
+    }
+
+    public static boolean anyToBoolean(Object sourceVal) {
+        return TypeConverter.anyToBoolean(sourceVal, () -> BLangVMErrors.createTypeCastError(sourceVal,
+                                                                                             BTypes.typeBoolean));
+    }
+
+    public static long anyToByte(Object sourceVal) {
+        return TypeConverter.anyToByte(sourceVal, () -> BLangVMErrors.createTypeCastError(sourceVal, BTypes.typeByte));
     }
 
     /**
@@ -827,12 +841,7 @@ public class TypeChecker {
         }
         return false;
     }
-
-    private static BLangRuntimeException getTypeCastError(Object sourceVal, BType targetType) {
-        return new BLangRuntimeException("incompatible types: '" + getType(sourceVal) +
-                                                 "' cannot be cast to '" + targetType + "'");
-    }
-
+    
     private static boolean isAnydata(BType type) {
         return isAnydata(type, new HashSet<>());
     }

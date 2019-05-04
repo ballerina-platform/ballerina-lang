@@ -23,26 +23,22 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
+import java.util.function.Supplier;
 
 import static org.ballerinalang.jvm.TypeChecker.checkIsLikeType;
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
-import static org.ballerinalang.jvm.util.BLangConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX;
 import static org.ballerinalang.jvm.util.BLangConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
-import static org.ballerinalang.jvm.util.BLangConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN;
 import static org.ballerinalang.jvm.util.BLangConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 
 /**
- * Holds utils methods required for performing casting, stamping and conversion of values.
+ * Provides utils methods for casting, stamping and conversion of values.
  *
  * @since 0.995.0
  */
@@ -52,32 +48,36 @@ public class TypeConverter {
         BType inputType = TypeChecker.getType(inputValue);
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
-                return anyToInt(inputValue);
+                return anyToInt(inputValue, () ->
+                        BLangVMErrors.createNumericConversionError(inputValue, BTypes.typeInt));
             case TypeTags.FLOAT_TAG:
-                return anyToFloat(inputValue);
+                return anyToFloat(inputValue, () ->
+                        BLangVMErrors.createNumericConversionError(inputValue, BTypes.typeFloat));
             case TypeTags.STRING_TAG:
-                return anyToString(inputType);
+                return anyToString(inputValue);
             case TypeTags.BOOLEAN_TAG:
-                return anyToBoolean(inputValue);
+                return anyToBoolean(inputValue, () ->
+                        BLangVMErrors.createNumericConversionError(inputValue, BTypes.typeBoolean));
             case TypeTags.BYTE_TAG:
-                return anyToByte(inputValue);
+                return anyToByte(inputValue, () ->
+                        BLangVMErrors.createNumericConversionError(inputValue, BTypes.typeByte));
             default:
-                throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                             BLangExceptionHelper.getErrorMessage(
-                                                     RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                                     inputType, inputValue, targetType));
+                throw new ErrorValue(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                     BLangExceptionHelper.getErrorMessage(
+                                             RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                                             inputType, inputValue, targetType));
         }
     }
 
-    public static long anyToInt(Object sourceVal) {
+    static long anyToInt(Object sourceVal, Supplier<ErrorValue> errorFunc) {
         if (sourceVal instanceof Long) {
             return (Long) sourceVal;
         } else if (sourceVal instanceof Double) {
             if (Double.isNaN((Double) sourceVal) || Double.isInfinite((Double) sourceVal)) {
-                throw getNumericConversionError(sourceVal, BTypes.typeInt);
+                throw BLangVMErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
             }
             if (!isFloatWithinIntRange((Double) sourceVal)) {
-                throw getNumericConversionError(sourceVal, BTypes.typeInt);
+                throw BLangVMErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
             }
             return Math.round((Double) sourceVal);
         } else if (sourceVal instanceof Byte) {
@@ -85,11 +85,10 @@ public class TypeConverter {
         } else if (sourceVal instanceof Boolean) {
             return (Boolean) sourceVal ? 0 : 1;
         }
-        throw getNumericConversionError(sourceVal, BTypes.typeInt);
-
+        throw errorFunc.get();
     }
 
-    public static double anyToFloat(Object sourceVal) {
+    static double anyToFloat(Object sourceVal, Supplier<ErrorValue> errorFunc) {
         if (sourceVal instanceof Long) {
             return ((Long) sourceVal).doubleValue();
         } else if (sourceVal instanceof Double) {
@@ -99,10 +98,10 @@ public class TypeConverter {
         } else if (sourceVal instanceof Boolean) {
             return (Boolean) sourceVal ? 0 : 1;
         }
-        throw getNumericConversionError(sourceVal, BTypes.typeFloat);
+        throw errorFunc.get();
     }
 
-    public static boolean anyToBoolean(Object sourceVal) {
+    static boolean anyToBoolean(Object sourceVal, Supplier<ErrorValue> errorFunc) {
         if (sourceVal instanceof Long) {
             return (Long) sourceVal != 0;
         } else if (sourceVal instanceof Double) {
@@ -112,61 +111,54 @@ public class TypeConverter {
         } else if (sourceVal instanceof Boolean) {
             return (boolean) sourceVal;
         }
-        throw getNumericConversionError(sourceVal, BTypes.typeBoolean);
+        throw errorFunc.get();
     }
 
-    public static long anyToByte(Object sourceVal) {
+    static long anyToByte(Object sourceVal, Supplier<ErrorValue> errorFunc) {
         if (sourceVal instanceof Long) {
             if (!isByteLiteral((Long) sourceVal)) {
-                throw getNumericConversionError(sourceVal, BTypes.typeByte);
+                throw BLangVMErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
             }
             return (long) sourceVal;
         } else if (sourceVal instanceof Double) {
 
             Double value = (Double) sourceVal;
             if (Double.isNaN(value) || Double.isInfinite(value)) {
-                throw getNumericConversionError(sourceVal, BTypes.typeByte);
+                throw BLangVMErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
             }
             long intVal = Math.round(value);
             if (!isByteLiteral(intVal)) {
-                throw getNumericConversionError(sourceVal, BTypes.typeByte);
+                throw BLangVMErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
             }
-            return  intVal;
+            return intVal;
 
         } else if (sourceVal instanceof Byte) {
             return (long) sourceVal;
         } else if (sourceVal instanceof Boolean) {
             return ((Boolean) sourceVal ? 0 : 1);
-        } 
-        throw getNumericConversionError(sourceVal, BTypes.typeByte);
+        }
+        throw errorFunc.get();
     }
 
-    public static String anyToString(Object sourceVal) {
+    private static String anyToString(Object sourceVal) {
         if (sourceVal instanceof Long) {
-           return Long.toString((Long) sourceVal);
+            return Long.toString((Long) sourceVal);
         } else if (sourceVal instanceof Double) {
             return Double.toString((Double) sourceVal);
         } else if (sourceVal instanceof Byte) {
             return Long.toString((Byte) sourceVal);
         } else if (sourceVal instanceof Boolean) {
-            return  Boolean.toString((Boolean) sourceVal);
-        } 
-        throw getNumericConversionError(sourceVal, BTypes.typeString);
+            return Boolean.toString((Boolean) sourceVal);
+        }
+        throw BLangVMErrors.createNumericConversionError(sourceVal, BTypes.typeString);
     }
 
-    public static boolean isByteLiteral(long longValue) {
+    private static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 
-    public static boolean isFloatWithinIntRange(double doubleValue) {
+    private static boolean isFloatWithinIntRange(double doubleValue) {
         return doubleValue < BINT_MAX_VALUE_DOUBLE_RANGE_MAX && doubleValue > BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
-    }
-
-    private static BLangRuntimeException getNumericConversionError(Object inputValue, BType targetType) {
-        throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                     BLangExceptionHelper.getErrorMessage(
-                                             RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                             TypeChecker.getType(inputValue), inputValue, targetType));
     }
 
     public static BType resolveMatchingTypeForUnion(Object value, BType type) {
