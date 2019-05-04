@@ -227,7 +227,6 @@ const string LINKED_HASH_MAP = "java/util/LinkedHashMap";
 const string ARRAY_LIST = "java/util/ArrayList";
 const string LIST = "java/util/List";
 const string TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
-const string TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
 const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
 const string STRAND = "org/ballerinalang/jvm/Strand";

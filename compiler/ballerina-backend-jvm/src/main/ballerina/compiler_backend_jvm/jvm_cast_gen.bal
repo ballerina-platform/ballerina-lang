@@ -75,7 +75,7 @@ function generateCheckCastToInt(jvm:MethodVisitor mv, bir:BType sourceType) {
             sourceType is bir:BUnionType ||
             sourceType is bir:BJSONType ||
             sourceType is bir:BFiniteType) {
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "anyToInt", io:sprintf("(L%s;)J", OBJECT), false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", io:sprintf("(L%s;)J", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'int'", sourceType));
         panic err;
@@ -92,7 +92,7 @@ function generateCheckCastToFloat(jvm:MethodVisitor mv, bir:BType sourceType) {
             sourceType is bir:BUnionType ||
             sourceType is bir:BJSONType ||
             sourceType is bir:BFiniteType) {
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "anyToFloat", io:sprintf("(L%s;)D", OBJECT), false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", io:sprintf("(L%s;)D", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'float'", sourceType));
         panic err;
@@ -127,7 +127,7 @@ function generateCheckCastToBoolean(jvm:MethodVisitor mv, bir:BType sourceType) 
             sourceType is bir:BUnionType ||
             sourceType is bir:BJSONType ||
             sourceType is bir:BFiniteType) {
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "anyToBoolean", io:sprintf("(L%s;)Z", OBJECT), false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToBoolean", io:sprintf("(L%s;)Z", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'boolean'", sourceType));
         panic err;
@@ -141,7 +141,7 @@ function generateCheckCastToByte(jvm:MethodVisitor mv, bir:BType sourceType) {
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType ||
             sourceType is bir:BFiniteType) {
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "anyToByte", io:sprintf("(L%s;)J", OBJECT), false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", io:sprintf("(L%s;)J", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'byte'", sourceType));
         panic err;
