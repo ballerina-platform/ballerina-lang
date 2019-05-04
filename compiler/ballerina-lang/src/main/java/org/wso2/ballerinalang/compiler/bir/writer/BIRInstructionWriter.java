@@ -121,6 +121,19 @@ public class BIRInstructionWriter extends BIRVisitor {
         waitEntry.lhsOp.accept(this);
     }
 
+    public void visit(BIRTerminator.WorkerReceive entry) {
+        writePosition(entry.pos);
+        buf.writeByte((entry.kind.getValue()));
+        buf.writeInt(addStringCPEntry(entry.workerName.getValue()));
+        entry.lhsOp.accept(this);
+    }
+
+    public void visit(BIRTerminator.WorkerSend entry) {
+        writePosition(entry.pos);
+        buf.writeByte((entry.kind.getValue()));
+        buf.writeInt(addStringCPEntry(entry.workerName.getValue()));
+        entry.data.accept(this);
+    }
 
     // Non-terminating instructions
 

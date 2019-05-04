@@ -401,6 +401,18 @@ public type FuncBodyParser object {
             BasicBlock thenBB = self.parseBBRef();
             FPCall fpCall = {pos:pos, kind:kind, fp:fp, lhsOp:lhsOp, args:args, thenBB:thenBB, isAsync:isAsync};
             return fpCall;
+        } else if (kindTag == INS_WK_RECEIVE) {
+            TerminatorKind kind = TERMINATOR_WK_RECEIVE;
+            string wrkName = self.reader.readStringCpRef();
+            VarRef lhsOp = self.parseVarRef();
+            WrkReceive receive = {pos:pos, kind:kind, wrkName:{ value:wrkName }, lhsOp:lhsOp};
+            return receive;
+        } else if (kindTag == INS_WK_SEND) {
+            TerminatorKind kind = TERMINATOR_WK_SEND;
+            string wrkName = self.reader.readStringCpRef();
+            VarRef dataOp = self.parseVarRef();
+            WrkSend send = {pos:pos, kind:kind, wrkName:{ value:wrkName }, dataOp:dataOp};
+            return send;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;

@@ -352,6 +352,19 @@ type TerminalEmitter object {
                 i = i + 1;
             }
             println(";");
+        } else if (term is WrkReceive) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            print(term.wrkName.value);
+            println(";");
+        } else if (term is WrkSend) {
+            print(tabs);
+            self.opEmitter.emitOp(term.dataOp);
+            print(" ", term.kind, " ");
+            print(term.wrkName.value);
+            println(";");
         } else if (term is AsyncCall) {
             print(tabs);
             VarRef? lhsOp = term.lhsOp;
