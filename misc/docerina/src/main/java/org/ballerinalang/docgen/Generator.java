@@ -23,11 +23,13 @@ import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.DefaultableVarible;
+import org.ballerinalang.docgen.generator.model.Error;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.Object;
 import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.Type;
+import org.ballerinalang.docgen.generator.model.UnionType;
 import org.ballerinalang.docgen.generator.model.Variable;
 import org.ballerinalang.docgen.model.AnnotationDoc;
 import org.ballerinalang.docgen.model.ConstantDoc;
@@ -39,7 +41,6 @@ import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.ObjectDoc;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
-import org.ballerinalang.docgen.model.RecordDoc;
 import org.ballerinalang.docgen.model.StaticCaption;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
@@ -61,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -71,6 +73,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -230,7 +233,7 @@ public class Generator {
                     .map(java.lang.Object::toString)
                     .sorted(Collections.reverseOrder())
                     .collect(Collectors.joining(" | "));
-            // union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), values));
+            // module.unionTypes.add(new UnionType(typeName, description(typeDefinition), values));
             added = true;
         } else if (kind == NodeKind.RECORD_TYPE) {
             BLangRecordTypeNode recordNode = (BLangRecordTypeNode) typeNode;
@@ -241,19 +244,20 @@ public class Generator {
             added = true;
         } else if (kind == NodeKind.UNION_TYPE_NODE) {
             List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) typeNode).memberTypeNodes;
-            String values = memberTypeNodes.stream()
-                    .map(java.lang.Object::toString)
-                    .sorted(Collections.reverseOrder())
-                    .collect(Collectors.joining(" | "));
-            // union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), values));
+            List<Type> memberTypes = memberTypeNodes.stream()
+                    .map(Type::new)
+                    .collect(Collectors.toList());
+            module.unionTypes.add(new UnionType(typeName, description(typeDefinition), memberTypes));
             added = true;
         } else if (kind == NodeKind.USER_DEFINED_TYPE) {
             BLangUserDefinedType userDefinedType = (BLangUserDefinedType) typeNode;
-            String value = userDefinedType.typeName.value;
-            // union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), value));
+            module.unionTypes.add(new UnionType(typeName, description(typeDefinition),
+                    Arrays.asList(new Type(userDefinedType))));
             added = true;
         } else if (kind == NodeKind.ERROR_TYPE) {
-            // TODO: Add errors section in API docs
+            BLangErrorType errorType = (BLangErrorType) typeNode;
+            module.errors.add(new Error(errorType.type.tsymbol.name.value, description(typeDefinition),
+                    new Type(errorType.detailType)));
             added = true;
         }
         if (!added) {
@@ -395,7 +399,7 @@ public class Generator {
             if (!dataType.equals("null")) {
                 String desc = returnParamAnnotation(functionNode);
                 String href = extractLink(returnType);
-                Variable variable = new Variable(EMPTY_STRING, desc, new Type(dataType));
+                Variable variable = new Variable(EMPTY_STRING, desc, Type.fromTypeNode(returnType));
                 returnParams.add(variable);
             }
 
@@ -418,7 +422,7 @@ public class Generator {
         if (null != param.getInitialExpression()) {
             defaultValue = param.getInitialExpression().toString();
         }
-        return new DefaultableVarible(param.getName().value, desc, new Type(dataType), defaultValue);
+        return new DefaultableVarible(param.getName().value, desc, Type.fromTypeNode(param.typeNode), defaultValue);
     }
 
     /**
@@ -457,7 +461,8 @@ public class Generator {
                 if (null != param.getInitialExpression()) {
                     defaultValue = param.getInitialExpression().toString();
                 }
-                DefaultableVarible field = new DefaultableVarible(name, desc, new Type(dataType), defaultValue);
+                DefaultableVarible field = new DefaultableVarible(name, desc, Type.fromTypeNode(param.typeNode),
+                        defaultValue);
                 fields.add(field);
             }
         }

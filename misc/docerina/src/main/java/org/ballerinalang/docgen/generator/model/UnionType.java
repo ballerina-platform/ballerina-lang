@@ -19,22 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a Ballerina Module.
+ * Represents a union type.
  */
-public class Module {
+public class UnionType extends Type {
 
-    public String id;
-    public String summary;
-    public String description;
+    public List<Type> memberTypes = new ArrayList<>();
 
-    // constructs
-    public List<Record> records = new ArrayList<>();
-    public List<Object> objects = new ArrayList<>();
-    public List<Client> clients = new ArrayList<>();
-    public List<Listener> listeners = new ArrayList<>();
-    public List<Function> functions = new ArrayList<>();
-    public List<Constant> constants = new ArrayList<>();
-    public List<Annotation> annotations = new ArrayList<>();
-    public List<Error> errors = new ArrayList<>();
-    public List<UnionType> unionTypes = new ArrayList<>();
+    public UnionType(String name, String description, List<Type> memberTypes) {
+        super(name, description);
+        this.memberTypes = memberTypes;
+    }
 }
+

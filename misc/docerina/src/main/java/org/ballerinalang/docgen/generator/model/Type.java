@@ -15,13 +15,66 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Represents a Ballerina Type.
  */
 public class Type {
+    public String orgName;
+    public String moduleName;
     public String name;
+    public String description;
+    public boolean isAnonymousUnionType;
+    public List<Type> memberTypes = new ArrayList<>();
 
-    public Type(String name) {
+    public Type(BLangType type) {
+        BTypeSymbol typeSymbol = type.type.tsymbol;
+        if (typeSymbol != null && !typeSymbol.name.value.equals("")) {
+            this.name = typeSymbol.name.value;
+            this.orgName = typeSymbol.pkgID.orgName.value;
+            this.moduleName = typeSymbol.pkgID.name.value;
+        } else {
+            if (type.type instanceof BUnionType) {
+                if (type instanceof BLangUserDefinedType) {
+                    BLangUserDefinedType userDefinedType = (BLangUserDefinedType) type;
+                    this.name = userDefinedType.typeName.value;
+                    if (userDefinedType.pkgAlias.value.equals("")) {
+                        this.orgName = BallerinaDocDataHolder.getInstance().getOrgName();
+                        this.moduleName = ".";
+                    } else {
+                        this.moduleName = userDefinedType.pkgAlias.value;
+                    }
+                } else if (type instanceof BLangUnionTypeNode) {
+                    this.isAnonymousUnionType = true;
+                    ((BLangUnionTypeNode) type).memberTypeNodes.forEach(memberType -> {
+                        this.memberTypes.add(Type.fromTypeNode(memberType));
+                    });
+                } else if (type instanceof BLangErrorType) {
+                    this.name = type.type.toString();
+                } else {
+                    this.name = type.type.toString();
+                }
+            }
+
+        }
+    }
+
+    public Type(String name, String description) {
         this.name = name;
+        this.description = description;
+    }
+
+    public static Type fromTypeNode(BLangType type) {
+        return new Type(type);
     }
 }

@@ -574,7 +574,7 @@ public class HtmlDocTest {
         //        Assert.assertEquals(annotationDoc.attributes.get(0).name, "upgradePath", "Annotation attribute name
         // " +
         //                "should be extracted");
-        //        Assert.assertEquals(annotationDoc.attributes.get(0).dataType, "string", "Annotation attribute type " +
+        //        Assert.assertEquals(annotationDoc.attributes.get(0).detailType, "string", "Annotation attribute type " +
         //                "should be extracted");
         //        Assert.assertEquals(annotationDoc.attributes.get(0).description, "Upgrade path for the WebSocket
         // service " +
