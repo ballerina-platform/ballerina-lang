@@ -137,12 +137,7 @@ public class Convert extends BlockingNativeCallableUnit {
                                                                   .CANNOT_CONVERT_NULL, convertType));
         }
         if (!TypeChecker.checkIsLikeType(inputValue, targetType)) {
-            return org.ballerinalang.jvm.BLangVMErrors
-                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
-                                 org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
-                                         .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
-                                                                  .INCOMPATIBLE_CONVERT_OPERATION,
-                                                          TypeChecker.getType(inputValue), targetType));
+            return org.ballerinalang.jvm.BLangVMErrors.createConversionError(inputValue, targetType);
         }
         try {
             RefValue refValue = (RefValue) inputValue;
