@@ -17,9 +17,6 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.jvm.BLangVMErrors;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -30,9 +27,6 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 
 /**
  * Test cases to cover error related tests on JBallerina.
@@ -48,19 +42,11 @@ public class ErrorTest {
         compileResult = BCompileUtil.compile("test-src/jvm/errors.bal");
     }
 
-    @Test(description = "Test panic an error")
+    @Test(description = "Test panic an error", expectedExceptions = RuntimeException.class, 
+          expectedExceptionsMessageRegExp = "error: reason foo 2 \\{\"message\":\"int value\"\\}\n\tat foo\\(errors" 
+                  + ".bal:46\\)\n\t   testPanic\\(errors.bal:18\\)\n\t   ")
     public void testPanic() {
-        try {
             BRunUtil.invoke(compileResult, "testPanic", new BValue[] { new BInteger(0) });
-        } catch (RuntimeException e) {
-            Assert.assertTrue(((InvocationTargetException) e.getCause()).getTargetException() instanceof ErrorValue);
-            ErrorValue bError = (ErrorValue) ((InvocationTargetException) e.getCause()).getTargetException();
-            Assert.assertEquals(bError.getReason(), "reason foo 2");
-            Assert.assertEquals(((MapValue) bError.getDetails()).get("message").toString(), "int value");
-            Assert.assertEquals(getPrintableStackTrace(bError), "reason foo 2 {\"message\":\"int value\"}\n"
-                    + "\tat foo(errors.bal:46)\n"
-                    + "\t   testPanic(errors.bal:18)");
-        }
     }
 
     @Test(description = "Test trap an error")
@@ -125,12 +111,6 @@ public class ErrorTest {
 
     @Test
     public void testSelfReferencingObject() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingError");
-    }
-
-    private String getPrintableStackTrace(ErrorValue errorValue) {
-        StackTraceElement[] stackWithoutJavaTests = Arrays.copyOf(errorValue.getStackTrace(), 2);
-        return BLangVMErrors.getPrintableStackTrace(BLangVMErrors.getErrorMessage(errorValue),
-                                                    stackWithoutJavaTests);
+        BRunUtil.invoke(compileResult, "testSelfReferencingError");
     }
 }
