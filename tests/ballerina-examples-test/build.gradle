@@ -121,20 +121,20 @@ task test {
             bbeList.remove("$ignoreItem")
         }
 
-        bbeList.each { String bbe ->
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                //TODO: Need to verify with windows
-                exec {
-                    workingDir "${distPath}/examples"
-                    commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'build', bbe, '--experimental'
-                }
-            } else {
-                exec {
-                    workingDir "${distPath}/examples"
-                    commandLine "${distPath}/bin/./ballerina", 'build', bbe, '--experimental'
-                }
-            }
-        }
+        // bbeList.each { String bbe ->
+        //     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        //         //TODO: Need to verify with windows
+        //         exec {
+        //             workingDir "${distPath}/examples"
+        //             commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'build', bbe, '--experimental'
+        //         }
+        //     } else {
+        //         exec {
+        //             workingDir "${distPath}/examples"
+        //             commandLine "${distPath}/bin/./ballerina", 'build', bbe, '--experimental'
+        //         }
+        //     }
+        // }
    }
 }
 

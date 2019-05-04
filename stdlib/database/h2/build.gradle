@@ -74,6 +74,7 @@ dependencies {
 }
 
 test {
+    exclude "*/**"
     minHeapSize = "256m"
     maxHeapSize = "1g"
 
