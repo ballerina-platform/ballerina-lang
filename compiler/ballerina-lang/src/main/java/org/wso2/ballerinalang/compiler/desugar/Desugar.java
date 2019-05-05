@@ -3138,7 +3138,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        if (constant.symbol.literalValueTypeTag == TypeTags.MAP) {
+        int literalValueTypeTag = constant.symbol.literalValueTypeTag;
+        if (literalValueTypeTag == TypeTags.MAP || literalValueTypeTag == TypeTags.RECORD) {
             constant.symbol.literalValue = rewrite((BLangRecordLiteral) constant.symbol.literalValue, env);
         }
         result = constant;
