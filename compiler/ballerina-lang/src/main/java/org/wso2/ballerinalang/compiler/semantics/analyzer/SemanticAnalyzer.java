@@ -2028,28 +2028,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return;
             }
 
-            if (constant.typeNode.type.tag == TypeTags.RECORD) {
-                BRecordType recordType = (BRecordType) constant.typeNode.type;
-                if (!recordType.sealed) {
-                    constant.type = symTable.semanticError;
-                    dlog.error(constant.typeNode.pos, DiagnosticCode.UNSEALED_RECORDS_CANNOT_BE_USED_AS_CONSTANT_TYPE);
-                    return;
-                }
-                boolean unsupportedTypesPresent = false;
-                for (BField field : recordType.fields) {
-                    if (!isAllowedConstantType(field.type)) {
-                        unsupportedTypesPresent = true;
-                        dlog.error(field.pos, DiagnosticCode.UNSUPPORTED_CONSTANT_RECORD_FIELD_TYPE, field.type);
-                    }
-                }
-                if (unsupportedTypesPresent) {
-                    constant.type = symTable.semanticError;
-                    return;
-                }
+            BType type = constant.typeNode.type;
+            if (type.tag == TypeTags.RECORD && !isValidConstantRecordType((BRecordType) type)) {
+                constant.type = symTable.semanticError;
+                return;
             }
 
             constant.symbol.type = constant.symbol.literalValueType =
-                    typeChecker.checkExpr(expression, env, constant.typeNode.type);
+                    typeChecker.checkExpr(expression, env, type);
             constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
         } else {
             throw new RuntimeException("unsupported node kind");
@@ -2061,7 +2047,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     // Private methods
 
-    private boolean isAllowedConstantType(BType type) {
+    private boolean isValidConstantRecordType(BRecordType type) {
+//        if (!type.sealed) {
+//            constant.type = symTable.semanticError;
+//            dlog.error(constant.typeNode.pos, DiagnosticCode.UNSEALED_RECORDS_CANNOT_BE_USED_AS_CONSTANT_TYPE);
+//            return;
+//        }
+        // Todo - check rest parameter.
+        boolean unsupportedTypesPresent = false;
+        for (BField field : type.fields) {
+            if (!isAllowedConstantTypeInRecord(field.type)) {
+                unsupportedTypesPresent = true;
+                dlog.error(field.pos, DiagnosticCode.UNSUPPORTED_CONSTANT_RECORD_FIELD_TYPE, field.type);
+            }
+        }
+        return !unsupportedTypesPresent;
+    }
+
+    private boolean isAllowedConstantTypeInRecord(BType type) {
         switch (type.tag) {
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
@@ -2071,6 +2074,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case TypeTags.STRING:
             case TypeTags.NIL:
                 return true;
+            case TypeTags.RECORD:
+                return isValidConstantRecordType((BRecordType) type);
         }
         return false;
     }
