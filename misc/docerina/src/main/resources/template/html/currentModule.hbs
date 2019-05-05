@@ -38,6 +38,11 @@
                 <a href="{{ ../rootPath }}{{ ../module.id }}/index.html#annotations">Annotations</a>
             </li>
         {{/if}}
+        {{#if module.unionTypes}}
+            <li>
+                <a href="{{ ../rootPath }}{{ ../module.id }}/index.html#types">Types</a>
+            </li>
+        {{/if}}
         {{#if module.errors}}
             <li>
                 <a href="{{ ../rootPath }}{{ ../module.id }}/index.html#errors">Errors</a>

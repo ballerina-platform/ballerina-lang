@@ -40,7 +40,10 @@ public class Type {
     public Type(BLangType type) {
         BTypeSymbol typeSymbol = type.type.tsymbol;
         if (typeSymbol != null && !typeSymbol.name.value.equals("")) {
-            this.name = typeSymbol.name.value;
+            if (type instanceof BLangUserDefinedType) {
+                BLangUserDefinedType userDefinedType = (BLangUserDefinedType) type;
+                this.name = userDefinedType.typeName.value;
+            }
             this.orgName = typeSymbol.pkgID.orgName.value;
             this.moduleName = typeSymbol.pkgID.name.value;
         } else {

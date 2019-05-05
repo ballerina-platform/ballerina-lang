@@ -116,6 +116,49 @@
         {{/each}}
         {{/if}}
       </table>
+
+      <div class="ui divider"></div>
+      <h3><a name="types">Types</a></h3>
+      <div class="ui divider"></div>
+
+        <table>
+            {{#if module.unionTypes}}
+                {{#each module.unionTypes}}
+                    <tr>
+                        <td class="module-title truncate types" id="{{name}}">
+                            <a href="types/types.html">{{name}}</a>
+                        </td>
+                        <td class="module-desc">{{{ description }}}</td>
+                        <td class="member-types">
+                            <p>
+                            {{#each memberTypes}}
+                                <a>{{ name }}</a>
+                            {{/each}}
+                            </p>
+                        </td>
+
+                    </tr>
+                {{/each}}
+            {{/if}}
+        </table>
+
+       <div class="ui divider"></div>
+       <h3><a name="errors">Errors</a></h3>
+       <div class="ui divider"></div>
+
+       <table>
+            {{#if module.errors}}
+                {{#each module.errors}}
+                    <tr>
+                        <td class="module-title truncate errors" id="{{name}}">
+                            <a href="errors/errors.html">{{name}}</a>
+                        </td>
+                        <td class="module-desc">{{{ description }}}</td>
+                        <td class="detail-type">{{ detailType.name }}</td>
+                    </tr>
+                {{/each}}
+            {{/if}}
+       </table>
     </div>
   </div>
 </body>

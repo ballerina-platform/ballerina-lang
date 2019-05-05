@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class UnionType extends Type {
 
-    public List<Type> memberTypes = new ArrayList<>();
+    // public List<Type> memberTypes = new ArrayList<>();
 
     public UnionType(String name, String description, List<Type> memberTypes) {
         super(name, description);
