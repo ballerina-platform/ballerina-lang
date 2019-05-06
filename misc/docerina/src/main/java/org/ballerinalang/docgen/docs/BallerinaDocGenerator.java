@@ -24,10 +24,16 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.Writer;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.ballerinalang.docgen.generator.model.Client;
+import org.ballerinalang.docgen.generator.model.ClientPageContext;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModulePageContext;
+import org.ballerinalang.docgen.generator.model.Object;
+import org.ballerinalang.docgen.generator.model.ObjectPageContext;
 import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.docgen.generator.model.ProjectPageContext;
+import org.ballerinalang.docgen.generator.model.Record;
+import org.ballerinalang.docgen.generator.model.RecordPageContext;
 import org.ballerinalang.docgen.model.Caption;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.ModuleDoc;
@@ -172,6 +178,9 @@ public class BallerinaDocGenerator {
         }
 
         String moduleTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "module");
+        String recordTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "record");
+        String objectTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "object");
+        String clientTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "client");
 
         // Generate module pages
         for (Module module : project.modules) {
@@ -188,8 +197,44 @@ public class BallerinaDocGenerator {
                 // Create module index page
                 ModulePageContext modulePageContext = new ModulePageContext(module, project, "../",
                         "API Documentation for " + module.id + " module");
-                String filePath = modDir + File.separator + "index" + HTML;
-                Writer.writeHtmlDocument(modulePageContext, moduleTemplateName, filePath);
+                String modIndexPath = modDir + File.separator + "index" + HTML;
+                Writer.writeHtmlDocument(modulePageContext, moduleTemplateName, modIndexPath);
+
+                // Create pages for records
+                if (!module.records.isEmpty()) {
+                    String recordsDir = modDir + File.separator + "records";
+                    Files.createDirectories(Paths.get(recordsDir));
+                    for (Record record : module.records) {
+                        RecordPageContext recordPageContext = new RecordPageContext(record, module, project,
+                                "../../","API Documentation for " + record.name + " record");
+                        String recordFilePath = recordsDir + File.separator + record.name + HTML;
+                        Writer.writeHtmlDocument(recordPageContext, recordTemplateName, recordFilePath);
+                    }
+                }
+
+                // Create pages for objects
+                if (!module.objects.isEmpty()) {
+                    String objectsDir = modDir + File.separator + "objects";
+                    Files.createDirectories(Paths.get(objectsDir));
+                    for (Object object : module.objects) {
+                        ObjectPageContext objectPageContext = new ObjectPageContext(object, module, project,
+                                "../../","API Documentation for " + object.name + " object");
+                        String objectFilePath = objectsDir + File.separator + object.name + HTML;
+                        Writer.writeHtmlDocument(objectPageContext, objectTemplateName, objectFilePath);
+                    }
+                }
+
+                // Create pages for clients
+                if (!module.clients.isEmpty()) {
+                    String clientsDir = modDir + File.separator + "clients";
+                    Files.createDirectories(Paths.get(clientsDir));
+                    for (Client client : module.clients) {
+                        ClientPageContext clientPageContext = new ClientPageContext(client, module, project,
+                                "../../","API Documentation for " + client.name + " client");
+                        String clientFilePath = clientsDir + File.separator + client.name + HTML;
+                        Writer.writeHtmlDocument(clientPageContext, clientTemplateName, clientFilePath);
+                    }
+                }
 
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("docerina: generated docs for module: " + module.id);

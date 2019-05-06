@@ -15,18 +15,13 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Represent documentation for a Record.
+ * Page context for the object page.
  */
-public class Record extends Construct {
-
-    public List<DefaultableVarible> fields  = new ArrayList<>();
-
-    public Record(String name, String description, List<DefaultableVarible> fields) {
-        super(name, description);
-        this.fields = fields;
+public class ObjectPageContext extends ModulePageContext {
+    public Object object;
+    public ObjectPageContext(Object object, Module module, Project project, String rootPath, String title) {
+        super(module, project, rootPath, title);
+        this.object = object;
     }
 }

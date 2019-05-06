@@ -15,26 +15,40 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Represent documentation for an Object.
  */
 public class Object extends Construct {
 
-    public List<DefaultableVarible> fields;
-    public List<Function> methods;
+    public List<DefaultableVarible> fields = new ArrayList<>();
+    public List<Function> methods = new ArrayList<>();
+    public Function initMethod;
+    public List<Function> otherMethods = new ArrayList<>();
 
     public Object(String name, String description, List<DefaultableVarible> fields, List<Function> methods) {
         super(name, description);
         this.fields = fields;
         this.methods = methods;
+        Optional<Function> initMethod = getInitMethod(methods);
+        this.initMethod = initMethod.isPresent() ? getInitMethod(methods).get() : null;
+        this.otherMethods = getOtherMethods(methods);
     }
 
-    public Optional<Function> getInitMethod() {
-        return this.methods.stream()
+    public Optional<Function> getInitMethod(List<Function> methods) {
+        return methods.stream()
                 .filter(function -> function.name.equals("__init"))
                 .findFirst();
     }
+
+    public List<Function> getOtherMethods(List<Function> methods) {
+        return methods.stream()
+                .filter(function -> !function.name.equals("__init"))
+                .collect(Collectors.toList());
+    }
+
 }

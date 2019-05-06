@@ -1,19 +1,17 @@
 <!DOCTYPE html>
 <html>
 
-{{> htmlHead title="API Documentation - Module recordords " rootPath="../../" }}
+{{> head }}
 
 <body>
 <div class="ui grid">
     <div class="navi-wrapper two wide column">
         <div class="navi-wrapper-content">
-            <a href="../../index.html">
-                <img class="logo" src="../../images/ballerina-logo.png">
-            </a>
+            {{> logo }}
             <div class="primary-list">
                 <h3>Records</h3>
                 <ul>
-                    {{#each module.constructs.records}}
+                    {{#each module.records}}
                         <li>
                             <a href="{{name}}.html">{{name}}</a>
                         </li>
@@ -21,8 +19,8 @@
                 </ul>
             </div>
             <div class="ui divider"></div>
-            {{> currentModule rootPath="../../" }}
-            {{> allModules rootPath="../../" }}
+            {{> currentModule }}
+            {{> allModules }}
         </div>
     </div>
 
@@ -31,8 +29,10 @@
             <h1>Record : <span class="records">{{ record.name }}</span></h1>
             <div class="ui divider"></div>
 
-            <p>{{record.description}}</p>
+            <p>{{{ record.description }}}</p>
 
+            <h2>Fields</h2>
+            <div class="ui divider"></div>
             <div class="constants">
                 <table class="ui table">
                     <thead>
@@ -48,10 +48,10 @@
                         {{#record}}
                             {{#each fields}}
                                 <tr>
-                                    <td>{{field_name}}</td>
-                                    <td>{{data_type}}</td>
-                                    <td>{{default_value}}</td>
-                                    <td>{{description}}</td>
+                                    <td>{{ name }}</td>
+                                    <td>{{ type.name }}</td>
+                                    <td>{{ defaultValue }}</td>
+                                    <td>{{{ description }}}</td>
                                 </tr>
                             {{/each}}
                         {{/record}}

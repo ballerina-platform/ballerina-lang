@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,17 +24,22 @@ import java.util.stream.Collectors;
  */
 public class Client extends Object {
 
+    public List<Function> remoteMethods = new ArrayList<>();
+
     public Client(String name, String description, List<DefaultableVarible> fields, List<Function> methods) {
         super(name, description, fields, methods);
+        this.remoteMethods = getRemoteMethods(methods);
+        this.otherMethods = getOtherMethods(methods);
     }
 
-    public List<Function> getNonRemoteMethods() {
-        return this.methods.stream()
+    @Override
+    public List<Function> getOtherMethods(List<Function> methods) {
+        return super.getOtherMethods(methods).stream()
                 .filter(function -> !function.isRemote)
                 .collect(Collectors.toList());
     }
 
-    public List<Function> getRemoteMethods() {
+    public List<Function> getRemoteMethods(List<Function> methods) {
         return this.methods.stream()
                 .filter(function -> function.isRemote)
                 .collect(Collectors.toList());
