@@ -16,19 +16,23 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-test-utils</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-core</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-packerina</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.awaitility</groupId>

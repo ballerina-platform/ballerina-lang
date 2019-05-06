@@ -35,20 +35,24 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-core</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>lib-creator</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.transport.file</groupId>
@@ -57,6 +61,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -72,11 +77,13 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-runtime-api</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -84,6 +91,7 @@
             <artifactId>ballerina-runtime-api</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

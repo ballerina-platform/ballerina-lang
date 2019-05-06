@@ -37,24 +37,28 @@
             <artifactId>ballerina-h2</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-mysql</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-system</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-utils</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
     </dependencies>
 

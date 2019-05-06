@@ -38,10 +38,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-core</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.transport.http</groupId>
@@ -50,10 +52,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-http</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -64,71 +68,85 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-runtime-api</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-system</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-h2</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-reflect</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-file</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-log-api</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-crypto</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-encoding</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-internal</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-math</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-task</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-auth</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-config-api</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -136,76 +154,89 @@
             <artifactId>ballerina-builtin</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-mime</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-crypto</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-encoding</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-io</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-log-api</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-reflect</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-config-api</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-http</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-sql</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-h2</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-stdlib-test-common</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-utils</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -213,6 +244,7 @@
             <artifactId>ballerina-utils</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

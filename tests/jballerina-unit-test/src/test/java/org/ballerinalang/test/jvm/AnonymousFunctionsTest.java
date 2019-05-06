@@ -51,16 +51,4 @@
          BValue[] result = BRunUtil.invoke(compileResult, "testFPPassing");
          Assert.assertEquals(result[0].stringValue(), "200");
      }
-
-     @Test(description = "Test basic closures")
-     public void testBasicClosure() {
-         BValue[] result = BRunUtil.invoke(compileResult, "testBasicClosure");
-         Assert.assertEquals(result[0].stringValue(), "242");
-     }
-
-     @Test(description = "Test multilevel closures")
-     public void testMultilevelClosures() {
-         BValue[] result = BRunUtil.invoke(compileResult, "testMultilevelClosure");
-         Assert.assertEquals(result[0].stringValue(), "72");
-     }
  }
