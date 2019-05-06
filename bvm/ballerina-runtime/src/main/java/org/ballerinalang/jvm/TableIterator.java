@@ -20,7 +20,6 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -39,7 +38,6 @@ import java.sql.SQLException;
 import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
