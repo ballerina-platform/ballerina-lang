@@ -191,7 +191,7 @@ public class TypeChecker {
      * @return True if values are equal, else false.
      */
     public static boolean isEqual(Object lhsValue, Object rhsValue) {
-        return isEqual(lhsValue, rhsValue, Collections.emptyList());
+        return isEqual(lhsValue, rhsValue, new ArrayList<>());
     }
 
     /**
@@ -1008,7 +1008,7 @@ public class TypeChecker {
         }
 
         for (int i = 0; i < lhsList.size(); i++) {
-            if (!isEqual(lhsList.getRefValue(i), rhsList.getRefValue(i), checkedValues)) {
+            if (!isEqual(lhsList.getValue(i), rhsList.getValue(i), checkedValues)) {
                 return false;
             }
         }

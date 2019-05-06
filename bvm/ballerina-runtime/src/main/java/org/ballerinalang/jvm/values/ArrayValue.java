@@ -180,6 +180,25 @@ public class ArrayValue implements RefValue {
 
     // -----------------------  get methods ----------------------------------------------------
 
+    public Object getValue(long index) {
+        if (elementType != null) {
+            if (elementType.getTag() == TypeTags.INT_TAG) {
+                return getInt(index);
+            } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
+                return getBoolean(index);
+            } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                return getByte(index);
+            } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
+                return getFloat(index);
+            } else if (elementType.getTag() == TypeTags.STRING_TAG) {
+                return getString(index);
+            } else {
+                return getRefValue(index);
+            }
+        }
+        return getRefValue(index);
+    }
+
     public Object getRefValue(long index) {
         rangeCheckForGet(index, size);
         return refValues[(int) index];
