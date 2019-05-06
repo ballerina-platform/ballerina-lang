@@ -6,22 +6,13 @@
 <body>
   <div class="ui grid">
     <div class="navi-wrapper two wide column">
+      <div class="navi-wrapper-content">
       <a href="../../index.html">
-        <img class="logo" src="../../images/ballerina-logo.png">
+        <img class="ui fluid image logo" src="../../images/ballerina-logo.png">
       </a>
-      <div class="primary-list">
-        <h3>Annotations</h3>
-        <ul>
-          {{#each annotations}}
-          <li>
-            <a href="#{{name}}">{{name}}</a>
-          </li>
-          {{/each}}
-        </ul>
-      </div>
-      <div class="ui divider"></div>
       {{> currentModule rootPath="../../" }}
       {{> allModules rootPath="../../" }}
+      </div>
     </div>
 
     <div class="fourteen wide column content-wrapper">
@@ -33,9 +24,8 @@
           <tbody>
             {{#each annotations}}
             <tr>
-              <td class="annotations"><a href="#{{name}}">{{name}}</a></td>
-              <div class="ui divider param-divider"></div>
-              <td>{{description}}</td>
+              <td width="25%" class="annotations"><a href="#{{name}}">{{name}}</a> </td>
+              <td width="75%">{{description}}</td>
             </tr>
             {{/each}}
           </tbody>
@@ -43,17 +33,14 @@
         <div>
           {{#if annotations}}
           <div>
-            <table class="ui table">
-              <p>Name</p>
+            <table class="ui table param-table">
               <thead>
-                {{#each annotations}}
                 <tr>
-                  <th>Name</th>
-                  <th>Attachment Points</th>
-                  <th>Data Type</th>
-                  <th>Description</th>
+                  <th width="25%">Name</th>
+                  <th width="15%">Attachment Points</th>
+                  <th width="20%">Data Type</th>
+                  <th width="30%">Description</th>
                 </tr>
-                {{/each}}
               </thead>
               <tbody>
                 {{#each annotations}}

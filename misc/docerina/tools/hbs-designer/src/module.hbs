@@ -6,11 +6,13 @@
 <body>
   <div class="ui grid">
     <div class="navi-wrapper two wide column">
+      <div class="navi-wrapper-content">
       <a href="../index.html">
         <img class="logo" src="../images/ballerina-logo.png">
       </a>
       {{> currentModule rootPath="../" }}
       {{> allModules rootPath="../" }}
+      </div>
     </div>
 
     <div class="fourteen wide column content-wrapper">
@@ -83,7 +85,8 @@
         {{#if module.constructs}}
         {{#each module.constructs.records}}
         <tr>
-          <td class="module-title truncate records" id="{{name}}"><a href="records/{{name}}.html">{{name}}</a></td>
+          <td class="module-title truncate records" id="{{name}}">
+            <a class="records" href="records/{{name}}.html">{{name}}</a></td>
           <td class="module-desc">{{description}}</td>
         </tr>
         {{/each}}
@@ -97,7 +100,8 @@
         {{#if module.constructs}}
         {{#each module.constructs.objects}}
         <tr>
-          <td class="module-title truncate objects" id="{{name}}"><a href="objects/{{name}}.html">{{name}}</a></td>
+          <td class="module-title truncate" id="{{name}}"> 
+            <a class="objects" href="objects/{{name}}.html">{{name}}</a></td>
           <td class="module-desc">{{description}}</td>
         </tr>
         {{/each}}
@@ -111,7 +115,8 @@
         {{#if module.constructs}}
         {{#each module.constructs.clients}}
         <tr>
-          <td class="module-title truncate clients" id="{{name}}"><a href="clients/{{name}}.html">{{name}}</a></td>
+          <td class="module-title truncate clients" id="{{name}}"> 
+            <a class="clients" href="clients/{{name}}.html">{{name}}</a></td>
           <td class="module-desc">{{description}}</td>
         </tr>
         {{/each}}
@@ -125,7 +130,8 @@
         {{#if module.constructs}}
         {{#each module.constructs.functions}}
         <tr>
-          <td class="module-title truncate functions" id="{{name}}"><a href="functions/functions.html">{{name}}</a></td>
+          <td class="module-title truncate" id="{{name}}"> 
+            <a class="functions" href="functions/functions.html">{{name}}</a></td>
           <td class="module-desc">{{description}}</td>
         </tr>
         {{/each}}
@@ -139,7 +145,8 @@
         {{#if module.constructs}}
         {{#each module.constructs.constants}}
         <tr>
-          <td class="module-title truncate constant" id="{{name}}"><a href="constants/constants.html">{{name}}</a></td>
+          <td class="module-title truncate constant" id="{{name}}">
+            <a class="constant" href="constants/constants.html">{{name}}</a></td>
           <td class="module-desc">{{description}}</td>
         </tr>
         {{/each}}
@@ -153,8 +160,8 @@
         {{#if module.constructs}}
         {{#each module.constructs.annotations}}
         <tr>
-          <td class="module-title truncate annotations" id="{{name}}"><a
-              href="annotations/annotations.html">{{name}}</a></td>
+          <td class="module-title truncate annotations" id="{{name}}"> 
+            <a class="annotations" href="annotations/annotations.html">{{name}}</a></td>
           <td class="module-desc">{{description}}</td>
         </tr>
         {{/each}}

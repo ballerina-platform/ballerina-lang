@@ -6,6 +6,7 @@
 <body>
   <div class="ui grid">
     <div class="navi-wrapper two wide column">
+      <div class="navi-wrapper-content">
       <a href="../../index.html">
         <img class="logo" src="../../images/ballerina-logo.png">
       </a>
@@ -22,14 +23,14 @@
       <div class="ui divider"></div>
       {{> currentModule rootPath="../../" }}
       {{> allModules rootPath="../../" }}
+      </div>
     </div>
 
     <div class="fourteen wide column content-wrapper">
       <div class="main-wrapper">
-        <h1>{{ client.name }}</h1>
+        <h1>Client : <span class="clients">{{ client.name }}</span></h1>
       <div class="ui divider"></div>
 
-      <h3 class="clients">{{client.type}} <span class="clients"> {{client.name}} </span> {{client.label}}</h3>
       <p>{{client.description}}</p>
 
       <div class="constants">
@@ -78,15 +79,14 @@
           {{/each}}
 
           {{#each method}}
-          <div class="method-type-wrapper">
-            <div class="method-title">
+          <div class="method-content">
               <h3 class="clients" id="{{method_type}}">{{method_type}}</h3>
-              <p>{{method_params}}</p>
-              <h3>{{label_return}}</h3>
-              <p>{{return_params}}</p>
-            </div>
-            <p>{{description}}</p>
-            <table class="ui table params-table">
+              <p class="method-types"> {{method_params}}</p>
+              <h3>return</h3>
+              <p class="method-types"> {{return_params}}</p>
+            <div class="ui divider param-divider"></div>
+            <p>{{description}} </p>
+            <table class="ui table param-table">
               <thead>
                 <tr>
                   <th width="20%">Param Name</th>
@@ -116,15 +116,15 @@
               {{/each}}
               {{/if}}
             </table>
-            <table class="ui table">
+            <table class="ui table param-table">
               <thead>
                 {{#if returns }}
                 {{#each returns }}
                 {{#if fields}}
                 {{#each fields}}
                 <tr>
-                  <th width="30%">{{return_type_label}}</th>
-                  <th width="70%">{{return_description_label}}</th>
+                  <th width="30%">Return Type</th>
+                  <th width="70%">Description</th>
                 </tr>
                 {{/each}}
                 {{/if}}

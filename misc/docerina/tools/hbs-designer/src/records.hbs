@@ -6,6 +6,7 @@
 <body>
   <div class="ui grid">
     <div class="navi-wrapper two wide column">
+      <div class="navi-wrapper-content">
       <a href="../../index.html">
         <img class="logo" src="../../images/ballerina-logo.png">
       </a>
@@ -22,6 +23,7 @@
       <div class="ui divider"></div>
       {{> currentModule rootPath="../../" }}
       {{> allModules rootPath="../../" }}
+      </div>
     </div>
 
     <div class="fourteen wide column content-wrapper">
@@ -29,7 +31,6 @@
       <h1>Record : <span class="records">{{ record.name }}</span></h1>
       <div class="ui divider"></div>
 
-      <h3>{{record.type}} <span class="records">{{record.name}}</span> record</h3>
       <p>{{record.description}}</p>
 
       <div class="constants">

@@ -1,7 +1,11 @@
+/*-------------------------------
+           API Method Colors 
+--------------------------------*/
 body {
   background: #fff;
   color: #464646;
   height: 100vh;
+  font-family: "Fira Sans", sans-serif;
 }
 body p {
   font-size: 16px;
@@ -21,11 +25,14 @@ body .ui.grid .navi-wrapper {
   overflow-y: hidden;
   overflow-x: hidden;
 }
+body .ui.grid .navi-wrapper .navi-wrapper-content {
+  width: 185px;
+}
 body .ui.grid .navi-wrapper .logo {
   width: 150px;
   height: auto;
   text-align: center;
-  margin: 16px;
+  margin: 1em;
 }
 body .ui.grid .navi-wrapper:hover {
   overflow-y: scroll;
@@ -64,8 +71,11 @@ body .ui.grid .navi-wrapper .primary-list ul li a:hover {
   color: #333;
   font-weight: 600;
 }
+body .ui.grid .navi-wrapper .primary-list h3 {
+  margin: 10px 0;
+  text-align: center;
+}
 body .ui.grid .content-wrapper {
-  padding: 45px 630px 12px 43px !important;
   margin: 0;
   height: 100vh;
   overflow-y: hidden;
@@ -74,6 +84,31 @@ body .ui.grid .content-wrapper {
 }
 body .ui.grid .content-wrapper .main-wrapper {
   width: 750px;
+  margin: 20px 30px;
+}
+body .ui.grid .content-wrapper .main-wrapper span.records {
+  color: #00c378;
+}
+body .ui.grid .content-wrapper .main-wrapper span.objects {
+  color: #3498db;
+}
+body .ui.grid .content-wrapper .main-wrapper span.clients {
+  color: #FF5722;
+}
+body .ui.grid .content-wrapper .main-wrapper span.listeners {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper .main-wrapper span.functions {
+  color: #EC407A;
+}
+body .ui.grid .content-wrapper .main-wrapper span.constant {
+  color: #8e44ad;
+}
+body .ui.grid .content-wrapper .main-wrapper span.annotations {
+  color: #276dc4;
+}
+body .ui.grid .content-wrapper .main-wrapper span.errors {
+  color: #f44336;
 }
 body .ui.grid .content-wrapper .param-divider {
   margin-top: 0px;
@@ -94,6 +129,30 @@ body .ui.grid .content-wrapper .param-table th {
 }
 body .ui.grid .content-wrapper .param-table tbody {
   border-bottom: 1px solid #e8e9e9;
+}
+body .ui.grid .content-wrapper a.records {
+  color: #00c378;
+}
+body .ui.grid .content-wrapper a.objects {
+  color: #3498db;
+}
+body .ui.grid .content-wrapper a.clients {
+  color: #FF5722;
+}
+body .ui.grid .content-wrapper a.listeners {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper a.functions {
+  color: #EC407A;
+}
+body .ui.grid .content-wrapper a.constant {
+  color: #8e44ad;
+}
+body .ui.grid .content-wrapper a.annotations {
+  color: #276dc4;
+}
+body .ui.grid .content-wrapper a.errors {
+  color: #f44336;
 }
 body .ui.grid .content-wrapper .ui.table,
 body .ui.grid .content-wrapper .ui.table tr td {
@@ -123,6 +182,38 @@ body .ui.grid .content-wrapper .ui.table td,
 body .ui.grid .content-wrapper .ui.table tr td td {
   word-break: break-all;
 }
+body .ui.grid .content-wrapper .ui.table td.records,
+body .ui.grid .content-wrapper .ui.table tr td td.records {
+  color: #00c378;
+}
+body .ui.grid .content-wrapper .ui.table td.objects,
+body .ui.grid .content-wrapper .ui.table tr td td.objects {
+  color: #3498db;
+}
+body .ui.grid .content-wrapper .ui.table td.clients,
+body .ui.grid .content-wrapper .ui.table tr td td.clients {
+  color: #FF5722;
+}
+body .ui.grid .content-wrapper .ui.table td.listeners,
+body .ui.grid .content-wrapper .ui.table tr td td.listeners {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper .ui.table td.functions,
+body .ui.grid .content-wrapper .ui.table tr td td.functions {
+  color: #EC407A;
+}
+body .ui.grid .content-wrapper .ui.table td.constant,
+body .ui.grid .content-wrapper .ui.table tr td td.constant {
+  color: #8e44ad;
+}
+body .ui.grid .content-wrapper .ui.table td.annotations,
+body .ui.grid .content-wrapper .ui.table tr td td.annotations {
+  color: #276dc4;
+}
+body .ui.grid .content-wrapper .ui.table td.errors,
+body .ui.grid .content-wrapper .ui.table tr td td.errors {
+  color: #f44336;
+}
 body .ui.grid .content-wrapper .params-table {
   padding-top: 20px;
 }
@@ -147,54 +238,6 @@ body .ui.grid .content-wrapper .modules {
 body .ui.grid .content-wrapper .modules a {
   color: #0d4d84;
 }
-body .ui.grid .content-wrapper .records {
-  text-transform: capitalize;
-  color: #20b6b0;
-}
-body .ui.grid .content-wrapper .records a {
-  color: #20b6b0;
-}
-body .ui.grid .content-wrapper .records a:hover {
-  text-decoration: underline;
-}
-body .ui.grid .content-wrapper .objects {
-  text-transform: capitalize;
-  color: #20b6b0;
-}
-body .ui.grid .content-wrapper .objects a {
-  color: #20b6b0;
-}
-body .ui.grid .content-wrapper .objects a:hover {
-  text-decoration: underline;
-}
-body .ui.grid .content-wrapper .clients {
-  color: #068000;
-  text-transform: capitalize;
-}
-body .ui.grid .content-wrapper .clients a {
-  color: #068000;
-}
-body .ui.grid .content-wrapper .functions {
-  color: #ad448e;
-  text-transform: capitalize;
-}
-body .ui.grid .content-wrapper .functions a {
-  color: #ad448e;
-}
-body .ui.grid .content-wrapper .constant {
-  color: #7B1FA2;
-  text-transform: capitalize;
-}
-body .ui.grid .content-wrapper .constant a {
-  color: #7B1FA2;
-}
-body .ui.grid .content-wrapper .annotations {
-  color: #3F51B5;
-  text-transform: capitalize;
-}
-body .ui.grid .content-wrapper .annotations a {
-  color: #3F51B5;
-}
 body .ui.grid .content-wrapper .constants {
   margin-top: 20px;
 }
@@ -218,8 +261,8 @@ body .ui.grid .content-wrapper .constants .method-list {
 body .ui.grid .content-wrapper .constants .method-list p {
   line-height: 30px;
 }
-body .ui.grid .content-wrapper .constants .method-content h3 {
-  margin-top: 20px;
+body .ui.grid .content-wrapper .constants .method-content {
+  margin: 20px 0;
 }
 body .ui.grid .content-wrapper .constants .method-content .method-types {
   font-style: italic;
@@ -276,6 +319,57 @@ body .ui.grid .content-wrapper .module-title {
   height: auto;
   padding: 0;
   vertical-align: top;
+}
+body .ui.grid .content-wrapper .module-title.records {
+  color: #00c378;
+}
+body .ui.grid .content-wrapper .module-title.objects {
+  color: #3498db;
+}
+body .ui.grid .content-wrapper .module-title.clients {
+  color: #FF5722;
+}
+body .ui.grid .content-wrapper .module-title.listeners {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper .module-title.functions {
+  color: #EC407A;
+}
+body .ui.grid .content-wrapper .module-title.constant {
+  color: #8e44ad;
+}
+body .ui.grid .content-wrapper .module-title.annotations {
+  color: #276dc4;
+}
+body .ui.grid .content-wrapper .module-title.errors {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper .module-title a.records {
+  color: #00c378;
+}
+body .ui.grid .content-wrapper .module-title a.objects {
+  color: #3498db;
+}
+body .ui.grid .content-wrapper .module-title a.clients {
+  color: #FF5722;
+}
+body .ui.grid .content-wrapper .module-title a.listeners {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper .module-title a.functions {
+  color: #EC407A;
+}
+body .ui.grid .content-wrapper .module-title a.constant {
+  color: #8e44ad;
+}
+body .ui.grid .content-wrapper .module-title a.annotations {
+  color: #276dc4;
+}
+body .ui.grid .content-wrapper .module-title a.errors {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper .module-title a:hover {
+  font-weight: bold;
 }
 body .ui.grid .content-wrapper .truncate {
   max-width: 220px;
