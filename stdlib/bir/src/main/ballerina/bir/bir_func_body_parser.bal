@@ -397,9 +397,9 @@ public type FuncBodyParser object {
             if (hasLhs){
                 lhsOp = self.parseVarRef();
             }
-
+            var isAsync = self.reader.readBoolean();
             BasicBlock thenBB = self.parseBBRef();
-            FPCall fpCall = {pos:pos, kind:kind, fp:fp, lhsOp:lhsOp, args:args, thenBB:thenBB};
+            FPCall fpCall = {pos:pos, kind:kind, fp:fp, lhsOp:lhsOp, args:args, thenBB:thenBB, isAsync:isAsync};
             return fpCall;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");

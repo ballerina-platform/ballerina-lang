@@ -514,6 +514,7 @@ public type FPCall record {|
     VarRef fp;
     VarRef? lhsOp;
     VarRef?[] args;
+    boolean isAsync;
     BasicBlock thenBB;
 |};
 
