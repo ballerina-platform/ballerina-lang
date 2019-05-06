@@ -17,8 +17,8 @@
   -->
 <assembly>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>ballerina-tools-${project.version}</baseDirectory>
-    <id>Ballerina Tools</id>
+    <baseDirectory>jballerina-tools-${project.version}</baseDirectory>
+    <id>JBallerina Tools</id>
     <formats>
         <format>zip</format>
     </formats>
@@ -33,7 +33,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${project.version}
+                ${project.build.directory}/extracted-distributions/jballerina-zip/jballerina-${project.version}
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>

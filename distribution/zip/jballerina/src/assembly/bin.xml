@@ -17,8 +17,8 @@
   -->
 <assembly>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>ballerina-${project.version}</baseDirectory>
-    <id>Ballerina Distribution</id>
+    <baseDirectory>jballerina-${project.version}</baseDirectory>
+    <id>JBallerina Distribution</id>
     <formats>
         <format>zip</format>
     </formats>
@@ -62,13 +62,13 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>bin/ballerina</source>
+            <source>bin/jballerina</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>755</fileMode>
         </file>
         <file>
-            <source>bin/ballerina.bat</source>
+            <source>bin/jballerina.bat</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>

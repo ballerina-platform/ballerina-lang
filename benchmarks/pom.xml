@@ -33,7 +33,7 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina</artifactId>
+            <artifactId>jballerina</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
@@ -58,7 +58,7 @@
                         </goals>
                         <configuration>
                             <skip>${skipBenchmarks}</skip>
-                            <includeArtifactIds>ballerina</includeArtifactIds>
+                            <includeArtifactIds>jballerina</includeArtifactIds>
                             <outputDirectory>target</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
