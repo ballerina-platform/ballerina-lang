@@ -69,3 +69,24 @@ function multilevelClosure() returns (function (int) returns int) {
     };
     return func1;
 }
+
+function basicWorkerTest() returns int {
+    int global = 10;
+
+    worker w1 {
+       global += 10;
+    }
+
+    worker w2 returns int {
+       int i = 0;
+       while(i < 100) {
+          i +=1;
+       }
+       return i;
+    }
+
+    int result = wait w2;
+    wait w1;
+    
+    return global + result;
+}

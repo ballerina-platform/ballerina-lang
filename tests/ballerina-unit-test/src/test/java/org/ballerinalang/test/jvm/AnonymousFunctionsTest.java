@@ -63,4 +63,10 @@
          BValue[] result = BRunUtil.invoke(compileResult, "testMultilevelClosure");
          Assert.assertEquals(result[0].stringValue(), "72");
      }
+
+     @Test(description = "Test basic worker")
+     public void testWorkerBasic() {
+         BValue[] result = BRunUtil.invoke(compileResult, "basicWorkerTest");
+         Assert.assertEquals(result[0].stringValue(), "120");
+     }
  }
