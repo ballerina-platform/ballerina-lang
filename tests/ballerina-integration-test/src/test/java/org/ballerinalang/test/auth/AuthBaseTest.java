@@ -39,7 +39,7 @@ public class AuthBaseTest extends BaseTest {
     @BeforeGroups(value = "auth-test", alwaysRun = true)
     public void start() throws Exception {
         int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9101, 9102,
-                9103, 9104, 9105, 9106, 9107, 9108, 9109, 9110, 9111, 9112, 9113, 9195, 9196};
+                9103, 9104, 9105, 9106, 9107, 9108, 9109, 9110, 9111, 9112, 9113, 9190, 9195, 9196};
         embeddedDirectoryServer = new EmbeddedDirectoryServer();
         embeddedDirectoryServer.startLdapServer(9389);
 
@@ -71,5 +71,9 @@ public class AuthBaseTest extends BaseTest {
     void assertForbidden(HttpResponse response) {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    void assertContains(HttpResponse response, String text) {
+        Assert.assertTrue(response.getData().contains(text));
     }
 }

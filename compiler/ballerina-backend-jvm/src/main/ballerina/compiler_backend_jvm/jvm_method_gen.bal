@@ -304,7 +304,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (terminator is bir:Wait) {
             termGen.generateWaitIns(terminator, funcName);
         } else if (terminator is bir:FPCall) {
-            termGen.genFPCallIns(terminator);
+            termGen.genFPCallIns(terminator, funcName);
         } else {
             error err = error( "JVM generation is not supported for terminator instruction " +
                                         io:sprintf("%s", terminator));
