@@ -165,6 +165,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNonTerminator.NewTable newTable) {
+        throw new AssertionError();
+    }
+
     // Operands
     public void visit(BIROperand birVarRef) {
         throw new AssertionError();

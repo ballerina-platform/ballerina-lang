@@ -51,9 +51,9 @@
     </developers>
 
     <scm>
-        <url>https://github.com/ballerinalang/ballerina.git</url>
-        <developerConnection>scm:git:https://github.com/ballerinalang/ballerina.git</developerConnection>
-        <connection>scm:git:https://github.com/ballerinalang/ballerina.git</connection>
+        <url>https://github.com/ballerina-platform/ballerina-lang.git</url>
+        <developerConnection>scm:git:https://github.com/ballerina-platform/ballerina-lang.git</developerConnection>
+        <connection>scm:git:https://github.com/ballerina-platform/ballerina-lang.git</connection>
         <tag>HEAD</tag>
     </scm>
 
@@ -2525,6 +2525,9 @@
         <apache.directory.server.version>2.0.0-M24</apache.directory.server.version>
         <bouncycastle.version>1.61</bouncycastle.version>
         <asm.version>6.2.1</asm.version>
+        <!-- This property is unused inside the project, but used during the release process,
+        therefore, DO NOT remove this -->
+        <project.scm.id>ballerina-scm-server</project.scm.id>
     </properties>
 
 </project>
