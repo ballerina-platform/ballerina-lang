@@ -210,7 +210,12 @@ public abstract class BIRNode {
          */
         public List<BIRErrorEntry> errorTable;
 
-        public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type) {
+        /**
+         * Name of the current worker.
+         */
+        public Name workerName;
+
+        public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type, Name workerName) {
             super(pos);
             this.name = name;
             this.visibility = visibility;
@@ -218,6 +223,7 @@ public abstract class BIRNode {
             this.localVars = new ArrayList<>();
             this.basicBlocks = new ArrayList<>();
             this.errorTable = new ArrayList<>();
+            this.workerName = workerName;
         }
 
         @Override

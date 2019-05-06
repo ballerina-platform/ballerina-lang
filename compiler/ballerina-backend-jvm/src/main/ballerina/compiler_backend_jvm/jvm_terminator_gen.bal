@@ -518,6 +518,59 @@ type TerminatorGenerator object {
         self.genYieldCheck(fpCall.thenBB, funcName);   
     }
 
+    function genWrkSendIns(bir:WrkSend ins, string funcName) {
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));
+        self.mv.visitFieldInsn(GETFIELD, STRAND, "wdChannels", io:sprintf("L%s;", WD_CHANNELS));
+        self.mv.visitLdcInsn(ins.dataChannel.value);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", io:sprintf("(L%s;)L%s;", 
+            STRING_VALUE, WORKER_DATA_CHANNEL), false);
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+        generateVarLoad(self.mv, ins.dataOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(ins.dataOp.variableDcl));
+        addBoxInsn(self.mv, ins.dataOp.typeValue);
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "sendData", io:sprintf("(L%s;L%s;)V", OBJECT, STRAND), false); 
+    }
+
+    function genWrkReceiveIns(bir:WrkReceive ins, string funcName) {
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));
+        self.mv.visitFieldInsn(GETFIELD, STRAND, "wdChannels", io:sprintf("L%s;", WD_CHANNELS));
+        self.mv.visitLdcInsn(ins.dataChannel.value);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", io:sprintf("(L%s;)L%s;", 
+            STRING_VALUE, WORKER_DATA_CHANNEL), false);
+ 
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "tryTakeData", io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        
+        bir:VariableDcl stranVar = { typeValue: "string", // should be record
+                                 name: { value: "wrkMsg" },
+                                 kind: "ARG" };
+        int wrkResultIndex = self.getJVMIndexOfVarRef(stranVar);
+        self.mv.visitVarInsn(ASTORE, wrkResultIndex);
+        
+        jvm:Label l5 = self.labelGen.getLabel("l55");
+        self.mv.visitLabel(l5);
+        self.mv.visitVarInsn(ALOAD, wrkResultIndex);
+        jvm:Label l6 = self.labelGen.getLabel("l66");
+        self.mv.visitJumpInsn(IFNULL, l6);
+        jvm:Label l7 = self.labelGen.getLabel("l77");
+        self.mv.visitLabel(l7);
+        self.mv.visitVarInsn(ALOAD, wrkResultIndex);
+        addUnboxInsn(self.mv, ins.lhsOp.typeValue);
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+        bir:VariableDcl? lhsVar = ins.lhsOp.variableDcl;
+        generateVarStore(self.mv, ins.lhsOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(ins.lhsOp.variableDcl));
+
+        self.mv.visitLabel(l6);
+        self.genYieldCheck(ins.thenBB, funcName);
+    }
+        
+        
+        
+        
+        
+
     function submitToScheduler(bir:VarRef? lhsOp) {
         bir:BType? futureType = lhsOp.typeValue;
         boolean isVoid;

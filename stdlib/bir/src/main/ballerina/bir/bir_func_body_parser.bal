@@ -403,15 +403,17 @@ public type FuncBodyParser object {
             return fpCall;
         } else if (kindTag == INS_WK_RECEIVE) {
             TerminatorKind kind = TERMINATOR_WK_RECEIVE;
-            string wrkName = self.reader.readStringCpRef();
+            string dataChannel = self.reader.readStringCpRef();
             VarRef lhsOp = self.parseVarRef();
-            WrkReceive receive = {pos:pos, kind:kind, wrkName:{ value:wrkName }, lhsOp:lhsOp};
+            BasicBlock thenBB = self.parseBBRef();
+            WrkReceive receive = {pos:pos, kind:kind, dataChannel:{ value:dataChannel }, lhsOp:lhsOp, thenBB:thenBB};
             return receive;
         } else if (kindTag == INS_WK_SEND) {
             TerminatorKind kind = TERMINATOR_WK_SEND;
-            string wrkName = self.reader.readStringCpRef();
+            string dataChannel = self.reader.readStringCpRef();
             VarRef dataOp = self.parseVarRef();
-            WrkSend send = {pos:pos, kind:kind, wrkName:{ value:wrkName }, dataOp:dataOp};
+            BasicBlock thenBB = self.parseBBRef();
+            WrkSend send = {pos:pos, kind:kind, dataChannel:{ value:dataChannel }, dataOp:dataOp, thenBB:thenBB};
             return send;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");

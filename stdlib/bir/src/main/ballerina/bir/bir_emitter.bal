@@ -357,13 +357,13 @@ type TerminalEmitter object {
             self.opEmitter.emitOp(term.lhsOp);
             print(" = ");
             print(term.kind, " ");
-            print(term.wrkName.value);
+            print(term.dataChannel.value);
             println(";");
         } else if (term is WrkSend) {
             print(tabs);
             self.opEmitter.emitOp(term.dataOp);
             print(" ", term.kind, " ");
-            print(term.wrkName.value);
+            print(term.dataChannel.value);
             println(";");
         } else if (term is AsyncCall) {
             print(tabs);

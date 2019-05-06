@@ -269,11 +269,13 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     public static class WorkerReceive extends BIRTerminator {
         public Name workerName;
         public BIROperand lhsOp;
+        public BIRBasicBlock thenBB;
 
-        public WorkerReceive(DiagnosticPos pos, Name workerName, BIROperand lhsOp) {
+        public WorkerReceive(DiagnosticPos pos, Name workerName, BIROperand lhsOp, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.WK_RECEIVE);
             this.workerName = workerName;
             this.lhsOp = lhsOp;
+            this.thenBB = thenBB;
         }
 
         @Override
@@ -290,13 +292,15 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      * @since 0.995.0
      */
     public static class WorkerSend extends BIRTerminator {
-        public Name workerName;
+        public Name channel;
         public BIROperand data;
+        public BIRBasicBlock thenBB;
 
-        public WorkerSend(DiagnosticPos pos, Name workerName, BIROperand data) {
+        public WorkerSend(DiagnosticPos pos, Name workerName, BIROperand data, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.WK_SEND);
-            this.workerName = workerName;
+            this.channel = workerName;
             this.data = data;
+            this.thenBB = thenBB;
         }
 
         @Override

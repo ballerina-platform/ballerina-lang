@@ -126,13 +126,15 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte((entry.kind.getValue()));
         buf.writeInt(addStringCPEntry(entry.workerName.getValue()));
         entry.lhsOp.accept(this);
+        addCpAndWriteString(entry.thenBB.id.value);
     }
 
     public void visit(BIRTerminator.WorkerSend entry) {
         writePosition(entry.pos);
         buf.writeByte((entry.kind.getValue()));
-        buf.writeInt(addStringCPEntry(entry.workerName.getValue()));
+        buf.writeInt(addStringCPEntry(entry.channel.getValue()));
         entry.data.accept(this);
+        addCpAndWriteString(entry.thenBB.id.value);
     }
 
     // Non-terminating instructions

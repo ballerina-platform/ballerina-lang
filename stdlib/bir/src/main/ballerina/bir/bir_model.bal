@@ -468,14 +468,16 @@ public type WrkReceive record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     VarRef lhsOp;
-    Name wrkName;
+    Name dataChannel;
+    BasicBlock thenBB;
 |};
 
 public type WrkSend record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     VarRef dataOp;
-    Name wrkName;
+    Name dataChannel;
+    BasicBlock thenBB;
 |};
 
 public type Call record {|

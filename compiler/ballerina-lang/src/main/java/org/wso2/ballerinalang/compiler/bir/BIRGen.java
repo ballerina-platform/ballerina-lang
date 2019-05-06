@@ -220,7 +220,8 @@ public class BIRGen extends BLangNodeVisitor {
             funcName = getFuncName(astFunc.symbol);
         }
 
-        BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type);
+        Name workerName = names.fromIdNode(astFunc.defaultWorkerName);
+        BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type, workerName);
         birFunc.isDeclaration = Symbols.isNative(astFunc.symbol);
         birFunc.isInterface = astFunc.interfaceFunction;
         birFunc.argsCount = astFunc.requiredParams.size() + astFunc.defaultableParams.size()
@@ -429,7 +430,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangWorkerReceive workerReceive) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
-        Name workerName = names.fromString(workerReceive.workerIdentifier.value);
+        String channel = workerReceive.workerIdentifier.value + "->" + env.enclFunc.workerName.value;
 
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(workerReceive.type, this.env.nextLocalVarId(names),
                 VarScope.FUNCTION, VarKind.TEMP);
@@ -437,7 +438,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
 
-        this.env.enclBB.terminator = new BIRTerminator.WorkerReceive(workerReceive.pos, workerName, lhsOp);
+        this.env.enclBB.terminator = new BIRTerminator.WorkerReceive(workerReceive.pos,
+                names.fromString(channel), lhsOp, thenBB);
 
         this.env.enclFunc.basicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
@@ -446,9 +448,10 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangWorkerSend workerSend) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
 
-        Name workerName = names.fromString(workerSend.workerIdentifier.value);
+        String channelName = this.env.enclFunc.workerName.value + "->" + workerSend.workerIdentifier.value;
         workerSend.expr.accept(this);
-        this.env.enclBB.terminator = new BIRTerminator.WorkerSend(workerSend.pos, workerName, this.env.targetOperand);
+        this.env.enclBB.terminator = new BIRTerminator.WorkerSend(workerSend.pos, names.fromString(channelName),
+                this.env.targetOperand, thenBB);
 
         this.env.enclFunc.basicBlocks.add(thenBB);
         this.env.enclBB = thenBB;

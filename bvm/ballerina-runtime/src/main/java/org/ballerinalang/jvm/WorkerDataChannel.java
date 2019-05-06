@@ -36,6 +36,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class WorkerDataChannel {
 
     private Strand receiver;
+    private Strand sender;
     private WaitingSender waitingSender;
     private WaitingSender flushSender;
     private ErrorValue error;
@@ -71,13 +72,14 @@ public class WorkerDataChannel {
     }
 
     @SuppressWarnings("rawtypes")
-    public void sendData(RefValue data) {
+    public void sendData(Object data, Strand sender) {
+        this.sender = sender;
         acquireChannelLock();
         this.channel.add(new WorkerResult(data));
         this.senderCounter++;
         if (this.receiver != null) {
 //            BVMScheduler.stateChange(this.receiver, State.PAUSED, State.RUNNABLE);
-//            BVMScheduler.schedule(this.receiver);
+            this.receiver.scheduler.unblockStrand(this.receiver);
             this.receiver = null;
         }
         releaseChannelLock();
@@ -117,50 +119,52 @@ public class WorkerDataChannel {
     }
     
     @SuppressWarnings("rawtypes")
-    public boolean tryTakeData(Strand ctx, BType type, int reg) {
+    public Object tryTakeData(Strand strand) {
         try {
             acquireChannelLock();
             WorkerResult result = this.channel.peek();
             if (result != null) {
                 this.receiverCounter++;
                 this.channel.remove();
-                if (result.isSync) {
-//                    this.waitingSender.waitingCtx.currentFrame.refRegs[this.waitingSender.returnReg] = null;
-                    //will continue if this is a sync wait, will try to flush again if blocked on flush
-//                    BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
-//                    BVMScheduler.schedule(this.waitingSender.waitingCtx);
-                    this.waitingSender = null;
-                } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
-//                    this.flushSender.waitingCtx.flushDetail.flushLock.lock();
-//                    this.flushSender.waitingCtx.flushDetail.flushedCount++;
-//                    if (this.flushSender.waitingCtx.flushDetail.flushedCount
-//                            == this.flushSender.waitingCtx.flushDetail.flushChannels.length) {
-//                        this.flushSender.waitingCtx.currentFrame.refRegs[this.flushSender.returnReg] = null;
-                        //will continue if this is a sync wait, will try to flush again if blocked on flush
-//                        BVMScheduler.stateChange(this.flushSender.waitingCtx, State.PAUSED, State.RUNNABLE);
-//                        BVMScheduler.schedule(this.flushSender.waitingCtx);
-                    }
-//                    this.flushSender.waitingCtx.flushDetail.flushLock.unlock();
-                    this.flushSender = null;
-                }
+//                if (result.isSync) {
+////                    this.waitingSender.waitingCtx.currentFrame.refRegs[this.waitingSender.returnReg] = null;
+//                    //will continue if this is a sync wait, will try to flush again if blocked on flush
+////                    BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
+////                    BVMScheduler.schedule(this.waitingSender.waitingCtx);
+//                    this.waitingSender = null;
+//                } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
+////                    this.flushSender.waitingCtx.flushDetail.flushLock.lock();
+////                    this.flushSender.waitingCtx.flushDetail.flushedCount++;
+////                    if (this.flushSender.waitingCtx.flushDetail.flushedCount
+////                            == this.flushSender.waitingCtx.flushDetail.flushChannels.length) {
+////                        this.flushSender.waitingCtx.currentFrame.refRegs[this.flushSender.returnReg] = null;
+//                        //will continue if this is a sync wait, will try to flush again if blocked on flush
+////                        BVMScheduler.stateChange(this.flushSender.waitingCtx, State.PAUSED, State.RUNNABLE);
+////                        BVMScheduler.schedule(this.flushSender.waitingCtx);
+////                    }
+////                    this.flushSender.waitingCtx.flushDetail.flushLock.unlock();
+//                    this.flushSender = null;
+//                }
 //                BVM.copyArgValueForWorkerReceive(ctx.currentFrame, reg, type, result.value);
-                return true;
-//            } else if (this.panic != null && this.senderCounter == this.receiverCounter + 1) {
+                return result.value;
+            } else if (this.panic != null && this.senderCounter == this.receiverCounter + 1) {
 //                this.receiverCounter++;
 //                ctx.setError(this.panic);
 //                BVM.handleError(ctx);
-//                return true;
-//            } else if (this.error != null && this.senderCounter == this.receiverCounter + 1) {
+                return null;
+            } else if (this.error != null && this.senderCounter == this.receiverCounter + 1) {
 //                this.receiverCounter++;
 //                //TODO do we need to handle sync async?
 //                BVM.copyArgValueForWorkerReceive(ctx.currentFrame, reg, type, this.error);
-//                return true;
-//            } else {
-//                this.receiver = ctx;
-//                ctx.currentFrame.ip--; // we are going to execute the same worker receive operation later
+                return null;
+            } else {
+                this.receiver = strand;
+                strand.blocked = true;
+                strand.yield = true;  // we are going to execute the same worker receive operation later
+//                ctx.currentFrame.ip--;
 //                BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
-//                return false;
-//            }
+                return null;
+            }
         } finally {
             releaseChannelLock();
         }
@@ -296,15 +300,15 @@ public class WorkerDataChannel {
      */
     public static class WorkerResult {
 
-        public RefValue value;
+        public Object value;
         public boolean isSync;
 
 
-        public WorkerResult(RefValue value) {
+        public WorkerResult(Object value) {
             this.value = value;
         }
 
-        public WorkerResult(RefValue value, boolean sync) {
+        public WorkerResult(Object value, boolean sync) {
             this.value = value;
             this.isSync = sync;
         }

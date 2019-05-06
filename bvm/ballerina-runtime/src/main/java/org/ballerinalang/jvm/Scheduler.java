@@ -32,8 +32,22 @@ import java.util.function.Function;
  */
 public class Scheduler {
 
+    /**
+     * Strands that are ready for execution.
+     */
     private LinkedList<SchedulerItem> runnableList = new LinkedList<>();
+
+    /**
+     * Scheduler items that are blocked on given strand.
+     * List key is the blocker.
+     */
     private Map<Strand, ArrayList<SchedulerItem>> blockedList = new HashMap<>();
+
+    /**
+     * Scheduler items that are blocked but the blocker is not known.
+     * List key is the own strand.
+     */
+    private Map<Strand, SchedulerItem> blockedOnUnknownList = new HashMap<>();
 
     /**
      * Add a task to the runnable list, which will eventually be executed by the Scheduler.
@@ -79,8 +93,12 @@ public class Scheduler {
 
             //TODO: Need to improve for performance and support conditional waits
             if (item.future.strand.blocked) {
-                blockedList.putIfAbsent(item.future.strand.blockedOn, new ArrayList<>());
-                blockedList.get(item.future.strand.blockedOn).add(item);
+                if (item.future.strand.blockedOn != null) {
+                    blockedList.putIfAbsent(item.future.strand.blockedOn, new ArrayList<>());
+                    blockedList.get(item.future.strand.blockedOn).add(item);
+                } else {
+                    blockedOnUnknownList.put(item.future.strand, item);
+                }
                 continue;
             }
 
@@ -98,6 +116,7 @@ public class Scheduler {
                 blockedItems.forEach(blockedItem -> {
                     blockedItem.future.strand.blocked = false;
                     blockedItem.future.strand.yield = false;
+                    blockedItem.future.strand.blockedOn = null;
                     runnableList.add(blockedItem);
                 });
                 blockedList.remove(item.future.strand);
@@ -110,6 +129,14 @@ public class Scheduler {
         FutureValue future = new FutureValue(newStrand);
         future.strand.frames = new Object[100];
         return future;
+    }
+
+    public void unblockStrand(Strand strand) {
+        SchedulerItem  item = blockedOnUnknownList.get(strand);
+        item.future.strand.blocked = false;
+        item.future.strand.yield = false;
+        blockedOnUnknownList.remove(strand);
+        runnableList.add(item);
     }
 }
 
