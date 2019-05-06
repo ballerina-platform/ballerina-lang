@@ -6,6 +6,7 @@
 <body>
   <div class="ui grid">
     <div class="navi-wrapper two wide column">
+      <div class="navi-wrapper-content">
       <a href="../../index.html">
         <img class="logo" src="../../images/ballerina-logo.png">
       </a>
@@ -22,20 +23,21 @@
       <div class="ui divider"></div>
       {{> currentModule rootPath="../../" }}
       {{> allModules rootPath="../../" }}
+      </div>
     </div>
 
     <div class="fourteen wide column content-wrapper">
       <div class="main-wrapper">
-        <h1>{{ object.name }}</h1>
+        <h1>Objects : <span class="objects">{{ object.name }}</span> </h1>
       <div class="ui divider"></div>
 
-      <h3>{{object.type}} <span class="objects">{{object.name}}</span> object</h3>
+      {{!-- <h3>{{object.type}} <span class="objects">{{object.name}}</span> object</h3> --}}
       <p>{{object.description}}</p>
 
       <div class="constants">
         {{#if object.init_method}}
         {{#each object.init_method}}
-        <h2>Init Method</h2>
+        <h2>New Method</h2>
         <div class="ui divider"></div>
         <h3 >__init</h3><p>({{init_param}})</p>
         <table class="ui table param-table">

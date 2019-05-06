@@ -6,22 +6,13 @@
 <body>
   <div class="ui grid">
     <div class="navi-wrapper two wide column">
+      <div class="navi-wrapper-content">
       <a href="../../index.html">
         <img class="logo" src="../../images/ballerina-logo.png">
       </a>
-      <div class="primary-list">
-        <h3>Functions</h3>
-        <ul>
-          {{#each functions}}
-          <li>
-            <a href="#{{name}}">{{name}}</a>
-          </li>
-          {{/each}}
-        </ul>
-      </div>
-      <div class="ui divider"></div>
       {{> currentModule rootPath="../../" }}
       {{> allModules rootPath="../../" }}
+      </div>
     </div>
 
     <div class="fourteen wide column content-wrapper">
@@ -33,8 +24,8 @@
           {{#each functions}}
           <tbody>
             <tr>
-              <td class="functions"><a href="#{{name}}">{{name}}</a></td>
-              <td>{{description}}</td>
+              <td width="30%" ><a class="functions" href="#{{name}}">{{name}}</a></td>
+              <td width="70%">{{description}}</td>
             </tr>
           </tbody>
           {{/each}}
@@ -44,7 +35,7 @@
           {{#if functions}}
           <div>
             {{#each functions}}
-            <p>public function <a id="{{name}}"><b class="functions">{{name}}</b> </a>{{function_params}} </h3>
+            <p>public function <a class="functions" id="{{name}}"><b>{{name}}</b> </a>{{function_params}} </h3>
               <br><b>Return</b> {{return_type}}</p>
             <p>{{description}}</p>
             <div class="ui divider"></div>
@@ -54,10 +45,10 @@
               {{#each fields}}
               <thead>
                 <tr>
-                  <th>{{param_name_label}}</th>
-                  <th>{{data_type_label}}</th>
-                  <th>{{default_value_label}}</th>
-                  <th>{{description_label}}</th>
+                  <th>Param Name</th>
+                  <th>Data Type</th>
+                  <th>Default Value</th>
+                  <th>Description</th>
                 </tr>
               </thead>
               {{#each attributes}}
@@ -80,8 +71,8 @@
               {{#each fields}}
               <thead>
                 <tr>
-                  <th>{{return_type_label}}</th>
-                  <th>{{return_description_label}}</th>
+                  <th>Return Type</th>
+                  <th>Description</th>
                 </tr>
               </thead>
               <tbody>
