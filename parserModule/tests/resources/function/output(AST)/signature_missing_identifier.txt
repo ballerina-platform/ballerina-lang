@@ -1,0 +1,70 @@
+Input:
+function (){
+}
+
+Output:
+
+ERROR [sachini/parserModule] - Expected IDENTIFIER;found LPAREN
+
+{
+    nodeKind: "package",
+    tokenList: [{
+        tokenType: 9,
+        text: "EOF",
+        startPos: 1,
+        endPos: 1,
+        lineNumber: 2,
+        index: 6,
+        whiteSpace: null
+    }],
+    definitionList: [{
+        nodeKind: "errorNode",
+        tokenList: [{
+            tokenType: 2,
+            text: "(",
+            startPos: 10,
+            endPos: 10,
+            lineNumber: 1,
+            index: 2,
+            whiteSpace: "space "
+        }, {
+            tokenType: 3,
+            text: ")",
+            startPos: 11,
+            endPos: 11,
+            lineNumber: 1,
+            index: 3,
+            whiteSpace: null
+        }, {
+            tokenType: 0,
+            text: "{",
+            startPos: 12,
+            endPos: 12,
+            lineNumber: 1,
+            index: 4,
+            whiteSpace: null
+        }, {
+            tokenType: 1,
+            text: "}",
+            startPos: 1,
+            endPos: 1,
+            lineNumber: 2,
+            index: 5,
+            whiteSpace: "newLine "
+        }],
+        errorFunction: {
+            nodeKind: "function",
+            tokenList: [{
+                tokenType: 15,
+                text: "function",
+                startPos: 1,
+                endPos: 8,
+                lineNumber: 1,
+                index: 1,
+                whiteSpace: null
+            }],
+            fnSignature: null,
+            blockNode: null
+        }
+    }]
+}
