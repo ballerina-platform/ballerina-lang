@@ -308,7 +308,7 @@ public class BallerinaDocGenerator {
             try {
                 generatePackageDocsFromBallerina(sourceRoot, source, packageFilter, isNative, offline);
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 out.println(String.format("docerina: API documentation generation failed for %s: %s", source, e
                         .getMessage()));
                 log.error(String.format("API documentation generation failed for %s", source), e);

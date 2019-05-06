@@ -110,10 +110,10 @@ public class Generator {
             }
         }
 
-//        // Check for functions in the package
-//        for (BLangFunction function : balPackage.getFunctions()) {
-//            if (function.getFlags().contains(Flag.PUBLIC) && !function.getFlags().contains(Flag.ATTACHED)) {
-//                if (function.getReceiver() != null) {
+        // Check for functions in the package
+        for (BLangFunction function : balPackage.getFunctions()) {
+            if (function.getFlags().contains(Flag.PUBLIC) && !function.getFlags().contains(Flag.ATTACHED)) {
+                if (function.getReceiver() != null) {
 //                    for (Documentable parentDocumentable : documentables) {
 //                        TypeNode langType = function.getReceiver().getTypeNode();
 //                        String typeName = (langType instanceof BLangUserDefinedType ? ((BLangUserDefinedType)
@@ -123,12 +123,13 @@ public class Generator {
 //                            parentDocumentable.children.add(createDocForFunction(function));
 //                        }
 //                    }
-//                } else {
-//                    // If there's no receiver type i.e. no struct binding to the function
+                } else {
+                    // If there's no receiver type i.e. no struct binding to the function
 //                    documentables.add(createDocForFunction(function));
-//                }
-//            }
-//        }
+                }
+                module.functions.add(createDocForFunction(function));
+            }
+        }
 //
 //        // Check for annotations
 //        for (BLangAnnotation annotation : balPackage.getAnnotations()) {

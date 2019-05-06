@@ -9,18 +9,20 @@
       <img class="logo" src="html-template-resources/images/ballerina-logo.png">
     </div>
     <div class="fourteen wide column content-wrapper">
-      <table class="ui table">
-         {{#if project.modules}}
-        <tbody>
-         {{#each project.modules}}
-          <tr>
-            <td class="module-title modules"><a href="{{id}}/index.html">{{id}}</a></td>
-            <td class="module-desc">{{{ summary }}}</td>
-          </tr>
-          {{/each}}
-        </tbody>
-        {{/if}}
-      </table>
+        <div class="main-wrapper">
+          <table class="ui table">
+             {{#if project.modules}}
+            <tbody>
+             {{#each project.modules}}
+              <tr>
+                <td class="module-title modules"><a href="{{id}}/index.html">{{id}}</a></td>
+                <td class="module-desc">{{{ summary }}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+            {{/if}}
+          </table>
+        </div>
     </div>
   </div>
 </body>

@@ -88,7 +88,10 @@ public class ModuleDoc {
         }
 
         public String getSummary() {
-            return HtmlRenderer.builder().build().render(summary);
+            if (summary != null) {
+                return HtmlRenderer.builder().build().render(summary);
+            }
+            return "";
         }
     }
 
