@@ -112,7 +112,7 @@
                             <skip>${skipBenchmarks}</skip>
                             <executable>${project.basedir}/executor</executable>
                             <arguments>
-                                <argument>${project.basedir}/target/ballerina-${project.version}</argument>
+                                <argument>${project.basedir}/target/jballerina-${project.version}</argument>
                                 <argument>${warmup.iterations}</argument>
                                 <argument>${benchmark.iterations}</argument>
                                 <argument>benchmark-ballerina_${project.version}</argument>

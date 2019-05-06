@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-tools</artifactId>
+            <artifactId>jballerina-tools</artifactId>
             <type>zip</type>
             <version>${project.version}</version>
         </dependency>
@@ -116,7 +116,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-tools
+                                jballerina-tools
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>

@@ -62,7 +62,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-tools</artifactId>
+            <artifactId>jballerina-tools</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -236,7 +236,7 @@
                         </goals>
                         <configuration>
                             <includeGroupIds>org.ballerinalang</includeGroupIds>
-                            <includeArtifactIds>ballerina-tools</includeArtifactIds>
+                            <includeArtifactIds>jballerina-tools</includeArtifactIds>
                             <outputDirectory>extractedDistribution</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>

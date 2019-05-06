@@ -237,7 +237,7 @@ export class BallerinaExtension {
     getBallerinaVersion(ballerinaHome: string): Promise<string> {
         if (!ballerinaHome) {
             throw new AssertionError({
-                message: "Trying to get jballerina version without setting ballerina home."
+                message: "Trying to get ballerina version without setting ballerina home."
             });
         }
         let command = `${path.join(ballerinaHome, 'bin', 'jballerina')} version`;
