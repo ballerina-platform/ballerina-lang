@@ -143,7 +143,7 @@ public class HTTPServicesRegistry {
             ObjectValue serviceField =
                     (ObjectValue) webSocketConfig.get(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
             //TODO Test following line whether need to create a service here
-//            ObjectValue webSocketTypeService = BLangConnectorSPIUtil.getService(serviceField);
+//            ObjectValue webSocketTypeService = BLangConnectorSPIUtil.getBalService(serviceField);
             WebSocketService webSocketService = new WebSocketService(sanitizeBasePath(httpService.getBasePath()),
                                                                      upgradeToWebSocketResource, serviceField);
             webSocketServicesRegistry.registerService(webSocketService);

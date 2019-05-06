@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -119,7 +120,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         }
 
 //        CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
-        //TODO handle BallerinaConnectorException
+        //TODO handle BallerinaConnectorException and callback
 //        Executor.submit(balResource, callback, properties, observerContext, signatureParams);
         ObjectValue service = httpResource.getParentService().getBalService();
         service.call(new Strand(new Scheduler()), httpResource.getName(), signatureParams);

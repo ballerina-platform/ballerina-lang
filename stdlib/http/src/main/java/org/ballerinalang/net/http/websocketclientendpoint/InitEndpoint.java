@@ -72,7 +72,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 //        BMap clientService = (BMap) clientEndpointConfig.getServiceField(WebSocketConstants.CLIENT_SERVICE_CONFIG);
 //        WebSocketService wsService;
 //        if (clientService != null) {
-//            Service service = BLangConnectorSPIUtil.getService(context.getProgramFile(), clientService);
+//            Service service = BLangConnectorSPIUtil.getBalService(context.getProgramFile(), clientService);
 //            ParamDetail param = service.getResources()[0].getParamDetails().get(0);
 //            if (param == null || !WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(
 //                    param.getVarType().toString())) {
@@ -118,7 +118,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         WebSocketService wsService;
         if (clientService != null) {
             //TODO Check whether following wrapper is needed
-//            Service service = BLangConnectorSPIUtil.getService(context.getProgramFile(), clientService);
+//            Service service = BLangConnectorSPIUtil.getBalService(context.getProgramFile(), clientService);
             BType param = clientService.getType().getAttachedFunctions()[0].getParameterType()[0];
             if (param == null || !WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(
                     param.toString())) {

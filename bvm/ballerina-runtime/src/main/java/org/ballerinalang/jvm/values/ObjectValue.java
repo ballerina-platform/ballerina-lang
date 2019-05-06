@@ -29,6 +29,8 @@ public interface ObjectValue extends RefValue {
 
     Object call(Strand strand, String funcName, Object... args);
 
+    FutureValue start(Strand strand, String funcName, Object... args);
+
     BObjectType getType();
 
     Object get(String fieldName);

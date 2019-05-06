@@ -110,7 +110,7 @@ public class Respond extends ConnectionAction {
     }
 
     public static void nativeRespond(Strand strand, ObjectValue connectionObj, ObjectValue outboundResponseObj) {
-        //TODO : TempCallableUnitCallback is used to handle non blocking call
+        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
         TempCallableUnitCallback callback = new TempCallableUnitCallback();
 
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
