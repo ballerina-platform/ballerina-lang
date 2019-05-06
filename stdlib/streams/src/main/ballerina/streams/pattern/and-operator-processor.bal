@@ -126,6 +126,21 @@ public type AndOperatorProcessor object {
         }
     }
 
+    public function validate() {
+        AbstractPatternProcessor? lProcessor = self.lhsProcessor;
+        if (lProcessor is AbstractPatternProcessor) {
+            lProcessor.validate();
+        } else {
+            panic error("AND pattern must have a left hand side expression.");
+        }
+        AbstractPatternProcessor? rProcessor = self.rhsProcessor;
+        if (rProcessor is AbstractPatternProcessor) {
+            rProcessor.validate();
+        } else {
+            panic error("AND pattern must have a right hand side expression.");
+        }
+    }
+
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         string pAlias = <string>processorAlias;
         if (pAlias == self.lhsAlias) {

@@ -124,6 +124,19 @@ public type NotOperatorProcessor object {
         }
     }
 
+    public function validate() {
+        AbstractOperatorProcessor? pProcessor = self.prevProcessor;
+        if (!(pProcessor is AndOperatorProcessor || self.forTimeMillis > 0)) {
+            panic error("NOT pattern must be followed by either an AND clause or a effective period.");
+        }
+        AbstractPatternProcessor? processor = self.processor;
+        if (processor is AbstractPatternProcessor) {
+            processor.validate();
+        } else {
+            panic error("NOT pattern must be followed by a valid expression.");
+        }
+    }
+
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         // do nothing.
     }

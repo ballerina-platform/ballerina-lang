@@ -58,6 +58,12 @@ public type OperandProcessor object {
         self.stateMachine = stateMachine;
     }
 
+    public function validate() {
+        if (self.alias == "") {
+            panic error("Operand must have a valid alias.");
+        }
+    }
+
     public function setPreviousProcessor(AbstractOperatorProcessor processor) {
         self.prevProcessor = processor;
     }

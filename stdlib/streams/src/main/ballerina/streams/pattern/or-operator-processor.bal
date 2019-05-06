@@ -81,6 +81,21 @@ public type OrOperatorProcessor object {
         }
     }
 
+    public function validate() {
+        AbstractPatternProcessor? lProcessor = self.lhsProcessor;
+        if (lProcessor is AbstractPatternProcessor) {
+            lProcessor.validate();
+        } else {
+            panic error("OR pattern must have a valid left hand side expression.");
+        }
+        AbstractPatternProcessor? rProcessor = self.rhsProcessor;
+        if (rProcessor is AbstractPatternProcessor) {
+            rProcessor.validate();
+        } else {
+            panic error("OR pattern must have a valid right hand side expression.");
+        }
+    }
+
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         io:println("OrOperatorProcessor:promote:85 -> ", stateEvent, "|", processorAlias);
         self.stateEvents.addLast(stateEvent);

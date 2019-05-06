@@ -24,4 +24,5 @@ public type AbstractPatternProcessor abstract object {
     public function setPreviousProcessor(AbstractOperatorProcessor processor);
     public function getAlias() returns string;
     public function setStateMachine(StateMachine stateMachine);
+    public function validate();
 };

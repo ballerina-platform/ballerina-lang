@@ -22,6 +22,7 @@ public type StateMachine object {
         self.nextProcessorPointer = nextProcessorPointer;
         self.rootProcessor = rootProcessor;
         self.rootProcessor.setStateMachine(self);
+        self.rootProcessor.validate();
     }
 
     public function process(StreamEvent?[] streamEvents) {

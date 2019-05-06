@@ -96,6 +96,15 @@ public type CompoundPatternProcessor object {
         }
     }
 
+    public function validate() {
+        AbstractPatternProcessor? processor = self.processor;
+        if (processor is AbstractPatternProcessor) {
+            processor.validate();
+        } else {
+            panic error("Compound operator must have a valid expression.");
+        }
+    }
+
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         io:println("CompoundPatternProcessor:promote:100 -> ", stateEvent, "|", processorAlias);
         self.stateEvents.addLast(stateEvent);
