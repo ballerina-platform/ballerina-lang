@@ -38,6 +38,9 @@ public class Type {
     public List<Type> memberTypes = new ArrayList<>();
 
     public Type(BLangType type) {
+        if (type == null) {
+            return;
+        }
         BTypeSymbol typeSymbol = type.type.tsymbol;
         if (typeSymbol != null && !typeSymbol.name.value.equals("")) {
             if (type instanceof BLangUserDefinedType) {

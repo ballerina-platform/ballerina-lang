@@ -20,11 +20,11 @@ package org.ballerinalang.docgen.generator.model;
  */
 public class Annotation extends Construct {
     public Type dataType;
-    public String[] attachementPoints;
+    public String attachmentPoints;
 
-    public Annotation(String name, String description, Type dataType, String[] attachementPoints) {
+    public Annotation(String name, String description, Type dataType, String attachmentPoints) {
         super(name, description);
         this.dataType = dataType;
-        this.attachementPoints = attachementPoints;
+        this.attachmentPoints = attachmentPoints;
     }
 }

@@ -20,9 +20,11 @@ package org.ballerinalang.docgen.generator.model;
  */
 public class Constant extends Construct {
     public Type dataType;
+    public String value;
 
-    public Constant(String name, String description, Type dataType) {
+    public Constant(String name, String description, Type dataType, String value) {
         super(name, description);
         this.dataType = dataType;
+        this.value = value;
     }
 }

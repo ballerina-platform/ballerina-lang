@@ -21,7 +21,9 @@ package org.ballerinalang.docgen;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.ballerinalang.docgen.generator.model.Annotation;
 import org.ballerinalang.docgen.generator.model.Client;
+import org.ballerinalang.docgen.generator.model.Constant;
 import org.ballerinalang.docgen.generator.model.DefaultableVarible;
 import org.ballerinalang.docgen.generator.model.Error;
 import org.ballerinalang.docgen.generator.model.Function;
@@ -131,26 +133,26 @@ public class Generator {
             }
         }
 //
-//        // Check for annotations
-//        for (BLangAnnotation annotation : balPackage.getAnnotations()) {
-//            if (annotation.getFlags().contains(Flag.PUBLIC)) {
-//                documentables.add(createDocForFunction(annotation));
-//            }
-//        }
+        // Check for annotations
+        for (BLangAnnotation annotation : balPackage.getAnnotations()) {
+            if (annotation.getFlags().contains(Flag.PUBLIC)) {
+                module.annotations.add(createDocForFunction(annotation));
+            }
+        }
 //
-//        // Check for constants.
-//        for (BLangConstant constant : balPackage.getConstants()) {
-//            if (constant.getFlags().contains(Flag.PUBLIC)) {
-//                documentables.add(createDocForFunction(constant));
-//            }
-//        }
-//
-//        // Check for global variables
-//        for (BLangSimpleVariable var : balPackage.getGlobalVariables()) {
-//            if (var.getFlags().contains(Flag.PUBLIC)) {
-//                documentables.add(createDocForFunction(var));
-//            }
-//        }
+        // Check for constants.
+        for (BLangConstant constant : balPackage.getConstants()) {
+            if (constant.getFlags().contains(Flag.PUBLIC)) {
+                module.constants.add(createDocForConstant(constant));
+            }
+        }
+
+        // Check for global variables
+        for (BLangSimpleVariable var : balPackage.getGlobalVariables()) {
+            if (var.getFlags().contains(Flag.PUBLIC)) {
+                // documentables.add(createDocForFunction(var));
+            }
+        }
     }
 
     /**
@@ -272,18 +274,13 @@ public class Generator {
      * @param annotationNode ballerina annotation node.
      * @return documentation for annotation.
      */
-    public static AnnotationDoc createDocForFunction(BLangAnnotation annotationNode) {
+    public static Annotation createDocForFunction(BLangAnnotation annotationNode) {
         String annotationName = annotationNode.getName().getValue();
-        String dataType = "-", href = EMPTY_STRING;
-        if (annotationNode.typeNode != null) {
-            dataType = getTypeName(annotationNode.typeNode);
-            href = extractLink(annotationNode.typeNode);
-        }
         String attachments = annotationNode.attachPoints.stream()
                 .map(AttachPoint::getValue)
                 .collect(Collectors.joining(", "));
-
-        return new AnnotationDoc(annotationName, description(annotationNode), dataType, href, attachments);
+        return new Annotation(annotationName, description(annotationNode), new Type(annotationNode.typeNode),
+                attachments);
     }
 
     private static String extractLink(Collection<BType> types) {
@@ -342,20 +339,11 @@ public class Generator {
         return new GlobalVariableDoc(globalVarName, desc, new ArrayList<>(), dataType, href);
     }
 
-    public static ConstantDoc createDocForFunction(BLangConstant constant) {
+    public static Constant createDocForConstant(BLangConstant constant) {
         String constantName = constant.getName().getValue();
         java.lang.Object value = constant.value;
         String desc = description(constant);
-
-        String typeNodeType = "";
-        String href = "";
-
-        if (constant.typeNode != null) {
-            typeNodeType = getTypeName(constant.typeNode);
-            href = extractLink(constant.typeNode);
-        }
-
-        return new ConstantDoc(constantName, value, desc, typeNodeType, href);
+        return new Constant(constantName, desc, new Type(constant.typeNode), value.toString());
     }
 
     /**
