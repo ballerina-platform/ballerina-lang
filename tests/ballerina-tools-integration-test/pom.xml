@@ -78,7 +78,7 @@
                     <argLine>${jacoco.agent.argLine}</argLine>
                     <systemPropertyVariables>
                         <server.zip>
-                            ${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip
+                            ${basedir}/../../distribution/zip/jballerina-tools/target/jballerina-tools-${project.version}.zip
                         </server.zip>
                         <jacoco.agent.argLine>${jacoco.agent.argLine}</jacoco.agent.argLine>
                         <ballerina.agent.path>${project.build.directory}/ballerina-test-utils-${project.version}.jar</ballerina.agent.path>
@@ -87,7 +87,7 @@
                         </integration.test.utils.service.file>
                         <project.build.directory>${project.build.directory}</project.build.directory>
                         <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
-                        <javax.net.ssl.trustStore>${basedir}/../../distribution/zip/ballerina/resources/security/ballerinaTruststore.p12</javax.net.ssl.trustStore>
+                        <javax.net.ssl.trustStore>${basedir}/../../distribution/zip/jballerina/resources/security/ballerinaTruststore.p12</javax.net.ssl.trustStore>
                         <javax.net.ssl.trustStorePassword>ballerina</javax.net.ssl.trustStorePassword>
                     </systemPropertyVariables>
                     <suiteXmlFiles>

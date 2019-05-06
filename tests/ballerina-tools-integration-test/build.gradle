@@ -38,8 +38,8 @@ dependencies {
     testCompile 'org.awaitility:awaitility'
     testCompile 'commons-io:commons-io'
     testCompile 'org.testng:testng'
-    ballerinaTools project(path: ':ballerina-tools', configuration: 'zip')
-    ballerina project(path: ':ballerina', configuration: 'resourceFiles')
+    ballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
+    ballerina project(path: ':jballerina', configuration: 'resourceFiles')
     testUtilsJar project(path: ':ballerina-test-utils', configuration: 'shadow')
     testUtilsBal project(path: ':ballerina-test-utils', configuration: 'shadow')
 }
@@ -48,7 +48,7 @@ test {
     maxParallelForks = 1
     forkEvery=500
     // make sure ballerina tools zip is built before test run
-    dependsOn = [":ballerina-tools:build", ":ballerina-integration-test:test", ":examples-test:test"]
+    dependsOn = [":jballerina-tools:build", ":ballerina-integration-test:test", ":examples-test:test"]
 
     systemProperty 'project.build.directory', "$buildDir"
     systemProperty 'server.zip', configurations.ballerinaTools.asPath

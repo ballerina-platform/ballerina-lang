@@ -43,7 +43,7 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <tasks>
-                                <unzip src="${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip" dest="${project.build.directory}" />
+                                <unzip src="${basedir}/../../distribution/zip/jballerina-tools/target/jballerina-tools-${project.version}.zip" dest="${project.build.directory}" />
                             </tasks>
                         </configuration>
                         <goals>

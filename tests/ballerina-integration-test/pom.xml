@@ -321,7 +321,7 @@
                     <systemPropertyVariables>
                         <libdir>${basedir}/target</libdir>
                         <server.zip>
-                            ${basedir}/../../distribution/zip/ballerina/target/ballerina-${project.version}.zip
+                            ${basedir}/../../distribution/zip/jballerina/target/jballerina-${project.version}.zip
                         </server.zip>
                         <jacoco.agent.argLine>${jacoco.agent.argLine}</jacoco.agent.argLine>
                         <ballerina.agent.path>${project.build.directory}/ballerina-test-utils-${project.version}.jar</ballerina.agent.path>

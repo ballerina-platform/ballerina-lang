@@ -24,12 +24,12 @@ configurations {
 }
 
 dependencies {
-    ballerinaTools project(path: ':ballerina-tools', configuration: 'zip')
+    ballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
 }
 
 task unzipToolsZip(type: Copy){
     from file(configurations.ballerinaTools.asPath)
-    into "${buildDir}/ballerina-tools"
+    into "${buildDir}/jballerina-tools"
 }
 
 task npmBuild(type: Exec) {

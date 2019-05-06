@@ -29,11 +29,11 @@ configurations {
 }
 
 dependencies {
-    ballerinaTools project(path: ':ballerina-tools', configuration: 'unzipped')
+    ballerinaTools project(path: ':jballerina-tools', configuration: 'unzipped')
 }
 
 task copyDistribution() {
-    dependsOn ":ballerina-tools:build"
+    dependsOn ":jballerina-tools:build"
     doFirst {
         copy {
             from file(configurations.ballerinaTools.asPath)
@@ -63,10 +63,10 @@ task test {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 //TODO: Need to verify with windows
                 workingDir "${distPath}/examples"
-                commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'init'
+                commandLine 'cmd', '/c', "${distPath}/bin/jballerina.bat", 'init'
             } else {
                 workingDir "${distPath}/examples"
-                commandLine "${distPath}/bin/./ballerina", 'init'
+                commandLine "${distPath}/bin/./jballerina", 'init'
             }
         }
 
@@ -126,12 +126,12 @@ task test {
                 //TODO: Need to verify with windows
                 exec {
                     workingDir "${distPath}/examples"
-                    commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'build', bbe, '--experimental'
+                    commandLine 'cmd', '/c', "${distPath}/bin/jballerina.bat", 'build', bbe, '--experimental'
                 }
             } else {
                 exec {
                     workingDir "${distPath}/examples"
-                    commandLine "${distPath}/bin/./ballerina", 'build', bbe, '--experimental'
+                    commandLine "${distPath}/bin/./jballerina", 'build', bbe, '--experimental'
                 }
             }
         }

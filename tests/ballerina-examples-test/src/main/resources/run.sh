@@ -59,10 +59,10 @@ do
          packages=(${packages[@]//*$i*})
 done
 
-sh ../bin/ballerina init
+sh ../bin/jballerina init
 
 for package in "${packages[@]}"
 do
-  sh ../bin/ballerina build ${package} ${skipTest} --experimental || exit 1
+  sh ../bin/jballerina build ${package} ${skipTest} --experimental || exit 1
 done
 echo `date "+%Y-%m-%d-%H:%M:%S"`" : Ballerina By Examples built successfully!"

@@ -108,13 +108,13 @@ dependencies {
     testCompile 'org.testng:testng'
 
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
-    ballerina project(path: ':ballerina', configuration: 'zip')
+    ballerina project(path: ':jballerina', configuration: 'zip')
     observeTestUtils project(path: ':observability-test-utils', configuration: 'shadow')
 }
 
 test {
     // make sure ballerina zip is built before test run
-    dependsOn (":ballerina:build")
+    dependsOn (":jballerina:build")
     
     maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"

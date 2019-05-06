@@ -26,7 +26,7 @@ public class Constant {
     //Name of the system property define the current dir of maven execution
     public static final String SYSTEM_PROP_BASE_DIR = "basedir";
     //Name of the script file which start the server
-    public static final String BALLERINA_SERVER_SCRIPT_NAME = "ballerina";
+    public static final String BALLERINA_SERVER_SCRIPT_NAME = "jballerina";
     //Name of the file where ballerina server process id is stored
     public static final String SERVER_PID_FILE_NAME = "ballerina.pid";
     //File extension the the ballerina service file
