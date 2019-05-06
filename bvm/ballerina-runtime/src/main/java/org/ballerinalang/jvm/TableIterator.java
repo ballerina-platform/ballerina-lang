@@ -181,7 +181,7 @@ public class TableIterator implements DataIterator {
 
     @Override
     public Map<String, Object> generateNext() {
-        Map<String, Object> bStruct = new MapValue<>();
+        Map<String, Object> bStruct = new MapValue<>(type);
         int index = 0;
         try {
             Collection<BField> structFields = type.getFields().values();
