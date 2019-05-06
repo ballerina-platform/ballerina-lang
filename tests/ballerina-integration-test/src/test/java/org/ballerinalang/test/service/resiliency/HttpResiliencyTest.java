@@ -219,57 +219,57 @@ public class HttpResiliencyTest extends BaseTest {
     }
 
     @Test(description = "Test basic circuit breaker functionality", dataProvider = "responseDataProvider")
-    public void testTypicalBackendTimeout(int responseCode, String messasge) throws Exception {
-        verifyResponses(9306, TYPICAL_CB_SERVICE_PATH, responseCode, messasge);
+    public void testTypicalBackendTimeout(int responseCode, String message) throws Exception {
+        verifyResponses(9306, TYPICAL_CB_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for circuit breaker forceOpen functionality",
             dataProvider = "forceOpenResponseDataProvider")
-    public void testForceOPen(int responseCode, String messasge) throws Exception {
-        verifyResponses(9307, FORCE_OPEN_SERVICE_PATH, responseCode, messasge);
+    public void testForceOPen(int responseCode, String message) throws Exception {
+        verifyResponses(9307, FORCE_OPEN_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for circuit breaker forceClese functionality",
             dataProvider = "forceCloseResponseDataProvider")
-    public void testForceClose(int responseCode, String messasge) throws Exception {
-        verifyResponses(9308, FORCE_CLOSE_SERVICE_PATH, responseCode, messasge);
+    public void testForceClose(int responseCode, String message) throws Exception {
+        verifyResponses(9308, FORCE_CLOSE_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for circuit breaker getState functionality",
             dataProvider = "getStateResponseDataProvider")
-    public void testgetState(int responseCode, String messasge) throws Exception {
-        verifyResponses(9309, GET_STATE_SERVICE_PATH, responseCode, messasge);
+    public void testgetState(int responseCode, String message) throws Exception {
+        verifyResponses(9309, GET_STATE_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for circuit breaker requestVolumeThreshold functionality",
             dataProvider = "requestVolumeResponseDataProvider")
-    public void requestVolumeTest(int responseCode, String messasge) throws Exception {
-        verifyResponses(9310, REQUEST_VOLUME_SERVICE_PATH, responseCode, messasge);
+    public void requestVolumeTest(int responseCode, String message) throws Exception {
+        verifyResponses(9310, REQUEST_VOLUME_SERVICE_PATH, responseCode, message);
 
     }
 
     @Test(description = "Test for circuit breaker failure status codes functionality",
             dataProvider = "statusCodeResponseDataProvider")
-    public void httpStatusCodesTest(int responseCode, String messasge) throws Exception {
-        verifyResponses(9311, STATUS_CODE_SERVICE_PATH, responseCode, messasge);
+    public void httpStatusCodesTest(int responseCode, String message) throws Exception {
+        verifyResponses(9311, STATUS_CODE_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for circuit breaker trail failure functionality",
             dataProvider = "trialRunFailureResponseDataProvider")
-    public void trialRunFailureTest(int responseCode, String messasge) throws Exception {
-        verifyResponses(9312, TRIAL_FAILLURE_SERVICE_PATH, responseCode, messasge);
+    public void trialRunFailureTest(int responseCode, String message) throws Exception {
+        verifyResponses(9312, TRIAL_FAILLURE_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for round robin implementation algorithm of load balancer",
             dataProvider = "roundRobinResponseDataProvider")
-    public void roundRobinLoadBlanceTest(int responseCode, String messasge) throws Exception {
-        verifyResponses(9313, LB_ROUND_ROBIN_SERVICE_PATH, responseCode, messasge);
+    public void roundRobinLoadBalanceTest(int responseCode, String message) throws Exception {
+        verifyResponses(9313, LB_ROUND_ROBIN_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for verify failover behavior with load balancer",
             dataProvider = "roundRobinWithFailoverResponseDataProvider")
-    public void roundRobinWithFailoverResponseDataProvider(int responseCode, String messasge) throws Exception {
-        verifyResponses(9313, LB_ROUND_ROBIN_WITH_FO_SERVICE_PATH, responseCode, messasge);
+    public void roundRobinWithFailoverResponseDataProvider(int responseCode, String message) throws Exception {
+        verifyResponses(9313, LB_ROUND_ROBIN_WITH_FO_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for verify the error message when all endpoints are failing")
@@ -286,8 +286,8 @@ public class HttpResiliencyTest extends BaseTest {
 
     @Test(description = "Test for custom algorithm implementation of load balancer",
             dataProvider = "customLbResponseDataProvider")
-    public void customLbResponseDataProvider(int responseCode, String messasge) throws Exception {
-        verifyResponses(9313, LB_CUSTOM_ALGO_SERVICE_PATH, responseCode, messasge);
+    public void customLbResponseDataProvider(int responseCode, String message) throws Exception {
+        verifyResponses(9313, LB_CUSTOM_ALGO_SERVICE_PATH, responseCode, message);
     }
 
     @DataProvider(name = "responseDataProvider")
