@@ -69,11 +69,21 @@ public class Http2InboundContentListener implements Listener {
     }
 
     /**
-     * Disable app consume flag so that window updates will be issued to the peer.
+     * Disable app consume flag and consume bytes so that window updates will be issued to the peer.
      */
     @Override
     public void resumeReadInterest() {
-        appConsumeRequired = false;
+        channelHandlerContext.channel().eventLoop().execute(() -> {
+            int unconsumedBytes = getUnConsumedBytes();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Stream {}. In thread {}. {} resumeReadInterest. Unconsumed bytes: {}",
+                          streamId, Thread.currentThread().getName(), inboundType, unconsumedBytes);
+            }
+            if (unconsumedBytes > 0) {
+                consumeBytes(unconsumedBytes);
+            }
+            appConsumeRequired = false;
+        });
     }
 
     void stopByteConsumption() {
@@ -94,11 +104,14 @@ public class Http2InboundContentListener implements Listener {
      */
     void resumeByteConsumption() {
         channelHandlerContext.channel().eventLoop().execute(() -> {
+            int unconsumedBytes = getUnConsumedBytes();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Stream {}. In thread {}. {} resume byte consumption. Unconsumed bytes: {}",
-                          streamId, Thread.currentThread().getName(), inboundType, getUnConsumedBytes());
+                          streamId, Thread.currentThread().getName(), inboundType, unconsumedBytes);
             }
-            consumeBytes(getUnConsumedBytes());
+            if (unconsumedBytes > 0) {
+                consumeBytes(unconsumedBytes);
+            }
             consumeInboundContent.set(true);
         });
     }
@@ -110,20 +123,21 @@ public class Http2InboundContentListener implements Listener {
      * @param consumedBytes number of consumed bytes
      */
     private void updateLocalFlowController(int consumedBytes) {
-        channelHandlerContext.channel().eventLoop().execute(() -> {
-            consumeBytes(consumedBytes);
-        });
+        channelHandlerContext.channel().eventLoop().execute(() -> consumeBytes(consumedBytes));
     }
 
     private void consumeBytes(int consumedBytes) {
         try {
-            boolean windowUpdateSent = http2LocalFlowController.consumeBytes(getHttp2Stream(), consumedBytes);
-            if (windowUpdateSent) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Stream {}. {} windowUpdateSent and flushed {} bytes", streamId, inboundType,
-                              consumedBytes);
+            Http2Stream http2Stream = getHttp2Stream();
+            if (http2Stream != null) {
+                boolean windowUpdateSent = http2LocalFlowController.consumeBytes(http2Stream, consumedBytes);
+                if (windowUpdateSent) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Stream {}. {} windowUpdateSent and flushed {} bytes", streamId, inboundType,
+                                  consumedBytes);
+                    }
+                    channelHandlerContext.flush();
                 }
-                channelHandlerContext.flush();
             }
         } catch (Http2Exception e) {
             LOG.error("{} Error updating local flow controller. Stream {}. ConsumedBytes {}. Error code {} ",
@@ -138,7 +152,11 @@ public class Http2InboundContentListener implements Listener {
      * @return the number of unconsumed bytes
      */
     private int getUnConsumedBytes() {
-        return http2LocalFlowController.unconsumedBytes(getHttp2Stream());
+        Http2Stream http2Stream = getHttp2Stream();
+        if (http2Stream != null) {
+            return http2LocalFlowController.unconsumedBytes(http2Stream);
+        }
+        return 0;
     }
 
     private Http2Stream getHttp2Stream() {
