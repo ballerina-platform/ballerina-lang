@@ -942,11 +942,12 @@ function castFromString(bir:BType targetType, jvm:MethodVisitor mv) {
         mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
     } else if (targetType is bir:BMapType) {
         mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    } else if (targetType is bir:BTableType) {
+        mv.visitTypeInsn(CHECKCAST, TABLE_VALUE);
     } else if (targetType is bir:BTypeAny ||
                 targetType is bir:BTypeAnyData ||
                 targetType is bir:BTypeNil ||
                 targetType is bir:BUnionType ||
-                targetType is bir:BTableType ||
                 targetType is bir:BTypeString) {
         // do nothing
         return;
@@ -979,10 +980,11 @@ function checkCastFromObject(bir:BType? targetType, jvm:MethodVisitor mv) {
         mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
     } else if (targetType is bir:BMapType) {
         mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    } else if (targetType is bir:BTableType) {
+        mv.visitTypeInsn(CHECKCAST, TABLE_VALUE);
     } else if (targetType is bir:BTypeAny ||
                 targetType is bir:BTypeAnyData ||
                 targetType is bir:BTypeNil ||
-                targetType is bir:BTableType ||
                 targetType is bir:BUnionType) {
         // do nothing
         return;
