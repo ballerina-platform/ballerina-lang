@@ -14,23 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
-http:AuthProvider jwtAuthProvider3 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "ballerina",
-        audience: ["ballerina"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
-    }
-};
+auth:ConfigAuthStoreProvider basicAuthProvider05 = new;
+http:BasicAuthnHandler basicAuthnHandler05 = new(basicAuthProvider05);
 
-listener http:Listener listener09 = new(9100, config = {
-    authProviders: [jwtAuthProvider3],
+listener http:Listener listener05 = new(9096, config = {
+    auth: {
+        authnHandlers: [basicAuthnHandler05]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -40,13 +33,11 @@ listener http:Listener listener09 = new(9100, config = {
 });
 
 @http:ServiceConfig {
-    authConfig: {
-        scopes: ["test-scope"]
-    }
+    basePath: "/echo"
 }
-service echo9 on listener09 {
+service echo05 on listener05 {
 
-    resource function test9(http:Caller caller, http:Request req) {
+    resource function test(http:Caller caller, http:Request req) {
         checkpanic caller->respond(());
     }
 }

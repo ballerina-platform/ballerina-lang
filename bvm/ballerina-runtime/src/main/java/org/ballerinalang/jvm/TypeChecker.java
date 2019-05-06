@@ -40,6 +40,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
@@ -223,6 +224,14 @@ public class TypeChecker {
         }
 
         return false;
+    }
+
+    public static TypedescValue getTypedesc(Object value) {
+        BType type = TypeChecker.getType(value);
+        if (type == null) {
+            return null;
+        }
+        return new TypedescValue(type);
     }
 
     // Private methods

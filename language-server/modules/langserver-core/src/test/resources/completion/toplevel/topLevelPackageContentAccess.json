@@ -6,16 +6,16 @@
   "source": "toplevel/source/topLevelPackageContentAccess.bal",
   "items": [
     {
-      "label": "extractBasicAuthHeaderValue(http:Request req)(string?)",
+      "label": "extractAuthorizationHeaderValue(http:Request req)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts the basic authentication header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n  \n  \n**Return**  \nstring?"
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts the Authorization header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "extractBasicAuthHeaderValue(${1:req})",
+      "insertText": "extractAuthorizationHeaderValue(${1:req})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -352,38 +352,13 @@
       ]
     },
     {
-      "label": "ListenerAuthConfig",
+      "label": "ServiceResourceAuth",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Configures the authentication scheme for a service or a resource.\n"
       },
-      "insertText": "ListenerAuthConfig",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "Authentication",
-      "kind": "Class",
-      "detail": "Record",
-      "documentation": {
-        "left": "Can be used for enabling/disabling authentication in an HTTP service.\n"
-      },
-      "insertText": "Authentication",
+      "insertText": "ServiceResourceAuth",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -531,7 +506,7 @@
       "kind": "Class",
       "detail": "Record",
       "documentation": {
-        "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
+        "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
       },
       "insertText": "FollowRedirects",
       "insertTextFormat": "Snippet",
@@ -577,13 +552,13 @@
       ]
     },
     {
-      "label": "AuthConfig",
+      "label": "OutboundAuthConfig",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
-        "left": "The `AuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.\n"
+        "left": "The `OutboundAuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.\n"
       },
-      "insertText": "AuthConfig",
+      "insertText": "OutboundAuthConfig",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1377,6 +1352,31 @@
       ]
     },
     {
+      "label": "ListenerAuth",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Authentication configurations for the listener.\n"
+      },
+      "insertText": "ListenerAuth",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
       "label": "ServiceSecureSocket",
       "kind": "Class",
       "detail": "Record",
@@ -1427,31 +1427,6 @@
       ]
     },
     {
-      "label": "AuthProvider",
-      "kind": "Class",
-      "detail": "Record",
-      "documentation": {
-        "left": "Configuration for authentication providers.\n"
-      },
-      "insertText": "AuthProvider",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
       "label": "WebSocketClientEndpointConfig",
       "kind": "Class",
       "detail": "Record",
@@ -1459,31 +1434,6 @@
         "left": "Configuration for the WebSocket client endpoint.\n"
       },
       "insertText": "WebSocketClientEndpointConfig",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "AuthHandlerRegistry",
-      "kind": "Class",
-      "detail": "Object",
-      "documentation": {
-        "left": "Representation of the Http Auth Handler Registry.\n"
-      },
-      "insertText": "AuthHandlerRegistry",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1527,38 +1477,13 @@
       ]
     },
     {
-      "label": "HttpAuthnHandler",
+      "label": "AuthnHandler",
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Representation of Authentication handler for HTTP traffic.\n"
+        "left": "Representation of Authentication handler for HTTP traffic."
       },
-      "insertText": "HttpAuthnHandler",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "AuthnHandlerChain",
-      "kind": "Class",
-      "detail": "Object",
-      "documentation": {
-        "left": "Representation of Authentication handler chain\n"
-      },
-      "insertText": "AuthnHandlerChain",
+      "insertText": "AuthnHandler",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1602,13 +1527,13 @@
       ]
     },
     {
-      "label": "HttpAuthzHandler",
+      "label": "AuthzHandler",
       "kind": "Class",
       "detail": "Object",
       "documentation": {
         "left": "Representation of Authorization Handler for HTTP\n"
       },
-      "insertText": "HttpAuthzHandler",
+      "insertText": "AuthzHandler",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1627,13 +1552,13 @@
       ]
     },
     {
-      "label": "HttpBasicAuthnHandler",
+      "label": "BasicAuthnHandler",
       "kind": "Class",
       "detail": "Object",
       "documentation": {
         "left": "Defines Basic Auth handler for HTTP traffic.\n"
       },
-      "insertText": "HttpBasicAuthnHandler",
+      "insertText": "BasicAuthnHandler",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1652,13 +1577,13 @@
       ]
     },
     {
-      "label": "HttpJwtAuthnHandler",
+      "label": "JwtAuthnHandler",
       "kind": "Class",
       "detail": "Object",
       "documentation": {
         "left": "Representation of JWT Auth handler for HTTP traffic\n"
       },
-      "insertText": "HttpJwtAuthnHandler",
+      "insertText": "JwtAuthnHandler",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1730,6 +1655,9 @@
       "label": "HttpCache",
       "kind": "Class",
       "detail": "Object",
+      "documentation": {
+        "left": "Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring\nHTTP caching in the HTTP client endpoint.\n"
+      },
       "insertText": "HttpCache",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -1753,7 +1681,7 @@
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+        "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
       },
       "insertText": "HttpFuture",
       "insertTextFormat": "Snippet",
@@ -2081,31 +2009,6 @@
         "left": "Outbound authentication schemes."
       },
       "insertText": "OutboundAuthScheme",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "AuthStoreProvider",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "Authentication storage providers for BasicAuth scheme."
-      },
-      "insertText": "AuthStoreProvider",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

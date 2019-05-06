@@ -192,6 +192,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         } else {
             buf.writeByte(0);
         }
+        buf.writeBoolean(fpCall.isAsync);
         addCpAndWriteString(fpCall.thenBB.id.value);
     }
 
@@ -204,7 +205,10 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.UnaryOP birUnaryOp) {
-        throw new AssertionError();
+        writePosition(birUnaryOp.pos);
+        buf.writeByte(birUnaryOp.kind.getValue());
+        birUnaryOp.rhsOp.accept(this);
+        birUnaryOp.lhsOp.accept(this);
     }
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
@@ -330,6 +334,11 @@ public class BIRInstructionWriter extends BIRVisitor {
         int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(fpLoad.funcName.getValue()));
+
+        buf.writeInt(fpLoad.closureMaps.size());
+        for (BIROperand op : fpLoad.closureMaps) {
+            op.accept(this);
+        }
 
         buf.writeInt(fpLoad.params.size());
         fpLoad.params.forEach(param -> {

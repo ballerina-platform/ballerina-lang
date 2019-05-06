@@ -16,6 +16,11 @@
 
 function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module, bir:BType? attachedType = ()) {
 
+    // skip code generation, if this is an extern function
+    if (isExternFunc(func)) {
+        return;
+    }
+
     string currentPackageName = getPackageName(module.org.value, module.name.value);
 
     BalToJVMIndexMap indexMap = new;
@@ -200,6 +205,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     instGen.generateXMLStoreIns(inst);
                 } else if (inst.kind == bir:INS_KIND_XML_LOAD_ALL) {
                     instGen.generateXMLLoadAllIns(inst);
+                } else if (inst.kind == bir:INS_KIND_TYPEOF) {
+                    instGen.generateTypeofIns(inst);
+                } else if (inst.kind == bir:INS_KIND_NOT) {
+                    instGen.generateNotIns(inst);
                 } else {
                     error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                     panic err;
@@ -297,7 +306,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (terminator is bir:Wait) {
             termGen.generateWaitIns(terminator, funcName);
         } else if (terminator is bir:FPCall) {
-            termGen.genFPCallIns(terminator);
+            termGen.genFPCallIns(terminator, funcName);
         } else {
             error err = error( "JVM generation is not supported for terminator instruction " +
                                         io:sprintf("%s", terminator));
@@ -381,6 +390,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     io:sprintf("L%s;", FUNCTION));
             }
             mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BTypeDesc) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", TYPEDESC_VALUE));
+            mv.visitVarInsn(ASTORE, index);
         }   else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
@@ -441,7 +454,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", TABLE_VALUE));
-        } else if (bType is bir:BArrayType || 
+        } else if (bType is bir:BArrayType ||
                     bType is bir:BTupleType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
@@ -454,6 +467,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", FUTURE_VALUE));
+        } else if (bType is bir:BTypeDesc) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", TYPEDESC_VALUE));
         } else if (bType is bir:BObjectType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
@@ -517,14 +535,15 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitEnd();
 }
 
-function generateLambdaMethod(bir:AsyncCall|bir:FPLoad callIns, jvm:ClassWriter cw, string className, 
+function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, string className,
     string lambdaName) {
     bir:BType? lhsType;
-    if (callIns is bir:AsyncCall) {
-        lhsType = callIns.lhsOp.typeValue;
+    if (ins is bir:AsyncCall) {
+        lhsType = ins.lhsOp.typeValue;
     } else {
-        lhsType = callIns.lhsOp.typeValue;
+        lhsType = ins.lhsOp.typeValue;
     }
+
     bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
         returnType = lhsType.returnType;
@@ -536,28 +555,37 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad callIns, jvm:ClassWriter 
         panic err;
     }
 
+
+    int closureMapsCount = 0;
+    if (ins is bir:FPLoad) {
+        closureMapsCount = ins.closureMaps.length();
+    }
+    string closureMapsDesc = getMapValueDesc(closureMapsCount);
+
     boolean isVoid = returnType is bir:BTypeNil;
     jvm:MethodVisitor mv;
     if (isVoid) {
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, lambdaName,
-                                io:sprintf("([L%s;)V", OBJECT), (), ());
+                                io:sprintf("(%s[L%s;)V", closureMapsDesc, OBJECT), (), ());
     } else {
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, lambdaName,
-                                io:sprintf("([L%s;)L%s;", OBJECT, OBJECT), (), ());
+                                io:sprintf("(%s[L%s;)L%s;", closureMapsDesc, OBJECT, OBJECT), (), ());
     }
 
     mv.visitCode();
 
-    //load strand as first arg
-    mv.visitVarInsn(ALOAD, 0);
+    // load strand as first arg
+    // strand and other args are in a object[] param. This param comes after closure maps.
+    // hence the closureMapsCount is equal to the array's param index.
+    mv.visitVarInsn(ALOAD, closureMapsCount);
     mv.visitInsn(ICONST_0);
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, STRAND);
 
     bir:BType?[] paramBTypes = [];
     string funcName; 
-    if (callIns is bir:AsyncCall) {
-        bir:VarRef?[] paramTypes = callIns.args;
+    if (ins is bir:AsyncCall) {
+        bir:VarRef?[] paramTypes = ins.args;
         // load and cast param values
         int paramIndex = 1;
         foreach var paramType in paramTypes {
@@ -565,33 +593,40 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad callIns, jvm:ClassWriter 
             mv.visitVarInsn(ALOAD, 0);
             mv.visitIntInsn(BIPUSH, paramIndex);
             mv.visitInsn(AALOAD);
-            checkCastFromObject(ref.typeValue, mv);
+            addUnboxInsn(mv, ref.typeValue);
             paramBTypes[paramIndex -1] = paramType.typeValue;
             paramIndex += 1;
         }
-        funcName = callIns.name.value;
+        funcName = ins.name.value;
     } else {
-        bir:VariableDcl?[] paramTypes = callIns.params;
+        //load closureMaps
+        int i = 0;
+        while (i < closureMapsCount) {
+            mv.visitVarInsn(ALOAD, i);
+            i += 1;
+        }
+
+        bir:VariableDcl?[] paramTypes = ins.params;
         // load and cast param values
         int paramIndex = 1;
         foreach var paramType in paramTypes {
             bir:VariableDcl dcl = getVariableDcl(paramType);
-            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, closureMapsCount);
             mv.visitIntInsn(BIPUSH, paramIndex);
             mv.visitInsn(AALOAD);
-            checkCastFromObject(dcl.typeValue, mv);
+            addUnboxInsn(mv, dcl.typeValue);
             paramBTypes[paramIndex -1] = dcl.typeValue;
             paramIndex += 1;
         }
-        funcName = callIns.name.value;
+        funcName = ins.name.value;
     }
 
-    mv.visitMethodInsn(INVOKESTATIC, className, funcName, getMethodDesc(paramBTypes, returnType), false);
+    mv.visitMethodInsn(INVOKESTATIC, className, funcName, getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount), false);
     
     if (isVoid) {
         mv.visitInsn(RETURN);
     } else {
-        generateObjectCast(returnType, mv);
+        addBoxInsn(mv, returnType);
         mv.visitInsn(ARETURN);
     }
     mv.visitMaxs(0,0);
@@ -626,7 +661,8 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BJSONType ||
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
-                bType is bir:BFiniteType) {
+                bType is bir:BFiniteType ||
+                bType is bir:BTypeDesc) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
     } else {
@@ -638,6 +674,26 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
 
 function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType) returns string {
     string desc = "(Lorg/ballerinalang/jvm/Strand;";
+    int i = 0;
+    while (i < paramTypes.length()) {
+        bir:BType paramType = getType(paramTypes[i]);
+        desc = desc + getArgTypeSignature(paramType);
+        i += 1;
+    }
+    string returnType = generateReturnType(retType);
+    desc =  desc + returnType;
+
+    return desc;
+}
+
+function getLambdaMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, int closureMapsCount) returns string {
+    string desc = "(Lorg/ballerinalang/jvm/Strand;";
+    int j = 0;
+    while (j < closureMapsCount) {
+        j += 1;
+        desc = desc + "L" + MAP_VALUE + ";";
+    }
+
     int i = 0;
     while (i < paramTypes.length()) {
         bir:BType paramType = getType(paramTypes[i]);
@@ -683,7 +739,9 @@ function getArgTypeSignature(bir:BType bType) returns string {
             return io:sprintf("L%s;", CONSUMER);
         } else {
             return io:sprintf("L%s;", FUNCTION);
-        }       
+        }
+    } else if (bType is bir:BTypeDesc) {
+        return io:sprintf("L%s;", TYPEDESC_VALUE);
     } else if (bType is bir:BObjectType) {
         return io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BXMLType) {
@@ -719,6 +777,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", TABLE_VALUE);
     } else if (bType is bir:BFutureType) {
         return io:sprintf(")L%s;", FUTURE_VALUE);
+    } else if (bType is bir:BTypeDesc) {
+        return io:sprintf(")L%s;", TYPEDESC_VALUE);
     } else if (bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BUnionType ||
@@ -784,7 +844,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
         // schedule the init method
         string lambdaName = io:sprintf("$lambda$%s$", initFuncName);
-        mv.visitInvokeDynamicInsn(initClass, lambdaName, true);
+        mv.visitInvokeDynamicInsn(initClass, lambdaName, true, 0);
 
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
             io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
@@ -811,7 +871,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     // invoke the user's main method
     string lambdaName = "$lambda$main$";
-    mv.visitInvokeDynamicInsn(initClass, lambdaName, isVoidFunction);
+    mv.visitInvokeDynamicInsn(initClass, lambdaName, isVoidFunction, 0);
 
     //submit to the scheduler
     if (isVoidFunction) {
@@ -837,7 +897,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     if (!isVoidFunction) {
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
         bir:BType returnType = userMainFunc.typeValue.retType;
-        checkCastFromObject(returnType, mv);
+        addUnboxInsn(mv, returnType);
         if (returnType is bir:BTypeInt || returnType is bir:BTypeByte) {
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
         } else if (returnType is bir:BTypeFloat) {
@@ -900,7 +960,7 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     if (isVoidFunc) {
         mv.visitInsn(RETURN);
     } else {
-        generateObjectCast(returnType, mv);
+        addBoxInsn(mv, returnType);
         mv.visitInsn(ARETURN);
     }
     mv.visitMaxs(0,0);
@@ -949,74 +1009,6 @@ function castFromString(bir:BType targetType, jvm:MethodVisitor mv) {
                 targetType is bir:BTypeNil ||
                 targetType is bir:BUnionType ||
                 targetType is bir:BTypeString) {
-        // do nothing
-        return;
-    } else {
-        error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
-        panic err;
-    }
-}
-
-# Generate cast instruction from Object to target type
-# 
-# + targetType - target type to be casted
-# + mv - method visitor
-function checkCastFromObject(bir:BType? targetType, jvm:MethodVisitor mv) {
-    if (targetType is bir:BTypeInt) {
-        mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
-    } else if (targetType is bir:BTypeFloat) {
-        mv.visitTypeInsn(CHECKCAST, DOUBLE_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, DOUBLE_VALUE, "doubleValue", "()D", false);
-    } else if (targetType is bir:BTypeString) {
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-    } else if (targetType is bir:BTypeBoolean) {
-        mv.visitTypeInsn(CHECKCAST, BOOLEAN_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, BOOLEAN_VALUE, "booleanValue", "()Z", false);
-    } else if (targetType is bir:BTypeByte) {
-        mv.visitTypeInsn(CHECKCAST, BYTE_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, BYTE_VALUE, "byteValue", "()B", false);
-    } else if (targetType is bir:BArrayType) {
-        mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
-    } else if (targetType is bir:BMapType) {
-        mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
-    } else if (targetType is bir:BTableType) {
-        mv.visitTypeInsn(CHECKCAST, TABLE_VALUE);
-    } else if (targetType is bir:BTypeAny ||
-                targetType is bir:BTypeAnyData ||
-                targetType is bir:BTypeNil ||
-                targetType is bir:BUnionType) {
-        // do nothing
-        return;
-    } else {
-        error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
-        panic err;
-    }
-}
-
-# Cast a given type to object
-# 
-# + targetType - target type to be casted
-# + mv - method visitor
-function generateObjectCast(bir:BType? targetType, jvm:MethodVisitor mv) {  
-    if (targetType is bir:BTypeInt) {
-        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
-    } else if (targetType is bir:BTypeFloat) {
-        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
-    } else if (targetType is bir:BTypeBoolean) {
-        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
-    } else if (targetType is bir:BTypeByte) {
-        mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "valueOf", io:sprintf("(B)L%s;", BYTE_VALUE), false);
-    } else if (targetType is bir:BTypeAny ||
-                targetType is bir:BTypeAnyData ||
-                targetType is bir:BTypeNil ||
-                targetType is bir:BUnionType ||
-                targetType is bir:BTypeString ||
-                targetType is bir:BArrayType ||
-                targetType is bir:BMapType ||
-                targetType is bir:BTableType ||
-                targetType is bir:BFiniteType ||
-                targetType is bir:BInvokableType) {
         // do nothing
         return;
     } else {
@@ -1203,6 +1195,8 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
         typeSig = io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BXMLType) {
         typeSig = io:sprintf("L%s;", XML_VALUE);
+    } else if (bType is bir:BTypeDesc) {
+        typeSig = io:sprintf("L%s;", TYPEDESC_VALUE);
     } else if (bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BUnionType ||
@@ -1326,4 +1320,15 @@ function getType(bir:BType? bType) returns bir:BType {
         error err = error("Invalid type");
         panic err;
     }
+}
+
+function getMapValueDesc(int count) returns string{
+    int i = count;
+    string desc = "";
+    while(i > 0) {
+        desc = desc + "L" + MAP_VALUE + ";";
+        i -= 1;
+    }
+
+    return desc;
 }

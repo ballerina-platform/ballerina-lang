@@ -197,6 +197,12 @@ type InstructionEmitter object {
             print(" ");
             self.opEmitter.emitOp(ins.rhsOp2);
             println(";");
+        }  else if (ins is UnaryOp) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.opEmitter.emitOp(ins.rhsOp);
+            println(";");
         } else if (ins is Move) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
@@ -267,9 +273,25 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ");
-            print(" ", ins.kind, " ");
-            print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "()");
-            println(";");
+            print(ins.kind, " ");
+            print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "(");
+
+            foreach var v in ins.closureMaps {
+                if (v is VarRef) {
+                    self.opEmitter.emitOp(v);
+                    print(",");
+                }
+            }
+            int i = 0;
+            foreach var v in ins.params {
+                if (i != 0) {
+                    print (",");
+                }
+                VariableDcl varDecl = getVariableDcl(v);
+                self.typeEmitter.emitType(varDecl.typeValue);
+                i += 1;
+            }
+            println(");");
         }
     }
 };
@@ -337,7 +359,7 @@ type TerminalEmitter object {
                 self.opEmitter.emitOp(lhsOp);
                 print(" = ");
             }
-            print(" START ");
+            print("START ");
             print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
             int i = 0;
             foreach var arg in term.args {
@@ -356,6 +378,9 @@ type TerminalEmitter object {
             if (lhsOp is VarRef) {
                 self.opEmitter.emitOp(lhsOp);
                 print(" = ");
+            }
+            if (term.isAsync) {
+                print("START ");
             }
             print(term.kind, " ");
             self.opEmitter.emitOp(term.fp);

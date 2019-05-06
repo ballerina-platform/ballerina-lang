@@ -14,23 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
-http:AuthProvider basicAuthProvider17 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "example1",
-        audience: ["ballerina"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
+auth:JWTAuthProvider jwtAuthProvider14_1 = new({
+    issuer: "example1",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
     }
-};
+});
 
-listener http:Listener listener17_1 = new(9107, config = {
-    authProviders: [basicAuthProvider17],
+http:JwtAuthnHandler jwtAuthnHandler14_1 = new(jwtAuthProvider14_1);
+
+listener http:Listener listener14_1 = new(9109, config = {
+    auth: {
+        authnHandlers: [jwtAuthnHandler14_1]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -39,7 +41,7 @@ listener http:Listener listener17_1 = new(9107, config = {
     }
 });
 
-http:Client nyseEP17 = new("https://localhost:9108", config = {
+http:Client nyseEP14 = new("https://localhost:9110", config = {
     auth: {
         scheme: http:JWT_AUTH,
         config: {
@@ -58,14 +60,14 @@ http:Client nyseEP17 = new("https://localhost:9108", config = {
 });
 
 @http:ServiceConfig { basePath: "/passthrough" }
-service passthroughService17 on listener17_1 {
+service passthroughService14 on listener14_1 {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP17->get("/nyseStock/stocks", message = untaint clientRequest);
+        var response = nyseEP14->get("/nyseStock/stocks", message = untaint clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
@@ -78,21 +80,22 @@ service passthroughService17 on listener17_1 {
     }
 }
 
-http:AuthProvider jwtAuthProvider17 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "example2aaaaaaaaaaaaaa",
-        audience: ["ballerina"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
+auth:JWTAuthProvider jwtAuthProvider14_2 = new({
+    issuer: "example2aaaaaaaaaaaaaa",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
     }
-};
+});
 
-listener http:Listener listener17_2 = new(9108, config = {
-        authProviders: [jwtAuthProvider17],
+http:JwtAuthnHandler jwtAuthnHandler14_2 = new(jwtAuthProvider14_2);
+
+listener http:Listener listener14_2 = new(9110, config = {
+        auth: {
+            authnHandlers: [jwtAuthnHandler14_2]
+        },
         secureSocket: {
             keyStore: {
                 path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -102,7 +105,7 @@ listener http:Listener listener17_2 = new(9108, config = {
     });
 
 @http:ServiceConfig { basePath: "/nyseStock" }
-service nyseStockQuote17 on listener17_2 {
+service nyseStockQuote14 on listener14_2 {
 
     @http:ResourceConfig {
         methods: ["GET"],

@@ -66,19 +66,14 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JWTIssuerConfig? 
                     signature = encoding:encodeBase64Url(check crypto:signRsaSha512(jwtAssertion.toByteArray("UTF-8"),
                                                                                     privateKey));
                 } else {
-                    error jwtError = error(AUTH_ERROR_CODE, { message : "Unsupported JWS algorithm" });
-                    return jwtError;
+                    return prepareError("Unsupported JWS algorithm.");
                 }
                 return (jwtAssertion + "." + signature);
             } else {
-                error jwtError = error(AUTH_ERROR_CODE,
-                                   { message : "Signing JWT requires keyStore, keyAlias and keyPassword" });
-                return jwtError;
+                return prepareError("Signing JWT requires keyStore, keyAlias and keyPassword.");
             }
         } else {
-            error jwtError = error(AUTH_ERROR_CODE,
-                                   { message : "Signing JWT requires JWTIssuerConfig with keystore information" });
-            return jwtError;
+            return prepareError("Signing JWT requires JWTIssuerConfig with keystore information.");
         }
     }
 }
@@ -86,8 +81,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JWTIssuerConfig? 
 function buildHeaderString(JwtHeader header) returns (string|error) {
     json headerJson = {};
     if (!validateMandatoryJwtHeaderFields(header)) {
-        error jwtError = error(AUTH_ERROR_CODE, { message : "Mandatory field signing algorithm (alg) is empty." });
-        return jwtError;
+        return prepareError("Mandatory field signing algorithm (alg) is empty.");
     }
     if (header.alg == RS256) {
         headerJson[ALG] = "RS256";
@@ -98,8 +92,7 @@ function buildHeaderString(JwtHeader header) returns (string|error) {
     } else if (header.alg == NONE) {
         headerJson[ALG] = "none";
     } else {
-        error jwtError = error(AUTH_ERROR_CODE, { message : "Unsupported JWS algorithm" });
-        return jwtError;
+        return prepareError("Unsupported JWS algorithm.");
     }
     headerJson[TYP] = "JWT";
     string headerValInString = headerJson.toString();

@@ -78,7 +78,11 @@ public enum InstructionKind {
     LESS_THAN((byte) 60),
     LESS_EQUAL((byte) 61),
     AND((byte) 62),
-    OR((byte) 63);
+    OR((byte) 63),
+
+    // Unary expression related instructions.
+    TYPEOF((byte) 70),
+    NOT((byte) 71);
 
     byte value;
 

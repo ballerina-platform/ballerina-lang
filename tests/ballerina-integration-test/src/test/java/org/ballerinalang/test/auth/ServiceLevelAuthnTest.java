@@ -20,7 +20,6 @@ package org.ballerinalang.test.auth;
 
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
@@ -32,9 +31,36 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class ServiceLevelAuthnTest extends AuthBaseTest {
 
-    private final int servicePort = 9094;
-    private final int servicePortForExpiredCertificateTest = 9101;
-    private final int servicePortForExpiredCertificateTestWithNoExpiryValidation = 9102;
+    private final int servicePort = 9095;
+    private final int servicePortForExpiredCertificateTest = 9099;
+    private final int servicePortForExpiredCertificateTestWithNoExpiryValidation = 9100;
+
+    @Test(description = "Authn and authz success test case")
+    public void testAuthSuccessWithServiceLevelConfigs() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Basic aXN1cnU6eHh4");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, serverInstance.getServerHome());
+        assertOK(response);
+    }
+
+    @Test(description = "Authn success and authz failure test case")
+    public void testAuthzFailureWithServiceLevelConfigs() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, serverInstance.getServerHome());
+        assertForbidden(response);
+    }
+
+    @Test(description = "Authn and authz failure test case")
+    public void testAuthFailureWithServiceLevelConfigs() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, serverInstance.getServerHome());
+        assertUnauthorized(response);
+    }
 
     @Test(description = "Auth with JWT signed with expired trusted certificate")
     public void testAuthnWithJWTSignedWithExpiredTrustedCertificate() throws Exception {
@@ -61,10 +87,9 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
                 "18xqUzweCRL-DLAAYwjbzGQ56ekbEdAg02sFco4aozOyt8OUDwS9cH_JlhUn2JEHmVKaatljEnfgRc8fOW6Y5IJ7dOPp7ra5e" +
                 "00sk7JwYY8wKaZWxAGSgRpWgTY6C4XRjGIsR5ZWQdXCAnV27idGDrtR2uG4YQwCWUCzA");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance
-                        .getServiceURLHttps(servicePortForExpiredCertificateTest, "echo13/test13"),
+                        .getServiceURLHttps(servicePortForExpiredCertificateTest, "echo/test"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 
     @Test(description = "Auth with JWT signed with expired trusted certificate but with expiry validation off")
@@ -92,9 +117,8 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
                 "18xqUzweCRL-DLAAYwjbzGQ56ekbEdAg02sFco4aozOyt8OUDwS9cH_JlhUn2JEHmVKaatljEnfgRc8fOW6Y5IJ7dOPp7ra5e" +
                 "00sk7JwYY8wKaZWxAGSgRpWgTY6C4XRjGIsR5ZWQdXCAnV27idGDrtR2uG4YQwCWUCzA");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance
-                        .getServiceURLHttps(servicePortForExpiredCertificateTestWithNoExpiryValidation,
-                                "echo14/test14"), headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+                .getServiceURLHttps(servicePortForExpiredCertificateTestWithNoExpiryValidation,
+                        "echo/test"), headersMap, serverInstance.getServerHome());
+        assertOK(response);
     }
 }

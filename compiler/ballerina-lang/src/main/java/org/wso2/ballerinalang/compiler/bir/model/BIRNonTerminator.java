@@ -112,10 +112,12 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      */
     public static class UnaryOP extends BIRNonTerminator implements BIRAssignInstruction {
         public BIROperand lhsOp;
+        public BIROperand rhsOp;
 
-        public UnaryOP(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp) {
+        public UnaryOP(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, kind);
             this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
         }
 
         @Override
@@ -540,14 +542,16 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         public Name funcName;
         public PackageID pkgId;
         public List<BIRVariableDcl> params;
+        public List<BIROperand> closureMaps;
 
         public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp,
-                      List<BIRVariableDcl> params) {
+                      List<BIRVariableDcl> params, List<BIROperand> closureMaps) {
             super(pos, InstructionKind.FP_LOAD);
             this.lhsOp = lhsOp;
             this.funcName = funcName;
             this.pkgId = pkgId;
             this.params = params;
+            this.closureMaps = closureMaps;
         }
 
         @Override

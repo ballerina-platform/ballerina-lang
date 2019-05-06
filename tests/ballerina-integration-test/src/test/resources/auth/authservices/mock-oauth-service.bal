@@ -369,7 +369,7 @@ function addToAccessTokenStore(string accessToken) {
 
 //The API endpoint, which is responsible for processing the request after validating the access token in the authorization header.
 // The token should be listed in the accessTokenStore, which keeps the tokens issued by the mock OAuth2 server.
-listener http:Listener apiEndpoint = new(9095, config = {
+listener http:Listener apiEndpoint = new(9195, config = {
         secureSocket: {
             keyStore: {
                 path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
