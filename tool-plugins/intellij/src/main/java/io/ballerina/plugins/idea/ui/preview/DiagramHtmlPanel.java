@@ -6,10 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-//import org.intellij.markdown.html.HtmlGenerator;
-//import org.intellij.plugins.markdown.settings.MarkdownCssSettings;
-
-public interface MarkdownHtmlPanel extends Disposable {
+public interface DiagramHtmlPanel extends Disposable {
 
     @NotNull
     JComponent getComponent();

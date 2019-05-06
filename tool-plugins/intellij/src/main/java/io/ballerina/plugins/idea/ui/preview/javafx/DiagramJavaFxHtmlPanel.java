@@ -17,7 +17,7 @@ import com.intellij.ui.javafx.JavaFxHtmlPanel;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import io.ballerina.plugins.idea.ui.settings.MarkdownApplicationSettings;
-import io.ballerina.plugins.idea.ui.preview.MarkdownHtmlPanel;
+import io.ballerina.plugins.idea.ui.preview.DiagramHtmlPanel;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
@@ -32,7 +32,7 @@ import java.awt.*;
 import java.util.Objects;
 import javax.swing.*;
 
-public class MarkdownJavaFxHtmlPanel extends JavaFxHtmlPanel implements MarkdownHtmlPanel {
+public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHtmlPanel {
 
     @NotNull
     private String[] myCssUris = ArrayUtil.EMPTY_STRING_ARRAY;
@@ -45,7 +45,7 @@ public class MarkdownJavaFxHtmlPanel extends JavaFxHtmlPanel implements Markdown
     @NotNull
     private final BridgeSettingListener myBridgeSettingListener = new BridgeSettingListener();
 
-    public MarkdownJavaFxHtmlPanel() {
+    public DiagramJavaFxHtmlPanel() {
         super();
         runInPlatformWhenAvailable(() -> {
             if (myWebView != null) {

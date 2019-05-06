@@ -28,7 +28,7 @@
 
     <extensionPoints>
     <extensionPoint qualifiedName="io.ballerina.html.panel.provider"
-                    interface="io.ballerina.plugins.idea.ui.preview.BallerinaHtmlPanelProvider" />
+                    interface="io.ballerina.plugins.idea.ui.preview.HtmlPanelProvider" />
     </extensionPoints>
 
     <module-components>
@@ -59,7 +59,7 @@
 
         <lang.syntaxHighlighterFactory language="Ballerina"
                                        implementationClass="io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlighterFactory"/>
-        fileEditorProvider implementation="io.ballerina.plugins.idea.ui.preview.BallerinaSplitEditorProvider"/>
+        <fileEditorProvider implementation="io.ballerina.plugins.idea.ui.preview.BallerinaSplitEditorProvider"/>
         <!--Add organization index-->
 
         <indexPatternBuilder implementation="io.ballerina.plugins.idea.BallerinaIndexPatternBuilder"/>

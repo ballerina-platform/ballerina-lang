@@ -40,9 +40,9 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
     @NotNull
     private final JPanel myHtmlPanelWrapper;
     @Nullable
-    private MarkdownHtmlPanel myPanel;
+    private DiagramHtmlPanel myPanel;
     @Nullable
-    private BallerinaHtmlPanelProvider.ProviderInfo myLastPanelProviderInfo = null;
+    private HtmlPanelProvider.ProviderInfo myLastPanelProviderInfo = null;
     @NotNull
     private final VirtualFile myFile;
     @Nullable
@@ -231,13 +231,13 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
     }
 
     @NotNull
-    private BallerinaHtmlPanelProvider retrievePanelProvider(@NotNull MarkdownApplicationSettings settings) {
-        final BallerinaHtmlPanelProvider.ProviderInfo providerInfo = settings.getMarkdownPreviewSettings()
+    private HtmlPanelProvider retrievePanelProvider(@NotNull MarkdownApplicationSettings settings) {
+        final HtmlPanelProvider.ProviderInfo providerInfo = settings.getMarkdownPreviewSettings()
                 .getHtmlPanelProviderInfo();
 
-        BallerinaHtmlPanelProvider provider = BallerinaHtmlPanelProvider.createFromInfo(providerInfo);
+        HtmlPanelProvider provider = HtmlPanelProvider.createFromInfo(providerInfo);
 
-        if (provider.isAvailable() != BallerinaHtmlPanelProvider.AvailabilityInfo.AVAILABLE) {
+        if (provider.isAvailable() != HtmlPanelProvider.AvailabilityInfo.AVAILABLE) {
             settings.setMarkdownPreviewSettings(
                     new MarkdownPreviewSettings(settings.getMarkdownPreviewSettings().getSplitEditorLayout(),
                             MarkdownPreviewSettings.DEFAULT.getHtmlPanelProviderInfo(),
@@ -249,7 +249,7 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
                             + "), but it is unavailable. Reverting to default.", CommonBundle.getErrorTitle(),
                     Messages.getErrorIcon());
 
-            provider = BallerinaHtmlPanelProvider.getProviders()[0];
+            provider = HtmlPanelProvider.getProviders()[0];
         }
 
         myLastPanelProviderInfo = settings.getMarkdownPreviewSettings().getHtmlPanelProviderInfo();
@@ -267,8 +267,7 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
         if (!myFile.isValid() || myDocument == null || Disposer.isDisposed(this)) {
             return;
         }
-
-        final String html = VisualizerUtil.generateMarkdownHtml(myFile, myDocument.getText());
+        final String html = VisualizerUtil.generateMarkdownHtml(myFile);
 
         // EA-75860: The lines to the top may be processed slowly; Since we're in pooled thread, we can be disposed already.
         if (!myFile.isValid() || Disposer.isDisposed(this)) {
@@ -319,7 +318,7 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
         myHtmlPanelWrapper.repaint();
     }
 
-    private static void updatePanelCssSettings(@NotNull MarkdownHtmlPanel panel,
+    private static void updatePanelCssSettings(@NotNull DiagramHtmlPanel panel,
             @NotNull final MarkdownCssSettings cssSettings) {
         ApplicationManager.getApplication().assertIsDispatchThread();
 
@@ -358,7 +357,7 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
                         != SplitFileEditor.SplitEditorLayout.FIRST) {
                     if (myPanel == null) {
                         attachHtmlPanel();
-                    } else if (myLastPanelProviderInfo == null || BallerinaHtmlPanelProvider
+                    } else if (myLastPanelProviderInfo == null || HtmlPanelProvider
                             .createFromInfo(myLastPanelProviderInfo).equals(retrievePanelProvider(settings))) {
                         detachHtmlPanel();
                         attachHtmlPanel();

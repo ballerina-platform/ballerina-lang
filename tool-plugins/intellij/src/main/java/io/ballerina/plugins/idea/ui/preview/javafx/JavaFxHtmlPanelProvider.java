@@ -13,24 +13,24 @@
 // limitations under the License.
 package io.ballerina.plugins.idea.ui.preview.javafx;
 
-import io.ballerina.plugins.idea.ui.preview.BallerinaHtmlPanelProvider;
-import io.ballerina.plugins.idea.ui.preview.MarkdownHtmlPanel;
+import io.ballerina.plugins.idea.ui.preview.HtmlPanelProvider;
+import io.ballerina.plugins.idea.ui.preview.DiagramHtmlPanel;
 import org.jetbrains.annotations.NotNull;
 
-public class JavaFxHtmlPanelProvider extends BallerinaHtmlPanelProvider {
+public class JavaFxHtmlPanelProvider extends HtmlPanelProvider {
 
     @NotNull
     @Override
-    public MarkdownHtmlPanel createHtmlPanel() {
-        return new MarkdownJavaFxHtmlPanel();
+    public DiagramHtmlPanel createHtmlPanel() {
+        return new DiagramJavaFxHtmlPanel();
     }
 
     @NotNull
     @Override
-    public BallerinaHtmlPanelProvider.AvailabilityInfo isAvailable() {
+    public HtmlPanelProvider.AvailabilityInfo isAvailable() {
         try {
             if (Class.forName("javafx.scene.web.WebView", false, getClass().getClassLoader()) != null) {
-                return BallerinaHtmlPanelProvider.AvailabilityInfo.AVAILABLE;
+                return HtmlPanelProvider.AvailabilityInfo.AVAILABLE;
             }
         } catch (ClassNotFoundException ignored) {
         }

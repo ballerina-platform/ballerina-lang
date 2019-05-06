@@ -3,7 +3,7 @@ package io.ballerina.plugins.idea.ui.settings;
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Property;
 import com.intellij.util.xmlb.annotations.Tag;
-import io.ballerina.plugins.idea.ui.preview.BallerinaHtmlPanelProvider;
+import io.ballerina.plugins.idea.ui.preview.HtmlPanelProvider;
 import io.ballerina.plugins.idea.ui.preview.javafx.JavaFxHtmlPanelProvider;
 import io.ballerina.plugins.idea.ui.split.SplitFileEditor;
 
@@ -19,7 +19,7 @@ public final class MarkdownPreviewSettings {
   @Tag("HtmlPanelProviderInfo")
   @Property(surroundWithTag = false)
   @NotNull
-  private BallerinaHtmlPanelProvider.ProviderInfo myHtmlPanelProviderInfo = new JavaFxHtmlPanelProvider().getProviderInfo();
+  private HtmlPanelProvider.ProviderInfo myHtmlPanelProviderInfo = new JavaFxHtmlPanelProvider().getProviderInfo();
 
   @Attribute("UseGrayscaleRendering")
   private boolean myUseGrayscaleRendering = false;
@@ -31,7 +31,7 @@ public final class MarkdownPreviewSettings {
   }
 
   public MarkdownPreviewSettings(@NotNull SplitFileEditor.SplitEditorLayout splitEditorLayout,
-                                 @NotNull BallerinaHtmlPanelProvider.ProviderInfo htmlPanelProviderInfo,
+                                 @NotNull HtmlPanelProvider.ProviderInfo htmlPanelProviderInfo,
                                  boolean useGrayscaleRendering,
                                  boolean isAutoScrollPreview) {
     mySplitEditorLayout = splitEditorLayout;
@@ -46,7 +46,7 @@ public final class MarkdownPreviewSettings {
   }
 
   @NotNull
-  public BallerinaHtmlPanelProvider.ProviderInfo getHtmlPanelProviderInfo() {
+  public HtmlPanelProvider.ProviderInfo getHtmlPanelProviderInfo() {
     return myHtmlPanelProviderInfo;
   }
 

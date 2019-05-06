@@ -23,15 +23,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import javax.swing.*;
 
-public abstract class BallerinaHtmlPanelProvider {
+public abstract class HtmlPanelProvider {
 
-  public static final ExtensionPointName<BallerinaHtmlPanelProvider> EP_NAME =
+  public static final ExtensionPointName<HtmlPanelProvider> EP_NAME =
     ExtensionPointName.create("io.ballerina.html.panel.provider");
 
-  private static BallerinaHtmlPanelProvider[] ourProviders = null;
+  private static HtmlPanelProvider[] ourProviders = null;
 
   @NotNull
-  public abstract MarkdownHtmlPanel createHtmlPanel();
+  public abstract DiagramHtmlPanel createHtmlPanel();
 
   @NotNull
   public abstract AvailabilityInfo isAvailable();
@@ -40,7 +40,7 @@ public abstract class BallerinaHtmlPanelProvider {
   public abstract ProviderInfo getProviderInfo();
 
   @NotNull
-  public static BallerinaHtmlPanelProvider[] getProviders() {
+  public static HtmlPanelProvider[] getProviders() {
     if (ourProviders == null) {
       ourProviders = EP_NAME.getExtensions();
     }
@@ -48,9 +48,9 @@ public abstract class BallerinaHtmlPanelProvider {
   }
 
   @NotNull
-  public static BallerinaHtmlPanelProvider createFromInfo(@NotNull ProviderInfo providerInfo) {
+  public static HtmlPanelProvider createFromInfo(@NotNull ProviderInfo providerInfo) {
     try {
-      return ((BallerinaHtmlPanelProvider)Class.forName(providerInfo.getClassName()).newInstance());
+      return ((HtmlPanelProvider)Class.forName(providerInfo.getClassName()).newInstance());
     }
     catch (Exception e) {
       Messages.showMessageDialog(
@@ -58,7 +58,7 @@ public abstract class BallerinaHtmlPanelProvider {
         CommonBundle.getErrorTitle(),
         Messages.getErrorIcon()
       );
-      Logger.getInstance(BallerinaHtmlPanelProvider.class).error(e);
+      Logger.getInstance(HtmlPanelProvider.class).error(e);
       return getProviders()[0];
     }
   }

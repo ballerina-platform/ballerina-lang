@@ -25,7 +25,7 @@ import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.util.containers.ContainerUtil;
-import io.ballerina.plugins.idea.ui.preview.BallerinaHtmlPanelProvider;
+import io.ballerina.plugins.idea.ui.preview.HtmlPanelProvider;
 import io.ballerina.plugins.idea.ui.split.SplitFileEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,7 +66,7 @@ public class MarkdownSettingsForm implements MarkdownCssSettings.Holder, Markdow
 
   private Object myLastItem;
   private EnumComboBoxModel<SplitFileEditor.SplitEditorLayout> mySplitLayoutModel;
-  private CollectionComboBoxModel<BallerinaHtmlPanelProvider.ProviderInfo> myPreviewPanelModel;
+  private CollectionComboBoxModel<HtmlPanelProvider.ProviderInfo> myPreviewPanelModel;
 
   public MarkdownSettingsForm() {
     myCssURIListener = new ActionListener() {
@@ -137,7 +137,7 @@ public class MarkdownSettingsForm implements MarkdownCssSettings.Holder, Markdow
   }
 
   private static boolean isMultipleProviders() {
-    return BallerinaHtmlPanelProvider.getProviders().length > 1;
+    return HtmlPanelProvider.getProviders().length > 1;
   }
 
   public void validate() throws ConfigurationException {
@@ -239,10 +239,10 @@ public class MarkdownSettingsForm implements MarkdownCssSettings.Holder, Markdow
 
   private void createMultipleProvidersSettings() {
     //noinspection unchecked
-    final List<BallerinaHtmlPanelProvider.ProviderInfo> providerInfos =
-      ContainerUtil.mapNotNull(BallerinaHtmlPanelProvider.getProviders(),
+    final List<HtmlPanelProvider.ProviderInfo> providerInfos =
+      ContainerUtil.mapNotNull(HtmlPanelProvider.getProviders(),
                                provider -> {
-                                 if (provider.isAvailable() == BallerinaHtmlPanelProvider.AvailabilityInfo.UNAVAILABLE) {
+                                 if (provider.isAvailable() == HtmlPanelProvider.AvailabilityInfo.UNAVAILABLE) {
                                    return null;
                                  }
                                  return provider.getProviderInfo();
@@ -255,13 +255,13 @@ public class MarkdownSettingsForm implements MarkdownCssSettings.Holder, Markdow
       @Override
       public void itemStateChanged(ItemEvent e) {
         final Object item = e.getItem();
-        if (e.getStateChange() != ItemEvent.SELECTED || !(item instanceof BallerinaHtmlPanelProvider.ProviderInfo)) {
+        if (e.getStateChange() != ItemEvent.SELECTED || !(item instanceof HtmlPanelProvider.ProviderInfo)) {
           return;
         }
 
-        final BallerinaHtmlPanelProvider provider = BallerinaHtmlPanelProvider
-                .createFromInfo((BallerinaHtmlPanelProvider.ProviderInfo)item);
-        final BallerinaHtmlPanelProvider.AvailabilityInfo availability = provider.isAvailable();
+        final HtmlPanelProvider provider = HtmlPanelProvider
+                .createFromInfo((HtmlPanelProvider.ProviderInfo)item);
+        final HtmlPanelProvider.AvailabilityInfo availability = provider.isAvailable();
 
         if (!availability.checkAvailability(myMainPanel)) {
           myPreviewProvider.setSelectedItem(myLastItem);
@@ -275,17 +275,17 @@ public class MarkdownSettingsForm implements MarkdownCssSettings.Holder, Markdow
   }
 
   private void updateUseGrayscaleEnabled() {
-    final BallerinaHtmlPanelProvider.ProviderInfo selected = getSelectedProvider();
+    final HtmlPanelProvider.ProviderInfo selected = getSelectedProvider();
     myUseGrayscaleRenderingForJBCheckBox.setEnabled(isProviderOf(selected, JAVA_FX_HTML_PANEL_PROVIDER));
   }
 
-  private static boolean isProviderOf(@NotNull BallerinaHtmlPanelProvider.ProviderInfo selected, @NotNull String provider) {
+  private static boolean isProviderOf(@NotNull HtmlPanelProvider.ProviderInfo selected, @NotNull String provider) {
     return selected.getClassName().contains(provider);
   }
 
   @NotNull
-  private static BallerinaHtmlPanelProvider getProvider(@SuppressWarnings("SameParameterValue") @NotNull String providerClass) {
-    for (BallerinaHtmlPanelProvider provider : BallerinaHtmlPanelProvider.getProviders()) {
+  private static HtmlPanelProvider getProvider(@SuppressWarnings("SameParameterValue") @NotNull String providerClass) {
+    for (HtmlPanelProvider provider : HtmlPanelProvider.getProviders()) {
       if (isProviderOf(provider.getProviderInfo(), providerClass)) return provider;
     }
 
@@ -293,7 +293,7 @@ public class MarkdownSettingsForm implements MarkdownCssSettings.Holder, Markdow
   }
 
   @NotNull
-  private BallerinaHtmlPanelProvider.ProviderInfo getSelectedProvider() {
+  private HtmlPanelProvider.ProviderInfo getSelectedProvider() {
     if (isMultipleProviders()) {
       return Objects.requireNonNull(myPreviewPanelModel.getSelected());
     }
@@ -318,7 +318,7 @@ public class MarkdownSettingsForm implements MarkdownCssSettings.Holder, Markdow
   @NotNull
   @Override
   public MarkdownPreviewSettings getMarkdownPreviewSettings() {
-    BallerinaHtmlPanelProvider.ProviderInfo provider = getSelectedProvider();
+    HtmlPanelProvider.ProviderInfo provider = getSelectedProvider();
 
     Objects.requireNonNull(provider);
     return new MarkdownPreviewSettings(mySplitLayoutModel.getSelectedItem(),
