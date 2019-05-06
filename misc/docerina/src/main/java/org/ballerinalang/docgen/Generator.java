@@ -27,14 +27,13 @@ import org.ballerinalang.docgen.generator.model.Constant;
 import org.ballerinalang.docgen.generator.model.DefaultableVarible;
 import org.ballerinalang.docgen.generator.model.Error;
 import org.ballerinalang.docgen.generator.model.Function;
+import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.Object;
 import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.Type;
 import org.ballerinalang.docgen.generator.model.UnionType;
 import org.ballerinalang.docgen.generator.model.Variable;
-import org.ballerinalang.docgen.model.AnnotationDoc;
-import org.ballerinalang.docgen.model.ConstantDoc;
 import org.ballerinalang.docgen.model.Documentable;
 import org.ballerinalang.docgen.model.EndpointDoc;
 import org.ballerinalang.docgen.model.Field;
@@ -81,6 +80,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -503,10 +503,20 @@ public class Generator {
 
         if (isEndpoint(objectType)) {
             module.clients.add(new Client(name, description, fields, functions));
+        } else if (isListener(objectType)) {
+            module.listeners.add(new Listener(name, description, fields, functions));
         } else {
             module.objects.add(new Object(name, description, fields, functions));
         }
+    }
 
+    private static boolean isListener(BLangObjectTypeNode objectType) {
+        AtomicBoolean isListener = new AtomicBoolean(false);
+        objectType.typeRefs.forEach((type) -> {
+            isListener.set((type instanceof BLangUserDefinedType)
+                    && ((BLangUserDefinedType) type).typeName.value.equals("AbstractListener"));
+        });
+        return isListener.get();
     }
 
     private static boolean isEndpoint(BLangObjectTypeNode objectType) {

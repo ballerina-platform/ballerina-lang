@@ -72,6 +72,21 @@
                 </table>
             {{/if}}
 
+            {{#if module.listeners}}
+                <h3><a name="listeners">Listeners</a></h3>
+                <div class="ui divider"></div>
+                <table>
+                    {{#each module.listeners}}
+                        <tr>
+                            <td class="module-title truncate listeners" id="{{name}}">
+                                <a class="listeners"
+                                   href="listeners/{{name}}.html">{{name}}</a></td>
+                            <td class="module-desc">{{{ description }}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            {{/if}}
+
             {{#if module.functions}}
                 <h3><a name="functions">Functions</a></h3>
                 <div class="ui divider"></div>
