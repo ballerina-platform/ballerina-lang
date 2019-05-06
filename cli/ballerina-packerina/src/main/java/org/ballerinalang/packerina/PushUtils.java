@@ -89,8 +89,8 @@ public class PushUtils {
         // Check if the Ballerina.toml exists
         if (Files.notExists(prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME))) {
             throw createLauncherException("Couldn't locate Ballerina.toml in the project directory. Run " +
-                                                     "'ballerina init' to create the Ballerina.toml file " +
-                                                     "automatically and re-run the 'ballerina push' command");
+                                                     "'jballerina init' to create the Ballerina.toml file " +
+                                                     "automatically and re-run the 'jballerina push' command");
         }
         Manifest manifest = TomlParserUtils.getManifest(prjDirPath);
         if (manifest.getName().isEmpty()) {
@@ -136,8 +136,8 @@ public class PushUtils {
                     enableExperimentalFeatures, false);
         } else if (Files.notExists(pkgPathFromPrjtDir)) {
             // If --no-build is given, first check if the module artifact exists. If it does not exist prompt the user
-            // to run "ballerina push" without the --no-build flag
-            throw createLauncherException("Couldn't locate the module artifact to be pushed. Run 'ballerina " +
+            // to run "jballerina push" without the --no-build flag
+            throw createLauncherException("Couldn't locate the module artifact to be pushed. Run 'jballerina " +
                                                      "push' without the --no-build flag");
         }
         

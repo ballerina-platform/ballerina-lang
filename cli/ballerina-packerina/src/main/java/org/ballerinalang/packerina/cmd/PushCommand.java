@@ -29,7 +29,7 @@ import static org.ballerinalang.packerina.cmd.Constants.PUSH_COMMAND;
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
- * This class represents the "ballerina push" command.
+ * This class represents the "jballerina push" command.
  *
  * @since 0.964
  */
@@ -107,7 +107,7 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina push <module-name> \n");
+        out.append("  jballerina push <module-name> \n");
     }
 
     @Override

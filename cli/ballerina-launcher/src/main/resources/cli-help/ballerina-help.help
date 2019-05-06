@@ -2,7 +2,7 @@ NAME
     Ballerina help - Display help information about ballerina
 
 SYNOPSIS
-    ballerina help [COMMAND]
+    jballerina help [COMMAND]
 
 DESCRIPTION
      With no COMMAND given, the synopsis of the ballerina command 
@@ -12,12 +12,12 @@ DESCRIPTION
      If a command is given, the help page for the given command 
      is printed. 
 
-     Note that ballerina ?, ballerina –h, and ballerina --help are  
-     identical to ballerina help. Those formats are internally 
-     converted into ballerina help.
+     Note that jballerina ?, jballerina –h, and jballerina --help are  
+     identical to jballerina help. Those formats are internally 
+     converted into jballerina help.
 
      ballerina command synopsis: 
-         ballerina [COMMAND] [options]
+         jballerina [COMMAND] [options]
 
      COMMAND is one of the available commands listed below:
          run        Run Ballerina program
@@ -42,7 +42,7 @@ OPTIONS
 
 EXAMPLES
      Look for help on how to use the ballerina command 
-     $ ballerina help 
+     $ jballerina help 
 
      Learn how to use the Ballerina run command  
-     $ ballerina help run
+     $ jballerina help run

@@ -274,16 +274,16 @@ public class Main {
             out.append("If a Ballerina source file or a module is given, \n");
             out.append("run command compiles and runs it. \n");
             out.append("\n");
-            out.append("By default, 'ballerina run' executes the main function. \n");
+            out.append("By default, 'jballerina run' executes the main function. \n");
             out.append("If the main function is not there, it executes services. \n");
             out.append("\n");
-            out.append("If the -s flag is given, 'ballerina run' executes\n");
+            out.append("If the -s flag is given, 'jballerina run' executes\n");
             out.append("services instead of the main function.\n");
         }
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  ballerina run [flags] <balfile | module-name | balxfile> [args...] \n");
+            out.append("  jballerina run [flags] <balfile | module-name | balxfile> [args...] \n");
         }
 
         @Override
@@ -389,7 +389,7 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  ballerina version\n");
+            out.append("  jballerina version\n");
         }
 
         @Override
@@ -476,7 +476,7 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  ballerina encrypt\n");
+            out.append("  jballerina encrypt\n");
         }
 
         @Override

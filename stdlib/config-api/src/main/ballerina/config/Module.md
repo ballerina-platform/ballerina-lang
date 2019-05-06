@@ -19,7 +19,7 @@ The Config API provides the capability to feed sensitive data (e.g., passwords) 
 To explicitly specify a configuration file, the `--config` or `-c` flag can be used. If this flag is not set when running a project, Ballerina looks for a `ballerina.conf` file in project root. When running a single file or a `.balx`, it's picked from the same directory as the `.balx` or source. The path to the configuration file can either be an absolute or a relative path. 
 
 ```sh
-ballerina run --config /path/to/conf/file/custom-config-file-name.conf my-program.bal
+jballerina run --config /path/to/conf/file/custom-config-file-name.conf my-program.bal
 ```
 
 A configuration file should conform to the TOML format. Ballerina only supports the following features of TOML: value types (string, int, float and boolean), tables, and nested tables. 
@@ -41,7 +41,7 @@ The following types can be given through a configuration file: `string`, `int`, 
 The same configs can be set using CLI parameters as follows.
 
 ```bash
-ballerina run -e b7a.http.tracelog.console=true -e b7a.http.tracelog.path=./trace.log
+jballerina run -e b7a.http.tracelog.console=true -e b7a.http.tracelog.path=./trace.log
   -e b7a.http.accesslog.console=true -e b7a.http.accesslog.path=./access.log my-program.bal
 ```
 
@@ -128,7 +128,7 @@ If the specified environment variable does not exist, it will will treat `@env:{
 Sensitive values can be encrypted using the `encrypt` command as follows:
 
 ```sh
-$ ballerina encrypt
+$ jballerina encrypt
 Enter value: 
 
 Enter secret: 
@@ -154,7 +154,7 @@ When trying to run a Ballerina program with a configuration file or CLI paramete
 If a secret file is not provided, the user is prompted to enter the secret. Values are decrypted only on demand when an encrypted value is looked up using the `getAsString()` function.
 
 ```bash
-$ ballerina run program.bal 
+$ jballerina run program.bal 
 ballerina: enter secret for config value decryption:
 ```
 

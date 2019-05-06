@@ -37,7 +37,7 @@ import java.util.List;
 
 
 /**
- * Test cases for ballerina init command.
+ * Test cases for jballerina init command.
  */
 public class InitHandlerTest {
     private Path tmpDir;

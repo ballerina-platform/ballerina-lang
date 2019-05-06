@@ -36,7 +36,7 @@ import java.nio.file.Paths;
  * This class tests invoking an entry function in a balx via the Ballerina Run Command and the data binding
  * functionality.
  *
- * e.g., ballerina run abc.balx:nomoremain 1 "Hello World" data binding main
+ * e.g., jballerina run abc.balx:nomoremain 1 "Hello World" data binding main
  *  where nomoremain is the following function
  *      public function nomoremain(int i, string s, string... args) {
  *          ...

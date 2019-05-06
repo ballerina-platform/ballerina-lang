@@ -57,7 +57,7 @@ public class ModuleInitTestCase extends BaseTest {
 
     @Test(description = "Test creating a project with a main in a module")
     public void testInitWithMainInModule() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("firstTestWithModulesMain");
         Files.createDirectories(projectPath);
 
@@ -70,7 +70,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
 
-        // Test ballerina build
+        // Test jballerina build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
@@ -78,16 +78,16 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
                 .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
 
-        // Test ballerina run
+        // Test jballerina run
         runMainFunction(projectPath, "foo");
 
-        // Test ballerina run with balx
+        // Test jballerina run with balx
         runMainFunction(projectPath, generatedBalx.toString());
     }
 
     @Test(description = "Test creating a project with a service in a module")
     public void testInitWithServiceInModule() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("firstTestWithModulesService");
         Files.createDirectories(projectPath);
 
@@ -101,7 +101,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(serviceBalPath));
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("hello_service_test.bal")));
 
-        // Test ballerina build
+        // Test jballerina build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
@@ -109,16 +109,16 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
                 .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
 
-        // Test ballerina run
+        // Test jballerina run
         runService(projectPath.resolve("foo").resolve("hello_service.bal"));
 
-        // Test ballerina run with balx
+        // Test jballerina run with balx
         runService(generatedBalx);
     }
 
     @Test(description = "Test creating a project with a service and main in different modules")
     public void testInitWithMainServiceInDiffmodule() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("secondTestWithmodules");
         Files.createDirectories(projectPath);
 
@@ -134,7 +134,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("bar").resolve("tests").resolve("hello_service_test.bal")));
 
-        // Test ballerina build
+        // Test jballerina build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
@@ -143,18 +143,18 @@ public class ModuleInitTestCase extends BaseTest {
                 .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
         Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
                 .resolve("bar").resolve("0.0.1").resolve("bar.zip")));
-        // Test ballerina run
+        // Test jballerina run
         runMainFunction(projectPath, "foo");
         runService(serviceBalPath);
 
-        // Test ballerina run with balx
+        // Test jballerina run with balx
         runMainFunction(projectPath, projectPath.resolve("target").resolve("foo.balx").toString());
         runService(projectPath.resolve("target").resolve("bar.balx"));
     }
 
     @Test(description = "Test creating a project without going to interactive mode")
     public void testInitWithoutGoingToInteractiveMode() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("testWithoutmodule");
         Files.createDirectories(projectPath);
 
@@ -171,16 +171,16 @@ public class ModuleInitTestCase extends BaseTest {
         Path generatedBalx = projectPath.resolve("target").resolve("hello_service.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
 
-        // Test ballerina run
+        // Test jballerina run
         runService(serviceBalPath);
 
-        // Test ballerina run with balx
+        // Test jballerina run with balx
         runService(generatedBalx);
     }
 
     @Test(description = "Test creating a project with a main without a module")
     public void testInitWithoutmodule() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("testWithoutmoduleForMain");
         Files.createDirectories(projectPath);
 
@@ -192,23 +192,23 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("main.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
 
-        // Test ballerina build
+        // Test jballerina build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("main.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
 
-        // Test ballerina run
+        // Test jballerina run
         runMainFunction(projectPath, projectPath.resolve("main.bal").toString());
 
-        // Test ballerina run with balx
+        // Test jballerina run with balx
         runMainFunction(projectPath, projectPath.resolve("target").resolve("main.balx").toString());
     }
 
     @Test(description = "Test running init without doing any changes on an already existing project",
             dependsOnMethods = "testInitWithMainInModule")
     public void testInitOnExistingProject() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("firstTestWithModulesMain");
         balClient.runMain("init", new String[0], envVariables, new String[0], new LogLeecher[]{},
                 projectPath.toString());
@@ -218,23 +218,23 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
         Assert.assertTrue(Files.exists(modulePath.resolve("tests").resolve("main_test.bal")));
 
-        // Test ballerina build
+        // Test jballerina build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
         Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
                 .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
-        // Test ballerina run
+        // Test jballerina run
         runMainFunction(projectPath, "foo");
 
-        // Test ballerina run with balx
+        // Test jballerina run with balx
         runMainFunction(projectPath, projectPath.resolve("target").resolve("foo.balx").toString());
     }
 
     @Test(description = "Test running init on an already existing project and create a new module",
             dependsOnMethods = "testInitWithMainInModule")
     public void testInitOnExistingProjectWithNewModule() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("firstTestWithModulesMain");
 
         String[] clientArgsForInit = {"-i"};
@@ -247,7 +247,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("main.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
 
-        // Test ballerina build
+        // Test jballerina build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("newpkg.balx")));
@@ -258,17 +258,17 @@ public class ModuleInitTestCase extends BaseTest {
                 .resolve("newpkg").resolve("0.0.1").resolve("newpkg.zip")));
 
 
-        // Test ballerina run on the new module
+        // Test jballerina run on the new module
         runMainFunction(projectPath, "newpkg");
 
-        // Test ballerina run with balx
+        // Test jballerina run with balx
         runMainFunction(projectPath, projectPath.resolve("target").resolve("newpkg.balx").toString());
     }
 
     @Test(description = "Test running init on an already existing project and create a new module with the same name " +
             "as existing module", dependsOnMethods = "testInitOnExistingProjectWithNewModule")
     public void testInitOnExistingProjectWithNewModuleWithSameName() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("firstTestWithModulesMain");
 
         String[] clientArgsForInit = {"-i"};
@@ -279,7 +279,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("anotherpkg").resolve("main.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("anotherpkg").resolve("tests").resolve("main_test.bal")));
 
-        // Test ballerina build
+        // Test jballerina build
         balClient.runMain("build", new String[]{"anotherpkg"}, envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("anotherpkg.balx")));
@@ -287,17 +287,17 @@ public class ModuleInitTestCase extends BaseTest {
                 .resolve("anotherpkg").resolve("0.0.1").resolve("anotherpkg.zip")));
 
 
-        // Test ballerina run on the new module
+        // Test jballerina run on the new module
         runMainFunction(projectPath, "anotherpkg");
 
-        // Test ballerina run with balx
+        // Test jballerina run with balx
         runMainFunction(projectPath, projectPath.resolve("target").resolve("anotherpkg.balx").toString());
     }
 
     @Test(description = "Test running init on an already existing module",
             dependsOnMethods = "testInitWithMainInModule")
     public void testInitInsideAModule() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("firstTestWithModulesMain").resolve("foo")
                                                .resolve("tests").resolve("newProj");
 
@@ -312,7 +312,7 @@ public class ModuleInitTestCase extends BaseTest {
     @Test(description = "Test running init on an already existing module",
             dependsOnMethods = "testInitWithMainInModule")
     public void testInitOutsideAProject() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         String[] clientArgsForInit = {"-i"};
         LogLeecher leecher = new LogLeecher("A ballerina project is already initialized in " +
                 tempProjectDirectory, LogLeecher.LeecherType.ERROR);
@@ -322,7 +322,7 @@ public class ModuleInitTestCase extends BaseTest {
 
     @Test(description = "Test creating a project with invalid options")
     public void testInitWithInvalidOptions() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("testsWithoutmodule");
         Files.createDirectories(projectPath);
 
@@ -337,7 +337,7 @@ public class ModuleInitTestCase extends BaseTest {
 
     @Test(description = "Test creating a project with invalid module")
     public void testInitWithInvalidModule() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("invalidTestWithmodule");
         Files.createDirectories(projectPath);
 
@@ -351,7 +351,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
         Assert.assertTrue(Files.exists(projectPath.resolve("foobar").resolve("tests").resolve("main_test.bal")));
 
-        // Test ballerina build
+        // Test jballerina build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foobar.balx");
@@ -359,16 +359,16 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
                 .resolve("foobar").resolve("0.0.1").resolve("foobar.zip")));
 
-        // Test ballerina run
+        // Test jballerina run
         runMainFunction(projectPath, "foobar");
 
-        // Test ballerina run with balx
+        // Test jballerina run with balx
         runMainFunction(projectPath, generatedBalx.toString());
     }
 
     @Test(description = "Test building a module in a project")
     public void testBuildmodule() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("testBuildmodule");
         Files.createDirectories(projectPath);
 
@@ -377,7 +377,7 @@ public class ModuleInitTestCase extends BaseTest {
         balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
                 projectPath.toString());
 
-        // Test ballerina build
+        // Test jballerina build
         balClient.runMain("build", new String[]{"foo"}, envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
 
@@ -388,7 +388,7 @@ public class ModuleInitTestCase extends BaseTest {
 
     @Test(description = "Test creating a project in the interactive mode by giving enter as the option")
     public void testInitPrjctWithoutOpts() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("projectWithoutOpts");
         Files.createDirectories(projectPath);
 

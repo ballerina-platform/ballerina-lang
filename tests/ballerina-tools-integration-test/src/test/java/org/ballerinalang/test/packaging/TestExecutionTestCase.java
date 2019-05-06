@@ -146,7 +146,7 @@ public class TestExecutionTestCase extends BaseTest {
     public void testExecutionMain() throws Exception {
         Path modulePath = tempProjectDirectory.resolve("foo").resolve("tests");
 
-        // Test ballerina test
+        // Test jballerina test
         String[] clientArgs = {"main_test.bal"};
         String msg = "Compiling tests\n" +
                 "     main_test.bal\n" +
@@ -174,7 +174,7 @@ public class TestExecutionTestCase extends BaseTest {
     public void testExecutionService() throws Exception {
         Path modulePath = tempProjectDirectory.resolve("bar").resolve("tests");
 
-        // Test ballerina test
+        // Test jballerina test
         String[] clientArgs = {"hello_service_test.bal"};
         String msg = "Compiling tests\n" +
                 "    hello_service_test.bal\n" +
@@ -200,7 +200,7 @@ public class TestExecutionTestCase extends BaseTest {
     public void testExecutionWithoutTests() throws Exception {
         Path modulePath = tempProjectDirectory.resolve("foo");
 
-        // Test ballerina test
+        // Test jballerina test
         String[] clientArgs = {"main.bal"};
         String msg = "Compiling tests\n" +
                 "    main.bal\n" +
@@ -225,7 +225,7 @@ public class TestExecutionTestCase extends BaseTest {
         Files.copy(tempProjectDirectory.resolve("foo").resolve("main.bal"), modulePath.resolve("main.bal"),
                    StandardCopyOption.REPLACE_EXISTING);
 
-        // Test ballerina test
+        // Test jballerina test
         String[] clientArgs = {"noTests"};
         String msg = "Compiling tests\n" +
                 "    integrationtests/noTests:0.0.1\n" +

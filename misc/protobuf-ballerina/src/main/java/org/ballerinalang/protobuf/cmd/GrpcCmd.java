@@ -60,7 +60,7 @@ import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.grantPermi
 
 /**
  * Class to implement "grpc" command for ballerina.
- * Ex: ballerina grpc  --proto_path (proto-file-path)  --exe_path (protoc-executor-path)
+ * Ex: jballerina grpc  --proto_path (proto-file-path)  --exe_path (protoc-executor-path)
  */
 @CommandLine.Command(
         name = "grpc",

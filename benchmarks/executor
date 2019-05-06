@@ -23,7 +23,7 @@ ballerina build benchmark
 for functionName in $(<benchmarkFunctions.txt)
     do
           export _JAVA_OPTIONS="-Xloggc:"$5gc_${functionName}.log""
-          ballerina run target/benchmark.balx $2 $3 ${functionName} | tr -d "\n" >> ${resultsFileName}
+          jballerina run target/benchmark.balx $2 $3 ${functionName} | tr -d "\n" >> ${resultsFileName}
           unset _JAVA_OPTIONS
 
           ## check whether there are any GC events.

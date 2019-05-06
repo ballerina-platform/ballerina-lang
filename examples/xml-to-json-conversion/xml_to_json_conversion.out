@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run xml_to_json_conversion.bal
+# `.bal` file and execute the `jballerina run` command.
+$ jballerina run xml_to_json_conversion.bal
 {"h:Store":{"@xmlns:h":"http://www.test.com", "@id":"AST", "h:name":
 {"@xmlns:h":"http://www.test.com", "#text":"Anne"}, "h:address":{"@xmlns:h":
 "http://www.test.com", "h:street":{"@xmlns:h":"http://www.test.com", "#text":

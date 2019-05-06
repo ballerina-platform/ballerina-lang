@@ -1,9 +1,9 @@
 # Make sure to have the RabbitMQ broker running.
 #
 # Navigate to the directory that contains the
-# 'rabbitmq-simple-consumer.bal' file and issue the 'ballerina run' command as follows..
+# 'rabbitmq-simple-consumer.bal' file and issue the 'jballerina run' command as follows..
 
-$ ballerina run rabbitmq-simple-consumer.bal
+$ jballerina run rabbitmq-simple-consumer.bal
 
 # The RabbitMQ consumer runs as a Ballerina service and listens to the subscribed queue.
 

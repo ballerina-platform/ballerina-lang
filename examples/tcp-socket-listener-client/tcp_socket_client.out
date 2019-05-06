@@ -1,6 +1,6 @@
 # To run the client, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run tcp_socket_client.bal
+# `.bal` file and use the `jballerina run` command.
+$ jballerina run tcp_socket_client.bal
 
 # `onConnect` invokes and prints the remote server port once the connection to the server is successful.
 Connect to: 61598

@@ -84,7 +84,7 @@ public class ImportModuleTestCase extends BaseTest {
             dependsOnMethods = "testResolveModulesFromProject")
     public void testResolveModules() throws BallerinaTestException, IOException {
         Path projPath = tempProjectDirectory.resolve("firstProj");
-        // ballerina install abc
+        // jballerina install abc
         balClient.runMain("install", new String[]{"abc"}, envVariables, new String[]{}, new LogLeecher[]{},
                           projPath.toString());
 
@@ -141,7 +141,7 @@ public class ImportModuleTestCase extends BaseTest {
             projPath.toFile());
         Files.createDirectories(projPath.resolve(".ballerina"));
 
-        // ballerina install abc
+        // jballerina install abc
         balClient.runMain("install", new String[]{"mod2"}, envVariables, new String[]{}, new LogLeecher[]{},
                           projPath.toString());
 
@@ -182,7 +182,7 @@ public class ImportModuleTestCase extends BaseTest {
                 projPath.toFile());
         Files.createDirectories(projPath.resolve(".ballerina"));
 
-        // ballerina install abc
+        // jballerina install abc
         balClient.runMain("install", new String[]{"mod2"}, envVariables, new String[]{}, new LogLeecher[]{},
                           projPath.toString());
 

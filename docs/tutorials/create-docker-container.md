@@ -35,7 +35,7 @@ This tutorial includes instructions of creating a Docker image using the followi
     ```
 1. Create the Docker image using the following command.
     ```
-    ballerina docker docker-service.bal
+    jballerina docker docker-service.bal
     ```
     If the above command succeeds you can see something similar to the following.
     ![alt text](../images/DockerImage1.png)
@@ -61,7 +61,7 @@ This tutorial includes instructions of creating a Docker image using the followi
 
 The Docker distribution for Ballerina is available on Docker Hub as ballerinalang/ballerina. To run a Ballerina package using the Ballerina Docker image, simply mount the folder containing the file to /ballerina/files folder inside the container. The following steps have instructions on how you can do this.
 
-1. Pull the ballerina docker image using the following command.
+1. Pull the jballerina docker image using the following command.
 	  ```
     docker pull ballerinalang/ballerina
     ```

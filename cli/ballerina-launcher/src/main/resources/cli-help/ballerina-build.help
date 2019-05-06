@@ -3,7 +3,7 @@ NAME
     outputs
 
 SYNOPSIS
-    ballerina build [-o <output>] [-c] [--offline] [--skiptests]
+    jballerina build [-o <output>] [-c] [--offline] [--skiptests]
         <balfile | module-name>
         
 DESCRIPTION
@@ -39,20 +39,20 @@ DEFAULT BEHAVIOR
 
 EXAMPLES
      Build hello source program 
-     $ ballerina build hello.bal
+     $ jballerina build hello.bal
      This will generate a hello.balx output binary file 
 
      Build hello module
-     $ ballerina build hello
+     $ jballerina build hello
      This will generate a hello.balx output binary file and place 
      within target folder
 
      Build math module with the output named calculate
-     $ ballerina build -o calculate math
+     $ jballerina build -o calculate math
      This will generate a calculate.balx output binary file and place 
      within target folder
 
      Build hello module by skipping test execution
-     $ ballerina build hello --skiptests
+     $ jballerina build hello --skiptests
      This will generate a hello.balx output binary file without test
      execution and place within target folder

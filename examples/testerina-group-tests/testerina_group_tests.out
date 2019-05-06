@@ -1,8 +1,8 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
+# `.bal` file and execute the `jballerina run` command.
 # Note that you need to have the ballerina-tools distribution
 # installed in order to run this command.
-$ ballerina test testerina_group_tests.bal --groups g1 --groups g2
+$ jballerina test testerina_group_tests.bal --groups g1 --groups g2
 Compiling tests
     testerina_group_tests.bal
 
@@ -17,7 +17,7 @@ I'm in test belonging to group g1!
         0 failing
         0 skipped
 
-$ ballerina test testerina_group_tests.bal --groups g1
+$ jballerina test testerina_group_tests.bal --groups g1
 Compiling tests
     testerina_group_tests.bal
 
@@ -32,7 +32,7 @@ I'm in test belonging to group g1!
         0 failing
         0 skipped
 
-$ ballerina test testerina_group_tests.bal --disable-groups g2
+$ jballerina test testerina_group_tests.bal --disable-groups g2
 Compiling tests
     testerina_group_tests.bal
 

@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run functions_with_rest_parameter.bal
+# `.bal` file and execute the `jballerina run` command.
+$ jballerina run functions_with_rest_parameter.bal
 Fruits:
 Fruits: Apples
 Available Fruits: Apples

@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run async.bal
+# `.bal` file and execute the `jballerina run` command.
+$ jballerina run async.bal
 SQ + CB = 737100
 false
 false

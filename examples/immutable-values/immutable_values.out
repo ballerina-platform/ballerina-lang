@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run immutable_values.bal
+# `.bal` file and execute the `jballerina run` command.
+$ jballerina run immutable_values.bal
 m1 === m2: true
 Frozen status of m1: true
 Error occurred on update: Invalid map insertion: modification not allowed on frozen value

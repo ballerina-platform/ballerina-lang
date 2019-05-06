@@ -152,7 +152,7 @@ public class LauncherUtils {
     public static BLauncherException createUsageExceptionWithHelp(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage("ballerina: " + errorMsg);
-        launcherException.addMessage("Run 'ballerina help' for usage.");
+        launcherException.addMessage("Run 'jballerina help' for usage.");
         return launcherException;
     }
 
@@ -411,7 +411,7 @@ public class LauncherUtils {
         }
 
         throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " + BLANG_EXEC_FILE_SUFFIX
-                                              + " files can be used with the 'ballerina run' command.");
+                                              + " files can be used with the 'jballerina run' command.");
     }
 
     private static int executeCompiledProgram(ProgramFile programFile, String[] args) {
@@ -483,14 +483,14 @@ public class LauncherUtils {
         ProgramFile programFile;
         if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
             throw createLauncherException("you are trying to run a module that is not inside " +
-                    "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                    "a project. Run `jballerina init` from " + sourceRootPath + " to initialize it as a " +
                     "project and then run the module.");
         }
         if (Files.exists(fullPath)) {
             if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
                 throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " +
                                                       BLANG_EXEC_FILE_SUFFIX + " files can be used with the " +
-                                                      "'ballerina run' command.");
+                                                      "'jballerina run' command.");
             }
         } else {
             throw createLauncherException("ballerina source does not exist '" + srcPathStr + "'");
@@ -501,7 +501,7 @@ public class LauncherUtils {
         if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
                 sourcePath.getParent() != null) {
             throw createLauncherException("you are trying to run a ballerina file inside a module within a " +
-                                                  "project. Try running 'ballerina run <module-name>'");
+                                                  "project. Try running 'jballerina run <module-name>'");
         }
         programFile = compile(sourceRootPath, sourcePath, offline, siddhiRuntimeFlag, experimentalFlag);
         return programFile;

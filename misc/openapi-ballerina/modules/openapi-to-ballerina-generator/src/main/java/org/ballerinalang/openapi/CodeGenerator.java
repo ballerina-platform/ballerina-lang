@@ -74,7 +74,7 @@ public class CodeGenerator {
             throws IOException, BallerinaOpenApiException {
         if (!CodegenUtils.isBallerinaProject(Paths.get(outPath))) {
             throw new BallerinaOpenApiException("Output path is not a valid ballerina project directory. Use "
-                    + "'ballerina init' to generate a new project");
+                    + "'jballerina init' to generate a new project");
         }
 
         Path srcPath = CodegenUtils.getSourcePath(srcPackage, outPath);

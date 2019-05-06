@@ -45,7 +45,7 @@ Follow the steps given below to run the sample:
    ```
 2. Navigate to the directory where the `math.bal` file is saved via the terminal and run the file using the command given below.
 
-   `ballerina run math.bal`
+   `jballerina run math.bal`
   
    The following output is given for each function that was used in the `math.bal` file.
 

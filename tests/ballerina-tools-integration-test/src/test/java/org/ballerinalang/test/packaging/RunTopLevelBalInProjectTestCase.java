@@ -49,13 +49,13 @@ public class RunTopLevelBalInProjectTestCase extends BaseTest {
 
     @Test(description = "Test running a top level bal file inside a project")
     public void testRunningBalInsideProject() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         String[] options = {"\n", "\n", "\n", "m\n", "\n", "f\n"};
         balClient.runMain("init", new String[]{"-i"}, envVariables, options, new LogLeecher[]{},
                           tempProjectDirectory.toString());
         Assert.assertTrue(Files.exists(tempProjectDirectory.resolve("main.bal")));
 
-        // Test ballerina run by giving the file name of the bal file along with for forward slash in Ubuntu and Mac
+        // Test jballerina run by giving the file name of the bal file along with for forward slash in Ubuntu and Mac
         // and backward slash in Windows
         // Source path with forward slash for Ubuntu and Mac OS
         String sourcePath = "./main.bal";
@@ -69,7 +69,7 @@ public class RunTopLevelBalInProjectTestCase extends BaseTest {
                           new LogLeecher[]{logLeecher}, tempProjectDirectory.toString());
         logLeecher.waitForText(2000);
 
-        // Test ballerina run by giving the file name of the bal file
+        // Test jballerina run by giving the file name of the bal file
         balClient.runMain("run", new String[]{"main.bal"}, envVariables, new String[0],
                           new LogLeecher[]{logLeecher}, tempProjectDirectory.toString());
         logLeecher.waitForText(2000);

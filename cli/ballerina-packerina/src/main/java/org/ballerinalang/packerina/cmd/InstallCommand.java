@@ -28,7 +28,7 @@ import java.util.List;
 import static org.ballerinalang.packerina.cmd.Constants.INSTALL_COMMAND;
 
 /**
- * This class represents the "ballerina install" command.
+ * This class represents the "jballerina install" command.
  *
  * @since 0.90
  */
@@ -83,7 +83,7 @@ public class InstallCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina install <module-name> \n");
+        out.append("  jballerina install <module-name> \n");
     }
 
     @Override

@@ -3,7 +3,7 @@ NAME
     test results.
 
 SYNOPSIS
-    ballerina test [-lg|--list-groups] [--groups <test_group, ...>] 
+    jballerina test [-lg|--list-groups] [--groups <test_group, ...>] 
         [--disable-groups <test_group, ...>] [--sourceroot <path>]
         [-e] [--debug <port>] [-c <config_file>]
         [--exclude-modules <modules, ...>]
@@ -16,13 +16,13 @@ DESCRIPTION
     execute tests in a single test file, a test module, or an
     entire Ballerina project.
     
-    Use ballerina test without any parameters to execute tests for 
+    Use jballerina test without any parameters to execute tests for 
     the entire project.
     
-    Use ballerina test <module-name> to execute tests within the
+    Use jballerina test <module-name> to execute tests within the
     specified module.
     
-    Use ballerina test <balfile> to execute the given Ballerina test 
+    Use jballerina test <balfile> to execute the given Ballerina test 
     file. Note that imports from other modules will not work for
     file executions. File path can be a relative or absolute.
 
@@ -88,18 +88,18 @@ OPTIONS
 
 EXAMPLES
      Run all tests in the current project
-     $ ballerina test
+     $ jballerina test
 
      Run all tests in hello_service_test.bal  
-     $ ballerina test hello_service_test.bal 
+     $ jballerina test hello_service_test.bal 
 
      Run tests in math module
-     $ ballerina test math
+     $ jballerina test math
 
      List all test groups in all Ballerina source files in 
      tests 
-     $ ballerina test -lg tests 
+     $ jballerina test -lg tests 
 
      Run only the set of tests belonging to group_x in all Ballerina 
      source files in tests 
-     $ ballerina test --groups group_x  tests
+     $ jballerina test --groups group_x  tests

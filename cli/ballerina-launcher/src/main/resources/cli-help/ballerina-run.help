@@ -3,7 +3,7 @@ NAME
     binaries, or modules
 
 SYNOPSIS
-     ballerina run [-e] [--offline] [--observe]
+     jballerina run [-e] [--offline] [--observe]
          [--sourceroot] [-c|--config] [-B]
          <balfile | module-name | balxfile>[:function] [args...]
 
@@ -89,16 +89,16 @@ DEFAULT BEHAVIOR
 
 EXAMPLES
      Run the 'main' function and/or services in the hello source program
-     $ ballerina run hello.bal
+     $ jballerina run hello.bal
 
      Run the 'main' function and/or services in the hello binary program
-     $ ballerina run hello.balx
+     $ jballerina run hello.balx
 
      Run the 'main' function and/or services in the hello module
-     $ ballerina run hello
+     $ jballerina run hello
 
      Run the 'main' function in the math module with three program args:
      add, 10 and 5. If the second and third parameters of the 'main'
      function are of types int and int, the second and third arguments
      would be passed as integer values 10 and 5
-     $ ballerina run math add 10 5
+     $ jballerina run math add 10 5

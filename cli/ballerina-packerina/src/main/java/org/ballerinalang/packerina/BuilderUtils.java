@@ -181,7 +181,7 @@ public class BuilderUtils {
     private static void runTests(Compiler compiler, Path sourceRootPath, List<BLangPackage> packageList) {
         Map<BLangPackage, CompiledBinaryFile.ProgramFile> programFileMap = new HashMap<>();
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
-        // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
+        // as "." are ignored. This is to be consistent with the "jballerina test" command which only executes tests
         // in packages.
         packageList.stream().filter(bLangPackage -> !bLangPackage.packageID.getName().equals(Names.DEFAULT_PACKAGE))
                    .forEach(bLangPackage -> {

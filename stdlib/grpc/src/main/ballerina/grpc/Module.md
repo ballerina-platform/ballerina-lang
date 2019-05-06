@@ -37,7 +37,7 @@ The client and server send multiple requests and responses.
 
 Using below command to generate stub and sample code.
 ```
-#ballerina grpc --input [proto_file] --output [output_directory] --mode [service/client]
+#jballerina grpc --input [proto_file] --output [output_directory] --mode [service/client]
 ```
 #### Options ####
 

@@ -28,7 +28,7 @@ import java.util.List;
 import static org.ballerinalang.packerina.cmd.Constants.UNINSTALL_COMMAND;
 
 /**
- * This class represents the "ballerina uninstall" command.
+ * This class represents the "jballerina uninstall" command.
  *
  * @since 0.90
  */
@@ -74,7 +74,7 @@ public class UninstallCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina uninstall <module-name> \n");
+        out.append("  jballerina uninstall <module-name> \n");
     }
 
     @Override

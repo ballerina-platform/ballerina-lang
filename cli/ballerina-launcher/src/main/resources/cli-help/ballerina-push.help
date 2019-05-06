@@ -2,7 +2,7 @@ NAME
     Ballerina push - Upload modules to Ballerina Central
 
 SYNOPSIS
-    ballerina push <module-name> [--no-build]
+    jballerina push <module-name> [--no-build]
     [--repository home]
 
 DESCRIPTION
@@ -32,14 +32,14 @@ OPTIONS
 
       --repository home
            Push the module to the home repository. This is an alias
-           to the 'ballerina install' command
+           to the 'jballerina install' command
 
 EXAMPLES
      Push math module to Ballerina Central after building it
-     $ ballerina push math
+     $ jballerina push math
 
      Push math module to Ballerina Central without building it
-     $ ballerina push math --no-build
+     $ jballerina push math --no-build
 
       Push math module to the home repository after building it
-      $ ballerina push math --repository home
+      $ jballerina push math --repository home

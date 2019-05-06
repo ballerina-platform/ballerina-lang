@@ -29,7 +29,7 @@ import java.io.File;
  * This class tests invoking an entry function in a package via the Ballerina Run Command and the data binding
  * functionality.
  *testInvalidSourceArg:
- * e.g., ballerina run abc:nomoremain 1 "Hello World" data binding main
+ * e.g., jballerina run abc:nomoremain 1 "Hello World" data binding main
  *  where nomoremain is the following function
  *      public function nomoremain(int i, string s, string... args) {
  *          ...

@@ -30,7 +30,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 /**
- * Utilities used by ballerina openapi code generator.
+ * Utilities used by jballerina openapi code generator.
  */
 public class CodegenUtils {
 

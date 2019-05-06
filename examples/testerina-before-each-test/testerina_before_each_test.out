@@ -1,8 +1,8 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
+# `.bal` file and execute the `jballerina run` command.
 # Note that you need to have the ballerina-tools distribution
 # installed in order to run this command.
-$ ballerina test testerina_before_each_test.bal
+$ jballerina test testerina_before_each_test.bal
 Compiling tests
     testerina_before_each_test.bal
 

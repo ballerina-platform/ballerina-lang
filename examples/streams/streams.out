@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run --experimental streams.bal
+# `.bal` file and execute the `jballerina run` command.
+$ jballerina run --experimental streams.bal
 Employee event received for Employee Name: Jane
 Employee event received for Employee Name: Anne
 Employee event received for Employee Name: John

@@ -2,7 +2,7 @@ NAME
     Ballerina pull - Download modules from Ballerina Central
 
 SYNOPSIS
-    ballerina pull <org-name>/<module-name>[:version]
+    jballerina pull <org-name>/<module-name>[:version]
 
 DESCRIPTION
      Downloads the given module from Ballerina Central
@@ -15,7 +15,7 @@ OPTIONS
 
 EXAMPLES
      Download Gmail connector by WSO2 from Ballerina Central 
-     $ ballerina pull wso2/gmail
+     $ jballerina pull wso2/gmail
 
      Download Bar module by Foo organization from Ballerina Central
-     $ ballerina pull foo/bar
+     $ jballerina pull foo/bar

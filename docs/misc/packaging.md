@@ -87,27 +87,27 @@ repository-directory/
 
 ## Creating Ballerina archives
 
-You can execute Ballerina programs directly from the program directory. However, if you want to create a self-contained package containing all the program code and third-party dependencies, you must build the program into a packaged format. When a program is packaged using the `ballerina build` command, the resulting archive will contain not just the Ballerina files that contain the main function and/or services, but also all the Ballerina packages that are imported by all the code needed to execute the main function and/or services. If you want to host a Ballerina program in [WSO2 Integration Cloud](http://wso2.com/integration), you build a Ballerina service archive (`.bsz`) as described below and upload it to the Cloud. 
+You can execute Ballerina programs directly from the program directory. However, if you want to create a self-contained package containing all the program code and third-party dependencies, you must build the program into a packaged format. When a program is packaged using the `jballerina build` command, the resulting archive will contain not just the Ballerina files that contain the main function and/or services, but also all the Ballerina packages that are imported by all the code needed to execute the main function and/or services. If you want to host a Ballerina program in [WSO2 Integration Cloud](http://wso2.com/integration), you build a Ballerina service archive (`.bsz`) as described below and upload it to the Cloud. 
 
 To create an archive, take the following steps:
 
 1. Make sure the Ballerina files you are archiving each have the correct package declaration at the top of the file and are in a directory structure that reflects that package path as described at the top of this page. 
 1. Open a command prompt and navigate to the directory **above** the package root directory. For example, for the StockQuoteService example described at the top of this page, if the `myProgram` directory is in the root C:\ directory on Windows, you would navigate to C:\ at the command line.
-1. Use one of the following `ballerina build` commands to create the archive. The syntax below assumes the Ballerina `bin` directory is in your path. If it is not, specify its path before the `ballerina` command. For example, if your Ballerina home directory is `C:\Ballerina_Home` on Windows, you would type `C:\Ballerina_Home\bin\ballerina build` followed by the options.
+1. Use one of the following `jballerina build` commands to create the archive. The syntax below assumes the Ballerina `bin` directory is in your path. If it is not, specify its path before the `ballerina` command. For example, if your Ballerina home directory is `C:\Ballerina_Home` on Windows, you would type `C:\Ballerina_Home\bin\jballerina build` followed by the options.
 
 To build a Ballerina **executable** archive containing a `main()` function, use the following command to build the `.bmz` file:
 ```
-ballerina build main <main-package-name> [-o filename] 
+jballerina build main <main-package-name> [-o filename] 
 ```
 
 To build a Ballerina **service** archive containing one or more services, use the following command to build the `.bsz` file:
 ```
-ballerina build service <pkg1> [<pkg2> <pkg3> ...] [-o filename]
+jballerina build service <pkg1> [<pkg2> <pkg3> ...] [-o filename]
 ```
 
-**Note:** When specifying the package names in the `ballerina build` command, delineate them with slashes instead of periods, such as `org/foo/bar` instead of `org.foo.bar`. If you do not specify a name for the archive file using the `-o` flag, the archive will be named after the last part of the package name. 
+**Note:** When specifying the package names in the `jballerina build` command, delineate them with slashes instead of periods, such as `org/foo/bar` instead of `org.foo.bar`. If you do not specify a name for the archive file using the `-o` flag, the archive will be named after the last part of the package name. 
 
-For example, to archive the StockQuoteService described at the top of this page as a file called `StockQuoteService.bsz`, you would navigate to the C:\ directory and type: `ballerina build service myProgram/services -o StockQuoteService.bsz`
+For example, to archive the StockQuoteService described at the top of this page as a file called `StockQuoteService.bsz`, you would navigate to the C:\ directory and type: `jballerina build service myProgram/services -o StockQuoteService.bsz`
 
 For a tutorial on creating archives, see [Create an Archive of your Program](../tutorials/create-archive.md).
 
@@ -119,28 +119,28 @@ The `ballerina` command runs a Ballerina program/service in its packaged or unpa
 To execute `main()` from a `.bal` file or a package or archive file:
 
 ```
-ballerina run (filename | packagename | mainarchive)
+jballerina run (filename | packagename | mainarchive)
 ```
 
 To run named services:
 
 ```
-ballerina run (filename | packagename | servicearchive)+
+jballerina run (filename | packagename | servicearchive)+
 ```
 
 To run a collection of service archives from service root:
 
 ```
-ballerina run [-sr serviceroot]
+jballerina run [-sr serviceroot]
 ```
 
 ## Creating and running a Docker image of the archive
 After you have built an archive, you can create a Docker image of it and run it in the container. 
 
-To create a Docker image from a Ballerina package, you run `ballerina docker` and provide the package name as an argument:
+To create a Docker image from a Ballerina package, you run `jballerina docker` and provide the package name as an argument:
 
 ```
-ballerina docker helloWorld.bmz
+jballerina docker helloWorld.bmz
 ballerina: build docker image [helloworld:latest] in docker host [localhost]? (y/n): y
 
 ballerina: docker image helloworld:latest successfully built.
@@ -153,7 +153,7 @@ Use the following command to start a container.
 You can additionally provide a customized image name:
 
 ```
-ballerina docker helloWorld.bmz -t myhelloworld:0.1
+jballerina docker helloWorld.bmz -t myhelloworld:0.1
 ballerina: build docker image [myhelloworld:0.1] in docker host [localhost]? (y/n): y
 
 ballerina: docker image myhelloworld:0.1 successfully built.
@@ -166,7 +166,7 @@ Use the following command to start a container.
 If you want to use a remote Docker daemon, you can specify it using the -H flag so the Docker image is created at the remote end:
 
 ```
-ballerina docker helloWorld.bmz -H http://127.0.0.1:2375
+jballerina docker helloWorld.bmz -H http://127.0.0.1:2375
 ballerina: build docker image [myhelloworld:0.1] in docker host [http://127.0.0.1:2375]? (y/n): y
 
 ballerina: docker image helloworld:latest successfully built.
@@ -175,4 +175,4 @@ Use the following command to start a container.
         docker run --name future_aquarium -it helloworld:latest
 ```
 
-For more information on the usage of this command, type `ballerina docker --help`.
+For more information on the usage of this command, type `jballerina docker --help`.

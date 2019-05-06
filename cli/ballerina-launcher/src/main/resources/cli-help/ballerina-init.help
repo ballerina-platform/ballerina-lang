@@ -2,7 +2,7 @@ NAME
     Ballerina init - Initializes a Ballerina project
 
 SYNOPSIS
-    ballerina init [-i|--interactive]
+    jballerina init [-i|--interactive]
 
 DESCRIPTION
      Ballerina init creates an initial project structure for you to 
@@ -33,12 +33,12 @@ OPTIONS
 
 EXAMPLES
      Initialize a project 
-     $ ballerina init
+     $ jballerina init
      
      Optionally, if you want to get a clean start 
      $ mkdir myproj
      $ cd myproj
-     $ ballerina init
+     $ jballerina init
      $ ls *
      Ballerina.toml     hello_service.bal
 

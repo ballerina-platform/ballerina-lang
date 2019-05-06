@@ -165,8 +165,8 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         }
 
         // Checks for either shell script or batch file, since the shell script recognition error in windows.
-        String balShellScript = Paths.get(sdkPath, "bin", "ballerina").toString();
-        String balBatchScript = Paths.get(sdkPath, "bin", "ballerina.bat").toString();
+        String balShellScript = Paths.get(sdkPath, "bin", "jballerina").toString();
+        String balBatchScript = Paths.get(sdkPath, "bin", "jballerina.bat").toString();
         String launcherShellScript = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.sh").toString();
         String launcherBatchScript = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.bat").toString();
         return (new File(balShellScript).exists() || new File(balBatchScript).exists())

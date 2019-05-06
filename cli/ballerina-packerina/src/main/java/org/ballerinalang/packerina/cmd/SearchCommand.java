@@ -29,7 +29,7 @@ import static org.ballerinalang.packerina.cmd.Constants.SEARCH_COMMAND;
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
- * This class represents the "ballerina search" command.
+ * This class represents the "jballerina search" command.
  *
  * @since 0.964
  */
@@ -83,7 +83,7 @@ public class SearchCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append(" ballerina search [<org>|<module>|<text>] \n");
+        out.append(" jballerina search [<org>|<module>|<text>] \n");
     }
 
     @Override

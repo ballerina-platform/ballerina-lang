@@ -19,11 +19,11 @@ Docerina is distributed with [Ballerina Tools Distribution](https://github.com/b
 Ballerina doc command can be used to generate the API documentation for your Ballerina programs.
 
 ```sh
-$ ballerina doc --help
+$ jballerina doc --help
 generate Ballerina API documentation
 
 Usage:
-ballerina doc <sourcepath>... [-t templatesdir] [-o outputdir] [-n] [-e excludedmodules] [-v]
+jballerina doc <sourcepath>... [-t templatesdir] [-o outputdir] [-n] [-e excludedmodules] [-v]
   sourcepath:
   Paths to the directories where Ballerina source files reside or a path to
   a Ballerina file which does not belong to a module
@@ -40,27 +40,27 @@ Flags:
 
 **Example 1:** Generate API documentation for the given Ballerina source directories and files. This would generate API documentation at `{currentdir}/api-docs/html/` directory:
 ```sh
-$ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal
+$ jballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal
 ```
 **Example 2:** Generate API documentation for the given Ballerina source directories and files and copy them to the `{currentdir}/docs` directory:
 ```sh
-$ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs
+$ jballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs
 ```
 **Example 3:** Generate API documentation for the given Ballerina source directories and files, excluding `org.wso2.ballerina.connectors.twitter` module and copy them to the `{currentdir}/docs` directory:
 ```sh
-$ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs -e org.wso2.ballerina.connectors.twitter
+$ jballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs -e org.wso2.ballerina.connectors.twitter
 ```
 **Example 4:** Generate API documentation for the given Ballerina source directories and files and copy them to the `{currentdir}/docs` directory while printing debug level logs of Docerina to the STDOUT:
 ```sh
-$ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs -v
+$ jballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs -v
 ```
 **Example 5:** Generate API documentation for the given native Ballerina source directories:
 ```sh
-$ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ -n
+$ jballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ -n
 ```
 **Example 6:** Generate API documentation using a custom templates folder:
 ```sh
-$ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ -t custom-templates
+$ jballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ -t custom-templates
 ```
 
 ## Using Docerina Maven Plugin
@@ -159,8 +159,8 @@ Follow below steps to setup a Docerina development environment:
   cd ballerina
   mvn clean install
   cd modules/distribution/target/
-  unzip ballerina-<version>.zip
-  cd ballerina-<version> # Refer this as [ballerina-home]
+  unzip jballerina-<version>.zip
+  cd jballerina-<version> # Refer this as [ballerina-home]
   ```
 
 - Clone the Docerina Git repository:
@@ -183,7 +183,7 @@ Follow below steps to setup a Docerina development environment:
   
   ```
   cd [ballerina-home]/bin
-  ./ballerina doc [ballerina-module-path] # absolute file path of the ballerina source module
+  ./jballerina doc [ballerina-module-path] # absolute file path of the ballerina source module
   ```
   
 - Execute the below command to attach a remote debugging session to debug Docerina:

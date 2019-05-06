@@ -155,7 +155,7 @@ public class InitCommand implements BLauncherCmd {
                     // with the non-interactive implementation.
                     if (firstPrompt) {
                         // Here if the user presses enter or "s" a service will be created (This will have the same
-                        // behavior as running ballerina init without the interactive mode)
+                        // behavior as running jballerina init without the interactive mode)
                         out.print("Ballerina source [service/s, main/m, finish/f]: (s) ");
                     } else {
                         // Following will be prompted after the first prompt
@@ -285,7 +285,7 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina init [-i] \n");
+        out.append("  jballerina init [-i] \n");
     }
 
     /**

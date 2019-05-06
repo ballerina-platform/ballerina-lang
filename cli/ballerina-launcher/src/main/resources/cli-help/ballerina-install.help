@@ -2,7 +2,7 @@ NAME
     Ballerina install - Install module to home repository
 
 SYNOPSIS
-    ballerina install <module-name> [--no-build]
+    jballerina install <module-name> [--no-build]
 
 DESCRIPTION
      Installs the given module from project repository to home
@@ -21,7 +21,7 @@ DEFAULT BEHAVIOR
 
 EXAMPLES
      Install math module after building it
-     $ ballerina install math 
+     $ jballerina install math 
      This will place the current version of the module (assume 0.0.1)
      on a Mac or Linux machine in 
      ~/.ballerina/repo/user_name/math/0.0.1/math.zip 
@@ -29,4 +29,4 @@ EXAMPLES
      \User\user_name\.ballerina\repo\user_name\math\0.0.1\math.zip
 
      Install math module without building it
-     $ ballerina install math --no-build
+     $ jballerina install math --no-build

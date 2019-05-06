@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Executes a ballerina doc command
+# Executes a jballerina doc command
 #
 # + moduleList - List of modules
 # + outputPath - Path to write api-docs

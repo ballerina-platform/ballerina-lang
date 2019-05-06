@@ -8,7 +8,7 @@ function startService() {
     //serviceStarted = test:startServices("config-api");
 }
 
-// Execute this test as ballerina test config-api -e hello.keystore.password=@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}
+// Execute this test as jballerina test config-api -e hello.keystore.password=@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}
 // then enter 12345 as the secret
 @test:Config {
     before: "startService",

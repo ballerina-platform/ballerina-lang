@@ -4,7 +4,7 @@ NAME
     Ballerina service.
 
 SYNOPSIS
-    ballerina openapi [gen-service|gen-client] <openapifile>
+    jballerina openapi [gen-service|gen-client] <openapifile>
         [-m <module-name>|--module <module-name>]
         [-o <path>|--output<path>]
     
@@ -71,11 +71,11 @@ DEFAULT BEHAVIOR
 EXAMPLES
     Generate a Ballerina mock service with module name hellomock
     and write the output to the service_project folder 
-    $ ballerina openapi gen-service hello.yaml -m hellomock -o service_project
+    $ jballerina openapi gen-service hello.yaml -m hellomock -o service_project
 
     Generate a Ballerina client with module name helloclient
     and write the output to the client_project folder
-    $ ballerina openapi gen-client hello.yaml -m helloclient -o client_project
+    $ jballerina openapi gen-client hello.yaml -m helloclient -o client_project
 
     Export a OpenApi definition for hello_service.bal
-    $ ballerina openapi export hello_service.bal -o project
+    $ jballerina openapi export hello_service.bal -o project

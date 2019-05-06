@@ -2,7 +2,7 @@ NAME
     Ballerina encrypt - Encrypt sensitive configuration values 
     
 SYNOPSIS
-    ballerina encrypt 
+    jballerina encrypt 
 
 DESCRIPTION
      Encrypt command performs symmetric encryption of sensitive 
@@ -32,4 +32,4 @@ DEFAULT BEHAVIOUR
 
 EXAMPLES
      Encrypt sensitive data
-     $ ballerina encrypt
+     $ jballerina encrypt

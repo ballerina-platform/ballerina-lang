@@ -52,8 +52,8 @@ public class TesterinaCompilationNegativeTest {
                            new Path[]{Paths.get("unreachable_code.bal")}, new ArrayList<>());
     }
 
-    @Test(description = "test proper compilation failure with ballerina test when the non-zeroth module of a project " +
-            "contains errors")
+    @Test(description = "test proper compilation failure with jballerina test when the non-zeroth module of a project "
+            + "contains errors")
     public void testMultiModuleProjectCompilationError() throws IOException {
         boolean expectedExceptionThrown = false;
         String sourceRoot = "src/test/resources/compilationnegative/multi-module-project";

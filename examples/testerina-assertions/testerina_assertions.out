@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina test testerina_assertions.bal
+# `.bal` file and execute the `jballerina run` command.
+$ jballerina test testerina_assertions.bal
 Compiling tests
     testerina_assertions.bal
 

@@ -2,7 +2,7 @@ NAME
     Ballerina doc - Generate API documentation
 
 SYNOPSIS
-    ballerina doc [-t|--template] [--sourceroot <path>] 
+    jballerina doc [-t|--template] [--sourceroot <path>] 
         [-o <path>|--output <path>] [-n|--native]
         [-e <module, ...>|--exclude <module, ...>]
         [-c <path>|--config <path>] [-v|--verbose] [-e] 
@@ -66,14 +66,14 @@ OPTIONS
 
 EXAMPLES
      Generate API documentation for current project 
-     $ ballerina doc
+     $ jballerina doc
 
      Generate API documentation for hello_service.bal 
-     $ ballerina doc hello_service.bal 
+     $ jballerina doc hello_service.bal 
 
      Generate API documentation for hello_service.bal and write 
      output to docs folder
-     $ ballerina doc -o docs hello_service.bal 
+     $ jballerina doc -o docs hello_service.bal 
 
      Generate API documentation for math module
-     $ ballerina doc math
+     $ jballerina doc math

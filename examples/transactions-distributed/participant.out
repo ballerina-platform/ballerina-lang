@@ -1,7 +1,7 @@
 # To start the `participant` service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
+# `.bal` file and use the `jballerina run` command.
 #Run this command to start the `participant` service.
-$ ballerina run  --experimental participant.bal
+$ jballerina run  --experimental participant.bal
 [ballerina/http] started HTTP/WS endpoint 10.100.1.182:54774
 [ballerina/http] started HTTP/WS endpoint localhost:8889
 

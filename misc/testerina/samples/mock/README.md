@@ -1,8 +1,8 @@
 #### Running mock sample
-- Download ```ballerina-tools-<VERSION>.zip``` distribution and unzip.  
+- Download ```jballerina-tools-<VERSION>.zip``` distribution and unzip.  
 - Set ballerina to executable path.  
 - Navigate to sample directory. 
-- Now execute ballerina init command 
-```> ballerina init```
+- Now execute jballerina init command 
+```> jballerina init```
 - Now execute the test
-```> ballerina test```
+```> jballerina test```

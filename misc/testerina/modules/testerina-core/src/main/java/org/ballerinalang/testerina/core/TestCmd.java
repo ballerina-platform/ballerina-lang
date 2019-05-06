@@ -102,7 +102,7 @@ public class TestCmd implements BLauncherCmd {
             // Check if the source root is a project. If the source root is not a project, then throw an error.
             if (!isBallerinaProject(sourceRootPath)) {
                 throw LauncherUtils.createLauncherException("you are trying to execute tests in a directory that is " +
-                        "not a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                        "not a project. Run `jballerina init` from " + sourceRootPath + " to initialize it as a " +
                         "project and then execute the tests.");
             }
             srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
@@ -124,7 +124,7 @@ public class TestCmd implements BLauncherCmd {
             // Check if the source root is a project. If the source root is not a project, then throw an error.
             if (!isBallerinaProject(sourceRootPath)) {
                 throw LauncherUtils.createLauncherException("you are trying to execute tests in a module that is not " +
-                        "inside a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                        "inside a project. Run `jballerina init` from " + sourceRootPath + " to initialize it as a " +
                         "project and then execute the tests.");
             }
             srcDirectory = new FileSystemProjectDirectory(sourceRootPath);

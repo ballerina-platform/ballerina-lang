@@ -83,7 +83,7 @@ public class PackagingTestCase extends BaseTest {
         datePushed = dtf.format(LocalDateTime.now());
 
         // First try to push with the --no-build flag
-        String firstMsg = "error: Couldn't locate the module artifact to be pushed. Run 'ballerina push' " +
+        String firstMsg = "error: Couldn't locate the module artifact to be pushed. Run 'jballerina push' " +
                 "without the --no-build flag";
         LogLeecher clientLeecher = new LogLeecher(firstMsg, LeecherType.ERROR);
         balClient.runMain("push", new String[]{moduleName, "--no-build"}, envVariables, new String[]{},
@@ -151,7 +151,7 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test push all packages in project to central")
     public void testPushAllPackages() throws Exception {
-        // Test ballerina init
+        // Test jballerina init
         Path projectPath = tempProjectDirectory.resolve("pushAllPackageTest");
         Files.createDirectories(projectPath);
 

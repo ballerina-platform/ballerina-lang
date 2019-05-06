@@ -39,7 +39,7 @@ import static org.ballerinalang.packerina.cmd.Constants.PULL_COMMAND;
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
- * This class represents the "ballerina pull" command.
+ * This class represents the "jballerina pull" command.
  *
  * @since 0.964
  */
@@ -140,7 +140,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina pull <module-name> \n");
+        out.append("  jballerina pull <module-name> \n");
     }
 
     @Override

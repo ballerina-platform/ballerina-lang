@@ -20,23 +20,23 @@ export function detectBallerinaHome(): string {
                 return process.env.BALLERINA_HOME;
             }
             try {
-                balHome = execSync("where ballerina").toString().trim();
+                balHome = execSync("where jballerina").toString().trim();
             } catch (error) {
                 return balHome;
             }
             if (path) {
-                balHome = balHome.replace(/bin\\ballerina.bat$/, "");
+                balHome = balHome.replace(/bin\\jballerina.bat$/, "");
             }
             break;
         case "darwin": // Mac OS
         case "linux": // Linux
             // lets see where the ballerina command is.
             try {
-                const output = execSync("which ballerina");
+                const output = execSync("which jballerina");
                 balHome = fs.realpathSync(output.toString().trim());
                 // remove ballerina bin from path
                 if (path) {
-                    balHome = balHome.replace(/bin\/ballerina$/, "");
+                    balHome = balHome.replace(/bin\/jballerina$/, "");
                 }
                 break;
             } catch {

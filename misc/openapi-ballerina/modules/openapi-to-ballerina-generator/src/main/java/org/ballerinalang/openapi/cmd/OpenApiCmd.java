@@ -76,7 +76,7 @@ public class OpenApiCmd implements BLauncherCmd {
 
         if (argList == null || argList.size() < 2) {
             throw LauncherUtils.createUsageExceptionWithHelp("action and a input file should be provided. "
-                    + "Ex: ballerina openapi gen-client openapi_file");
+                    + "Ex: jballerina openapi gen-client openapi_file");
         }
         String action = argList.get(0).toUpperCase(Locale.ENGLISH);
         StringBuilder msg = new StringBuilder("successfully ");

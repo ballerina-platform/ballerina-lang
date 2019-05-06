@@ -33,7 +33,7 @@ import static org.ballerinalang.launcher.LauncherUtils.createLauncherException;
 import static org.ballerinalang.packerina.cmd.Constants.LIST_COMMAND;
 
 /**
- * This class represents the "ballerina list" command.
+ * This class represents the "jballerina list" command.
  *
  * @since 0.970
  */
@@ -63,7 +63,7 @@ public class ListCommand implements BLauncherCmd {
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
 
         if (argList == null || argList.size() == 0) {
-            // ballerina list
+            // jballerina list
             ListUtils.list(sourceRootPath);
         } else {
             if (Files.exists(sourceRootPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
@@ -88,7 +88,7 @@ public class ListCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina list <module-name> \n");
+        out.append("  jballerina list <module-name> \n");
     }
 
     @Override

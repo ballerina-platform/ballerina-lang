@@ -15,7 +15,7 @@ Logs are written to the `stderr` stream (i.e., the console) by default in order 
 
 To publish the logs to a file, redirect the `stderr` stream to a file.
 ```bash
-$ ballerina run program.bal 2> b7a-user.log
+$ jballerina run program.bal 2> b7a-user.log
 ```
 
 ### Log Levels
@@ -29,7 +29,7 @@ b7a.log.level="<LOG_LEVEL>"
 
 The log level can also be configured through a CLI parameter as follows:
 ```bash
-$ ballerina run program.bal -e b7a.log.level=<LOG_LEVEL>
+$ jballerina run program.bal -e b7a.log.level=<LOG_LEVEL>
 ```
 
 Log levels can be configured for modules either through a configuration file as `<MODULE_NAME>.loglevel="<LOG_LEVEL>"` or through a CLI parameter as `<MODULE_NAME>.loglevel=<LOG_LEVEL>`.
@@ -70,5 +70,5 @@ OR
 
 The log level of `foo` can also be configured through the CLI as follows:
 ```bash
-$ ballerina run -e \"<org-name>/foo.loglevel\"=DEBUG foo
+$ jballerina run -e \"<org-name>/foo.loglevel\"=DEBUG foo
 ```

@@ -50,7 +50,7 @@ public class ServicePackagingTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("pkg1");
         Files.createDirectories(projectPath);
 
-        // perform ballerina init and copy grpc service to the project.
+        // perform jballerina init and copy grpc service to the project.
         BMainInstance ballerinaBuildServer = new BMainInstance(balServer);
         String[] args = {"-i"};
         String[] options = {"\n", "\n", "\n", "s\n", "foo\n", "f\n"};
@@ -61,7 +61,7 @@ public class ServicePackagingTestCase extends BaseTest {
             Paths.get(projectPath.resolve("foo").toString(), "nested_type_service.bal"));
         Files.deleteIfExists(projectPath.resolve("foo").resolve("hello_service.bal"));
 
-        // perform ballerina build and generate balx file.
+        // perform jballerina build and generate balx file.
         ballerinaBuildServer.runMain("build", new String[0], getEnvVariables(), new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");

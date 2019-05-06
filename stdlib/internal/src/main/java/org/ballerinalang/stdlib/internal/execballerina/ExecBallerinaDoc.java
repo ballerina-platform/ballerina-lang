@@ -144,7 +144,7 @@ public class ExecBallerinaDoc extends BlockingNativeCallableUnit {
     }
     
     /**
-     * Build the command to pass to ballerina doc command.
+     * Build the command to pass to jballerina doc command.
      * @param context The function context.
      * @return The command.
      */
