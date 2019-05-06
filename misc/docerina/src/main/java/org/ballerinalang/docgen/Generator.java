@@ -116,6 +116,7 @@ public class Generator {
         for (BLangFunction function : balPackage.getFunctions()) {
             if (function.getFlags().contains(Flag.PUBLIC) && !function.getFlags().contains(Flag.ATTACHED)) {
                 if (function.getReceiver() != null) {
+                    String value = function.getName().value;
 //                    for (Documentable parentDocumentable : documentables) {
 //                        TypeNode langType = function.getReceiver().getTypeNode();
 //                        String typeName = (langType instanceof BLangUserDefinedType ? ((BLangUserDefinedType)

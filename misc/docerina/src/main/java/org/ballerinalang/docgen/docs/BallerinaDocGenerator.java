@@ -18,6 +18,7 @@
 
 package org.ballerinalang.docgen.docs;
 
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.Generator;
@@ -136,7 +137,7 @@ public class BallerinaDocGenerator {
         List<String> moduleNames = new ArrayList<>(docsMap.keySet());
 
         // Module level doc resources
-        List<Path> resources = new ArrayList<>();
+        Map<String, List<Path>> resources = new HashMap<>();
 
         // Generate project model
         Project project = new Project();
@@ -154,7 +155,7 @@ public class BallerinaDocGenerator {
             Generator.generateModuleConstructs(module, moduleDoc.bLangPackage, moduleNames);
 
             // collect module's doc resources
-            resources.addAll(moduleDoc.resources);
+            resources.put(module.id, moduleDoc.resources);
 
             return module;
         }).collect(Collectors.toList());
@@ -214,46 +215,30 @@ public class BallerinaDocGenerator {
         if (BallerinaDocUtils.isDebugEnabled()) {
             out.println("docerina: successfully copied HTML theme into " + output);
         }
-//
-//        if (!resources.isEmpty()) {
-//            String resourcesDir = output + File.separator + "resources";
-//            File resourcesDirFile = new File(resourcesDir);
-//            if (BallerinaDocUtils.isDebugEnabled()) {
-//                out.println("docerina: copying project resources into " + resourcesDir);
-//            }
-//            resources.parallelStream().forEach(path -> {
-//                try {
-//                    FileUtils.copyFileToDirectory(path.toFile(), resourcesDirFile);
-//                } catch (IOException e) {
-//                    out.println(String.format("docerina: failed to copy [resource] %s into [resources directory] " +
-//                            "%s. Cause: %s", path.toString(), resourcesDir, e.getMessage()));
-//                    log.error(String.format("docerina: failed to copy [resource] %s into [resources directory] " +
-//                            "%s. Cause: %s", path.toString(), resourcesDir, e.getMessage()), e);
-//                }
-//            });
-//            if (BallerinaDocUtils.isDebugEnabled()) {
-//                out.println("docerina: successfully copied project resources into " + resourcesDir);
-//            }
-//        }
-//
-//        if (BallerinaDocUtils.isDebugEnabled()) {
-//            out.println("docerina: generating the index HTML file.");
-//        }
-//
-//        try {
-//            //Generate the index file with the list of all modules
-//            String indexTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "index");
-//            String indexFilePath = output + File.separator + "index" + HTML;
-//            Writer.writeHtmlDocument(packageNameList, indexTemplateName, indexFilePath);
-//        } catch (IOException e) {
-//            out.println(String.format("docerina: failed to create the index.html. Cause: %s", e.getMessage()));
-//            log.error("Failed to create the index.html file.", e);
-//        }
-//
-//        if (BallerinaDocUtils.isDebugEnabled()) {
-//            out.println("docerina: successfully generated the index HTML file.");
-//            out.println("docerina: generating the module-list HTML file.");
-//        }
+
+        if (!resources.isEmpty()) {
+            String resourcesDir = output + File.separator + "resources";
+            if (BallerinaDocUtils.isDebugEnabled()) {
+                out.println("docerina: copying project resources ");
+            }
+            for (Map.Entry<String, List<Path>> resourceSet : resources.entrySet()) {
+                File resourcesDirFile = new File(output + File.separator + resourceSet.getKey()
+                        + File.separator + "resources");
+                resourceSet.getValue().forEach(resource -> {
+                    try {
+                        FileUtils.copyFileToDirectory(resource.toFile(), resourcesDirFile);
+                    } catch (IOException e) {
+                        out.println(String.format("docerina: failed to copy [resource] %s into [resources directory] " +
+                                "%s. Cause: %s", resource.toString(), resourcesDirFile.toString(), e.getMessage()));
+                        log.error(String.format("docerina: failed to copy [resource] %s into [resources directory] " +
+                                "%s. Cause: %s", resource.toString(), resourcesDirFile.toString(), e.getMessage()), e);
+                    }
+                });
+            }
+            if (BallerinaDocUtils.isDebugEnabled()) {
+                out.println("docerina: successfully copied project resources into " + resourcesDir);
+            }
+        }
 //
 //        try {
 //            // Generate module-list.html file which prints the list of processed packages
@@ -271,26 +256,26 @@ public class BallerinaDocGenerator {
 //            out.println("docerina: successfully generated the module-list HTML file.");
 //        }
 //
-//        try {
-//            String zipPath = System.getProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH);
-//            if (zipPath != null) {
-//                if (BallerinaDocUtils.isDebugEnabled()) {
-//                    out.println("docerina: generating the documentation zip file.");
-//                }
-//                BallerinaDocUtils.packageToZipFile(output, zipPath);
-//                if (BallerinaDocUtils.isDebugEnabled()) {
-//                    out.println("docerina: successfully generated the documentation zip file.");
-//                }
-//            }
-//        } catch (IOException e) {
-//            out.println(String.format("docerina: API documentation zip packaging failed for %s: %s", output, e
-//                    .getMessage()));
-//            log.error(String.format("API documentation zip packaging failed for %s", output), e);
-//        }
-//
-//        if (BallerinaDocUtils.isDebugEnabled()) {
-//            out.println("docerina: documentation generation is done.");
-//        }
+        try {
+            String zipPath = System.getProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH);
+            if (zipPath != null) {
+                if (BallerinaDocUtils.isDebugEnabled()) {
+                    out.println("docerina: generating the documentation zip file.");
+                }
+                BallerinaDocUtils.packageToZipFile(output, zipPath);
+                if (BallerinaDocUtils.isDebugEnabled()) {
+                    out.println("docerina: successfully generated the documentation zip file.");
+                }
+            }
+        } catch (IOException e) {
+            out.println(String.format("docerina: API documentation zip packaging failed for %s: %s", output, e
+                    .getMessage()));
+            log.error(String.format("API documentation zip packaging failed for %s", output), e);
+        }
+
+        if (BallerinaDocUtils.isDebugEnabled()) {
+            out.println("docerina: documentation generation is done.");
+        }
     }
 
     private static void sortModuleConstructs(BLangPackage bLangPackage) {
