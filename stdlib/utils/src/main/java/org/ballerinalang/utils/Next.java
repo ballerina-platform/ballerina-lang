@@ -20,8 +20,10 @@ package org.ballerinalang.utils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BIterator;
@@ -74,10 +76,14 @@ public class Next extends BlockingNativeCallableUnit {
         context.setReturnValues(next);
     }
 
-    public static Object next(Strand strand, Iterator<Object> iterator, Object type) {
-        org.ballerinalang.jvm.types.BType tagetType = (org.ballerinalang.jvm.types.BType) type;
+    public static Object next(Strand strand, Object iterator) {
+        if (!(iterator instanceof Iterator)) {
+            // shouldn't reach here
+            throw new IllegalStateException("Iterator expected");
+        }
 
-        if (!Optional.of(iterator).get().hasNext()) {
+        Iterator<?> itr = (Iterator<?>) iterator;
+        if (!Optional.of(itr).get().hasNext()) {
             // If we don't have a next value, that means we have reached the end of the iterable list. So
             // we set null to the corresponding registry location.
             return null;
@@ -85,10 +91,11 @@ public class Next extends BlockingNativeCallableUnit {
 
         // Check whether we have a next value.
         // Get the next value.
-        Object value = Optional.of(iterator).get().next();
+        Object value = Optional.of(itr).get().next();
         // We create a new map and add the value to the map with the key `value`. Then we set this
         // map to the corresponding registry location.
-        MapValue<String, Object> newMap = new MapValue<>(tagetType);
+        BMapType mapType = new BMapType(TypeChecker.getType(value));
+        MapValue<String, Object> newMap = new MapValue<>(mapType);
         newMap.put(KEY, value);
         return newMap;
     }

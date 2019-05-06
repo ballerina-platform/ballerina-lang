@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
+
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -26,6 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
@@ -413,6 +415,14 @@ public class BIRInstructionWriter extends BIRVisitor {
         newXMLProcIns.lhsOp.accept(this);
         newXMLProcIns.dataOp.accept(this);
         newXMLProcIns.targetOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewTypeDesc newTypeDesc) {
+        writePosition(newTypeDesc.pos);
+        buf.writeByte(newTypeDesc.kind.getValue());
+        newTypeDesc.lhsOp.accept(this);
+        newTypeDesc.type.accept(typeWriter);
     }
 
     // Positions
