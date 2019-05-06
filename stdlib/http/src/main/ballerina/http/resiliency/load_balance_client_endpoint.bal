@@ -218,29 +218,28 @@ public remote function LoadBalanceClient.get(string path, RequestMessage message
 }
 
 public remote function LoadBalanceClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
-    error err = error("Unsupported action for LoadBalancer client.");
-    return err;
+    Request request = buildRequest(message);
+    return performHttp2SubmitLoadBalanceAction(self, httpVerb, path, request);
 }
 
 public remote function LoadBalanceClient.getResponse(HttpFuture httpFuture) returns Response|error {
-    error err = error("Unsupported action for LoadBalancer client.");
-    return err;
+    return performHttp2GetResponseLoadBalanceAction(self, httpFuture);
 }
 
+// TODO: This should be able to return an error.
 public remote function LoadBalanceClient.hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
 public remote function LoadBalanceClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-    error err = error("Unsupported action for LoadBalancer client.");
-    return err;
+    return performHttp2GetNextPromiseLoadBalanceAction(self, httpFuture);
 }
 
 public remote function LoadBalanceClient.getPromisedResponse(PushPromise promise) returns Response|error {
-    error err = error("Unsupported action for LoadBalancer client.");
-    return err;
+    return performHttp2GetPromisedResponseLoadBalanceAction(self, promise);
 }
 
+// TODO: Function definition should be changed to return error.
 public remote function LoadBalanceClient.rejectPromise(PushPromise promise) {
 }
 
@@ -255,6 +254,138 @@ function performLoadBalanceExecuteAction(LoadBalanceClient lb, string path, Requ
         error httpActionErr = error("Unsupported connector action received.");
         return httpActionErr;
     }
+}
+
+// Handles submit action exposed through the Load Balance connector.
+function performHttp2SubmitLoadBalanceAction(LoadBalanceClient lb, string httpVerb, string path, Request request)
+             returns HttpFuture|error {
+    int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
+    //TODO: workaround to initialize a type inside a function. Change this once fix is available.
+    LoadBalanceActionErrorData loadBalanceActionErrorData = {statusCode: 500, message: "", httpActionErr:[]};
+    int lbErrorIndex = 0;
+    Request loadBlancerInRequest = request;
+    mime:Entity requestEntity = new;
+
+    if (lb.failover) {
+        if (isMultipartRequest(loadBlancerInRequest)) {
+            loadBlancerInRequest = check populateMultipartRequest(loadBlancerInRequest);
+        } else {
+            // When performing passthrough scenarios using Load Balance connector,
+            // message needs to be built before trying out the load balance endpoints to keep the request message
+            // to load balance the messages in case of failure.
+            var binaryPayload = loadBlancerInRequest.getBinaryPayload();
+            requestEntity = check loadBlancerInRequest.getEntity();
+        }
+    }
+
+    while (loadBalanceTermination < lb.loadBalanceClientsArray.length()) {
+        var loadBalanceClient = lb.lbRule.getNextClient(lb.loadBalanceClientsArray);
+        if (loadBalanceClient is Client) {
+            var serviceResponse = loadBalanceClient->submit(httpVerb, path, request);
+            if (serviceResponse is HttpFuture) {
+                return serviceResponse;
+            } else {
+                if (lb.failover) {
+                    loadBlancerInRequest = check createFailoverRequest(loadBlancerInRequest, requestEntity);
+                    loadBalanceActionErrorData.httpActionErr[lbErrorIndex] = serviceResponse;
+                    lbErrorIndex += 1;
+                    loadBalanceTermination = loadBalanceTermination + 1;
+                } else {
+                    return serviceResponse;
+                }
+            }
+        } else {
+            return loadBalanceClient;
+        }
+    }
+    return populateGenericLoadBalanceActionError(loadBalanceActionErrorData);
+}
+
+function performHttp2GetResponseLoadBalanceAction(LoadBalanceClient lb, HttpFuture httpFuture) returns Response|error {
+    int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
+    //TODO: workaround to initialize a type inside a function. Change this once fix is available.
+    LoadBalanceActionErrorData loadBalanceActionErrorData = {statusCode: 500, message: "", httpActionErr:[]};
+    int lbErrorIndex = 0;
+
+    while (loadBalanceTermination < lb.loadBalanceClientsArray.length()) {
+        var loadBalanceClient = lb.lbRule.getNextClient(lb.loadBalanceClientsArray);
+        if (loadBalanceClient is Client) {
+            var serviceResponse = loadBalanceClient->getResponse(httpFuture);
+            if (serviceResponse is Response) {
+                return serviceResponse;
+            } else {
+                if (lb.failover) {
+                    loadBalanceActionErrorData.httpActionErr[lbErrorIndex] = serviceResponse;
+                    lbErrorIndex += 1;
+                    loadBalanceTermination = loadBalanceTermination + 1;
+                } else {
+                    return serviceResponse;
+                }
+            }
+        } else {
+            return loadBalanceClient;
+        }
+    }
+    return populateGenericLoadBalanceActionError(loadBalanceActionErrorData);
+}
+
+function performHttp2GetNextPromiseLoadBalanceAction(LoadBalanceClient lb, HttpFuture httpFuture)
+             returns PushPromise|error {
+
+    int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
+    //TODO: workaround to initialize a type inside a function. Change this once fix is available.
+    LoadBalanceActionErrorData loadBalanceActionErrorData = {statusCode: 500, message: "", httpActionErr:[]};
+    int lbErrorIndex = 0;
+
+    while (loadBalanceTermination < lb.loadBalanceClientsArray.length()) {
+        var loadBalanceClient = lb.lbRule.getNextClient(lb.loadBalanceClientsArray);
+        if (loadBalanceClient is Client) {
+            var serviceResponse = loadBalanceClient->getNextPromise(httpFuture);
+            if (serviceResponse is PushPromise) {
+                return serviceResponse;
+            } else {
+                if (lb.failover) {
+                    loadBalanceActionErrorData.httpActionErr[lbErrorIndex] = serviceResponse;
+                    lbErrorIndex += 1;
+                    loadBalanceTermination = loadBalanceTermination + 1;
+                } else {
+                    return serviceResponse;
+                }
+            }
+        } else {
+            return loadBalanceClient;
+        }
+    }
+    return populateGenericLoadBalanceActionError(loadBalanceActionErrorData);
+}
+
+function performHttp2GetPromisedResponseLoadBalanceAction(LoadBalanceClient lb, PushPromise promise)
+             returns Response|error {
+    int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
+    //TODO: workaround to initialize a type inside a function. Change this once fix is available.
+    LoadBalanceActionErrorData loadBalanceActionErrorData = {statusCode: 500, message: "", httpActionErr:[]};
+    int lbErrorIndex = 0;
+
+    while (loadBalanceTermination < lb.loadBalanceClientsArray.length()) {
+        var loadBalanceClient = lb.lbRule.getNextClient(lb.loadBalanceClientsArray);
+        if (loadBalanceClient is Client) {
+            var serviceResponse = loadBalanceClient->getPromisedResponse(promise);
+            if (serviceResponse is Response) {
+                return serviceResponse;
+            } else {
+                if (lb.failover) {
+                    loadBalanceActionErrorData.httpActionErr[lbErrorIndex] = serviceResponse;
+                    lbErrorIndex += 1;
+                    loadBalanceTermination = loadBalanceTermination + 1;
+                } else {
+                    return serviceResponse;
+                }
+            }
+        } else {
+            return loadBalanceClient;
+        }
+    }
+    return populateGenericLoadBalanceActionError(loadBalanceActionErrorData);
 }
 
 // Handles all the actions exposed through the Load Balance connector.
@@ -303,15 +434,14 @@ function performLoadBalanceAction(LoadBalanceClient lb, string path, Request req
 }
 
 // Populates generic error specific to Load Balance connector by including all the errors returned from endpoints.
-function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBalanceActionErrorData)
-                                                    returns error {
+function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBalanceActionErrorData) returns error {
     int nErrs = loadBalanceActionErrorData.httpActionErr.length();
     error? er = loadBalanceActionErrorData.httpActionErr[nErrs - 1];
     error actError;
     if (er is error) {
         actError = er;
     } else {
-        error err = error("Unexpected nil");
+        error err = error("Unexpected nil found in loadbalancer client.");
         panic err;
     }
     string lastErrorMessage = <string> actError.detail().message;
