@@ -1018,7 +1018,7 @@
                 "url": "tcp-socket-listener-client"
             },
             {
-                "name": "UDP Client Socket Basic Example",
+                "name": "Basic UDP Client Socket",
                 "url": "udp-socket-client"
             }
         ]
