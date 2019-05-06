@@ -4,101 +4,94 @@
 {{> htmlHead title="API Documentation - Module Functions " rootPath="../../" }}
 
 <body>
-  <div class="ui grid">
+<div class="ui grid">
     <div class="navi-wrapper two wide column">
-      <a href="../../index.html">
-        <img class="logo" src="../../images/ballerina-logo.png">
-      </a>
-      <div class="primary-list">
-        <h3>Functions</h3>
-        <ul>
-          {{#each functions}}
-          <li>
-            <a href="#{{name}}">{{name}}</a>
-          </li>
-          {{/each}}
-        </ul>
-      </div>
-      <div class="ui divider"></div>
-      {{> currentModule rootPath="../../" }}
-      {{> allModules rootPath="../../" }}
+        <div class="navi-wrapper-content">
+            <a href="../../index.html">
+                <img class="logo" src="../../images/ballerina-logo.png">
+            </a>
+            {{> currentModule rootPath="../../" }}
+            {{> allModules rootPath="../../" }}
+        </div>
     </div>
 
     <div class="fourteen wide column content-wrapper">
-      <h1>Functions</h1>
-      <div class="ui divider"></div>
-      <div class="constants">
-        <table class="ui table">
-          {{#each functions}}
-          <tbody>
-            <tr>
-              <td class="functions"><a href="#{{name}}">{{name}}</a></td>
-              <td>{{description}}</td>
-            </tr>
-          </tbody>
-          {{/each}}
-        </table>
-        <div class="ui divider"></div>
-        <div>
-          {{#if functions}}
-          <div>
-            {{#each functions}}
-            <p>{{function_type_label}} <a id="{{name}}"><b class="functions">{{name}}</b> </a>{{function_params}} </h3>
-              <br><b>{{return_label}}</b> {{return_type}}</p>
-            <p>{{description}}</p>
+        <div class="main-wrapper">
+            <h1>Functions</h1>
             <div class="ui divider"></div>
-            {{#if params}}
-            <table class="ui table">
-              {{#each params}}
-              {{#each fields}}
-              <thead>
-                <tr>
-                  <th>{{param_name_label}}</th>
-                  <th>{{data_type_label}}</th>
-                  <th>{{default_value_label}}</th>
-                  <th>{{description_label}}</th>
-                </tr>
-              </thead>
-              {{#each attributes}}
-              <tbody>
-                <tr>
-                  <td>{{field_name}}</td>
-                  <td>{{data_type}}</td>
-                  <td>{{default_value}}</td>
-                  <td>{{description}}</td>
-                </tr>
-              </tbody>
-              {{/each}}
-              {{/each}}
-              {{/each}}
-            </table>
-            {{/if}}
-            {{#if returns}}
-            <table class="ui table">
-              {{#each returns}}
-              {{#each fields}}
-              <thead>
-                <tr>
-                  <th>{{return_type_label}}</th>
-                  <th>{{return_description_label}}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{{return_type}}</td>
-                  <td>{{description}}</td>
-                </tr>
-              </tbody>
-              {{/each}}
-              {{/each}}
-            </table>
-            <div class="ui divider"></div>
-            {{/if}}
-            {{/each}}
-          </div>
-          {{/if}}
+            <div class="constants">
+                <table class="ui table">
+                    {{#each functions}}
+                        <tbody>
+                        <tr>
+                            <td width="30%" ><a class="functions" href="#{{name}}">{{name}}</a></td>
+                            <td width="70%">{{description}}</td>
+                        </tr>
+                        </tbody>
+                    {{/each}}
+                </table>
+                <div class="ui divider"></div>
+                <div>
+                    {{#if functions}}
+                        <div>
+                            {{#each functions}}
+                                <p>public function <a class="functions" id="{{name}}"><b>{{name}}</b> </a>{{function_params}} </h3>
+                                    <br><b>Return</b> {{return_type}}</p>
+                                <p>{{description}}</p>
+                                <div class="ui divider"></div>
+                                {{#if params}}
+                                    <table class="ui table">
+                                        {{#each params}}
+                                            {{#each fields}}
+                                                <thead>
+                                                <tr>
+                                                    <th>Param Name</th>
+                                                    <th>Data Type</th>
+                                                    <th>Default Value</th>
+                                                    <th>Description</th>
+                                                </tr>
+                                                </thead>
+                                                {{#each attributes}}
+                                                    <tbody>
+                                                    <tr>
+                                                        <td>{{field_name}}</td>
+                                                        <td>{{data_type}}</td>
+                                                        <td>{{default_value}}</td>
+                                                        <td>{{description}}</td>
+                                                    </tr>
+                                                    </tbody>
+                                                {{/each}}
+                                            {{/each}}
+                                        {{/each}}
+                                    </table>
+                                {{/if}}
+                                {{#if returns}}
+                                    <table class="ui table">
+                                        {{#each returns}}
+                                            {{#each fields}}
+                                                <thead>
+                                                <tr>
+                                                    <th>Return Type</th>
+                                                    <th>Description</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr>
+                                                    <td>{{return_type}}</td>
+                                                    <td>{{description}}</td>
+                                                </tr>
+                                                </tbody>
+                                            {{/each}}
+                                        {{/each}}
+                                    </table>
+                                    <div class="ui divider"></div>
+                                {{/if}}
+                            {{/each}}
+                        </div>
+                    {{/if}}
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+</div>
 </body>

@@ -1,7 +1,11 @@
+/*-------------------------------
+           API Method Colors 
+--------------------------------*/
 body {
   background: #fff;
   color: #464646;
   height: 100vh;
+  font-family: "Fira Sans", sans-serif;
 }
 body p {
   font-size: 16px;
@@ -11,7 +15,8 @@ body a {
 }
 body .ui.grid {
   width: 100%;
-  margin-top: 0rem;
+  margin-top: 0;
+  margin-left: 0;
 }
 body .ui.grid .navi-wrapper {
   margin: 0;
@@ -20,11 +25,14 @@ body .ui.grid .navi-wrapper {
   overflow-y: hidden;
   overflow-x: hidden;
 }
+body .ui.grid .navi-wrapper .navi-wrapper-content {
+  width: 185px;
+}
 body .ui.grid .navi-wrapper .logo {
   width: 150px;
   height: auto;
   text-align: center;
-  margin: 30px 20px;
+  margin: 1em;
 }
 body .ui.grid .navi-wrapper:hover {
   overflow-y: scroll;
@@ -43,71 +51,168 @@ body .ui.grid .navi-wrapper .primary-list ul {
   margin: 0;
 }
 body .ui.grid .navi-wrapper .primary-list ul li {
-  list-style: none !important;
+  list-style: none ;
   line-height: 25px;
   margin-left: 15px;
   text-transform: capitalize;
   font-weight: 300;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 body .ui.grid .navi-wrapper .primary-list ul li:hover {
   font-weight: 600;
 }
 body .ui.grid .navi-wrapper .primary-list ul li,
 body .ui.grid .navi-wrapper .primary-list ul li a {
-  font-weight: 300;
+  font-weight: 400;
 }
 body .ui.grid .navi-wrapper .primary-list ul li:hover,
 body .ui.grid .navi-wrapper .primary-list ul li a:hover {
-  color: #333 !important;
+  color: #333;
   font-weight: 600;
 }
+body .ui.grid .navi-wrapper .primary-list h3 {
+  margin: 10px 0;
+  text-align: center;
+}
 body .ui.grid .content-wrapper {
-  padding: 45px 630px 12px 43px !important;
   margin: 0;
   height: 100vh;
   overflow-y: hidden;
   position: fixed;
   font-size: 16px;
 }
+body .ui.grid .content-wrapper .main-wrapper {
+  width: 750px;
+  margin: 20px 30px;
+}
+body .ui.grid .content-wrapper .main-wrapper span.records {
+  color: #00c378;
+}
+body .ui.grid .content-wrapper .main-wrapper span.objects {
+  color: #3498db;
+}
+body .ui.grid .content-wrapper .main-wrapper span.clients {
+  color: #FF5722;
+}
+body .ui.grid .content-wrapper .main-wrapper span.listeners {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper .main-wrapper span.functions {
+  color: #EC407A;
+}
+body .ui.grid .content-wrapper .main-wrapper span.constant {
+  color: #8e44ad;
+}
+body .ui.grid .content-wrapper .main-wrapper span.annotations {
+  color: #276dc4;
+}
+body .ui.grid .content-wrapper .main-wrapper span.errors {
+  color: #f44336;
+}
 body .ui.grid .content-wrapper .param-divider {
-  margin-top: 7px !important;
+  margin-top: 0px;
   margin-bottom: 15px;
   border: 0.5px solid #888;
 }
 body .ui.grid .content-wrapper .param-table {
   margin-left: 20px;
-  border: 1ps solid #ccc !important;
+  border: 1ps solid #ccc;
+  width: -webkit-fill-available;
+}
+body .ui.grid .content-wrapper .param-table thead tr th {
+  padding: 10px 0;
 }
 body .ui.grid .content-wrapper .param-table td,
 body .ui.grid .content-wrapper .param-table th {
-  padding: 10px 0 !important;
+  color: #3c3c3c;
+}
+body .ui.grid .content-wrapper .param-table tbody {
+  border-bottom: 1px solid #e8e9e9;
+}
+body .ui.grid .content-wrapper a.records {
+  color: #00c378;
+}
+body .ui.grid .content-wrapper a.objects {
+  color: #3498db;
+}
+body .ui.grid .content-wrapper a.clients {
+  color: #FF5722;
+}
+body .ui.grid .content-wrapper a.listeners {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper a.functions {
+  color: #EC407A;
+}
+body .ui.grid .content-wrapper a.constant {
+  color: #8e44ad;
+}
+body .ui.grid .content-wrapper a.annotations {
+  color: #276dc4;
+}
+body .ui.grid .content-wrapper a.errors {
+  color: #f44336;
 }
 body .ui.grid .content-wrapper .ui.table,
 body .ui.grid .content-wrapper .ui.table tr td {
-  border: 0 !important;
+  border: 0;
   vertical-align: top;
+  color: #555;
+  word-break: break-word;
+  padding: 5px 0;
 }
 body .ui.grid .content-wrapper .ui.table th,
 body .ui.grid .content-wrapper .ui.table tr td th {
   background: none;
-  padding: 10px 0;
   border-top: 1px solid #e8e9e9;
   border-radius: 0;
 }
 body .ui.grid .content-wrapper .ui.table tr,
 body .ui.grid .content-wrapper .ui.table tr td tr {
-  padding: 10px 0;
   border-bottom: 1px solid #e8e9e9;
+  color: #555;
 }
 body .ui.grid .content-wrapper .ui.table tr td:first-child,
 body .ui.grid .content-wrapper .ui.table tr td tr td:first-child {
   width: 120px;
   vertical-align: top;
-  padding: 10px 0 !important;
 }
 body .ui.grid .content-wrapper .ui.table td,
 body .ui.grid .content-wrapper .ui.table tr td td {
   word-break: break-all;
+}
+body .ui.grid .content-wrapper .ui.table td.records,
+body .ui.grid .content-wrapper .ui.table tr td td.records {
+  color: #00c378;
+}
+body .ui.grid .content-wrapper .ui.table td.objects,
+body .ui.grid .content-wrapper .ui.table tr td td.objects {
+  color: #3498db;
+}
+body .ui.grid .content-wrapper .ui.table td.clients,
+body .ui.grid .content-wrapper .ui.table tr td td.clients {
+  color: #FF5722;
+}
+body .ui.grid .content-wrapper .ui.table td.listeners,
+body .ui.grid .content-wrapper .ui.table tr td td.listeners {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper .ui.table td.functions,
+body .ui.grid .content-wrapper .ui.table tr td td.functions {
+  color: #EC407A;
+}
+body .ui.grid .content-wrapper .ui.table td.constant,
+body .ui.grid .content-wrapper .ui.table tr td td.constant {
+  color: #8e44ad;
+}
+body .ui.grid .content-wrapper .ui.table td.annotations,
+body .ui.grid .content-wrapper .ui.table tr td td.annotations {
+  color: #276dc4;
+}
+body .ui.grid .content-wrapper .ui.table td.errors,
+body .ui.grid .content-wrapper .ui.table tr td td.errors {
+  color: #f44336;
 }
 body .ui.grid .content-wrapper .params-table {
   padding-top: 20px;
@@ -133,77 +238,55 @@ body .ui.grid .content-wrapper .modules {
 body .ui.grid .content-wrapper .modules a {
   color: #0d4d84;
 }
-body .ui.grid .content-wrapper .records {
-  text-transform: capitalize;
-  color: #2c9ea1;
-}
-body .ui.grid .content-wrapper .records a {
-  color: #2c9ea1;
-}
-body .ui.grid .content-wrapper .objects {
-  text-transform: capitalize;
-  color: #93bd54;
-}
-body .ui.grid .content-wrapper .objects a {
-  color: #93bd54;
-}
-body .ui.grid .content-wrapper .clients {
-  color: #068000;
-  text-transform: capitalize;
-}
-body .ui.grid .content-wrapper .clients a {
-  color: #068000;
-}
-body .ui.grid .content-wrapper .functions {
-  color: #ad448e;
-  text-transform: capitalize;
-}
-body .ui.grid .content-wrapper .functions a {
-  color: #ad448e;
-}
-body .ui.grid .content-wrapper .constant {
-  color: #7B1FA2;
-  text-transform: capitalize;
-}
-body .ui.grid .content-wrapper .constant a {
-  color: #7B1FA2;
-}
-body .ui.grid .content-wrapper .annotations {
-  color: #3F51B5;
-  text-transform: capitalize;
-}
-body .ui.grid .content-wrapper .annotations a {
-  color: #3F51B5;
-}
 body .ui.grid .content-wrapper .constants {
   margin-top: 20px;
+}
+body .ui.grid .content-wrapper .constants h2 {
+  font-size: 1.52rem;
 }
 body .ui.grid .content-wrapper .constants h3 {
   display: inline-block;
   margin: 0;
-  line-height: 22px !important;
+  line-height: 22px;
 }
 body .ui.grid .content-wrapper .constants h3 p {
   display: inline-block;
   margin: 0;
-  line-height: 22px !important;
+  line-height: 22px;
+  color: #555;
+}
+body .ui.grid .content-wrapper .constants .method-list {
+  padding-left: 20px;
+}
+body .ui.grid .content-wrapper .constants .method-list p {
+  line-height: 30px;
+}
+body .ui.grid .content-wrapper .constants .method-content {
+  margin: 20px 0;
+}
+body .ui.grid .content-wrapper .constants .method-content .method-types {
+  font-style: italic;
+  color: #656565;
 }
 body .ui.grid .content-wrapper .constants .method-wrapper .method-span {
   width: auto;
   display: inline-block;
   vertical-align: top;
 }
+body .ui.grid .content-wrapper .constants .method-wrapper .method-span .ui.table {
+  word-break: break-word;
+}
 body .ui.grid .content-wrapper .constants .method-wrapper .method-span .ui.table tr td:first-child {
-  width: 180px !important;
+  width: 180px ;
   vertical-align: top;
-  padding: 10px 0;
+  padding: 5px 0;
 }
 body .ui.grid .content-wrapper .constants .method-wrapper .method-span .ui.table td {
-  padding: 10px 0 !important;
+  padding: 10px 0 ;
 }
 body .ui.grid .content-wrapper .constants .method-wrapper .method-span .method-table-header {
   max-width: 180px;
-  width: 180px !important;
+  width: 180px ;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -232,14 +315,65 @@ body .ui.grid .content-wrapper .constants .column {
 }
 body .ui.grid .content-wrapper .module-title {
   margin-bottom: 10px;
-  font-weight: 300;
+  font-weight: 400;
   height: auto;
   padding: 0;
   vertical-align: top;
 }
+body .ui.grid .content-wrapper .module-title.records {
+  color: #00c378;
+}
+body .ui.grid .content-wrapper .module-title.objects {
+  color: #3498db;
+}
+body .ui.grid .content-wrapper .module-title.clients {
+  color: #FF5722;
+}
+body .ui.grid .content-wrapper .module-title.listeners {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper .module-title.functions {
+  color: #EC407A;
+}
+body .ui.grid .content-wrapper .module-title.constant {
+  color: #8e44ad;
+}
+body .ui.grid .content-wrapper .module-title.annotations {
+  color: #276dc4;
+}
+body .ui.grid .content-wrapper .module-title.errors {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper .module-title a.records {
+  color: #00c378;
+}
+body .ui.grid .content-wrapper .module-title a.objects {
+  color: #3498db;
+}
+body .ui.grid .content-wrapper .module-title a.clients {
+  color: #FF5722;
+}
+body .ui.grid .content-wrapper .module-title a.listeners {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper .module-title a.functions {
+  color: #EC407A;
+}
+body .ui.grid .content-wrapper .module-title a.constant {
+  color: #8e44ad;
+}
+body .ui.grid .content-wrapper .module-title a.annotations {
+  color: #276dc4;
+}
+body .ui.grid .content-wrapper .module-title a.errors {
+  color: #f44336;
+}
+body .ui.grid .content-wrapper .module-title a:hover {
+  font-weight: bold;
+}
 body .ui.grid .content-wrapper .truncate {
   max-width: 220px;
-  width: 220px !important;
+  width: 220px ;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
