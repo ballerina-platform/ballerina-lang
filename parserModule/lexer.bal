@@ -70,12 +70,13 @@ string[] tokenNames = ["LBRACE", "RBRACE", "LPAREN", "RPAREN", "ADD", "ASSIGN", 
 "LT","LT_EQUAL","LARROW","COMPOUND_LEFT_SHIFT","NOT_EQUAL","UNARY_MINUS","UNARY_PLUS",
 "BIT_COMPLEMENT","UNTAINT"];
 
-int position = 0;
-int lineNum = 1;
-int tokenIndex = 0;
-WhiteSpaceStack wpStack = new ();
 
 public type Lexer object {
+	int position = 0;
+	int lineNum = 1;
+	int tokenIndex = 0;
+	WhiteSpaceStack wpStack = new ();
+	
     private BufferReader buffer;
 
     public function __init(BufferReader buffer) {
@@ -88,289 +89,289 @@ public type Lexer object {
         string currChar = "";
         while (!self.buffer.isEOF()) {
             currChar = self.nextLexeme();
-            position += 1;
+            self.position += 1;
             if (isWhiteSpace(currChar)) {
                 int tabCount = 0;
                 if (isEnter(currChar)) {
-                    position = 0;
-                    lineNum += 1;
-                    //wpStack.push(currChar);
-					wpStack.push("newLine ");
+                    self.position = 0;
+                    self.lineNum += 1;
+                    //self.wpStack.push(currChar);
+					self.wpStack.push("newLine ");
                 } else if(isTab(currChar)){
-					position = position + 3;
-					//wpStack.push(currChar);
-					wpStack.push("tab ");
+					self.position = self.position + 3;
+					//self.wpStack.push(currChar);
+					self.wpStack.push("tab ");
                 }else{
-					//wpStack.push(currChar);
-					wpStack.push("space ");
+					//self.wpStack.push(currChar);
+					self.wpStack.push("space ");
 				}
                 continue;
             }
             if (currChar == "}") {
-				tokenIndex += 1;
-                return { tokenType: RBRACE, text: currChar, startPos: position, endPos: position, lineNumber: lineNum, index: tokenIndex, whiteSpace: getWhiteSpace()};
+				self.tokenIndex += 1;
+                return { tokenType: RBRACE, text: currChar, startPos: self.position, endPos: self.position, lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
             } else if (currChar == "(") {
-				tokenIndex += 1;
-                return { tokenType: LPAREN, text: currChar, startPos: position, endPos: position, lineNumber:
-                lineNum , index: tokenIndex ,whiteSpace: getWhiteSpace()};
+				self.tokenIndex += 1;
+                return { tokenType: LPAREN, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+                self.lineNum , index: self.tokenIndex ,whiteSpace: self.getWhiteSpace()};
             } else if (currChar == "{") {
-				tokenIndex += 1;
-                return { tokenType: LBRACE, text: currChar, startPos: position, endPos: position, lineNumber:
-                lineNum , index: tokenIndex, whiteSpace: getWhiteSpace()};
+				self.tokenIndex += 1;
+                return { tokenType: LBRACE, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+                self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
             } else if (currChar == ")") {
-				tokenIndex += 1;
-                return { tokenType: RPAREN, text: currChar, startPos: position, endPos: position, lineNumber:
-                lineNum , index: tokenIndex, whiteSpace: getWhiteSpace()};
+				self.tokenIndex += 1;
+                return { tokenType: RPAREN, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+                self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
             } else if (currChar == ":") {
-				tokenIndex += 1;
-				return { tokenType: COLON, text: currChar, startPos: position, endPos: position, lineNumber:
-				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace()};
+				self.tokenIndex += 1;
+				return { tokenType: COLON, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
 			} else if (currChar == ","){
-				tokenIndex += 1;
-				return { tokenType: COMMA, text: currChar, startPos: position, endPos: position, lineNumber:
-				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace()};
+				self.tokenIndex += 1;
+				return { tokenType: COMMA, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
 			}else if (currChar == "=") {
                 if (self.buffer.lookAhead() == "=") {
                     currChar = self.nextLexeme();
-                    position += 1;
+                    self.position += 1;
                     if (self.buffer.lookAhead() == "=") {
                         currChar = self.nextLexeme();
-                        position += 1;
-						tokenIndex += 1;
-                        return { tokenType: REF_EQUAL, text: "===", startPos: position - 2 , endPos:position,
-                            lineNumber: lineNum, index: tokenIndex, whiteSpace: getWhiteSpace() };
+                        self.position += 1;
+						self.tokenIndex += 1;
+                        return { tokenType: REF_EQUAL, text: "===", startPos: self.position - 2 , endPos:self.position,
+                            lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
                     }
-					tokenIndex += 1;
-                    return { tokenType: EQUAL, text: "==", startPos: position - 1 , endPos:position, lineNumber:
-                    lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.tokenIndex += 1;
+                    return { tokenType: EQUAL, text: "==", startPos: self.position - 1 , endPos:self.position, lineNumber:
+                    self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
                 }else if (self.buffer.lookAhead() == ">"){
 					currChar = self.nextLexeme();
-					position += 1;
-					tokenIndex += 1;
-					return { tokenType: EQUAL_GT, text: "=>", startPos: position - 1 , endPos:position, lineNumber:
-					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.position += 1;
+					self.tokenIndex += 1;
+					return { tokenType: EQUAL_GT, text: "=>", startPos: self.position - 1 , endPos:self.position, lineNumber:
+					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
-				tokenIndex += 1;
-                return { tokenType: ASSIGN, text: currChar, startPos: position, endPos: position, lineNumber:
-                lineNum, index: tokenIndex , whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+                return { tokenType: ASSIGN, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+                self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
             }else if (currChar == ";") {
-				tokenIndex += 1;
-                return { tokenType: SEMICOLON, text: currChar, startPos: position, endPos: position, lineNumber:
-                lineNum, index: tokenIndex , whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+                return { tokenType: SEMICOLON, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+                self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
             } else if (currChar == "+") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
-					position += 1;
-					tokenIndex += 1;
-					return { tokenType: COMPOUND_ADD, text: "+=", startPos: position - 1 , endPos:position, lineNumber:
-					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.position += 1;
+					self.tokenIndex += 1;
+					return { tokenType: COMPOUND_ADD, text: "+=", startPos: self.position - 1 , endPos:self.position, lineNumber:
+					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
-				tokenIndex += 1;
-                return { tokenType: ADD, text: currChar, startPos: position, endPos: position, lineNumber: lineNum , index: tokenIndex, whiteSpace: getWhiteSpace()};
+				self.tokenIndex += 1;
+                return { tokenType: ADD, text: currChar, startPos: self.position, endPos: self.position, lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
             } else if (currChar == "-") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
-					position += 1;
-					tokenIndex += 1;
-					return { tokenType: COMPOUND_SUB, text: "-=", startPos: position - 1 , endPos:position, lineNumber:
-					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.position += 1;
+					self.tokenIndex += 1;
+					return { tokenType: COMPOUND_SUB, text: "-=", startPos: self.position - 1 , endPos:self.position, lineNumber:
+					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}else if (self.buffer.lookAhead() == ">"){
 					currChar = self.nextLexeme();
-					position += 1;
+					self.position += 1;
 					if (self.buffer.lookAhead() == ">") {
 						currChar = self.nextLexeme();
-						position += 1;
-						tokenIndex += 1;
-						return { tokenType: SYNCRARROW, text: "->>", startPos: position - 2 , endPos:position,
-							lineNumber: lineNum, index: tokenIndex, whiteSpace: getWhiteSpace() };
+						self.position += 1;
+						self.tokenIndex += 1;
+						return { tokenType: SYNCRARROW, text: "->>", startPos: self.position - 2 , endPos:self.position,
+							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 					}
-					tokenIndex += 1;
-					return { tokenType: RARROW, text: "->", startPos: position - 1 , endPos:position, lineNumber:
-					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.tokenIndex += 1;
+					return { tokenType: RARROW, text: "->", startPos: self.position - 1 , endPos:self.position, lineNumber:
+					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
-				tokenIndex += 1;
-                return { tokenType: SUB, text: currChar, startPos: position, endPos: position, lineNumber:
-                lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+                return { tokenType: SUB, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+                self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
             } else if (currChar == "*") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
-					position += 1;
-					tokenIndex += 1;
-					return { tokenType: COMPOUND_MUL, text: "*=", startPos: position - 1 , endPos:position, lineNumber:
-					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.position += 1;
+					self.tokenIndex += 1;
+					return { tokenType: COMPOUND_MUL, text: "*=", startPos: self.position - 1 , endPos:self.position, lineNumber:
+					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
-				tokenIndex += 1;
-                return { tokenType: MUL, text: currChar, startPos: position, endPos: position, lineNumber
-                : lineNum  , index: tokenIndex, whiteSpace: getWhiteSpace()};
+				self.tokenIndex += 1;
+                return { tokenType: MUL, text: currChar, startPos: self.position, endPos: self.position, lineNumber
+                : self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
             }else if(currChar == "."){
 				if (self.buffer.lookAhead() == ".") {
 					currChar = self.nextLexeme();
-					position += 1;
+					self.position += 1;
 					if (self.buffer.lookAhead() == ".") {
 						currChar = self.nextLexeme();
-						position += 1;
-						tokenIndex += 1;
-						return { tokenType: ELLIPSIS, text: "...", startPos: position - 2 , endPos:position,
-							lineNumber: lineNum, index: tokenIndex, whiteSpace: getWhiteSpace() };
+						self.position += 1;
+						self.tokenIndex += 1;
+						return { tokenType: ELLIPSIS, text: "...", startPos: self.position - 2 , endPos:self.position,
+							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 					}else if (self.buffer.lookAhead() == "<"){
 						currChar = self.nextLexeme();
-						position += 1;
-						tokenIndex += 1;
-						return { tokenType: HALF_OPEN_RANGE, text: "..<", startPos: position - 2 , endPos:position,
-							lineNumber: lineNum, index: tokenIndex, whiteSpace: getWhiteSpace() };
+						self.position += 1;
+						self.tokenIndex += 1;
+						return { tokenType: HALF_OPEN_RANGE, text: "..<", startPos: self.position - 2 , endPos:self.position,
+							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 					}
-					tokenIndex += 1;
-					return { tokenType: RANGE, text: "..", startPos: position - 1 , endPos:position, lineNumber:
-					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.tokenIndex += 1;
+					return { tokenType: RANGE, text: "..", startPos: self.position - 1 , endPos:self.position, lineNumber:
+					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
-				tokenIndex += 1;
-				return { tokenType: DOT, text: currChar, startPos: position, endPos: position, lineNumber:
-				lineNum, index: tokenIndex , whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+				return { tokenType: DOT, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+				self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
 			}else if(currChar == "["){
-				tokenIndex += 1;
-				return { tokenType: LEFT_BRACKET, text: currChar, startPos: position, endPos: position, lineNumber:
-				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+				return { tokenType: LEFT_BRACKET, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 			} else if (currChar == "]"){
-				tokenIndex += 1;
-				return { tokenType: RIGHT_BRACKET, text: currChar, startPos: position, endPos: position, lineNumber:
-				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+				return { tokenType: RIGHT_BRACKET, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 			}else if(currChar == "?"){
 				if (self.buffer.lookAhead() == ":") {
 					currChar = self.nextLexeme();
-					position += 1;
-					tokenIndex += 1;
-					return { tokenType: ELVIS, text: "?:", startPos: position - 1 , endPos:position, lineNumber:
-					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.position += 1;
+					self.tokenIndex += 1;
+					return { tokenType: ELVIS, text: "?:", startPos: self.position - 1 , endPos:self.position, lineNumber:
+					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
-				tokenIndex += 1;
-				return { tokenType: QUESTION_MARK, text: currChar, startPos: position, endPos: position, lineNumber:
-				lineNum, index: tokenIndex , whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+				return { tokenType: QUESTION_MARK, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+				self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
 			}else if (currChar == "#"){
-				tokenIndex += 1;
-				return { tokenType: HASH, text: currChar, startPos: position, endPos: position, lineNumber:
-				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+				return { tokenType: HASH, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 			}else if (currChar == "~"){
-				tokenIndex += 1;
-				return { tokenType: BIT_COMPLEMENT, text: currChar, startPos: position, endPos: position, lineNumber:
-				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+				return { tokenType: BIT_COMPLEMENT, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 			}else if (currChar == "/") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
-					position += 1;
-					tokenIndex += 1;
-					return { tokenType: COMPOUND_DIV, text: "/=", startPos: position - 1 , endPos:position, lineNumber:
-					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.position += 1;
+					self.tokenIndex += 1;
+					return { tokenType: COMPOUND_DIV, text: "/=", startPos: self.position - 1 , endPos:self.position, lineNumber:
+					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
-				tokenIndex += 1;
-                return { tokenType: DIV, text: currChar, startPos: position, endPos: position, lineNumber:
-                lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+                return { tokenType: DIV, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+                self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
             }else if(currChar == "%"){
-				tokenIndex += 1;
-				return { tokenType: MOD, text: currChar, startPos: position, endPos: position, lineNumber:
-				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+				return { tokenType: MOD, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 			}else if (currChar == "!") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
-					position += 1;
+					self.position += 1;
 					if (self.buffer.lookAhead() == "=") {
 						currChar = self.nextLexeme();
-						position += 1;
-						tokenIndex += 1;
-						return { tokenType: REF_NOT_EQUAL, text: "!==", startPos: position - 2 , endPos:position,
-							lineNumber: lineNum, index: tokenIndex, whiteSpace: getWhiteSpace() };
+						self.position += 1;
+						self.tokenIndex += 1;
+						return { tokenType: REF_NOT_EQUAL, text: "!==", startPos: self.position - 2 , endPos:self.position,
+							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 					}
-					tokenIndex += 1;
-					return { tokenType: NOT_EQUAL, text: "!=", startPos: position - 1 , endPos:position, lineNumber:
-					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.tokenIndex += 1;
+					return { tokenType: NOT_EQUAL, text: "!=", startPos: self.position - 1 , endPos:self.position, lineNumber:
+					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
-				tokenIndex += 1;
-				return { tokenType: NOT, text: currChar, startPos: position, endPos: position, lineNumber:
-				lineNum, index: tokenIndex , whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+				return { tokenType: NOT, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+				self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
 			}else if (currChar == ">") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
-					position += 1;
-					tokenIndex += 1;
-					return { tokenType: GT_EQUAL, text: ">=", startPos: position - 1 , endPos:position, lineNumber:
-					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.position += 1;
+					self.tokenIndex += 1;
+					return { tokenType: GT_EQUAL, text: ">=", startPos: self.position - 1 , endPos:self.position, lineNumber:
+					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}else if (self.buffer.lookAhead() == ">"){
 					if (self.buffer.lookAhead() == "=") {
 						currChar = self.nextLexeme();
-						position += 1;
-						tokenIndex += 1;
-						return { tokenType: COMPOUND_RIGHT_SHIFT, text: ">>=", startPos: position - 2 , endPos:position,
-							lineNumber: lineNum, index: tokenIndex, whiteSpace: getWhiteSpace() };
+						self.position += 1;
+						self.tokenIndex += 1;
+						return { tokenType: COMPOUND_RIGHT_SHIFT, text: ">>=", startPos: self.position - 2 , endPos:self.position,
+							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 					}else if (self.buffer.lookAhead() == ">"){
 						if (self.buffer.lookAhead() == "=") {
 							currChar = self.nextLexeme();
-							position += 1;
-							tokenIndex += 1;
-							return { tokenType: COMPOUND_LOGICAL_SHIFT, text: ">>>=", startPos: position - 1 , endPos:position, lineNumber:
-							lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+							self.position += 1;
+							self.tokenIndex += 1;
+							return { tokenType: COMPOUND_LOGICAL_SHIFT, text: ">>>=", startPos: self.position - 1 , endPos:self.position, lineNumber:
+							self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 						}
 					}
 				}
-				tokenIndex += 1;
-				return { tokenType: GT, text: currChar, startPos: position, endPos: position, lineNumber:
-				lineNum, index: tokenIndex , whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+				return { tokenType: GT, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+				self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
 			}else if (currChar == "<") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
-					position += 1;
-					tokenIndex += 1;
-					return { tokenType: LT_EQUAL, text: "<=", startPos: position - 1 , endPos:position, lineNumber:
-					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.position += 1;
+					self.tokenIndex += 1;
+					return { tokenType: LT_EQUAL, text: "<=", startPos: self.position - 1 , endPos:self.position, lineNumber:
+					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}else if (self.buffer.lookAhead() == "-"){
 					currChar = self.nextLexeme();
-					position += 1;
-					tokenIndex += 1;
-					return { tokenType: LARROW, text: "<-", startPos: position - 1 , endPos:position, lineNumber:
-					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.position += 1;
+					self.tokenIndex += 1;
+					return { tokenType: LARROW, text: "<-", startPos: self.position - 1 , endPos:self.position, lineNumber:
+					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}else if(self.buffer.lookAhead() == "<"){
 					if (self.buffer.lookAhead() == "=") {
 						currChar = self.nextLexeme();
-						position += 1;
-						tokenIndex += 1;
-						return { tokenType: COMPOUND_LEFT_SHIFT, text: "<<=", startPos: position - 1 , endPos:position, lineNumber:
-						lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+						self.position += 1;
+						self.tokenIndex += 1;
+						return { tokenType: COMPOUND_LEFT_SHIFT, text: "<<=", startPos: self.position - 1 , endPos:self.position, lineNumber:
+						self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 					}
 				}
-				tokenIndex += 1;
-				return { tokenType: LT, text: currChar, startPos: position, endPos: position, lineNumber:
-				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+				self.tokenIndex += 1;
+				return { tokenType: LT, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
+				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 			} else if (currChar == "\"") {
                 string str = currChar;
                 if (self.buffer.lookAhead() == "\"") {
                     currChar = self.nextLexeme();
-                    position += 1;
-					tokenIndex += 1;
-                    return { tokenType: STRING_LITERAL, text: "\"\"", startPos: position - 1 , endPos: position,
-                        lineNumber: lineNum, index: tokenIndex , whiteSpace: getWhiteSpace()} ;
+                    self.position += 1;
+					self.tokenIndex += 1;
+                    return { tokenType: STRING_LITERAL, text: "\"\"", startPos: self.position - 1 , endPos: self.position,
+                        lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace()} ;
                 }
                 boolean completeStr = true;
                 int strPos = 0;
                 while (completeStr) {
                     currChar = self.nextLexeme();
-                    position += 1;
+                    self.position += 1;
                     strPos += 1;
                     str = str + currChar;
                     if (self.buffer.lookAhead() == "\"") {
                         currChar = self.nextLexeme();
-						position += 1;
+						self.position += 1;
 						strPos += 1;
                         str = str + currChar;
                         completeStr = false;
-						tokenIndex += 1;
-                        return { tokenType: STRING_LITERAL, text: str, startPos: position - strPos , endPos:
-                        position, lineNumber: lineNum  , index: tokenIndex, whiteSpace: getWhiteSpace()};
+						self.tokenIndex += 1;
+                        return { tokenType: STRING_LITERAL, text: str, startPos: self.position - strPos , endPos:
+                        self.position, lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
                     }
 					//loop until Eof
                     if (self.buffer.lookAhead() == "") {
                         completeStr = false;
                         //error err = error("string expected, found incomplete string");
                         //panic err;
-						return { tokenType: LEXER_ERROR_TOKEN, text: str, startPos: position - strPos , endPos:
-						position, lineNumber: lineNum  , index: tokenIndex, whiteSpace: getWhiteSpace()};
+						return { tokenType: LEXER_ERROR_TOKEN, text: str, startPos: self.position - strPos , endPos:
+						self.position, lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
 
                     }
                 }
@@ -380,7 +381,7 @@ public type Lexer object {
 				boolean validNum = true;
 				while(isDigit(self.buffer.lookAhead())){
 					currChar = self.nextLexeme();
-					    position += 1;
+					    self.position += 1;
 					    digitPos += 1;
 					    numb = numb + currChar;
 				}
@@ -388,46 +389,60 @@ public type Lexer object {
 					validNum = false;
 					while(isLetter(self.buffer.lookAhead())){
 						currChar = self.nextLexeme();
-						position += 1;
+						self.position += 1;
 						digitPos += 1;
 						numb = numb + currChar;
 					}
 					//error err = error("Unexpected identifier after numeric literal");
 					//panic err;
-					tokenIndex += 1;
-					return { tokenType: LEXER_ERROR_TOKEN, text: numb, startPos: position - digitPos , endPos:position, lineNumber:
-					lineNum  , index: tokenIndex, whiteSpace: getWhiteSpace()};
+					self.tokenIndex += 1;
+					return { tokenType: LEXER_ERROR_TOKEN, text: numb, startPos: self.position - digitPos , endPos:self.position, lineNumber:
+					self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
 				}
 				if(validNum){
-					tokenIndex += 1;
-					return { tokenType: NUMBER, text: numb, startPos: position - digitPos , endPos:position, lineNumber:
-					lineNum  , index: tokenIndex, whiteSpace: getWhiteSpace()};
+					self.tokenIndex += 1;
+					return { tokenType: NUMBER, text: numb, startPos: self.position - digitPos , endPos:self.position, lineNumber:
+					self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
 				}
             } else if (isLetter(currChar)) {
                 string word = currChar;
                 int letPos = 0;
                 while (isLetter(self.buffer.lookAhead()) || isDigit(self.buffer.lookAhead()) || self.buffer.lookAhead() == "_") {
                     currChar = self.nextLexeme();
-                    position += 1;
+                    self.position += 1;
                     letPos += 1;
                     word = word + currChar;
                 }
                 int checkReserved = isReserved(word);
                 if (checkReserved != EOF) {
-					tokenIndex += 1;
-                    return { tokenType: checkReserved, text: word, startPos: position - letPos , endPos:position,
-                        lineNumber: lineNum  , index: tokenIndex, whiteSpace: getWhiteSpace()};
+					self.tokenIndex += 1;
+                    return { tokenType: checkReserved, text: word, startPos: self.position - letPos , endPos:self.position,
+                        lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
                 }
                 else {
-					tokenIndex += 1;
-                    return { tokenType: IDENTIFIER, text: word, startPos: position - letPos , endPos:position,
-                        lineNumber: lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+					self.tokenIndex += 1;
+                    return { tokenType: IDENTIFIER, text: word, startPos: self.position - letPos , endPos:self.position,
+                        lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
                 }
             }
         }
-		tokenIndex += 1;
-        return { tokenType: EOF, text: "EOF", startPos: position, endPos: position, lineNumber: lineNum, index: tokenIndex, whiteSpace: getWhiteSpace()};
+		self.tokenIndex += 1;
+        return { tokenType: EOF, text: "EOF", startPos: self.position, endPos: self.position, lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
     }
+	function getWhiteSpace() returns string?{
+		string space2= "";
+		if(self.wpStack.top != 0){
+			while(self.wpStack.top > 0){
+				//space2 = self.wpStack.pop();
+				space2 = self.wpStack.pop() + space2;
+			}
+			return space2;
+		}
+		else {
+			return null;
+		}
+	}
+
 };
 
 
@@ -522,18 +537,6 @@ type WhiteSpaceStack object{
         return spaceSaved;
     }
 
+
 };
 
-function getWhiteSpace() returns string?{
-    string space2= "";
-    if(wpStack.top != 0){
-        while(wpStack.top > 0){
-			//space2 = wpStack.pop();
-			space2 = wpStack.pop() + space2;
-        }
-        return space2;
-    }
-    else {
-        return null;
-    }
-}
