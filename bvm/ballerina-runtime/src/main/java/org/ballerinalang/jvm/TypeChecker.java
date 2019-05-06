@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.types.BJSONType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -39,6 +40,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
 import java.math.BigDecimal;
@@ -56,7 +58,7 @@ import java.util.stream.Collectors;
 
 /**
  * Responsible for performing runtime type checking.
- * 
+ *
  * @since 0.995.0
  */
 @SuppressWarnings({ "rawtypes" })
@@ -112,7 +114,7 @@ public class TypeChecker {
 
     /**
      * Check whether a given value belongs to the given type.
-     * 
+     *
      * @param sourceVal value to check the type
      * @param targetType type to be test against
      * @return true if the value belongs to the given type, false otherwise
@@ -128,7 +130,7 @@ public class TypeChecker {
 
     /**
      * Check whether a given value has the same shape as the given type.
-     * 
+     *
      * @param sourceValue value to check the shape
      * @param targetType type to check the shape against
      * @return true if the value has the same shape as the given type; false otherwise
@@ -139,7 +141,7 @@ public class TypeChecker {
 
     /**
      * Check whether two types are the same.
-     * 
+     *
      * @param sourceType type to test
      * @param targetType type to test against
      * @return true if the two types are same; false otherwise
@@ -156,6 +158,10 @@ public class TypeChecker {
 
         // TODO Support function types, json/map constrained types etc.
         if (sourceType.getTag() == TypeTags.MAP_TAG && targetType.getTag() == TypeTags.MAP_TAG) {
+            return targetType.equals(sourceType);
+        }
+
+        if (sourceType.getTag() == TypeTags.TABLE_TAG && targetType.getTag() == TypeTags.TABLE_TAG) {
             return targetType.equals(sourceType);
         }
 
@@ -244,6 +250,8 @@ public class TypeChecker {
                 return sourceType.getTag() == targetType.getTag();
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
+            case TypeTags.TABLE_TAG:
+                return checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
             case TypeTags.JSON_TAG:
                 return checkIsJSONType(sourceType, (BJSONType) targetType, unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
@@ -278,6 +286,14 @@ public class TypeChecker {
         }
         return checkContraints(((BMapType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
                 unresolvedTypes);
+    }
+
+    private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.TABLE_TAG) {
+            return false;
+        }
+        return checkContraints(((BTableType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                               unresolvedTypes);
     }
 
     private static boolean checkIsJSONType(BType sourceType, BJSONType targetType, List<TypePair> unresolvedTypes) {
@@ -641,6 +657,8 @@ public class TypeChecker {
                 return checkIsLikeJSONType(sourceValue, sourceType, (BJSONType) targetType, unresolvedValues);
             case TypeTags.MAP_TAG:
                 return checkIsLikeMapType(sourceValue, (BMapType) targetType, unresolvedValues);
+            case TypeTags.TABLE_TAG:
+                return checkIsLikeTableType(sourceValue, (BTableType) targetType, unresolvedValues);
             case TypeTags.ARRAY_TAG:
                 return checkIsLikeArrayType(sourceValue, (BArrayType) targetType, unresolvedValues);
             case TypeTags.TUPLE_TAG:
@@ -757,6 +775,17 @@ public class TypeChecker {
             }
         }
         return true;
+    }
+
+    private static boolean checkIsLikeTableType(Object sourceValue, BTableType targetType,
+                                              List<TypeValuePair> unresolvedValues) {
+        if (!(sourceValue instanceof TableValue)) {
+            return false;
+        }
+
+        BTableType tableType = (BTableType) ((TableValue) sourceValue).getType();
+
+        return tableType.getConstrainedType() == targetType.getConstrainedType();
     }
 
     private static boolean checkIsLikeJSONType(Object sourceValue, BType sourceType, BJSONType targetType,
