@@ -530,6 +530,9 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BMapType) {
         loadMapType(mv, bType);
         return;
+    } else if (bType is bir:BTableType) {
+        loadTableType(mv, bType);
+        return;
     } else if (bType is bir:BErrorType) {
         loadErrorType(mv, bType);
         return;
@@ -600,6 +603,22 @@ function loadMapType(jvm:MethodVisitor mv, bir:BMapType bType) {
 
     // invoke the constructor
     mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+}
+
+# Generate code to load an instance of the given table type
+# to the top of the stack.
+#
+# + bType - table type to load
+function loadTableType(jvm:MethodVisitor mv, bir:BTableType bType) {
+    // Create an new table type
+    mv.visitTypeInsn(NEW, TABLE_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load the constraint type
+    loadType(mv, bType.tConstraint);
+
+    // invoke the constructor
+    mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
 }
 
 # Generate code to load an instance of the given error type
@@ -744,6 +763,8 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", ERROR_VALUE);
     } else if (bType is bir:BMapType) {
         return io:sprintf("L%s;", MAP_VALUE);
+    } else if (bType is bir:BTableType) {
+        return io:sprintf("L%s;", TABLE_VALUE);
     } else if (bType is bir:BObjectType) {
         return io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BTypeAny ||
