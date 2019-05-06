@@ -335,14 +335,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // entry package has a version. So we check import cycles which starts with the entry package in next step.
         if (importedPackages.contains(pkgId)) {
             int index = importedPackages.indexOf(pkgId);
-            // Generate the import cycle.
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = index; i < importedPackages.size(); i++) {
-                stringBuilder.append(importedPackages.get(i).toString()).append(" -> ");
-            }
-            // Append the current package to complete the cycle.
-            stringBuilder.append(pkgId);
-            dlog.error(importPkgNode.pos, DiagnosticCode.CYCLIC_MODULE_IMPORTS_DETECTED, stringBuilder.toString());
+            logCyclicDependencyError(importPkgNode, pkgId, false, index);
             return;
         }
 
@@ -355,20 +348,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Check whether the package which we have encountered is the same as the entry package. We don't need to
         // check the version here because we cannot import two different versions of the same package at the moment.
         if (samePkg && entryPackage.orgName.equals(pkgId.orgName) && entryPackage.name.equals(pkgId.name)) {
-            StringBuilder stringBuilder = new StringBuilder();
-            String entryPackageString = importedPackages.get(0).toString();
-            // We need to remove the package.
-            int packageIndex = entryPackageString.indexOf(":");
-            if (packageIndex != -1) {
-                entryPackageString = entryPackageString.substring(0, packageIndex);
-            }
-            // Generate the import cycle.
-            stringBuilder.append(entryPackageString).append(" -> ");
-            for (int i = 1; i < importedPackages.size(); i++) {
-                stringBuilder.append(importedPackages.get(i).toString()).append(" -> ");
-            }
-            stringBuilder.append(pkgId);
-            dlog.error(importPkgNode.pos, DiagnosticCode.CYCLIC_MODULE_IMPORTS_DETECTED, stringBuilder.toString());
+            logCyclicDependencyError(importPkgNode, pkgId, true, 1);
             return;
         }
 
@@ -1071,6 +1051,26 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     // Private methods
+
+    private void logCyclicDependencyError(BLangImportPackage importPkgNode, PackageID pkgId,
+                                          boolean includeEntryPackage, int index) {
+        StringBuilder stringBuilder = new StringBuilder();
+        // Generate the import cycle.
+        if (includeEntryPackage) {
+            String entryPackageString = importedPackages.get(0).toString();
+            // Remove the package version and get the package name.
+            int packageIndex = entryPackageString.indexOf(":");
+            if (packageIndex != -1) {
+                entryPackageString = entryPackageString.substring(0, packageIndex);
+            }
+            stringBuilder.append(entryPackageString).append(" -> ");
+        }
+        for (int i = index; i < importedPackages.size(); i++) {
+            stringBuilder.append(importedPackages.get(i).toString()).append(" -> ");
+        }
+        stringBuilder.append(pkgId);
+        dlog.error(importPkgNode.pos, DiagnosticCode.CYCLIC_MODULE_IMPORTS_DETECTED, stringBuilder.toString());
+    }
 
     private void resolveConstantTypeNode(List<BLangConstant> constants, SymbolEnv env) {
         // Resolve the type node and update the type of the typeNode.
