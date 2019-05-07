@@ -73,6 +73,33 @@ function testFunctionInvalid(){
 	boolean comparison2 = actual2 == expected2;
 	test:assertTrue(comparison2, msg = "AssertTrue failed");
 }
+@test:Config
+function testVarDefStInvalid(){
+	json actual = parseAst("parserModule/tests/resources/statements/variableDefinitionStatement/varDefSts_missing_binaryR&Semicolon.txt");
+	json expected = missingBinaryRandSemicolon();
+	boolean comparison = actual == expected;
+	test:assertTrue(comparison, msg = "AssertTrue failed");
+
+	json actual2 = parseAst("parserModule/tests/resources/statements/variableDefinitionStatement/varDefSts_missing_binaryRight.txt");
+	json expected2 = missingBinaryRight();
+	boolean comparison2 = actual2 == expected2;
+	test:assertTrue(comparison2, msg = "AssertTrue failed");
+
+	json actual3 = parseAst("parserModule/tests/resources/statements/variableDefinitionStatement/varDefSts_missing_expr&Semicolon.txt");
+	json expected3 = missingExprandSemicolon();
+	boolean comparison3 = actual3 == expected3;
+	test:assertTrue(comparison3, msg = "AssertTrue failed");
+
+	json actual4 = parseAst("parserModule/tests/resources/statements/variableDefinitionStatement/varDefSts_missing_Semicolon.txt");
+	json expected4 = missingSemicolon();
+	boolean comparison4 = actual4 == expected4;
+	test:assertTrue(comparison4, msg = "AssertTrue failed");
+
+	json actual5 = parseAst("parserModule/tests/resources/statements/variableDefinitionStatement/varDefSts_missing_varRefIdentifier.txt");
+	json expected5 = missingVarDefIdentifier();
+	boolean comparison5 = actual5 == expected5;
+	test:assertTrue(comparison5, msg = "AssertTrue failed");
+}
 
 
 
