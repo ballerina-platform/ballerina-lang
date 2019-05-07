@@ -43,7 +43,7 @@ public class MapConstantTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/constant/map-literal-constant.bal");
+        compileResult = BCompileUtil.compile("test-src/types/constant/map-constant.bal");
     }
 
     @Test

@@ -31,7 +31,7 @@ public class MapConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
-                "map-literal-constant-negative.bal");
+                "map-constant-negative.bal");
 
         Assert.assertEquals(compileResult.getErrorCount(), 56);
 

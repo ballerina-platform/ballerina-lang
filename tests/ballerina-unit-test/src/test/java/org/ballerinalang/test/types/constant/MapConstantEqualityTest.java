@@ -36,7 +36,7 @@ public class MapConstantEqualityTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/constant/map-literal-constant-equality.bal");
+        compileResult = BCompileUtil.compile("test-src/types/constant/map-constant-equality.bal");
     }
 
     // boolean type.

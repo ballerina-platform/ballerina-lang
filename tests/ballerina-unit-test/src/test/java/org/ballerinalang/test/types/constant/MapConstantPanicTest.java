@@ -34,7 +34,7 @@ public class MapConstantPanicTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/constant/map-literal-constant-panic.bal");
+        compileResult = BCompileUtil.compile("test-src/types/constant/map-constant-panic.bal");
     }
 
     // boolean ----------------------------------------------
