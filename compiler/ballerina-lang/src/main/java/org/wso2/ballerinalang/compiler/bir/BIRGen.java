@@ -142,6 +142,7 @@ public class BIRGen extends BLangNodeVisitor {
     private static final CompilerContext.Key<BIRGen> BIR_GEN =
             new CompilerContext.Key<>();
 
+    public static final String DEFAULT_WORKER_NAME = "default";
     private BIRGenEnv env;
     private Names names;
     private final SymbolTable symTable;
@@ -438,8 +439,10 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
 
+        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
+
         this.env.enclBB.terminator = new BIRTerminator.WorkerReceive(workerReceive.pos,
-                names.fromString(channel), lhsOp, thenBB);
+                names.fromString(channel), lhsOp, isOnSameStrand, thenBB);
 
         this.env.enclFunc.basicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
@@ -449,9 +452,10 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
 
         String channelName = this.env.enclFunc.workerName.value + "->" + workerSend.workerIdentifier.value;
+        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
         workerSend.expr.accept(this);
         this.env.enclBB.terminator = new BIRTerminator.WorkerSend(workerSend.pos, names.fromString(channelName),
-                this.env.targetOperand, thenBB);
+                this.env.targetOperand, isOnSameStrand, thenBB);
 
         this.env.enclFunc.basicBlocks.add(thenBB);
         this.env.enclBB = thenBB;

@@ -520,9 +520,11 @@ type TerminatorGenerator object {
 
     function genWrkSendIns(bir:WrkSend ins, string funcName) {
         self.mv.visitVarInsn(ALOAD, 0);
-        self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));
+        if (!ins.isSameStrand) {
+            self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));
+        }
         self.mv.visitFieldInsn(GETFIELD, STRAND, "wdChannels", io:sprintf("L%s;", WD_CHANNELS));
-        self.mv.visitLdcInsn(ins.dataChannel.value);
+        self.mv.visitLdcInsn(ins.channelName.value);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", io:sprintf("(L%s;)L%s;", 
             STRING_VALUE, WORKER_DATA_CHANNEL), false);
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
@@ -534,19 +536,22 @@ type TerminatorGenerator object {
 
     function genWrkReceiveIns(bir:WrkReceive ins, string funcName) {
         self.mv.visitVarInsn(ALOAD, 0);
-        self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));
+        if (!ins.isSameStrand) {
+            self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));
+        }     
         self.mv.visitFieldInsn(GETFIELD, STRAND, "wdChannels", io:sprintf("L%s;", WD_CHANNELS));
-        self.mv.visitLdcInsn(ins.dataChannel.value);
+        self.mv.visitLdcInsn(ins.channelName.value);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", io:sprintf("(L%s;)L%s;", 
             STRING_VALUE, WORKER_DATA_CHANNEL), false);
  
         self.mv.visitVarInsn(ALOAD, 0);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "tryTakeData", io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
         
-        bir:VariableDcl stranVar = { typeValue: "string", // should be record
+        // a dummy var to temporaly store worker result
+        bir:VariableDcl tempVar = { typeValue: "any",
                                  name: { value: "wrkMsg" },
                                  kind: "ARG" };
-        int wrkResultIndex = self.getJVMIndexOfVarRef(stranVar);
+        int wrkResultIndex = self.getJVMIndexOfVarRef(tempVar);
         self.mv.visitVarInsn(ASTORE, wrkResultIndex);
         
         jvm:Label l5 = self.labelGen.getLabel("l55");

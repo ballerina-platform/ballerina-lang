@@ -468,7 +468,8 @@ public type WrkReceive record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     VarRef lhsOp;
-    Name dataChannel;
+    Name channelName;
+    boolean isSameStrand;
     BasicBlock thenBB;
 |};
 
@@ -476,7 +477,8 @@ public type WrkSend record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     VarRef dataOp;
-    Name dataChannel;
+    Name channelName;
+    boolean isSameStrand;
     BasicBlock thenBB;
 |};
 

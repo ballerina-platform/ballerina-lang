@@ -126,6 +126,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte((entry.kind.getValue()));
         buf.writeInt(addStringCPEntry(entry.workerName.getValue()));
         entry.lhsOp.accept(this);
+        buf.writeBoolean(entry.isSameStrand);
         addCpAndWriteString(entry.thenBB.id.value);
     }
 
@@ -134,6 +135,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte((entry.kind.getValue()));
         buf.writeInt(addStringCPEntry(entry.channel.getValue()));
         entry.data.accept(this);
+        buf.writeBoolean(entry.isSameStrand);
         addCpAndWriteString(entry.thenBB.id.value);
     }
 

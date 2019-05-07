@@ -270,12 +270,15 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public Name workerName;
         public BIROperand lhsOp;
         public BIRBasicBlock thenBB;
+        public boolean isSameStrand;
 
-        public WorkerReceive(DiagnosticPos pos, Name workerName, BIROperand lhsOp, BIRBasicBlock thenBB) {
+        public WorkerReceive(DiagnosticPos pos, Name workerName, BIROperand lhsOp,
+                             boolean isSameStrand, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.WK_RECEIVE);
             this.workerName = workerName;
             this.lhsOp = lhsOp;
             this.thenBB = thenBB;
+            this.isSameStrand = isSameStrand;
         }
 
         @Override
@@ -295,12 +298,15 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public Name channel;
         public BIROperand data;
         public BIRBasicBlock thenBB;
+        public boolean isSameStrand;
 
-        public WorkerSend(DiagnosticPos pos, Name workerName, BIROperand data, BIRBasicBlock thenBB) {
+        public WorkerSend(DiagnosticPos pos, Name workerName, BIROperand data, boolean isSameStrand,
+                          BIRBasicBlock thenBB) {
             super(pos, InstructionKind.WK_SEND);
             this.channel = workerName;
             this.data = data;
             this.thenBB = thenBB;
+            this.isSameStrand = isSameStrand;
         }
 
         @Override

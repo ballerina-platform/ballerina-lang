@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.RefValue;
 
