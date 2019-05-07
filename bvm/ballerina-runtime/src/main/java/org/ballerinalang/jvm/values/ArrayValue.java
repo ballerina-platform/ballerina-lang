@@ -225,7 +225,6 @@ public class ArrayValue implements RefValue, CollectionValue {
                 return stringValues[(int) index];
             default:
                 return refValues[(int) index];
-
         }
     }
 

@@ -604,7 +604,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      * <p>
      * e.g., int a = cast(int) b;
      *
-     * @since 0.980.0
+     * @since 0.995.0
      */
     public static class NewTypeDesc extends BIRNonTerminator {
         public BIROperand lhsOp;

@@ -500,7 +500,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
 
     @Override
     public void stamp(BType type) {
-        // TODO Auto-generated method stub
+        // TODO
     }
 
     @Override

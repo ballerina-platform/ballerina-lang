@@ -34,9 +34,9 @@ public class XMLIterator {
     }
 
     /**
-     * {@code {@link BXMLItemIterator}} provides iterator for xml items.
+     * {@code {@link ItemIterator}} provides iterator for xml items.
      *
-     * @since 0.96.0
+     * @since 0.995.0
      */
     static class ItemIterator implements IteratorValue {
 
