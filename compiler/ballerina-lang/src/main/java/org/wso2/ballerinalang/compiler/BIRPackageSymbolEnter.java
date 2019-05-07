@@ -222,7 +222,7 @@ public class BIRPackageSymbolEnter {
     private void defineAttachedFunctions(DataInputStream dataInStream) throws IOException {
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
             this.structureTypeSymbol = structureTypeSymbol;
-            defineSymbols(dataInStream, rethrow(this::definePackageLevelVariables));
+            defineSymbols(dataInStream, rethrow(this::defineFunction));
         }
     }
 

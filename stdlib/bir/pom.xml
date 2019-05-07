@@ -129,6 +129,7 @@
                                 <argument>${project.build.directory}/generated-balo/repo/ballerina</argument>
                                 <argument>${project.build.directory}</argument>
                                 <argument>${project.version}</argument>
+                                <argument>false</argument>
                             </arguments>
                             <mainClass>org.ballerinalang.stdlib.utils.GenerateBalo</mainClass>
                     <classpathScope>test</classpathScope>
