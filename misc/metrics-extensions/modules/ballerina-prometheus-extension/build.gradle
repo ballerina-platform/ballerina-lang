@@ -97,7 +97,7 @@ dependencies {
     implementation project(':ballerina-internal')
 //    implementation project(':ballerina-utils')
 
-    cliUtils 'org.ballerinalang:ballerina-cli-utils:0.992.0-m1'
+    cliUtils project(':ballerina-cli-utils')
 }
 
 artifacts {
