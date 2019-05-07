@@ -381,9 +381,14 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue, Col
 
     @Override
     public IteratorValue getIterator() {
-        return new MapIterator<K, V>(this.entrySet().iterator());
+        return new MapIterator<K, V>(new LinkedHashMap<>(this).entrySet().iterator());
     }
 
+    /**
+     * {@link MapIterator} iteration provider for ballerina maps.
+     *
+     * @since 0.995.0
+     */
     static class MapIterator<K, V> implements IteratorValue {
 
         Iterator<Map.Entry<K, V>> iterator;

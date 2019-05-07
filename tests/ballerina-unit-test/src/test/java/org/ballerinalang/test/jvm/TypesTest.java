@@ -719,10 +719,4 @@ public class TypesTest {
         BValue[] result = BRunUtil.invoke(objectsResult, "testSelfReferencingObject");
         Assert.assertEquals((result[0]).stringValue(), "{a:3, f:()}");
     }
-
-    @Test
-    public void testIterator() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testIterator");
-        Assert.assertEquals((result[0]).stringValue(), "{a:3, f:()}");
-    }
 }

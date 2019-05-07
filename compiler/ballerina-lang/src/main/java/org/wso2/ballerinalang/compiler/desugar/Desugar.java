@@ -282,7 +282,7 @@ public class Desugar extends BLangNodeVisitor {
     Stack<BLangAccessExpression> accessExprStack = new Stack<>();
     private BLangMatchTypedBindingPatternClause successPattern;
     private BLangAssignment safeNavigationAssignment;
-    static boolean jbal = false;
+    static boolean isJvmTarget = false;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -294,7 +294,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private Desugar(CompilerContext context) {
-        jbal = Boolean.parseBoolean(CompilerOptions.getInstance(context).get(CompilerOptionName.JBAL));
+        // This is a temporary flag to differentiate desugaring to BVM vs BIR
+        // TODO: remove this once bootstraping is added.
+        isJvmTarget = CompilerPhase.BIR_GEN.toString()
+                .equalsIgnoreCase(CompilerOptions.getInstance(context).get(CompilerOptionName.COMPILER_PHASE));
+
         context.put(DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
@@ -3166,9 +3170,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef resultReferenceInAssignment = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
 
         // Note - $iterator$.next();
-        // FIXME
         BLangInvocation nextInvocation = createIteratorNextInvocation(foreach, collectionSymbol, iteratorSymbol);
-        BLangLiteral nulLiteral = ASTBuilderUtil.createLiteral(foreach.pos, symTable.nilType, Names.NIL_VALUE);
 
         // we are inside the while loop. hence the iterator cannot be nil. hence remove nil from iterator's type
         nextInvocation.expr.type = types.getSafeType(nextInvocation.expr.type, false);
@@ -3523,7 +3525,7 @@ public class Desugar extends BLangNodeVisitor {
                 visitCallBuiltInMethodInvocation(iExpr);
                 break;
             case NEXT:
-                if (jbal) {
+                if (isJvmTarget) {
                     result = visitNextBuiltInMethodInvocation(iExpr);
                 } else {
                     result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);

@@ -48,7 +48,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
  */
 public final class XMLSequence extends XMLValue<ArrayValue> {
 
-    private ArrayValue sequence;
+    ArrayValue sequence;
 
     /**
      * Create an empty xml sequence.
@@ -501,6 +501,10 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     public void stamp(BType type) {
         // TODO Auto-generated method stub
+    }
 
+    @Override
+    public IteratorValue getIterator() {
+        return new XMLIterator.SequenceIterator(this);
     }
 }
