@@ -573,13 +573,9 @@ type TerminatorGenerator object {
 
     function submitToScheduler(bir:VarRef? lhsOp) {
         bir:BType? futureType = lhsOp.typeValue;
-        boolean isVoid;
+        boolean isVoid = false;
         if (futureType is bir:BFutureType) {
             isVoid = futureType.returnType is bir:BTypeNil;
-        } else {
-            error err = error( "Invalid return type for async function pointer call" +
-                            io:sprintf("%s", futureType));
-            panic err;
         }
         // load strand
         self.mv.visitVarInsn(ALOAD, 0);
@@ -592,7 +588,7 @@ type TerminatorGenerator object {
         }
 
         // store return
-        if(lhsOp is bir:VarRef) {
+        if (lhsOp is bir:VarRef) {
             bir:VariableDcl? lhsOpVarDcl = lhsOp.variableDcl;
             // store the returned strand as the future
             self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(getVariableDcl(lhsOpVarDcl)));
