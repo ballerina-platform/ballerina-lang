@@ -74,14 +74,11 @@ public class Http2InboundContentListener implements Listener {
     @Override
     public void resumeReadInterest() {
         channelHandlerContext.channel().eventLoop().execute(() -> {
-            int unconsumedBytes = getUnConsumedBytes();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Stream {}. In thread {}. {} resumeReadInterest. Unconsumed bytes: {}",
-                          streamId, Thread.currentThread().getName(), inboundType, unconsumedBytes);
+                          streamId, Thread.currentThread().getName(), inboundType, getUnConsumedBytes());
             }
-            if (unconsumedBytes > 0) {
-                consumeBytes(unconsumedBytes);
-            }
+            immediatelyConsumeBytes();
             appConsumeRequired = false;
         });
     }
@@ -99,21 +96,25 @@ public class Http2InboundContentListener implements Listener {
     /**
      * This method should only be executed in an I/O thread. Do not use {@link #updateLocalFlowController(int)} method
      * inside loop execute since both the {@link #consumeBytes(int)} and {@link #getUnConsumedBytes()} should be
-     * executed in a single netty task. Calling {@link #updateLocalFlowController(int)} will produce two netty tasks
+     * executed as a single netty task. Calling {@link #updateLocalFlowController(int)} will produce two netty tasks
      * which will result in an incorrect execution order.
      */
     void resumeByteConsumption() {
         channelHandlerContext.channel().eventLoop().execute(() -> {
-            int unconsumedBytes = getUnConsumedBytes();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Stream {}. In thread {}. {} resume byte consumption. Unconsumed bytes: {}",
-                          streamId, Thread.currentThread().getName(), inboundType, unconsumedBytes);
+                          streamId, Thread.currentThread().getName(), inboundType, getUnConsumedBytes());
             }
-            if (unconsumedBytes > 0) {
-                consumeBytes(unconsumedBytes);
-            }
+            immediatelyConsumeBytes();
             consumeInboundContent.set(true);
         });
+    }
+
+    private void immediatelyConsumeBytes() {
+        int unconsumedBytes = getUnConsumedBytes();
+        if (unconsumedBytes > 0) {
+            consumeBytes(unconsumedBytes);
+        }
     }
 
     /**
@@ -129,7 +130,11 @@ public class Http2InboundContentListener implements Listener {
     private void consumeBytes(int consumedBytes) {
         try {
             Http2Stream http2Stream = getHttp2Stream();
-            if (http2Stream != null) {
+            //Because of the netty task execution order is not predictable, onAdd() method's task can get executed
+            //after resumeByteConsumption(), even though onAdd() gets called first. Therefore by the time onAdd()'s
+            //task gets executed, actual unconsumed bytes might be less than the ones depicted by consumedBytes.
+            //ISSUE [https://github.com/netty/netty/issues/9128]
+            if (http2Stream != null && consumedBytes <= getUnConsumedBytes()) {
                 boolean windowUpdateSent = http2LocalFlowController.consumeBytes(http2Stream, consumedBytes);
                 if (windowUpdateSent) {
                     if (LOG.isDebugEnabled()) {
