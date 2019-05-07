@@ -598,4 +598,29 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             visitor.visit(this);
         }
     }
+
+    /**
+     * The new stream instruction.
+     * <p>
+     * e.g. {@code stream<Employee> employeeStream = new}
+     *
+     * @since 0.995.0
+     */
+    public static class NewStream extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand nameOp;
+        public BType type;
+
+        public NewStream(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand nameOp) {
+            super(pos, InstructionKind.NEW_STREAM);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.nameOp = nameOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

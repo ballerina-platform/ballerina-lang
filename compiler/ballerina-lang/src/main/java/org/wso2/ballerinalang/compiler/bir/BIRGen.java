@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -708,6 +709,11 @@ public class BIRGen extends BLangNodeVisitor {
         generateTableLiteral(tableLiteral);
     }
 
+    @Override
+    public void visit(BLangStreamLiteral streamLiteral) {
+        generateStreamLiteral(streamLiteral);
+    }
+
     public void visit(BLangArrayLiteral astArrayLiteralExpr) {
         generateArrayLiteral(astArrayLiteralExpr);
     }
@@ -1310,6 +1316,24 @@ public class BIRGen extends BLangNodeVisitor {
 
         emit(new BIRNonTerminator.NewTable(tableLiteral.pos, tableLiteral.type, toVarRef, columnsOp, dataOp,
                 indexColOp, keyColOp));
+
+        this.env.targetOperand = toVarRef;
+    }
+
+    private void generateStreamLiteral(BLangStreamLiteral streamLiteral) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(streamLiteral.type, this.env.nextLocalVarId(names),
+                                                       VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        BLangLiteral nameLiteral = new BLangLiteral();
+        nameLiteral.pos = streamLiteral.pos;
+        nameLiteral.type = symTable.stringType;
+        nameLiteral.value = streamLiteral.streamName;
+        nameLiteral.accept(this);
+        BIROperand columnsOp = this.env.targetOperand;
+
+        emit(new BIRNonTerminator.NewStream(streamLiteral.pos, streamLiteral.type, toVarRef, columnsOp));
 
         this.env.targetOperand = toVarRef;
     }

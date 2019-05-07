@@ -227,6 +227,14 @@ type InstructionEmitter object {
             print(" = ", ins.kind, " ");
             self.typeEmitter.emitType(ins.typeValue);
             println(";");
+        } else if (ins is NewStream) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.typeEmitter.emitType(ins.typeValue);
+            print(", ");
+            self.opEmitter.emitOp(ins.nameOp);
+            println(";");
         } else if (ins is NewTable) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
