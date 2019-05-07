@@ -21,6 +21,7 @@ package org.ballerinalang.docgen;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
+import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
@@ -29,6 +30,7 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.docgen.generator.model.DefaultableVarible;
+import org.ballerinalang.docgen.generator.model.PageContext;
 import org.ballerinalang.docgen.generator.model.Type;
 import org.ballerinalang.docgen.generator.model.Variable;
 import org.ballerinalang.docgen.model.ModuleDoc;
@@ -69,18 +71,15 @@ public class Writer {
             handlebars.registerHelpers(StringHelpers.class);
             handlebars.registerHelper("paramSummary", (Helper<List<DefaultableVarible>>)
                     (varList, options) -> varList.stream()
-                            .map(variable -> getTypeName(variable.type) + " " + variable.name)
+                            .map(variable -> getTypeLabel(variable.type, options) + " " + variable.name)
                             .collect(Collectors.joining(", "))
             );
             handlebars.registerHelper("returnParamSummary", (Helper<List<Variable>>)
                     (varList, options) -> varList.stream()
-                            .map(variable -> getTypeName(variable.type) + " " + variable.name)
+                            .map(variable -> getTypeLabel(variable.type, options) + " " + variable.name)
                             .collect(Collectors.joining(", "))
             );
-            handlebars.registerHelper("typeName", (Helper<Type>)
-                    (type, options) -> {
-                        return getTypeName(type);
-                    });
+            handlebars.registerHelper("typeName", Writer::getTypeLabel);
             Template template = handlebars.compile(packageTemplateName);
 
             writer = new PrintWriter(filePath, "UTF-8");
@@ -95,24 +94,34 @@ public class Writer {
         }
     }
 
-    private static String getTypeName(Type type) {
-        String orgName = BallerinaDocDataHolder.getInstance().getOrgName();
-        Map<String, ModuleDoc> packageMap = BallerinaDocDataHolder.getInstance().getPackageMap();
-        String link  = type.moduleName + "/index.html#";
-        // Type is declared in a local module
-        if (orgName.equals(type.orgName) && packageMap.containsKey(type.moduleName)) {
-            link = type.moduleName + "/index.html#";
-        }
-
-        String finalLink = link;
+    private static String getTypeLabel(Type type, Options options) {
+        String root = getRootPath(options);
         return type.isAnonymousUnionType
                 ? type.memberTypes.stream()
-                    .map(type1 -> getHtmlLink(type1.name, finalLink + type1.name))
+                    .map(type1 -> getHtmlLink(type1, root))
                     .collect(Collectors.joining(" | "))
-                : getHtmlLink(type.name, link + type.name);
+                : getHtmlLink(type, root);
     }
 
-    private static String getHtmlLink(String value, String href) {
-        return "<a href=\"" + href + "\">" + value + "</a>";
+    private static String getRootPath(Options options) {
+        return getNearestPageContext(options.context).rootPath;
+    }
+
+    private static PageContext getNearestPageContext(Context context) {
+        return context.model() instanceof PageContext
+                ? (PageContext) context.model()
+                : getNearestPageContext(context.parent());
+    }
+
+    private static String getHtmlLink(Type type, String root) {
+        String orgName = BallerinaDocDataHolder.getInstance().getOrgName();
+        Map<String, ModuleDoc> packageMap = BallerinaDocDataHolder.getInstance().getPackageMap();
+        String link = root + type.moduleName + "/" + type.category + "/" + type.name + ".html";;
+        // If this is a local module, generate relative link to the type
+        if (orgName.equals(type.orgName) && packageMap.containsKey(type.moduleName)) {
+            // TODO fix the orgName equals
+        }
+
+        return "<a href=\"" + link + "\">" + type.name + "</a>";
     }
 }

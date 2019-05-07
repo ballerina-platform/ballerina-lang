@@ -16,14 +16,14 @@
 package org.ballerinalang.docgen.generator.model;
 
 /**
- * Page context for the module page.
+ * Represents a page context of api docs.
  */
-public class ModulePageContext extends PageContext {
-    public Module module;
-    public Project project;
-    public ModulePageContext(Module module, Project project, String rootPath, String title) {
-        super(rootPath, title);
-        this.module = module;
-        this.project = project;
+public class PageContext {
+    public String rootPath;
+    public String title;
+
+    public PageContext(String rootPath, String title) {
+        this.rootPath = rootPath;
+        this.title = title;
     }
 }

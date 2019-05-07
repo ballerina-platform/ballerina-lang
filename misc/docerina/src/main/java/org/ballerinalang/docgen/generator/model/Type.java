@@ -16,7 +16,11 @@
 package org.ballerinalang.docgen.generator.model;
 
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
+import org.ballerinalang.model.elements.Flag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -34,6 +38,7 @@ public class Type {
     public String moduleName;
     public String name;
     public String description;
+    public String category;
     public boolean isAnonymousUnionType;
     public List<Type> memberTypes = new ArrayList<>();
 
@@ -67,11 +72,29 @@ public class Type {
                     ((BLangUnionTypeNode) type).memberTypeNodes.forEach(memberType -> {
                         this.memberTypes.add(Type.fromTypeNode(memberType));
                     });
+                    if (typeSymbol != null) {
+                        this.orgName = typeSymbol.pkgID.orgName.value;
+                        this.moduleName = typeSymbol.pkgID.name.value;
+                    }
                 } else if (type instanceof BLangErrorType) {
                     this.name = type.type.toString();
                 } else {
                     this.name = type.type.toString();
                 }
+            }
+        }
+        if (type.type instanceof BUnionType) {
+            this.category = "types";
+        } else if(type.type instanceof BRecordType) {
+            this.category = "records";
+        } else if(type.type.getClass().equals(BObjectType.class)) {
+            BObjectTypeSymbol objSymbol = (BObjectTypeSymbol) type.type.tsymbol;
+            if (objSymbol.getFlags().contains(Flag.CLIENT)) {
+                this.category = "clients";
+            } else if (objSymbol.getFlags().contains(Flag.LISTENER)) {
+                this.category = "listeners";
+            } else {
+                this.category = "objects";
             }
         }
     }
