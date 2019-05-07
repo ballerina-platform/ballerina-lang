@@ -86,6 +86,14 @@ body .ui.grid .content-wrapper .main-wrapper {
   width: 750px;
   margin: 20px 30px;
 }
+body .ui.grid .content-wrapper .main-wrapper .module-wrapper h2:first-of-type {
+  border-bottom: 0;
+}
+body .ui.grid .content-wrapper .main-wrapper h2 {
+  border-bottom: 1px solid #dededf;
+  line-height: 1.8em;
+  margin-bottom: 1em;
+}
 body .ui.grid .content-wrapper .main-wrapper span.records {
   color: #00c378;
 }
@@ -107,8 +115,17 @@ body .ui.grid .content-wrapper .main-wrapper span.constant {
 body .ui.grid .content-wrapper .main-wrapper span.annotations {
   color: #276dc4;
 }
+body .ui.grid .content-wrapper .main-wrapper span.types {
+  color: #512DA8;
+}
 body .ui.grid .content-wrapper .main-wrapper span.errors {
   color: #f44336;
+}
+body .ui.grid .content-wrapper .main-wrapper p a {
+  color: #ea8792;
+}
+body .ui.grid .content-wrapper .main-wrapper p a:hover {
+  text-decoration: underline;
 }
 body .ui.grid .content-wrapper .param-divider {
   margin-top: 0px;
@@ -150,6 +167,9 @@ body .ui.grid .content-wrapper a.constant {
 }
 body .ui.grid .content-wrapper a.annotations {
   color: #276dc4;
+}
+body .ui.grid .content-wrapper a.types {
+  color: #512DA8;
 }
 body .ui.grid .content-wrapper a.errors {
   color: #f44336;
@@ -210,6 +230,10 @@ body .ui.grid .content-wrapper .ui.table td.annotations,
 body .ui.grid .content-wrapper .ui.table tr td td.annotations {
   color: #276dc4;
 }
+body .ui.grid .content-wrapper .ui.table td.types,
+body .ui.grid .content-wrapper .ui.table tr td td.types {
+  color: #512DA8;
+}
 body .ui.grid .content-wrapper .ui.table td.errors,
 body .ui.grid .content-wrapper .ui.table tr td td.errors {
   color: #f44336;
@@ -231,6 +255,9 @@ body .ui.grid .content-wrapper p {
 body .ui.grid .content-wrapper code {
   color: #ea8792;
   font-style: italic;
+}
+body .ui.grid .content-wrapper code .language-ballerinaDup {
+  color: #888;
 }
 body .ui.grid .content-wrapper .modules {
   color: #0d4d84;
@@ -341,6 +368,9 @@ body .ui.grid .content-wrapper .module-title.constant {
 body .ui.grid .content-wrapper .module-title.annotations {
   color: #276dc4;
 }
+body .ui.grid .content-wrapper .module-title.types {
+  color: #512DA8;
+}
 body .ui.grid .content-wrapper .module-title.errors {
   color: #f44336;
 }
@@ -364,6 +394,9 @@ body .ui.grid .content-wrapper .module-title a.constant {
 }
 body .ui.grid .content-wrapper .module-title a.annotations {
   color: #276dc4;
+}
+body .ui.grid .content-wrapper .module-title a.types {
+  color: #512DA8;
 }
 body .ui.grid .content-wrapper .module-title a.errors {
   color: #f44336;

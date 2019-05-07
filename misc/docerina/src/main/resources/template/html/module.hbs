@@ -16,17 +16,15 @@
     </div>
 
     <div class="fourteen wide column content-wrapper">
-        <div class="main-wrapper">
+        <div class="main-wrapper module-wrapper">
             <div class="ui breadcrumb">
-                <h2 class="active section">{{ module.id }}</h2>
+                <h1 class="active section">Module : <span class="modules">ballerina/{{ module.id }}</span></h1>
             </div>
             <div class="ui divider"></div>
             {{{ module.description }}}
 
             {{#if module.records}}
-                <div class="ui divider"></div>
-                <h3><a name="records">Records</a></h3>
-                <div class="ui divider"></div>
+                <h2><a name="records">Records</a></h2>
                 <table>
                     {{#each module.records}}
                         <tr>
@@ -40,8 +38,7 @@
             {{/if}}
 
             {{#if module.objects}}
-                <h3><a name="objects">Objects</a></h3>
-                <div class="ui divider"></div>
+                <h2><a name="objects">Objects</a></h2>
                 <table>
                     {{#each module.objects}}
                         <tr>
@@ -58,8 +55,7 @@
             {{/if}}
 
             {{#if module.clients}}
-                <h3><a name="clients">Clients</a></h3>
-                <div class="ui divider"></div>
+                <h2><a name="clients">Clients</a></h2>
                 <table>
                     {{#each module.clients}}
                         <tr>
@@ -73,8 +69,7 @@
             {{/if}}
 
             {{#if module.listeners}}
-                <h3><a name="listeners">Listeners</a></h3>
-                <div class="ui divider"></div>
+                <h2><a name="listeners">Listeners</a></h2>
                 <table>
                     {{#each module.listeners}}
                         <tr>
@@ -88,8 +83,7 @@
             {{/if}}
 
             {{#if module.functions}}
-                <h3><a name="functions">Functions</a></h3>
-                <div class="ui divider"></div>
+                <h2><a name="functions">Functions</a></h2>
                 <table>
                     {{#each module.functions}}
                         <tr>
@@ -103,8 +97,7 @@
 
 
             {{#if module.constants}}
-                <h3><a name="constants">Constants</a></h3>
-                <div class="ui divider"></div>
+                <h2><a name="constants">Constants</a></h2>
                 <table>
                     {{#each module.constants}}
                         <tr>
@@ -118,8 +111,7 @@
 
 
             {{#if module.annotations}}
-                <h3><a name="annotations">Annotations</a></h3>
-                <div class="ui divider"></div>
+                <h2><a name="annotations">Annotations</a></h2>
                 <table>
                     {{#each module.annotations}}
                         <tr>
@@ -132,8 +124,7 @@
             {{/if}}
 
             {{#if module.unionTypes}}
-                <h3><a name="types">Types</a></h3>
-                <div class="ui divider"></div>
+                <h2><a name="types">Types</a></h2>
                 <table>
                     {{#each module.unionTypes}}
                         <tr>
@@ -141,21 +132,13 @@
                                 <a class="types" href="types/types.html">{{name}}</a>
                             </td>
                             <td class="module-desc">{{{ description }}}</td>
-                            <td class="member-types">
-                                <p>
-                                    {{#each memberTypes}}
-                                        <a>{{ name }}</a>
-                                    {{/each}}
-                                </p>
-                            </td>
                         </tr>
                     {{/each}}
                 </table>
             {{/if}}
 
             {{#if module.errors}}
-                <h3><a name="errors">Errors</a></h3>
-                <div class="ui divider"></div>
+                <h2><a name="errors">Errors</a></h2>
                 <table>
                     {{#each module.errors}}
                         <tr>
