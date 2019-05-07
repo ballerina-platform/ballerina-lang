@@ -117,8 +117,8 @@ public class SimpleConstantNegativeTest {
                 "'string'", offset += 9, 31);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found '()'",
                 offset += 6, 24);
-        BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", offset += 4, 33);
-        BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", offset += 1, 33);
+        BAssertUtil.validateError(compileResult, index++, "not a valid constant expression", offset += 4, 33);
+        BAssertUtil.validateError(compileResult, index++, "not a valid constant expression", offset += 1, 33);
         BAssertUtil.validateError(compileResult, index, "cannot update constant value", offset += 12, 5);
     }
 }
