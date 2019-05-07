@@ -39,7 +39,8 @@ public class ReturnStmtNegativeTest {
     public void testNotEnoughArgsToReturn2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible return types: expected '(string,string)', found 'string'", 2, 12);
+        BAssertUtil.validateError(result, 0,
+                                  "incompatible return types: expected '(string,string)', found 'string'", 2, 12);
     }
 
     @Test(description = "Test not enough arguments to return")
@@ -60,7 +61,8 @@ public class ReturnStmtNegativeTest {
     public void testTooManyArgsToReturn2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/too-many-args-to-return-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible return types: expected 'string', found '(string,string)'", 2, 12);
+        BAssertUtil.validateError(result, 0,
+                                  "incompatible return types: expected 'string', found '(string,string)'", 2, 12);
     }
 
     @Test(description = "Test type mismatch")
@@ -170,7 +172,8 @@ public class ReturnStmtNegativeTest {
     public void testMultiValueInSingleContext() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/multi-value-in-single-context.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible return types: expected 'string', found '(string,int)'", 2, 13);
+        BAssertUtil.validateError(result, 0,
+                                  "incompatible return types: expected 'string', found '(string,int)'", 2, 13);
     }
 
     @Test(description = "Test return statement in resource with mismatching types")
