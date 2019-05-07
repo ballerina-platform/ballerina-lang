@@ -35,7 +35,7 @@ public class MapConstantNegativeTest {
 
         Assert.assertEquals(compileResult.getErrorCount(), 56);
 
-        String expectedErrMsg = "not a valid constant expression";
+        String expectedErrMsg = "not a constant expression";
 
         int index = 0;
         int offset = 0;

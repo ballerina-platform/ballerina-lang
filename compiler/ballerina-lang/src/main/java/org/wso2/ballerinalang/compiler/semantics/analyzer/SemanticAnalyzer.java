@@ -1985,7 +1985,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangConstant constant) {
         BLangExpression expression = (BLangExpression) constant.value;
         if (!symbolEnter.isValidConstantExpression(expression)) {
-            dlog.error(expression.pos, DiagnosticCode.NOT_A_VALID_CONSTANT_EXPRESSION);
+            dlog.error(expression.pos, DiagnosticCode.NOT_A_CONSTANT_EXPRESSION);
             return;
         }
 
@@ -2091,7 +2091,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
                 // Symbol can be null in some invalid scenarios. Eg - const string m = { name: "Ballerina" };
                 if (symbol != null && (symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
-                    dlog.error(expression.pos, DiagnosticCode.NOT_A_VALID_CONSTANT_EXPRESSION);
+                    dlog.error(expression.pos, DiagnosticCode.NOT_A_CONSTANT_EXPRESSION);
                 }
                 break;
             case RECORD_LITERAL_EXPR:
@@ -2104,7 +2104,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 checkConstantExpression(((BLangFieldBasedAccess) expression).expr);
                 break;
             default:
-                dlog.error(expression.pos, DiagnosticCode.NOT_A_VALID_CONSTANT_EXPRESSION);
+                dlog.error(expression.pos, DiagnosticCode.NOT_A_CONSTANT_EXPRESSION);
                 break;
         }
     }
