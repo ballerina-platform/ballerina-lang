@@ -46,6 +46,8 @@ public class Type {
             if (type instanceof BLangUserDefinedType) {
                 BLangUserDefinedType userDefinedType = (BLangUserDefinedType) type;
                 this.name = userDefinedType.typeName.value;
+            } else {
+                this.name = typeSymbol.name.value;
             }
             this.orgName = typeSymbol.pkgID.orgName.value;
             this.moduleName = typeSymbol.pkgID.name.value;
@@ -71,7 +73,6 @@ public class Type {
                     this.name = type.type.toString();
                 }
             }
-
         }
     }
 

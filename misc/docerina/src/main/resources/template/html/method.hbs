@@ -1,6 +1,6 @@
 <div class="method-content">
     <h3 id="{{name}}">{{name}}</h3>
-    <p class="method-types"> TODO: param summary</p>
+    <p class="method-types"> {{{ paramSummary parameters }}}</p>
     <div class="ui divider param-divider"></div>
     <p>{{{ description }}}</p>
     <table class="ui table param-table">
@@ -17,7 +17,7 @@
             {{#each parameters}}
                 <tr>
                     <td>{{ name }}</td>
-                    <td>{{ type.name }}</td>
+                    <td>{{{ typeName type }}}</td>
                     <td>{{ defaultValue }}</td>
                     <td>{{{ description }}}</td>
                 </tr>
@@ -34,7 +34,7 @@
             <tbody>
             {{#each returnParameters}}
                 <tr>
-                    <td width="50%">{{ type.name }}</td>
+                    <td width="50%">{{{ typeName type }}}</td>
                     <td width="50%">{{{ description }}}</td>
                 </tr>
             {{/each}}

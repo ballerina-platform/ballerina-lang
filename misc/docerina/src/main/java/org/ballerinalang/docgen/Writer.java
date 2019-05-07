@@ -21,33 +21,25 @@ package org.ballerinalang.docgen;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
-import org.ballerinalang.docgen.model.AnnotationDoc;
-import org.ballerinalang.docgen.model.ConstantDoc;
-import org.ballerinalang.docgen.model.Documentable;
-import org.ballerinalang.docgen.model.EndpointDoc;
-import org.ballerinalang.docgen.model.EnumDoc;
-import org.ballerinalang.docgen.model.FunctionDoc;
-import org.ballerinalang.docgen.model.GlobalVariableDoc;
-import org.ballerinalang.docgen.model.ObjectDoc;
-import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
-import org.ballerinalang.docgen.model.RecordDoc;
+import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
+import org.ballerinalang.docgen.generator.model.DefaultableVarible;
+import org.ballerinalang.docgen.generator.model.Type;
+import org.ballerinalang.docgen.generator.model.Variable;
+import org.ballerinalang.docgen.model.ModuleDoc;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Generates the HTML pages from the Page objects.
@@ -75,34 +67,20 @@ public class Writer {
             Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(templatesClassPath), new
                     FileTemplateLoader(templatesFolderPath));
             handlebars.registerHelpers(StringHelpers.class);
-            handlebars.registerHelper("dataTypeLink", new Helper<String>() {
-                @Override
-                public Object apply(String dataType, Options options) throws IOException {
-                    String href = options.param(0);
-                    Map<String, String> typeToLink = new HashMap<>();
-                    String[] types, hrefs;
-                    hrefs = href.split(",");
-                    types = dataType.split("\\(|\\)|,|\\|");
-                    int idx = 0;
-                    for (String type : types) {
-                        type = type.trim();
-                        if (!type.isEmpty()) {
-                            if (idx >= hrefs.length) {
-                                break;
-                            }
-                            typeToLink.putIfAbsent(type, getHtmlLink(type, hrefs[idx]));
-                            idx++;
-                        }
-                    }
-                    final String[] dataTypesWithLinks = {dataType};
-                    typeToLink.forEach((type, link) -> {
-                        dataTypesWithLinks[0] = dataTypesWithLinks[0].replaceAll(Pattern.quote(type), Matcher
-                                .quoteReplacement(link));
+            handlebars.registerHelper("paramSummary", (Helper<List<DefaultableVarible>>)
+                    (varList, options) -> varList.stream()
+                            .map(variable -> getTypeName(variable.type) + " " + variable.name)
+                            .collect(Collectors.joining(", "))
+            );
+            handlebars.registerHelper("returnParamSummary", (Helper<List<Variable>>)
+                    (varList, options) -> varList.stream()
+                            .map(variable -> getTypeName(variable.type) + " " + variable.name)
+                            .collect(Collectors.joining(", "))
+            );
+            handlebars.registerHelper("typeName", (Helper<Type>)
+                    (type, options) -> {
+                        return getTypeName(type);
                     });
-
-                    return dataTypesWithLinks[0];
-                }
-            });
             Template template = handlebars.compile(packageTemplateName);
 
             writer = new PrintWriter(filePath, "UTF-8");
@@ -115,6 +93,23 @@ public class Writer {
                 writer.close();
             }
         }
+    }
+
+    private static String getTypeName(Type type) {
+        String orgName = BallerinaDocDataHolder.getInstance().getOrgName();
+        Map<String, ModuleDoc> packageMap = BallerinaDocDataHolder.getInstance().getPackageMap();
+        String link  = type.moduleName + "/index.html#";
+        // Type is declared in a local module
+        if (orgName.equals(type.orgName) && packageMap.containsKey(type.moduleName)) {
+            link = type.moduleName + "/index.html#";
+        }
+
+        String finalLink = link;
+        return type.isAnonymousUnionType
+                ? type.memberTypes.stream()
+                    .map(type1 -> getHtmlLink(type1.name, finalLink + type1.name))
+                    .collect(Collectors.joining(" | "))
+                : getHtmlLink(type.name, link + type.name);
     }
 
     private static String getHtmlLink(String value, String href) {
