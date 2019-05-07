@@ -1,6 +1,6 @@
+import ballerina/auth;
 import ballerina/http;
 import ballerina/io;
-import ballerina/websub;
 
 service httpService on new http:Listener(9090) {
     resource function sayHello(http:Caller caller, http:Request request) {
@@ -32,32 +32,32 @@ service wssService on securedListener2 {
     }
 }
 
-http:AuthProvider basicAuthProvider = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+auth:ConfigAuthStoreProvider basicAuthProvider1 = new;
+auth:ConfigAuthStoreProvider basicAuthProvider2 = new;
 
-http:AuthProvider basicAuthProvider2 = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+http:BasicAuthnHandler basicAuthnHandler1 = new(basicAuthProvider1);
+http:BasicAuthnHandler basicAuthnHandler2 = new(basicAuthProvider2);
 
 listener http:Listener securedListener = new(9090, config = {
-    authProviders: [basicAuthProvider],
-    secureSocket: {
-        keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
+        auth: {
+            authnHandlers: [basicAuthnHandler1]
+        },
+        secureSocket: {
+            keyStore: {
+                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                password: "ballerina"
+            }
         }
-    }
-});
+    });
 
 listener http:WebSocketListener securedListener2 = new(9090, config = {
-    authProviders: [basicAuthProvider],
-    secureSocket: {
-        keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
+        auth: {
+            authnHandlers: [basicAuthnHandler2]
+        },
+        secureSocket: {
+            keyStore: {
+                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                password: "ballerina"
+            }
         }
-    }
-});
+    });

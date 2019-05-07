@@ -16,13 +16,13 @@ function test(int x, string s) returns float {
 }
 
 // Function pointer as a parameter. Use the `.call()` method to invoke the function using the function pointer.
-function foo(int x, function (int, string) returns (float) bar) 
-             returns (float) {
+function foo(int x, function (int, string) returns float bar)
+             returns float {
     return x * bar.call(10, "2");
 }
 
 // Function pointer as a return type.
-function getFunctionPointer() returns (function (int, string) returns (float)) {
+function getFunctionPointer() returns (function (int, string) returns float) {
     return test;
 }
 
@@ -31,6 +31,6 @@ public function main() {
     io:println("Answer: " + foo(10, test));
     io:println("Answer: " + foo(10, getFunctionPointer()));
     // Function pointer as a variable.
-    function (int, string) returns (float) f = getFunctionPointer();
+    function (int, string) returns float f = getFunctionPointer();
     io:println("Answer: " + foo(10, f));
 }

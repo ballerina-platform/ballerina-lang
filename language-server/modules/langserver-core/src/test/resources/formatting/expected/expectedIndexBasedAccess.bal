@@ -1,7 +1,5 @@
 function mapAccessTest(int x, int y) returns (int) {
-    map<any> testMap = {
-        last: "last"
-    };
+    map<any> testMap = {last: "last"};
     int xx = 0;
     int yy = 0;
     testMap["first"] = x;
@@ -16,8 +14,8 @@ function mapAccessTest(int x, int y) returns (int) {
     y
     ;
     testMap["forth"] = x - y;
-    xx = <int> testMap.first;
-    yy = <int> testMap.second;
+    xx = <int>testMap.first;
+    yy = <int>testMap.second;
 
     return xx + yy;
 }

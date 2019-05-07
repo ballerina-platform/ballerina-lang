@@ -94,6 +94,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRTerminator.FPCall fpCall) {
+        throw new AssertionError();
+    }
+
 
     // Non-terminating instructions
 
@@ -158,6 +162,10 @@ public abstract class BIRVisitor {
     }
 
     public void visit(TypeTest birTypeTest) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewTable newTable) {
         throw new AssertionError();
     }
 
