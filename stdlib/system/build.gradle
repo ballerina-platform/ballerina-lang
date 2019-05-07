@@ -23,9 +23,11 @@ dependencies {
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-runtime-api')
     implementation project(':lib-creator')
+    implementation project(':ballerina-time')
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-launcher')
     testCompile 'org.testng:testng'
