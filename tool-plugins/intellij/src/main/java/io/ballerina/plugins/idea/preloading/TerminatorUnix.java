@@ -17,8 +17,7 @@
 package io.ballerina.plugins.idea.preloading;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.intellij.openapi.diagnostic.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -29,7 +28,7 @@ import java.nio.charset.Charset;
  */
 public class TerminatorUnix implements Terminator {
     private final String processIdentifier = "org.ballerinalang.langserver.launchers.stdio.Main";
-    private static final Logger LOGGER = LoggerFactory.getLogger(TerminatorUnix.class);
+    private static final Logger LOGGER = Logger.getInstance(TerminatorUnix.class);
 
     /**
      * Get find process command.

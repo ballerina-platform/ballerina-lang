@@ -35,8 +35,7 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketCl
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.intellij.openapi.diagnostic.Logger;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -50,7 +49,7 @@ import javax.net.ssl.SSLException;
  */
 public class WebSocketClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketClient.class);
+    private static final Logger LOGGER = Logger.getInstance(WebSocketClient.class);
 
     private Channel channel = null;
     private WebSocketClientHandler handler;

@@ -46,9 +46,9 @@ public class BallerinaEditorEventManager extends EditorEventManager {
     }
 
     public String getAST() {
-        BallerinaRequestManager ballerinaRequestManager = (BallerinaRequestManager) requestManager;
+        BallerinaRequestManager ballerinaRequestManager = (BallerinaRequestManager) getRequestManager();
         BallerinaASTRequest astRequest = new BallerinaASTRequest();
-        astRequest.setDocumentIdentifier(identifier);
+        astRequest.setDocumentIdentifier(getIdentifier());
         CompletableFuture<BallerinaASTResponse> future = ballerinaRequestManager.ast(astRequest);
         if (future != null) {
             try {

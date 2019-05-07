@@ -17,6 +17,7 @@ package io.ballerina.plugins.idea.preloading;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PreloadingActivity;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
@@ -27,8 +28,6 @@ import com.intellij.util.messages.MessageBusConnection;
 import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -41,7 +40,7 @@ import static io.ballerina.plugins.idea.preloading.OperatingSystemUtils.getOpera
  */
 public class BallerinaPreloadingActivity extends PreloadingActivity {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaPreloadingActivity.class);
+    private static final Logger LOGGER = Logger.getInstance(BallerinaPreloadingActivity.class);
     private static final String launcherScriptPath = "lib/tools/lang-server/launcher";
     private static final String ballerinaSourcePath = "lib/repo";
 

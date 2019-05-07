@@ -28,15 +28,15 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.intellij.openapi.diagnostic.Logger;
+
 
 /**
  * WebSocket client handler which handles communication with the debug server.
  */
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketClient.class);
+    private static final Logger LOGGER = Logger.getInstance(WebSocketClient.class);
 
     private final WebSocketClientHandshaker handshaker;
     private final Callback callback;
