@@ -147,17 +147,20 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public BIROperand lhsOp;
         public List<BIROperand> args;
         public BIRBasicBlock thenBB;
+        public boolean isAsync;
 
         public FPCall(DiagnosticPos pos,
                       InstructionKind kind,
                       BIROperand fp,
                       List<BIROperand> args,
                       BIROperand lhsOp,
+                      boolean isAsync,
                       BIRBasicBlock thenBB) {
             super(pos, kind);
             this.fp = fp;
             this.lhsOp = lhsOp;
             this.args = args;
+            this.isAsync = isAsync;
             this.thenBB = thenBB;
         }
 

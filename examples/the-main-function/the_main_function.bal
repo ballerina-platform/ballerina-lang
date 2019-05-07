@@ -5,7 +5,8 @@ import ballerina/io;
 // parameter with the default value `0`, representing the base value upon which the operation
 // should be performed. The rest parameter `values` represents the additional arguments.
 // The `main` function may return an `error` or `()`.
-public function main(string operation, int initialValue = 0, int... values) returns error? {
+public function main(string operation, int initialValue = 0, int... values)
+                    returns error? {
     int value = initialValue;
     if (operation == "add") {
         foreach int intValue in values {
