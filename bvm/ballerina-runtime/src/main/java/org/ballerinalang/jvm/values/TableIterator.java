@@ -16,8 +16,12 @@
  *  under the License.
  */
 
-package org.ballerinalang.jvm;
+package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.ColumnDefinition;
+import org.ballerinalang.jvm.DataIterator;
+import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BStructureType;
@@ -26,9 +30,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.XMLItem;
 
 import java.math.BigDecimal;
 import java.sql.Array;
