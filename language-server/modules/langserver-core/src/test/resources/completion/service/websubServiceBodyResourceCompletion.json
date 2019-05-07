@@ -1,0 +1,25 @@
+{
+    "position": {
+        "line": 4,
+        "character": 1
+    },
+    "source": "service/source/websubServiceBodyResourceCompletion.bal",
+    "items": [
+        {
+            "label": "onIntentVerification resource",
+            "kind": "Snippet",
+            "detail": "Snippet",
+            "insertText": "resource function ${1:onIntentVerification}(websub:Caller ${2:caller},websub:IntentVerificationRequest ${3:request}) {\n\t${4}\n}",
+            "insertTextFormat": "Snippet",
+            "additionalTextEdits": []
+        },
+        {
+            "label": "onNotification resource",
+            "kind": "Snippet",
+            "detail": "Snippet",
+            "insertText": "resource function ${1:onNotification}(websub:Notification ${2:notification}) {\n\t${3}\n}",
+            "insertTextFormat": "Snippet",
+            "additionalTextEdits": []
+        }
+    ]
+}

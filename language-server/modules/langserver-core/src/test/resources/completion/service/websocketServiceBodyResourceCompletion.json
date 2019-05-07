@@ -1,0 +1,33 @@
+{
+    "position": {
+        "line": 4,
+        "character": 1
+    },
+    "source": "service/source/websocketServiceBodyResourceCompletion.bal",
+    "items": [
+        {
+            "label": "onOpen resource",
+            "kind": "Snippet",
+            "detail": "Snippet",
+            "insertText": "resource function ${1:onOpen}(http:WebSocketCaller ${2:caller}) {\n\t${3}\n}",
+            "insertTextFormat": "Snippet",
+            "additionalTextEdits": []
+        },
+        {
+            "label": "onText resource",
+            "kind": "Snippet",
+            "detail": "Snippet",
+            "insertText": "resource function ${1:onText}(http:WebSocketCaller ${2:caller},string ${3:data},boolean ${4:finalFrame}) {\n\t${5}\n}",
+            "insertTextFormat": "Snippet",
+            "additionalTextEdits": []
+        },
+        {
+            "label": "onClose resource",
+            "kind": "Snippet",
+            "detail": "Snippet",
+            "insertText": "resource function ${1:onClose}(http:WebSocketCaller ${2:caller},int ${3:statusCode},string ${4:reason}) {\n\t${5}\n}",
+            "insertTextFormat": "Snippet",
+            "additionalTextEdits": []
+        }
+    ]
+}

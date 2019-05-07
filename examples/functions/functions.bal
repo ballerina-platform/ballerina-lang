@@ -7,7 +7,7 @@ function printValue(string value) {
 
 // This function takes in two `int` values as arguments and returns their
 // sum as an integer.
-function add(int a, int b) returns (int) {
+function add(int a, int b) returns int {
     return a + b;
 }
 

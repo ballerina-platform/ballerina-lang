@@ -109,6 +109,17 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             NewMap newMap = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType};
             return newMap;
+        } else if (kindTag == INS_NEW_TABLE) {
+            var bType = self.typeParser.parseType();
+            kind = INS_KIND_NEW_TABLE;
+            var lhsOp = self.parseVarRef();
+            var columnsOp = self.parseVarRef();
+            var dataOp = self.parseVarRef();
+            var indexColOp = self.parseVarRef();
+            var keyColOp = self.parseVarRef();
+            NewTable newTable = {pos:pos, kind:kind, lhsOp:lhsOp, columnsOp: columnsOp, dataOp: dataOp, indexColOp:
+            indexColOp, keyColOp: keyColOp, typeValue:bType};
+            return newTable;
         } else if (kindTag == INS_NEW_INST) {
             var defIndex = self.reader.readInt32();
             kind = INS_KIND_NEW_INST;
@@ -254,6 +265,15 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             var pkgId = self.reader.readModuleIDCpRef();
             var name = self.reader.readStringCpRef();
+
+            var mapCount = self.reader.readInt32();
+            VarRef?[] maps = [];
+            int j = 0;
+            while (j < mapCount) {
+                maps[j] = self.parseVarRef();
+                j += 1;
+            }
+
             VariableDcl?[] params = [];
             var numVars = self.reader.readInt32();
             int i = 0;
@@ -262,8 +282,20 @@ public type FuncBodyParser object {
                 params[i] = dcl;
                 i += 1;
             }
-            FPLoad fpLoad = {pos:pos, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params};
+            FPLoad fpLoad = {pos:pos, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params, closureMaps:maps};
             return fpLoad;
+        } else if (kindTag == INS_TYPEOF) {
+            kind = INS_KIND_TYPEOF;
+            var rhsOp = self.parseVarRef();
+            var lhsOp = self.parseVarRef();
+            UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return typeofNode;
+        } else if (kindTag == INS_NOT) {
+            kind = INS_KIND_NOT;
+            var rhsOp = self.parseVarRef();
+            var lhsOp = self.parseVarRef();
+            UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return typeofNode;
         } else {
             return self.parseBinaryOpInstruction(kindTag, pos);
         }
@@ -365,9 +397,9 @@ public type FuncBodyParser object {
             if (hasLhs){
                 lhsOp = self.parseVarRef();
             }
-
+            var isAsync = self.reader.readBoolean();
             BasicBlock thenBB = self.parseBBRef();
-            FPCall fpCall = {pos:pos, kind:kind, fp:fp, lhsOp:lhsOp, args:args, thenBB:thenBB};
+            FPCall fpCall = {pos:pos, kind:kind, fp:fp, lhsOp:lhsOp, args:args, thenBB:thenBB, isAsync:isAsync};
             return fpCall;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
@@ -409,6 +441,10 @@ public type FuncBodyParser object {
             kind = BINARY_LESS_THAN;
         } else if (kindTag == INS_LESS_EQUAL){
             kind = BINARY_LESS_EQUAL;
+        } else if (kindTag == INS_AND){
+            kind = BINARY_AND;
+        } else if (kindTag == INS_OR){
+            kind = BINARY_OR;
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
             panic err;

@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -47,10 +49,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.LinkedList;
@@ -109,7 +115,16 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BFiniteType bFiniteType) {
-        throwUnimplementedError(bFiniteType);
+        buff.writeByte(bFiniteType.tag);
+        buff.writeInt(bFiniteType.valueSpace.size());
+        for (BLangExpression valueLiteral : bFiniteType.valueSpace) {
+            if (!(valueLiteral instanceof BLangLiteral)) {
+                throw new AssertionError(
+                        "Type serialization is not implemented for finite type with value: " + valueLiteral.getKind());
+            }
+            valueLiteral.type.accept(this);
+            writeValue(((BLangLiteral) valueLiteral).value, valueLiteral.type);
+        }
     }
 
     @Override
@@ -136,6 +151,11 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BMapType bMapType) {
         buff.writeByte(bMapType.tag);
         bMapType.constraint.accept(this);
+    }
+
+    public void visit(BTableType bTableType) {
+        buff.writeByte(bTableType.tag);
+        bTableType.constraint.accept(this);
     }
 
     @Override
@@ -234,14 +254,14 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeByte(getVisibility(field.symbol).value());
             field.type.accept(this);
         }
-        Object popped = compositeStack.pop();
-        assert popped == tsymbol;
         buff.writeInt(tsymbol.attachedFuncs.size());
         for (BAttachedFunction attachedFunc : tsymbol.attachedFuncs) {
             buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
             buff.writeByte(getVisibility(attachedFunc.symbol).value());
             attachedFunc.type.accept(this);
         }
+        Object popped = compositeStack.pop();
+        assert popped == tsymbol;
     }
 
     private boolean writeSelfRef(BTypeSymbol tsymbol) {
@@ -272,6 +292,14 @@ public class BIRTypeWriter implements TypeVisitor {
         return cp.addCPEntry(new StringCPEntry(value));
     }
 
+    private int addIntCPEntry(long value) {
+        return cp.addCPEntry(new IntegerCPEntry(value));
+    }
+
+    private int addFloatCPEntry(double value) {
+        return cp.addCPEntry(new FloatCPEntry(value));
+    }
+
     private Visibility getVisibility(BSymbol symbol) {
         if (Symbols.isPublic(symbol)) {
             return Visibility.PUBLIC;
@@ -279,6 +307,31 @@ public class BIRTypeWriter implements TypeVisitor {
             return Visibility.PRIVATE;
         } else {
             return Visibility.PACKAGE_PRIVATE;
+        }
+    }
+
+    private void writeValue(Object value, BType typeOfValue) {
+        switch (typeOfValue.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+                buff.writeInt(addIntCPEntry((Long) value));
+                break;
+            case TypeTags.FLOAT:
+                // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
+                double doubleVal = value instanceof String ? Double.parseDouble((String) value) : (Double) value;
+                buff.writeInt(addFloatCPEntry(doubleVal));
+                break;
+            case TypeTags.STRING:
+            case TypeTags.DECIMAL:
+                buff.writeInt(addStringCPEntry((String) value));
+                break;
+            case TypeTags.BOOLEAN:
+                buff.writeByte((Boolean) value ? 1 : 0);
+                break;
+            case TypeTags.NIL:
+                break;
+            default:
+                throw new UnsupportedOperationException("finite type value is not supported for type: " + typeOfValue);
         }
     }
 }

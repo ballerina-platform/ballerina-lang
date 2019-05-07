@@ -1944,6 +1944,11 @@ public class TypeChecker extends BLangNodeVisitor {
             if (exprType != symTable.semanticError) {
                 actualType = exprType;
             }
+        } else if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
+            exprType = checkExpr(unaryExpr.expr, env);
+            if (exprType != symTable.semanticError) {
+                actualType = symTable.typeDesc;
+            }
         } else {
             exprType = OperatorKind.ADD.equals(unaryExpr.operator) ? checkExpr(unaryExpr.expr, env, expType) :
                     checkExpr(unaryExpr.expr, env);
