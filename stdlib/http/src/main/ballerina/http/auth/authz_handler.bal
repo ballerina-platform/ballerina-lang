@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/cache;
 import ballerina/io;
 import ballerina/log;
@@ -22,17 +21,14 @@ import ballerina/runtime;
 
 # Representation of Authorization Handler for HTTP
 #
-# + authStoreProvider - `AuthStoreProvider` instance
 # + positiveAuthzCache - `Cache` instance, which is cache positive authorizations
 # + negativeAuthzCache - `Cache` instance, which is cache negative authorizations
-public type HttpAuthzHandler object {
-    public auth:AuthStoreProvider authStoreProvider;
-    public cache:Cache positiveAuthzCache;
-    public cache:Cache negativeAuthzCache;
+public type AuthzHandler object {
 
-    public function __init(auth:AuthStoreProvider authStoreProvider, cache:Cache positiveAuthzCache,
-                           cache:Cache negativeAuthzCache) {
-        self.authStoreProvider = authStoreProvider;
+    public cache:Cache? positiveAuthzCache;
+    public cache:Cache? negativeAuthzCache;
+
+    public function __init(cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) {
         self.positiveAuthzCache = positiveAuthzCache;
         self.negativeAuthzCache = negativeAuthzCache;
     }
@@ -40,8 +36,8 @@ public type HttpAuthzHandler object {
     # Checks if the request can be authorized
     #
     # + req - `Request` instance
-    # + return - true if can be authorized, else false
-    function canHandle(Request req) returns (boolean);
+    # + return - `true` if can be authorized, else `false`, or `error` if error occured
+    function canHandle(Request req) returns boolean|error;
 
     # Tries to authorize the request
     #
@@ -51,13 +47,13 @@ public type HttpAuthzHandler object {
     # + method - HTTP method name
     # + scopes - Array of scopes
     # + return - true if authorization check is a success, else false
-    function handle(string username, string serviceName, string resourceName, string method, string[] scopes)
-                 returns boolean;
+    function handle(string username, string serviceName, string resourceName, string method, string[] scopes) returns boolean;
+
     # Tries to retrieve authorization decision from the cached information, if any
     #
     # + authzCacheKey - Cache key
     # + return - true or false in case of a cache hit, nil in case of a cache miss
-    function authorizeFromCache(string authzCacheKey) returns (boolean|());
+    function authorizeFromCache(string authzCacheKey) returns boolean?;
 
     # Cached the authorization result
     #
@@ -66,15 +62,13 @@ public type HttpAuthzHandler object {
     function cacheAuthzResult(string authzCacheKey, boolean authorized);
 };
 
-function HttpAuthzHandler.handle(string username, string serviceName, string resourceName, string method,
-                                 string[] scopes) returns boolean {
-    // first, check in the cache. cache key is <username>-<resource>-<http method>-<scopes-separated-by-colon>,
+function AuthzHandler.handle(string username, string serviceName, string resourceName, string method, string[] scopes) returns boolean {
+    // first, check in the cache. cache key is <username>-<service>-<resource>-<http method>-<scopes-separated-by-comma>,
     // since different resources can have different scopes
-    string authzCacheKey = runtime:getInvocationContext().principal.userId +
-        "-" + serviceName + "-" + resourceName + "-" + method;
+    string authzCacheKey = runtime:getInvocationContext().principal.userId + "-" + serviceName + "-" + resourceName + "-" + method;
 
     string[] authCtxtScopes = runtime:getInvocationContext().principal.scopes;
-    //TODO: Make sure principal.scopes array is sorted to prevent cache-misses that could happen due to ordering
+    //TODO: Make sure principal.scopes array is sorted and set to invocation context in order to prevent cache-misses that could happen due to ordering
     if (authCtxtScopes.length() > 0) {
         authzCacheKey += "-";
         foreach var authCtxtScope in authCtxtScopes {
@@ -93,24 +87,9 @@ function HttpAuthzHandler.handle(string username, string serviceName, string res
             // cache authz result
             self.cacheAuthzResult(authzCacheKey, authorized);
             return authorized;
-        } else {
-            // no scopes found for user, try to retrieve using the auth provider
-            string[] scopesFromAuthProvider = self.authStoreProvider.getScopes(username);
-            if (scopesFromAuthProvider.length() > 0) {
-                boolean authorized = checkForScopeMatch(scopes, scopesFromAuthProvider, resourceName, method);
-                // cache authz result
-                self.cacheAuthzResult(authzCacheKey, authorized);
-                return authorized;
-            } else {
-                self.cacheAuthzResult(authzCacheKey, false);
-                log:printDebug(function () returns string {
-                    return "No scopes found for user: " + username + " to access resource: " + resourceName +
-                        ", method:" + method;
-                });
-                return false;
-            }
         }
     }
+    return false;
 }
 
 # Check whether the scopes of the user and scopes of resource matches.
@@ -120,8 +99,7 @@ function HttpAuthzHandler.handle(string username, string serviceName, string res
 # + resourceName - Name of the `resource`
 # + method - HTTP method name
 # + return - true if there is a match between resource and user scopes, else false
-function checkForScopeMatch (string[] resourceScopes, string[] userScopes, string resourceName, string method)
-                                                                                               returns boolean {
+function checkForScopeMatch(string[] resourceScopes, string[] userScopes, string resourceName, string method) returns boolean {
     boolean authorized = matchScopes(resourceScopes, userScopes);
     if (authorized) {
         log:printDebug(function () returns string {
@@ -135,7 +113,7 @@ function checkForScopeMatch (string[] resourceScopes, string[] userScopes, strin
     return authorized;
 }
 
-function HttpAuthzHandler.authorizeFromCache(string authzCacheKey) returns (boolean|()) {
+function AuthzHandler.authorizeFromCache(string authzCacheKey) returns boolean? {
     var positiveCacheResponse = self.positiveAuthzCache.get(authzCacheKey);
     if (positiveCacheResponse is boolean) {
         return true;
@@ -144,10 +122,9 @@ function HttpAuthzHandler.authorizeFromCache(string authzCacheKey) returns (bool
     if (negativeCacheResponse is boolean) {
         return false;
     }
-    return ();
 }
 
-function HttpAuthzHandler.cacheAuthzResult(string authzCacheKey, boolean authorized) {
+function AuthzHandler.cacheAuthzResult(string authzCacheKey, boolean authorized) {
     if (authorized) {
         self.positiveAuthzCache.put(authzCacheKey, authorized);
     } else {
@@ -157,25 +134,28 @@ function HttpAuthzHandler.cacheAuthzResult(string authzCacheKey, boolean authori
 
 # Tries to find a match between the two scope arrays
 #
-# + scopesOfResource - Scopes of resource
-# + scopesForRequest - Scopes of the user
-# + return - true if there is a match, else false
-function matchScopes(string[] scopesOfResource, string[] scopesForRequest) returns boolean {
-    foreach var scopeForRequest in scopesForRequest {
-        foreach var scopeOfResource in scopesOfResource {
-            if (scopeForRequest == scopeOfResource) {
-                // if  that is equal to a group of a scope, authorization passes
-                return true;
+# + resourceScopes - Scopes of resource
+# + userScopes - Scopes of the user
+# + return - true if resourceScopes is a subset of userScopes, else false
+function matchScopes(string[] resourceScopes, string[] userScopes) returns boolean {
+    foreach var resourceScope in resourceScopes {
+        boolean matched = false;
+        foreach var userScope in userScopes {
+            if (resourceScope == userScope) {
+                matched = true;
+                break;
             }
         }
+        if (!matched) {
+            return false;
+        }
     }
-    return false;
+    return true;
 }
 
-function HttpAuthzHandler.canHandle(Request req) returns boolean {
+function AuthzHandler.canHandle(Request req) returns boolean|error {
     if (runtime:getInvocationContext().principal.username.length() == 0) {
-        log:printError("Username not set in auth context. Unable to authorize");
-        return false;
+        return prepareError("Username not set in auth context. Unable to authorize.");
     }
     return true;
 }

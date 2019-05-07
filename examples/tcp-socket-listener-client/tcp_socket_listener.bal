@@ -49,6 +49,6 @@ service echoServer on new  socket:Listener(61598) {
     // This resource is invoked for the error situation
     // if it happens during the `onConnect` and `onReadReady`.
     resource function onError(socket:Caller caller, error er) {
-        log:printError("An error occured", err = er);
+        log:printError("An error occurred", err = er);
     }
 }

@@ -290,6 +290,12 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return typeofNode;
+        } else if (kindTag == INS_NOT) {
+            kind = INS_KIND_NOT;
+            var rhsOp = self.parseVarRef();
+            var lhsOp = self.parseVarRef();
+            UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return typeofNode;
         } else if (kindTag == INS_NEW_TYPEDESC) {
             kind = INS_KIND_NEW_TYPEDESC;
             var lhsOp = self.parseVarRef();
@@ -397,9 +403,9 @@ public type FuncBodyParser object {
             if (hasLhs){
                 lhsOp = self.parseVarRef();
             }
-
+            var isAsync = self.reader.readBoolean();
             BasicBlock thenBB = self.parseBBRef();
-            FPCall fpCall = {pos:pos, kind:kind, fp:fp, lhsOp:lhsOp, args:args, thenBB:thenBB};
+            FPCall fpCall = {pos:pos, kind:kind, fp:fp, lhsOp:lhsOp, args:args, thenBB:thenBB, isAsync:isAsync};
             return fpCall;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");

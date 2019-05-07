@@ -16,6 +16,11 @@
 
 function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module, bir:BType? attachedType = ()) {
 
+    // skip code generation, if this is an extern function
+    if (isExternFunc(func)) {
+        return;
+    }
+
     string currentPackageName = getPackageName(module.org.value, module.name.value);
 
     BalToJVMIndexMap indexMap = new;
@@ -202,6 +207,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     instGen.generateXMLLoadAllIns(inst);
                 } else if (inst.kind == bir:INS_KIND_TYPEOF) {
                     instGen.generateTypeofIns(inst);
+                } else if (inst.kind == bir:INS_KIND_NOT) {
+                    instGen.generateNotIns(inst);
                 } else {
                     error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                     panic err;
@@ -304,7 +311,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (terminator is bir:Wait) {
             termGen.generateWaitIns(terminator, funcName);
         } else if (terminator is bir:FPCall) {
-            termGen.genFPCallIns(terminator);
+            termGen.genFPCallIns(terminator, funcName);
         } else {
             error err = error( "JVM generation is not supported for terminator instruction " +
                                         io:sprintf("%s", terminator));

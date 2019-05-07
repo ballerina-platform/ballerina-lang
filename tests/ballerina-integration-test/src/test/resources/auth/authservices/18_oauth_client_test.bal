@@ -15,9 +15,10 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/io;
 
 // Test the client credentials grant type with valid credentials
-http:Client clientEP1 = new("https://localhost:9095", config = {
+http:Client clientEP1 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -33,7 +34,7 @@ http:Client clientEP1 = new("https://localhost:9095", config = {
     });
 
 // Test the client credentials grant type with invalid client credentials
-http:Client clientEP2 = new("https://localhost:9095", config = {
+http:Client clientEP2 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -49,7 +50,7 @@ http:Client clientEP2 = new("https://localhost:9095", config = {
     });
 
 // Test the client credentials grant type with a post-body bearer and valid credentials
-http:Client clientEP3 = new("https://localhost:9095", config = {
+http:Client clientEP3 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -66,7 +67,7 @@ http:Client clientEP3 = new("https://localhost:9095", config = {
     });
 
 // Test the client credentials grant type with a post-body bearer and invalid credentials
-http:Client clientEP4 = new("https://localhost:9095", config = {
+http:Client clientEP4 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -83,7 +84,7 @@ http:Client clientEP4 = new("https://localhost:9095", config = {
     });
 
 // Test the password grant type with valid credentials
-http:Client clientEP5 = new("https://localhost:9095", config = {
+http:Client clientEP5 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -101,7 +102,7 @@ http:Client clientEP5 = new("https://localhost:9095", config = {
     });
 
 // Test the password grant type with valid credentials and a valid refresh config
-http:Client clientEP6 = new("https://localhost:9095", config = {
+http:Client clientEP6 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -123,7 +124,7 @@ http:Client clientEP6 = new("https://localhost:9095", config = {
     });
 
 // Test the password grant type with an invalid username, password, and a valid refresh config
-http:Client clientEP7 = new("https://localhost:9095", config = {
+http:Client clientEP7 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -145,7 +146,7 @@ http:Client clientEP7 = new("https://localhost:9095", config = {
     });
 
 // Test the password grant type with a bearer without credentials and a valid username and password
-http:Client clientEP8 = new("https://localhost:9095", config = {
+http:Client clientEP8 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -162,7 +163,7 @@ http:Client clientEP8 = new("https://localhost:9095", config = {
     });
 
 // Test the direct token mode with valid credentials and without a refresh config
-http:Client clientEP9 = new("https://localhost:9095", config = {
+http:Client clientEP9 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -175,7 +176,7 @@ http:Client clientEP9 = new("https://localhost:9095", config = {
     });
 
 // Test the direct token mode with an invalid access token and without a refresh config
-http:Client clientEP10 = new("https://localhost:9095", config = {
+http:Client clientEP10 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -188,7 +189,7 @@ http:Client clientEP10 = new("https://localhost:9095", config = {
     });
 
 // Test the direct token mode with an invalid access token and a valid refresh config
-http:Client clientEP11 = new("https://localhost:9095", config = {
+http:Client clientEP11 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -208,7 +209,7 @@ http:Client clientEP11 = new("https://localhost:9095", config = {
     });
 
 // Test the direct token mode (with the retrying request set as false) with an invalid access token and without a refresh config
-http:Client clientEP12 = new("https://localhost:9095", config = {
+http:Client clientEP12 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -222,7 +223,7 @@ http:Client clientEP12 = new("https://localhost:9095", config = {
     });
 
 // Test the direct token mode (with the retrying request set as false) with an invalid access token and a valid refresh config
-http:Client clientEP13 = new("https://localhost:9095", config = {
+http:Client clientEP13 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -243,7 +244,7 @@ http:Client clientEP13 = new("https://localhost:9095", config = {
     });
 
 // Test the direct token mode with an invalid access token and an invalid refresh config
-http:Client clientEP14 = new("https://localhost:9095", config = {
+http:Client clientEP14 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -262,35 +263,65 @@ http:Client clientEP14 = new("https://localhost:9095", config = {
         }
     });
 
-public function main(string... args) {
-    http:Request req = new;
-    if (args[0] == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_VALID_CREDENTIALS") {
-        var resp = clientEP1->post("/foo/bar", req);
-    } else if (args[0] == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_INVALID_CREDENTIALS") {
-        var resp = clientEP2->post("/foo/bar", req);
-    } else if (args[0] == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_POST_BODY_BEARER_AND_VALID_CREDENTIALS") {
-        var resp = clientEP3->post("/foo/bar", req);
-    } else if (args[0] == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_POST_BODY_BEARER_AND_INVALID_CREDENTIALS") {
-        var resp = clientEP4->post("/foo/bar", req);
-    } else if (args[0] == "PASSWORD_GRANT_TYPE_WITH_VALID_CREDENTIALS") {
-        var resp = clientEP5->post("/foo/bar", req);
-    } else if (args[0] == "PASSWORD_GRANT_TYPE_WITH_VALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG") {
-        var resp = clientEP6->post("/foo/bar", req);
-    } else if (args[0] == "PASSWORD_GRANT_TYPE_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG") {
-        var resp = clientEP7->post("/foo/bar", req);
-    } else if (args[0] == "PASSWORD_GRANT_TYPE_WITH_NO_BEARER_AND_VALID_CREDENTIALS") {
-        var resp = clientEP8->post("/foo/bar", req);
-    }else if (args[0] == "DIRECT_TOKEN_WITH_VALID_CREDENTIALS_AND_NO_REFRESH_CONFIG") {
-        var resp = clientEP9->post("/foo/bar", req);
-    } else if (args[0] == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_NO_REFRESH_CONFIG") {
-        var resp = clientEP10->post("/foo/bar", req);
-    } else if (args[0] == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG") {
-        var resp = clientEP11->post("/foo/bar", req);
-    } else if (args[0] == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_NO_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE") {
-        var resp = clientEP12->post("/foo/bar", req);
-    } else if (args[0] == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE") {
-        var resp = clientEP13->post("/foo/bar", req);
-    } else if (args[0] == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_INVALID_REFRESH_CONFIG") {
-        var resp = clientEP14->post("/foo/bar", req);
+listener http:Listener listener18 = new(9190, config = {
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
+});
+
+@http:ServiceConfig {
+    basePath: "/echo"
+}
+service echo18 on listener18 {
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/oauth2/{testCase}"
+    }
+    resource function test(http:Caller caller, http:Request req, string testCase) {
+        http:Response|error resp = new;
+        http:Request request = new;
+        if (testCase == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_VALID_CREDENTIALS") {
+            resp = clientEP1->post("/foo/bar", request);
+        } else if (testCase == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_INVALID_CREDENTIALS") {
+            resp = clientEP2->post("/foo/bar", request);
+        } else if (testCase == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_POST_BODY_BEARER_AND_VALID_CREDENTIALS") {
+            resp = clientEP3->post("/foo/bar", request);
+        } else if (testCase == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_POST_BODY_BEARER_AND_INVALID_CREDENTIALS") {
+            resp = clientEP4->post("/foo/bar", request);
+        } else if (testCase == "PASSWORD_GRANT_TYPE_WITH_VALID_CREDENTIALS") {
+            resp = clientEP5->post("/foo/bar", request);
+        } else if (testCase == "PASSWORD_GRANT_TYPE_WITH_VALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG") {
+            resp = clientEP6->post("/foo/bar", request);
+        } else if (testCase == "PASSWORD_GRANT_TYPE_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG") {
+            resp = clientEP7->post("/foo/bar", request);
+        } else if (testCase == "PASSWORD_GRANT_TYPE_WITH_NO_BEARER_AND_VALID_CREDENTIALS") {
+            resp = clientEP8->post("/foo/bar", request);
+        }else if (testCase == "DIRECT_TOKEN_WITH_VALID_CREDENTIALS_AND_NO_REFRESH_CONFIG") {
+            resp = clientEP9->post("/foo/bar", request);
+        } else if (testCase == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_NO_REFRESH_CONFIG") {
+            resp = clientEP10->post("/foo/bar", request);
+        } else if (testCase == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG") {
+            resp = clientEP11->post("/foo/bar", request);
+        } else if (testCase == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_NO_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE") {
+            resp = clientEP12->post("/foo/bar", request);
+        } else if (testCase == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE") {
+            resp = clientEP13->post("/foo/bar", request);
+        } else if (testCase == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_INVALID_REFRESH_CONFIG") {
+            resp = clientEP14->post("/foo/bar", request);
+        }
+
+        if (resp is http:Response) {
+            checkpanic caller->respond(resp);
+        } else {
+            http:Response res = new;
+            res.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            json errMsg = { message: <string>resp.detail().message };
+            res.setPayload(errMsg);
+            checkpanic caller->respond(res);
+        }
     }
 }

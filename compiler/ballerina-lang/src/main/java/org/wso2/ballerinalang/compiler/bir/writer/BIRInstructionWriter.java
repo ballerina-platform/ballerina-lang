@@ -193,6 +193,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         } else {
             buf.writeByte(0);
         }
+        buf.writeBoolean(fpCall.isAsync);
         addCpAndWriteString(fpCall.thenBB.id.value);
     }
 

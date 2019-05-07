@@ -354,7 +354,7 @@ public type LoadBalanceClientEndpointConfiguration record {|
     TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth = ();
+    OutboundAuthConfig? auth = ();
     LoadBalancerRule? lbRule = ();
     boolean failover = true;
 |};

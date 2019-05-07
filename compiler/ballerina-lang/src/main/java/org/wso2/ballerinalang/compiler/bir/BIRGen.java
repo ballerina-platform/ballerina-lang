@@ -510,7 +510,7 @@ public class BIRGen extends BLangNodeVisitor {
         Name funcName = getFuncName((BInvokableSymbol) invocationExpr.symbol);
         if (invocationExpr.functionPointerInvocation) {
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
-                    fp, args, lhsOp, thenBB);
+                    fp, args, lhsOp, invocationExpr.async, thenBB);
         } else if (invocationExpr.async) {
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
                     isVirtual, invocationExpr.symbol.pkgID, funcName, args, lhsOp, thenBB);
@@ -1252,6 +1252,8 @@ public class BIRGen extends BLangNodeVisitor {
         switch (opKind) {
             case TYPEOF:
                 return InstructionKind.TYPEOF;
+            case NOT:
+                return InstructionKind.NOT;
             default:
                 throw new IllegalStateException("unsupported unary operator: " + opKind.value());
         }
