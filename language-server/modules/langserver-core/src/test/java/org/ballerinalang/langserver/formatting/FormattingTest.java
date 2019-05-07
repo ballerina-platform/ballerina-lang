@@ -145,6 +145,7 @@ public class FormattingTest {
                 {"expectedBlockExpandOnDemand.bal", "blockExpandOnDemand.bal"},
                 {"expectedNamedArgsExpr.bal", "namedArgsExpr.bal"},
                 {"expectedRestArgsExpr.bal", "restArgsExpr.bal"},
+                {"expectedRecordDestructure.bal", "recordDestructure.bal"},
         };
     }
 
