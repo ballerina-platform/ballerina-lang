@@ -615,20 +615,6 @@ public class TypeChecker {
         return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
     }
 
-    private static boolean checkTableConstraints(BType sourceConstraint, BType targetConstraint,
-                                                 List<TypePair> unresolvedTypes) {
-        // handle unconstrained tables returned by actions
-        if (sourceConstraint == null) {
-            if (targetConstraint.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                BRecordType targetConstrRecord = (BRecordType) targetConstraint;
-                return !targetConstrRecord.sealed && targetConstrRecord.restFieldType == BTypes.typeAnydata;
-            }
-            return false;
-        }
-
-        return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
-    }
-
     private static boolean isMutable(Object value, BType sourceType) {
         // All the value types are immutable
         if (value == null || sourceType.getTag() < TypeTags.JSON_TAG ||
