@@ -17,7 +17,6 @@
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
-import ballerina/io;
 import ballerina/system;
 
 // Values that the grant_type parameter can hold.
@@ -35,6 +34,10 @@ const string CLIENT_SECRET = "9205371918321623741";
 const string HEADER_BEARER = "header";
 const string BODY_BEARER = "body";
 const string NO_BEARER = "none";
+
+const string INVALID_CLIENT = "invalid_client";
+const string INVALID_REQUEST = "invalid_request";
+const string INVALID_GRANT = "invalid_grant";
 
 string refreshTokenString = CLIENT_ID + CLIENT_SECRET;
 string refreshTokenHash = encoding:encodeBase64(crypto:hashMd5(refreshTokenString.toByteArray("UTF-8")));
@@ -73,9 +76,7 @@ service oauth2 on oauth2Server {
             } else {
                 // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                 res.statusCode = http:UNAUTHORIZED_401;
-                json errMsg = { "error": "invalid_client" };
-                io:println(errMsg);
-                res.setPayload(errMsg);
+                res.setPayload(INVALID_CLIENT);
             }
         } else if (bearer == BODY_BEARER) {
             // If there is not an authorization header present with the base64-encoded `client_id` and `client_secret` with colon delimiter,
@@ -86,9 +87,7 @@ service oauth2 on oauth2Server {
             } else {
                 // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                 res.statusCode = http:UNAUTHORIZED_401;
-                json errMsg = { "error": "invalid_client" };
-                io:println(errMsg);
-                res.setPayload(errMsg);
+                res.setPayload(INVALID_CLIENT);
             }
         } else if (bearer == NO_BEARER) {
             var payload = req.getTextPayload();
@@ -97,9 +96,7 @@ service oauth2 on oauth2Server {
             } else {
                 // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                 res.statusCode = http:BAD_REQUEST_400;
-                json errMsg = { "error": "invalid_request" };
-                io:println(errMsg);
-                res.setPayload(errMsg);
+                res.setPayload(INVALID_REQUEST);
             }
         }
         checkpanic caller->respond(res);
@@ -119,9 +116,7 @@ service oauth2 on oauth2Server {
         } else {
             // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
             res.statusCode = http:UNAUTHORIZED_401;
-            json errMsg = { "error": "invalid_client" };
-            io:println(errMsg);
-            res.setPayload(errMsg);
+            res.setPayload(INVALID_CLIENT);
         }
         checkpanic caller->respond(res);
     }
@@ -154,16 +149,12 @@ function getResponseForHeaderBearerRequest(http:Request req, string authorizatio
         } else {
             // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
             res.statusCode = http:BAD_REQUEST_400;
-            json errMsg = { "error": "invalid_request" };
-            io:println(errMsg);
-            res.setPayload(errMsg);
+            res.setPayload(INVALID_REQUEST);
         }
     } else {
         // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
         res.statusCode = http:UNAUTHORIZED_401;
-        json errMsg = { "error": "invalid_client" };
-        io:println(errMsg);
-        res.setPayload(errMsg);
+        res.setPayload(INVALID_CLIENT);
     }
     return res;
 }
@@ -199,16 +190,12 @@ function getResponseForPostBodyBearerRequest(string payload, string bearer) retu
         } else {
             // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
             res.statusCode = http:UNAUTHORIZED_401;
-            json errMsg = { "error": "invalid_client" };
-            io:println(errMsg);
-            res.setPayload(errMsg);
+            res.setPayload(INVALID_CLIENT);
         }
     } else {
         // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
         res.statusCode = http:UNAUTHORIZED_401;
-        json errMsg = { "error": "invalid_client" };
-        io:println(errMsg);
-        res.setPayload(errMsg);
+        res.setPayload(INVALID_CLIENT);
     }
     return res;
 }
@@ -276,30 +263,22 @@ function getResponseForRefreshRequest(http:Request req, string authorizationHead
                 } else {
                     // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                     res.statusCode = http:BAD_REQUEST_400;
-                    json errMsg = { "error": "invalid_grant" };
-                    io:println(errMsg);
-                    res.setPayload(errMsg);
+                    res.setPayload(INVALID_GRANT);
                 }
             } else {
                 // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                 res.statusCode = http:BAD_REQUEST_400;
-                json errMsg = { "error": "invalid_grant" };
-                io:println(errMsg);
-                res.setPayload(errMsg);
+                res.setPayload(INVALID_GRANT);
             }
         } else {
             // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
             res.statusCode = http:BAD_REQUEST_400;
-            json errMsg = { "error": "invalid_request" };
-            io:println(errMsg);
-            res.setPayload(errMsg);
+            res.setPayload(INVALID_REQUEST);
         }
     } else {
         // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
         res.statusCode = http:UNAUTHORIZED_401;
-        json errMsg = { "error": "invalid_client" };
-        io:println(errMsg);
-        res.setPayload(errMsg);
+        res.setPayload(INVALID_CLIENT);
     }
     return res;
 }
@@ -347,15 +326,12 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
             // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
             res.statusCode = http:UNAUTHORIZED_401;
             json errMsg = { "error": "unauthorized_client" };
-            io:println(errMsg);
             res.setPayload(errMsg);
         }
     } else {
         // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
         res.statusCode = http:BAD_REQUEST_400;
-        json errMsg = { "error": "invalid_grant" };
-        io:println(errMsg);
-        res.setPayload(errMsg);
+        res.setPayload(INVALID_GRANT);
     }
     return res;
 }
@@ -393,20 +369,17 @@ service foo on apiEndpoint {
             }
             if (tokenAvailable) {
                 json payload = { "success": "access_granted" };
-                io:println(payload);
                 res.setPayload(payload);
                 checkpanic caller->respond(res);
             } else {
                 res.statusCode = http:UNAUTHORIZED_401;
                 json payload = { "error": "access_denied" };
-                io:println(payload);
                 res.setPayload(payload);
                 checkpanic caller->respond(res);
             }
         } else {
             res.statusCode = http:UNAUTHORIZED_401;
             json payload = { "error": "authorization_header_not_provided" };
-            io:println(payload);
             res.setPayload(payload);
             checkpanic caller->respond(res);
         }
