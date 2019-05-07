@@ -231,7 +231,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             }
         }
 
-        let executable = path.join(args['ballerina.home'], 'bin', 'ballerina');
+        let executable = path.join(args['ballerina.home'], 'bin', 'jballerina');
         if (process.platform === 'win32') {
             executable += '.bat';
         }

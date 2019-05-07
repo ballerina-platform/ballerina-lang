@@ -29,7 +29,7 @@ export class TestRunner {
     private _startTestProcess(args: string[]) {
         this.channel.clear();
         this.channel.show();
-        this._process = spawn("ballerina", args, { cwd: this.project.path });
+        this._process = spawn("jballerina", args, { cwd: this.project.path });
         this._process.stdout.on('data', (data) => {
             this.channel.append(data.toString());
         });
