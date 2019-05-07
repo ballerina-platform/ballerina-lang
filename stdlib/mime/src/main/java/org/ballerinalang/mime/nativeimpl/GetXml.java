@@ -20,6 +20,11 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -52,30 +57,61 @@ public class GetXml extends AbstractGetPayloadHandler {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context, CallableUnitCallback callback) {
+//        try {
+//            BXML result;
+//            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+//            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
+//            if (dataSource != null) {
+//                if (dataSource instanceof BXML) {
+//                    result = (BXML) dataSource;
+//                } else {
+//                    // Build the XML from string representation of the payload.
+//                    BString payload = MimeUtil.getMessageAsString(dataSource);
+//                    result = XMLUtils.parse(payload.stringValue());
+//                }
+//                setReturnValuesAndNotify(context, callback, result);
+//                return;
+//            }
+//
+//            if (isStreamingRequired(entityObj)) {
+//                result = EntityBodyHandler.constructXmlDataSource(entityObj);
+//                updateDataSourceAndNotify(context, callback, entityObj, result);
+//            } else {
+//                constructNonBlockingDataSource(context, callback, entityObj, SourceType.XML);
+//            }
+//        } catch (Exception ex) {
+//            createErrorAndNotify(context, callback,
+//                                 "Error occurred while extracting xml data from entity : " + ex.getMessage());
+//        }
+    }
+
+    public static void getXml(Strand strand, ObjectValue entityObj) {
+        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
+        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+
         try {
-            BXML result;
-            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
+            XMLValue result;
+            Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
-                if (dataSource instanceof BXML) {
-                    result = (BXML) dataSource;
+                if (dataSource instanceof XMLValue) {
+                    result = (XMLValue) dataSource;
                 } else {
                     // Build the XML from string representation of the payload.
-                    BString payload = MimeUtil.getMessageAsString(dataSource);
-                    result = XMLUtils.parse(payload.stringValue());
+                    String payload = MimeUtil.getMessageAsString(dataSource);
+                    result = XMLFactory.parse(payload);
                 }
-                setReturnValuesAndNotify(context, callback, result);
+                setReturnValuesAndNotify(strand, callback, result);
                 return;
             }
 
             if (isStreamingRequired(entityObj)) {
                 result = EntityBodyHandler.constructXmlDataSource(entityObj);
-                updateDataSourceAndNotify(context, callback, entityObj, result);
+                updateDataSourceAndNotify(strand, callback, entityObj, result);
             } else {
-                constructNonBlockingDataSource(context, callback, entityObj, SourceType.XML);
+                constructNonBlockingDataSource(strand, callback, entityObj, SourceType.XML);
             }
         } catch (Exception ex) {
-            createErrorAndNotify(context, callback,
+            createErrorAndNotify(strand, callback,
                                  "Error occurred while extracting xml data from entity : " + ex.getMessage());
         }
     }

@@ -66,7 +66,7 @@ public class HasHeader extends BlockingNativeCallableUnit {
 //        }
     }
 
-    public boolean hasHeader(Strand strand, ObjectValue entityObj, String headerName) {
+    public static boolean hasHeader(Strand strand, ObjectValue entityObj, String headerName) {
         if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
             return false;
         }

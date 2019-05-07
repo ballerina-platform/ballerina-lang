@@ -74,31 +74,38 @@ public class DataContext {
     public void notifyInboundResponseStatus(ObjectValue inboundResponse, ErrorValue httpConnectorError) {
         //Make the request associate with this response consumable again so that it can be reused.
         if (inboundResponse != null) {
-            callback.setReturnValues(inboundResponse);
-            strand.resume(inboundResponse);
+            strand.setReturnValues(inboundResponse);
+            //TODO remove this call back
+            getCallback().setReturnValues(inboundResponse);
         } else if (httpConnectorError != null) {
-            callback.setReturnValues(httpConnectorError);
-            strand.resume(httpConnectorError);
+            strand.setReturnValues(httpConnectorError);
+            //TODO remove this call back
+            getCallback().setReturnValues(httpConnectorError);
         } else {
             MapValue<String, Object> err = BallerinaValues.createRecordValue(PACKAGE_BALLERINA_BUILTIN,
                                                                              STRUCT_GENERIC_ERROR);
-            callback.setReturnValues(err);
-            strand.resume(err);
+            strand.setReturnValues(err);
+            //TODO remove this call back
+            getCallback().setReturnValues(err);
         }
+        strand.resume();
         //TODO remove this call back
-        callback.notifySuccess();
+        getCallback().notifySuccess();
     }
 
     public void notifyOutboundResponseStatus(ErrorValue httpConnectorError) {
         if (httpConnectorError == null) {
-            callback.setReturnValues(null);
-            strand.resume(null);
+            strand.setReturnValues(null);
+            //TODO remove this call back
+            getCallback().setReturnValues(null);
         } else {
-            callback.setReturnValues(httpConnectorError);
-            strand.resume(httpConnectorError);
+            strand.setReturnValues(httpConnectorError);
+            //TODO remove this call back
+            getCallback().setReturnValues(httpConnectorError);
         }
+        strand.resume();
         //TODO remove this call back
-        callback.notifySuccess();
+        getCallback().notifySuccess();
     }
 
     public HttpCarbonMessage getOutboundRequest() {
@@ -115,5 +122,9 @@ public class DataContext {
 
     public Strand getStrand() {
         return strand;
+    }
+
+    public TempCallableUnitCallback getCallback() {
+        return callback;
     }
 }

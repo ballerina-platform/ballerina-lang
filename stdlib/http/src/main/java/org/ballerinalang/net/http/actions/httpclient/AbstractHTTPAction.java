@@ -22,7 +22,6 @@ import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -38,12 +37,10 @@ import org.ballerinalang.net.http.CompressionConfigState;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -58,13 +55,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Optional;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 import static org.ballerinalang.net.http.HttpUtil.getCompressionState;
@@ -236,20 +231,20 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         if (sourceHandler == null) {
 
             outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER,
-                    dataContext.context.getProperty(HttpConstants.SRC_HANDLER));
+                    dataContext.getStrand().getProperty(HttpConstants.SRC_HANDLER));
         }
         Object poolableByteBufferFactory = outboundRequestMsg.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY);
         if (poolableByteBufferFactory == null) {
             outboundRequestMsg.setProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY,
-                    dataContext.context.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY));
+                    dataContext.getStrand().getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY));
         }
         Object remoteAddress = outboundRequestMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteAddress == null) {
             outboundRequestMsg.setProperty(HttpConstants.REMOTE_ADDRESS,
-                    dataContext.context.getProperty(HttpConstants.REMOTE_ADDRESS));
+                    dataContext.getStrand().getProperty(HttpConstants.REMOTE_ADDRESS));
         }
         outboundRequestMsg.setProperty(HttpConstants.ORIGIN_HOST,
-                dataContext.context.getProperty(HttpConstants.ORIGIN_HOST));
+                dataContext.getStrand().getProperty(HttpConstants.ORIGIN_HOST));
         sendOutboundRequest(dataContext, outboundRequestMsg, async);
     }
 
@@ -292,12 +287,13 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
     private static void sendOutboundRequest(DataContext dataContext, HttpCarbonMessage outboundRequestMsg, boolean async) {
         try {
             send(dataContext, outboundRequestMsg, async);
+            //TODO TempCallableUnitCallback is temporary fix to handle non blocking call
+            dataContext.getCallback().sync();
         } catch (BallerinaConnectorException e) {
-            //TODO fix notification
-//            dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(e));
+            dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(e));
         } catch (Exception e) {
             BallerinaException exception = new BallerinaException("Failed to send outboundRequestMsg to the backend", e);
-//            dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(exception));
+            dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(exception));
         }
     }
 

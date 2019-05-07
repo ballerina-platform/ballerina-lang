@@ -53,7 +53,7 @@ public class GetContentDispositionObject extends BlockingNativeCallableUnit {
 //        context.setReturnValues(contentDispositionObj);
     }
 
-    public ObjectValue getContentDispositionObject(Strand strand, String contentDisposition) {
+    public static ObjectValue getContentDispositionObject(Strand strand, String contentDisposition) {
         ObjectValue contentDispositionObj = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME,
                                                                      CONTENT_DISPOSITION_STRUCT);
         MimeUtil.populateContentDispositionObject(contentDispositionObj, contentDisposition);

@@ -165,15 +165,16 @@ public class WebSocketUtil {
         webSocketChannelFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                strand.resume(HttpUtil.getError(cause));
+                strand.setReturnValues(HttpUtil.getError(cause));
                 //TODO Temp fix to get return values. Remove
                 callback.setReturnValues(HttpUtil.getError(cause));
 
             } else {
-                strand.resume(null);
+                strand.setReturnValues(null);
                 //TODO Temp fix to get return values. Remove
                 callback.setReturnValues(null);
             }
+            strand.resume();
             //TODO remove this call back
             callback.notifySuccess();
         });

@@ -18,11 +18,8 @@
 
 package org.ballerinalang.net.uri;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -77,7 +74,7 @@ public class URIUtil {
         Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
         if (matrixParamsMap != null) {
             for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {
-                matrixParamsBMap.put(matrixParamEntry.getKey(), new BString(matrixParamEntry.getValue()));
+                matrixParamsBMap.put(matrixParamEntry.getKey(), matrixParamEntry.getValue());
             }
         }
         return matrixParamsBMap;

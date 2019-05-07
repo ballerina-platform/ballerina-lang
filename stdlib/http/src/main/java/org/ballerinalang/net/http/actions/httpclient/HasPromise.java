@@ -20,6 +20,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
@@ -59,29 +60,38 @@ public class HasPromise extends AbstractHTTPAction {
 //                setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(context, callback));
     }
 
-    public static void hasPromise(Strand strand, ObjectValue clientObj, String path, ObjectValue handleObj) {
+    public static void hasPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
+        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
+        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+
         ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
             throw new BallerinaException("invalid http handle");
         }
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
-//        clientConnector.hasPushPromise(responseHandle).
-//                setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(context, callback));
+        clientConnector.hasPushPromise(responseHandle).
+                setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(strand, callback));
+        //TODO This is temporary fix to handle non blocking call
+        callback.sync();
     }
 
     private static class PromiseAvailabilityCheckListener implements HttpClientConnectorListener {
 
-        private Context context;
-        private CallableUnitCallback callback;
+        private Strand strand;
+        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
+        private TempCallableUnitCallback callback;
 
-        PromiseAvailabilityCheckListener(Context context, CallableUnitCallback callback) {
-            this.context = context;
+        PromiseAvailabilityCheckListener(Strand strand, TempCallableUnitCallback callback) {
+            this.strand = strand;
             this.callback = callback;
         }
 
         @Override
         public void onPushPromiseAvailability(boolean isPromiseAvailable) {
-            context.setReturnValues(new BBoolean(isPromiseAvailable));
+            strand.setReturnValues(isPromiseAvailable);
+            strand.resume();
+            //TODO remove this call back
+            callback.setReturnValues(isPromiseAvailable);
             callback.notifySuccess();
         }
     }

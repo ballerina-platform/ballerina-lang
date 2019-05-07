@@ -73,7 +73,7 @@ public class GetHeaderNames extends BlockingNativeCallableUnit {
 //        }
     }
 
-    public ArrayValue getHeaderNames(Strand strand, ObjectValue entityObj) {
+    public static ArrayValue getHeaderNames(Strand strand, ObjectValue entityObj) {
         ArrayValue stringArray = new ArrayValue(org.ballerinalang.jvm.types.BTypes.typeString);
         if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
             return stringArray;

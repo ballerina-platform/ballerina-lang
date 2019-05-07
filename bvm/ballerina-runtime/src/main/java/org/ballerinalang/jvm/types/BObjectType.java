@@ -35,11 +35,11 @@ public class BObjectType extends BStructureType {
      * Create a {@code BObjectType} which represents the user defined struct type.
      *
      * @param typeName string name of the type
-     * @param pkgPath package of the struct
+     * @param pkg package of the struct
      * @param flags flags of the object type
      */
-    public BObjectType(String typeName, String pkgPath, int flags) {
-        super(typeName, pkgPath, flags, Object.class);
+    public BObjectType(String typeName, BPackage pkg, int flags) {
+        super(typeName, pkg, flags, Object.class);
     }
 
     @Override

@@ -92,7 +92,8 @@ public class Close implements NativeCallableUnit {
                 callback.notifySuccess();
             });
         } catch (Exception e) {
-            strand.resume(HttpUtil.getError(e.getMessage()));
+            strand.setReturnValues(HttpUtil.getError(e.getMessage()));
+            strand.resume();
             //TODO remove this call back
             callback.setReturnValues(HttpUtil.getError(e.getMessage()));
             callback.notifySuccess();
@@ -115,11 +116,11 @@ public class Close implements NativeCallableUnit {
         return closeFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                strand.resume(HttpUtil.getError(cause));
+                strand.setReturnValues(HttpUtil.getError(cause));
                 //TODO remove this call back
                 callback.setReturnValues(HttpUtil.getError(cause));
             } else {
-                strand.resume(null);
+                strand.setReturnValues(null);
                 //TODO remove this call back
                 callback.setReturnValues(null);
             }
@@ -138,13 +139,13 @@ public class Close implements NativeCallableUnit {
                     String errMsg = String.format(
                             "Could not receive a WebSocket close frame from remote endpoint within %d seconds",
                             timeoutInSecs);
-                    strand.resume(HttpUtil.getError(errMsg));
+                    strand.setReturnValues(HttpUtil.getError(errMsg));
                     //TODO remove this call back
                     callback.setReturnValues(HttpUtil.getError(errMsg));
                 }
             }
         } catch (InterruptedException err) {
-            strand.resume(HttpUtil.getError("Connection interrupted while closing the connection"));
+            strand.setReturnValues(HttpUtil.getError("Connection interrupted while closing the connection"));
             //TODO remove this call back
             callback.setReturnValues(HttpUtil.getError("Connection interrupted while closing the connection"));
             Thread.currentThread().interrupt();

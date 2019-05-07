@@ -20,6 +20,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -61,13 +62,17 @@ public class RejectPromise extends AbstractHTTPAction {
 //        callback.notifySuccess();
     }
 
-    public static void rejectPromise(Strand strand, ObjectValue clientObj, String path, ObjectValue pushPromiseObj) {
+    public static void rejectPromise(Strand strand, ObjectValue clientObj, ObjectValue pushPromiseObj) {
+        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
+        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);
         if (http2PushPromise == null) {
             throw new BallerinaException("invalid push promise");
         }
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.rejectPushResponse(http2PushPromise);
-//        callback.notifySuccess();
+        //TODO This is temporary fix to handle non blocking call
+        callback.notifySuccess();
     }
 }

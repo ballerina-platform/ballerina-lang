@@ -40,6 +40,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-io</artifactId>
         </dependency>
         <dependency>
@@ -83,7 +87,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
+            <artifactId>ballerina-runtime-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -94,10 +98,9 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
+            <artifactId>ballerina-runtime-api</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>

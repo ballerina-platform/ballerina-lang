@@ -21,6 +21,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
@@ -64,9 +65,11 @@ public class GetPromisedResponse extends AbstractHTTPAction {
 //                setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
     }
 
-    public static void getPromisedResponse(Strand strand, ObjectValue clientObj, String path, ObjectValue pushPromiseObj) {
+    public static void getPromisedResponse(Strand strand, ObjectValue clientObj, ObjectValue pushPromiseObj) {
+        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
+        TempCallableUnitCallback callback = new TempCallableUnitCallback();
 
-        DataContext dataContext = new DataContext(strand, clientObj, pushPromiseObj, null);
+        DataContext dataContext = new DataContext(strand, false, callback, clientObj, pushPromiseObj, null);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);
         if (http2PushPromise == null) {
             throw new BallerinaException("invalid push promise");
@@ -74,6 +77,8 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.getPushResponse(http2PushPromise).
                 setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
+        //TODO This is temporary fix to handle non blocking call
+        callback.sync();
     }
 
     private static class PushResponseListener implements HttpClientConnectorListener {

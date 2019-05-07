@@ -19,7 +19,9 @@ package org.ballerinalang.net.http.actions.httpclient;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -44,10 +46,13 @@ public class Post extends AbstractHTTPAction {
 //        executeNonBlockingAction(dataContext, false);
     }
 
-    public static void nativePost(Strand strand, ObjectValue clientObj, String path, ObjectValue requestObj) {
+    public static void nativePost(Strand strand, ObjectValue clientObj, String url, MapValue config, String path, ObjectValue requestObj) {
+        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
+        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(clientObj, path, requestObj);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_POST);
-        DataContext dataContext = new DataContext(strand, clientObj, requestObj, outboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, false, callback, clientObj, requestObj, outboundRequestMsg);
         // Execute the operation
         executeNonBlockingAction(dataContext, false);
     }

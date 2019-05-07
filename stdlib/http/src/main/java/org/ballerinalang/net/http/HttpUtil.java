@@ -29,7 +29,6 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
@@ -53,11 +52,6 @@ import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.caching.RequestCacheControlObj;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
 import org.ballerinalang.net.http.session.Session;
@@ -173,36 +167,36 @@ public class HttpUtil {
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
     private static final String CHUNKING_CONFIG = "chunking_config";
 
-    public static BValue[] getProperty(Context context, boolean isRequest) {
-        BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        HttpCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-        String propertyName = context.getStringArgument(0);
+//    public static Object[] getProperty(Context context, boolean isRequest) {
+//        BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>) context.getRefArgument(0);
+//        HttpCarbonMessage httpCarbonMessage = HttpUtil
+//                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+//        String propertyName = context.getStringArgument(0);
+//
+//        Object propertyValue = httpCarbonMessage.getProperty(propertyName);
+//
+//        if (propertyValue == null) {
+//            return new BValue[0];
+//        }
+//
+//        if (propertyValue instanceof String) {
+//            return new BValue[] { new BString((String) propertyValue) };
+//        } else {
+//            throw new BallerinaException("Property value is of unknown type : " + propertyValue.getClass().getName());
+//        }
+//    }
 
-        Object propertyValue = httpCarbonMessage.getProperty(propertyName);
-
-        if (propertyValue == null) {
-            return new BValue[0];
-        }
-
-        if (propertyValue instanceof String) {
-            return new BValue[] { new BString((String) propertyValue) };
-        } else {
-            throw new BallerinaException("Property value is of unknown type : " + propertyValue.getClass().getName());
-        }
-    }
-
-    public static void setProperty(Context context, boolean isRequest) {
-        BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        String propertyName = context.getStringArgument(0);
-        String propertyValue = context.getStringArgument(1);
-
-        if (propertyName != null && propertyValue != null) {
-            HttpCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-            httpCarbonMessage.setProperty(propertyName, propertyValue);
-        }
-    }
+//    public static void setProperty(Context context, boolean isRequest) {
+//        BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>) context.getRefArgument(0);
+//        String propertyName = context.getStringArgument(0);
+//        String propertyValue = context.getStringArgument(1);
+//
+//        if (propertyName != null && propertyValue != null) {
+//            HttpCarbonMessage httpCarbonMessage = HttpUtil
+//                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+//            httpCarbonMessage.setProperty(propertyName, propertyValue);
+//        }
+//    }
 
     /**
      * Set new entity to in/out request/response struct.
@@ -283,9 +277,9 @@ public class HttpUtil {
         HttpCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(messageObj, HttpUtil.createHttpCarbonMessage(request));
         String contentType = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
-        //TODO check following condition related to context
+        //TODO check following condition related to streaming
         if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
-                && context != null) {
+                && !streaming) {
             MultipartDecoder.parseBody(entityObj, contentType,
                                        new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
         } else {
@@ -432,16 +426,19 @@ public class HttpUtil {
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
-    static void handleFailure(HttpCarbonMessage requestMessage, BError error) {
+    static void handleFailure(HttpCarbonMessage requestMessage, ErrorValue error) {
         String errorMsg = getErrorMessage(error);
         int statusCode = getStatusCode(requestMessage, errorMsg);
-        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+        //TODO Need a method to get printable stacktrace
+//        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+        ErrorHandlerUtils.printError("error: " + error.toString());
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
-    private static String getErrorMessage(BError error) {
+    private static String getErrorMessage(ErrorValue error) {
         String errorMsg = error.getReason();
-        BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
+        //TODO Test whether error.getDetails() can be casted to (MapValue)
+        MapValue errorDetails = (MapValue) error.getDetails();
         if (!errorDetails.isEmpty()) {
             errorMsg = errorMsg.concat(COLON + errorDetails.get(HTTP_ERROR_MESSAGE));
         }
@@ -496,7 +493,7 @@ public class HttpUtil {
      */
     public static ErrorValue getError(String errMsg) {
         MapValue<String, Object> httpErrorRecord = createHTTPErrorRecord();
-        httpErrorRecord.put(HTTP_ERROR_MESSAGE, new BString(errMsg));
+        httpErrorRecord.put(HTTP_ERROR_MESSAGE, errMsg);
         return BallerinaErrors.createError(HTTP_ERROR_CODE, httpErrorRecord);
     }
 
@@ -554,23 +551,23 @@ public class HttpUtil {
     public static void populatePushPromiseStruct(ObjectValue pushPromiseStruct,
                                                  Http2PushPromise pushPromise) {
         pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
-        pushPromiseStruct.put(HttpConstants.PUSH_PROMISE_PATH_FIELD, new BString(pushPromise.getPath()));
-        pushPromiseStruct.put(HttpConstants.PUSH_PROMISE_METHOD_FIELD, new BString(pushPromise.getMethod()));
+        pushPromiseStruct.set(HttpConstants.PUSH_PROMISE_PATH_FIELD, pushPromise.getPath());
+        pushPromiseStruct.set(HttpConstants.PUSH_PROMISE_METHOD_FIELD, pushPromise.getMethod());
     }
 
     /**
      * Creates native {@code Http2PushPromise} from PushPromise struct.
      *
-     * @param struct the PushPromise struct
+     * @param pushPromiseObj the PushPromise struct
      * @return the populated the native {@code Http2PushPromise}
      */
-    public static Http2PushPromise createHttpPushPromise(ObjectValue struct) {
-        String method = struct.get(HttpConstants.PUSH_PROMISE_METHOD_FIELD).stringValue();
+    public static Http2PushPromise createHttpPushPromise(ObjectValue pushPromiseObj) {
+        String method = pushPromiseObj.get(HttpConstants.PUSH_PROMISE_METHOD_FIELD).toString();
         if (method == null || method.isEmpty()) {
             method = HttpConstants.HTTP_METHOD_GET;
         }
 
-        String path = struct.get(HttpConstants.PUSH_PROMISE_PATH_FIELD).stringValue();
+        String path = pushPromiseObj.get(HttpConstants.PUSH_PROMISE_PATH_FIELD).toString();
         if (path == null || path.isEmpty()) {
             path = HttpConstants.DEFAULT_BASE_PATH;
         }
@@ -597,7 +594,7 @@ public class HttpUtil {
         enrichWithInboundRequestHeaders(inboundRequest, inboundRequestMsg);
 
         populateEntity(entity, mediaType, inboundRequestMsg);
-        inboundRequest.put(REQUEST_ENTITY_FIELD, entity);
+        inboundRequest.set(REQUEST_ENTITY_FIELD, entity);
         inboundRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
 
         String cacheControlHeader = inboundRequestMsg.getHeader(CACHE_CONTROL.toString());
@@ -606,32 +603,32 @@ public class HttpUtil {
                                                                                REQUEST_CACHE_CONTROL);
             RequestCacheControlObj requestCacheControl = new RequestCacheControlObj(cacheControlObj);
             requestCacheControl.populateStruct(cacheControlHeader);
-            inboundRequest.put(REQUEST_CACHE_CONTROL_FIELD, requestCacheControl.getObj());
+            inboundRequest.set(REQUEST_CACHE_CONTROL_FIELD, requestCacheControl.getObj());
         }
     }
 
-    private static void enrichWithInboundRequestHeaders(BMap<String, BValue> inboundRequestStruct,
+    private static void enrichWithInboundRequestHeaders(ObjectValue inboundRequestObj,
                                                         HttpCarbonMessage inboundRequestMsg) {
         if (inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()) != null) {
             String agent = inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString());
-            inboundRequestStruct.put(HttpConstants.REQUEST_USER_AGENT_FIELD, new BString(agent));
+            inboundRequestObj.set(HttpConstants.REQUEST_USER_AGENT_FIELD, agent);
             inboundRequestMsg.removeHeader(HttpHeaderNames.USER_AGENT.toString());
         }
     }
 
-    private static void enrichWithInboundRequestInfo(BMap<String, BValue> inboundRequestStruct,
+    private static void enrichWithInboundRequestInfo(ObjectValue inboundRequestObj,
                                                      HttpCarbonMessage inboundRequestMsg) {
-        inboundRequestStruct.put(HttpConstants.REQUEST_RAW_PATH_FIELD,
-                new BString((String) inboundRequestMsg.getProperty(HttpConstants.REQUEST_URL)));
-        inboundRequestStruct.put(HttpConstants.REQUEST_METHOD_FIELD,
-                new BString((String) inboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD)));
-        inboundRequestStruct.put(HttpConstants.REQUEST_VERSION_FIELD,
-                new BString((String) inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION)));
-        HttpResourceArguments resourceArgValues =
-                (HttpResourceArguments) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
+        inboundRequestObj.set(HttpConstants.REQUEST_RAW_PATH_FIELD,
+                              inboundRequestMsg.getProperty(HttpConstants.REQUEST_URL));
+        inboundRequestObj.set(HttpConstants.REQUEST_METHOD_FIELD,
+                              inboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD));
+        inboundRequestObj.set(HttpConstants.REQUEST_VERSION_FIELD,
+                              inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION));
+        HttpResourceArguments resourceArgValues = (HttpResourceArguments) inboundRequestMsg.getProperty(
+                HttpConstants.RESOURCE_ARGS);
         if (resourceArgValues != null && resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO) != null) {
-            inboundRequestStruct.put(HttpConstants.REQUEST_EXTRA_PATH_INFO_FIELD,
-                    new BString(resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO)));
+            inboundRequestObj.set(HttpConstants.REQUEST_EXTRA_PATH_INFO_FIELD,
+                                  resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO));
         }
     }
 
@@ -695,19 +692,19 @@ public class HttpUtil {
                                                ObjectValue mediaType, HttpCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
-        inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, new BInteger(statusCode));
+        inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, statusCode);
         inboundResponse.set(RESPONSE_REASON_PHRASE_FIELD,
-                new BString(HttpResponseStatus.valueOf(statusCode).reasonPhrase()));
+                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
         if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
             inboundResponse.set(HttpConstants.RESPONSE_SERVER_FIELD,
-                    new BString(inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString())));
+                    inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()));
             inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
         }
 
         if (inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI) != null) {
             inboundResponse.set(RESOLVED_REQUESTED_URI_FIELD,
-                    new BString(inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI).toString()));
+                    inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI).toString());
         }
 
         String cacheControlHeader = inboundResponseMsg.getHeader(CACHE_CONTROL.toString());
@@ -730,8 +727,7 @@ public class HttpUtil {
      * @param mediaType mediaType struct that needs to be set to the entity
      * @param cMsg      Represent a carbon message
      */
-    private static void populateEntity(BMap<String, BValue> entity, BMap<String, BValue> mediaType,
-                                       HttpCarbonMessage cMsg) {
+    private static void populateEntity(ObjectValue entity, ObjectValue mediaType, HttpCarbonMessage cMsg) {
         String contentType = cMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
         MimeUtil.setContentType(mediaType, entity, contentType);
         long contentLength = -1;
@@ -749,27 +745,27 @@ public class HttpUtil {
      * Set headers and properties of request/response struct to the outbound transport message.
      *
      * @param outboundMsg    transport Http carbon message.
-     * @param outboundStruct req/resp struct.
+     * @param outboundMsgObj req/resp struct.
      */
-    public static void enrichOutboundMessage(HttpCarbonMessage outboundMsg, ObjectValue outboundStruct) {
-        setHeadersToTransportMessage(outboundMsg, outboundStruct);
-        setPropertiesToTransportMessage(outboundMsg, outboundStruct);
+    public static void enrichOutboundMessage(HttpCarbonMessage outboundMsg, ObjectValue outboundMsgObj) {
+        setHeadersToTransportMessage(outboundMsg, outboundMsgObj);
+        setPropertiesToTransportMessage(outboundMsg, outboundMsgObj);
     }
 
     @SuppressWarnings("unchecked")
-    private static void setHeadersToTransportMessage(HttpCarbonMessage outboundMsg, BMap<String, BValue> struct) {
-        BMap<String, BValue> entityStruct = (BMap<String, BValue>) struct
-                .get(isRequest(struct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
+    private static void setHeadersToTransportMessage(HttpCarbonMessage outboundMsg, ObjectValue messageObj) {
+        ObjectValue entityObj = (ObjectValue) messageObj
+                .get(isRequest(messageObj) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
         HttpHeaders transportHeaders = outboundMsg.getHeaders();
-        if (isRequest(struct) || isResponse(struct)) {
-            addRemovedPropertiesBackToHeadersMap(struct, transportHeaders);
+        if (isRequest(messageObj) || isResponse(messageObj)) {
+            addRemovedPropertiesBackToHeadersMap(messageObj, transportHeaders);
             // Since now the InRequest & OutRequest are merged to a single Request and InResponse & OutResponse
             // are merged to a single Response, without returning need to populate all headers from the struct
             // to the HttpCarbonMessage.
             // TODO: refactor this logic properly.
             // return;
         }
-        HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
         if (httpHeaders != transportHeaders) {
             //This is done only when the entity map and transport message do not refer to the same header map
             if (httpHeaders != null) {
@@ -777,7 +773,7 @@ public class HttpUtil {
             }
             //Once the headers are synced, set the entity headers to transport message headers so that they
             //both refer the same header map for future operations
-            entityStruct.addNativeData(ENTITY_HEADERS, outboundMsg.getHeaders());
+            entityObj.addNativeData(ENTITY_HEADERS, outboundMsg.getHeaders());
         }
     }
 
@@ -789,31 +785,30 @@ public class HttpUtil {
         return value.getType().getName().equals(HttpConstants.RESPONSE);
     }
 
-    private static void addRemovedPropertiesBackToHeadersMap(BMap<String, BValue> struct,
-                                                             HttpHeaders transportHeaders) {
-        if (isRequest(struct)) {
-            BValue userAgent = struct.get(HttpConstants.REQUEST_USER_AGENT_FIELD);
-            if (userAgent != null && !userAgent.stringValue().isEmpty()) {
-                transportHeaders.set(HttpHeaderNames.USER_AGENT.toString(), userAgent.stringValue());
+    private static void addRemovedPropertiesBackToHeadersMap(ObjectValue messageObj, HttpHeaders transportHeaders) {
+        if (isRequest(messageObj)) {
+            Object userAgent = messageObj.get(HttpConstants.REQUEST_USER_AGENT_FIELD);
+            if (userAgent != null && !userAgent.toString().isEmpty()) {
+                transportHeaders.set(HttpHeaderNames.USER_AGENT.toString(), userAgent.toString());
             }
         } else {
-            BValue server = struct.get(HttpConstants.RESPONSE_SERVER_FIELD);
-            if (server != null && !server.stringValue().isEmpty()) {
-                transportHeaders.set(HttpHeaderNames.SERVER.toString(), server.stringValue());
+            Object server = messageObj.get(HttpConstants.RESPONSE_SERVER_FIELD);
+            if (server != null && !server.toString().isEmpty()) {
+                transportHeaders.set(HttpHeaderNames.SERVER.toString(), server.toString());
             }
         }
     }
 
-    private static void setPropertiesToTransportMessage(HttpCarbonMessage outboundResponseMsg,
-                                                        BMap<String, BValue> struct) {
-        if (isResponse(struct)) {
-            long statusCode = ((BInteger) struct.get(RESPONSE_STATUS_CODE_FIELD)).intValue();
+    private static void setPropertiesToTransportMessage(HttpCarbonMessage outboundResponseMsg, ObjectValue messageObj) {
+        if (isResponse(messageObj)) {
+            //TODO fix following logic
+            long statusCode = (Integer) messageObj.get(RESPONSE_STATUS_CODE_FIELD);
             if (statusCode != 0) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, getIntValue(statusCode));
             }
-            BValue respPhrase = struct.get(RESPONSE_REASON_PHRASE_FIELD);
-            if (respPhrase != null && !respPhrase.stringValue().isEmpty()) {
-                outboundResponseMsg.setProperty(HttpConstants.HTTP_REASON_PHRASE, respPhrase.stringValue());
+            Object respPhrase = messageObj.get(RESPONSE_REASON_PHRASE_FIELD);
+            if (respPhrase != null && !respPhrase.toString().isEmpty()) {
+                outboundResponseMsg.setProperty(HttpConstants.HTTP_REASON_PHRASE, respPhrase.toString());
             }
         }
     }
@@ -997,37 +992,38 @@ public class HttpUtil {
         return HttpConstants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
                 reqMsg.getHeader(HttpHeaderNames.EXPECT.toString())) || statusCode == 100;
     }
-
-    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
-        List<Annotation> annotationList = service
-                .getAnnotationList(pkgPath, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
-
-        if (annotationList == null) {
-            return null;
-        }
-
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple service configuration annotations found in service: " + service.getName());
-        }
-
-        return annotationList.isEmpty() ? null : annotationList.get(0);
-    }
-
-    public static Annotation getServiceConfigStruct(Service service, String pkgPath) {
-        List<Annotation> annotationList = service.getAnnotationList(pkgPath, HttpConstants.ANN_NAME_CONFIG);
-
-        if (annotationList == null) {
-            return null;
-        }
-
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple service configuration annotations found in service: " + service.getName());
-        }
-
-        return annotationList.isEmpty() ? null : annotationList.get(0);
-    }
+    //TODO remove if unnecessary
+//
+//    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+//        List<Annotation> annotationList = service
+//                .getAnnotationList(pkgPath, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
+//
+//        if (annotationList == null) {
+//            return null;
+//        }
+//
+//        if (annotationList.size() > 1) {
+//            throw new BallerinaException(
+//                    "multiple service configuration annotations found in service: " + service.getName());
+//        }
+//
+//        return annotationList.isEmpty() ? null : annotationList.get(0);
+//    }
+//
+//    public static Annotation getServiceConfigStruct(Service service, String pkgPath) {
+//        List<Annotation> annotationList = service.getAnnotationList(pkgPath, HttpConstants.ANN_NAME_CONFIG);
+//
+//        if (annotationList == null) {
+//            return null;
+//        }
+//
+//        if (annotationList.size() > 1) {
+//            throw new BallerinaException(
+//                    "multiple service configuration annotations found in service: " + service.getName());
+//        }
+//
+//        return annotationList.isEmpty() ? null : annotationList.get(0);
+//    }
 
 //    protected static void populateKeepAliveAndCompressionStatus(HttpService service, Annotation annotation) {
 //        if (annotation == null) {
@@ -1100,9 +1096,9 @@ public class HttpUtil {
      */
     public static String addBoundaryIfNotExist(HttpCarbonMessage transportMessage, String contentType) {
         String boundaryString;
-        BString boundaryValue = HeaderUtil.extractBoundaryParameter(contentType);
-        boundaryString = boundaryValue != null ? boundaryValue.toString() :
-                HttpUtil.addBoundaryParameter(transportMessage, contentType);
+        String boundaryValue = HeaderUtil.extractBoundaryParameter(contentType);
+        boundaryString = boundaryValue != null ? boundaryValue : HttpUtil.addBoundaryParameter(transportMessage,
+                                                                                               contentType);
         return boundaryString;
     }
 
@@ -1173,19 +1169,19 @@ public class HttpUtil {
     public static void populateSenderConfigurations(SenderConfiguration senderConfiguration, MapValue<String, Object>
             clientEndpointConfig) {
         ProxyServerConfiguration proxyServerConfiguration;
-        Struct secureSocket = clientEndpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
+        MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
 
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(senderConfiguration, secureSocket);
         } else {
             HttpUtil.setDefaultTrustStore(senderConfiguration);
         }
-        Struct proxy = clientEndpointConfig.getStructField(HttpConstants.PROXY_STRUCT_REFERENCE);
+        MapValue proxy = clientEndpointConfig.getMapValue(HttpConstants.PROXY_STRUCT_REFERENCE);
         if (proxy != null) {
-            String proxyHost = proxy.getStringField(HttpConstants.PROXY_HOST);
-            int proxyPort = (int) proxy.getIntField(HttpConstants.PROXY_PORT);
-            String proxyUserName = proxy.getStringField(HttpConstants.PROXY_USERNAME);
-            String proxyPassword = proxy.getStringField(HttpConstants.PROXY_PASSWORD);
+            String proxyHost = proxy.getStringValue(HttpConstants.PROXY_HOST);
+            int proxyPort = proxy.getIntValue(HttpConstants.PROXY_PORT).intValue();
+            String proxyUserName = proxy.getStringValue(HttpConstants.PROXY_USERNAME);
+            String proxyPassword = proxy.getStringValue(HttpConstants.PROXY_PASSWORD);
             try {
                 proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
             } catch (UnknownHostException e) {
@@ -1200,29 +1196,28 @@ public class HttpUtil {
             senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
         }
 
-        String chunking = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_CHUNKING).getStringValue();
+        String chunking = clientEndpointConfig.get(HttpConstants.CLIENT_EP_CHUNKING).toString();
         senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
 
-        long timeoutMillis = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
+        long timeoutMillis = clientEndpointConfig.getIntValue(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
         if (timeoutMillis < 0) {
             senderConfiguration.setSocketIdleTimeout(0);
         } else {
             senderConfiguration.setSocketIdleTimeout(
                     validateConfig(timeoutMillis, HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT));
         }
-        String keepAliveConfig = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE)
-                .getStringValue();
+        String keepAliveConfig = clientEndpointConfig.get(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE).toString();
         senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
 
-        String httpVersion = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_HTTP_VERSION);
+        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (httpVersion != null) {
             senderConfiguration.setHttpVersion(httpVersion);
         }
-        String forwardedExtension = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_FORWARDED);
+        String forwardedExtension = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_FORWARDED);
         senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
     }
 
-    public static ConnectionManager getConnectionManager(MapValue<String, Integer> poolStruct) {
+    public static ConnectionManager getConnectionManager(MapValue<String, Long> poolStruct) {
         ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
         if (poolManager == null) {
             synchronized (poolStruct) {
@@ -1237,22 +1232,17 @@ public class HttpUtil {
         return poolManager;
     }
 
-    public static void populatePoolingConfig(MapValue<String, Integer> poolRecord, PoolConfiguration poolConfiguration) {
-        long maxActiveConnections = ((BInteger) poolRecord
-                .get(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS)).intValue();
-        poolConfiguration.setMaxActivePerPool(
-                validateConfig(maxActiveConnections, HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS));
+    public static void populatePoolingConfig(MapValue<String, Long> poolRecord, PoolConfiguration poolConfiguration) {
+        long maxActiveConnections = poolRecord.get(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS);
+        poolConfiguration.setMaxActivePerPool(validateConfig(maxActiveConnections, HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS));
 
-        long maxIdleConnections = ((BInteger) poolRecord
-                .get(HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS)).intValue();
-        poolConfiguration.setMaxIdlePerPool(
-                validateConfig(maxIdleConnections, HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS));
+        long maxIdleConnections = poolRecord.get(HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS);
+        poolConfiguration.setMaxIdlePerPool(validateConfig(maxIdleConnections, HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS));
 
-        long waitTime = ((BInteger) poolRecord.get(HttpConstants.CONNECTION_POOLING_WAIT_TIME)).intValue();
+        long waitTime = poolRecord.get(HttpConstants.CONNECTION_POOLING_WAIT_TIME);
         poolConfiguration.setMaxWaitTime(waitTime);
 
-        long maxActiveStreamsPerConnection = ((BInteger) poolRecord.
-                get(CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION)).intValue();
+        long maxActiveStreamsPerConnection = poolRecord.get(CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION);
         poolConfiguration.setHttp2MaxActiveStreamsPerConnection(
                 maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : validateConfig(maxActiveStreamsPerConnection,
                                                                 CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION));

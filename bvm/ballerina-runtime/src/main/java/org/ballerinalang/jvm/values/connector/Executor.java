@@ -1,43 +1,37 @@
-///*
-// *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-// *
-// *  WSO2 Inc. licenses this file to you under the Apache License,
-// *  Version 2.0 (the "License"); you may not use this file except
-// *  in compliance with the License.
-// *  You may obtain a copy of the License at
-// *
-// *    http://www.apache.org/licenses/LICENSE-2.0
-// *
-// *  Unless required by applicable law or agreed to in writing,
-// *  software distributed under the License is distributed on an
-// *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// *  KIND, either express or implied.  See the License for the
-// *  specific language governing permissions and limitations
-// *  under the License.
-// */
-//package org.ballerinalang.connector.api;
-//
-//import org.ballerinalang.bre.bvm.BVMExecutor;
-//import org.ballerinalang.bre.bvm.CallableUnitCallback;
-//import org.ballerinalang.bre.old.WorkerExecutionContext;
-//import org.ballerinalang.model.values.BValue;
-//import org.ballerinalang.util.codegen.FunctionInfo;
-//import org.ballerinalang.util.observability.ObserverContext;
-//
-//import java.util.ArrayList;
-//import java.util.Arrays;
-//import java.util.List;
-//import java.util.Map;
-//
-///**
-// * {@code Executor} Is the entry point from server connector side to ballerina side.
-// * After doing the dispatching and finding the resource, server connector implementations can use
-// * this API to invoke Ballerina engine.
-// *
-// * @since 0.94
-// */
-//public class Executor {
-//
+/*
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+package org.ballerinalang.jvm.values.connector;
+
+import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+
+import java.util.Map;
+
+/**
+ * {@code Executor} Is the entry point from server connector side to ballerina side.
+ * After doing the dispatching and finding the resource, server connector implementations can use
+ * this API to invoke Ballerina engine.
+ *
+ * @since 0.94
+ */
+public class Executor {
+
 //    /**
 //     * This method will execute Ballerina resource in non-blocking manner.
 //     * It will use Ballerina worker-pool for the execution and will return the
@@ -49,7 +43,8 @@
 //     * @param observerContext  for the resource invocation.
 //     * @param values           required for the resource.
 //     */
-//    public static void submit(Resource resource, CallableUnitCallback responseCallback, Map<String, Object> properties,
+//    public static void submit(Resource resource, CallableUnitCallback responseCallback,
+//                              Map<String, Object> properties,
 //                              ObserverContext observerContext, BValue... values)
 //            throws BallerinaConnectorException {
 //        if (resource == null || responseCallback == null) {
@@ -81,7 +76,8 @@
 //     * @param context          of the resource execution.
 //     * @param values           required for the resource.
 //     */
-//    public static void submit(Resource resource, CallableUnitCallback responseCallback, Map<String, Object> properties,
+//    public static void submit(Resource resource, CallableUnitCallback responseCallback,
+//                              Map<String, Object> properties,
 //                              ObserverContext observerContext, WorkerExecutionContext context, BValue... values)
 //            throws BallerinaConnectorException {
 //        if (resource == null || responseCallback == null) {
@@ -96,5 +92,22 @@
 //                resource.getService().getServiceInfo(), args.toArray(new BValue[0]));
 ////        ResourceExecutor.execute(resource, responseCallback, properties, observerContext, context, values);
 //    }
-//
-//}
+
+    public static void submit(ObjectValue service, String resourceName, Map<String, Object> properties,
+                              Object... bValues) {
+        //TODO this is temp fix till we get the service.start() API
+        service.call(new Strand(new Scheduler(), properties), resourceName, bValues);
+    }
+
+    public static void submit(ObjectValue service, String resourceName, Object... bValues) {
+        //TODO this is temp fix till we get the service.start() API
+        service.call(new Strand(new Scheduler()), resourceName, bValues);
+    }
+
+
+    //TODO Uncomment following once service.start() API is available
+//    public static CallableUnitFuture submit(ObjectValue service, String resourceName, Object[] bValues) {
+//        service.start(new Strand(new Scheduler()), resourceName, bValues);
+//    }
+
+}

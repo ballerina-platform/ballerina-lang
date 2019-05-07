@@ -59,7 +59,7 @@ public class InitGlobalPool extends BlockingNativeCallableUnit {
 //        globalPoolConfig.addNativeData(CONNECTION_MANAGER, connectionManager);
     }
 
-    public static void initGlobalPool(Strand strand, MapValue<String, Integer> globalPoolConfig) {
+    public static void initGlobalPool(Strand strand, MapValue<String, Long> globalPoolConfig) {
         PoolConfiguration globalPool = new PoolConfiguration();
         populatePoolingConfig(globalPoolConfig, globalPool);
         ConnectionManager connectionManager = new ConnectionManager(globalPool);

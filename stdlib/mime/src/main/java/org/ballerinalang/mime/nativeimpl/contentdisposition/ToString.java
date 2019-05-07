@@ -60,7 +60,7 @@ public class ToString extends BlockingNativeCallableUnit {
 //        context.setReturnValues(new BString(dispositionBuilder.toString()));
     }
 
-    public String toString(Strand strand, ObjectValue contentDispositionObj) {
+    public static String toString(Strand strand, ObjectValue contentDispositionObj) {
         StringBuilder dispositionBuilder = new StringBuilder();
         if (contentDispositionObj != null) {
             String disposition = contentDispositionObj.get(DISPOSITION_FIELD).toString();

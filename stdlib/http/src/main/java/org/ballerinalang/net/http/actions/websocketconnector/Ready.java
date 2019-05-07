@@ -26,9 +26,6 @@ import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpUtil;
@@ -79,15 +76,19 @@ public class Ready implements NativeCallableUnit {
                     .booleanValue();
             if (!isReady) {
                 WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnection);
+                strand.setReturnValues(null);
+                //TODO remove this call back
                 callback.setReturnValues(null);
-                strand.resume(null);
             } else {
+                strand.setReturnValues(HttpUtil.getError("Already started reading frames"));
+                //TODO remove this call back
                 callback.setReturnValues(HttpUtil.getError("Already started reading frames"));
-                strand.resume(HttpUtil.getError("Already started reading frames"));
             }
+            strand.resume();
             callback.notifySuccess();
         } catch (Exception e) {
-            strand.resume(HttpUtil.getError(e.getMessage()));
+            strand.setReturnValues(HttpUtil.getError(e.getMessage()));
+            strand.resume();
             //TODO remove this call back
             callback.setReturnValues(HttpUtil.getError(e.getMessage()));
             callback.notifySuccess();

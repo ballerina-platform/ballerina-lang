@@ -71,7 +71,7 @@ public class GetHeaders extends BlockingNativeCallableUnit {
 //        context.setReturnValues(bStringArray);
     }
 
-    public ArrayValue getHeaders(Strand strand, ObjectValue entityObj, String headerName) {
+    public static ArrayValue getHeaders(Strand strand, ObjectValue entityObj, String headerName) {
         if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
             throw new BallerinaException("Http Header does not exist!");
         }

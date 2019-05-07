@@ -106,6 +106,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         if (ObserveUtils.isObservabilityEnabled()) {
             observerContext = new ObserverContext();
             observerContext.setConnectorName(SERVER_CONNECTOR_HTTP);
+            //TODO migrate along with observability migration
 //            observerContext.setServiceName(ObserveUtils.getFullServiceName(httpResource.getParentService()
 //                                                                                       .getBalService()
 //                                                                                       .getServiceInfo()));
@@ -123,7 +124,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         //TODO handle BallerinaConnectorException and callback
 //        Executor.submit(balResource, callback, properties, observerContext, signatureParams);
         ObjectValue service = httpResource.getParentService().getBalService();
-        service.call(new Strand(new Scheduler()), httpResource.getName(), signatureParams);
+        Executor.submit(service, httpResource.getName(), properties, signatureParams);
     }
 
     protected boolean accessed(HttpCarbonMessage inboundMessage) {

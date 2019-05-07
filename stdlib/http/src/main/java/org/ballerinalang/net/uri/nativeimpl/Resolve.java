@@ -20,6 +20,7 @@ package org.ballerinalang.net.uri.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
@@ -45,8 +46,25 @@ import java.net.URISyntaxException;
 public class Resolve extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        String url = context.getStringArgument(0);
-        String path = context.getStringArgument(1);
+//        String url = context.getStringArgument(0);
+//        String path = context.getStringArgument(1);
+//        URI uri;
+//        try {
+//            uri = new URI(path);
+//            if (!uri.isAbsolute()) {
+//                // Url is not absolute, we need to resolve it.
+//                URI baseUri = new URI(url);
+//                uri = baseUri.resolve(uri.normalize());
+//
+//            }
+//            context.setReturnValues(new BString(uri.toString()));
+//        } catch (URISyntaxException e) {
+//            context.setReturnValues(HttpUtil.getError(context, "Error occurred while resolving uri. " + e
+//                    .getMessage()));
+//        }
+    }
+
+    public static Object resolve(Strand strand, String url, String path) {
         URI uri;
         try {
             uri = new URI(path);
@@ -56,10 +74,9 @@ public class Resolve extends BlockingNativeCallableUnit {
                 uri = baseUri.resolve(uri.normalize());
 
             }
-            context.setReturnValues(new BString(uri.toString()));
+            return uri.toString();
         } catch (URISyntaxException e) {
-            context.setReturnValues(HttpUtil.getError(context, "Error occurred while resolving uri. " + e
-                    .getMessage()));
+            return HttpUtil.getError("Error occurred while resolving uri. " + e.getMessage());
         }
     }
 }

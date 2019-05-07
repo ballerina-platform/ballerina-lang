@@ -18,6 +18,7 @@ package org.ballerinalang.mime.nativeimpl.mimebase64;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -42,8 +43,13 @@ public class Base64Encode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValue input = context.getRefArgument(0);
-        String charset = context.getStringArgument(0);
-        Utils.encode(context, input, charset, true);
+//        BValue input = context.getRefArgument(0);
+//        String charset = context.getStringArgument(0);
+//        Utils.encode(context, input, charset, true);
+    }
+
+    public static void base64Encode(Strand strand, Object contentToBeDecoded, String charset) {
+        //TODO uncomment once IO module is migrated
+//        Utils.encode(contentToBeDecoded, charset, true);
     }
 }

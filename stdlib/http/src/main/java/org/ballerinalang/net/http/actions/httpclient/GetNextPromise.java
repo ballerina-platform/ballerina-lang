@@ -21,6 +21,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -61,9 +62,11 @@ public class GetNextPromise extends AbstractHTTPAction {
 //                setPushPromiseListener(new PromiseListener(dataContext));
     }
 
-    public static void getNextPromise(Strand strand, ObjectValue clientObj, String path, ObjectValue handleObj) {
+    public static void getNextPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
+        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
+        TempCallableUnitCallback callback = new TempCallableUnitCallback();
 
-        DataContext dataContext = new DataContext(strand, clientObj, handleObj, null);
+        DataContext dataContext = new DataContext(strand, false, callback, clientObj, handleObj, null);
         ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
             throw new BallerinaException("invalid http handle");
@@ -71,6 +74,8 @@ public class GetNextPromise extends AbstractHTTPAction {
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.getNextPushPromise(responseHandle).
                 setPushPromiseListener(new PromiseListener(dataContext));
+        //TODO This is temporary fix to handle non blocking call
+        callback.sync();
     }
 
     private static class PromiseListener implements HttpClientConnectorListener {
@@ -86,7 +91,7 @@ public class GetNextPromise extends AbstractHTTPAction {
             ObjectValue pushPromiseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
                                                                               HttpConstants.PUSH_PROMISE);
             HttpUtil.populatePushPromiseStruct(pushPromiseObj, pushPromise);
-//            dataContext.notifyInboundResponseStatus(pushPromiseObj, null);
+            dataContext.notifyInboundResponseStatus(pushPromiseObj, null);
         }
     }
 }

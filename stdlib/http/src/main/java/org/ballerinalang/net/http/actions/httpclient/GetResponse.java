@@ -21,6 +21,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
@@ -64,9 +65,11 @@ public class GetResponse extends AbstractHTTPAction {
 //                setHttpConnectorListener(new ResponseListener(dataContext));
     }
 
-    public static void getResponse(Strand strand, ObjectValue clientObj, String path, ObjectValue handleObj) {
+    public static void getResponse(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
+        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
+        TempCallableUnitCallback callback = new TempCallableUnitCallback();
 
-        DataContext dataContext = new DataContext(strand, clientObj, handleObj, null);
+        DataContext dataContext = new DataContext(strand, false, callback, clientObj, handleObj, null);
 
         ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
@@ -75,6 +78,8 @@ public class GetResponse extends AbstractHTTPAction {
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.getResponse(responseHandle).
                 setHttpConnectorListener(new ResponseListener(dataContext));
+        //TODO This is temporary fix to handle non blocking call
+        callback.sync();
     }
 
     private static class ResponseListener implements HttpConnectorListener {

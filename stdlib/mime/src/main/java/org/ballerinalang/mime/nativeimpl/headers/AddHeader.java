@@ -67,7 +67,7 @@ public class AddHeader extends BlockingNativeCallableUnit {
 //        context.setReturnValues();
     }
 
-    public void addHeader(Strand strand, ObjectValue entityObj, String headerName, String headerValue) {
+    public static void addHeader(Strand strand, ObjectValue entityObj, String headerName, String headerValue) {
         if (headerName == null || headerValue == null) {
             return;
         }

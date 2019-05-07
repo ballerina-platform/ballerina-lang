@@ -39,7 +39,7 @@ public class HttpCallableUnitCallback implements CallableUnitCallback {
 
     @Override
     public void notifyFailure(BError error) {
-        HttpUtil.handleFailure(requestMessage, error);
+//        HttpUtil.handleFailure(requestMessage, error);
         requestMessage.waitAndReleaseAllEntities();
     }
 

@@ -26,7 +26,6 @@ import org.ballerinalang.net.uri.parser.Node;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
 
 /**
  * Basic URI Template implementation.

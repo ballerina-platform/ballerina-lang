@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
+import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
@@ -33,16 +34,35 @@ public class Strand {
     public boolean blocked;
     public Strand blockedOn;
     public Scheduler scheduler;
+    private Map<String, Object> globalProps;
+
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
+    }
+
+    public Strand(Scheduler scheduler, Map<String, Object> properties) {
+        this.scheduler = scheduler;
+        this.globalProps = properties;
     }
 
     public void block() {
 
     }
 
-    public void resume(Object returnValue) {
+    public void setReturnValues(Object returnValue) {
 
+    }
+
+    public void resume() {
+
+    }
+
+    public Object getProperty(String key) {
+        return this.globalProps.get(key);
+    }
+
+    public void setProperty(String key, Object value) {
+        this.globalProps.put(key, value);
     }
 }

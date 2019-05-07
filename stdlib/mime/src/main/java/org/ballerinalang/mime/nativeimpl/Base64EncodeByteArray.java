@@ -48,6 +48,7 @@ public class Base64EncodeByteArray extends BlockingNativeCallableUnit {
     }
 
     public ArrayValue base64EncodeByteArray(Strand strand, ArrayValue byteArray) {
-        return encodeBlob(byteArray.getBytes(), false);
+//        return encodeBlob(byteArray.getBytes(), false);
+        return null;
     }
 }

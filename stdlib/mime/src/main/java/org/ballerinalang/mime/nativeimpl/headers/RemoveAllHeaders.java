@@ -53,7 +53,7 @@ public class RemoveAllHeaders extends BlockingNativeCallableUnit {
 //        context.setReturnValues();
     }
 
-    public void removeAllHeaders(Strand strand, ObjectValue entityObj) {
+    public static void removeAllHeaders(Strand strand, ObjectValue entityObj) {
         if (entityObj.getNativeData(ENTITY_HEADERS) != null) {
             HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
             httpHeaders.clear();
