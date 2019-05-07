@@ -42,6 +42,18 @@ public enum Snippet {
 
     DEF_RESOURCE(SnippetGenerator.getResourceDefinitionSnippet()),
 
+    DEF_RESOURCE_GRPC(SnippetGenerator.getGRPCResourceDefinitionSnippet()),
+
+    DEF_RESOURCE_WS_OPEN(SnippetGenerator.getWebSocketResourceOnOpenSnippet()),
+
+    DEF_RESOURCE_WS_TEXT(SnippetGenerator.getWebSocketResourceOnTextSnippet()),
+
+    DEF_RESOURCE_WS_CLOSE(SnippetGenerator.getWebSocketResourceOnCloseSnippet()),
+
+    DEF_RESOURCE_WEBSUB_INTENT(SnippetGenerator.getWebSubResourceOnIntentVerificationSnippet()),
+
+    DEF_RESOURCE_WEBSUB_NOTIFY(SnippetGenerator.getWebSubResourceOnNotificationSnippet()),
+
     DEF_SERVICE(SnippetGenerator.getServiceDefSnippet()),
 
     DEF_SERVICE_WEBSOCKET(SnippetGenerator.getWebSocketServiceDefSnippet()),
@@ -176,10 +188,26 @@ public enum Snippet {
 
     ITR_ON_XML_PARAMS(SnippetGenerator.getIterableOnXmlParamSnippet());
 
+    private String snippetName;
     private SnippetBlock snippetBlock;
 
     Snippet(SnippetBlock snippetBlock) {
+        this.snippetName = null;
         this.snippetBlock = snippetBlock;
+    }
+
+    Snippet(String snippetName, SnippetBlock snippetBlock) {
+        this.snippetName = snippetName;
+        this.snippetBlock = snippetBlock;
+    }
+
+    /**
+     * Get the Snippet Name.
+     *
+     * @return {@link String} snippet name
+     */
+    public String snippetName() {
+        return this.snippetName;
     }
 
     /**

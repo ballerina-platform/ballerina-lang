@@ -186,7 +186,13 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.UnaryOP birUnaryOp) {
-        throw new AssertionError();
+        writePosition(birUnaryOp.pos);
+        sb.append("\t\t");
+        birUnaryOp.lhsOp.accept(this);
+        sb.append(" = ").append(birUnaryOp.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        birUnaryOp.rhsOp.accept(this);
+        sb.append(" ");
+        sb.append(";\n");
     }
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
@@ -210,6 +216,22 @@ public class BIREmitter extends BIRVisitor {
         birNewArray.lhsOp.accept(this);
         sb.append(" = ").append(birNewArray.kind.name().toLowerCase(Locale.ENGLISH)).append(" [");
         birNewArray.sizeOp.accept(this);
+        sb.append("];\n");
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewTable newTable) {
+        writePosition(newTable.pos);
+        sb.append("\t\t");
+        newTable.lhsOp.accept(this);
+        sb.append(" = ").append(newTable.kind.name().toLowerCase(Locale.ENGLISH)).append(" [");
+        newTable.columnsOp.accept(this);
+        sb.append(", ");
+        newTable.indexColOp.accept(this);
+        sb.append(", ");
+        newTable.keyColOp.accept(this);
+        sb.append(", ");
+        newTable.dataOp.accept(this);
         sb.append("];\n");
     }
 

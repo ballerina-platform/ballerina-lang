@@ -102,18 +102,17 @@
         </groups>
         <classes>
             <class name="org.ballerinalang.test.auth.AuthBaseTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceAuthDisableTest"/>
             <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnWithMultipleHandlersTest" />
+            <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
+            <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
+            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
+            <class name="org.ballerinalang.test.auth.OAuthConfigTest"/>
             <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
-            <!--<class name="org.ballerinalang.test.auth.OAuthConfigTest"/>-->
-            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
-            <class name="org.ballerinalang.test.auth.AuthnWithMultipleProvidersTest" />
-            <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
-            <class name="org.ballerinalang.test.auth.SecureClientWrongAuthProviderTest"/>
             <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnWithCustomHandlersTest"/>
         </classes>
     </test>
 
