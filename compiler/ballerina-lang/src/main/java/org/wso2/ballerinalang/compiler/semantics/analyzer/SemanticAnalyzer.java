@@ -1312,6 +1312,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // set reason var refs type to no type if the variable name is '_'
             errorDeStmt.varRef.reason.type = symTable.noType;
         }
+        // todo: migrate to new error constructor syntax
         if (errorDeStmt.expr.getKind() == NodeKind.ERROR_CONSTRUCTOR) {
             dlog.error(errorDeStmt.expr.pos, DiagnosticCode.INVALID_ERROR_LITERAL_BINDING_PATTERN);
             return;

@@ -120,7 +120,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -1137,17 +1136,6 @@ public class BLangPackageBuilder {
                         .forEach(this::markVariableAsFinal);
                 break;
         }
-    }
-
-    void addErrorConstructor(DiagnosticPos pos, Set<Whitespace> ws, boolean detailsExprAvailable) {
-        BLangErrorConstructorExpr errorConstExpr = (BLangErrorConstructorExpr) TreeBuilder.createErrorConstructorNode();
-        errorConstExpr.pos = pos;
-        errorConstExpr.addWS(ws);
-        if (detailsExprAvailable) {
-            errorConstExpr.detailsExpr = (BLangExpression) exprNodeStack.pop();
-        }
-        errorConstExpr.reasonExpr = (BLangExpression) exprNodeStack.pop();
-        this.addExpressionNode(errorConstExpr);
     }
 
     private void addStmtToCurrentBlock(StatementNode statement) {

@@ -2030,18 +2030,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitElvisExpression(BallerinaParser.ElvisExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code errorConstructorExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterErrorConstructorExpression(BallerinaParser.ErrorConstructorExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code errorConstructorExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitErrorConstructorExpression(BallerinaParser.ErrorConstructorExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code tableQueryExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -2107,16 +2095,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTypeInitExpr(BallerinaParser.TypeInitExprContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#errorConstructorExpr}.
-	 * @param ctx the parse tree
-	 */
-	void enterErrorConstructorExpr(BallerinaParser.ErrorConstructorExprContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#errorConstructorExpr}.
-	 * @param ctx the parse tree
-	 */
-	void exitErrorConstructorExpr(BallerinaParser.ErrorConstructorExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#serviceConstructorExpr}.
 	 * @param ctx the parse tree

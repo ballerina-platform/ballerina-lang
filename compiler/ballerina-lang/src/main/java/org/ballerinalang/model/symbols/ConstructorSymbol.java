@@ -18,39 +18,8 @@
 package org.ballerinalang.model.symbols;
 
 /**
- * @since 0.94
+ * @since 0.995
  */
-public enum SymbolKind {
-    PACKAGE,
-    STRUCT,
-    OBJECT,
-    RECORD,
-    CONNECTOR,
-    ACTION,
-    SERVICE,
-    RESOURCE,
-    FUNCTION,
-    WORKER,
-    ANNOTATION,
-    ANNOTATION_ATTRIBUTE,
-    CONSTANT,
-    PACKAGE_VARIABLE,
-    TRANSFORMER,
-    TYPE_DEF,
-    ERROR,
+public interface ConstructorSymbol extends InvokableSymbol {
 
-    PARAMETER,
-    LOCAL_VARIABLE,
-    SERVICE_VARIABLE,
-    CONNECTOR_VARIABLE,
-
-    CAST_OPERATOR,
-    CONVERSION_OPERATOR,
-    TYPEOF_OPERATOR,
-
-    XMLNS,
-    SCOPE,
-    OTHER,
-
-    CONSTRUCTOR
 }

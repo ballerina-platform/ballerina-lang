@@ -1201,15 +1201,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitErrorConstructorExpr(BallerinaParser.ErrorConstructorExprContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.addErrorConstructor(getCurrentPos(ctx), getWS(ctx), ctx.COMMA() != null);
-    }
-
-    @Override
     public void exitServiceConstructorExpression(BallerinaParser.ServiceConstructorExpressionContext ctx) {
         if (isInErrorState) {
             return;

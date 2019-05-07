@@ -78,7 +78,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJ
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
@@ -1179,15 +1178,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangErrorConstructorExpr errExpr) {
-        genNode(errExpr.reasonExpr, env);
-        genNode(errExpr.detailsExpr, env);
-        RegIndex regIndex = calcAndGetExprRegIndex(errExpr);
-        emit(InstructionCodes.ERROR, getTypeCPIndex(errExpr.type), errExpr.reasonExpr.regIndex,
-                errExpr.detailsExpr.regIndex, regIndex);
-    }
-
-    @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         // Emit create array instruction
         RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
@@ -1271,8 +1261,29 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
 
+        if (iExpr.symbol.kind == SymbolKind.CONSTRUCTOR) {
+            if (iExpr.symbol.type.tag == TypeTags.ERROR) {
+                generateErrorConstructorInvocation(iExpr);
+                return;
+            }
+        }
+
         Operand[] operands = getFuncOperands(iExpr);
         emit(InstructionCodes.CALL, operands);
+    }
+
+    private void generateErrorConstructorInvocation(BLangInvocation iExpr) {
+        // error reason expr
+        BLangExpression reasonExpr = iExpr.requiredArgs.get(0);
+        genNode(reasonExpr, env);
+
+        // error detail record
+        BLangExpression detailsExpr = iExpr.requiredArgs.get(1);
+        genNode(detailsExpr, env);
+
+        RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
+        emit(InstructionCodes.ERROR, getTypeCPIndex(iExpr.symbol.type), reasonExpr.regIndex,
+                detailsExpr.regIndex, regIndex);
     }
 
     public void visit(BLangActionInvocation aIExpr) {

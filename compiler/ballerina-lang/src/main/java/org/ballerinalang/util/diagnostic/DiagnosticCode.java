@@ -40,6 +40,7 @@ public enum DiagnosticCode {
     UNDEFINED_CONNECTOR("undefined.connector"),
     INVALID_ERROR_REASON_TYPE("invalid.error.reason.type"),
     INVALID_ERROR_DETAIL_TYPE("invalid.error.detail.type"),
+    ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG("error.detail.arg.not.named.arg"),
     UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
     TYPE_NOT_ALLOWED_WITH_PRIMARYKEY("type.not.allowed.with.primarykey"),
     FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN("field.not.allowed.with.table.column"),
@@ -75,6 +76,7 @@ public enum DiagnosticCode {
     RESOURCE_FUNCTION_CANNOT_BE_EXTERN("resource.function.cannot.be.extern"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
+    CANNOT_FIND_ERROR_TYPE("cannot.find.error.constructor.for.type"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
@@ -391,6 +393,7 @@ public enum DiagnosticCode {
     PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
 
     CANNOT_INFER_ERROR_TYPE("cannot.infer.error.type"),
+    INVALID_ERROR_CONSTRUCTOR("invalid.error.type.ctor"),
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),

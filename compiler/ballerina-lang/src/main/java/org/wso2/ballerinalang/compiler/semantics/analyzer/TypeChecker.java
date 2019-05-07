@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -80,7 +82,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -145,7 +146,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -2385,41 +2385,6 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        if (expType.tag == TypeTags.NONE) {
-            expType = symTable.errorType;
-        } else if (expType.tag != TypeTags.ERROR) {
-            dlog.error(errorConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        // No matter what, message expression has to exist and its type should be string for the built-in error type
-        // or the type specified when defining the error, for user defined error types.
-        Optional.ofNullable(errorConstructorExpr.reasonExpr)
-                .map(expr -> checkExpr(expr, env, ((BErrorType) expType).reasonType))
-                .orElseThrow(AssertionError::new);
-
-        if (errorConstructorExpr.detailsExpr == null) {
-            resultType = expType;
-            return;
-        }
-
-        BType errConstDetailExprType = errorConstructorExpr.detailsExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR ?
-                ((BErrorType) expType).detailType : checkExpr(errorConstructorExpr.detailsExpr, env, symTable.noType);
-
-        if (types.isValidErrorDetailType(errConstDetailExprType) &&
-                types.isStampingAllowed(errConstDetailExprType, ((BErrorType) expType).detailType)) {
-            checkExpr(errorConstructorExpr.detailsExpr, env, errConstDetailExprType);
-        } else {
-            checkExpr(errorConstructorExpr.detailsExpr, env, ((BErrorType) expType).detailType);
-        }
-
-        checkExpr(errorConstructorExpr.detailsExpr, env, ((BErrorType) expType).detailType);
-        resultType = expType;
-    }
-
-    @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         resultType = serviceConstructorExpr.serviceNode.symbol.type;
     }
@@ -2511,7 +2476,10 @@ public class TypeChecker extends BLangNodeVisitor {
             funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
         }
 
-        if (funcSymbol == symTable.notFoundSymbol || (funcSymbol.tag & SymTag.FUNCTION) != SymTag.FUNCTION) {
+        if ((funcSymbol.tag & SymTag.ERROR) == SymTag.ERROR) {
+            checkErrorConstructorInvocation(iExpr, funcSymbol);
+            return;
+        } else if (funcSymbol == symTable.notFoundSymbol || (funcSymbol.tag & SymTag.FUNCTION) != SymTag.FUNCTION) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
             iExpr.argExprs.forEach(arg -> checkExpr(arg, env));
             resultType = symTable.semanticError;
@@ -2527,6 +2495,140 @@ public class TypeChecker extends BLangNodeVisitor {
         // This is used in the code generation phase.
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
+    }
+
+    private void checkErrorConstructorInvocation(BLangInvocation iExpr, BSymbol funcSymbol) {
+        if (types.isAssignable(expType, symTable.errorType)) {
+            BErrorType targetErrorType = (BErrorType) expType;
+            BSymbol resolvedSymbol = symResolver.lookupSymbol(env, targetErrorType.tsymbol.name, SymTag.CONSTRUCOR);
+            BConstructorSymbol ctorSymbol = (BConstructorSymbol) resolvedSymbol;
+
+            BLangExpression arg0 = iExpr.argExprs.get(0);
+            BErrorType ctorType = (BErrorType) ctorSymbol.type;
+            int namedArgStartPos = 0;
+            // if present, error reason should be the first and only positional argument to error constructor.
+            if (arg0.getKind() != NodeKind.NAMED_ARGS_EXPR) {
+                    checkExpr(arg0, env, ctorType.reasonType, DiagnosticCode.INVALID_ERROR_REASON_TYPE);
+                    namedArgStartPos = 1;
+            }
+            // expected error is of built-in error type
+            if (targetErrorType.tsymbol.name.equals(Names.ERROR)) {
+                if (types.isAssignable(targetErrorType.reasonType, symTable.stringType)
+                    && types.isAssignable(targetErrorType.detailType, symTable.pureTypeConstrainedMap)) {
+                    setErrorReasonParam(iExpr, namedArgStartPos, ctorType);
+                    setErrorDetailsParams(iExpr);
+                    resultType = expType;
+                    iExpr.symbol = ctorSymbol;
+                    return;
+                }
+            } else {
+                if (namedArgStartPos == 0 && ctorType.reasonType.getKind() == TypeKind.FINITE) {
+                    BFiniteType finiteType = (BFiniteType) ctorType.reasonType;
+                    if (finiteType.valueSpace.size() != 1) {
+                        dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType.tsymbol.name);
+                        resultType = symTable.semanticError;
+                        return;
+                    }
+                }
+
+                BRecordType targetErrorDetailRec = (BRecordType) ctorType.detailType;
+                BRecordType recordType = createErrorDetailRecordType(iExpr, namedArgStartPos, targetErrorDetailRec);
+                if (recordType == null) {
+                    return;
+                }
+
+                if (!types.isAssignable(recordType, targetErrorDetailRec)) {
+                    dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR, iExpr);
+                    resultType = symTable.semanticError;
+                    return;
+                }
+                setErrorReasonParam(iExpr, namedArgStartPos, ctorType);
+                setErrorDetailsParams(iExpr);
+
+                resultType = expType;
+                iExpr.symbol = ctorSymbol;
+                return;
+            }
+        }
+        dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR);
+        resultType = symTable.semanticError;
+        return;
+    }
+
+    private void setErrorDetailsParams(BLangInvocation iExpr) {
+        List<BLangExpression> namedArgPositions = new ArrayList<>(iExpr.argExprs.size());
+        for (int i = 0; i < iExpr.argExprs.size(); i++) {
+            BLangExpression argExpr = iExpr.argExprs.get(i);
+            if (argExpr.getKind() == NodeKind.NAMED_ARGS_EXPR) {
+                iExpr.namedArgs.add(argExpr);
+                namedArgPositions.add(argExpr);
+            }
+        }
+
+        for (BLangExpression expr : namedArgPositions) {
+            // This check is to filter out additional field assignments when Error detail type is a open record.
+            iExpr.argExprs.remove(expr);
+        }
+    }
+
+    private void setErrorReasonParam(BLangInvocation iExpr, int namedArgStartPos, BErrorType ctorType) {
+        if (namedArgStartPos == 0) {
+            if (ctorType.reasonType.getKind() == TypeKind.FINITE) {
+                BFiniteType finiteType = (BFiniteType) ctorType.reasonType;
+                BLangExpression reasonExpr = (BLangExpression) finiteType.valueSpace.toArray()[0];
+                iExpr.requiredArgs.add(reasonExpr);
+                return;
+            }
+        }
+        iExpr.requiredArgs.add(iExpr.argExprs.get(0));
+        iExpr.argExprs.remove(0);
+    }
+
+    /**
+     * Create a error detail record using all metadata from {@code targetErrorDetailsType} and put actual error details
+     * from {@code iExpr} expression.
+     *
+     * @param iExpr error constructor invocation
+     * @param namedArgStartPos start position fo named arg expressions in {@code iExpr} parameter
+     * @param targetErrorDetailsType target error details type to extract metadata such as pkgId from
+     * @return error detail record
+     */
+    private BRecordType createErrorDetailRecordType(BLangInvocation iExpr, int namedArgStartPos,
+                                                    BRecordType targetErrorDetailsType) {
+        List<BLangNamedArgsExpression> namedArgs = getErrorDetails(iExpr, namedArgStartPos);
+        if (namedArgs == null) {
+            return null;
+        }
+
+        BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(
+                SymTag.RECORD, targetErrorDetailsType.tsymbol.flags, null, targetErrorDetailsType.tsymbol.pkgID,
+                symTable.recordType, null);
+        BRecordType recordType = new BRecordType(recordTypeSymbol);
+        recordType.sealed = targetErrorDetailsType.sealed;
+        recordType.restFieldType = targetErrorDetailsType.restFieldType;
+
+        for (BLangNamedArgsExpression arg : namedArgs) {
+            BField field = new BField(names.fromIdNode(arg.name), arg.pos,
+                    new BVarSymbol(0, names.fromIdNode(arg.name), null, arg.type, null));
+            recordType.fields.add(field);
+        }
+        return recordType;
+    }
+
+    private List<BLangNamedArgsExpression> getErrorDetails(BLangInvocation iExpr, int namedArgStartPos) {
+        List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
+        for (int i = namedArgStartPos; i < iExpr.argExprs.size(); i++) {
+            BLangExpression argExpr = iExpr.argExprs.get(i);
+            checkExpr(argExpr, env);
+            if (argExpr.getKind() != NodeKind.NAMED_ARGS_EXPR) {
+                dlog.error(argExpr.pos, DiagnosticCode.ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG);
+                resultType = symTable.semanticError;
+                return null;
+            }
+
+            namedArgs.add((BLangNamedArgsExpression) argExpr);
+        }
+        return namedArgs;
     }
 
     private void checkObjectFunctionInvocationExpr(BLangInvocation iExpr, BObjectType objectType) {

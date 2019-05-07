@@ -101,7 +101,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -2242,6 +2241,48 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        if (iExpr.symbol.kind == SymbolKind.CONSTRUCTOR) {
+            BLangExpression reasonExpr = iExpr.requiredArgs.get(0);
+            if (iExpr.symbol.type.tag == TypeTags.ERROR) {
+                if (reasonExpr.impConversionExpr != null &&
+                        reasonExpr.impConversionExpr.targetType.tag != TypeTags.STRING) {
+                    // Override casts to constants/finite types.
+                    // For reason expressions of any form, the cast has to be to string.
+                    reasonExpr.impConversionExpr = null;
+                }
+                reasonExpr = addConversionExprIfRequired(reasonExpr, symTable.stringType);
+                reasonExpr = rewriteExpr(reasonExpr);
+            }
+            iExpr.requiredArgs.remove(0);
+            iExpr.requiredArgs.add(reasonExpr);
+
+            BLangExpression errorDetail;
+            BLangRecordLiteral recordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(iExpr.pos,
+                    symTable.pureTypeConstrainedMap);
+            if (iExpr.namedArgs.isEmpty()) {
+                errorDetail = visitUtilMethodInvocation(iExpr.pos,
+                        BLangBuiltInMethod.FREEZE, Lists.of(rewriteExpr(recordLiteral)));
+            } else {
+                for (BLangExpression arg : iExpr.namedArgs) {
+                    BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) arg;
+                    BLangRecordLiteral.BLangRecordKeyValue member = new BLangRecordLiteral.BLangRecordKeyValue();
+                    member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(namedArg.name.pos,
+                            symTable.stringType, namedArg.name.value));
+                    member.valueExpr = addConversionExprIfRequired(namedArg.expr, symTable.anyType);
+                    recordLiteral.keyValuePairs.add(member);
+                }
+                iExpr.namedArgs.clear();
+
+                errorDetail = visitUtilMethodInvocation(iExpr.pos,
+                        BLangBuiltInMethod.FREEZE,
+                        Lists.of(visitCloneInvocation(
+                                rewriteExpr(recordLiteral),
+                                ((BErrorType) iExpr.symbol.type).detailType)));
+            }
+            iExpr.requiredArgs.add(errorDetail);
+            result = iExpr;
+        }
+
         // Reorder the arguments to match the original function signature.
         reorderArguments(iExpr);
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
@@ -3063,33 +3104,6 @@ public class Desugar extends BLangNodeVisitor {
                 generatedStmtBlock, tempCheckedExprVarRef);
         statementExpr.type = checkedExpr.type;
         result = rewriteExpr(statementExpr);
-    }
-
-    @Override
-    public void visit(BLangErrorConstructorExpr errConstExpr) {
-        if (errConstExpr.reasonExpr.impConversionExpr != null &&
-                errConstExpr.reasonExpr.impConversionExpr.targetType.tag != TypeTags.STRING) {
-            // Override casts to constants/finite types.
-            // For reason expressions of any form, the cast has to be to string.
-            errConstExpr.reasonExpr.impConversionExpr = null;
-        }
-        errConstExpr.reasonExpr = addConversionExprIfRequired(errConstExpr.reasonExpr, symTable.stringType);
-        errConstExpr.reasonExpr = rewriteExpr(errConstExpr.reasonExpr);
-        if (errConstExpr.detailsExpr == null) {
-            errConstExpr.detailsExpr = visitUtilMethodInvocation(errConstExpr.pos,
-                                                                 BLangBuiltInMethod.FREEZE,
-                                                                 Lists.of(rewriteExpr(
-                                                                         ASTBuilderUtil.createEmptyRecordLiteral(
-                                                                                 errConstExpr.pos,
-                                                                                 symTable.pureTypeConstrainedMap))));
-        } else {
-            errConstExpr.detailsExpr = visitUtilMethodInvocation(errConstExpr.detailsExpr.pos,
-                                                                 BLangBuiltInMethod.FREEZE,
-                                                                 Lists.of(visitCloneInvocation(
-                                                                         rewriteExpr(errConstExpr.detailsExpr),
-                                                                         errConstExpr.detailsExpr.type)));
-        }
-        result = errConstExpr;
     }
 
     @Override

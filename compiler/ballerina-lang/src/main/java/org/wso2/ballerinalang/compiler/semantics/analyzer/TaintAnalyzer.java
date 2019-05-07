@@ -84,7 +84,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -1318,21 +1317,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckPanickedExpr checkPanicExpr) {
         checkPanicExpr.expr.accept(this);
-    }
-
-    @Override
-    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        TaintedStatus reasonTaintedStatus = TaintedStatus.UNTAINTED;
-        TaintedStatus detailsTaintedStatus = TaintedStatus.UNTAINTED;
-        if (errorConstructorExpr.reasonExpr != null) {
-            errorConstructorExpr.reasonExpr.accept(this);
-            reasonTaintedStatus = getCurrentAnalysisState().taintedStatus;
-        }
-        if (errorConstructorExpr.detailsExpr != null) {
-            errorConstructorExpr.detailsExpr.accept(this);
-            detailsTaintedStatus = getCurrentAnalysisState().taintedStatus;
-        }
-        getCurrentAnalysisState().taintedStatus = getCombinedTaintedStatus(reasonTaintedStatus, detailsTaintedStatus);
     }
 
     @Override
