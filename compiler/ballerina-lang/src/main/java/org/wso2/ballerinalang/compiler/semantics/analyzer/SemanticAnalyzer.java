@@ -2029,7 +2029,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             BType type = constant.typeNode.type;
-            if (type.tag == TypeTags.RECORD && !isValidConstantRecordType((BRecordType) type)) {
+            if (type.tag == TypeTags.RECORD && !isValidConstantRecordType(constant.typeNode)) {
                 constant.type = symTable.semanticError;
                 return;
             }
@@ -2047,13 +2047,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     // Private methods
 
+    private boolean isValidConstantRecordType(BLangType typeNode) {
+        BRecordType type = (BRecordType) typeNode.type;
+        if (!isAllowedConstantTypeInRecord(type.restFieldType)) {
+            dlog.error(typeNode.pos, DiagnosticCode.UNSUPPORTED_REST_FIELD_IN_RECORD_TYPE, type.restFieldType);
+        }
+        return isValidConstantRecordType(type);
+    }
+
     private boolean isValidConstantRecordType(BRecordType type) {
-//        if (!type.sealed) {
-//            constant.type = symTable.semanticError;
-//            dlog.error(constant.typeNode.pos, DiagnosticCode.UNSEALED_RECORDS_CANNOT_BE_USED_AS_CONSTANT_TYPE);
-//            return;
-//        }
-        // Todo - check rest parameter.
         boolean unsupportedTypesPresent = false;
         for (BField field : type.fields) {
             if (!isAllowedConstantTypeInRecord(field.type)) {

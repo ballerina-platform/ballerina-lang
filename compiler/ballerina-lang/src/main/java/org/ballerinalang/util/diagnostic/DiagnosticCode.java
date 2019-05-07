@@ -377,6 +377,7 @@ public enum DiagnosticCode {
     KEY_NOT_FOUND("key.not.found"),
     UNSEALED_RECORDS_CANNOT_BE_USED_AS_CONSTANT_TYPE("unsealed.records.cannot.be.used.as.constant.type"),
     UNSUPPORTED_CONSTANT_RECORD_FIELD_TYPE("unsupported.constant.record.field.type"),
+    UNSUPPORTED_REST_FIELD_IN_RECORD_TYPE("unsupported.rest.field.in.record.type"),
 
     // Anonymous functions related codes
     ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("arrow.expression.mismatched.parameter.length"),
