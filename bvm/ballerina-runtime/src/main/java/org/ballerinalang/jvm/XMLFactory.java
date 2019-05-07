@@ -84,22 +84,14 @@ public class XMLFactory {
     static {
         Canonicalizer.init();
         try {
-            if (Canonicalizer.getInstance(CANONICALIZER_OMIT_COMMENTS) == null) {
-                Canonicalizer.register(CANONICALIZER_OMIT_COMMENTS,
-                        "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
-            }
-            if (Canonicalizer.getInstance(CANONICALIZER_WITH_COMMENTS) == null) {
-                Canonicalizer.register(CANONICALIZER_WITH_COMMENTS,
-                        "org.apache.axiom.c14n.impl.Canonicalizer20010315WithComments");
-            }
-            if (Canonicalizer.getInstance(CANONICALIZER_EXCL_OMIT_COMMENTS) == null) {
-                Canonicalizer.register(CANONICALIZER_EXCL_OMIT_COMMENTS,
-                        "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclOmitComments");
-            }
-            if (Canonicalizer.getInstance(CANONICALIZER_EXCL_WITH_COMMENTS) == null) {
-                Canonicalizer.register(CANONICALIZER_EXCL_WITH_COMMENTS,
-                        "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
-            }
+            Canonicalizer.register(CANONICALIZER_OMIT_COMMENTS,
+                    "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
+            Canonicalizer.register(CANONICALIZER_WITH_COMMENTS,
+                    "org.apache.axiom.c14n.impl.Canonicalizer20010315WithComments");
+            Canonicalizer.register(CANONICALIZER_EXCL_OMIT_COMMENTS,
+                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclOmitComments");
+            Canonicalizer.register(CANONICALIZER_EXCL_WITH_COMMENTS,
+                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
             canonicalizer = Canonicalizer.getInstance(CANONICALIZER_WITH_COMMENTS);
         } catch (InvalidCanonicalizerException | AlgorithmAlreadyRegisteredException e) {
             throw new BallerinaException("Error initializing canonicalizer: " + e.getMessage());
