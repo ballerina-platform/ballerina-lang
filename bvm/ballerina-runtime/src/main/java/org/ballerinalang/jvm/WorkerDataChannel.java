@@ -71,14 +71,17 @@ public class WorkerDataChannel {
     @SuppressWarnings("rawtypes")
     public void sendData(Object data, Strand sender) {
         this.sender = sender;
-        acquireChannelLock();
-        this.channel.add(new WorkerResult(data));
-        this.senderCounter++;
-        if (this.receiver != null) {
-            this.receiver.scheduler.unblockStrand(this.receiver);
-            this.receiver = null;
+        try {
+            acquireChannelLock();
+            this.channel.add(new WorkerResult(data));
+            this.senderCounter++;
+            if (this.receiver != null) {
+                this.receiver.scheduler.unblockStrand(this.receiver);
+                this.receiver = null;
+            }
+        } finally {
+            releaseChannelLock();
         }
-        releaseChannelLock();
     }
     
     @SuppressWarnings("rawtypes")
