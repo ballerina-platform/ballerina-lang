@@ -11,6 +11,7 @@
             functions       #EC407A, 
             constant        #8e44ad, 
             annotations     #276dc4, 
+            types           #512DA8,
             errors          #f44336;
 
 // Gen construct 
@@ -123,8 +124,29 @@ body {
                 width: 750px; 
                 margin: 20px 30px;
                 
+                & .module-wrapper {
+                    
+                    h2:first-of-type {
+                        border-bottom: 0;
+                    }
+                }
+
+                h2 {     
+                    border-bottom: 1px solid #dededf;
+                    line-height: 1.8em;
+                    margin-bottom: 1em;
+                }
+                
                 span {
                      .gen-construct-colors(color);
+                }
+                p {
+                    a {
+                        color: #ea8792;
+                        &:hover {
+                            text-decoration: underline
+                        }
+                    }
                 }
             }
 
@@ -202,6 +224,10 @@ body {
             code {
                 color: #ea8792;
                 font-style: italic;
+
+                .language-ballerinaDup {
+                    color: #888;
+                }
             }
             .modules {
                 color: #0d4d84;
