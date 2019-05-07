@@ -15,13 +15,36 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represent documentation for a Listener.
  */
 public class Listener extends Object {
+
+    public List<Function> lifeCycleMethods = new ArrayList<>();
+
     public Listener(String name, String description, List<DefaultableVarible> fields, List<Function> methods) {
         super(name, description, fields, methods);
+        this.lifeCycleMethods = getLCMethods(methods);
+        this.otherMethods = getOtherMethods(methods);
+    }
+
+    public List<Function> getLCMethods(List<Function> methods) {
+        return methods.stream()
+                .filter(function -> function.name.equals("__attach")
+                    || function.name.equals("__start")
+                    || function.name.equals("__stop"))
+                .collect(Collectors.toList());
+    }
+
+    public List<Function> getOtherMethods(List<Function> methods) {
+        return super.getOtherMethods(methods).stream()
+                .filter(function -> !(function.name.equals("__attach")
+                        || function.name.equals("__start")
+                        || function.name.equals("__stop")))
+                .collect(Collectors.toList());
     }
 }

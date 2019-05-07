@@ -396,12 +396,9 @@ public class Generator {
         }
 
         return new Function(functionName,description(functionNode),
-                        functionNode.getFlags().contains(Flags.REMOTE),
-                        functionNode.getFlags().contains(Flags.NATIVE),
+                        functionNode.getFlags().contains(Flag.REMOTE),
+                        functionNode.getFlags().contains(Flag.NATIVE),
                         parameters, returnParams);
-
-        //TODO: gen using symbol addDocForRecordType(functionNode.symbol)
-//        return new FunctionDoc(functionName, description(functionNode), new ArrayList<>(), parameters, returnParams);
     }
 
     private static DefaultableVarible getVariable(BLangFunction functionNode, BLangSimpleVariable param) {

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+
+{{> head }}
+
+<body>
+<div class="ui grid">
+    <div class="navi-wrapper two wide column">
+        <div class="navi-wrapper-content">
+            {{> logo }}
+            <div class="primary-list">
+                <h3>Listeners</h3>
+                <ul>
+                    {{#each module.listeners}}
+                        <li>
+                            <a href="{{name}}.html">{{name}}</a>
+                        </li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="ui divider"></div>
+            {{> currentModule }}
+            {{> allModules }}
+        </div>
+    </div>
+
+    <div class="fourteen wide column content-wrapper">
+        <div class="main-wrapper">
+            <h1>Listeners : <span class="listeners">{{ listener.name }}</span> </h1>
+            <div class="ui divider"></div>
+            <p>{{{ listener.description }}}</p>
+
+            <div class="constants">
+                {{#if listener.initMethod}}
+                    {{#listener.initMethod}}
+                        <h2>New Method</h2>
+                        <div class="ui divider"></div>
+                        <h3 >__init</h3><p>({{#each parameters}}{{ type.name }} {{ name }}, {{/each}})</p>
+                        <table class="ui table param-table">
+                            <thead>
+                            <tr>
+                                <th width="20%">Param Name</th>
+                                <th width="20%">Data Type</th>
+                                <th width="15%">Default Value</th>
+                                <th width="35%">Description</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {{#each parameters}}
+                                <tr>
+                                    <td>{{ name }}</td>
+                                    <td>{{ type.name }}</td>
+                                    <td>{{ defaultValue }}</td>
+                                    <td>{{{ description }}}</td>
+                                </tr>
+                            {{/each}}
+                            </tbody>
+                        </table>
+                        <div class="ui divider"></div>
+                    {{/listener.initMethod}}
+                {{/if}}
+
+                {{#if listener.otherMethods}}
+                    <h2>Methods</h2>
+                    <div class="ui divider"></div>
+                    <div class="method-list">
+                        {{#each listener.otherMethods}}
+                            <p><a href="#{{name}}"><b>{{name}}</b></a>TODO: param summary<b>
+                                returns</b>TODO: return summary <br></p>
+                        {{/each}}
+                    </div>
+                    <div class="ui divider"></div>
+                {{/if}}
+
+                {{#if listener.lifeCycleMethods}}
+                    <h2>LifeCycle Methods</h2>
+                    <div class="ui divider"></div>
+                    <div class="method-list">
+                        {{#each listener.lifeCycleMethods}}
+                            <p><a href="#{{name}}"><b>{{name}}</b></a>TODO: param summary<b>
+                                returns</b>TODO: return summary <br></p>
+                        {{/each}}
+                    </div>
+                    <div class="ui divider"></div>
+                {{/if}}
+
+                {{#if listener.fields}}
+                    <h2>Fields</h2>
+                    <div class="ui divider"></div>
+                    {{#each listener.fields}}
+                        <table class="ui table param-table">
+                            <thead>
+                            <tr>
+                                <th width="20%">Field Name</th>
+                                <th width="20%">Data Type</th>
+                                <th width="15%">Default Value</th>
+                                <th width="35%">Description</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ name }}</td>
+                                    <td>{{ type.name }}</td>
+                                    <td>{{ defaultValue }}</td>
+                                    <td>{{{ description }}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="ui divider"></div>
+                    {{/each}}
+                {{/if}}
+
+                {{#if listener.otherMethods }}
+                    <h2>Methods</h2>
+                    <div class="ui divider"></div>
+                    {{#each listener.otherMethods }}
+                        <div class="method-content">
+                            <h3 id="{{name}}">{{name}}</h3>
+                            <p class="method-types"> TODO: param summary</p>
+                            <div class="ui divider param-divider"></div>
+                            <p>{{{ description }}}</p>
+                            <table class="ui table param-table">
+                                <thead>
+                                <tr>
+                                    <th>Parameter Name</th>
+                                    <th>Data Type</th>
+                                    <th>Default Value</th>
+                                    <th>"Description</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {{#if parameters}}
+                                    {{#each parameters}}
+                                        <tr>
+                                            <td>{{ name }}</td>
+                                            <td>{{ type.name }}</td>
+                                            <td>{{ defaultValue }}</td>
+                                            <td>{{{ description }}}</td>
+                                        </tr>
+                                    {{/each}}
+                                {{/if}}
+                                </tbody>
+                            </table>
+                            {{#if returnParameters}}
+                                <table class="ui table param-table">
+                                    <thead>
+                                        <th width="50%">Return Type</th>
+                                        <th width="50%">Description</th>
+                                    </thead>
+                                    <tbody>
+                                        {{#each returnParameters}}
+                                            <tr>
+                                                <td width="50%">{{ type.name }}</td>
+                                                <td width="50%">{{{ description }}}</td>
+                                            </tr>
+                                        {{/each}}
+                                    </tbody>
+                                </table>
+                            {{/if}}
+                        </div>
+                    {{/each}}
+                {{/if}}
+
+                {{#if listener.lifeCycleMethods }}
+                    <h2>LifeCycle Methods</h2>
+                    <div class="ui divider"></div>
+                    {{#each listener.lifeCycleMethods }}
+                        <div class="method-content">
+                            <h3 id="{{name}}">{{name}}</h3>
+                            <p class="method-types"> TODO: param summary</p>
+                            <div class="ui divider param-divider"></div>
+                            <p>{{{ description }}}</p>
+                            <table class="ui table param-table">
+                                <thead>
+                                <tr>
+                                    <th>Parameter Name</th>
+                                    <th>Data Type</th>
+                                    <th>Default Value</th>
+                                    <th>"Description</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {{#if parameters}}
+                                    {{#each parameters}}
+                                        <tr>
+                                            <td>{{ name }}</td>
+                                            <td>{{ type.name }}</td>
+                                            <td>{{ defaultValue }}</td>
+                                            <td>{{{ description }}}</td>
+                                        </tr>
+                                    {{/each}}
+                                {{/if}}
+                                </tbody>
+                            </table>
+                            {{#if returnParameters}}
+                                <table class="ui table param-table">
+                                    <thead>
+                                    <th width="50%">Return Type</th>
+                                    <th width="50%">Description</th>
+                                    </thead>
+                                    <tbody>
+                                    {{#each returnParameters}}
+                                        <tr>
+                                            <td width="50%">{{ type.name }}</td>
+                                            <td width="50%">{{{ description }}}</td>
+                                        </tr>
+                                    {{/each}}
+                                    </tbody>
+                                </table>
+                            {{/if}}
+                        </div>
+                    {{/each}}
+                {{/if}}
+            </div>
+            <div class="ui divider"></div>
+        </div>
+    </div>
+</div>
+</body>

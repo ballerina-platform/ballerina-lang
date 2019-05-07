@@ -26,6 +26,8 @@ import org.ballerinalang.docgen.Writer;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.ClientPageContext;
+import org.ballerinalang.docgen.generator.model.Listener;
+import org.ballerinalang.docgen.generator.model.ListenerPageContext;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModulePageContext;
 import org.ballerinalang.docgen.generator.model.Object;
@@ -181,6 +183,7 @@ public class BallerinaDocGenerator {
         String recordTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "record");
         String objectTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "object");
         String clientTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "client");
+        String listenerTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "listener");
 
         // Generate module pages
         for (Module module : project.modules) {
@@ -233,6 +236,18 @@ public class BallerinaDocGenerator {
                                 "../../","API Documentation for " + client.name + " client");
                         String clientFilePath = clientsDir + File.separator + client.name + HTML;
                         Writer.writeHtmlDocument(clientPageContext, clientTemplateName, clientFilePath);
+                    }
+                }
+
+                // Create pages for listeners
+                if (!module.listeners.isEmpty()) {
+                    String listenersDir = modDir + File.separator + "listeners";
+                    Files.createDirectories(Paths.get(listenersDir));
+                    for (Listener listener : module.listeners) {
+                        ListenerPageContext listenerPageContext = new ListenerPageContext(listener, module, project,
+                                "../../","API Documentation for " + listener.name + " Listener");
+                        String listenerFilePath = listenersDir + File.separator + listener.name + HTML;
+                        Writer.writeHtmlDocument(listenerPageContext, listenerTemplateName, listenerFilePath);
                     }
                 }
 
