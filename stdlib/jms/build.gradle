@@ -18,18 +18,30 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-builtin', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-runtime-api', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-log-api', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-utils', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+//    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
-    implementation project(':ballerina-core')
-    implementation project(':ballerina-lang')
-    implementation project(':ballerina-logging')
-    implementation project(':ballerina-builtin')
-    implementation project(':ballerina-runtime-api')
-    implementation project(':ballerina-log-api')
-    implementation project(':ballerina-launcher')
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-core:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-builtin:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-launcher:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-utils:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-logging:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-runtime-api:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-log-api:0.992.0-m1'
+//    implementation project(':ballerina-core')
+//    implementation project(':ballerina-lang')
+//    implementation project(':ballerina-logging')
+//    implementation project(':ballerina-builtin')
+//    implementation project(':ballerina-runtime-api')
+//    implementation project(':ballerina-log-api')
+//    implementation project(':ballerina-launcher')
     implementation 'javax.jms:javax.jms-api'
     implementation 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-simple'

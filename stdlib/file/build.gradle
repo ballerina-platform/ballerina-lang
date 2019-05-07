@@ -20,20 +20,28 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 description = 'Ballerina - File'
 
 dependencies {
-    implementation project(':ballerina-lang')
-    implementation project(':ballerina-core')
-    implementation project(':lib-creator')
+    implementation 'org.ballerinalang:ballerina-core:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    implementation 'org.ballerinalang:lib-creator:0.992.0-m1'
+//    implementation project(':ballerina-lang')
+//    implementation project(':ballerina-core')
+//    implementation project(':lib-creator')
     implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system'
 
-    testCompile project(':ballerina-launcher')
-    testCompile project(':ballerina-builtin')
-    testCompile project(':ballerina-runtime-api')
+    testCompile 'org.ballerinalang:ballerina-launcher:0.992.0-m1'
+    testCompile 'org.ballerinalang:ballerina-builtin:0.992.0-m1'
+    testCompile 'org.ballerinalang:ballerina-runtime-api:0.992.0-m1'
+//    testCompile project(':ballerina-launcher')
+//    testCompile project(':ballerina-builtin')
+//    testCompile project(':ballerina-runtime-api')
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-builtin', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-runtime-api', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+//    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 }
 
 test {

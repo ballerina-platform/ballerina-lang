@@ -39,17 +39,14 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-config</artifactId>
-            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
-            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-cli-utils</artifactId>
-            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -71,26 +68,22 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-logging</artifactId>
-            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>lib-creator</artifactId>
-            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-http</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
-            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-observability</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
-            <version>${ballerina.milestone.version}</version>
         </dependency>
     </dependencies>
 

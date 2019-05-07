@@ -66,6 +66,14 @@ task createBalo(type: CreateBaloTask) {
     inputs.files(configurations.baloImplementation)
     outputs.dir("$buildDir/generated-balo")
     outputs.cacheIf { true }
+    doLast {
+        fileTree(dir: "$buildDir/lib").include('*.zip').each { balLib ->
+            copy {
+                from zipTree(balLib)
+                into "$buildDir/lib"
+            }
+        }
+    }
 }
 
 artifacts.add('baloImplementation', file("$buildDir/generated-balo/")) {

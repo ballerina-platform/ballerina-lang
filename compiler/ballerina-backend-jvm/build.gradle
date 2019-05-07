@@ -22,6 +22,7 @@ dependencies {
 }
 
 dependencies {
+    implementation 'org.ow2.asm:asm'
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-bir')

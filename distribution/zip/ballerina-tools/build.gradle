@@ -28,6 +28,9 @@ configurations {
     distBal {
         transitive false
     }
+    mDistBal {
+        transitive false
+    }
     tools {
         transitive false
     }
@@ -80,6 +83,8 @@ dependencies {
     tools project(':language-server:language-server-core')
     balSource project(path: ':ballerina', configuration: 'source')
     distBal project(path: ':ballerina', configuration: 'balo')
+    mDistBal group: 'org.ballerinalang', name: 'ballerina-builtin', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    mDistBal group: 'org.ballerinalang', name: 'ballerina-utils', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
     dist project(path: ':ballerina', configuration: 'jar')
     bin project(path: ':ballerina', configuration: 'bin')
     staticFiles project(path: ':ballerina', configuration: 'staticFiles')
@@ -112,6 +117,13 @@ def copyJarSpec = {
 def copyBaloSpec = {
     path -> copySpec {
         from configurations.distBal
+        into(path + 'lib')
+    }
+}
+
+def copyMBaloSpec = {
+    path -> copySpec {
+        from "$buildDir/lib"
         into(path + 'lib')
     }
 }
@@ -242,10 +254,26 @@ task createApiDocsZip(type: Zip) {
     archiveName "ballerina-api-docs-${project.version}.zip"
 }
 
+task unzipBalo(type: org.gradle.api.tasks.Copy) {
+    from configurations.mDistBal
+    into "$buildDir/lib"
+    doLast {
+        fileTree(dir: "$buildDir/lib").include('*.zip').each { balLib ->
+            print balLib
+            copy {
+                from zipTree(balLib)
+                into "$buildDir/lib"
+            }
+        }
+    }
+}
+
 task createZip(type: Zip, dependsOn: ':language-server:language-server-core:build') {
+    dependsOn unzipBalo
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
     with copyBaloSpec(basePath)
+    with copyMBaloSpec(basePath)
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
     with copyToolsSpec(basePath)
@@ -263,6 +291,7 @@ task updateBalHome(type: Copy) {
     def installDir = ""
     with copyJarSpec(installDir)
     with copyBaloSpec(installDir)
+    with copyMBaloSpec(installDir)
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
     with copyToolsSpec(installDir)
@@ -282,6 +311,7 @@ task createDistribution(type: Copy, dependsOn: ':language-server:language-server
     file(filePath).mkdirs()
     with copyJarSpec("")
     with copyBaloSpec("")
+    with copyMBaloSpec("")
     with copyBalxSpec("")
     with copyBinSpec("")
     with copyToolsSpec("")

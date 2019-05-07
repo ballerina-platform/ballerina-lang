@@ -45,6 +45,15 @@ compileJava {
 task createBalHome(type: org.gradle.api.tasks.Copy) {
     from configurations.baloImplementation
     into "$buildDir/lib"
+    doLast {
+        fileTree(dir: "$buildDir/lib").include('*.zip').each { balLib ->
+            copy {
+                from zipTree(balLib)
+                into "$buildDir/lib"
+            }
+        }
+//        delete fileTree(dir: "$buildDir/lib").include('*.zip')
+    }
 }
 
 test {

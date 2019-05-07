@@ -18,37 +18,59 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-    implementation project(':ballerina-core')
-    implementation project(':ballerina-lang')
-    implementation project(':ballerina-logging')
-    implementation project(':ballerina-config')
-    implementation project(':ballerina-config-api')
-    implementation project(':ballerina-http')
-    implementation project(':lib-creator')
+    implementation 'org.ballerinalang:ballerina-core:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-logging:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-config:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-http:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-config-api:0.992.0-m1'
+    implementation 'org.ballerinalang:lib-creator:0.992.0-m1'
+//    implementation project(':ballerina-core')
+//    implementation project(':ballerina-lang')
+//    implementation project(':ballerina-logging')
+//    implementation project(':ballerina-config')
+//    implementation project(':ballerina-config-api')
+//    implementation project(':ballerina-http')
+//    implementation project(':lib-creator')
     implementation 'org.apache.commons:commons-lang3'
     implementation 'com.google.protobuf:protobuf-java'
     implementation 'com.github.jknack:handlebars'
     implementation 'io.netty:netty-codec-http'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    implementation project(':ballerina-crypto')
+    implementation 'org.ballerinalang:ballerina-crypto:0.992.0-m1'
+//    implementation project(':ballerina-crypto')
 
-    testCompile project(':ballerina-launcher')
-    testCompile project(':ballerina-runtime-api')
-    testCompile project(':ballerina-builtin')
-    testCompile project(':ballerina-system')
-    testCompile project(':ballerina-internal')
-    testCompile project(':ballerina-utils')
+    testCompile 'org.ballerinalang:ballerina-launcher:0.992.0-m1'
+    testCompile 'org.ballerinalang:ballerina-builtin:0.992.0-m1'
+    testCompile 'org.ballerinalang:ballerina-system:0.992.0-m1'
+    testCompile 'org.ballerinalang:ballerina-utils:0.992.0-m1'
+    testCompile 'org.ballerinalang:ballerina-internal:0.992.0-m1'
+    testCompile 'org.ballerinalang:ballerina-runtime-api:0.992.0-m1'
+//    testCompile project(':ballerina-launcher')
+//    testCompile project(':ballerina-runtime-api')
+//    testCompile project(':ballerina-builtin')
+//    testCompile project(':ballerina-system')
+//    testCompile project(':ballerina-internal')
+//    testCompile project(':ballerina-utils')
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-builtin', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-config-api', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-system', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-io', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-runtime-api', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-utils', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-time', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-crypto', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+//    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - gRPC Implementation'

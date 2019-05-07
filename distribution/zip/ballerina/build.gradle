@@ -32,6 +32,7 @@ configurations {
     balo
     bin
     balSource
+    mBalSource
     staticArtifacts
     staticFiles
     source
@@ -114,9 +115,10 @@ dependencies {
     dist 'io.netty:netty-transport-native-epoll:4.1.34.Final'
     dist 'io.netty:netty-transport-native-kqueue:4.1.34.Final'
 
-
+    distBal group: 'org.ballerinalang', name: 'ballerina-builtin', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    distBal group: 'org.ballerinalang', name: 'ballerina-utils', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
     distBal project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+//    distBal project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-cache', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-crypto', configuration: 'baloImplementation')
@@ -149,10 +151,12 @@ dependencies {
     distBal project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-nats', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-privacy', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
+//    distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
+    mBalSource group: 'org.ballerinalang', name: 'ballerina-builtin', version: '0.992.0-m1', classifier: 'sources'
+    mBalSource group: 'org.ballerinalang', name: 'ballerina-utils', version: '0.992.0-m1', classifier: 'sources'
     balSource project(path: ':ballerina-auth', configuration: 'balSource')
-    balSource project(path: ':ballerina-builtin', configuration: 'balSource')
+//    balSource project(path: ':ballerina-builtin', configuration: 'balSource')
     balSource project(path: ':ballerina-cache', configuration: 'balSource')
     balSource project(path: ':ballerina-config-api', configuration: 'balSource')
     balSource project(path: ':ballerina-crypto', configuration: 'balSource')
@@ -185,14 +189,18 @@ dependencies {
     balSource project(path: ':ballerina-rabbitmq', configuration: 'balSource')
     balSource project(path: ':ballerina-nats', configuration: 'balSource')
     balSource project(path: ':ballerina-privacy', configuration: 'balSource')
-    balSource project(path: ':ballerina-utils', configuration: 'balSource')
+//    balSource project(path: ':ballerina-utils', configuration: 'balSource')
 
+    dist 'org.ballerinalang:ballerina-builtin:0.992.0-m1'
+    dist 'org.ballerinalang:ballerina-core:0.992.0-m1'
+    dist 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    dist 'org.ballerinalang:ballerina-utils:0.992.0-m1'
     dist project(':ballerina-auth')
-    dist project(':ballerina-builtin')
+//    dist project(':ballerina-builtin')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-config')
     dist project(':ballerina-config-api')
-    dist project(':ballerina-core')
+//    dist project(':ballerina-core')
     dist project(':ballerina-crypto')
     dist project(':ballerina-file')
     dist project(':ballerina-filepath')
@@ -203,7 +211,7 @@ dependencies {
     dist project(':ballerina-internal')
     dist project(':ballerina-io')
     dist project(':ballerina-jms')
-    dist project(':ballerina-lang')
+//    dist project(':ballerina-lang')
     dist project(':ballerina-launcher')
     dist project(':ballerina-log-api')
     dist project(':ballerina-logging')
@@ -226,7 +234,7 @@ dependencies {
     dist project(':ballerina-time')
     dist project(':ballerina-transactions')
     dist project(':ballerina-websub')
-    dist project(':ballerina-utils')
+//    dist project(':ballerina-utils')
     dist project(':metrics-extensions:ballerina-metrics-extension')
     dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':strip-bouncycastle')
@@ -249,7 +257,7 @@ CopySpec copyJarSpec = copySpec {
 }
 
 CopySpec copyBaloSpec = copySpec {
-    from configurations.distBal
+    from "$buildDir/lib"
     into(basePath + '/lib')
 }
 
@@ -279,14 +287,33 @@ CopySpec copySrcBaloSpec = copySpec {
     into("$basePath/src")
 }
 
+CopySpec copyMSrcBaloSpec = copySpec {
+    from configurations.mBalSource.files
+    into("$basePath/src")
+}
+
+task unzipBalo(type: org.gradle.api.tasks.Copy) {
+    from configurations.distBal
+    into "$buildDir/lib"
+    doLast {
+        fileTree(dir: "$buildDir/lib").include('*.zip').each { balLib ->
+            copy {
+                from zipTree(balLib)
+                into "$buildDir/lib"
+            }
+        }
+    }
+}
 
 task createZip(type: Zip) {
+    dependsOn unzipBalo
     with copyJarSpec
     with copyBaloSpec
     with copyBinSpec
     with copyStaticSpec
     with copyResourceSpec
     with copySrcBaloSpec
+    with copyMSrcBaloSpec
     with copyBalxSpec
 }
 
@@ -294,6 +321,7 @@ artifacts {
     jar configurations.dist.files
     balo configurations.distBal.files
     source configurations.balSource.files
+    source configurations.mBalSource.files
     bin file('bin')
     staticFiles configurations.staticArtifacts.files
     resourceFiles file('resources')

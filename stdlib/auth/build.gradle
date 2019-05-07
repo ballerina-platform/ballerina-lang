@@ -18,40 +18,71 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-    baloImplementation project(path: ":ballerina-internal", configuration: 'baloImplementation')
-    baloImplementation project(path: ":ballerina-builtin", configuration: 'baloImplementation')
-    baloImplementation project(path: ":ballerina-config-api", configuration: 'baloImplementation')
-    baloImplementation project(path: ":ballerina-crypto", configuration: 'baloImplementation')
-    baloImplementation project(path: ":ballerina-cache", configuration: 'baloImplementation')
-    baloImplementation project(path: ":ballerina-log-api", configuration: 'baloImplementation')
-    baloImplementation project(path: ":ballerina-runtime-api", configuration: 'baloImplementation')
-    baloImplementation project(path: ":ballerina-system", configuration: 'baloImplementation')
-    baloImplementation project(path: ":ballerina-time", configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-internal', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-builtin', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-config-api', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-crypto', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-cache', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-log-api', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-runtime-api', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-system', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-time', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-utils', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-encoding', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-io', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-task', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+//    baloImplementation project(path: ":ballerina-internal", configuration: 'baloImplementation')
+//    baloImplementation project(path: ":ballerina-builtin", configuration: 'baloImplementation')
+//    baloImplementation project(path: ":ballerina-config-api", configuration: 'baloImplementation')
+//    baloImplementation project(path: ":ballerina-crypto", configuration: 'baloImplementation')
+//    baloImplementation project(path: ":ballerina-cache", configuration: 'baloImplementation')
+//    baloImplementation project(path: ":ballerina-log-api", configuration: 'baloImplementation')
+//    baloImplementation project(path: ":ballerina-runtime-api", configuration: 'baloImplementation')
+//    baloImplementation project(path: ":ballerina-system", configuration: 'baloImplementation')
+//    baloImplementation project(path: ":ballerina-time", configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
 
-    implementation project(':ballerina-config')
-    implementation project(':ballerina-launcher')
-    implementation project(':ballerina-core')
-    implementation project(':ballerina-lang')
-    implementation project(':ballerina-internal')
-    implementation project(":ballerina-builtin")
-    implementation project(":ballerina-config-api")
-    implementation project(":ballerina-crypto")
-    implementation project(":ballerina-cache")
-    implementation project(":ballerina-log-api")
-    implementation project(":ballerina-runtime-api")
-    implementation project(":ballerina-internal")
-    implementation project(":ballerina-system")
-    implementation project(":ballerina-time")
-    implementation project(':ballerina-task')
-    implementation project(':ballerina-utils')
-    implementation project(':ballerina-io')
-    implementation project(':ballerina-encoding')
-    implementation 'commons-logging:commons-logging'
-    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.ballerinalang:ballerina-config:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-launcher:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-core:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-internal:0.992.0-m1'
+    implementation "org.ballerinalang:ballerina-builtin:0.992.0-m1"
+    implementation "org.ballerinalang:ballerina-config-api:0.992.0-m1"
+    implementation "org.ballerinalang:ballerina-crypto:0.992.0-m1"
+    implementation "org.ballerinalang:ballerina-cache:0.992.0-m1"
+    implementation "org.ballerinalang:ballerina-log-api:0.992.0-m1"
+    implementation "org.ballerinalang:ballerina-runtime-api:0.992.0-m1"
+    implementation "org.ballerinalang:ballerina-internal:0.992.0-m1"
+    implementation "org.ballerinalang:ballerina-system:0.992.0-m1"
+    implementation "org.ballerinalang:ballerina-time:0.992.0-m1"
+    implementation "org.ballerinalang:ballerina-task:0.992.0-m1"
+    implementation "org.ballerinalang:ballerina-utils:0.992.0-m1"
+    implementation "org.ballerinalang:ballerina-io:0.992.0-m1"
+    implementation "org.ballerinalang:ballerina-encoding:0.992.0-m1"
+    //    implementation project(':ballerina-config')
+    //    implementation project(':ballerina-launcher')
+    //    implementation project(':ballerina-core')
+    //    implementation project(':ballerina-lang')
+    //    implementation project(':ballerina-internal')
+    //    implementation project(":ballerina-builtin")
+    //    implementation project(":ballerina-config-api")
+    //    implementation project(":ballerina-crypto")
+    //    implementation project(":ballerina-cache")
+    //    implementation project(":ballerina-log-api")
+    //    implementation project(":ballerina-runtime-api")
+    //    implementation project(":ballerina-internal")
+    //    implementation project(":ballerina-system")
+    //    implementation project(":ballerina-time")
+    //    implementation project(':ballerina-task')
+    //    implementation project(':ballerina-utils')
+    //    implementation project(':ballerina-io')
+    //    implementation project(':ballerina-encoding')
+    implementation "commons-logging:commons-logging"
+    implementation "org.apache.commons:commons-lang3"
 
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'

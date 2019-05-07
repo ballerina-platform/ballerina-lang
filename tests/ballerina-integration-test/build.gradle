@@ -30,11 +30,14 @@ configurations {
 }
 
 dependencies {
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-core:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-builtin:0.992.0-m1'
     implementation project(':ballerina-integration-test-utils')
     implementation project(':ballerina-config')
-    implementation project(':ballerina-core')
-    implementation project(':ballerina-lang')
-    implementation project(':ballerina-builtin')
+//    implementation project(':ballerina-core')
+//    implementation project(':ballerina-lang')
+//    implementation project(':ballerina-builtin')
     implementation project(':ballerina-system')
     implementation project(':ballerina-io')
     implementation project(':ballerina-runtime')
@@ -48,9 +51,6 @@ dependencies {
     implementation project(':ballerina-mysql')
     implementation project(':ballerina-sql')
     implementation project(':ballerina-transactions')
-    implementation project(':ballerina-grpc')
-    implementation project(':protobuf-ballerina')
-    implementation project(':ballerina-transactions')
     implementation project(':ballerina-activemq-artemis')
     implementation project(':ballerina-websub')
     implementation project(':ballerina-jms')
@@ -58,30 +58,30 @@ dependencies {
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-time')
     implementation project(':ballerina-observability')
-    implementation project(':ballerina-activemq-artemis')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
-
-
+    
     implementation 'io.netty:netty-tcnative-boringssl-static'
     implementation 'io.netty:netty-tcnative-boringssl-static'
     implementation 'org.slf4j:slf4j-api'
     implementation 'com.google.protobuf:protobuf-java'
     implementation 'commons-beanutils:commons-beanutils'
 
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-builtin', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-utils', version: '0.992.0-m1', classifier: 'ballerina-binary-repo', ext: 'zip'
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jms', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-socket', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
