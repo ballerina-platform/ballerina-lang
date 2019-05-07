@@ -14,24 +14,61 @@
 // specific language governing permissions and limitations
 // under the License.
 
-final map<string> fullQualifiedClassNames = {};
+type BIRFunctionWrapper record {|
+    string orgName;
+    string moduleName;
+    string versionValue;
+    bir:Function func;
+    string fullQualifiedClassName;
+    string jvmMethodDescription;
+|};
+
+map<BIRFunctionWrapper> birFunctionMap = {};
+
+map<string> globalVarClassNames = {};
 
 map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
 
 function lookupFullQualifiedClassName(string key) returns string {
-    var result = fullQualifiedClassNames[key];
+    if (birFunctionMap.hasKey(key)) {
+        BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
+        bir:Function func = getFunction(functionWrapper.func);
+        string balFileName = func.pos.sourceFileName;
+        string orgName = functionWrapper.orgName;
+        string moduleName = functionWrapper.moduleName;
+        return getClassNameForSourceFile(balFileName, orgName, moduleName);
+    } else {
+        error err = error("cannot find full qualified class for : " + key);
+        panic err;
+    }
+}
 
+function lookupJavaMethodDescription(string key) returns string {
+    if (birFunctionMap.hasKey(key)) {
+        BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
+        return functionWrapper.jvmMethodDescription;
+    } else {
+        error err = error("cannot find jvm method description for : " + key);
+        panic err;
+    }
+}
+
+function getBIRFunctionWrapper(BIRFunctionWrapper? wrapper) returns BIRFunctionWrapper {
+    if (wrapper is BIRFunctionWrapper) {
+        return wrapper;
+    } else {
+        error err = error("invalid bir function linking");
+        panic err;
+    }
+}
+
+function lookupGlobalVarClassName(string key) returns string {
+    var result = globalVarClassNames[key];
     if (result is string) {
         return result;
     } else {
-        (string, string) (pkgName, functionName) = getPackageAndFunctionName(key);
-        result = jvm:lookupExternClassName(pkgName, functionName);
-        if (result is string) {
-            fullQualifiedClassNames[key] = result;
-            return result;
-        }
-        error err = error("cannot find full qualified class for : " + key);
-        panic err;
+       error err = error("cannot find full qualified class for global variable : " + key);
+       panic err;
     }
 }
 
@@ -107,7 +144,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     string mainClass = "";
     if (mainFunc is bir:Function) {
         mainClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
-                                            cleanupFileName(mainFunc.pos.sourceFileName));
+                                            cleanupBalExt(mainFunc.pos.sourceFileName));
     }
     foreach var (moduleClass, v) in jvmClassMap {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
@@ -168,13 +205,6 @@ function getModuleLevelClassName(string orgName, string moduleName, string sourc
     return cleanupName(sourceFileName);
 }
 
-function getMainClassName(string orgName, string moduleName, string sourceFileName) returns string {
-    if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        return orgName + "." + cleanupName(moduleName) + "." + cleanupName(sourceFileName);
-    }
-    return cleanupName(sourceFileName);
-}
-
 function getPackageName(string orgName, string moduleName) returns string {
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
         return orgName + "/" + cleanupName(moduleName) + "/";
@@ -182,11 +212,10 @@ function getPackageName(string orgName, string moduleName) returns string {
     return "";
 }
 
-function getPackageAndFunctionName(string key) returns (string, string) {
+function splitPkgName(string key) returns (string, string) {
     int index = key.lastIndexOf("/");
     string pkgName = key.substring(0, index);
     string functionName = key.substring(index + 1, key.length());
-
     return (pkgName, functionName);
 }
 
@@ -196,7 +225,11 @@ function cleanupName(string name) returns string {
 
 function cleanupPackageName(string pkgName) returns string {
     int index = pkgName.lastIndexOf("/");
-    return pkgName.substring(0, index);
+    if (index > 0) {
+        return pkgName.substring(0, index);
+    } else {
+        return pkgName;
+    }
 }
 
 # Java Class will be generate for each source file. This method add class mappings to globalVar and filters the 
@@ -208,22 +241,23 @@ function cleanupPackageName(string pkgName) returns string {
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
 function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
-                                 map<(bir:AsyncCall|bir:FPLoad,string)> lambdaCalls) returns map<JavaClass> {
+                                   map<(bir:AsyncCall|bir:FPLoad,string)> lambdaCalls) returns map<JavaClass> {
     
     string orgName = module.org.value;
     string moduleName = module.name.value;
+    string versionValue = module.versionValue.value;
     map<JavaClass> jvmClassMap = {};
 
     foreach var globalVar in module.globalVars {
         if (globalVar is bir:GlobalVariableDcl) {
-            fullQualifiedClassNames[pkgName + globalVar.name.value] = initClass;
+            globalVarClassNames[pkgName + globalVar.name.value] = initClass;
         }
     }
     // filter out functions.
     foreach var func in module.functions {
         string? balFileName = func.pos.sourceFileName;
         if (balFileName is string) {
-            string moduleClass = getClassNameForSourceFile(balFileName, orgName, moduleName, pkgName);
+            string moduleClass = getClassNameForSourceFile(balFileName, orgName, moduleName);
             var javaClass = jvmClassMap[moduleClass];
             if (javaClass is JavaClass) {
                 javaClass.functions[javaClass.functions.length()] = func;
@@ -233,9 +267,12 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                 jvmClassMap[moduleClass] = class;
             }
 
-            string functionName = getFunction(func).name.value;
-            if (isExternFunc(getFunction(func))) { // if this function is an extern
-                var result = jvm:lookupExternClassName(cleanupPackageName(pkgName), functionName);
+            // link the bir function for lookup
+            bir:Function currentFunc = getFunction(func);
+            string functionName = currentFunc.name.value;
+
+            if (isExternFunc(currentFunc)) { // if this function is an extern
+                var result = jvm:lookupExternClassName(getPackageName(orgName, moduleName), functionName);
                 if (result is string) {
                     moduleClass = result;
                 } else {
@@ -245,16 +282,27 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                 }
             }
 
-            fullQualifiedClassNames[pkgName + functionName] = moduleClass;
+            bir:BInvokableType functionTypeDesc = currentFunc.typeValue;
+            string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType);
+
+            BIRFunctionWrapper functionWrapper = {
+                orgName : orgName,
+                moduleName : moduleName,
+                versionValue : versionValue,
+                func : currentFunc,
+                fullQualifiedClassName : moduleClass,
+                jvmMethodDescription : jvmMethodDescription
+            };
+
+            birFunctionMap[pkgName + functionName] = functionWrapper;
         }
     }
     return jvmClassMap;
 }
 
-function getClassNameForSourceFile(string sourceFileName, string orgName, string moduleName,
-                                   string pkgName) returns string {
-    string className = cleanupFileName(sourceFileName);
-    if( className == "." || className == moduleName) {
+function getClassNameForSourceFile(string sourceFileName, string orgName, string moduleName) returns string {
+    string className = cleanupBalExt(sourceFileName);
+    if (className == "." || className == moduleName) {
         return getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
     }
     return getModuleLevelClassName(untaint orgName, untaint moduleName, untaint className);

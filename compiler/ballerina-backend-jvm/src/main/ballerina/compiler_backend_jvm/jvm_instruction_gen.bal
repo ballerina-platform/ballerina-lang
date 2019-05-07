@@ -568,7 +568,7 @@ type InstructionGenerator object {
 
         if (isServiceType) {
             string varName = "#0";
-            string pkgClassName = lookupFullQualifiedClassName(self.currentPackageName + varName);
+            string pkgClassName = lookupGlobalVarClassName(self.currentPackageName + varName);
             self.mv.visitFieldInsn(GETSTATIC, pkgClassName, varName, io:sprintf("L%s;", MAP_VALUE));
             loadType(self.mv, objectNewIns.typeDef.typeValue);
             self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
@@ -766,7 +766,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
 
     if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
         string varName = varDcl.name.value;
-        string className = lookupFullQualifiedClassName(currentPackageName + varName);
+        string className = lookupGlobalVarClassName(currentPackageName + varName);
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
         return;
@@ -810,7 +810,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
 
     if (varDcl.kind == "GLOBAL") {
         string varName = varDcl.name.value;
-        string className = lookupFullQualifiedClassName(currentPackageName + varName);
+        string className = lookupGlobalVarClassName(currentPackageName + varName);
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
         return;

@@ -1145,7 +1145,7 @@ function cleanupTypeName(string name) returns string {
     return name.replace("$","_");
 }
 
-function cleanupFileName(string name) returns string {
+function cleanupBalExt(string name) returns string {
     return name.replace(BAL_EXTENSION, "");
 }
 
