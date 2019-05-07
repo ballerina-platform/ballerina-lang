@@ -1,0 +1,44 @@
+<div class="method-content">
+    <h3 id="{{name}}">{{name}}</h3>
+    <p class="method-types"> TODO: param summary</p>
+    <div class="ui divider param-divider"></div>
+    <p>{{{ description }}}</p>
+    <table class="ui table param-table">
+        <thead>
+        <tr>
+            <th>Parameter Name</th>
+            <th>Data Type</th>
+            <th>Default Value</th>
+            <th>"Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#if parameters}}
+            {{#each parameters}}
+                <tr>
+                    <td>{{ name }}</td>
+                    <td>{{ type.name }}</td>
+                    <td>{{ defaultValue }}</td>
+                    <td>{{{ description }}}</td>
+                </tr>
+            {{/each}}
+        {{/if}}
+        </tbody>
+    </table>
+    {{#if returnParameters}}
+        <table class="ui table param-table">
+            <thead>
+            <th width="50%">Return Type</th>
+            <th width="50%">Description</th>
+            </thead>
+            <tbody>
+            {{#each returnParameters}}
+                <tr>
+                    <td width="50%">{{ type.name }}</td>
+                    <td width="50%">{{{ description }}}</td>
+                </tr>
+            {{/each}}
+            </tbody>
+        </table>
+    {{/if}}
+</div>
