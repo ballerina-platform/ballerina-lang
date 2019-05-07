@@ -38,9 +38,9 @@ import java.util.Map;
 import java.util.StringJoiner;
 
 /**
- * The {@code BTable} represents a two dimensional data set in Ballerina.
+ * The {@code {@link TableValue}} represents a two dimensional data set in Ballerina.
  *
- * @since 0.8.0
+ * @since 0.995.0
  */
 public class TableValue implements RefValue, CollectionValue {
 
