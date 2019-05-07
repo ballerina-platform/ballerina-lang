@@ -78,7 +78,7 @@ public class Http2InboundContentListener implements Listener {
                 LOG.debug("Stream {}. In thread {}. {} resumeReadInterest. Unconsumed bytes: {}",
                           streamId, Thread.currentThread().getName(), inboundType, getUnConsumedBytes());
             }
-            immediatelyConsumeBytes();
+            consumeOutstandingBytes();
             appConsumeRequired = false;
         });
     }
@@ -105,12 +105,15 @@ public class Http2InboundContentListener implements Listener {
                 LOG.debug("Stream {}. In thread {}. {} resume byte consumption. Unconsumed bytes: {}",
                           streamId, Thread.currentThread().getName(), inboundType, getUnConsumedBytes());
             }
-            immediatelyConsumeBytes();
+            consumeOutstandingBytes();
             consumeInboundContent.set(true);
         });
     }
 
-    private void immediatelyConsumeBytes() {
+    /**
+     * Immediately consume outstanding bytes so that window updates will be issued to the peer.
+     */
+    private void consumeOutstandingBytes() {
         int unconsumedBytes = getUnConsumedBytes();
         if (unconsumedBytes > 0) {
             consumeBytes(unconsumedBytes);
