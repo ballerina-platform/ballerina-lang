@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.991.1-SNAPSHOT</version>
+    <version>0.992.0-m2-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -2387,7 +2387,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.991.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.992.0-m2-SNAPSHOT</ballerina.version>
         <ballerina.milestone.version>0.992.0-m1</ballerina.milestone.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
