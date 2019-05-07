@@ -2166,10 +2166,21 @@ public class Desugar extends BLangNodeVisitor {
                 }
             }
         } else if (varRefType.tag == TypeTags.RECORD) {
+            BLangExpression expression = fieldAccessExpr.getExpression();
+            if (expression.getKind() == NodeKind.CONSTANT_REF) {
+                BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangConstRef) expression).symbol;
+                BLangStructLiteral structLiteral = (BLangStructLiteral) constantSymbol.literalValue;
+                // Check whether the struct literal is a constant.
+
+                // Retrieve the field access expression's value. Result cannot be `null` here since we validate the
+                // existence of the key in ConstantValueChecker.
+                result = constantValueResolver.getValue(fieldAccessExpr.field, structLiteral);
+                return;
+            }
+
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
                     && ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
-                targetVarRef = new BLangStructFunctionVarRef(((BLangVariableReference) fieldAccessExpr.expr),
-                        (BVarSymbol) fieldAccessExpr.symbol);
+                targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                         (BVarSymbol) fieldAccessExpr.symbol, true);

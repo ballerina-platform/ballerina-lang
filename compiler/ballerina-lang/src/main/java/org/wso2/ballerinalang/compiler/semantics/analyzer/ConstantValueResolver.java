@@ -25,6 +25,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
@@ -50,19 +52,28 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return constantValueResolver;
     }
 
-    public BLangExpression getValue(BLangIdentifier keyIdentifier, BLangMapLiteral mapLiteral) {
+    public BLangExpression getValue(BLangIdentifier keyIdentifier, BLangRecordLiteral recordLiteral) {
         this.result = null;
         this.keyIdentifier = keyIdentifier;
 
-        mapLiteral.accept(this);
+        recordLiteral.accept(this);
 
         return this.result;
     }
 
     @Override
     public void visit(BLangMapLiteral mapLiteral) {
+        resolveValue(mapLiteral);
+    }
+
+    @Override
+    public void visit(BLangStructLiteral structLiteral) {
+        resolveValue(structLiteral);
+    }
+
+    private void resolveValue(BLangRecordLiteral recordLiteral) {
         // Iterate through all key-value pairs in the record literal.
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : mapLiteral.keyValuePairs) {
+        for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
             //  Get the key.
             Object key = ((BLangLiteral) keyValuePair.key.expr).value;
             // If the key is equal to the value of the key, that means the key which we are looking for is
