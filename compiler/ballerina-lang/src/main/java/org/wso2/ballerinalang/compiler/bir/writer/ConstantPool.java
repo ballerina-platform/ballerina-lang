@@ -34,6 +34,9 @@ import java.util.List;
  */
 public class ConstantPool {
 
+    // Size to be written to tag a null value
+    private static final int NULL_VALUE_FIELD_SIZE_TAG = -1;
+
     private final List<CPEntry> cpEntries = new ArrayList<>();
 
     public int addCPEntry(CPEntry cpEntry) {
@@ -71,9 +74,15 @@ public class ConstantPool {
                     break;
                 case CP_ENTRY_STRING:
                     CPEntry.StringCPEntry stringCPEntry = (CPEntry.StringCPEntry) cpEntry;
-                    byte[] strBytes = stringCPEntry.value.getBytes(StandardCharsets.UTF_8);
-                    stream.writeInt(strBytes.length);
-                    stream.write(strBytes);
+                    if (stringCPEntry.value != null) {
+                        byte[] strBytes = stringCPEntry.value.getBytes(StandardCharsets.UTF_8);
+                        stream.writeInt(strBytes.length);
+                        stream.write(strBytes);
+                    } else {
+                        // If the string value is null, we write the size as -1.
+                        // This marks that the value followed by -1 size is a null value.
+                        stream.writeShort(NULL_VALUE_FIELD_SIZE_TAG);
+                    }
                     break;
                 case CP_ENTRY_PACKAGE:
                     CPEntry.PackageCPEntry pkgCPEntry = (CPEntry.PackageCPEntry) cpEntry;

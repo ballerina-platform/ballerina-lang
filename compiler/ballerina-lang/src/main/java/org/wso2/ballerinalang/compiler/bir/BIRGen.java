@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
+import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -121,6 +122,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -174,7 +176,8 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangPackage astPkg) {
         BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName,
                 astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName);
-        astPkg.symbol.bir = birPkg;
+
+        astPkg.symbol.bir = birPkg; //TODO try to remove this
 
         this.env = new BIRGenEnv(birPkg);
         // Lower function nodes in AST to bir function nodes.
@@ -184,6 +187,8 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.globalVars.forEach(astGlobalVar -> astGlobalVar.accept(this));
         astPkg.initFunction.accept(this);
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
+
+        astPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
     }
 
     public void visit(BLangTypeDefinition astTypeDefinition) {

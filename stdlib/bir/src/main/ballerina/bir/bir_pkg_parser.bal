@@ -62,6 +62,7 @@ public type PackageParser object {
             panic err;
         }
         var sig = self.typeParser.parseInvokableType();
+        _ = self.reader.readInt64(); // read and ignore function body length
         var argsCount = self.reader.readInt32();
         var numLocalVars = self.reader.readInt32();
 
@@ -159,7 +160,8 @@ public type PackageParser object {
     }
 
     function parseTypeDefBodies(TypeDef?[] typeDefs) {
-        int numTypeDefs = typeDefs.length();
+        //int numTypeDefs = typeDefs.length();
+        int numTypeDefs = self.reader.readInt32();
 
         foreach var typeDef in typeDefs {
             TypeDef tDef = getTypeDef(typeDef);

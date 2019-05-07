@@ -105,7 +105,7 @@ public class BuildCommand implements BLauncherCmd {
         } else if (argList == null || argList.size() == 0) {
             // ballerina build
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests, experimentalFlag,
-                    siddhiRuntimeFlag);
+                    siddhiRuntimeFlag, jvmTarget, dumpBIR);
         } else {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
@@ -189,13 +189,8 @@ public class BuildCommand implements BLauncherCmd {
             // "ballerina.conf" in the source root path is taken.
             LauncherUtils.loadConfigurations(sourceRootPath, configFilePath);
 
-            if (jvmTarget) {
-                BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-                        offline, lockEnabled, skiptests, experimentalFlag, dumpBIR);
-            } else {
-                BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-                        offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag);
-            }
+            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
+                    offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag, jvmTarget, dumpBIR);
         }
         Runtime.getRuntime().exit(0);
     }

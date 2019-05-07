@@ -89,6 +89,7 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BArrayType bArrayType) {
         buff.writeByte(bArrayType.tag);
         buff.writeByte(bArrayType.state.getValue());
+        buff.writeInt(bArrayType.size);
         bArrayType.getElementType().accept(this);
     }
 

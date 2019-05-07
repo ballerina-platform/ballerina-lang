@@ -31,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Serialize BIR into a binary format.
@@ -38,8 +39,6 @@ import java.util.List;
  * @since 0.980.0
  */
 public class BIRBinaryWriter {
-    private static final byte[] BIR_MAGIC = {(byte) 0xba, (byte) 0x10, (byte) 0xc0, (byte) 0xde};
-    private static final int BIR_VERSION = 1;
 
     private final ConstantPool cp = new ConstantPool();
     private final BIRNode.BIRPackage birPackage;
@@ -77,8 +76,6 @@ public class BIRBinaryWriter {
         // TODO e.g., strtab, shstrtab, rodata.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (DataOutputStream dataOut = new DataOutputStream(baos)) {
-            dataOut.write(BIR_MAGIC);
-            dataOut.writeInt(BIR_VERSION);
             dataOut.write(cp.serialize());
             dataOut.write(birbuf.nioBuffer().array(), 0, birbuf.nioBuffer().limit());
             return baos.toByteArray();
@@ -123,7 +120,10 @@ public class BIRBinaryWriter {
      */
     private void writeTypeDefBodies(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
                                     List<BIRTypeDefinition> birTypeDefList) {
-        birTypeDefList.forEach(typeDef -> writeAttachedFuncs(buf, typeWriter, insWriter, typeDef));
+        List<BIRTypeDefinition> filtered = birTypeDefList.stream().filter(t -> t.type.tag == TypeTags.OBJECT
+                || t.type.tag == TypeTags.RECORD).collect(Collectors.toList());
+        buf.writeInt(filtered.size()); //TODO try to remove this
+        filtered.forEach(typeDef -> writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs));
     }
 
     private void writeGlobalVars(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRGlobalVariableDcl> birGlobalVars) {
@@ -137,14 +137,6 @@ public class BIRBinaryWriter {
 
             // Function type as a CP Index
             birGlobalVar.type.accept(typeWriter);
-        }
-    }
-
-    private void writeAttachedFuncs(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
-                                    BIRTypeDefinition typeDef) {
-        int defType = typeDef.type.tag;
-        if (defType == TypeTags.OBJECT || defType == TypeTags.RECORD) {
-            writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs);
         }
     }
 
@@ -181,21 +173,30 @@ public class BIRBinaryWriter {
         // Function type as a CP Index
         birFunction.type.accept(typeWriter);
 
+        ByteBuf birbuf = Unpooled.buffer();
+        BIRTypeWriter funcTypeWriter = new BIRTypeWriter(birbuf, cp);
+        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, funcTypeWriter, cp);
+
         // Arg count
-        buf.writeInt(birFunction.argsCount);
+        birbuf.writeInt(birFunction.argsCount);
         // Local variables
-        buf.writeInt(birFunction.localVars.size());
+        birbuf.writeInt(birFunction.localVars.size());
         for (BIRNode.BIRVariableDcl localVar : birFunction.localVars) {
-            buf.writeByte(localVar.kind.getValue());
-            localVar.type.accept(typeWriter);
-            buf.writeInt(addStringCPEntry(localVar.name.value));
+            birbuf.writeByte(localVar.kind.getValue());
+            localVar.type.accept(funcTypeWriter);
+            birbuf.writeInt(addStringCPEntry(localVar.name.value));
         }
 
         // Write basic blocks
-        insWriter.writeBBs(birFunction.basicBlocks);
+        funcInsWriter.writeBBs(birFunction.basicBlocks);
 
         // Write error table
-        insWriter.writeErrorTable(birFunction.errorTable);
+        funcInsWriter.writeErrorTable(birFunction.errorTable);
+
+        // Write length of the function body so that it can be skipped easily.
+        int length = birbuf.nioBuffer().limit();
+        buf.writeLong(length);
+        buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
     }
 
     private int addStringCPEntry(String value) {

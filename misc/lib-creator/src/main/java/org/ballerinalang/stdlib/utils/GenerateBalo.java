@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -65,6 +66,7 @@ public class GenerateBalo {
         String targetDir = args[2];
         String libDir = args[3];
         boolean skipReportingWarnings = args.length > 4 && Boolean.parseBoolean(args[4]);
+        String jvmTarget = args[5]; //TODO temp fix, remove this - rajith
 
         String originalShouldCompileBalOrg = System.getProperty(COMPILE_BALLERINA_ORG_PROP);
         String originalIsBuiltin = System.getProperty(LOAD_BUILTIN_FROM_SOURCE_PROP);
@@ -76,7 +78,8 @@ public class GenerateBalo {
             System.setProperty(BALLERINA_INSTALL_DIR_PROP, libDir);
 
             boolean reportWarnings = !skipReportingWarnings;
-            genBalo(targetDir, sourceDir, isBuiltin, reportWarnings);
+
+            genBalo(targetDir, sourceDir, isBuiltin, reportWarnings, Boolean.parseBoolean(jvmTarget));
         } finally {
             unsetProperty(COMPILE_BALLERINA_ORG_PROP, originalShouldCompileBalOrg);
             unsetProperty(LOAD_BUILTIN_FROM_SOURCE_PROP, originalIsBuiltin);
@@ -93,7 +96,8 @@ public class GenerateBalo {
     }
 
 
-    private static void genBalo(String targetDir, String sourceRootDir, boolean saveBuiltin, boolean reportWarnings)
+    private static void genBalo(String targetDir, String sourceRootDir,
+                                boolean saveBuiltin, boolean reportWarnings, boolean jvmTarget)
             throws IOException {
         Files.createDirectories(Paths.get(targetDir));
 
@@ -104,10 +108,12 @@ public class GenerateBalo {
 
         context.put(SourceDirectory.class, new MvnSourceDirectory(sourceRootDir, targetDir));
 
+        CompilerPhase compilerPhase = jvmTarget ? CompilerPhase.BIR_GEN : CompilerPhase.CODE_GEN;
+
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootDir);
         options.put(OFFLINE, Boolean.TRUE.toString());
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(SKIP_TESTS, Boolean.TRUE.toString());
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
