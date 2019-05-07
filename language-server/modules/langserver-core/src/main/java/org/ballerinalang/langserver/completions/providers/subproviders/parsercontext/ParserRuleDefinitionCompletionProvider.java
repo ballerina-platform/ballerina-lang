@@ -54,16 +54,6 @@ public class ParserRuleDefinitionCompletionProvider extends LSCompletionProvider
         if (!consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)) {
             return completionItems;
         }
-
-        // If the first token we found is the function token, then we suggest the Object Types
-        return ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
-                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol)
-                .map(symbolInfo -> {
-                    BSymbol symbol = symbolInfo.getScopeEntry().symbol;
-                    String symbolName = symbol.getName().getValue();
-                    CompletionItem completionItem = BTypeCompletionItemBuilder.build((BTypeSymbol) symbol, symbolName);
-                    completionItem.setInsertText(symbolName + ".");
-                    return completionItem;
-                }).collect(Collectors.toList());
+        return completionItems;
     }
 }

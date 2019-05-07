@@ -1,22 +1,24 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver.completions.spi;
 
+import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -24,7 +26,6 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-//import org.ballerinalang.langserver.completions.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
@@ -37,6 +38,7 @@ import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -48,27 +50,52 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
  * Interface for completion item providers.
+ *
+ * @since 0.995.0
  */
 public abstract class LSCompletionProvider {
 
     protected List<Class> attachmentPoints = new ArrayList<>();
 
+    /**
+     * Get Completion items for the scope/ context.
+     *
+     * @param context Language Server Context
+     * @return {@link List}     List of calculated Completion Items
+     */
+    public abstract List<CompletionItem> getCompletions(LSContext context);
+
+    /**
+     * Get the attachment points where the current provider attached to.
+     *
+     * @return {@link List}    List of attachment points
+     */
     public List<Class> getAttachmentPoints() {
         return this.attachmentPoints;
     }
 
-    public abstract List<CompletionItem> getCompletions(LSContext context);
+    /**
+     * Get the Context Provider.
+     * Ex: When a given scope is resolved then the context can be resolved by parsing a sub rule or token analyzing
+     *
+     * @param ctx Language Server Context
+     * @return {@link Optional} Context Completion provider
+     */
+    public Optional<LSCompletionProvider> getContextProvider(LSContext ctx) {
+        return Optional.empty();
+    }
 
     /**
      * Populate the completion item list by considering the.
      *
-     * @param symbolInfoList    list of symbol information
-     * @param context           Language server operation context
+     * @param symbolInfoList list of symbol information
+     * @param context        Language server operation context
      * @return {@link List}     list of completion items
      */
     protected List<CompletionItem> getCompletionItemList(List<SymbolInfo> symbolInfoList, LSContext context) {
@@ -97,8 +124,8 @@ public abstract class LSCompletionProvider {
     /**
      * Populate the completion item list by either list.
      *
-     * @param list              Either List of completion items or symbol info
-     * @param context           LS Operation Context
+     * @param list    Either List of completion items or symbol info
+     * @param context LS Operation Context
      * @return {@link List}     Completion Items List
      */
     protected List<CompletionItem> getCompletionItemList(Either<List<CompletionItem>, List<SymbolInfo>> list,
@@ -109,40 +136,42 @@ public abstract class LSCompletionProvider {
         } else {
             completionItems.addAll(this.getCompletionItemList(list.getRight(), context));
         }
-        
+
         return completionItems;
     }
 
     /**
      * Check whether the token stream corresponds to a action invocation or a function invocation.
      *
-     * @param context               Completion operation context
+     * @param context Completion operation context
      * @return {@link Boolean}      Whether invocation or Field Access
      */
     protected boolean isInvocationOrInteractionOrFieldAccess(LSContext context) {
-        List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(context), 2);
-        return poppedTokens.contains(UtilSymbolKeys.DOT_SYMBOL_KEY)
-                || poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
-                || poppedTokens.contains(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)
-                || poppedTokens.contains(UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY)
-                || poppedTokens.contains(UtilSymbolKeys.BANG_SYMBOL_KEY);
-    }
-
-    /**
-     * Check whether the token stream contains an annotation start (@).
-     *
-     * @param ctx                   Completion operation context
-     * @return {@link Boolean}      Whether annotation context start or not
-     */
-    public boolean isAnnotationStart(LSContext ctx) {
-        List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(ctx), 4);
-        return poppedTokens.contains(UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY);
+        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
+        if (lhsTokens == null) {
+            return false;
+        }
+        List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .collect(Collectors.toList());
+        return !lhsDefaultTokens.isEmpty()
+                && ((CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.COLON)
+                || (CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.DOT)
+                || (CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.RARROW)
+                || (CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.LARROW)
+                || (CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.NOT)
+                || (lhsDefaultTokens.size() >= 2
+                && (lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() == BallerinaParser.COLON
+                || lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() == BallerinaParser.DOT
+                || lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() == BallerinaParser.RARROW
+                || lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() == BallerinaParser.LARROW
+                || lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() == BallerinaParser.NOT)));
     }
 
     /**
      * Get the basic types.
      *
-     * @param visibleSymbols    List of visible symbols
+     * @param visibleSymbols List of visible symbols
      * @return {@link List}     List of completion items
      */
     protected List<CompletionItem> getBasicTypes(List<SymbolInfo> visibleSymbols) {
@@ -162,8 +191,8 @@ public abstract class LSCompletionProvider {
     /**
      * Get variable definition context related completion items. This will extract the completion items analyzing the
      * variable definition context properties.
-     * 
-     * @param context           Completion context
+     *
+     * @param context Completion context
      * @return {@link List}     List of resolved completion items
      */
     protected List<CompletionItem> getVarDefCompletionItems(LSContext context) {
@@ -199,7 +228,6 @@ public abstract class LSCompletionProvider {
         return completionItems;
     }
 
-
     /**
      * Add top level items to the given completionItems List.
      *
@@ -228,11 +256,23 @@ public abstract class LSCompletionProvider {
         return completionItems;
     }
 
+    /**
+     * Get a static completion Item for the given snippet.
+     *
+     * @param ctx     Language Server Context
+     * @param snippet Snippet to generate the static completion item
+     * @return {@link CompletionItem} Generated static completion Item
+     */
     protected CompletionItem getStaticItem(LSContext ctx, Snippet snippet) {
         return snippet.get().build(ctx);
     }
 
-
+    /**
+     * Check whether the given token is an access modifier token.
+     *
+     * @param token Token values
+     * @return {@link Boolean} Whether the token is an access modifier or not
+     */
     protected boolean isAccessModifierToken(String token) {
         return token.equals(ItemResolverConstants.PUBLIC_KEYWORD)
                 || token.equals(ItemResolverConstants.CONST_KEYWORD)
@@ -242,8 +282,8 @@ public abstract class LSCompletionProvider {
     /**
      * Get the completion item for a package import.
      * If the package is already imported, additional text edit for the import statement will not be added.
-     * 
-     * @param ctx               LS Operation context
+     *
+     * @param ctx LS Operation context
      * @return {@link List}     List of packages completion items
      */
     protected List<CompletionItem> getPackagesCompletionItems(LSContext ctx) {
@@ -268,7 +308,7 @@ public abstract class LSCompletionProvider {
                 }).collect(Collectors.toList());
         List<BallerinaPackage> packages = LSPackageLoader.getSdkPackages();
         packages.addAll(LSPackageLoader.getHomeRepoPackages());
-        
+
         packages.forEach(ballerinaPackage -> {
             String name = ballerinaPackage.getPackageName();
             String orgName = ballerinaPackage.getOrgName();
@@ -282,14 +322,14 @@ public abstract class LSCompletionProvider {
                 completionItems.add(item);
             }
         });
-        
+
         return completionItems;
     }
 
     /**
      * Get the completion items based on the delimiter token, as an example . and : .
      *
-     * @param context       Language Server Service Operation Context
+     * @param context Language Server Service Operation Context
      * @return {@link List} Completion Item List
      */
     protected List<CompletionItem> getDelimiterBasedCompletionItems(LSContext context) {
@@ -298,6 +338,11 @@ public abstract class LSCompletionProvider {
         return this.getCompletionItemList(itemList, context);
     }
 
+    /**
+     * Predicate to filter the attached of Self, symbol.
+     *
+     * @return {@link Predicate} Symbol filter predicate
+     */
     protected Predicate<SymbolInfo> attachedOrSelfKeywordFilter() {
         return symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
@@ -306,7 +351,20 @@ public abstract class LSCompletionProvider {
                     && (bSymbol.owner.flags & Flags.RESOURCE) == Flags.RESOURCE);
         };
     }
-    
+
+    protected Optional<String> getSubrule(List<CommonToken> tokenList) {
+        if (tokenList == null || tokenList.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(tokenList.stream().map(CommonToken::getText).collect(Collectors.joining("")));
+    }
+
+    /**
+     * Get the provider for the given key.
+     *
+     * @param providerKey key to get the provider
+     * @return {@link LSCompletionProvider} Completion Provider
+     */
     protected LSCompletionProvider getProvider(Class providerKey) {
         return LSCompletionProviderFactory.getInstance().getProvider(providerKey);
     }
@@ -335,8 +393,8 @@ public abstract class LSCompletionProvider {
     /**
      * Get the Ballerina Constant Completion Item.
      *
-     * @param symbolInfo                symbol information
-     * @param context                   Language Server Operation Context
+     * @param symbolInfo symbol information
+     * @param context    Language Server Operation Context
      * @return {@link CompletionItem}   completion item
      */
     private CompletionItem getBallerinaConstantCompletionItem(SymbolInfo symbolInfo, LSContext context) {

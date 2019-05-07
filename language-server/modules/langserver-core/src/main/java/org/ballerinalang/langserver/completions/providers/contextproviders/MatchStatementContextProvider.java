@@ -15,8 +15,11 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
+package org.ballerinalang.langserver.completions.providers.contextproviders;
 
+import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.Token;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
@@ -31,6 +34,7 @@ import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.langserver.completions.util.sorters.MatchContextItemSorter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -42,6 +46,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 import static org.ballerinalang.langserver.completions.util.MatchStatementResolverUtil.generateMatchPattern;
@@ -51,21 +56,29 @@ import static org.ballerinalang.langserver.completions.util.MatchStatementResolv
 /**
  * Completion Item provider for the match statement parser rule context.
  */
-public class ParserRuleMatchStatementCompletionProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
+public class MatchStatementContextProvider extends LSCompletionProvider {
+
+    public MatchStatementContextProvider() {
+        this.attachmentPoints.add(BallerinaParser.MatchStatementContext.class);
+    }
+
     @Override
     public List<CompletionItem> getCompletions(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(ctx), 3);
+        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY).stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .collect(Collectors.toList());
         List<SymbolInfo> symbolInfoList = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         if (isInvocationOrInteractionOrFieldAccess(ctx)) {
             String delimiter = "";
             String variableName = "";
-            for (int i = 0; i < poppedTokens.size(); i++) {
-                if (poppedTokens.get(i).equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
-                        || poppedTokens.get(i).equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
-                        || poppedTokens.get(i).equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)) {
-                    delimiter = poppedTokens.get(i);
-                    variableName = poppedTokens.get(i - 1);
+            for (int i = 0; i < lhsTokens.size(); i++) {
+                if (lhsTokens.get(i).getType() == BallerinaParser.DOT
+                        || lhsTokens.get(i).getType() == BallerinaParser.COLON
+                        || lhsTokens.get(i).getType() == BallerinaParser.RARROW) {
+                    delimiter = lhsTokens.get(i).getText();
+                    variableName = lhsTokens.get(i - 1).getText();
                     break;
                 }
             }

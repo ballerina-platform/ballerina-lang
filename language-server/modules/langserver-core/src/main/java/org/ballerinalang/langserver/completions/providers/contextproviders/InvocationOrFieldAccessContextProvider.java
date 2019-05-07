@@ -15,32 +15,46 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
+package org.ballerinalang.langserver.completions.providers.contextproviders;
 
+import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.SnippetBlock;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
+import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
-import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Parser rule based statement context provider.
  */
-public class ParserRuleStatementCompletionProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
+public class InvocationOrFieldAccessContextProvider extends LSCompletionProvider {
+
+    public InvocationOrFieldAccessContextProvider() {
+        this.attachmentPoints.add(InvocationOrFieldAccessContextProvider.class);
+    }
+
     @Override
     public List<CompletionItem> getCompletions(LSContext context) {
-        Either<List<CompletionItem>, List<SymbolInfo>> itemList = SymbolFilters
-                .get(DelimiterBasedContentFilter.class).filterItems(context);
-        ArrayList<CompletionItem> completionItems = new ArrayList<>(this.getCompletionItemList(itemList, context));
-        ItemSorters.get(ActionAndFieldAccessContextItemSorter.class).sortItems(context, completionItems);
-        return completionItems;
+
+        Either<List<CompletionItem>, List<SymbolInfo>> content = new DelimiterBasedContentFilter().filterItems(context);
+
+        return this.getCompletionItemList(content, context);
     }
 }
 

@@ -22,8 +22,9 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.providers.contextproviders.VarDefContextProvider;
+import org.ballerinalang.langserver.completions.providers.scopeproviders.TopLevelScopeProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.completions.providers.scopeproviders.TopLevelProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
@@ -86,9 +87,9 @@ public class ParserRuleGlobalVariableDefinitionCompletionProvider extends LSComp
             completionItems.addAll(this.getListenersFromPackage(ctx, poppedTokens.get(poppedTokens.size() - 2)));
             // TODO: usage of index
         } else if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
-            completionItems.addAll(new ParserRuleVariableDefinitionCompletionProvider().getCompletions(ctx));
+            completionItems.addAll(new VarDefContextProvider().getCompletions(ctx));
         } else {
-            completionItems.addAll(new TopLevelProvider().getCompletions(ctx));
+            completionItems.addAll(new TopLevelScopeProvider().getCompletions(ctx));
         }
         return completionItems;
     }

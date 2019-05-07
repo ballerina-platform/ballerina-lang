@@ -22,15 +22,10 @@ import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
-import org.eclipse.lsp4j.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.Stack;
 
@@ -130,36 +125,38 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         super.sync(recognizer);
     }
 
-    private void removePendingTokensAfterThisToken(Parser recognizer, Token token,
-                                                   TokenRemovalStrategy currentStrategy) {
-        int currentTokenIndex = recognizer.getCurrentToken().getTokenIndex();
-        if (token != null && (isInLastTermination(recognizer) ||
-                TokenRemovalStrategy.SYNC.equals(currentStrategy) && currentTokenIndex < token.getTokenIndex()
-                || TokenRemovalStrategy.MATCH.equals(currentStrategy) && currentTokenIndex <= token.getTokenIndex())) {
-            return;
-        }
-        while (removeTokenCount > 0) {
-            forceConsumedTokens.push(recognizer.consume());
-            removeTokenCount--;
-        }
-        this.context.put(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY, forceConsumedTokens);
-    }
-
-    private boolean isInFirstTokenOfCursorLine(Parser recognizer) {
-        Token currentToken = recognizer.getCurrentToken();
-        if (firstTokenOfCursorLine == null) {
-            firstTokenOfCursorLine = getFirstTokenOfCursorLine(recognizer);
-        }
-        return firstTokenOfCursorLine != null && currentToken.getTokenIndex() == firstTokenOfCursorLine.getTokenIndex();
-    }
-
-    private boolean isInLastTermination(Parser recognizer) {
-        Token currentToken = recognizer.getCurrentToken();
-        if (lastTerminationToken == null) {
-            lastTerminationToken = getLastTerminationToken(recognizer.getInputStream());
-        }
-        return lastTerminationToken != null && currentToken.getTokenIndex() == lastTerminationToken.getTokenIndex();
-    }
+//    private void removePendingTokensAfterThisToken(Parser recognizer, Token token,
+//                                                   TokenRemovalStrategy currentStrategy) {
+//        int currentTokenIndex = recognizer.getCurrentToken().getTokenIndex();
+//        if (token != null && (isInLastTermination(recognizer) ||
+//                TokenRemovalStrategy.SYNC.equals(currentStrategy) && currentTokenIndex < token.getTokenIndex()
+//                || TokenRemovalStrategy.MATCH.equals(currentStrategy)
+//                && currentTokenIndex <= token.getTokenIndex())) {
+//            return;
+//        }
+//        while (removeTokenCount > 0) {
+//            forceConsumedTokens.push(recognizer.consume());
+//            removeTokenCount--;
+//        }
+//        this.context.put(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY, forceConsumedTokens);
+//    }
+//
+//    private boolean isInFirstTokenOfCursorLine(Parser recognizer) {
+//        Token currentToken = recognizer.getCurrentToken();
+//        if (firstTokenOfCursorLine == null) {
+//            firstTokenOfCursorLine = getFirstTokenOfCursorLine(recognizer);
+//        }
+//        return firstTokenOfCursorLine != null && currentToken.getTokenIndex() == 
+//        firstTokenOfCursorLine.getTokenIndex();
+//    }
+//
+//    private boolean isInLastTermination(Parser recognizer) {
+//        Token currentToken = recognizer.getCurrentToken();
+//        if (lastTerminationToken == null) {
+//            lastTerminationToken = getLastTerminationToken(recognizer.getInputStream());
+//        }
+//        return lastTerminationToken != null && currentToken.getTokenIndex() == lastTerminationToken.getTokenIndex();
+//    }
 
 //    private void deleteTokensUpToCursor(Parser recognizer, boolean isInLastTermination,
 //                                        boolean isInFirstTokenOfCursorLine) {
@@ -196,65 +193,65 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 //        }
 //    }
 
-    private Token getFirstTokenOfCursorLine(Parser recognizer) {
-        TokenStream tokenStream = recognizer.getInputStream();
-        Token firstCursorLineToken = null;
-        int cursorLine = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine() + 1;
-        int cursorCol = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter() + 1;
-
-        int index = 1;
-        Token beforeCursorToken = tokenStream.LT(index);
-        int type = beforeCursorToken.getType();
-        int tLine = beforeCursorToken.getLine();
-        int tCol = beforeCursorToken.getCharPositionInLine();
-
-        if (cursorLine < tLine || (cursorLine == tLine && cursorCol <= tCol)) {
-            return null;
-        }
-
-        firstCursorLineToken = (tLine == cursorLine) ? beforeCursorToken : null;
-
-        while (type != BallerinaParser.EOF && (tLine <= cursorLine)) {
-            int tokenIndex = beforeCursorToken.getTokenIndex();
-            if (tLine == cursorLine &&
-                    (firstCursorLineToken == null || firstCursorLineToken.getTokenIndex() > tokenIndex)) {
-                firstCursorLineToken = beforeCursorToken;
-            }
-            index++;
-            beforeCursorToken = tokenStream.LT(index);
-            type = beforeCursorToken.getType();
-            tLine = beforeCursorToken.getLine();
-        }
-        return firstCursorLineToken;
-    }
-
-    private Token getLastTerminationToken(TokenStream tokenStream) {
-        Token lastTerminationToken = null;
-        Position cursorPosition = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        int cursorLine = cursorPosition.getLine() + 1;
-        int cursorCol = cursorPosition.getCharacter() + 1;
-
-        int index = 1;
-        Token beforeCursorToken = tokenStream.LT(index);
-        int type = beforeCursorToken.getType();
-        int tLine = beforeCursorToken.getLine();
-        int tCol = beforeCursorToken.getCharPositionInLine();
-
-        while (type != BallerinaParser.EOF && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
-            // Checking for terminating tokens with the type number is inconsistent. Thus, uses string comparisons
-            String tokenText = beforeCursorToken.getText();
-            if (UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY.equals(tokenText) ||
-                    UtilSymbolKeys.OPEN_BRACE_KEY.equals(tokenText) ||
-                    UtilSymbolKeys.CLOSE_BRACE_KEY.equals(tokenText) ||
-                    UtilSymbolKeys.COMMA_SYMBOL_KEY.equals(tokenText)) {
-                lastTerminationToken = beforeCursorToken;
-            }
-            index++;
-            beforeCursorToken = tokenStream.LT(index);
-            type = beforeCursorToken.getType();
-            tLine = beforeCursorToken.getLine();
-            tCol = beforeCursorToken.getCharPositionInLine();
-        }
-        return lastTerminationToken;
-    }
+//    private Token getFirstTokenOfCursorLine(Parser recognizer) {
+//        TokenStream tokenStream = recognizer.getInputStream();
+//        Token firstCursorLineToken = null;
+//        int cursorLine = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine() + 1;
+//        int cursorCol = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter() + 1;
+//
+//        int index = 1;
+//        Token beforeCursorToken = tokenStream.LT(index);
+//        int type = beforeCursorToken.getType();
+//        int tLine = beforeCursorToken.getLine();
+//        int tCol = beforeCursorToken.getCharPositionInLine();
+//
+//        if (cursorLine < tLine || (cursorLine == tLine && cursorCol <= tCol)) {
+//            return null;
+//        }
+//
+//        firstCursorLineToken = (tLine == cursorLine) ? beforeCursorToken : null;
+//
+//        while (type != BallerinaParser.EOF && (tLine <= cursorLine)) {
+//            int tokenIndex = beforeCursorToken.getTokenIndex();
+//            if (tLine == cursorLine &&
+//                    (firstCursorLineToken == null || firstCursorLineToken.getTokenIndex() > tokenIndex)) {
+//                firstCursorLineToken = beforeCursorToken;
+//            }
+//            index++;
+//            beforeCursorToken = tokenStream.LT(index);
+//            type = beforeCursorToken.getType();
+//            tLine = beforeCursorToken.getLine();
+//        }
+//        return firstCursorLineToken;
+//    }
+//
+//    private Token getLastTerminationToken(TokenStream tokenStream) {
+//        Token lastTerminationToken = null;
+//        Position cursorPosition = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+//        int cursorLine = cursorPosition.getLine() + 1;
+//        int cursorCol = cursorPosition.getCharacter() + 1;
+//
+//        int index = 1;
+//        Token beforeCursorToken = tokenStream.LT(index);
+//        int type = beforeCursorToken.getType();
+//        int tLine = beforeCursorToken.getLine();
+//        int tCol = beforeCursorToken.getCharPositionInLine();
+//
+//        while (type != BallerinaParser.EOF && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
+//            // Checking for terminating tokens with the type number is inconsistent. Thus, uses string comparisons
+//            String tokenText = beforeCursorToken.getText();
+//            if (UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY.equals(tokenText) ||
+//                    UtilSymbolKeys.OPEN_BRACE_KEY.equals(tokenText) ||
+//                    UtilSymbolKeys.CLOSE_BRACE_KEY.equals(tokenText) ||
+//                    UtilSymbolKeys.COMMA_SYMBOL_KEY.equals(tokenText)) {
+//                lastTerminationToken = beforeCursorToken;
+//            }
+//            index++;
+//            beforeCursorToken = tokenStream.LT(index);
+//            type = beforeCursorToken.getType();
+//            tLine = beforeCursorToken.getLine();
+//            tCol = beforeCursorToken.getCharPositionInLine();
+//        }
+//        return lastTerminationToken;
+//    }
 }

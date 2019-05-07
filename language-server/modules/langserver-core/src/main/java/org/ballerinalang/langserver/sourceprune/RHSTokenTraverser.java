@@ -36,7 +36,6 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
     private List<Integer> rhsTraverseTerminals;
     private boolean definitionRemoved;
     private int ltTokenCount;
-    private List<CommonToken> removedTokens;
 
     RHSTokenTraverser(SourcePruneContext sourcePruneContext) {
         this.leftBraceCount = sourcePruneContext.get(SourcePruneKeys.LEFT_BRACE_COUNT_KEY);
@@ -50,7 +49,6 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
     List<CommonToken>  traverseRHS(TokenStream tokenStream, int tokenIndex) {
         Optional<Token> token = Optional.of(tokenStream.get(tokenIndex));
         while (token.isPresent()) {
-            this.removedTokens.add(new CommonToken(token.get()));
             int type = token.get().getType();
             if (BallerinaParser.RIGHT_BRACE == type && leftBraceCount > 0) {
                 leftBraceCount--;
@@ -65,7 +63,8 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
                 }
             }
             this.alterTokenText(token.get());
-            token = CommonUtil.getNextDefaultToken(tokenStream, token.get().getTokenIndex());
+            tokenIndex = token.get().getTokenIndex() + 1;
+            token = tokenIndex > tokenStream.size() - 1 ? Optional.empty() : Optional.of(tokenStream.get(tokenIndex));
         }
         
         return this.removedTokens;

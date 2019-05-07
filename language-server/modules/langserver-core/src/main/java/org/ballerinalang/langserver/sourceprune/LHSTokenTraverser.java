@@ -19,7 +19,6 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.bouncycastle.util.Arrays;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
@@ -42,7 +41,6 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
     private int ltSymbolCount;
     private boolean capturedAssignToken;
     private SourcePruneContext sourcePruneContext;
-    private List<CommonToken> removedTokens;
 
     LHSTokenTraverser(SourcePruneContext sourcePruneContext) {
         this.sourcePruneContext = sourcePruneContext;
@@ -60,7 +58,6 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
     List<CommonToken> traverseLHS(TokenStream tokenStream, int tokenIndex) {
         Optional<Token> token = Optional.of(tokenStream.get(tokenIndex));
         while (token.isPresent()) {
-            this.removedTokens.add(new CommonToken(token.get()));
             int type = token.get().getType();
             if (this.lhsTraverseTerminals.contains(type)) {
                 boolean terminate = terminateLHSTraverse(token.get(), tokenStream);
@@ -74,7 +71,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 this.capturedAssignToken = true;
             }
             alterTokenText(token.get());
-            token = CommonUtil.getPreviousDefaultToken(tokenStream, token.get().getTokenIndex());
+            tokenIndex = token.get().getTokenIndex() - 1;
+            token = tokenIndex < 0 ? Optional.empty() : Optional.of(tokenStream.get(tokenIndex));
         }
         
         sourcePruneContext.put(SourcePruneKeys.REMOVE_DEFINITION_KEY, this.removeBlock);

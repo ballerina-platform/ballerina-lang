@@ -21,7 +21,9 @@ import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -31,9 +33,11 @@ import java.util.Optional;
  */
 abstract class AbstractTokenTraverser {
     int lastAlteredToken = -1;
+    List<CommonToken> removedTokens = new ArrayList<>();
 
     void alterTokenText(Token token) {
-        if (token.getType() == BallerinaParser.NEW_LINE) {
+        this.removedTokens.add(new CommonToken(token));
+        if (token.getType() == BallerinaParser.NEW_LINE || token.getChannel() != Token.DEFAULT_CHANNEL) {
             return;
         }
         ((CommonToken) token).setText(getNCharLengthEmptyLine(token.getText().length()));

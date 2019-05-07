@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.AnnotationAttachmentMetaInfo;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.resolvers.CompletionItemScope;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
@@ -159,6 +158,16 @@ public class CompletionSubRuleParser {
         getParser(context, functionRule).functionDefinition();
     }
 
+    public static void parseWithinCompilationUnit(String subRule, LSContext context) {
+        getParser(context, subRule).functionDefinition();
+    }
+
+    public static void parseWithinFunctionDefinition(String subRule, LSContext context) {
+        String functionRule = "function testFunction () {" + CommonUtil.LINE_SEPARATOR + "\t" + subRule +
+                CommonUtil.LINE_SEPARATOR + "}";
+        getParser(context, functionRule).functionDefinition();
+    }
+
     private static void parseWithinWorkerDeclaration(LSContext context) {
         String tokenString = getCombinedTokenString(context);
         String functionRule = "worker w1 {" + CommonUtil.LINE_SEPARATOR + "\t" + tokenString +
@@ -281,9 +290,9 @@ public class CompletionSubRuleParser {
         }
 
         annotationName = fieldsQueue.poll();
-        ctx.put(CompletionKeys.ANNOTATION_ATTACHMENT_META_KEY,
-                new AnnotationAttachmentMetaInfo(annotationName, fieldsQueue, pkgAlias,
-                        getNextNodeTypeFlag(tokenStream, currentTokenIndex, ctx)));
+//        ctx.put(CompletionKeys.ANNOTATION_ATTACHMENT_META_KEY,
+//                new AnnotationAttachmentMetaInfo(annotationName, fieldsQueue, pkgAlias,
+//                        getNextNodeTypeFlag(tokenStream, currentTokenIndex, ctx)));
         ctx.put(CompletionKeys.SCOPE_NODE_KEY, new BLangAnnotationAttachment());
         
         return true;

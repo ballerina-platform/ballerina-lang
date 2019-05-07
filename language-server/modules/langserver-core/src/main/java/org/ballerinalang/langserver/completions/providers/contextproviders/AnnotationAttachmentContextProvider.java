@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +34,10 @@ import java.util.List;
  * Annotation Attachment Resolver to resolve the corresponding annotation attachments.
  */
 @JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class ParserRuleAnnotationAttachmentCompletionProvider extends LSCompletionProvider {
+public class AnnotationAttachmentContextProvider extends LSCompletionProvider {
 
-    public ParserRuleAnnotationAttachmentCompletionProvider() {
-        this.attachmentPoints.add(ParserRuleAnnotationAttachmentCompletionProvider.class);
+    public AnnotationAttachmentContextProvider() {
+        this.attachmentPoints.add(AnnotationAttachmentContextProvider.class);
     }
 
     @Override

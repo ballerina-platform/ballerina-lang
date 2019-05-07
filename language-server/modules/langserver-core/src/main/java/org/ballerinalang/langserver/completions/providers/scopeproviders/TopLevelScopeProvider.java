@@ -17,10 +17,12 @@
 package org.ballerinalang.langserver.completions.providers.scopeproviders;
 
 import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.providers.contextproviders.ParserRuleAnnotationAttachmentCompletionProvider;
+import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
+import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
@@ -30,27 +32,48 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Resolves all items that can appear as a top level element in the file.
+ * 
+ * @since 0.995.0
  */
 @JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class TopLevelProvider extends LSCompletionProvider {
-    public TopLevelProvider() {
+public class TopLevelScopeProvider extends LSCompletionProvider {
+    public TopLevelScopeProvider() {
         this.attachmentPoints.add(BLangPackage.class);
     }
 
     @Override
     public List<CompletionItem> getCompletions(LSContext ctx) {
-        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
-        if (lhsTokens.get(lhsTokens.size() -1).getType() == BallerinaParser.AT) {
-            return this.getProvider(ParserRuleAnnotationAttachmentCompletionProvider.class).getCompletions(ctx);
-        }
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        Optional<LSCompletionProvider> contextProvider = this.getContextProvider(ctx);
+        
+        if (contextProvider.isPresent()) {
+            return contextProvider.get().getCompletions(ctx);
+        }
+
         completionItems.addAll(addTopLevelItems(ctx));
         completionItems.addAll(getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
 
         ItemSorters.get(DefaultItemSorter.class).sortItems(ctx, completionItems);
         return completionItems;
+    }
+
+    @Override
+    public Optional<LSCompletionProvider> getContextProvider(LSContext ctx) {
+        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
+        if (lhsTokens.get(lhsTokens.size() - 1).getType() == BallerinaParser.AT) {
+            return Optional.ofNullable(this.getProvider(AnnotationAttachmentContextProvider.class));
+        }
+        Optional<String> subRule = this.getSubrule(lhsTokens);
+        subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinCompilationUnit(rule, ctx));
+        ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+
+        if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
+            return Optional.ofNullable(this.getProvider(parserRuleContext.getClass()));
+        }
+        return super.getContextProvider(ctx);
     }
 }

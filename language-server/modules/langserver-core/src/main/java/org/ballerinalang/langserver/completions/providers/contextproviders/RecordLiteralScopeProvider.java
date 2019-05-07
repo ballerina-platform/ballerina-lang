@@ -15,8 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.providers.subproviders;
+package org.ballerinalang.langserver.completions.providers.contextproviders;
 
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -40,7 +41,13 @@ import java.util.stream.Collectors;
 /**
  * Completion Item Resolver for BLangRecordLiteral.
  */
-public class BLangRecordLiteralCompletionProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
+public class RecordLiteralScopeProvider extends LSCompletionProvider {
+
+    public RecordLiteralScopeProvider() {
+        this.attachmentPoints.add(BLangRecordLiteral.class);
+    }
+
     @Override
     public List<CompletionItem> getCompletions(LSContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();

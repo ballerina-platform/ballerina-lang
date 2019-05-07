@@ -15,10 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
+package org.ballerinalang.langserver.completions.providers.contextproviders;
 
 import com.google.common.collect.Lists;
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
@@ -39,6 +41,7 @@ import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.model.util.Flags;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -63,16 +66,21 @@ import java.util.stream.IntStream;
 /**
  * Parser rule based variable definition statement context resolver.
  */
-public class ParserRuleVariableDefinitionCompletionProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
+public class VarDefContextProvider extends LSCompletionProvider {
+    public VarDefContextProvider() {
+        this.attachmentPoints.add(BallerinaParser.VariableDefinitionStatementContext.class);
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<String> poppedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
-                .map(Token::getText)
-                .collect(Collectors.toList());
+//        List<String> poppedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
+//                .map(Token::getText)
+//                .collect(Collectors.toList());
 
-        String checkOrTrapKW = this.getCheckOrTrapKeyword(poppedTokens);
+//        String checkOrTrapKW = this.getCheckOrTrapKeyword(poppedTokens);
 
         Class sorterKey;
         if (isInvocationOrInteractionOrFieldAccess(context)) {
@@ -80,7 +88,8 @@ public class ParserRuleVariableDefinitionCompletionProvider extends LSCompletion
             Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
                     SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
             completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        } else if (checkOrTrapKW.equalsIgnoreCase(ItemResolverConstants.TRAP)) {
+        }
+        /*else if (checkOrTrapKW.equalsIgnoreCase(ItemResolverConstants.TRAP)) {
             List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
             // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
             filteredList.removeIf(symbolInfo -> {
@@ -95,7 +104,7 @@ public class ParserRuleVariableDefinitionCompletionProvider extends LSCompletion
             });
             completionItems.addAll(this.getCompletionItemList(filteredList, context));
             sorterKey = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
-        } else {
+        } */else {
             sorterKey = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
             completionItems.addAll(this.getVarDefCompletionItems(context));
             try {
@@ -145,15 +154,12 @@ public class ParserRuleVariableDefinitionCompletionProvider extends LSCompletion
     }
     
     private Optional<BLangFunctionTypeNode> getFunctionTypeNode(LSContext context) throws LSCompletionException {
-        List<String> consumedTokens = CommonUtil.getPoppedTokenStrings(context);
-        String startToken = consumedTokens.get(0);
-        List<String> lastTwoTokens = consumedTokens.size() < 2 ? new ArrayList<>() :
-                consumedTokens.subList(consumedTokens.size() - 2, consumedTokens.size());
-        if (!startToken.equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)
-                || !lastTwoTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
-            return Optional.empty();
-        }
-        String combinedTokens = String.join(" ", consumedTokens) + "0;";
+        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
+        List<String> lhsTokenTextList = lhsTokens.stream()
+                .map(CommonToken::getText)
+                .collect(Collectors.toList());
+        List<String> tokensUptoAssign = lhsTokenTextList.subList(0, lhsTokenTextList.lastIndexOf("=") - 1);
+        String combinedTokens = String.join("", tokensUptoAssign) + "0;";
         String functionRule = "function testFunction () {" + CommonUtil.LINE_SEPARATOR + "\t" + combinedTokens +
                 CommonUtil.LINE_SEPARATOR + "}";
 

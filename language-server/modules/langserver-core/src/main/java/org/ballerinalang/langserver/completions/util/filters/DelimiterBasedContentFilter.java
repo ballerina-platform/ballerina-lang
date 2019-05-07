@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.langserver.completions.util.filters;
 
+import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -57,29 +59,13 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
 
     @Override
     public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSContext ctx) {
-
-        List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(ctx), 3);
-
-        String delimiter = "";
-        for (String poppedToken : poppedTokens) {
-            if (poppedToken.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
-                    || poppedToken.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
-                    || poppedToken.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)
-                    || poppedToken.equals(UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY)
-                    || poppedToken.equals(UtilSymbolKeys.BANG_SYMBOL_KEY)) {
-                delimiter = poppedToken;
-                break;
-            }
-        }
-        String symbolToken;
+        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
+        List<CommonToken> defaultTokens = lhsTokens.stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .collect(Collectors.toList());
+        String delimiter = CommonUtil.getLastItem(defaultTokens).getText();
+        String symbolToken = defaultTokens.get(defaultTokens.size() - 2).getText();
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
-        if (poppedTokens.lastIndexOf(delimiter) > 0) {
-            // get token before delimiter
-            symbolToken = poppedTokens.get(poppedTokens.lastIndexOf(delimiter) - 1);
-        } else {
-            // get token after delimiter
-            symbolToken = poppedTokens.get(poppedTokens.lastIndexOf(delimiter) + 1);
-        }
         List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         SymbolInfo symbol = FilterUtils.getVariableByName(symbolToken, visibleSymbols);
         boolean isWorkerReceive = UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY.equals(delimiter);
