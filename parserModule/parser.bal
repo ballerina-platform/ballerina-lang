@@ -92,8 +92,9 @@ type Parser object {
 		Token currToken2 = self.parserBuffer.consumeToken();
 		log:printError("unexpected Token: " + tokenNames[currToken2.tokenType]);
 		//log:printError("Expected " + tokenNames[mToken] + ";found " + tokenNames[currToken2.tokenType]);
-		return { tokenType: PARSER_ERROR_TOKEN, text: "<invalid token: " + tokenNames[currToken2.tokenType] + ">" , startPos: currToken2.startPos , endPos:currToken2.endPos,
-			lineNumber: currToken2.lineNumber, index: currToken2.index, whiteSpace: "" };
+		//return { tokenType: PARSER_ERROR_TOKEN, text: "<invalid token: " + tokenNames[currToken2.tokenType] + ">" , startPos: currToken2.startPos , endPos:currToken2.endPos,
+		//	lineNumber: currToken2.lineNumber, index: currToken2.index, whiteSpace: "" };
+		return currToken2;
 
 	}
 	//panic recovery
