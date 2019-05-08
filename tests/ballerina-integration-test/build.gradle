@@ -64,7 +64,6 @@ dependencies {
 
 
     implementation 'io.netty:netty-tcnative-boringssl-static'
-    implementation 'io.netty:netty-tcnative-boringssl-static'
     implementation 'org.slf4j:slf4j-api'
     implementation 'com.google.protobuf:protobuf-java'
     implementation 'commons-beanutils:commons-beanutils'
