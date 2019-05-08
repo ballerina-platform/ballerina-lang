@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,20 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model;
+package org.ballerinalang.jvm;
 
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.jvm.types.BStructureType;
 
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  *  This interface represents an data iterator operations.
  *  Each data source need to implement their own implementation by implementing this interface.
  *  Known implementations: {@code SQLDataIterator}
  *
- *  @since 0.8.0
+ *  @since 0.995.0
  */
 public interface DataIterator {
 
@@ -48,13 +47,11 @@ public interface DataIterator {
 
     String getBlob(int columnIndex);
 
-    BigDecimal getDecimal(int columnIndex);
-
     Object[] getStruct(int columnIndex);
 
     Object[] getArray(int columnIndex);
 
-    BMap<?, ?> generateNext();
+    Map<?, ?> generateNext();
 
     List<ColumnDefinition> getColumnDefinitions();
 

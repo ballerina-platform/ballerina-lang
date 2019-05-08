@@ -226,6 +226,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                     panic err;
                 }
+            } else if (inst is bir:NewTable) {
+                instGen.generateTableNewIns(inst);
             } else if (inst is bir:NewError) {
                 instGen.generateNewErrorIns(inst);
             } else if (inst is bir:NewInstance) {
@@ -362,8 +364,12 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "Z");
             mv.visitVarInsn(ISTORE, index);
         } else if (bType is bir:BMapType || bType is bir:BRecordType) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", MAP_VALUE));
+            mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BTableType) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", TABLE_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BArrayType ||
                     bType is bir:BTupleType) {
@@ -451,7 +457,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", MAP_VALUE));
-        } else if (bType is bir:BArrayType || 
+        } else if (bType is bir:BTableType) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", TABLE_VALUE));
+        } else if (bType is bir:BArrayType ||
                     bType is bir:BTupleType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
@@ -532,7 +542,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitEnd();
 }
 
-function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, string className, 
+function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, string className,
     string lambdaName) {
     bir:BType? lhsType;
     if (ins is bir:AsyncCall) {
@@ -552,7 +562,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         panic err;
     }
 
-   
+
     int closureMapsCount = 0;
     if (ins is bir:FPLoad) {
         closureMapsCount = ins.closureMaps.length();
@@ -645,6 +655,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
         mv.visitVarInsn(ISTORE, index);
     } else if (bType is bir:BMapType ||
                 bType is bir:BArrayType ||
+                bType is bir:BTableType ||
                 bType is bir:BErrorType ||
                 bType is bir:BTypeNil ||
                 bType is bir:BTypeAny ||
@@ -728,6 +739,8 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BFutureType) {
         return io:sprintf("L%s;", FUTURE_VALUE);
+    } else if (bType is bir:BTableType) {
+        return io:sprintf("L%s;", TABLE_VALUE);
     } else if (bType is bir:BInvokableType) {
         if (bType.retType is bir:BTypeNil) {
             return io:sprintf("L%s;", CONSUMER);
@@ -767,6 +780,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", MAP_VALUE);
     } else if (bType is bir:BErrorType) {
         return io:sprintf(")L%s;", ERROR_VALUE);
+    } else if (bType is bir:BTableType) {
+        return io:sprintf(")L%s;", TABLE_VALUE);
     } else if (bType is bir:BFutureType) {
         return io:sprintf(")L%s;", FUTURE_VALUE);
     } else if (bType is bir:BTypeDesc) {
@@ -994,6 +1009,8 @@ function castFromString(bir:BType targetType, jvm:MethodVisitor mv) {
         mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
     } else if (targetType is bir:BMapType) {
         mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    } else if (targetType is bir:BTableType) {
+        mv.visitTypeInsn(CHECKCAST, TABLE_VALUE);
     } else if (targetType is bir:BTypeAny ||
                 targetType is bir:BTypeAnyData ||
                 targetType is bir:BTypeNil ||
@@ -1170,6 +1187,8 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
         typeSig = io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BMapType) {
         typeSig = io:sprintf("L%s;", MAP_VALUE);
+    } else if (bType is bir:BTableType) {
+        typeSig = io:sprintf("L%s;", TABLE_VALUE);
     } else if (bType is bir:BRecordType) {
         typeSig = io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BArrayType ||

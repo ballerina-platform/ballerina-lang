@@ -38,7 +38,8 @@ public class BTypes {
     public static BType typeAnydata = new BAnydataType(TypeConstants.ANYDATA_TNAME, null);
     // public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, typeAny, null);
     public static BType typeTypedesc = new BTypedescType(TypeConstants.TYPEDESC_TNAME, null);
-    public static BMapType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null);
+    public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null);
+    public static BType typeTable = new BTableType(TypeConstants.TABLE_TNAME, typeAnydata, null);
     public static BType typeFuture = new BFutureType(TypeConstants.FUTURE_TNAME, null);
     public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, null);
     public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null);

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,40 +15,33 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.values;
+package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BVM;
-import org.ballerinalang.bre.bvm.BVMExecutor;
-import org.ballerinalang.model.ColumnDefinition;
-import org.ballerinalang.model.DataIterator;
-import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.types.BTableType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.util.TableIterator;
-import org.ballerinalang.util.TableProvider;
-import org.ballerinalang.util.TableUtils;
-import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.ColumnDefinition;
+import org.ballerinalang.jvm.DataIterator;
+import org.ballerinalang.jvm.TableProvider;
+import org.ballerinalang.jvm.TableUtils;
+import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.types.BTableType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.freeze.FreezeUtils;
+import org.ballerinalang.jvm.values.freeze.State;
+import org.ballerinalang.jvm.values.freeze.Status;
 
-import java.math.BigDecimal;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
-
-import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
-import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 
 /**
- * The {@code BTable} represents a two dimensional data set in Ballerina.
+ * The {@code {@link TableValue}} represents a two dimensional data set in Ballerina.
  *
- * @since 0.8.0
+ * @since 0.995.0
  */
-public class BTable implements BRefType<Object>, BCollection {
+public class TableValue implements RefValue, CollectionValue {
 
     protected DataIterator iterator;
     private boolean hasNextVal;
@@ -56,13 +49,13 @@ public class BTable implements BRefType<Object>, BCollection {
     private TableProvider tableProvider;
     private String tableName;
     private BStructureType constraintType;
-    private BValueArray primaryKeys;
-    private BValueArray indices;
+    private ArrayValue primaryKeys;
+    private ArrayValue indices;
     private boolean tableClosed;
-    private volatile BVM.FreezeStatus freezeStatus = new BVM.FreezeStatus(BVM.FreezeStatus.State.UNFROZEN);
+    private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private BType type;
 
-    public BTable() {
+    public TableValue() {
         this.iterator = null;
         this.tableProvider = null;
         this.nextPrefetched = false;
@@ -71,20 +64,20 @@ public class BTable implements BRefType<Object>, BCollection {
         this.type = BTypes.typeTable;
     }
 
-    public BTable(String tableName, BStructureType constraintType) {
+    public TableValue(String tableName, BStructureType constraintType) {
         this(constraintType);
         this.tableName = tableName;
     }
 
-    public BTable(BStructureType constraintType) {
+    public TableValue(BStructureType constraintType) {
         this.nextPrefetched = false;
         this.hasNextVal = false;
         this.constraintType = constraintType;
         this.type = new BTableType(constraintType);
     }
 
-    public BTable(String query, BTable fromTable, BTable joinTable,
-                  BStructureType constraintType, BValueArray params) {
+    public TableValue(String query, TableValue fromTable, TableValue joinTable,
+                      BStructureType constraintType, ArrayValue params) {
         this.tableProvider = TableProvider.getInstance();
         if (!fromTable.isInMemoryTable()) {
             throw new BallerinaException(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
@@ -96,7 +89,7 @@ public class BTable implements BRefType<Object>, BCollection {
                                              "Table query over a cursor table not supported");
             }
             this.tableName = tableProvider.createTable(fromTable.tableName, joinTable.tableName, query,
-                    constraintType, params);
+                                                       constraintType, params);
         } else {
             this.tableName = tableProvider.createTable(fromTable.tableName, query, constraintType, params);
         }
@@ -104,7 +97,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.type = new BTableType(constraintType);
     }
 
-    public BTable(BType type, BValueArray indexColumns, BValueArray keyColumns, BValueArray dataRows) {
+    public TableValue(BType type, ArrayValue indexColumns, ArrayValue keyColumns, ArrayValue dataRows) {
         //Create table with given constraints.
         BType constrainedType = ((BTableType) type).getConstrainedType();
         this.tableProvider = TableProvider.getInstance();
@@ -119,12 +112,6 @@ public class BTable implements BRefType<Object>, BCollection {
         }
     }
 
-    @Override
-    public Object value() {
-        return null;
-    }
-
-    @Override
     public String stringValue() {
         String constraint = constraintType != null ? "<" + constraintType.toString() + ">" : "";
         StringBuilder tableWrapper = new StringBuilder("table" + constraint + " ");
@@ -137,10 +124,10 @@ public class BTable implements BRefType<Object>, BCollection {
         return tableWrapper.toString();
     }
 
-    private String createStringValueEntry(String key, BValueArray contents) {
+    private String createStringValueEntry(String key, ArrayValue contents) {
         String stringValue = "[]";
         if (contents != null) {
-            stringValue = contents.stringValue();
+            stringValue = contents.toString();
         }
         return key + ": " + stringValue;
     }
@@ -150,8 +137,8 @@ public class BTable implements BRefType<Object>, BCollection {
         sb.append("data: ");
         StringJoiner sj = new StringJoiner(", ", "[", "]");
         while (hasNext()) {
-            BMap<?, ?> struct = getNext();
-            sj.add(struct.stringValue());
+            MapValue<?, ?> struct = getNext();
+            sj.add(struct.toString());
         }
         sb.append(sj.toString());
         return sb.toString();
@@ -163,7 +150,7 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     @Override
-    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
+    public void stamp(BType type) {
 
     }
 
@@ -214,87 +201,51 @@ public class BTable implements BRefType<Object>, BCollection {
         resetIterationHelperAttributes();
     }
 
-    public BMap<String, BValue> getNext() {
+    public MapValue<String, Object> getNext() {
         // Make next row the current row
         moveToNext();
         // Create BStruct from current row
-        return (BMap<String, BValue>) iterator.generateNext();
+        return (MapValue<String, Object>) iterator.generateNext();
     }
 
     /**
      * Performs addition of a record to the database.
      *
      * @param data    The record to be inserted
-     * @param context The context which represents the runtime state of the program that called "table.add"
+     * @return error if something goes wrong
      */
-    public void performAddOperation(BMap<String, BValue> data, Context context) {
+    public Object performAddOperation(MapValue<String, Object> data) {
         synchronized (this) {
-            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
+            if (freezeStatus.getState() != State.UNFROZEN) {
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
             }
         }
 
         try {
-            this.addData(data, context);
+            this.addData(data);
+            return null;
         } catch (Throwable e) {
-            context.setReturnValues(TableUtils.createTableOperationError(context, e));
+            return TableUtils.createTableOperationError(e);
         }
     }
 
-    public void addData(BMap<String, BValue> data, Context context) {
+    public void addData(MapValue<String, Object> data) {
         if (data.getType() != this.constraintType) {
             throw new BallerinaException("incompatible types: record of type:" + data.getType().getName()
-                    + " cannot be added to a table with type:" + this.constraintType.getName());
+                                         + " cannot be added to a table with type:" + this.constraintType.getName());
         }
         tableProvider.insertData(tableName, data);
         reset();
     }
 
-    public void addData(BMap<String, BValue> data) {
-        addData(data, null);
-    }
-
-    /**
-     * Performs Removal of records matching the condition defined by the provided lambda function.
-     *
-     * @param context        The context which represents the runtime state of the program that called "table.remove"
-     * @param lambdaFunction The function that decides the condition of data removal
-     */
-    public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
+    //TODO : to be implemented
+    public Object performRemoveOperation() {
         synchronized (this) {
-            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
+            if (freezeStatus.getState() != State.UNFROZEN) {
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
             }
         }
-
-        try {
-            BType functionInputType = ((BFunctionType) lambdaFunction.type).paramTypes[0];
-            if (functionInputType != this.constraintType) {
-                throw new BallerinaException("incompatible types: function with record type:"
-                        + functionInputType.getName() + " cannot be used to remove records from a table with type:"
-                        + this.constraintType.getName());
-            }
-
-            FunctionInfo functionInfo = lambdaFunction.value();
-            int deletedCount = 0;
-            List<BValue> fnArgs = lambdaFunction.getClosureVars().stream()
-                    .map(BClosure::value).collect(Collectors.toList());
-            while (this.hasNext()) {
-                BMap<String, BValue> data = this.getNext();
-                fnArgs.add(data);
-                BValue[] returns = BVMExecutor.executeFunction(functionInfo.getPackageInfo().getProgramFile(),
-                                                               functionInfo, fnArgs.toArray(new BValue[0]));
-                if (((BBoolean) returns[0]).booleanValue()) {
-                    ++deletedCount;
-                    tableProvider.deleteData(tableName, data);
-                }
-                fnArgs.remove(fnArgs.size() - 1);
-            }
-            context.setReturnValues(new BInteger(deletedCount));
-            reset();
-        } catch (Throwable e) {
-            context.setReturnValues(TableUtils.createTableOperationError(context, e));
-        }
+        return TableUtils.createTableOperationError(new Exception("Remove operation is not supported yet"));
     }
 
     public String getString(int columnIndex) {
@@ -307,10 +258,6 @@ public class BTable implements BRefType<Object>, BCollection {
 
     public Double getFloat(int columnIndex) {
         return iterator.getFloat(columnIndex);
-    }
-
-    public BigDecimal getDecimal(int columnIndex) {
-        return iterator.getDecimal(columnIndex);
     }
 
     public Boolean getBoolean(int columnIndex) {
@@ -338,7 +285,7 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     @Override
-    public BValue copy(Map<BValue, BValue> refs) {
+    public Object copy(Map<Object, Object> refs) {
         if (tableClosed) {
             throw new BallerinaException("Trying to invoke clone built-in method over a closed table");
         }
@@ -352,13 +299,13 @@ public class BTable implements BRefType<Object>, BCollection {
         }
 
         TableIterator cloneIterator = tableProvider.createIterator(this.tableName, this.constraintType);
-        BValueArray data = new BValueArray();
+        ArrayValue data = new ArrayValue();
         int cursor = 0;
         try {
             while (cloneIterator.next()) {
                 data.add(cursor++, cloneIterator.generateNext());
             }
-            BTable table = new BTable(new BTableType(constraintType), this.indices, this.primaryKeys, data);
+            TableValue table = new TableValue(new BTableType(constraintType), this.indices, this.primaryKeys, data);
             refs.put(this, table);
             return table;
         } finally {
@@ -367,8 +314,8 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     @Override
-    public BIterator newIterator() {
-        return new BTable.BTableIterator(this);
+    public Iterator newIterator() {
+        return new TableValueIterator(this);
     }
 
     private void generateIterator() {
@@ -386,17 +333,17 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     @Override
-    protected void finalize() {
+    public void finalize() {
         if (this.iterator != null) {
             this.iterator.close();
         }
         tableProvider.dropTable(this.tableName);
     }
 
-    private void insertInitialData(BValueArray data) {
-        int count = (int) data.size();
+    private void insertInitialData(ArrayValue data) {
+        int count = data.size();
         for (int i = 0; i < count; i++) {
-            addData((BMap<String, BValue>) data.getRefValue(i));
+            addData((MapValue<String, Object>) data.getRefValue(i));
         }
     }
 
@@ -428,20 +375,13 @@ public class BTable implements BRefType<Object>, BCollection {
      *
      * @since 0.961.0
      */
-    private static class BTableIterator<K, V extends BValue> implements BIterator {
+    //TODO : copy and stamp to be implemented
+    private static class TableValueIterator implements Iterator {
 
-        private BTable table;
+        private TableValue table;
 
-        BTableIterator(BTable value) {
+        TableValueIterator(TableValue value) {
             table = value;
-        }
-
-        @Override
-        public BValue getNext() {
-            if (hasNext()) {
-                return table.getNext();
-            }
-            return null;
         }
 
         @Override
@@ -450,8 +390,11 @@ public class BTable implements BRefType<Object>, BCollection {
         }
 
         @Override
-        public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-
+        public Object next() {
+            if (hasNext()) {
+                return table.getNext();
+            }
+            return null;
         }
     }
 
@@ -467,8 +410,8 @@ public class BTable implements BRefType<Object>, BCollection {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
-        if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+    public synchronized void attemptFreeze(Status freezeStatus) {
+        if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
         }
     }

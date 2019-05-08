@@ -435,6 +435,8 @@ public type FuncBodyParser object {
             kind = BINARY_MUL;
         } else if (kindTag == INS_DIV){
             kind = BINARY_DIV;
+        } else if (kindTag == INS_MOD){
+            kind = BINARY_MOD;
         } else if (kindTag == INS_EQUAL){
             kind = BINARY_EQUAL;
         } else if (kindTag == INS_NOT_EQUAL){
