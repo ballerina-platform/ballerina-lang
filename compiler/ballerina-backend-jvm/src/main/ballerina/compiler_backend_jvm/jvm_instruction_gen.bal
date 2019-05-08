@@ -71,6 +71,8 @@ type InstructionGenerator object {
             self.generateDivIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_MUL) {
             self.generateMulIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_MOD) {
+            self.generateRemIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_AND) {
             self.generateAndIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_OR) {
@@ -265,6 +267,21 @@ type InstructionGenerator object {
             panic err;
         }
         self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateRemIns(bir:BinaryOp binaryIns) {
+            bir:BType bType = binaryIns.lhsOp.typeValue;
+            self.generateBinaryRhsAndLhsLoad(binaryIns);
+            if (bType is bir:BTypeInt) {
+                self.mv.visitInsn(LREM);
+            } else if (bType is bir:BTypeFloat) {
+                self.mv.visitInsn(DREM);
+            } else {
+                error err = error( "JVM generation is not supported for type " +
+                                io:sprintf("%s", binaryIns.lhsOp.typeValue));
+                panic err;
+            }
+            self.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
     function generateAndIns(bir:BinaryOp binaryIns) {
