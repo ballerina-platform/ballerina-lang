@@ -205,7 +205,6 @@ public class FileSystemTest {
         Path filepath = Paths.get("src", "test", "resources", "data-files", "src-dir");
         BValue[] args = {new BString(filepath.toString())};
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDir", args);
-        assertEquals(returns.length, 3, "Incorrect result count");
         assertTrue(returns[0].getType() instanceof BObjectType);
     }
 
