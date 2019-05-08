@@ -3707,6 +3707,10 @@ public class BVM {
 
     private static boolean checkObjectEquivalency(BStructureType rhsType, BStructureType lhsType,
                                                  List<TypePair> unresolvedTypes) {
+        if (lhsType.getFields().values().stream().anyMatch(field -> Flags.isFlagOn(field.flags, Flags.PRIVATE))) {
+            return false;
+        }
+
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(rhsType, lhsType);
@@ -3715,14 +3719,8 @@ public class BVM {
         }
         unresolvedTypes.add(pair);
 
-        // Adjust the number of the attached functions of the lhs struct based on
-        //  the availability of the initializer function.
-        int lhsAttachedFunctionCount = lhsType.initializer != null ?
-                lhsType.getAttachedFunctions().length - 1 :
-                lhsType.getAttachedFunctions().length;
-
         if (lhsType.getFields().size() > rhsType.getFields().size() ||
-                lhsAttachedFunctionCount > rhsType.getAttachedFunctions().length) {
+                lhsType.getAttachedFunctions().length > rhsType.getAttachedFunctions().length) {
             return false;
         }
 
@@ -3730,7 +3728,10 @@ public class BVM {
 
         for (BField lhsField : lhsType.getFields().values()) {
             BField rhsField = rhsFields.get(lhsField.fieldName);
-            if (rhsField == null || !hasSameOrGreaterVisibility(lhsField.flags, rhsField.flags) ||
+            if (rhsField == null || !hasSameVisibility(
+                    Optional.ofNullable(lhsField.fieldType.getPackagePath()).orElse(""),
+                    Optional.ofNullable(rhsField.fieldType.getPackagePath()).orElse(""), lhsField.flags,
+                    rhsField.flags) ||
                     !checkIsType(rhsField.fieldType, lhsField.fieldType, new ArrayList<>())) {
                 return false;
             }
@@ -3744,7 +3745,9 @@ public class BVM {
             }
 
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || !hasSameOrGreaterVisibility(lhsFunc.flags, rhsFunc.flags)) {
+            if (rhsFunc == null || !hasSameVisibility(Optional.ofNullable(lhsFunc.type.getPackagePath()).orElse(""),
+                                                      Optional.ofNullable(rhsFunc.type.getPackagePath()).orElse(""),
+                                                      lhsFunc.flags, rhsFunc.flags)) {
                 return false;
             }
         }
@@ -3782,13 +3785,14 @@ public class BVM {
         return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
-    private static boolean hasSameOrGreaterVisibility(int lhsFlags, int rhsFlags) {
+    private static boolean hasSameVisibility(String lhsTypePkg, String rhsTypePkg, int lhsFlags, int rhsFlags) {
         if (Flags.isFlagOn(lhsFlags, Flags.PRIVATE)) {
-            return true;
+            return lhsTypePkg.equals(rhsTypePkg);
         } else if (Flags.isFlagOn(lhsFlags, Flags.PUBLIC)) {
             return Flags.isFlagOn(rhsFlags, Flags.PUBLIC);
         }
-        return !Flags.isFlagOn(rhsFlags, Flags.PRIVATE);
+        return !Flags.isFlagOn(rhsFlags, Flags.PRIVATE) && !Flags.isFlagOn(rhsFlags, Flags.PUBLIC) &&
+                lhsTypePkg.equals(rhsTypePkg);
     }
 
     private static boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType,

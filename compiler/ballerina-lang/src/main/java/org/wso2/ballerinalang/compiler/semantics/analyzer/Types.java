@@ -764,22 +764,29 @@ public class Types {
             return false;
         }
 
+        if (lhsType.getFields().stream().anyMatch(field -> Symbols.isPrivate(field.symbol))) {
+            return false;
+        }
+
         Map<Name, BField> rhsFields =
                 rhsType.fields.stream().collect(Collectors.toMap(BField::getName, field -> field));
 
         for (BField lhsField : lhsType.fields) {
             BField rhsField = rhsFields.get(lhsField.name);
-            if (rhsField == null || !hasSameOrGreaterVisibility(lhsField.symbol, rhsField.symbol)
+            if (rhsField == null || !hasSameVisibility(lhsField.symbol, rhsField.symbol)
                     || !isAssignable(rhsField.type, lhsField.type)) {
                 return false;
             }
         }
 
-        BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
+        BObjectTypeSymbol lhsStructSymbol = (BObjectTypeSymbol) lhsType.tsymbol;
+        BObjectTypeSymbol rhsStructSymbol = (BObjectTypeSymbol) rhsType.tsymbol;
         List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = ((BStructureTypeSymbol) rhsType.tsymbol).attachedFuncs;
-        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
-        if (lhsAttachedFuncCount > rhsFuncs.size()) {
+        List<BAttachedFunction> rhsFuncs = ((BObjectTypeSymbol) rhsType.tsymbol).attachedFuncs;
+        int lhsAttachedFuncCount = getObjectFuncCount(lhsStructSymbol);
+        int rhsAttachedFuncCount = getObjectFuncCount(rhsStructSymbol);
+
+        if (lhsAttachedFuncCount > rhsAttachedFuncCount) {
             return false;
         }
 
@@ -789,12 +796,22 @@ public class Types {
             }
 
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || !hasSameOrGreaterVisibility(lhsFunc.symbol, rhsFunc.symbol)) {
+            if (rhsFunc == null || !hasSameVisibility(lhsFunc.symbol, rhsFunc.symbol)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    private int getObjectFuncCount(BObjectTypeSymbol sym) {
+        // If an explicit initializer is available, it could mean,
+        // 1) User explicitly defined an initializer
+        // 2) The object type is coming from an already compiled source, hence the initializer is already set
+        if (sym.initializerFunc != null && sym.attachedFuncs.contains(sym.initializerFunc)) {
+            return sym.attachedFuncs.size();
+        }
+        return sym.attachedFuncs.size() + 1;
     }
 
     public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType, List<TypePair> unresolvedTypes) {
@@ -1628,13 +1645,13 @@ public class Types {
                 .orElse(null);
     }
 
-    private boolean hasSameOrGreaterVisibility(BSymbol lhsSym, BSymbol rhsSym) {
+    private boolean hasSameVisibility(BSymbol lhsSym, BSymbol rhsSym) {
         if (Symbols.isPrivate(lhsSym)) {
-            return true;
+            return Symbols.isPrivate(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID) && lhsSym.name.equals(rhsSym.name);
         } else if (Symbols.isPublic(lhsSym)) {
             return Symbols.isPublic(rhsSym);
         }
-        return !Symbols.isPrivate(rhsSym);
+        return !Symbols.isPrivate(rhsSym) && !Symbols.isPublic(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID);
     }
 
     private boolean isAssignableToUnionType(BType source, BType target, List<TypePair> unresolvedTypes) {
