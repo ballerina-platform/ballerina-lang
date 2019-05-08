@@ -119,7 +119,25 @@ function testBinaryExprValid(){
 	boolean comparison = actual == expected;
 	test:assertTrue(comparison, msg = "AssertTrue failed");
 }
+@test:Config
+function testUnaryExprValid(){
+	json actual = parseAst("parserModule/tests/resources/expression/unaryExpression/valid_unary_expression.txt");
+	json expected = validUnaryExpr();
+	boolean comparison = actual == expected;
+	test:assertTrue(comparison, msg = "AssertTrue failed");
 
+	json actual2 = parseAst("parserModule/tests/resources/expression/unaryExpression/unary_multiple_operators.txt");
+	json expected2 = multipleUnaryOperators();
+	boolean comparison2 = actual2 == expected2;
+	test:assertTrue(comparison2, msg = "AssertTrue failed");
+}
+@test:Config
+function testUnaryExprInvalid(){
+	json actual = parseAst("parserModule/tests/resources/expression/unaryExpression/unary_invalid_operator.txt");
+	json expected = invalidUnaryOperator();
+	boolean comparison = actual == expected;
+	test:assertTrue(comparison, msg = "AssertTrue failed");
+}
 
 
 
