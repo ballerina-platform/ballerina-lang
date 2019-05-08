@@ -31,7 +31,6 @@ import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -313,8 +312,9 @@ public class TableValue implements RefValue, CollectionValue {
         }
     }
 
+
     @Override
-    public Iterator newIterator() {
+    public IteratorValue getIterator() {
         return new TableValueIterator(this);
     }
 
@@ -376,7 +376,7 @@ public class TableValue implements RefValue, CollectionValue {
      * @since 0.961.0
      */
     //TODO : copy and stamp to be implemented
-    private static class TableValueIterator implements Iterator {
+    private static class TableValueIterator implements IteratorValue {
 
         private TableValue table;
 

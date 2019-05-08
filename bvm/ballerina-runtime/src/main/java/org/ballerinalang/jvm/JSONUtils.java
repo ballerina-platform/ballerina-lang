@@ -18,8 +18,6 @@
 
 package org.ballerinalang.jvm;
 
-import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.om.OMFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BJSONType;
