@@ -27,7 +27,6 @@
     <div class="fourteen wide column content-wrapper">
         <div class="main-wrapper">
             <h1>Clients : <span class="clients">{{ client.name }}</span> </h1>
-            <div class="ui divider"></div>
             <p>{{{ client.description }}}</p>
 
             <div class="constants">
@@ -39,37 +38,31 @@
 
                 {{#if client.remoteMethods }}
                     <h2>Remote Methods</h2>
-                    <div class="ui divider"></div>
                     <div class="method-list">
                         {{#each client.remoteMethods}}
                             {{> methodSignature }}
                         {{/each}}
                     </div>
-                    <div class="ui divider"></div>
                 {{/if}}
 
                 {{#if client.otherMethods}}
                     <h2>Methods</h2>
-                    <div class="ui divider"></div>
                     <div class="method-list">
                         {{#each client.otherMethods}}
                             {{> methodSignature }}
                         {{/each}}
                     </div>
-                    <div class="ui divider"></div>
                 {{/if}}
-
-                {{#if client.fields}}
-                    <h2>Fields</h2>
-                    <div class="ui divider"></div>
-                    {{#each client.fields}}
-                        {{> field }}
-                    {{/each}}
+                
+                <h2>Fields</h2>
+                    {{#if client}}
+                    {{#client}}    
+                        {{> fields }}
+                    {{/client}}
                 {{/if}}
 
                 {{#if client.remoteMethods }}
                     <h2>Remote Methods</h2>
-                    <div class="ui divider"></div>
                     {{#each client.remoteMethods }}
                         {{> method }}
                     {{/each}}
@@ -77,13 +70,11 @@
 
                 {{#if client.otherMethods }}
                     <h2>Methods</h2>
-                    <div class="ui divider"></div>
                     {{#each client.otherMethods }}
                         {{> method }}
                     {{/each}}
                 {{/if}}
             </div>
-            <div class="ui divider"></div>
         </div>
     </div>
 </div>

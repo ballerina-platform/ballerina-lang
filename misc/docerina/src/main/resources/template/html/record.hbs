@@ -27,37 +27,15 @@
     <div class="fourteen wide column content-wrapper">
         <div class="main-wrapper">
             <h1>Record : <span class="records">{{ record.name }}</span></h1>
-            <div class="ui divider"></div>
 
             <p>{{{ record.description }}}</p>
-
-            <h2>Fields</h2>
-            <div class="ui divider"></div>
             <div class="constants">
-                <table class="ui table">
-                    <thead>
-                    <tr>
-                        <th>Field Name</th>
-                        <th>Data Type</th>
-                        <th>Default Value</th>
-                        <th>Description</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {{#if record}}
-                        {{#record}}
-                            {{#each fields}}
-                                <tr>
-                                    <td>{{ name }}</td>
-                                    <td>{{{ typeName type }}}</td>
-                                    <td>{{ defaultValue }}</td>
-                                    <td>{{{ description }}}</td>
-                                </tr>
-                            {{/each}}
-                        {{/record}}
-                    {{/if}}
-                    </tbody>
-                </table>
+                {{#if record}}
+                    {{#record}}
+                        <h2>Fields</h2>
+                            {{> fields }}
+                    {{/record}}
+                {{/if}}
             </div>
             <div class="ui divider"></div>
         </div>

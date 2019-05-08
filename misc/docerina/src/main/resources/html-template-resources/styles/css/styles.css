@@ -86,8 +86,12 @@ body .ui.grid .content-wrapper .main-wrapper {
   width: 750px;
   margin: 20px 30px;
 }
-body .ui.grid .content-wrapper .main-wrapper .module-wrapper h2:first-of-type {
+body .ui.grid .content-wrapper .main-wrapper.module-wrapper h2:first-of-type {
   border-bottom: 0;
+}
+body .ui.grid .content-wrapper .main-wrapper h1 {
+  border-bottom: 1px solid #dededf;
+  line-height: 2em;
 }
 body .ui.grid .content-wrapper .main-wrapper h2 {
   border-bottom: 1px solid #dededf;
@@ -187,6 +191,7 @@ body .ui.grid .content-wrapper .ui.table tr td th {
   background: none;
   border-top: 1px solid #e8e9e9;
   border-radius: 0;
+  font-weight: 500;
 }
 body .ui.grid .content-wrapper .ui.table tr,
 body .ui.grid .content-wrapper .ui.table tr td tr {
@@ -287,6 +292,10 @@ body .ui.grid .content-wrapper .constants .method-list {
 }
 body .ui.grid .content-wrapper .constants .method-list p {
   line-height: 30px;
+}
+body .ui.grid .content-wrapper .constants .method-list a {
+  color: #464646;
+  font-weight: 500;
 }
 body .ui.grid .content-wrapper .constants .method-content {
   margin: 20px 0;

@@ -8,12 +8,13 @@
     </tr>
     </thead>
     <tbody>
-    <tr>
-        <td>{{ name }}</td>
-        <td>{{{ typeName type }}}</td>
-        <td>{{ defaultValue }}</td>
-        <td>{{{ description }}}</td>
-    </tr>
+        {{#each fields}}
+        <tr>
+            <td>{{ name }}</td>
+            <td>{{ type.name }}</td>
+            <td>{{ defaultValue }}</td>
+            <td>{{{ description }}}</td>
+        </tr>
+        {{/each}}
     </tbody>
 </table>
-<div class="ui divider"></div>

@@ -26,8 +26,7 @@
 
     <div class="fourteen wide column content-wrapper">
         <div class="main-wrapper">
-            <h1>Objects : <span class="objects">{{ object.name }}</span> </h1>
-            <div class="ui divider"></div>
+            <h1>Object : <span class="objects">{{ object.name }}</span> </h1>
             <p>{{{ object.description }}}</p>
 
             <div class="constants">
@@ -39,32 +38,27 @@
 
                 {{#if object.otherMethods}}
                     <h2>Methods</h2>
-                    <div class="ui divider"></div>
                     <div class="method-list">
                         {{#each object.otherMethods}}
                             {{> methodSignature }}
                         {{/each}}
                     </div>
-                    <div class="ui divider"></div>
                 {{/if}}
 
                 {{#if object.fields}}
-                    <h2>Fields</h2>
-                    <div class="ui divider"></div>
                     {{#each object.fields}}
-                        {{> field }}
+                        <h2>Fields</h2>
+                            {{> fields }}
                     {{/each}}
                 {{/if}}
 
                 {{#if object.otherMethods }}
                     <h2>Methods</h2>
-                    <div class="ui divider"></div>
                     {{#each object.otherMethods }}
                         {{> method }}
                     {{/each}}
                 {{/if}}
             </div>
-            <div class="ui divider"></div>
         </div>
     </div>
 </div>
