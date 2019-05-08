@@ -18,10 +18,9 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-    implementation 'org.ballerinalang:ballerina-core:0.992.0-m1'
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     baloCreat project(':lib-creator-milestone')
-//    implementation project(':ballerina-core')
+    implementation project(':ballerina-core')
 //    implementation project(':ballerina-lang')
     implementation project(':ballerina-io')
     implementation project(':ballerina-builtin')

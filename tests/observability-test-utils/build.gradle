@@ -19,10 +19,9 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
-    shadow 'org.ballerinalang:ballerina-core:0.992.0-m1'
     shadow 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     baloCreat project(':lib-creator-milestone')
-//    shadow project(':ballerina-core')
+    shadow project(':ballerina-core')
 //    shadow project(':lib-creator')
 //    shadow project(':ballerina-lang')
     shadow project(':ballerina-builtin')
