@@ -143,6 +143,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -2607,11 +2608,23 @@ public class TypeChecker extends BLangNodeVisitor {
         recordType.sealed = targetErrorDetailsType.sealed;
         recordType.restFieldType = targetErrorDetailsType.restFieldType;
 
+        Set<Name> availableErrorDetailFields = new HashSet<>();
         for (BLangNamedArgsExpression arg : namedArgs) {
-            BField field = new BField(names.fromIdNode(arg.name), arg.pos,
-                    new BVarSymbol(0, names.fromIdNode(arg.name), null, arg.type, null));
+            Name fieldName = names.fromIdNode(arg.name);
+            BField field = new BField(fieldName, arg.pos, new BVarSymbol(0, fieldName, null, arg.type, null));
             recordType.fields.add(field);
+            availableErrorDetailFields.add(fieldName);
         }
+
+        for (BField field : targetErrorDetailsType.fields) {
+            boolean notRequired = (field.symbol.flags & Flags.REQUIRED) != Flags.REQUIRED;
+            if (notRequired && !availableErrorDetailFields.contains(field.name)) {
+                BField defaultableField = new BField(field.name, iExpr.pos,
+                        new BVarSymbol(0, field.name, null, field.type, null));
+                recordType.fields.add(defaultableField);
+            }
+        }
+
         return recordType;
     }
 
