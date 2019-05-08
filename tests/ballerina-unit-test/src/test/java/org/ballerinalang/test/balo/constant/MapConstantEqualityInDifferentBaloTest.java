@@ -40,7 +40,7 @@ public class MapConstantEqualityInDifferentBaloTest {
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "bar");
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/" +
-                "map-literal-constant-equality-different-modules.bal");
+                "map-constant-equality-different-modules.bal");
     }
 
     // boolean type.

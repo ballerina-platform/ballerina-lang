@@ -12,16 +12,16 @@ public const map<map<boolean>> bm8 = { "key5": { "key1": true, "key2": false }, 
 
 // -----------------------------------------------------------
 
-public const map<map<int>> im3 = { "key5": im1, "key6": im2, "key7:": { "key8": 8, "key9": 9 }};
+public const map<map<int>> im3 = { "key5": im1, "key6": im2, "key7": { "key8": 8, "key9": 9 }};
 public const map<int> im1 = { "key1": 1, "key2": 2 };
 public const map<int> im2 = { "key3": 3, "key4": 4 };
 
-public const map<map<int>> im3_new = { "key5": im1_new, "key6": im2_new, "key7:": { "key8": 8, "key9": 9 }};
+public const map<map<int>> im3_new = { "key5": im1_new, "key6": im2_new, "key7": { "key8": 8, "key9": 9 }};
 public const map<int> im1_new = { "key1": 1, "key2": 2 };
 public const map<int> im2_new = { "key3": 3, "key4": 4 };
 
-public const map<map<int>> im7 = { "key5": { "key1": 1, "key2": 2 }, "key6": { "key3": 3, "key4": 4 }, "key7:": { "key8": 8, "key9": 9 }};
-public const map<map<int>> im8 = { "key5": { "key1": 1, "key2": 2 }, "key6": { "key3": 3, "key4": 4 }, "key7:": { "key8": 8, "key9": 9 }};
+public const map<map<int>> im7 = { "key5": { "key1": 1, "key2": 2 }, "key6": { "key3": 3, "key4": 4 }, "key7": { "key8": 8, "key9": 9 }};
+public const map<map<int>> im8 = { "key5": { "key1": 1, "key2": 2 }, "key6": { "key3": 3, "key4": 4 }, "key7": { "key8": 8, "key9": 9 }};
 
 // -----------------------------------------------------------
 
