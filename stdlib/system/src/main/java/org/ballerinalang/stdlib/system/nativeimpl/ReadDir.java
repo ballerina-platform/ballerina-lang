@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
@@ -62,17 +62,20 @@ public class ReadDir extends BlockingNativeCallableUnit {
         }
 
         if (!inputFile.isDirectory()) {
-            context.setReturnValues(SystemUtils.getBallerinaError("INVALID_OPERATION", "File in path " +
-                    " working directory " + inputPath + " is not a directory"));
+            context.setReturnValues(SystemUtils.getBallerinaError("INVALID_OPERATION", "File in path " + inputPath +
+                    " is not a directory"));
+            return;
         }
+        BMap[] results = null;
         try (Stream<Path> walk = Files.walk(inputFile.toPath())) {
-            context.setReturnValues(new BValueArray((BRefType<?>[]) walk.map(x -> {
+            results = walk.map(x -> {
                 try {
                     return getFileInfo(context, x.toFile());
                 } catch (IOException e) {
                     throw new BallerinaException("Error while accessing file info", e);
                 }
-            }).toArray(), BTypes.typeMap));
+            }).toArray(BMap[]::new);
+            context.setReturnValues(new BValueArray(results, BTypes.typeMap));
         } catch (IOException | BallerinaException ex) {
             context.setReturnValues(SystemUtils.getBallerinaError("OPERATION_FAILED", ex));
         } catch (SecurityException ex) {

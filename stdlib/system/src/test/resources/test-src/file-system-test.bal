@@ -20,34 +20,34 @@ function testGetTempDir() returns string {
     return system:tempDir();
 }
 
-function testRename(string oldpath, string newpath) {
-    checkpanic system:rename(oldpath, newpath);
+function testRename(string oldpath, string newpath) returns error? {
+    return system:rename(oldpath, newpath);
 }
 
-function testRemove(string path, boolean recursive) {
-    checkpanic system:remove(path, recursive = recursive);
+function testRemove(string path, boolean recursive) returns error? {
+    return system:remove(path, recursive = recursive);
 }
 
-function testReadDir(string path) returns system:FileInfo[] {
-    return checkpanic system:readDir(path);
+function testReadDir(string path) returns system:FileInfo[]|error {
+    return system:readDir(path);
 }
 
-function testGetFileInfo(string path) returns system:FileInfo {
-    return checkpanic system:getFileInfo(path);
+function testGetFileInfo(string path) returns system:FileInfo|error {
+    return system:getFileInfo(path);
 }
 
 function testFileExists(string path) returns boolean {
     return system:exists(path);
 }
 
-function testCreateFile(string path) returns string {
-    return checkpanic system:createFile(path);
+function testCreateFile(string path) returns string|error {
+    return system:createFile(path);
 }
 
-function testCreateDir(string dir, boolean parentDirs) {
-    checkpanic system:createDir(dir, parentDirs = parentDirs);
+function testCreateDir(string dir, boolean parentDirs) returns error? {
+    return system:createDir(dir, parentDirs = parentDirs);
 }
 
-function testCopy(string sourcePath, string destinationPath, boolean replaceExisting) {
-    checkpanic system:copy(sourcePath, destinationPath, replaceExisting = true);
+function testCopy(string sourcePath, string destinationPath, boolean replaceExisting) returns error? {
+    return system:copy(sourcePath, destinationPath, replaceExisting = replaceExisting);
 }

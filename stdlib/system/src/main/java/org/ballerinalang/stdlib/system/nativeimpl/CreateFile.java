@@ -58,7 +58,7 @@ public class CreateFile extends BlockingNativeCallableUnit {
         } catch (FileAlreadyExistsException e) {
             String msg = "File already exists. Failed to create the file: " + inputPath;
             log.error(msg, e);
-            context.setReturnValues(getBallerinaError("FILE_SYSTEM_ERROR", msg));
+            context.setReturnValues(getBallerinaError("INVALID_OPERATION", msg));
         } catch (SecurityException e) {
             String msg = "Permission denied. Failed to create the file: " + inputPath;
             log.error(msg, e);

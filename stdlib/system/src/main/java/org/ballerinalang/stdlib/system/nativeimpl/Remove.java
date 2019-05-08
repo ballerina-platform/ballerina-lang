@@ -74,7 +74,7 @@ public class Remove extends BlockingNativeCallableUnit {
             } else {
                 if (!removeFile.delete()) {
                     context.setReturnValues(SystemUtils.getBallerinaError("OPERATION_FAILED",
-                            "Error while deleting " + wd.getCanonicalPath()));
+                            "Error while deleting " + removeFile.getCanonicalPath()));
                     return;
                 }
             }

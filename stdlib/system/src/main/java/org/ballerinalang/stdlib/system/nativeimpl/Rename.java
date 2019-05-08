@@ -26,6 +26,7 @@ import org.ballerinalang.stdlib.system.utils.SystemUtils;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -43,15 +44,24 @@ public class Rename extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String currentPath = context.getStringArgument(0);
-        String newPath = context.getStringArgument(1);
+        String currentPathValue = context.getStringArgument(0);
+        Path currentPath = Paths.get(currentPathValue);
+
+        String newPathValue = context.getStringArgument(1);
+        Path newPath = Paths.get(newPathValue);
+
+        if (Files.notExists(currentPath)) {
+            context.setReturnValues(SystemUtils.getBallerinaError("INVALID_OPERATION",
+                    "File doesn't exist in path " + currentPath.toAbsolutePath()));
+            return;
+        }
 
         try {
-            Files.move(Paths.get(currentPath).toAbsolutePath(), Paths.get(newPath).toAbsolutePath());
+            Files.move(currentPath.toAbsolutePath(), newPath.toAbsolutePath());
             context.setReturnValues();
         } catch (FileAlreadyExistsException e) {
             context.setReturnValues(SystemUtils.getBallerinaError("OPERATION_FAILED", "File already exists in the new" +
-                    " path " + newPath));
+                    " path " + newPathValue));
         } catch (IOException e) {
             context.setReturnValues(SystemUtils.getBallerinaError("FILE_SYSTEM_ERROR", e));
         } catch (SecurityException e) {
