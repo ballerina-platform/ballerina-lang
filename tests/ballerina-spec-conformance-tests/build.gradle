@@ -18,8 +18,10 @@
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 dependencies {
-    testImplementation project(':ballerina-core')
-    testImplementation project(':ballerina-lang')
+    implementation 'org.ballerinalang:ballerina-core:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+//    testImplementation project(':ballerina-core')
+//    testImplementation project(':ballerina-lang')
     testImplementation project(':ballerina-builtin')
     testImplementation project(':ballerina-runtime-api')
     testImplementation project(':ballerina-io')

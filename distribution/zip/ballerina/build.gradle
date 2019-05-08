@@ -187,12 +187,14 @@ dependencies {
     balSource project(path: ':ballerina-privacy', configuration: 'balSource')
     balSource project(path: ':ballerina-utils', configuration: 'balSource')
 
+    dist 'org.ballerinalang:ballerina-core:0.992.0-m1'
+    dist 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     dist project(':ballerina-auth')
     dist project(':ballerina-builtin')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-config')
     dist project(':ballerina-config-api')
-    dist project(':ballerina-core')
+//    dist project(':ballerina-core')
     dist project(':ballerina-crypto')
     dist project(':ballerina-file')
     dist project(':ballerina-filepath')
@@ -203,7 +205,7 @@ dependencies {
     dist project(':ballerina-internal')
     dist project(':ballerina-io')
     dist project(':ballerina-jms')
-    dist project(':ballerina-lang')
+//    dist project(':ballerina-lang')
     dist project(':ballerina-launcher')
     dist project(':ballerina-log-api')
     dist project(':ballerina-logging')

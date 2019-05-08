@@ -21,7 +21,9 @@ description = 'Ballerina - Cache'
 
 dependencies {
 
-    implementation project(':lib-creator')
+    implementation 'org.ballerinalang:ballerina-core:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    baloCreat project(':lib-creator-milestone')
     implementation 'commons-logging:commons-logging'
     implementation 'org.slf4j:slf4j-jdk14'
 
@@ -34,7 +36,7 @@ dependencies {
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-builtin')
-    testCompile project(':ballerina-core')
+//    testCompile project(':ballerina-core')
     testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-system')
     testCompile project(':ballerina-runtime-api')

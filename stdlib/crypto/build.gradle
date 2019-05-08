@@ -22,9 +22,12 @@ dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
-    implementation project(':ballerina-lang')
-    implementation project(':ballerina-core')
-    implementation project(':lib-creator')
+    implementation 'org.ballerinalang:ballerina-core:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    baloCreat project(':lib-creator-milestone')
+//    implementation project(':ballerina-lang')
+//    implementation project(':ballerina-core')
+//    implementation project(':lib-creator')
     implementation project(':ballerina-time')
     implementation 'commons-codec:commons-codec'
 

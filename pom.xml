@@ -2388,6 +2388,7 @@
 
     <properties>
         <ballerina.version>0.992.0-m2-SNAPSHOT</ballerina.version>
+        <ballerina.milestone.version>0.992.0-m1</ballerina.milestone.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
