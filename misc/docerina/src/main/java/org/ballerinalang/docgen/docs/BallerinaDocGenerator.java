@@ -26,6 +26,8 @@ import org.ballerinalang.docgen.Writer;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.ClientPageContext;
+import org.ballerinalang.docgen.generator.model.ConstantsPageContext;
+import org.ballerinalang.docgen.generator.model.FunctionsPageContext;
 import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.ListenerPageContext;
 import org.ballerinalang.docgen.generator.model.Module;
@@ -184,6 +186,8 @@ public class BallerinaDocGenerator {
         String objectTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "object");
         String clientTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "client");
         String listenerTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "listener");
+        String functionsTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "functions");
+        String constantsTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "constants");
 
         // Generate module pages
         for (Module module : project.modules) {
@@ -249,6 +253,22 @@ public class BallerinaDocGenerator {
                         String listenerFilePath = listenersDir + File.separator + listener.name + HTML;
                         Writer.writeHtmlDocument(listenerPageContext, listenerTemplateName, listenerFilePath);
                     }
+                }
+
+                // Create pages for functions
+                if (!module.functions.isEmpty()) {
+                    String functionsFile = modDir + File.separator + "functions" + HTML;
+                    FunctionsPageContext functionsPageContext = new FunctionsPageContext(module.functions, module, project,
+                            "../","API Documentation for " + module.id + " functions");
+                    Writer.writeHtmlDocument(functionsPageContext, functionsTemplateName, functionsFile);
+                }
+
+                // Create pages for constants
+                if (!module.constants.isEmpty()) {
+                    String constantsFile = modDir + File.separator + "constants" + HTML;
+                    ConstantsPageContext constantsPageContext = new ConstantsPageContext(module.constants, module, project,
+                            "../","API Documentation for " + module.id + " constants");
+                    Writer.writeHtmlDocument(constantsPageContext, constantsTemplateName, constantsFile);
                 }
 
                 if (BallerinaDocUtils.isDebugEnabled()) {

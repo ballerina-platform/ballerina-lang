@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html>
 
-{{> htmlHead title="API Documentation - Module Functions " rootPath="../../" }}
+{{> head }}
 
 <body>
 <div class="ui grid">
     <div class="navi-wrapper two wide column">
         <div class="navi-wrapper-content">
-            <a href="../../index.html">
-                <img class="logo" src="../../images/ballerina-logo.png">
-            </a>
-            {{> currentModule rootPath="../../" }}
-            {{> allModules rootPath="../../" }}
+            {{> logo }}
+            <div class="primary-list">
+                <h3>Functions</h3>
+                <ul>
+                    {{#each module.functions}}
+                        <li>
+                            <a href="#{{name}}">{{name}}</a>
+                        </li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="ui divider"></div>
+            {{> currentModule }}
+            {{> allModules }}
         </div>
     </div>
 
@@ -24,7 +33,7 @@
                         <tbody>
                         <tr>
                             <td width="30%" ><a class="functions" href="#{{name}}">{{name}}</a></td>
-                            <td width="70%">{{description}}</td>
+                            <td width="70%">{{{ description }}}</td>
                         </tr>
                         </tbody>
                     {{/each}}
@@ -33,6 +42,7 @@
                     {{#if functions}}
                         <div>
                             {{#each functions}}
+<<<<<<< HEAD
                                 <p>public function <a class="functions" id="{{name}}"><b>{{name}}</b> </a>{{function_params}} </h3>
                                     <br><b>Return</b> {{return_type}}</p>
                                 <p>{{description}}</p>
@@ -82,6 +92,9 @@
                                         {{/each}}
                                     </table>
                                 {{/if}}
+=======
+                                {{> method }}
+>>>>>>> f570b2cc3a19b1b771ff406a32d5f90c046cf141
                             {{/each}}
                         </div>
                     {{/if}}

@@ -15,16 +15,15 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
-/**
- * Represent documentation for a Constant.
- */
-public class Constant extends Construct {
-    public Type type;
-    public String value;
+import java.util.List;
 
-    public Constant(String name, String description, Type type, String value) {
-        super(name, description);
-        this.type = type;
-        this.value = value;
+/**
+ * Page context for functions page.
+ */
+public class FunctionsPageContext extends ModulePageContext {
+    public List<Function> functions;
+    public FunctionsPageContext(List<Function> functions, Module module, Project project, String rootPath, String title) {
+        super(module, project, rootPath, title);
+        this.functions = functions;
     }
 }

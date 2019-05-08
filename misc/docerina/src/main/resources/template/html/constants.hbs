@@ -1,36 +1,54 @@
 <!DOCTYPE html>
 <html>
 
-{{> htmlHead title="API Documentation - Module Constants " rootPath="../../" }}
+{{> head }}
 
 <body>
 <div class="ui grid">
     <div class="navi-wrapper two wide column">
         <div class="navi-wrapper-content">
-            <a href="../../index.html">
-                <img class="logo" src="../../images/ballerina-logo.png">
-            </a>
-            {{> currentModule rootPath="../../" }}
-            {{> allModules rootPath="../../" }}
+            {{> logo }}
+            <div class="primary-list">
+                <h3>Constants</h3>
+                <ul>
+                    {{#each module.constants}}
+                        <li>
+                            <a href="#{{name}}">{{name}}</a>
+                        </li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="ui divider"></div>
+            {{> currentModule }}
+            {{> allModules }}
         </div>
     </div>
 
     <div class="fourteen wide column content-wrapper">
         <div class="main-wrapper">
             <h1>Constants</h1>
+            <div class="ui divider"></div>
             <div class="constants">
-                <table class="ui table">
+                <table class="ui table param-table">
+                    <thead>
+                    <tr>
+                        <th width="20%">Name</th>
+                        <th width="20%">Data Type</th>
+                        <th width="15%">Value</th>
+                        <th width="35%">Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
                     {{#each constants}}
-                        <tbody>
-                        <tr id="{{name}}" >
-                            <td width="30%" class="constant"><a href="#{{name}}">{{name}}</a></td>
-                            <td width="70%">{{description}}</td>
+                        <tr id="{{ name }}">
+                            <td>{{ name }}</td>
+                            <td>{{{ typeName type }}}</td>
+                            <td>{{ value }}</td>
+                            <td>{{{ description }}}</td>
                         </tr>
-                        </tbody>
                     {{/each}}
+                    </tbody>
                 </table>
-                <div>
-                </div>
             </div>
         </div>
     </div>
