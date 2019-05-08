@@ -1,5 +1,4 @@
 <h2>New Method</h2>
-<div class="ui divider"></div>
 <h3 >__init</h3><p>({{{ paramSummary parameters }}})</p>
 <table class="ui table param-table">
     <thead>
@@ -11,14 +10,13 @@
     </tr>
     </thead>
     <tbody>
-    {{#each parameters}}
+        {{#each parameters}}
         <tr>
             <td>{{ name }}</td>
             <td>{{{ typeName type }}}</td>
             <td>{{ defaultValue }}</td>
             <td>{{{ description }}}</td>
         </tr>
-    {{/each}}
+        {{/each}}
     </tbody>
 </table>
-<div class="ui divider"></div>
