@@ -73,6 +73,10 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
     private boolean dumpLLVMIR;
 
+    @CommandLine.Option(names = {"--jvmTarget"}, hidden = true,
+            description = "compile Ballerina program to a jvm class")
+    private boolean jvmTarget;
+
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
@@ -187,7 +191,7 @@ public class BuildCommand implements BLauncherCmd {
             // "ballerina.conf" in the source root path is taken.
             LauncherUtils.loadConfigurations(sourceRootPath, configFilePath);
 
-            if (JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET))) {
+            if (jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET))) {
                 BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                         offline, lockEnabled, skiptests, experimentalFlag, dumpBIR);
             } else {
