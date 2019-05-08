@@ -21,6 +21,7 @@ plugins {
     id "org.sonarqube" version "2.6"
 }
 
+apply from: "$rootDir/gradle/javaProject.gradle"
 version = ballerinaPluginVersion
 
 repositories {
@@ -116,11 +117,9 @@ task copyComposerDistribution() {
 copyPsiViewerPluginToSandBox.mustRunAfter prepareSandbox
 runIde.dependsOn copyPsiViewerPluginToSandBox
 
-apply plugin: 'checkstyle'
 checkstyle {
-    configDir = file("${rootDir}/src/main/resources/checkstyle")
     checkstyleMain {
-        source "src/main/java"
+        source = fileTree("src/main/java")
         include '**/*.java'
     }
     checkstyleTest {
