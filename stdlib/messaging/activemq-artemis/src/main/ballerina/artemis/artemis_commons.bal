@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/crypto;
 import ballerina/filepath;
+import ballerina/io;
 
 # Constant for the artemis error code.
 public const ARTEMIS_ERROR_CODE = "{ballerina/artemis}ArtemisError";
@@ -57,6 +57,9 @@ public type RoutingType MULTICAST | ANYCAST;
 public const MULTICAST = "MULTICAST";
 # If you want your messages routed to a single queue within the matching address, in a point-to-point manner.
 public const ANYCAST = "ANYCAST";
+
+type MessageContent io:ReadableByteChannel | int | float | byte | boolean | string | map<string | int | float | byte |
+boolean | byte[]> | xml | json | byte[];
 
 function parseUrl(EndpointConfiguration config) returns string {
     return "tcp://" + config.host + ":" + config.port;

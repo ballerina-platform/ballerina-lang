@@ -20,9 +20,7 @@ public type Message client object {
     private MessageType messageType = TEXT;
     private MessageConfiguration configuration;
 
-    public function __init(Session session, @sensitive io:ReadableByteChannel | int | float | byte | boolean | string |
-                            map<string | int | float | byte | boolean | byte[]> | xml | json | byte[] data,
-     MessageConfiguration? config = ()) {
+    public function __init(Session session, @sensitive MessageContent data, MessageConfiguration? config = ()) {
         if (config is MessageConfiguration) {
             self.configuration = config;
         } else {

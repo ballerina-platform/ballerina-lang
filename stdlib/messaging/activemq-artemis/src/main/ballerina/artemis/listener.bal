@@ -26,10 +26,10 @@ public type Listener object {
         } else {
             Connection connection;
             var secureSocket = sessionOrEndpointConfig["secureSocket"];
-            if(secureSocket is SecureSocket){
+            if (secureSocket is SecureSocket) {
                 connection = new(parseUrl(sessionOrEndpointConfig), config = {secureSocket: secureSocket});
             } else {
-               connection = new(parseUrl(sessionOrEndpointConfig));
+                connection = new(parseUrl(sessionOrEndpointConfig));
             }
             self.session = new(connection, config = { username: sessionOrEndpointConfig["username"],
                     password: sessionOrEndpointConfig["password"],
@@ -56,8 +56,8 @@ public type Listener object {
     # + filter - only messages, which match this filter will be consumed
     # + return - the `Consumer` object for the listener to make blocking calls
     public function createAndGetConsumer(QueueConfiguration config, boolean autoAck = true, string? filter = ())
-                                         returns Consumer|error {
-        return new Consumer(self.session, config, autoAck, filter);        
+    returns Consumer | error {
+        return new Consumer(self.session, config, autoAck, filter);
     }
 
     private function start() returns error? = external;
@@ -110,12 +110,12 @@ public type QueueConfiguration record {|
 
 # Representation of the ActiveMQ Artemis client consumer to make blocking receive calls.
 public type Consumer client object {
-    function __init(Session sessObj, QueueConfiguration config, boolean autoAck, string? filter) 
-                    returns error? {
+    function __init(Session sessObj, QueueConfiguration config, boolean autoAck, string? filter)
+    returns error? {
         check self.createConsumer(sessObj, config, autoAck, filter);
     }
-    
+
     private function createConsumer(Session sessObj, QueueConfiguration config, boolean autoAck, string? filter)
-                                    returns error? = external;
-    public remote function receive(int timeoutInMilliSeconds = 0) returns @tainted Message|error = external;
+    returns error? = external;
+    public remote function receive(int timeoutInMilliSeconds = 0) returns    @tainted Message | error = external;
 };
