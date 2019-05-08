@@ -226,6 +226,12 @@ public class TypeChecker {
         return false;
     }
 
+    /**
+     * Get the typedesc of a value.
+     * 
+     * @param value Value
+     * @return type desc associated with the value
+     */
     public static TypedescValue getTypedesc(Object value) {
         BType type = TypeChecker.getType(value);
         if (type == null) {

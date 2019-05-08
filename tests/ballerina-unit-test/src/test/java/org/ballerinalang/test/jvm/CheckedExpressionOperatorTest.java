@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.expressions.checkedexpr;
+package org.ballerinalang.test.jvm;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,8 +40,7 @@ public class CheckedExpressionOperatorTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(
-                "test-src/expressions/checkedexpr/checked_expr_operator_basics.bal");
+        result = BCompileUtil.compile("test-src/jvm/checked_expr_operator_basics.bal");
     }
 
     @Test(description = "Test basics of safe assignment statement")
@@ -200,12 +198,6 @@ public class CheckedExpressionOperatorTest {
                 "Invalid error message value returned.");
     }
 
-    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: io error.*")
-    public void testCheckExprInBinaryExpr7() {
-        BRunUtil.invoke(result, "testCheckExprInBinaryExpr7", new BValue[]{});
-    }
-
     @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr8() {
         BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr8", new BValue[]{});
@@ -221,14 +213,6 @@ public class CheckedExpressionOperatorTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "((((S|S)|(S|S))|((S|S)|(S|S)))|(((S|S)|(S|S))|" +
                 "((S|S)|(S|S)))) ((A|A)|(A|A)) (((M|M)|(M|M))|((M|M)|(M|M))) done", "Invalid string value returned.");
-    }
-
-    @Test(description = "Test checked expressions in binary and expression")
-    public void testCheckInBinaryAndExpression() {
-        BValue[] returns = BRunUtil.invoke(result, "testCheckInBinaryAndExpression", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test checked expressions in binary add expression")
@@ -253,12 +237,5 @@ public class CheckedExpressionOperatorTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test(description = "Test service resource that returns an error containing check expression")
-    public void testSemanticErrorsWithResources() {
-        CompileResult compile = BCompileUtil.compile(
-                "test-src/expressions/checkedexpr/checked_expr_within_resource.bal");
-        Assert.assertEquals(compile.getErrorCount(), 0);
     }
 }

@@ -296,6 +296,12 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return typeofNode;
+        } else if (kindTag == INS_NEW_TYPEDESC) {
+            kind = INS_KIND_NEW_TYPEDESC;
+            var lhsOp = self.parseVarRef();
+            var bType = self.typeParser.parseType();
+            NewTypeDesc newTypeDesc = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType};
+            return newTypeDesc;
         } else {
             return self.parseBinaryOpInstruction(kindTag, pos);
         }

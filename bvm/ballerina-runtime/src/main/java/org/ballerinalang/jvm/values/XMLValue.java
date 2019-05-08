@@ -43,7 +43,7 @@ import javax.xml.namespace.QName;
  * @param <T> Type of the underlying impl
  * @since 0.995.0
  */
-public abstract class XMLValue<T> implements RefValue {
+public abstract class XMLValue<T> implements RefValue, CollectionValue {
 
     BType type = BTypes.typeXML;
 

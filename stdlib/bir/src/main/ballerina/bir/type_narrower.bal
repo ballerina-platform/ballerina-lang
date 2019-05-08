@@ -45,7 +45,7 @@ function getTypeDef(TypeDef? typeDef) returns TypeDef {
     if (typeDef is TypeDef) {
         return typeDef;
     } else {
-        error err = error("Invalid type definition");
+        error err = error(io:sprintf("Invalid type definition: %s", typeDef));
         panic err;
     }
 }

@@ -97,7 +97,7 @@ type TerminatorGenerator object {
         //io:println("Call Ins : " + io:sprintf("%s", callIns));
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
-        if (callIns.isVirtual) {
+        if (self.isVirtualCall(callIns)) {
             self.genVirtualCall(callIns, orgName, moduleName, localVarOffset);
         } else {
             self.genStaticCall(callIns, orgName, moduleName, localVarOffset);
@@ -141,14 +141,13 @@ type TerminatorGenerator object {
                                             io:sprintf("%s", callIns.lhsOp.typeValue));
                 panic err;
             }
-
         }
         
         // handle trapped function calls.
         if (isInTryBlock &&  currentEE is bir:ErrorEntry) {
             self.errorGen.generateCatchInsForTrap(currentEE, endLabel, handlerLabel, jumpLabel);
         }
-        
+
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
         jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
@@ -159,7 +158,16 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    function genStaticCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
+    private function isVirtualCall(bir:Call callIns) returns boolean {
+        if (!callIns.isVirtual) {
+            return false;
+        }
+
+        bir:VariableDcl selfArg = getVariableDcl(callIns.args[0].variableDcl);
+        return (selfArg.typeValue is bir:BObjectType || selfArg.typeValue is bir:BServiceType);
+    }
+
+    private function genStaticCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
         string methodName = callIns.name.value;
         string methodDesc = "(Lorg/ballerinalang/jvm/Strand;";
 
@@ -181,7 +189,7 @@ type TerminatorGenerator object {
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, methodName, methodDesc, false);
     }
 
-    function genVirtualCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
+    private function genVirtualCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
         bir:VariableDcl selfArg = getVariableDcl(callIns.args[0].variableDcl);
         int argIndex = self.getJVMIndexOfVarRef(selfArg);
 

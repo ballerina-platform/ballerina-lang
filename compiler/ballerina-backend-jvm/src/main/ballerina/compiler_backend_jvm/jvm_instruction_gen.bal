@@ -771,6 +771,15 @@ type InstructionGenerator object {
         self.storeToVar(unaryOp.lhsOp.variableDcl);
     }
 
+    function generateNewTypedescIns(bir:NewTypeDesc newTypeDesc) {
+        self.mv.visitTypeInsn(NEW, TYPEDESC_VALUE);
+        self.mv.visitInsn(DUP);
+        loadType(self.mv, newTypeDesc.typeValue);
+        self.mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE, "<init>",
+                io:sprintf("(L%s;)V", BTYPE), false);
+        self.storeToVar(newTypeDesc.lhsOp.variableDcl);
+    }
+
     private function loadVar(bir:VariableDcl varDcl) {
         generateVarLoad(self.mv, varDcl, self.currentPackageName, self.getJVMIndexOfVarRef(varDcl));
     }
