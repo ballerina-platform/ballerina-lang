@@ -2169,7 +2169,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangExpression expression = fieldAccessExpr.getExpression();
             if (expression.getKind() == NodeKind.CONSTANT_REF) {
                 BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangConstRef) expression).symbol;
-                BLangStructLiteral structLiteral = (BLangStructLiteral) constantSymbol.literalValue;
+                BLangRecordLiteral structLiteral = (BLangRecordLiteral) constantSymbol.literalValue;
                 // Check whether the struct literal is a constant.
 
                 // Retrieve the field access expression's value. Result cannot be `null` here since we validate the
@@ -2194,7 +2194,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangExpression expression = fieldAccessExpr.getExpression();
             if (expression.getKind() == NodeKind.CONSTANT_REF) {
                 BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangConstRef) expression).symbol;
-                BLangMapLiteral mapLiteral = (BLangMapLiteral) constantSymbol.literalValue;
+                BLangRecordLiteral mapLiteral = (BLangRecordLiteral) constantSymbol.literalValue;
                 // Check whether the map literal is a constant.
 
                 // Retrieve the field access expression's value. Result cannot be `null` here since we validate the
