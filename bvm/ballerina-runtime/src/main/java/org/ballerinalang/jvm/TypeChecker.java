@@ -954,8 +954,16 @@ public class TypeChecker {
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
             case TypeTags.BOOLEAN_TAG:
+                return lhsValue.equals(rhsValue);
             case TypeTags.INT_TAG:
+                if (rhsValTypeTag == TypeTags.BYTE_TAG) {
+                    return lhsValue.equals(((Byte) rhsValue).longValue());
+                }
+                return lhsValue.equals(rhsValue);
             case TypeTags.BYTE_TAG:
+                if (rhsValTypeTag == TypeTags.INT_TAG) {
+                    return lhsValue.equals(((Long) rhsValue).byteValue());
+                }
                 return lhsValue.equals(rhsValue);
             case TypeTags.XML_TAG:
                 return XMLFactory.isEqual((XMLValue) lhsValue, (XMLValue) rhsValue);

@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -129,6 +130,10 @@ public class ArrayValue implements RefValue {
             AtomicInteger counter = new AtomicInteger(0);
             tupleType.getTupleTypes()
                     .forEach(memType -> refValues[counter.getAndIncrement()] = memType.getEmptyValue());
+        } else if (type.getTag() == TypeTags.UNION_TAG) {
+            BUnionType unionType = (BUnionType) type;
+            this.size = maxArraySize = unionType.getMemberTypes().size();
+            unionType.getMemberTypes().forEach(this::initArrayValues);
         } else {
             refValues = (Object[]) newArrayInstance(Object.class);
             Arrays.fill(refValues, type.getEmptyValue());

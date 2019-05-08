@@ -44,8 +44,10 @@ import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypeDesc;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -70,6 +72,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -289,6 +292,11 @@ public class BRunUtil {
                 case TypeTags.ARRAY_TAG:
                     typeClazz = ArrayValue.class;
                     break;
+                case TypeTags.UNION_TAG:
+                case TypeTags.ANY_TAG:
+                case TypeTags.JSON_TAG:
+                    typeClazz = Object.class;
+                    break;
                 default:
                     throw new RuntimeException("Function signature type '" + type + "' is not supported");
             }
@@ -330,10 +338,25 @@ public class BRunUtil {
         return new BValue[] { result };
     }
 
+    /**
+     * This method converts the compile time BType and the value to to JVM runtime value.
+     *
+     * @param type compile time BType
+     * @param value BVM value
+     * @return JVM value
+     */
     private static Object getJVMValue(org.wso2.ballerinalang.compiler.semantics.model.types.BType type, BValue value) {
+
+        if (value == null) {
+            return null;
+        }
+
         switch (type.tag) {
-            case TypeTags.INT_TAG:
+            case TypeTags.NULL_TAG:
+                return null;
             case TypeTags.BYTE_TAG:
+                return ((BByte) value).byteValue();
+            case TypeTags.INT_TAG:
                 return ((BInteger) value).intValue();
             case TypeTags.BOOLEAN_TAG:
                 return ((BBoolean) value).booleanValue();
@@ -355,7 +378,7 @@ public class BRunUtil {
                             jvmArray.add(i, array.getByte(i));
                             break;
                         case TypeTags.BOOLEAN_TAG:
-                            jvmArray.add(i, array.getBoolean(i));
+                            jvmArray.add(i, array.getBoolean(i) == 1);
                             break;
                         case TypeTags.STRING_TAG:
                             jvmArray.add(i, array.getString(i));
@@ -368,11 +391,100 @@ public class BRunUtil {
                     }
                 }
                 return jvmArray;
+            case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
+            case TypeTags.ANY_TAG:
+            case TypeTags.ANYDATA_TAG:
+                return getJVMValue(value.getType(), value);
             default:
                 throw new RuntimeException("Function signature type '" + type + "' is not supported");
         }
     }
 
+    /**
+     * This method converts the runtime time BType and the value to JVM runtime value.
+     *
+     * @param type runtime BType
+     * @param value BVM value
+     * @return JVM value
+     */
+    private static Object getJVMValue(BType type, BValue value) {
+
+        if (value == null) {
+            return null;
+        }
+
+        switch (type.getTag()) {
+            case TypeTags.NULL_TAG:
+                return null;
+            case TypeTags.BYTE_TAG:
+                return ((BByte) value).byteValue();
+            case TypeTags.INT_TAG:
+                return ((BInteger) value).intValue();
+            case TypeTags.BOOLEAN_TAG:
+                return ((BBoolean) value).booleanValue();
+            case TypeTags.STRING_TAG:
+                return value.stringValue();
+            case TypeTags.FLOAT_TAG:
+                return ((BFloat) value).floatValue();
+            case TypeTags.ARRAY_TAG:
+                BArrayType arrayType = (BArrayType) type;
+                BValueArray array = (BValueArray) value;
+                ArrayValue jvmArray = new ArrayValue(getJVMType(arrayType));
+                for (int i = 0; i < array.size(); i++) {
+                    switch (arrayType.getElementType().getTag()) {
+                        case TypeTags.INT_TAG:
+                            jvmArray.add(i, array.getInt(i));
+                            break;
+                        case TypeTags.BYTE_TAG:
+                            jvmArray.add(i, array.getByte(i));
+                            break;
+                        case TypeTags.BOOLEAN_TAG:
+                            jvmArray.add(i, array.getBoolean(i) == 1);
+                            break;
+                        case TypeTags.STRING_TAG:
+                            jvmArray.add(i, array.getString(i));
+                            break;
+                        case TypeTags.FLOAT_TAG:
+                            jvmArray.add(i, array.getFloat(i));
+                            break;
+                        default:
+                            throw new RuntimeException("Function signature type '" + type + "' is not supported");
+                    }
+                }
+                return jvmArray;
+            case TypeTags.MAP_TAG:
+                BMapType mapType = (BMapType) type;
+                BMap bMap = (BMap) value;
+                MapValue jvmMap = new MapValue(getJVMType(mapType));
+                bMap.getMap().forEach((k, v) -> {
+                    BValue bValue = bMap.get(k);
+                    jvmMap.put(k, getJVMValue(bValue.getType(), bValue));
+                });
+                return jvmMap;
+            case TypeTags.UNION_TAG:
+            case TypeTags.ANY_TAG:
+            case TypeTags.ANYDATA_TAG:
+                return getJVMValue(value.getType(), value);
+            case TypeTags.JSON_TAG:
+                bMap = (BMap) value;
+                jvmMap = new MapValue(getJVMType(type));
+                bMap.getMap().forEach((k, v) -> {
+                    BValue bValue = bMap.get(k);
+                    jvmMap.put(k, getJVMValue(bValue.getType(), bValue));
+                });
+                return jvmMap;
+            default:
+                throw new RuntimeException("Function signature type '" + type + "' is not supported");
+        }
+    }
+
+    /**
+     * This methods returns the JVM type for the given compile time BType.
+     *
+     * @param type compile time BType
+     * @return JVM type
+     */
     private static org.ballerinalang.jvm.types.BType
             getJVMType(org.wso2.ballerinalang.compiler.semantics.model.types.BType type) {
         switch (type.tag) {
@@ -391,6 +503,70 @@ public class BRunUtil {
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());
                 return new org.ballerinalang.jvm.types.BArrayType(elementType);
+            case TypeTags.MAP_TAG:
+                org.wso2.ballerinalang.compiler.semantics.model.types.BMapType mapType =
+                        (org.wso2.ballerinalang.compiler.semantics.model.types.BMapType) type;
+                org.ballerinalang.jvm.types.BType constrainType = getJVMType(mapType.getConstraint());
+                return new org.ballerinalang.jvm.types.BMapType(constrainType);
+            case TypeTags.UNION_TAG:
+                ArrayList<org.ballerinalang.jvm.types.BType> members = new ArrayList<>();
+                org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType unionType =
+                        (org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType) type;
+                for (org.wso2.ballerinalang.compiler.semantics.model.types.BType memberType :
+                        unionType.getMemberTypes()) {
+                    members.add(getJVMType(memberType));
+                }
+                return new org.ballerinalang.jvm.types.BUnionType(members);
+            case TypeTags.ANY_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeAny;
+            case TypeTags.ANYDATA_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeAnydata;
+            case TypeTags.JSON_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeJSON;
+            default:
+                throw new RuntimeException("Function argument for type '" + type + "' is not supported");
+        }
+    }
+
+    /**
+     * This methods returns the JVM type for the given runtime time BType.
+     *
+     * @param type run time BType
+     * @return JVM type
+     */
+    private static org.ballerinalang.jvm.types.BType getJVMType(BType type) {
+        switch (type.getTag()) {
+            case TypeTags.INT_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeInt;
+            case TypeTags.BYTE_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeByte;
+            case TypeTags.BOOLEAN_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeBoolean;
+            case TypeTags.STRING_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeString;
+            case TypeTags.FLOAT_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeFloat;
+            case TypeTags.ARRAY_TAG:
+                BArrayType arrayType = (BArrayType) type;
+                org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());
+                return new org.ballerinalang.jvm.types.BArrayType(elementType);
+            case TypeTags.MAP_TAG:
+                BMapType mapType = (BMapType) type;
+                org.ballerinalang.jvm.types.BType constrainType = getJVMType(mapType.getConstrainedType());
+                return new org.ballerinalang.jvm.types.BMapType(constrainType);
+            case TypeTags.UNION_TAG:
+                ArrayList<org.ballerinalang.jvm.types.BType> members = new ArrayList<>();
+                BUnionType unionType = (BUnionType) type;
+                for (BType memberType : unionType.getMemberTypes()) {
+                    members.add(getJVMType(memberType));
+                }
+                return new org.ballerinalang.jvm.types.BUnionType(members);
+            case TypeTags.ANY_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeAny;
+            case TypeTags.ANYDATA_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeAnydata;
+            case TypeTags.JSON_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeJSON;
             default:
                 throw new RuntimeException("Function argument for type '" + type + "' is not supported");
         }
