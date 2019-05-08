@@ -368,6 +368,18 @@ type InstructionGenerator object {
         self.storeToVar(mapNewIns.lhsOp.variableDcl);
     }
 
+    function generateTableNewIns(bir:NewTable tableNewIns) {
+        self.mv.visitTypeInsn(NEW, TABLE_VALUE);
+        self.mv.visitInsn(DUP);
+        loadType(self.mv, tableNewIns.typeValue);
+        self.loadVar(tableNewIns.indexColOp.variableDcl);
+        self.loadVar(tableNewIns.keyColOp.variableDcl);
+        self.loadVar(tableNewIns.dataOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", BTYPE,
+                ARRAY_VALUE, ARRAY_VALUE, ARRAY_VALUE), false);
+        self.storeToVar(tableNewIns.lhsOp.variableDcl);
+    }
+
     function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
         // visit map_ref
         self.loadVar(mapStoreIns.lhsOp.variableDcl);
@@ -801,6 +813,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
     } else if (bType is bir:BArrayType ||
                 bType is bir:BTypeString ||
                 bType is bir:BMapType ||
+                bType is bir:BTableType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BTypeNil ||
@@ -842,6 +855,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
     } else if (bType is bir:BArrayType ||
                     bType is bir:BTypeString ||
                     bType is bir:BMapType ||
+                    bType is bir:BTableType ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BTypeNil ||
