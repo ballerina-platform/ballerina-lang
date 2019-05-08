@@ -62,7 +62,6 @@ public class Copy extends BlockingNativeCallableUnit {
         Path destPath = Paths.get(destPathValue);
         boolean replaceExisting = context.getBooleanArgument(0);
 
-
         if (Files.notExists(srcPath)) {
             context.setReturnValues(SystemUtils.getBallerinaError("INVALID_OPERATION",
                     "File doesn't exist in path " + srcPathValue));
