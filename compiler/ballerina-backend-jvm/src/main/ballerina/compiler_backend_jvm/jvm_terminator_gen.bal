@@ -73,7 +73,7 @@ type TerminatorGenerator object {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitInsn(ARETURN);
         } else if (bType is bir:BErrorType) {
-            self.handleChannelsError(func.workerChannels, returnVarRefIndex);
+            self.notifyChannels(func.workerChannels, returnVarRefIndex);
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitInsn(ARETURN);
         } else {
@@ -99,53 +99,21 @@ type TerminatorGenerator object {
         if (errorIncluded) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitVarInsn(ALOAD, 0);
-            self.loadChannelDetails(channels);
+            loadChannelDetails(self.mv, channels);
             self.mv.visitMethodInsn(INVOKESTATIC, WORKER_UTILS, "handleWorkerError", 
                 io:sprintf("(L%s;L%s;[L%s;)V", REF_VALUE, STRAND, CHANNEL_DETAILS), false);
         }
     }
 
-    function loadChannelDetails(bir:ChannelDetail[] channels) {
-        self.mv.visitIntInsn(BIPUSH, channels.length());
-        self.mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
-        int index = 0;
-        foreach bir:ChannelDetail ch in channels {
-            // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
-            self.mv.visitInsn(DUP);
-            self.mv.visitIntInsn(BIPUSH, index);
-            index += 1;
-
-            self.mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
-            self.mv.visitInsn(DUP);
-            self.mv.visitLdcInsn(ch.name.value);
-            
-            if (ch.onSameStrand) {
-                self.mv.visitInsn(ICONST_1);
-            } else {
-                self.mv.visitInsn(ICONST_0);
-            }
-
-            if (ch.isSend) {
-                self.mv.visitInsn(ICONST_1);
-            } else {
-                self.mv.visitInsn(ICONST_0);
-            }
-
-            self.mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", io:sprintf("(L%s;ZZ)V", STRING_VALUE), 
-                false);
-            self.mv.visitInsn(AASTORE);
-        }
-    }
-
-    function handleChannelsError(bir:ChannelDetail[] channels, int retIndex) {
+    function notifyChannels(bir:ChannelDetail[] channels, int retIndex) {
         if (channels.length() == 0) {
             return;
         }
 
         self.mv.visitVarInsn(ALOAD, 0);
-        self.loadChannelDetails(channels);
+        loadChannelDetails(self.mv, channels);
         self.mv.visitVarInsn(ALOAD, retIndex);
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleErrorReturn", io:sprintf("([L%s;L%s;)V", 
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleChannelError", io:sprintf("([L%s;L%s;)V", 
             CHANNEL_DETAILS, ERROR_VALUE), false);
     }
 
@@ -687,3 +655,35 @@ type TerminatorGenerator object {
         return self.indexMap.getIndex(varDcl);
     }
 };
+
+function loadChannelDetails(jvm:MethodVisitor mv, bir:ChannelDetail[] channels) {
+        mv.visitIntInsn(BIPUSH, channels.length());
+        mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
+        int index = 0;
+        foreach bir:ChannelDetail ch in channels {
+            // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
+            mv.visitInsn(DUP);
+            mv.visitIntInsn(BIPUSH, index);
+            index += 1;
+
+            mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(ch.name.value);
+            
+            if (ch.onSameStrand) {
+                mv.visitInsn(ICONST_1);
+            } else {
+                mv.visitInsn(ICONST_0);
+            }
+
+            if (ch.isSend) {
+                mv.visitInsn(ICONST_1);
+            } else {
+                mv.visitInsn(ICONST_0);
+            }
+
+            mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", io:sprintf("(L%s;ZZ)V", STRING_VALUE), 
+                false);
+            mv.visitInsn(AASTORE);
+        }
+    }

@@ -37,7 +37,7 @@
       */
      public static void handleWorkerError(RefValue value, Strand strand, ChannelDetails[] channels) {
          if (TypeChecker.checkIsType(value, BTypes.typeError)) {
-             strand.handleErrorReturn(channels, (ErrorValue) value);
+             strand.handleChannelError(channels, (ErrorValue) value);
          }
      }
 

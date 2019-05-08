@@ -38,7 +38,7 @@ public class WorkerDataChannel {
     private WaitingSender waitingSender;
     private WaitingSender flushSender;
     private ErrorValue error;
-    private RefValue panic;
+    private ErrorValue panic;
     private int senderCounter;
     private int receiverCounter;
 
@@ -76,7 +76,6 @@ public class WorkerDataChannel {
         this.channel.add(new WorkerResult(data));
         this.senderCounter++;
         if (this.receiver != null) {
-//            BVMScheduler.stateChange(this.receiver, State.PAUSED, State.RUNNABLE);
             this.receiver.scheduler.unblockStrand(this.receiver);
             this.receiver = null;
         }
@@ -91,6 +90,7 @@ public class WorkerDataChannel {
      * @return true if execution can continue
      */
     public boolean syncSendData(RefValue data, Strand waitingCtx, int retReg) {
+        // TODO : Fix later for sync send
         try {
             acquireChannelLock();
             this.channel.add(new WorkerResult(data, true));
@@ -124,6 +124,7 @@ public class WorkerDataChannel {
             if (result != null) {
                 this.receiverCounter++;
                 this.channel.remove();
+                // TODO: Fix later for sync send
 //                if (result.isSync) {
 ////                    this.waitingSender.waitingCtx.currentFrame.refRegs[this.waitingSender.returnReg] = null;
 //                    //will continue if this is a sync wait, will try to flush again if blocked on flush
@@ -131,6 +132,7 @@ public class WorkerDataChannel {
 ////                    BVMScheduler.schedule(this.waitingSender.waitingCtx);
 //                    this.waitingSender = null;
 //                } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
+                // TODO: Fix later for flush
 ////                    this.flushSender.waitingCtx.flushDetail.flushLock.lock();
 ////                    this.flushSender.waitingCtx.flushDetail.flushedCount++;
 ////                    if (this.flushSender.waitingCtx.flushDetail.flushedCount
@@ -146,10 +148,10 @@ public class WorkerDataChannel {
 //                BVM.copyArgValueForWorkerReceive(ctx.currentFrame, reg, type, result.value);
                 return result.value;
             } else if (this.panic != null && this.senderCounter == this.receiverCounter + 1) {
-//                this.receiverCounter++;
+                this.receiverCounter++;
 //                ctx.setError(this.panic);
 //                BVM.handleError(ctx);
-                return null;
+                throw new RuntimeException(this.panic);
             } else if (this.error != null && this.senderCounter == this.receiverCounter + 1) {
                 this.receiverCounter++;
                 return error;
@@ -223,7 +225,7 @@ public class WorkerDataChannel {
      *
      * @param error to be set
      */
-    public void setRecieveError(ErrorValue error) {
+    public void setReceiveError(ErrorValue error) {
         acquireChannelLock();
         this.error = error;
         this.receiverCounter++;
@@ -254,6 +256,7 @@ public class WorkerDataChannel {
         if (this.receiver != null) {
 //            BVMScheduler.stateChange(this.receiver, State.PAUSED, State.RUNNABLE);
 //            BVMScheduler.schedule(this.receiver);
+            this.receiver.scheduler.unblockStrand(this.receiver);
             this.receiver = null;
         }
         releaseChannelLock();
