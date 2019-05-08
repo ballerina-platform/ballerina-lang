@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.values.ChannelDetails;
+import org.ballerinalang.jvm.values.ErrorValue;
+
 import java.util.concurrent.Future;
 
 /**
@@ -45,5 +48,22 @@ public class Strand {
         this.scheduler = scheduler;
         this.parent = parent;
         this.wdChannels = new WDChannels();
+    }
+
+    public void handleErrorReturn(ChannelDetails[] channels, ErrorValue error) {
+        for (int i = 0; i < channels.length; i++) {
+            WorkerDataChannel channel;
+            ChannelDetails channelDetails = channels[i];
+            if (channelDetails.channelInSameStrand) {
+                channel = this.wdChannels.getWorkerDataChannel(channelDetails.name);
+            } else {
+                channel = this.parent.wdChannels.getWorkerDataChannel(channelDetails.name);
+            }
+            if (channelDetails.send) {
+                channel.setSendError(error);
+            } else {
+                channel.setRecieveError(error);
+            }
+        }
     }
 }

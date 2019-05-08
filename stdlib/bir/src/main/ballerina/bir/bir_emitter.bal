@@ -138,6 +138,20 @@ public type BirEmitter object {
                 println();// empty line
             }
         }
+        if (bFunction.workerChannels.length() > 0) {
+            print("WORKER_CHANNELS: ");    
+        }
+
+        int channelsSize = bFunction.workerChannels.length();
+        foreach ChannelDetail ch in bFunction.workerChannels {
+            channelsSize -= 1;
+            print(ch.name.value);
+            if (channelsSize > 0) {
+                print(",");
+            } else {
+                println(";");
+            }
+        }
         println(tabs, "}");
     }
 

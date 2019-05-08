@@ -50,6 +50,7 @@ public type Function record {|
     Name name = {};
     BInvokableType typeValue = {};
     Visibility visibility = "PACKAGE_PRIVATE";
+    ChannelDetail[] workerChannels;
 |};
 
 public type BasicBlock record {|
@@ -61,6 +62,12 @@ public type BasicBlock record {|
 public type ErrorEntry record {|
     BasicBlock trapBB;
     VarRef errorOp;
+|};
+
+public type ChannelDetail record {|
+    Name name;
+    boolean onSameStrand;
+    boolean isSend;
 |};
 
 public type Name record {|

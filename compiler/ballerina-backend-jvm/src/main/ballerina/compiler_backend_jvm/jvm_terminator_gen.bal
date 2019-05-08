@@ -57,9 +57,7 @@ type TerminatorGenerator object {
                 bType is bir:BArrayType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
-                bType is bir:BErrorType ||
                 bType is bir:BObjectType ||
-                bType is bir:BUnionType ||
                 bType is bir:BRecordType ||
                 bType is bir:BTupleType ||
                 bType is bir:BJSONType ||
@@ -70,11 +68,85 @@ type TerminatorGenerator object {
                 bType is bir:BTypeDesc) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitInsn(ARETURN);
+        } else if (bType is bir:BUnionType) {
+            self.handleErrorRetInUnion(returnVarRefIndex, func.workerChannels, bType);
+            self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+            self.mv.visitInsn(ARETURN);
+        } else if (bType is bir:BErrorType) {
+            self.handleChannelsError(func.workerChannels, returnVarRefIndex);
+            self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+            self.mv.visitInsn(ARETURN);
         } else {
             error err = error( "JVM generation is not supported for type " +
                             io:sprintf("%s", func.typeValue.retType));
             panic err;
         }
+    }
+
+    function handleErrorRetInUnion(int returnVarRefIndex, bir:ChannelDetail[] channels, bir:BUnionType bType) {
+        if (channels.length() == 0) {
+            return;
+        }
+
+        boolean errorIncluded = false;
+        foreach var member in bType.members {
+            if (member is bir:BErrorType) {
+                errorIncluded = true;
+                break;
+            }
+        }
+
+        if (errorIncluded) {
+            self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+            self.mv.visitVarInsn(ALOAD, 0);
+            self.loadChannelDetails(channels);
+            self.mv.visitMethodInsn(INVOKESTATIC, WORKER_UTILS, "handleWorkerError", 
+                io:sprintf("(L%s;L%s;[L%s;)V", REF_VALUE, STRAND, CHANNEL_DETAILS), false);
+        }
+    }
+
+    function loadChannelDetails(bir:ChannelDetail[] channels) {
+        self.mv.visitIntInsn(BIPUSH, channels.length());
+        self.mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
+        int index = 0;
+        foreach bir:ChannelDetail ch in channels {
+            // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
+            self.mv.visitInsn(DUP);
+            self.mv.visitIntInsn(BIPUSH, index);
+            index += 1;
+
+            self.mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
+            self.mv.visitInsn(DUP);
+            self.mv.visitLdcInsn(ch.name.value);
+            
+            if (ch.onSameStrand) {
+                self.mv.visitInsn(ICONST_1);
+            } else {
+                self.mv.visitInsn(ICONST_0);
+            }
+
+            if (ch.isSend) {
+                self.mv.visitInsn(ICONST_1);
+            } else {
+                self.mv.visitInsn(ICONST_0);
+            }
+
+            self.mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", io:sprintf("(L%s;ZZ)V", STRING_VALUE), 
+                false);
+            self.mv.visitInsn(AASTORE);
+        }
+    }
+
+    function handleChannelsError(bir:ChannelDetail[] channels, int retIndex) {
+        if (channels.length() == 0) {
+            return;
+        }
+
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.loadChannelDetails(channels);
+        self.mv.visitVarInsn(ALOAD, retIndex);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleErrorReturn", io:sprintf("([L%s;L%s;)V", 
+            CHANNEL_DETAILS, ERROR_VALUE), false);
     }
 
     function genBranchTerm(bir:Branch branchIns, string funcName) {

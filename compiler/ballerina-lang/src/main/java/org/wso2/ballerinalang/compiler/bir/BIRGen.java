@@ -222,7 +222,17 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         Name workerName = names.fromIdNode(astFunc.defaultWorkerName);
-        BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type, workerName);
+        BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type, workerName,
+                astFunc.sendsToThis.size());
+
+        //create channelDetails array
+        int i = 0;
+        for (String channelName: astFunc.sendsToThis) {
+            birFunc.workerChannels[i] = new BIRNode.ChannelDetails(channelName, astFunc.defaultWorkerName.value
+                    .equals(DEFAULT_WORKER_NAME), isChannelSend(channelName, astFunc.defaultWorkerName.value));
+            i++;
+        }
+
         birFunc.isDeclaration = Symbols.isNative(astFunc.symbol);
         birFunc.isInterface = astFunc.interfaceFunction;
         birFunc.argsCount = astFunc.requiredParams.size() + astFunc.defaultableParams.size()
@@ -271,6 +281,10 @@ public class BIRGen extends BLangNodeVisitor {
         // Rearrange error entries.
         birFunc.errorTable.sort(Comparator.comparing(o -> o.trapBB.id.value));
         this.env.clear();
+    }
+
+    private boolean isChannelSend(String chnlName, String workerName) {
+        return chnlName.startsWith(workerName) && chnlName.split(workerName)[1].startsWith("->");
     }
 
     public void visit(BLangLambdaFunction lambdaExpr) {

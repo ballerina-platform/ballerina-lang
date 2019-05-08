@@ -31,7 +31,6 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @since 0.995.0
  */
-//TODO: fix for each worker interactions
 public class WorkerDataChannel {
 
     private Strand receiver;
@@ -152,10 +151,8 @@ public class WorkerDataChannel {
 //                BVM.handleError(ctx);
                 return null;
             } else if (this.error != null && this.senderCounter == this.receiverCounter + 1) {
-//                this.receiverCounter++;
-//                //TODO do we need to handle sync async?
-//                BVM.copyArgValueForWorkerReceive(ctx.currentFrame, reg, type, this.error);
-                return null;
+                this.receiverCounter++;
+                return error;
             } else {
                 this.receiver = strand;
                 strand.blocked = true;
@@ -215,6 +212,7 @@ public class WorkerDataChannel {
         if (this.receiver != null) {
 //            BVMScheduler.stateChange(this.receiver, State.PAUSED, State.RUNNABLE);
 //            BVMScheduler.schedule(this.receiver);
+            this.receiver.scheduler.unblockStrand(this.receiver);
             this.receiver = null;
         }
         releaseChannelLock();
@@ -235,6 +233,7 @@ public class WorkerDataChannel {
 //            BVMScheduler.schedule(this.flushSender.waitingCtx);
             this.flushSender = null;
         } else if (this.waitingSender != null) {
+//            this.waitingSender.waitingStrand.scheduler.unblockStrand(this.waitingSender.waitingStrand);
 //            this.waitingSender.waitingCtx.currentFrame.refRegs[waitingSender.returnReg] = this.error;
 //            BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
 //            BVMScheduler.schedule(this.waitingSender.waitingCtx);
@@ -320,12 +319,12 @@ public class WorkerDataChannel {
      */
     public static class WaitingSender {
 
-        public Strand waitingCtx;
+        public Strand waitingStrand;
         public int returnReg;
         public int flushCount;
 
         public WaitingSender(Strand strand, int reg, int flushCount) {
-            this.waitingCtx = strand;
+            this.waitingStrand = strand;
             this.returnReg = reg;
             this.flushCount = flushCount;
         }
