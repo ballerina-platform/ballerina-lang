@@ -3,6 +3,7 @@
     <p class="method-types"> {{{ paramSummary parameters }}}</p>
     <div class="ui divider param-divider"></div>
     <p>{{{ description }}}</p>
+     {{#if parameters}}
     <table class="ui table param-table">
         <thead>
         <tr>
@@ -13,31 +14,30 @@
         </tr>
         </thead>
         <tbody>
-        {{#if parameters}}
             {{#each parameters}}
                 <tr>
-                    <td>{{ name }}</td>
-                    <td>{{{ typeName type }}}</td>
-                    <td>{{ defaultValue }}</td>
-                    <td>{{{ description }}}</td>
+                    <td width="20%">{{ name }}</td>
+                    <td width="20%" class="type">{{{ typeName type }}}</td>
+                    <td width="15%">{{ defaultValue }}</td>
+                    <td width="35%">{{{ description }}}</td>
                 </tr>
             {{/each}}
-        {{/if}}
         </tbody>
+        {{/if}}
     </table>
     {{#if returnParameters}}
         <table class="ui table param-table">
             <thead>
-            <th width="25%">Return Type</th>
-            <th width="75%">Description</th>
+                <th width="40%">Return Type</th>
+                <th width="60%">Description</th>
             </thead>
             <tbody>
-            {{#each returnParameters}}
-                <tr>
-                    <td width="50%">{{{ typeName type }}}</td>
-                    <td width="50%">{{{ description }}}</td>
-                </tr>
-            {{/each}}
+                {{#each returnParameters}}
+                    <tr>
+                        <td class="type">{{{ typeName type }}}</td>
+                        <td>{{{ description }}}</td>
+                    </tr>
+                {{/each}}
             </tbody>
         </table>
     {{/if}}
