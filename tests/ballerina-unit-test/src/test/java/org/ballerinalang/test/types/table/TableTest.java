@@ -250,7 +250,7 @@ public class TableTest {
                 + "\"LONG_TYPE\":9223372036854774807, \"LONG_ARRAY\":[100000000, 200000000, 300000000], "
                 + "\"FLOAT_TYPE\":123.34, \"FLOAT_ARRAY\":[245.23, 5559.49, 8796.123], "
                 + "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\", "
-                + "\"DECIMAL_TYPE\":\"342452151425.4556\", \"DOUBLE_ARRAY\":[245.23, 5559.49, 8796.123], "
+                + "\"DECIMAL_TYPE\":342452151425.4556, \"DOUBLE_ARRAY\":[245.23, 5559.49, 8796.123], "
                 + "\"BOOLEAN_ARRAY\":[true, false, true], \"STRING_ARRAY\":[\"Hello\", \"Ballerina\"]}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
