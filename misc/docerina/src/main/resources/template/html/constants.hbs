@@ -8,17 +8,7 @@
     <div class="navi-wrapper two wide column">
         <div class="navi-wrapper-content">
             {{> logo }}
-            <div class="primary-list">
-                <h3>Constants</h3>
-                <ul>
-                    {{#each module.constants}}
-                        <li>
-                            <a href="#{{name}}">{{name}}</a>
-                        </li>
-                    {{/each}}
-                </ul>
-            </div>
-            <div class="ui divider"></div>
+            
             {{> currentModule }}
             {{> allModules }}
         </div>
@@ -27,14 +17,13 @@
     <div class="fourteen wide column content-wrapper">
         <div class="main-wrapper">
             <h1>Constants</h1>
-            <div class="ui divider"></div>
             <div class="constants">
                 <table class="ui table param-table">
                     <thead>
                     <tr>
-                        <th width="20%">Name</th>
-                        <th width="20%">Data Type</th>
-                        <th width="15%">Value</th>
+                        <th width="25%">Name</th>
+                        <th width="15%">Data Type</th>
+                        <th width="20%">Value</th>
                         <th width="35%">Description</th>
                     </tr>
                     </thead>
@@ -42,7 +31,7 @@
                     {{#each constants}}
                         <tr id="{{ name }}">
                             <td>{{ name }}</td>
-                            <td>{{{ typeName type }}}</td>
+                            <td class="type">{{{ typeName type }}}</td>
                             <td>{{ value }}</td>
                             <td>{{{ description }}}</td>
                         </tr>

@@ -58,7 +58,6 @@ body .ui.grid .navi-wrapper .primary-list ul li {
   list-style: none ;
   line-height: 25px;
   margin-left: 15px;
-  text-transform: capitalize;
   font-weight: 300;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -154,6 +153,13 @@ body .ui.grid .content-wrapper .param-table th {
 }
 body .ui.grid .content-wrapper .param-table tbody {
   border-bottom: 1px solid #e8e9e9;
+}
+body .ui.grid .content-wrapper .param-table .type a {
+  color: #0277BD;
+  cursor: pointer;
+}
+body .ui.grid .content-wrapper .param-table .type a:hover {
+  text-decoration: underline;
 }
 body .ui.grid .content-wrapper a.records {
   color: #00c378;
@@ -359,6 +365,7 @@ body .ui.grid .content-wrapper .module-title {
   height: auto;
   padding: 0;
   vertical-align: top;
+  padding-bottom: 12px;
 }
 body .ui.grid .content-wrapper .module-title.records {
   color: #00c378;
