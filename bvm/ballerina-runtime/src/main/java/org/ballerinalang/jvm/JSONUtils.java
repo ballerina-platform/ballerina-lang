@@ -19,10 +19,7 @@
 package org.ballerinalang.jvm;
 
 import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
-import org.apache.axiom.om.OMNamespace;
-import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BJSONType;
@@ -40,13 +37,8 @@ import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -62,10 +54,6 @@ public class JSONUtils {
 
     public static final String OBJECT = "object";
     public static final String ARRAY = "array";
-    private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
-    private static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
-    private static final String XSI_PREFIX = "xsi";
-    private static final String NIL = "nil";
 
     /**
      * Check whether JSON has particular field.
@@ -729,146 +717,5 @@ public class JSONUtils {
     private static void handleError(Exception e, String fieldName) {
         String errorMsg = e.getCause() == null ? "error while mapping '" + fieldName + "': " : "";
         throw new BallerinaException(errorMsg + e.getMessage(), e);
-    }
-
-    /**
-     * Converts given JSON object to the corresponding XML.
-     *
-     * @param json JSON object to get the corresponding XML
-     * @param attributePrefix String prefix used for attributes
-     * @param arrayEntryTag String used as the tag in the arrays
-     * @return BXML XML representation of the given JSON object
-     */
-    @SuppressWarnings("rawtypes")
-    public static XMLValue convertToXML(Object json, String attributePrefix, String arrayEntryTag) {
-        XMLValue xml;
-        if (json == null) {
-            return new XMLSequence();
-        }
-
-        List<XMLValue> omElementArrayList = traverseTree(json, attributePrefix, arrayEntryTag);
-        if (omElementArrayList.size() == 1) {
-            xml = omElementArrayList.get(0);
-        } else {
-            // There is a multi rooted node and create xml sequence from it
-            ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
-            int count = omElementArrayList.size();
-            for (int i = 0; i < count; i++) {
-                elementsSeq.add(i, omElementArrayList.get(i));
-            }
-            xml = new XMLSequence(elementsSeq);
-        }
-        return xml;
-    }
-
-    /**
-     * Traverse a JSON root node and produces the corresponding XML items.
-     *
-     * @param node {@link JsonNode} to be traversed
-     * @param attributePrefix String prefix used for attributes
-     * @param arrayEntryTag String used as the tag in the arrays
-     * @return List of XML items generated during the traversal.
-     */
-    @SuppressWarnings("rawtypes")
-    private static List<XMLValue> traverseTree(Object json, String attributePrefix, String arrayEntryTag) {
-        List<XMLValue> xmlArray = new ArrayList<>();
-        if (json instanceof RefValue) {
-            traverseJsonNode(json, null, null, xmlArray, attributePrefix, arrayEntryTag);
-        } else {
-            XMLValue xml = XMLFactory.parse(json.toString());
-            xmlArray.add(xml);
-        }
-        return xmlArray;
-    }
-
-    /**
-     * Traverse a JSON node ad produces the corresponding xml items.
-     *
-     * @param json {@link JsonNode} to be traversed
-     * @param nodeName name of the current traversing node
-     * @param parentElement parent element of the current node
-     * @param omElementArrayList List of XML items generated
-     * @param attributePrefix String prefix used for attributes
-     * @param arrayEntryTag String used as the tag in the arrays
-     * @return List of XML items generated during the traversal.
-     */
-    @SuppressWarnings("rawtypes")
-    private static OMElement traverseJsonNode(Object json, String nodeName, OMElement parentElement,
-                                              List<XMLValue> omElementArrayList, String attributePrefix,
-                                              String arrayEntryTag) {
-        OMElement currentRoot = null;
-        if (nodeName != null) {
-            // Extract attributes and set to the immediate parent.
-            if (nodeName.startsWith(attributePrefix)) {
-                if (json instanceof RefValue) {
-                    throw new BallerinaException("attribute cannot be an object or array");
-                }
-                if (parentElement != null) {
-                    String attributeKey = nodeName.substring(1);
-                    // Validate whether the attribute name is an XML supported qualified name, according to the XML
-                    // recommendation.
-                    XMLValidator.validateXMLName(attributeKey);
-
-                    parentElement.addAttribute(attributeKey, json.toString(), null);
-                }
-                return parentElement;
-            }
-
-            // Validate whether the tag name is an XML supported qualified name, according to the XML recommendation.
-            XMLValidator.validateXMLName(nodeName);
-
-            currentRoot = OM_FACTORY.createOMElement(nodeName, null);
-        }
-
-        if (json == null) {
-            OMNamespace xsiNameSpace = OM_FACTORY.createOMNamespace(XSI_NAMESPACE, XSI_PREFIX);
-            currentRoot.addAttribute(NIL, "true", xsiNameSpace);
-        } else {
-            switch (TypeChecker.getType(json).getTag()) {
-                case TypeTags.JSON_TAG:
-                    MapValue<String, Object> map = (MapValue) json;
-                    for (Entry<String, Object> entry : map.entrySet()) {
-                        currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot,
-                                omElementArrayList, attributePrefix, arrayEntryTag);
-                        if (nodeName == null) { // Outermost object
-                            omElementArrayList.add(new XMLItem(currentRoot));
-                            currentRoot = null;
-                        }
-                    }
-                    break;
-                case TypeTags.ARRAY_TAG:
-                    ArrayValue array = (ArrayValue) json;
-                    for (int i = 0; i < array.size(); i++) {
-                        currentRoot = traverseJsonNode(array.getRefValue(i), arrayEntryTag, currentRoot,
-                                omElementArrayList, attributePrefix, arrayEntryTag);
-                        if (nodeName == null) { // Outermost array
-                            omElementArrayList.add(new XMLItem(currentRoot));
-                            currentRoot = null;
-                        }
-                    }
-                    break;
-                case TypeTags.INT_TAG:
-                case TypeTags.FLOAT_TAG:
-                case TypeTags.DECIMAL_TAG:
-                case TypeTags.STRING_TAG:
-                case TypeTags.BOOLEAN_TAG:
-                    if (currentRoot == null) {
-                        throw new BallerinaException("error in converting json to xml");
-                    }
-
-                    OMText txt1 = OM_FACTORY.createOMText(currentRoot, json.toString());
-                    currentRoot.addChild(txt1);
-                    break;
-                default:
-                    throw new BallerinaException("error in converting json to xml");
-            }
-        }
-
-        // Set the current constructed root the parent element
-        if (parentElement != null) {
-            parentElement.addChild(currentRoot);
-            currentRoot = parentElement;
-        }
-        return currentRoot;
     }
 }

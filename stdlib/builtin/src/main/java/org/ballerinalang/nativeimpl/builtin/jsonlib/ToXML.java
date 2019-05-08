@@ -93,8 +93,7 @@ public class ToXML extends BlockingNativeCallableUnit {
 
             String attributePrefix = options.get(XML_OPTIONS_ATTRIBUTE_PREFIX).toString();
             String arrayEntryTag = options.get(XML_OPTIONS_ARRAY_ENTRY_TAG).toString();
-            //Converting to xml.
-            return org.ballerinalang.jvm.JSONUtils.convertToXML(json, attributePrefix, arrayEntryTag);
+            return org.ballerinalang.jvm.JSONToXMLConverter.convertToXML(json, attributePrefix, arrayEntryTag);
         } catch (Throwable e) {
             BLangExceptionHelper.handleJsonException(BallerinaErrorReasons.JSON_OPERATION_ERROR, "get keys from json",
                     e);

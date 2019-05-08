@@ -20,6 +20,12 @@ package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.IteratorValue;
+import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.values.BIterator;
@@ -31,6 +37,8 @@ import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.HashMap;
 
 /**
  * Get all the elements-type items of a xml.
@@ -75,5 +83,29 @@ public class Elements extends BlockingNativeCallableUnit {
             array.add(i++, next);
         }
         return new BXMLSequence(array);
+    }
+
+    public static XMLValue<?> elements(Strand strand, XMLValue<?> xml) {
+        try {
+            if (xml.getNodeType() == org.ballerinalang.jvm.XMLNodeType.TEXT) {
+                return generateCodePointSequence(xml);
+            }
+            return xml.elements();
+        } catch (Throwable e) {
+            BLangExceptionHelper.handleXMLException(OPERATION, e);
+        }
+
+        return null;
+    }
+
+    private static XMLValue<?> generateCodePointSequence(XMLValue<?> value) {
+        ArrayValue array = new ArrayValue();
+        IteratorValue bIterator = value.getIterator();
+        long i = 0;
+        while (bIterator.hasNext()) {
+            BString next = (BString) bIterator.next();
+            array.add(i++, next);
+        }
+        return new XMLSequence(array);
     }
 }
