@@ -188,12 +188,23 @@ function getKey() returns string {
 
 // -----------------------------------------------------------
 
-type R record {|
+type R1 record {|
     any d1;
     string d2;
     any...;
 |};
 
-const int i = 10;
+const int i1 = 10;
 
-const R r = { d2: x: i };
+const R1 r1 = { d1: "Hello", d2: "Ballerina", x: i1 };
+
+// -----------------------------------------------------------
+
+type R2 record {
+    any d1;
+    string d2;
+};
+
+const int i2 = 10;
+
+const R2 r2 = { d1: "Hello", d2: "Ballerina", x: i2 };

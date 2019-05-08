@@ -33,7 +33,7 @@ public class RecordConstantNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "record-constant-negative.bal");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 37);
+        Assert.assertEquals(compileResult.getErrorCount(), 39);
 
         String expectedErrMsg = "not a constant expression";
 
@@ -99,7 +99,11 @@ public class RecordConstantNegativeTest {
         // Invalid record fields.
         BAssertUtil.validateError(compileResult, index++, "unsupported constant record field type 'any'", offset += 15,
                 5);
-        BAssertUtil.validateError(compileResult, index, "unsupported rest field type 'any' found in the record type",
+        BAssertUtil.validateError(compileResult, index++, "unsupported rest field type 'any' found in the record type",
                 offset += 7, 7);
+        BAssertUtil.validateError(compileResult, index++, "unsupported constant record field type 'any'",
+                offset += 5, 5);
+        BAssertUtil.validateError(compileResult, index, "unsupported rest field type 'anydata|error' found in the " +
+                "record type", offset += 6, 7);
     }
 }

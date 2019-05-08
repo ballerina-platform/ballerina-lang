@@ -1,14 +1,14 @@
 import ballerina/reflect;
 
-type BR1 record {
+type BR1 record {|
     boolean key1;
     boolean key2;
-};
+|};
 
-type BR2 record {
+type BR2 record {|
     boolean key3;
     boolean key4;
-};
+|};
 
 type BR3 record {|
     BR1 key5;
@@ -16,10 +16,10 @@ type BR3 record {|
     anydata...;
 |};
 
-type BR4 record {
+type BR4 record {|
     boolean key8;
     boolean key9;
-};
+|};
 
 const BR4 br4 = { key8: true, key9: false };
 
@@ -37,15 +37,15 @@ function testComplexBooleanConstRecord() returns BR3 {
 
 // -----------------------------------------------------------
 
-type IR1 record {
+type IR1 record {|
     int key1;
     int key2;
-};
+|};
 
-type IR2 record {
+type IR2 record {|
     int key3;
     int key4;
-};
+|};
 
 type IR3 record {|
     IR1 key5;
@@ -53,10 +53,10 @@ type IR3 record {|
     anydata...;
 |};
 
-type IR4 record {
+type IR4 record {|
     int key8;
     int key9;
-};
+|};
 
 const IR4 ir4 = { key8: 8, key9: 9 };
 
@@ -74,15 +74,15 @@ function testComplexIntConstRecord() returns IR3 {
 
 // -----------------------------------------------------------
 
-type BYTER1 record {
+type BYTER1 record {|
     byte key1;
     byte key2;
-};
+|};
 
-type BYTER2 record {
+type BYTER2 record {|
     byte key3;
     byte key4;
-};
+|};
 
 type BYTER3 record {|
     BYTER1 key5;
@@ -90,10 +90,10 @@ type BYTER3 record {|
     anydata...;
 |};
 
-type BYTER4 record {
+type BYTER4 record {|
     byte key8;
     byte key9;
-};
+|};
 
 const BYTER4 byter4 = { key8: 80, key9: 90 };
 
@@ -111,15 +111,15 @@ function testComplexByteConstRecord() returns BYTER3 {
 
 // -----------------------------------------------------------
 
-type FR1 record {
+type FR1 record {|
     float key1;
     float key2;
-};
+|};
 
-type FR2 record {
+type FR2 record {|
     float key3;
     float key4;
-};
+|};
 
 type FR3 record {|
     FR1 key5;
@@ -127,10 +127,10 @@ type FR3 record {|
     anydata...;
 |};
 
-type FR4 record {
+type FR4 record {|
     float key8;
     float key9;
-};
+|};
 
 const FR4 fr4 = { key8: 8.0, key9: 9.0 };
 
@@ -148,15 +148,15 @@ function testComplexFloatConstRecord() returns FR3 {
 
 // -----------------------------------------------------------
 
-type DR1 record {
+type DR1 record {|
     decimal key1;
     decimal key2;
-};
+|};
 
-type DR2 record {
+type DR2 record {|
     decimal key3;
     decimal key4;
-};
+|};
 
 type DR3 record {|
     DR1 key5;
@@ -164,10 +164,10 @@ type DR3 record {|
     anydata...;
 |};
 
-type DR4 record {
+type DR4 record {|
     decimal key8;
     decimal key9;
-};
+|};
 
 const DR4 dr4 = { key8: 800, key9: 900 };
 
@@ -185,15 +185,15 @@ function testComplexDecimalConstRecord() returns DR3 {
 
 // -----------------------------------------------------------
 
-type SR1 record {
+type SR1 record {|
     string key1;
     string key2;
-};
+|};
 
-type SR2 record {
+type SR2 record {|
     string key3;
     string key4;
-};
+|};
 
 type SR3 record {|
     SR1 key5;
@@ -201,10 +201,10 @@ type SR3 record {|
     anydata...;
 |};
 
-type SR4 record {
+type SR4 record {|
     string key8;
     string key9;
-};
+|};
 
 const SR4 sr4 = { key8: "value8", key9: "value9" };
 
@@ -222,15 +222,15 @@ function testComplexStringConstRecord() returns SR3 {
 
 // -----------------------------------------------------------
 
-type NR1 record {
+type NR1 record {|
     () key1;
     () key2;
-};
+|};
 
-type NR2 record {
+type NR2 record {|
     () key3;
     () key4;
-};
+|};
 
 type NR3 record {|
     NR1 key5;
@@ -238,10 +238,10 @@ type NR3 record {|
     anydata...;
 |};
 
-type NR4 record {
+type NR4 record {|
     () key8;
     () key9;
-};
+|};
 
 const NR4 nr4 = { key8: (), key9: () };
 
