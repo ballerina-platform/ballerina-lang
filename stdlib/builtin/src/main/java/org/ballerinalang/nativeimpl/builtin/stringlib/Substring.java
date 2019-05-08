@@ -29,8 +29,6 @@ import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
-import java.util.Locale;
-
 /**
  * Extern function ballerina.model.arrays:substring(string, int, int).
  */

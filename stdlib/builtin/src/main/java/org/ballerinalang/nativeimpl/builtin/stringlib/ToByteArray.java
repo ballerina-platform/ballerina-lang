@@ -30,7 +30,6 @@ import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Locale;
 
 /**
  * Convert String to byte array.

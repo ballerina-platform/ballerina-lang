@@ -38,8 +38,6 @@ import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.util.HashMap;
-
 /**
  * Get all the elements-type items of a xml.
  * 

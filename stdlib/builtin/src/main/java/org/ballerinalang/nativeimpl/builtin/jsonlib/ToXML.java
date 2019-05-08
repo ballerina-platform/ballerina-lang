@@ -84,10 +84,11 @@ public class ToXML extends BlockingNativeCallableUnit {
         }
     }
 
-    public static Object toXML(Object json, MapValue<?,?> options) {
+    public static Object toXML(Object json, MapValue<?, ?> options) {
         try {
             if (json == null) {
-                ErrorValue error = BallerinaErrors.createError(BallerinaErrorReasons.JSON_CONVERSION_ERROR,"cannot convert null json to xml");
+                ErrorValue error = BallerinaErrors.createError(BallerinaErrorReasons.JSON_CONVERSION_ERROR,
+                        "cannot convert null json to xml");
                 return error;
             }
 

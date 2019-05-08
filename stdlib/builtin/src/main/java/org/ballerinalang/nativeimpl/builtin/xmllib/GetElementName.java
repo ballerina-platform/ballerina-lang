@@ -30,8 +30,6 @@ import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.util.HashMap;
-
 /**
  * Get the fully qualified name of the element as a string.
  * 
