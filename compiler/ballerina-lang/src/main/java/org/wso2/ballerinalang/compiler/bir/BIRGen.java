@@ -108,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -441,6 +442,10 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangInvocation.BFunctionPointerInvocation invocation) {
         invocation.functionPointerInvocation = true;
         createCall(invocation, false);
+    }
+
+    public void visit(BLangForkJoin forkJoin) {
+        forkJoin.workers.forEach(worker -> worker.accept(this));
     }
 
     public void visit(BLangWorkerReceive workerReceive) {
