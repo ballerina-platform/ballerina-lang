@@ -57,6 +57,7 @@ type TerminatorGenerator object {
                 bType is bir:BArrayType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTableType ||
+                bType is bir:BStreamType ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BErrorType ||
                 bType is bir:BObjectType ||
@@ -121,6 +122,7 @@ type TerminatorGenerator object {
             } else if (bType is bir:BArrayType ||
                         bType is bir:BMapType ||
                         bType is bir:BTableType ||
+                        bType is bir:BStreamType ||
                         bType is bir:BErrorType ||
                         bType is bir:BTypeAny ||
                         bType is bir:BTypeAnyData ||
@@ -266,6 +268,9 @@ type TerminatorGenerator object {
         } else if (bType is bir:BTableType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             return io:sprintf("L%s;", TABLE_VALUE);
+        } else if (bType is bir:BStreamType) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            return io:sprintf("L%s;", STREAM_VALUE);
         } else if (bType is bir:BObjectType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             return io:sprintf("L%s;", OBJECT_VALUE);
@@ -339,6 +344,8 @@ type TerminatorGenerator object {
             } else if (bType is bir:BMapType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTableType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BStreamType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BObjectType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
@@ -500,6 +507,8 @@ type TerminatorGenerator object {
             } else if (bType is bir:BMapType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTableType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BStreamType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BObjectType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
