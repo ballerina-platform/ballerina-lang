@@ -364,7 +364,6 @@ public class PathTest {
             log.info("{ballerina/filepath}:resolve(). Return value: " + resolvePath.stringValue());
             assertEquals(resolvePath.stringValue(), Files.readSymbolicLink(symLinkPath).toString());
         } catch (IOException e) {
-            log.error("", e);
             Assert.fail("Error while creating symbolic link", e);
         } finally {
             if (symLinkPath != null) {
@@ -406,10 +405,9 @@ public class PathTest {
         } else {
             testPathMatch(pattern, path, posixOutput);
         }
-
     }
 
-    public void testPathMatch(String pattern, String path, String expected) {
+    private void testPathMatch(String pattern, String path, String expected) {
         BValue[] args = {new BString(path), new BString(pattern)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testPathMatches", args);
 
