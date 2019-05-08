@@ -51,7 +51,7 @@ public class IndexOf extends BlockingNativeCallableUnit {
         context.setReturnValues(intValue);
     }
 
-    public static long lastIndexOf(Strand strand, String value, String subString) {
-        return value.lastIndexOf(subString);
+    public static long indexOf(Strand strand, String value, String subString) {
+        return value.indexOf(subString);
     }
 }
