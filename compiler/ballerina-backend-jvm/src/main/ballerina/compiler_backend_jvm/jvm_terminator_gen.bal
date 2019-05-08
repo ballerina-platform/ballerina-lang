@@ -56,6 +56,7 @@ type TerminatorGenerator object {
         } else if (bType is bir:BMapType ||
                 bType is bir:BArrayType ||
                 bType is bir:BTypeAny ||
+                bType is bir:BTableType ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BErrorType ||
                 bType is bir:BObjectType ||
@@ -119,6 +120,7 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(ISTORE, lhsLndex);
             } else if (bType is bir:BArrayType ||
                         bType is bir:BMapType ||
+                        bType is bir:BTableType ||
                         bType is bir:BErrorType ||
                         bType is bir:BTypeAny ||
                         bType is bir:BTypeAnyData ||
@@ -261,6 +263,9 @@ type TerminatorGenerator object {
         } else if (bType is bir:BMapType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             return io:sprintf("L%s;", MAP_VALUE);
+        } else if (bType is bir:BTableType) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            return io:sprintf("L%s;", TABLE_VALUE);
         } else if (bType is bir:BObjectType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             return io:sprintf("L%s;", OBJECT_VALUE);
@@ -332,6 +337,8 @@ type TerminatorGenerator object {
             } else if (bType is bir:BRecordType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BMapType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BTableType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BObjectType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
@@ -491,6 +498,8 @@ type TerminatorGenerator object {
             } else if (bType is bir:BRecordType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BMapType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BTableType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BObjectType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);

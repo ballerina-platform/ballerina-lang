@@ -71,6 +71,7 @@ public const BINARY_ADD = "ADD";
 public const BINARY_SUB = "SUB";
 public const BINARY_MUL = "MUL";
 public const BINARY_DIV = "DIV";
+public const BINARY_MOD = "MOD";
 public const BINARY_EQUAL = "EQUAL";
 public const BINARY_NOT_EQUAL = "NOT_EQUAL";
 public const BINARY_GREATER_THAN = "GREATER_THAN";
@@ -80,9 +81,10 @@ public const BINARY_LESS_EQUAL = "LESS_EQUAL";
 public const BINARY_AND = "AND";
 public const BINARY_OR = "OR";
 
-public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|BINARY_EQUAL|BINARY_NOT_EQUAL
-                                       |BINARY_GREATER_THAN|BINARY_GREATER_EQUAL|BINARY_LESS_THAN|BINARY_LESS_EQUAL
-                                       |BINARY_AND|BINARY_OR;
+public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|BINARY_MOD
+                                        |BINARY_EQUAL|BINARY_NOT_EQUAL
+                                        |BINARY_GREATER_THAN|BINARY_GREATER_EQUAL|BINARY_LESS_THAN|BINARY_LESS_EQUAL
+                                        |BINARY_AND|BINARY_OR;
 
 public const INS_KIND_MOVE = "MOVE";
 public const INS_KIND_CONST_LOAD = "CONST_LOAD";

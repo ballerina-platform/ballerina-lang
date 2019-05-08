@@ -71,6 +71,8 @@ type InstructionGenerator object {
             self.generateDivIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_MUL) {
             self.generateMulIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_MOD) {
+            self.generateRemIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_AND) {
             self.generateAndIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_OR) {
@@ -267,6 +269,21 @@ type InstructionGenerator object {
         self.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
+    function generateRemIns(bir:BinaryOp binaryIns) {
+            bir:BType bType = binaryIns.lhsOp.typeValue;
+            self.generateBinaryRhsAndLhsLoad(binaryIns);
+            if (bType is bir:BTypeInt) {
+                self.mv.visitInsn(LREM);
+            } else if (bType is bir:BTypeFloat) {
+                self.mv.visitInsn(DREM);
+            } else {
+                error err = error( "JVM generation is not supported for type " +
+                                io:sprintf("%s", binaryIns.lhsOp.typeValue));
+                panic err;
+            }
+            self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
     function generateAndIns(bir:BinaryOp binaryIns) {
         // ILOAD
         // ICONST_1
@@ -349,6 +366,18 @@ type InstructionGenerator object {
         loadType(self.mv, mapNewIns.typeValue);
         self.mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(mapNewIns.lhsOp.variableDcl);
+    }
+
+    function generateTableNewIns(bir:NewTable tableNewIns) {
+        self.mv.visitTypeInsn(NEW, TABLE_VALUE);
+        self.mv.visitInsn(DUP);
+        loadType(self.mv, tableNewIns.typeValue);
+        self.loadVar(tableNewIns.indexColOp.variableDcl);
+        self.loadVar(tableNewIns.keyColOp.variableDcl);
+        self.loadVar(tableNewIns.dataOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", BTYPE,
+                ARRAY_VALUE, ARRAY_VALUE, ARRAY_VALUE), false);
+        self.storeToVar(tableNewIns.lhsOp.variableDcl);
     }
 
     function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
@@ -793,6 +822,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
     } else if (bType is bir:BArrayType ||
                 bType is bir:BTypeString ||
                 bType is bir:BMapType ||
+                bType is bir:BTableType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BTypeNil ||
@@ -834,6 +864,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
     } else if (bType is bir:BArrayType ||
                     bType is bir:BTypeString ||
                     bType is bir:BMapType ||
+                    bType is bir:BTableType ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BTypeNil ||
