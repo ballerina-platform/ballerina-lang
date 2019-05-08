@@ -2325,7 +2325,12 @@ public class Desugar extends BLangNodeVisitor {
                 BLangRecordLiteral.BLangRecordKeyValue member = new BLangRecordLiteral.BLangRecordKeyValue();
                 member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(namedArg.name.pos,
                         symTable.stringType, namedArg.name.value));
-                member.valueExpr = addConversionExprIfRequired(namedArg.expr, symTable.anyType);
+
+                if (recordLiteral.type.tag == TypeTags.RECORD) {
+                    member.valueExpr = addConversionExprIfRequired(namedArg.expr, symTable.anyType);
+                } else {
+                    member.valueExpr = addConversionExprIfRequired(namedArg.expr, symTable.stringType);
+                }
                 recordLiteral.keyValuePairs.add(member);
             }
             iExpr.namedArgs.clear();

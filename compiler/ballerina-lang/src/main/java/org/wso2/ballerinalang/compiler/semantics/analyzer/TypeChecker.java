@@ -2478,7 +2478,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if ((funcSymbol.tag & SymTag.ERROR) == SymTag.ERROR) {
-            checkErrorConstructorInvocation(iExpr, funcSymbol);
+            checkErrorConstructorInvocation(iExpr);
             return;
         } else if (funcSymbol == symTable.notFoundSymbol || (funcSymbol.tag & SymTag.FUNCTION) != SymTag.FUNCTION) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
@@ -2498,7 +2498,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
-    private void checkErrorConstructorInvocation(BLangInvocation iExpr, BSymbol funcSymbol) {
+    private void checkErrorConstructorInvocation(BLangInvocation iExpr) {
         if (types.isAssignable(expType, symTable.errorType)) {
             BErrorType targetErrorType = (BErrorType) expType;
             BSymbol resolvedSymbol = symResolver.lookupSymbol(env, targetErrorType.tsymbol.name, SymTag.CONSTRUCOR);
@@ -2532,16 +2532,23 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
 
-                BRecordType targetErrorDetailRec = (BRecordType) ctorType.detailType;
-                BRecordType recordType = createErrorDetailRecordType(iExpr, namedArgStartPos, targetErrorDetailRec);
-                if (recordType == null) {
-                    return;
-                }
+                if (ctorType.detailType.tag == TypeTags.RECORD) {
+                    BRecordType targetErrorDetailRec = (BRecordType) ctorType.detailType;
+                    BRecordType recordType = createErrorDetailRecordType(iExpr, namedArgStartPos, targetErrorDetailRec);
+                    if (recordType == null) {
+                        return;
+                    }
 
-                if (!types.isAssignable(recordType, targetErrorDetailRec)) {
-                    dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR_DETAIL, iExpr);
-                    resultType = symTable.semanticError;
-                    return;
+                    if (!types.isAssignable(recordType, targetErrorDetailRec)) {
+                        dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR_DETAIL, iExpr);
+                        resultType = symTable.semanticError;
+                        return;
+                    }
+                } else {
+                    BMapType targetErrorDetailMap = (BMapType) ctorType.detailType;
+                    for(int i = namedArgStartPos; i < iExpr.argExprs.size(); i++) {
+                        checkExpr(iExpr.argExprs.get(i), env, targetErrorDetailMap.constraint);
+                    }
                 }
                 setErrorReasonParam(iExpr, namedArgStartPos, ctorType);
                 setErrorDetailsParams(iExpr);
