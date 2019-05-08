@@ -31,20 +31,20 @@ public class ObjectEquivalencyNegativeTest {
     @Test(description = "Test equivalence of objects that are in the same package")
     public void testEquivalenceOfObjectsInSamePackage() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-01-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 5);
+        Assert.assertEquals(compileResult.getErrorCount(), 6);
         BAssertUtil.validateError(compileResult, 0,
                 "incompatible types: 'employee01' cannot be cast to 'person01'", 24, 18);
         BAssertUtil.validateError(compileResult, 1,
                 "incompatible types: 'employee02' cannot be cast to 'person02'", 51, 18);
 //        BAssertUtil.validateError(compileResult, 2,
 //                "incompatible types: 'employee04' cannot be cast to 'person04'", 108, 18);
-//        BAssertUtil.validateError(compileResult, 3,
-//                "incompatible types: 'employee05' cannot be cast to 'person05'", 145, 18);
         BAssertUtil.validateError(compileResult, 2,
-                "incompatible types: 'employee06' cannot be cast to 'person06'", 175, 18);
+                "incompatible types: 'employee05' cannot be cast to 'person05'", 145, 18);
         BAssertUtil.validateError(compileResult, 3,
-                "incompatible types: 'employee08' cannot be cast to 'person08'", 306, 18);
+                "incompatible types: 'employee06' cannot be cast to 'person06'", 175, 18);
         BAssertUtil.validateError(compileResult, 4,
+                "incompatible types: 'employee08' cannot be cast to 'person08'", 306, 18);
+        BAssertUtil.validateError(compileResult, 5,
                 "incompatible types: 'employee09' cannot be cast to 'person09'", 375, 18);
     }
 

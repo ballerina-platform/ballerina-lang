@@ -102,7 +102,7 @@ function testAnyToFuncPointerConversion_1() returns (int|error) {
 }
 
 type Person object {
-    private int age;
+    int age;
 
     function __init (int age) {
         self.age = age;
@@ -114,7 +114,7 @@ type Person object {
 };
 
 type Student object {
-    private int age = 40;
+    int age = 40;
     private int marks;
 
     function getAge() returns (int) {
