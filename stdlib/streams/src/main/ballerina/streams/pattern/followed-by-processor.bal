@@ -39,20 +39,20 @@ public type FollowedByProcessor object {
         boolean promoted = false;
         boolean promote = false;
         boolean tmpPromote = false;
-        boolean isNotProc = false;
-        boolean tmpIsNotProc = false;
+        boolean toNext = false;
+        boolean tmpToNext = false;
         // leftward traversal
         AbstractPatternProcessor? lProcessor = self.lhsProcessor;
         if (lProcessor is AbstractPatternProcessor) {
             io:println("FollowedByProcessor:process:47 -> ", event, "|", processorAlias);
-            (tmpPromote, tmpIsNotProc) = lProcessor.process(event, self.lhsAlias);
+            (tmpPromote, tmpToNext) = lProcessor.process(event, self.lhsAlias);
             promote = promote || tmpPromote;
-            isNotProc = isNotProc || tmpIsNotProc;
+            toNext = toNext || tmpToNext;
             io:println("FollowedByProcessor:process:51 -> ", event, "|", processorAlias);
         }
         // rightward traversal
-        if (((!promote && !isNotProc) || (promote && isNotProc)) && self.partialStates.length() > 0) {
-            isNotProc = false;
+        if ((!promote || toNext) && self.partialStates.length() > 0) {
+            toNext = false;
             AbstractPatternProcessor? rProcessor = self.rhsProcessor;
             if (rProcessor is AbstractPatternProcessor) {
                 // foreach partial state, copy event data and process in rhsProcessor.
@@ -63,9 +63,9 @@ public type FollowedByProcessor object {
                     // stream name into consideration. Therefore, we have to set that.
                     clone.streamName = event.streamName;
                     io:println("FollowedByProcessor:process:65 -> ", clone, "|", processorAlias);
-                    (tmpPromote, tmpIsNotProc) = rProcessor.process(clone, self.rhsAlias);
+                    (tmpPromote, tmpToNext) = rProcessor.process(clone, self.rhsAlias);
                     promote = promote || tmpPromote;
-                    isNotProc = isNotProc || tmpIsNotProc;
+                    toNext = toNext || tmpToNext;
                     io:println("FollowedByProcessor:process:69 -> ", clone, "|", processorAlias);
                 }
             }
@@ -86,7 +86,7 @@ public type FollowedByProcessor object {
             }
         }
         io:println("FollowedByProcessor:process:88 -> ", event, "|", processorAlias);
-        return (promoted, isNotProc);
+        return (promoted, toNext);
     }
 
     public function setStateMachine(StateMachine stateMachine) {
@@ -119,16 +119,16 @@ public type FollowedByProcessor object {
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         string pAlias = <string>processorAlias;
         if (pAlias == self.lhsAlias) {
-            io:println("FollowedByProcessor:promote:107 -> ", stateEvent, "|", processorAlias);
+            io:println("FollowedByProcessor:promote:122 -> ", stateEvent, "|", processorAlias);
             // promoted from lhs means, it's a partial state.
             self.partialStates[stateEvent.getEventId()] = stateEvent;
         } else {
             // promoted from rhs means, it's a complete state.
             // so, remove the its respective partial event.
-            io:println("FollowedByProcessor:promote:113 -> ", stateEvent, "|", processorAlias);
+            io:println("FollowedByProcessor:promote:128 -> ", stateEvent, "|", processorAlias);
             boolean removed = self.partialStates.remove(stateEvent.getEventId());
             if (removed) {
-                io:println("FollowedByProcessor:promote:116 -> ", stateEvent, "|", processorAlias);
+                io:println("FollowedByProcessor:promote:131 -> ", stateEvent, "|", processorAlias);
                 self.stateEvents.addLast(stateEvent);
             }
         }
@@ -148,9 +148,9 @@ public type FollowedByProcessor object {
         // remove matching states from prev processor.
         AbstractOperatorProcessor? pProcessor = self.prevProcessor;
         if (pProcessor is AbstractOperatorProcessor) {
-            io:println("FollowedByProcessor:evict:136 -> ", stateEvent, "|", processorAlias);
+            io:println("FollowedByProcessor:evict:151 -> ", stateEvent, "|", processorAlias);
             pProcessor.evict(stateEvent, processorAlias);
-            io:println("FollowedByProcessor:evict:138 -> ", stateEvent, "|", processorAlias);
+            io:println("FollowedByProcessor:evict:153 -> ", stateEvent, "|", processorAlias);
         }
     }
 
