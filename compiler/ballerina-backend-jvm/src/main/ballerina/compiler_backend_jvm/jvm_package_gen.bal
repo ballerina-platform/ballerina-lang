@@ -307,3 +307,17 @@ function getClassNameForSourceFile(string sourceFileName, string orgName, string
     }
     return getModuleLevelClassName(untaint orgName, untaint moduleName, untaint className);
 }
+
+function generateBuiltInPackages(bir:BIRContext birContext, map<byte[]> jarEntries) {
+    bir:ImportModule utilsBIRMod = {modOrg: {value: "ballerina"}, modName: {value: "utils"},
+                                        modVersion: {value: "0.0.0"}};
+
+    bir:ImportModule builtInBIRMod = {modOrg: {value: "ballerina"}, modName: {value: "builtin"},
+                                        modVersion: {value: "0.0.0"}};
+
+    bir:Package utilsModule = lookupModule(utilsBIRMod, birContext);
+    bir:Package builtInModule = lookupModule(builtInBIRMod, birContext);
+
+    generateImportedPackage(utilsModule, jarEntries);
+    generateImportedPackage(builtInModule, jarEntries);
+}
