@@ -2049,7 +2049,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private boolean isValidConstantRecordType(BLangType typeNode) {
         BRecordType type = (BRecordType) typeNode.type;
-        if (!isAllowedConstantTypeInRecord(type.restFieldType)) {
+        if (type.restFieldType != symTable.noType && !isAllowedConstantTypeInRecord(type.restFieldType, true)) {
             dlog.error(typeNode.pos, DiagnosticCode.UNSUPPORTED_REST_FIELD_IN_RECORD_TYPE, type.restFieldType);
         }
         return isValidConstantRecordType(type);
@@ -2058,7 +2058,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private boolean isValidConstantRecordType(BRecordType type) {
         boolean unsupportedTypesPresent = false;
         for (BField field : type.fields) {
-            if (!isAllowedConstantTypeInRecord(field.type)) {
+            if (!isAllowedConstantTypeInRecord(field.type, false)) {
                 unsupportedTypesPresent = true;
                 dlog.error(field.pos, DiagnosticCode.UNSUPPORTED_CONSTANT_RECORD_FIELD_TYPE, field.type);
             }
@@ -2066,7 +2066,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return !unsupportedTypesPresent;
     }
 
-    private boolean isAllowedConstantTypeInRecord(BType type) {
+    private boolean isAllowedConstantTypeInRecord(BType type, boolean isRestParam) {
         switch (type.tag) {
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
@@ -2079,7 +2079,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case TypeTags.RECORD:
                 return isValidConstantRecordType((BRecordType) type);
         }
-        return false;
+        return isRestParam && type.tag == TypeTags.ANYDATA;
     }
 
     private void checkConstantExpression(BLangExpression expression) {
