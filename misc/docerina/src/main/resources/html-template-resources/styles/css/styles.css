@@ -46,6 +46,10 @@ body .ui.grid .navi-wrapper .search input {
 body .ui.grid .navi-wrapper .primary-list {
   padding-left: 10px;
 }
+body .ui.grid .navi-wrapper .primary-list.module-list ul li,
+body .ui.grid .navi-wrapper .primary-list.function-list ul li {
+  text-transform: none;
+}
 body .ui.grid .navi-wrapper .primary-list ul {
   padding: 0;
   margin: 0;
