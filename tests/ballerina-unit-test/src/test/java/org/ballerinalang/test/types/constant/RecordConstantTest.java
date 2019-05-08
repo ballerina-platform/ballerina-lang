@@ -163,49 +163,49 @@ public class RecordConstantTest {
     public void testBooleanConstKeyReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConstKeyReference");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"bm5kn\":true}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"br6kn\":true}");
     }
 
     @Test
     public void testIntConstKeyReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIntConstKeyReference");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"im5kn\":123}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"ir6kn\":123}");
     }
 
     @Test
     public void testByteConstKeyReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testByteConstKeyReference");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"bytem5kn\":64}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"byter6kn\":64}");
     }
 
     @Test
     public void testFloatConstKeyReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConstKeyReference");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"fm5kn\":12.5}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"fr6kn\":12.5}");
     }
 
     @Test
     public void testDecimalConstKeyReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConstKeyReference");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"dm5kn\":5.56}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"dr6kn\":5.56}");
     }
 
     @Test
     public void testStringConstKeyReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstKeyReference");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"sm5kn\":\"sm4v\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"sr6kn\":\"sr5v\"}");
     }
 
     @Test
     public void testNullConstKeyReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullConstKeyReference");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"nm5kn\":()}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"nr6kn\":()}");
     }
 
     @Test
@@ -248,7 +248,7 @@ public class RecordConstantTest {
     public void testStringConstKeyReferenceInLocalVar() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstKeyReferenceInLocalVar");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "sm4v");
+        Assert.assertEquals(returns[0].stringValue(), "sr5v");
     }
 
     @Test

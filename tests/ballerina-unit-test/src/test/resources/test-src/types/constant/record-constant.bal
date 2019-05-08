@@ -23,16 +23,16 @@ type BR4 record {|
 
 const BR4 br4 = { key8: true, key9: false };
 
-const BR3 bm3 = { key5: bm1, key6: bm2, key7: br4 };
-const BR1 bm1 = { key1: true, key2: false };
-const BR2 bm2 = { key3: false, key4: true };
+const BR3 br3 = { key5: br1, key6: br2, key7: br4 };
+const BR1 br1 = { key1: true, key2: false };
+const BR2 br2 = { key3: false, key4: true };
 
 function testSimpleBooleanConstRecord() returns BR1 {
-    return bm1;
+    return br1;
 }
 
 function testComplexBooleanConstRecord() returns BR3 {
-    return bm3;
+    return br3;
 }
 
 // -----------------------------------------------------------
@@ -273,113 +273,113 @@ function testComplexConstRecord() returns record {| record {| record {| string..
 
 // -----------------------------------------------------------
 
-const record {| boolean...; |} bm4 = { bm4k: true };
-const record {| boolean...; |} bm5 = { bm5kn: bm4.bm4k };
+const record {| boolean...; |} br5 = { br5k: true };
+const record {| boolean...; |} br6 = { br6kn: br5.br5k };
 
 function testBooleanConstKeyReference() returns record {| boolean...; |} {
-    return bm5;
+    return br6;
 }
 
 // -----------------------------------------------------------
 
-const record {| int...; |} im4 = { im4k: 123 };
-const record {| int...; |} im5 = { im5kn: im4.im4k };
+const record {| int...; |} ir5 = { ir5k: 123 };
+const record {| int...; |} ir6 = { ir6kn: ir5.ir5k };
 
 function testIntConstKeyReference() returns record {| int...; |} {
-    return im5;
+    return ir6;
 }
 
 // -----------------------------------------------------------
 
-const record {| byte...; |} bytem4 = { bytem4k: 64 };
-const record {| byte...; |} bytem5 = { bytem5kn: bytem4.bytem4k };
+const record {| byte...; |} byter5 = { byter5k: 64 };
+const record {| byte...; |} byter6 = { byter6kn: byter5.byter5k };
 
 function testByteConstKeyReference() returns record {| byte...; |} {
-    return bytem5;
+    return byter6;
 }
 
 // -----------------------------------------------------------
 
-const record {| float...; |} fm4 = { fm4k: 12.5 };
-const record {| float...; |} fm5 = { fm5kn: fm4.fm4k };
+const record {| float...; |} fr5 = { fr5k: 12.5 };
+const record {| float...; |} fr6 = { fr6kn: fr5.fr5k };
 
 function testFloatConstKeyReference() returns record {| float...; |} {
-    return fm5;
+    return fr6;
 }
 
 // -----------------------------------------------------------
 
-const record {| decimal...; |} dm4 = { dm4k: 5.56 };
-const record {| decimal...; |} dm5 = { dm5kn: dm4.dm4k };
+const record {| decimal...; |} dr5 = { dr5k: 5.56 };
+const record {| decimal...; |} dr6 = { dr6kn: dr5.dr5k };
 
 function testDecimalConstKeyReference() returns record {| decimal...; |} {
-    return dm5;
+    return dr6;
 }
 
 // -----------------------------------------------------------
 
-const record {| string...; |} sm4 = { sm4k: "sm4v" };
-const record {| string...; |} sm5 = { sm5kn: sm4.sm4k };
+const record {| string...; |} sr5 = { sr5k: "sr5v" };
+const record {| string...; |} sr6 = { sr6kn: sr5.sr5k };
 
 function testStringConstKeyReference() returns record {| string...; |} {
-    return sm5;
+    return sr6;
 }
 
 // -----------------------------------------------------------
 
-const record {| ()...; |} nm4 = { nm4k: () };
-const record {| ()...; |} nm5 = { nm5kn: nm4.nm4k };
+const record {| ()...; |} nr5 = { nr5k: () };
+const record {| ()...; |} nr6 = { nr6kn: nr5.nr5k };
 
 function testNullConstKeyReference() returns record {| ()...; |} {
-    return nm5;
+    return nr6;
 }
 
 // -----------------------------------------------------------
 
 function testBooleanConstKeyReferenceInLocalVar() returns boolean {
-    boolean b = bm4.bm4k;
+    boolean b = br5.br5k;
     return b;
 }
 
 // -----------------------------------------------------------
 
 function testIntConstKeyReferenceInLocalVar() returns int {
-    int i = im4.im4k;
+    int i = ir5.ir5k;
     return i;
 }
 
 // -----------------------------------------------------------
 
 function testByteConstKeyReferenceInLocalVar() returns byte {
-    byte b = bytem4.bytem4k;
+    byte b = byter5.byter5k;
     return b;
 }
 
 // -----------------------------------------------------------
 
 function testFloatConstKeyReferenceInLocalVar() returns float {
-    float f = fm4.fm4k;
+    float f = fr5.fr5k;
     return f;
 }
 
 // -----------------------------------------------------------
 
 function testDecimalConstKeyReferenceInLocalVar() returns decimal {
-    decimal d = dm4.dm4k;
+    decimal d = dr5.dr5k;
     return d;
 }
 
 // -----------------------------------------------------------
 
 function testStringConstKeyReferenceInLocalVar() returns string {
-    string s = sm4.sm4k;
+    string s = sr5.sr5k;
     return s;
 }
 
 // -----------------------------------------------------------
 
 function testNullConstKeyReferenceInLocalVar() returns () {
-    () n = nm4.nm4k;
+    () n = nr5.nr5k;
     return n;
 }
 

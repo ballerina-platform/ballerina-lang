@@ -155,11 +155,11 @@ function getConstantFloatRecordValueInArray() returns float {
 // decimal ---------------------------------------------------
 
 function updateNestedConstantDecimalRecordValueWithExistingKey() {
-    foo:getDRM10().dr10k.dr11k = 200; // panic
+    foo:getDR10().dr10k.dr11k = 200; // panic
 }
 
 function updateNestedConstantDecimalRecordValueWithNewKey() {
-    foo:getDRM10().dr10k.newKey = 200; // panic
+    foo:getDR10().dr10k.newKey = 200; // panic
 }
 
 function updateReturnedConstantDecimalRecordWithExistingKey() {

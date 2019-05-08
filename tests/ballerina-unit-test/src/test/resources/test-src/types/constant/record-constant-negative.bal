@@ -1,24 +1,24 @@
 // boolean ---------------------------------------------------
 
-const record {| boolean...; |} bm1 = {};
-const record {| boolean...; |} bm2 = { key: bm1.key };
+const record {| boolean...; |} br1 = {};
+const record {| boolean...; |} br2 = { key: br1.key };
 
-const record {| record {| boolean...; |}...; |} bm3 = {};
-const record {| boolean...; |} bm4 = { key: bm3.key.key };
+const record {| record {| boolean...; |}...; |} br3 = {};
+const record {| boolean...; |} br4 = { key: br3.key.key };
 
-const record {| boolean...; |} bm5 = {};
-record {| boolean...; |} bm6 = { key: bm5.key};
+const record {| boolean...; |} br5 = {};
+record {| boolean...; |} br6 = { key: br5.key};
 
-const record {| record {| boolean...; |}...; |} bm7 = {};
-record {| boolean...; |} bm8 = { key: bm7.key.key};
+const record {| record {| boolean...; |}...; |} br7 = {};
+record {| boolean...; |} br8 = { key: br7.key.key};
 
-record {| boolean...; |} bm10 = {};
-const record {| boolean...; |} bm11 = { key: bm10.key};
+record {| boolean...; |} br10 = {};
+const record {| boolean...; |} br11 = { key: br10.key};
 
-record {| record {| boolean...; |}...; |} bm12 = {};
-const record {| boolean...; |} bm13 = { key: bm12.key.key};
+record {| record {| boolean...; |}...; |} br12 = {};
+const record {| boolean...; |} br13 = { key: br12.key.key};
 
-const record {| boolean...; |} bm15 = { getKey(): getBooleanValue() };
+const record {| boolean...; |} br15 = { getKey(): getBooleanValue() };
 
 function getBooleanValue() returns boolean {
     return true;
@@ -26,25 +26,25 @@ function getBooleanValue() returns boolean {
 
 // int -------------------------------------------------------
 
-const record {| int...; |} im1 = {};
-const record {| int...; |} im2 = { key: im1.key };
+const record {| int...; |} ir1 = {};
+const record {| int...; |} ir2 = { key: ir1.key };
 
-const record {| record {| int...; |}...; |} im3 = {};
-const record {| int...; |} im4 = { key: im3.key.key };
+const record {| record {| int...; |}...; |} ir3 = {};
+const record {| int...; |} ir4 = { key: ir3.key.key };
 
-const record {| int...; |} im5 = {};
-record {| int...; |} im6 = { key: im5.key};
+const record {| int...; |} ir5 = {};
+record {| int...; |} ir6 = { key: ir5.key};
 
-const record {| record {| int...; |}...; |} im7 = {};
-record {| int...; |} im8 = { key: im7.key.key};
+const record {| record {| int...; |}...; |} ir7 = {};
+record {| int...; |} ir8 = { key: ir7.key.key};
 
-record {| int...; |} im10 = {};
-const record {| int...; |} im11 = { key: im10.key};
+record {| int...; |} ir10 = {};
+const record {| int...; |} ir11 = { key: ir10.key};
 
-record {| record {| int...; |}...; |} im12 = {};
-const record {| int...; |} im13 = { key: im12.key.key};
+record {| record {| int...; |}...; |} ir12 = {};
+const record {| int...; |} ir13 = { key: ir12.key.key};
 
-const record {| int...; |} im15 = { getKey(): getIntValue() };
+const record {| int...; |} ir15 = { getKey(): getIntValue() };
 
 function getIntValue() returns int {
     return 10;
@@ -52,25 +52,25 @@ function getIntValue() returns int {
 
 // byte ------------------------------------------------------
 
-const record {| byte...; |} bytem1 = {};
-const record {| byte...; |} bytem2 = { key: bytem1.key };
+const record {| byte...; |} byter1 = {};
+const record {| byte...; |} byter2 = { key: byter1.key };
 
-const record {| record {| byte...; |}...; |} bytem3 = {};
-const record {| byte...; |} bytem4 = { key: bytem3.key.key };
+const record {| record {| byte...; |}...; |} byter3 = {};
+const record {| byte...; |} byter4 = { key: byter3.key.key };
 
-const record {| byte...; |} bytem5 = {};
-record {| byte...; |} bytem6 = { key: bytem5.key};
+const record {| byte...; |} byter5 = {};
+record {| byte...; |} byter6 = { key: byter5.key};
 
-const record {| record {| byte...; |}...; |} bytem7 = {};
-record {| byte...; |} bytem8 = { key: bytem7.key.key};
+const record {| record {| byte...; |}...; |} byter7 = {};
+record {| byte...; |} byter8 = { key: byter7.key.key};
 
-record {| byte...; |} bytem10 = {};
-const record {| byte...; |} bytem11 = { key: bytem10.key};
+record {| byte...; |} byter10 = {};
+const record {| byte...; |} byter11 = { key: byter10.key};
 
-record {| record {| byte...; |}...; |} bytem12 = {};
-const record {| byte...; |} bytem13 = { key: bytem12.key.key};
+record {| record {| byte...; |}...; |} byter12 = {};
+const record {| byte...; |} byter13 = { key: byter12.key.key};
 
-const record {| byte...; |} bytem15 = { getKey(): getByteValue() };
+const record {| byte...; |} byter15 = { getKey(): getByteValue() };
 
 function getByteValue() returns byte {
     return 64;
@@ -78,25 +78,25 @@ function getByteValue() returns byte {
 
 // float -----------------------------------------------------
 
-const record {| float...; |} fm1 = {};
-const record {| float...; |} fm2 = { key: fm1.key };
+const record {| float...; |} fr1 = {};
+const record {| float...; |} fr2 = { key: fr1.key };
 
-const record {| record {| float...; |}...; |} fm3 = {};
-const record {| float...; |} fm4 = { key: fm3.key.key };
+const record {| record {| float...; |}...; |} fr3 = {};
+const record {| float...; |} fr4 = { key: fr3.key.key };
 
-const record {| float...; |} fm5 = {};
-record {| float...; |} fm6 = { key: fm5.key};
+const record {| float...; |} fr5 = {};
+record {| float...; |} fr6 = { key: fr5.key};
 
-const record {| record {| float...; |}...; |} fm7 = {};
-record {| float...; |} fm8 = { key: fm7.key.key};
+const record {| record {| float...; |}...; |} fr7 = {};
+record {| float...; |} fr8 = { key: fr7.key.key};
 
-record {| float...; |} fm10 = {};
-const record {| float...; |} fm11 = { key: fm10.key};
+record {| float...; |} fr10 = {};
+const record {| float...; |} fr11 = { key: fr10.key};
 
-record {| record {| float...; |}...; |} fm12 = {};
-const record {| float...; |} fm13 = { key: fm12.key.key};
+record {| record {| float...; |}...; |} fr12 = {};
+const record {| float...; |} fr13 = { key: fr12.key.key};
 
-const record {| float...; |} fm15 = { getKey(): getFloatValue() };
+const record {| float...; |} fr15 = { getKey(): getFloatValue() };
 
 function getFloatValue() returns float {
     return 12.5;
@@ -104,25 +104,25 @@ function getFloatValue() returns float {
 
 // decimal ---------------------------------------------------
 
-const record {| decimal...; |} dm1 = {};
-const record {| decimal...; |} dm2 = { key: dm1.key };
+const record {| decimal...; |} dr1 = {};
+const record {| decimal...; |} dr2 = { key: dr1.key };
 
-const record {| record {| decimal...; |}...; |} dm3 = {};
-const record {| decimal...; |} dm4 = { key: dm3.key.key };
+const record {| record {| decimal...; |}...; |} dr3 = {};
+const record {| decimal...; |} dr4 = { key: dr3.key.key };
 
-const record {| decimal...; |} dm5 = {};
-record {| decimal...; |} dm6 = { key: dm5.key};
+const record {| decimal...; |} dr5 = {};
+record {| decimal...; |} dr6 = { key: dr5.key};
 
-const record {| record {| decimal...; |}...; |} dm7 = {};
-record {| decimal...; |} dm8 = { key: dm7.key.key};
+const record {| record {| decimal...; |}...; |} dr7 = {};
+record {| decimal...; |} dr8 = { key: dr7.key.key};
 
-record {| decimal...; |} dm10 = {};
-const record {| decimal...; |} dm11 = { key: dm10.key};
+record {| decimal...; |} dr10 = {};
+const record {| decimal...; |} dr11 = { key: dr10.key};
 
-record {| record {| decimal...; |}...; |} dm12 = {};
-const record {| decimal...; |} dm13 = { key: dm12.key.key};
+record {| record {| decimal...; |}...; |} dr12 = {};
+const record {| decimal...; |} dr13 = { key: dr12.key.key};
 
-const record {| decimal...; |} dm15 = { getKey(): getDecimalValue() };
+const record {| decimal...; |} dr15 = { getKey(): getDecimalValue() };
 
 function getDecimalValue() returns decimal {
     return 25;
@@ -130,25 +130,25 @@ function getDecimalValue() returns decimal {
 
 // string ----------------------------------------------------
 
-const record {| string...; |} sm1 = {};
-const record {| string...; |} sm2 = { key: sm1.key };
+const record {| string...; |} sr1 = {};
+const record {| string...; |} sr2 = { key: sr1.key };
 
-const record {| record {| string...; |}...; |} sm3 = {};
-const record {| string...; |} sm4 = { key: sm3.key.key };
+const record {| record {| string...; |}...; |} sr3 = {};
+const record {| string...; |} sr4 = { key: sr3.key.key };
 
-const record {| string...; |} sm5 = {};
-record {| string...; |} sm6 = { key: sm5.key};
+const record {| string...; |} sr5 = {};
+record {| string...; |} sr6 = { key: sr5.key};
 
-const record {| record {| string...; |}...; |} sm7 = {};
-record {| string...; |} sm8 = { key: sm7.key.key};
+const record {| record {| string...; |}...; |} sr7 = {};
+record {| string...; |} sr8 = { key: sr7.key.key};
 
-record {| string...; |} sm10 = {};
-const record {| string...; |} sm11 = { key: sm10.key};
+record {| string...; |} sr10 = {};
+const record {| string...; |} sr11 = { key: sr10.key};
 
-record {| record {| string...; |}...; |} sm12 = {};
-const record {| string...; |} sm13 = { key: sm12.key.key};
+record {| record {| string...; |}...; |} sr12 = {};
+const record {| string...; |} sr13 = { key: sr12.key.key};
 
-const record {| string...; |} sm15 = { getKey(): getStringValue() };
+const record {| string...; |} sr15 = { getKey(): getStringValue() };
 
 function getStringValue() returns string {
     return "Shan";
@@ -156,25 +156,25 @@ function getStringValue() returns string {
 
 // nil -------------------------------------------------------
 
-const record {| ()...; |} nm1 = {};
-const record {| ()...; |} nm2 = { key: nm1.key };
+const record {| ()...; |} nr1 = {};
+const record {| ()...; |} nr2 = { key: nr1.key };
 
-const record {| record {| ()...; |}...; |} nm3 = {};
-const record {| ()...; |} nm4 = { key: nm3.key.key };
+const record {| record {| ()...; |}...; |} nr3 = {};
+const record {| ()...; |} nr4 = { key: nr3.key.key };
 
-const record {| ()...; |} nm5 = {};
-record {| ()...; |} nm6 = { key: nm5.key};
+const record {| ()...; |} nr5 = {};
+record {| ()...; |} nr6 = { key: nr5.key};
 
-const record {| record {| ()...; |}...; |} nm7 = {};
-record {| ()...; |} nm8 = { key: nm7.key.key};
+const record {| record {| ()...; |}...; |} nr7 = {};
+record {| ()...; |} nr8 = { key: nr7.key.key};
 
-record {| ()...; |} nm10 = {};
-const record {| ()...; |} nm11 = { key: nm10.key};
+record {| ()...; |} nr10 = {};
+const record {| ()...; |} nr11 = { key: nr10.key};
 
-record {| record {| ()...; |}...; |} nm12 = {};
-const record {| ()...; |} nm13 = { key: nm12.key.key};
+record {| record {| ()...; |}...; |} nr12 = {};
+const record {| ()...; |} nr13 = { key: nr12.key.key};
 
-const record {| ()...; |} nm15 = { getKey(): getNilValue() };
+const record {| ()...; |} nr15 = { getKey(): getNilValue() };
 
 function getNilValue() returns () {
     return ();

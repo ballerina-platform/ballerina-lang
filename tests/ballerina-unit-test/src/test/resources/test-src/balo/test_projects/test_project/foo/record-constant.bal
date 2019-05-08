@@ -201,7 +201,7 @@ public function getFRA1() returns record {| float...; |}[] {
 record {| record {| decimal...; |}...; |} dr10 = { dr10k: dr11 };
 public const record {| decimal...; |} dr11 = { dr11k: 125 };
 
-public function getDRM10() returns record {| record {| decimal...; |}...; |} {
+public function getDR10() returns record {| record {| decimal...; |}...; |} {
     return dr10;
 }
 
