@@ -46,6 +46,7 @@ import java.nio.channels.DatagramChannel;
 
 import static java.nio.channels.SelectionKey.OP_READ;
 import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.READ_TIMEOUT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
@@ -87,7 +88,14 @@ public class InitEndpoint implements NativeCallableUnit {
                     socketChannel.bind(new InetSocketAddress(host.stringValue(), (int) port.intValue()));
                 }
             }
-            socketService = new SocketService(socketChannel, null);
+            BMap<String, BValue> configs = (BMap<String, BValue>) context.getNullableRefArgument(2);
+            long timeout;
+            if (configs != null && configs.get(READ_TIMEOUT) != null) {
+                timeout = ((BInteger) configs.get(READ_TIMEOUT)).intValue();
+            } else {
+                timeout = SocketUtils.getReadTimeout();
+            }
+            socketService = new SocketService(socketChannel, null, timeout);
             clientEndpoint.addNativeData(SOCKET_SERVICE, socketService);
             selectorManager = SelectorManager.getInstance();
             selectorManager.start();

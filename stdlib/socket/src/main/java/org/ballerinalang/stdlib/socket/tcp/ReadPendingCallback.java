@@ -20,8 +20,11 @@ package org.ballerinalang.stdlib.socket.tcp;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.values.BError;
 
 import java.nio.ByteBuffer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * This will hold information related to the pending read actions.
@@ -35,11 +38,18 @@ public class ReadPendingCallback {
     private final int expectedLength;
     private int currentLength;
     private ByteBuffer buffer;
+    private int socketHash;
+    private Timer timer;
+    private long timeout;
 
-    public ReadPendingCallback(Context context, CallableUnitCallback callback, int expectedLength) {
+    public ReadPendingCallback(Context context, CallableUnitCallback callback, int expectedLength, int socketHash,
+            long timeout) {
         this.context = context;
         this.callback = callback;
         this.expectedLength = expectedLength;
+        this.socketHash = socketHash;
+        this.timeout = timeout;
+        scheduleTimeout(timeout);
     }
 
     public Context getContext() {
@@ -68,5 +78,36 @@ public class ReadPendingCallback {
 
     public void setBuffer(ByteBuffer buffer) {
         this.buffer = buffer;
+    }
+
+    private void scheduleTimeout(long timeout) {
+        timer = getTimer();
+        timer.schedule(getTimerTask(), timeout);
+    }
+
+    public void resetTimeout() {
+        timer.cancel();
+        timer = getTimer();
+        timer.schedule(getTimerTask(), this.timeout);
+    }
+
+    public void cancelTimeout() {
+        timer.cancel();
+    }
+
+    private Timer getTimer() {
+        return new Timer("B7aSocketTimeoutTimer");
+    }
+
+    private TimerTask getTimerTask() {
+        return new TimerTask() {
+            public void run() {
+                ReadPendingSocketMap.getInstance().remove(socketHash);
+                final BError timeoutError = SocketUtils.createSocketError(context, "Read timed out");
+                context.setReturnValues(timeoutError);
+                callback.notifySuccess();
+                cancel();
+            }
+        };
     }
 }

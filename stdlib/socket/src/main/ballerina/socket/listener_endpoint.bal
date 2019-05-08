@@ -51,6 +51,8 @@ public type Listener object {
 # Represents the socket server configuration.
 #
 # + interface - the interface that server with to bind
+# + readTimeout - Socket read timeout value to be used in milliseconds. Default is 300000 milliseconds (5 minutes)
 public type ListenerConfig record {|
     string? interface = ();
+    int readTimeout?;
 |};

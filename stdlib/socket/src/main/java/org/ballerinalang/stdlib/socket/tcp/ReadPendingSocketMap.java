@@ -29,6 +29,7 @@ import java.util.Map;
  */
 public class ReadPendingSocketMap {
     private Map<Integer, ReadPendingCallback> queue = new HashMap<>();
+    private final Object lock = new Object();
 
     private ReadPendingSocketMap() {
     }
@@ -42,11 +43,15 @@ public class ReadPendingSocketMap {
     }
 
     public void add(Integer hashId, ReadPendingCallback readPendingCallback) {
-        queue.put(hashId, readPendingCallback);
+        synchronized (lock) {
+            queue.put(hashId, readPendingCallback);
+        }
     }
 
     public ReadPendingCallback remove(int hashId) {
-        return queue.remove(hashId);
+        synchronized (lock) {
+            return queue.remove(hashId);
+        }
     }
 
     public ReadPendingCallback get(int hashId) {

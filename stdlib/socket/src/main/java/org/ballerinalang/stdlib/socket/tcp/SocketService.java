@@ -35,10 +35,12 @@ public class SocketService {
     private SelectableChannel socketChannel;
     private Map<String, Resource> resources;
     private Semaphore resourceLock = new Semaphore(1);
+    private long readTimeout;
 
-    public SocketService(SelectableChannel socketChannel, Map<String, Resource> resources) {
+    public SocketService(SelectableChannel socketChannel, Map<String, Resource> resources, long readTimeout) {
         this.socketChannel = socketChannel;
         this.resources = resources;
+        this.readTimeout = readTimeout;
     }
 
     public SocketService(Map<String, Resource> resources) {
@@ -55,5 +57,9 @@ public class SocketService {
 
     public Semaphore getResourceLock() {
         return resourceLock;
+    }
+
+    public long getReadTimeout() {
+        return readTimeout;
     }
 }

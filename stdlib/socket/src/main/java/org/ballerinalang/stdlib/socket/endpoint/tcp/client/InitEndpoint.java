@@ -25,6 +25,7 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,6 +44,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_SERVICE_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.READ_TIMEOUT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
@@ -83,8 +85,15 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             if (service != null) {
                 resourceMap = SocketUtils.getResourceRegistry(service);
             }
-            clientEndpoint.addNativeData(SOCKET_SERVICE, new SocketService(socketChannel, resourceMap));
             clientEndpoint.addNativeData(CLIENT_CONFIG, endpointConfig);
+            final BValue readTimeoutBValue = endpointConfig.get(READ_TIMEOUT);
+            long timeout;
+            if (readTimeoutBValue != null) {
+                timeout = ((BInteger) readTimeoutBValue).intValue();
+            } else {
+                timeout = SocketUtils.getReadTimeout();
+            }
+            clientEndpoint.addNativeData(SOCKET_SERVICE, new SocketService(socketChannel, resourceMap, timeout));
             context.setReturnValues();
         } catch (SocketException e) {
             context.setReturnValues(SocketUtils.createSocketError(context, "Unable to bind the local socket port"));
@@ -93,6 +102,4 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             context.setReturnValues(SocketUtils.createSocketError(context, "Unable to initiate the socket"));
         }
     }
-
-
 }
