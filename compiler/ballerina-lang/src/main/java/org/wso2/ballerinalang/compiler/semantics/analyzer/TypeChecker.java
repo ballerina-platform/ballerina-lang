@@ -2538,7 +2538,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 if (!types.isAssignable(recordType, targetErrorDetailRec)) {
-                    dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR, iExpr);
+                    dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR_DETAIL, iExpr);
                     resultType = symTable.semanticError;
                     return;
                 }
