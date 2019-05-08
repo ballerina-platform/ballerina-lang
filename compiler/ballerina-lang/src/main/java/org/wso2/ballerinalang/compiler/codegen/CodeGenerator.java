@@ -771,9 +771,15 @@ public class CodeGenerator extends BLangNodeVisitor {
             BLangExpression valueExpr = keyValue.valueExpr;
             genNode(valueExpr, this.env);
 
-            BMapType mapType = (BMapType) mapLiteral.type;
-
-            int opcode = getValueToRefTypeCastOpcode(mapType.constraint.tag);
+            int opcode;
+            BType type = mapLiteral.type;
+            if (type.tag == TypeTags.MAP) {
+                BMapType mapType = (BMapType) type;
+                opcode = getValueToRefTypeCastOpcode(mapType.constraint.tag);
+            } else {
+                BRecordType recordType = (BRecordType) type;
+                opcode = getValueToRefTypeCastOpcode(recordType.restFieldType.tag);
+            }
             if (opcode == InstructionCodes.NOP) {
                 emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
             } else {
