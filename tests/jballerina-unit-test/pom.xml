@@ -29,7 +29,7 @@
     <artifactId>jballerina-unit-test</artifactId>
     <packaging>jar</packaging>
 
-    <name>Ballerina - Unit Test Module</name>
+    <name>JBallerina - Unit Test Module</name>
     <url>http://ballerinalang.org</url>
 
     <dependencies>
