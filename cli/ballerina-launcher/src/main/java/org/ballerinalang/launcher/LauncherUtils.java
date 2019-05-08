@@ -363,8 +363,9 @@ public class LauncherUtils {
     private static void runBal(Path sourceRootPath, Path sourcePath, String[] args, boolean offline,
                                boolean siddhiRuntimeFlag, boolean experimentalFlag, String srcPathStr, Path fullPath) {
         if (BLangConstants.JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET))) {
-            throw createLauncherException("'ballerina run' command does not support for .bal files. Run 'ballerina " 
-                                                  + "build' and run the jar using 'ballerina run'.");
+            throw createLauncherException("'ballerina run' command only supports jar files for jvm target. " 
+                                                  + "Use 'ballerina build' to create the jar file and run it using " 
+                                                  + "'ballerina run'.");
         }
         ProgramFile programFile = getCompiledProgram(sourceRootPath, sourcePath, offline, siddhiRuntimeFlag,
                                                      experimentalFlag, srcPathStr, fullPath);
