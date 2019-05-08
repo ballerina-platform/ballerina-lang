@@ -72,8 +72,8 @@ public class MapConstantTest {
     public void testComplexIntConstMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexIntConstMap");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key7:\":{\"key9\":9, \"key8\":8}, \"key5\":{\"key1\":1, " +
-                "\"key2\":2}, \"key6\":{\"key3\":3, \"key4\":4}}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":1, \"key2\":2}, \"key6\":{\"key3\":3, " +
+                "\"key4\":4}, \"key7\":{\"key9\":9, \"key8\":8}}");
     }
 
     @Test

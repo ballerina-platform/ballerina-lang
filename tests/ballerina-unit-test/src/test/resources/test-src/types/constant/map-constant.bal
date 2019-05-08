@@ -14,7 +14,7 @@ function testComplexBooleanConstMap() returns map<map<boolean>> {
 
 // -----------------------------------------------------------
 
-const map<map<int>> im3 = { "key5": im1, "key6": im2, "key7:": { "key8": 8, "key9": 9 }};
+const map<map<int>> im3 = { "key5": im1, "key6": im2, "key7": { "key8": 8, "key9": 9 }};
 const map<int> im1 = { "key1": 1, "key2": 2 };
 const map<int> im2 = { "key3": 3, "key4": 4 };
 
