@@ -46,10 +46,10 @@
                 {{/if}}
 
                 {{#if object.fields}}
-                    {{#each object.fields}}
+                    {{#object}}
                         <h2>Fields</h2>
                             {{> fields }}
-                    {{/each}}
+                    {{/object}}
                 {{/if}}
 
                 {{#if object.otherMethods }}
