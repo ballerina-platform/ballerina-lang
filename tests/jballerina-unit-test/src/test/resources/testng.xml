@@ -67,6 +67,7 @@
                     <exclude name="testAbstractObjectInObject" />
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.expressions.elvis.ElvisExpressionTest"/>
             <class name="org.ballerinalang.test.expressions.checkedexpr.CheckedExpressionOperatorTest">
                 <methods>
                     <exclude name="testSemanticErrorsWithResources"/>
@@ -77,6 +78,11 @@
             <class name="org.ballerinalang.test.expressions.binaryoperations.DivisionOperationTest">
                 <methods>
                     <exclude name="testIntDivideByZeroExpr"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.ModOperationTest">
+                <methods>
+                    <exclude name="testIntModZero"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
