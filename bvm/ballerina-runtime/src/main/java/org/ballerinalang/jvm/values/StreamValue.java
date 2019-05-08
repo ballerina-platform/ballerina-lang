@@ -31,7 +31,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
- * The {@code BStream} represents a stream in Ballerina.
+ * The {@link StreamValue} represents a stream in Ballerina.
  *
  * @since 0.995.0
  */
