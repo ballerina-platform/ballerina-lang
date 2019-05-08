@@ -137,12 +137,12 @@ def copyResourceSpec = {
     }
 }
 
-def copySrcBaloSpec = {
-    path -> copySpec {
-        from configurations.balSource.files
-        into("$path/src")
-    }
-}
+//def copySrcBaloSpec = {
+//    path -> copySpec {
+//        from configurations.balSource.files
+//        into("$path/src")
+//    }
+//}
 
 def copyBinSpec = {
     path -> copySpec {
@@ -256,7 +256,7 @@ task createZip(type: Zip, dependsOn: ':language-server:language-server-core:buil
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
     with copyResourceSpec(basePath)
-    with copySrcBaloSpec(basePath)
+//    with copySrcBaloSpec(basePath)
 }
 
 task updateBalHome(type: Copy) {
@@ -273,7 +273,7 @@ task updateBalHome(type: Copy) {
     with examplesSpec(installDir)
     with copyStaticSpec(installDir)
     with copyResourceSpec(installDir)
-    with copySrcBaloSpec(installDir)
+//    with copySrcBaloSpec(installDir)
     into System.getenv('BAL_HOME')
 }
 
@@ -292,7 +292,7 @@ task createDistribution(type: Copy, dependsOn: ':language-server:language-server
     with examplesSpec("")
     with copyStaticSpec("")
     with copyResourceSpec("")
-    with copySrcBaloSpec("")
+//    with copySrcBaloSpec("")
     destinationDir=file(filePath)
 }
 

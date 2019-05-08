@@ -274,10 +274,10 @@ CopySpec copyResourceSpec = copySpec {
     into(basePath + '/bre')
 }
 
-CopySpec copySrcBaloSpec = copySpec {
-    from configurations.balSource.files
-    into("$basePath/src")
-}
+//CopySpec copySrcBaloSpec = copySpec {
+//    from configurations.balSource.files
+//    into("$basePath/src")
+//}
 
 
 task createZip(type: Zip) {
@@ -286,7 +286,7 @@ task createZip(type: Zip) {
     with copyBinSpec
     with copyStaticSpec
     with copyResourceSpec
-    with copySrcBaloSpec
+//    with copySrcBaloSpec
     with copyBalxSpec
 }
 
