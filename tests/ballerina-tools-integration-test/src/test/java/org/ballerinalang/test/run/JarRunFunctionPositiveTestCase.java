@@ -32,6 +32,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
+import static org.ballerinalang.util.BLangConstants.JVM_TARGET;
+
 /**
  * This class tests invoking main function in a bal for jvm target via Ballerina Build Command and run it the jar for
  * testing given outputs.
@@ -49,9 +52,10 @@ public class JarRunFunctionPositiveTestCase extends BaseTest {
         tempProjectDir = Files.createTempDirectory("temp-jar-func-test");
         jarPath = Paths.get(tempProjectDir.toString(), JAR_NAME).toString();
         String[] clientArgs = {
-                "--jvmTarget", "-o", jarPath,
+                jarPath,
                 (new File("src/test/resources/run/jar/test_main_for_jvm_target.bal")).getAbsolutePath()
         };
+        System.setProperty(BALLERINA_TARGET, JVM_TARGET);
         balClient.runMain("build", clientArgs, null, new String[0], new LogLeecher[0], tempProjectDir.toString());
     }
 
@@ -65,6 +69,7 @@ public class JarRunFunctionPositiveTestCase extends BaseTest {
     @AfterClass
     public void tearDown() throws BallerinaTestException {
         try {
+            System.setProperty(BALLERINA_TARGET, "");
             TestUtils.deleteFiles(tempProjectDir);
         } catch (IOException e) {
             throw new BallerinaTestException("Error deleting files");
