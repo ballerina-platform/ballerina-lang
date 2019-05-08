@@ -52,6 +52,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -427,7 +428,7 @@ public class TypeChecker {
 
     private static boolean checkObjectEquivalency(BType sourceType, BObjectType targetType,
                                                   List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.RECORD_TYPE_TAG) {
+        if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
             return false;
         }
 
@@ -439,104 +440,56 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
 
-        // Both structs should be public or private.
-        // Get the XOR of both flags(masks)
-        // If both are public, then public bit should be 0;
-        // If both are private, then public bit should be 0;
-        // The public bit is on means, one is public, and the other one is private.
         BObjectType sourceObjectType = (BObjectType) sourceType;
-        if (Flags.isFlagOn(targetType.flags ^ sourceObjectType.flags, Flags.PUBLIC)) {
+
+        if (targetType.getFields().values().stream().anyMatch(field -> Flags.isFlagOn(field.flags, Flags.PRIVATE))) {
             return false;
         }
-
-        // If both structs are private, they should be in the same package.
-        if (!Flags.isFlagOn(targetType.flags, Flags.PUBLIC) &&
-                !sourceObjectType.getPackagePath().equals(targetType.getPackagePath())) {
-            return false;
-        }
-
-        // Adjust the number of the attached functions of the lhs struct based on
-        // the availability of the initializer function.
-        int lhsAttachedFunctionCount = targetType.initializer != null ? targetType.getAttachedFunctions().length - 1
-                : targetType.getAttachedFunctions().length;
 
         if (targetType.getFields().size() > sourceObjectType.getFields().size() ||
-                lhsAttachedFunctionCount > sourceObjectType.getAttachedFunctions().length) {
+                targetType.getAttachedFunctions().length > sourceObjectType.getAttachedFunctions().length) {
             return false;
         }
 
-        return !Flags.isFlagOn(targetType.flags, Flags.PUBLIC) &&
-                sourceObjectType.getPackagePath().equals(targetType.getPackagePath())
-                        ? checkPrivateObjectsEquivalency(targetType, sourceObjectType, unresolvedTypes)
-                        : checkPublicObjectsEquivalency(targetType, sourceObjectType, unresolvedTypes);
-    }
+        Map<String, BField> rhsFields = sourceObjectType.getFields();
 
-    private static boolean checkPrivateObjectsEquivalency(BObjectType lhsType, BObjectType rhsType,
-                                                          List<TypePair> unresolvedTypes) {
-        Map<String, BField> rhsFields = rhsType.getFields();
-        for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
-            BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
-            if (rhsField == null || !isSameType(rhsField.type, lhsFieldEntry.getValue().type)) {
+        for (BField lhsField : targetType.getFields().values()) {
+            BField rhsField = rhsFields.get(lhsField.name);
+            if (rhsField == null || !hasSameVisibility(
+                    Optional.ofNullable(lhsField.type.getPackagePath()).orElse(""),
+                    Optional.ofNullable(rhsField.type.getPackagePath()).orElse(""), lhsField.flags,
+                    rhsField.flags) ||
+                    !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
                 return false;
             }
         }
 
-        AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
-        AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
+        AttachedFunction[] lhsFuncs = targetType.getAttachedFunctions();
+        AttachedFunction[] rhsFuncs = sourceObjectType.getAttachedFunctions();
         for (AttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
+            if (lhsFunc == targetType.initializer || lhsFunc == targetType.defaultsValuesInitFunc) {
                 continue;
             }
 
             AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean checkPublicObjectsEquivalency(BObjectType lhsType, BObjectType rhsType,
-                                                         List<TypePair> unresolvedTypes) {
-        // Check the whether there is any private fields in RHS type
-        if (rhsType.getFields().values().stream().anyMatch(field -> !Flags.isFlagOn(field.flags, Flags.PUBLIC))) {
-            return false;
-        }
-
-        Map<String, BField> rhsFields = rhsType.getFields();
-        for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
-            BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
-            if (rhsField == null || !Flags.isFlagOn(lhsFieldEntry.getValue().flags, Flags.PUBLIC) ||
-                    !isSameType(rhsField.type, lhsFieldEntry.getValue().type)) {
-                return false;
-            }
-        }
-
-        AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
-        AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
-        for (AttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
-                continue;
-            }
-
-            if (!Flags.isFlagOn(lhsFunc.flags, Flags.PUBLIC)) {
-                return false;
-            }
-
-            AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || !Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
-                return false;
-            }
-        }
-
-        // Check for private attached function in RHS type
-        for (AttachedFunction rhsFunc : rhsFuncs) {
-            if (!Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
+            if (rhsFunc == null || !hasSameVisibility(Optional.ofNullable(lhsFunc.type.getPackagePath()).orElse(""),
+                                                      Optional.ofNullable(rhsFunc.type.getPackagePath()).orElse(""),
+                                                      lhsFunc.flags, rhsFunc.flags)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    private static boolean hasSameVisibility(String lhsTypePkg, String rhsTypePkg, int lhsFlags, int rhsFlags) {
+        if (Flags.isFlagOn(lhsFlags, Flags.PRIVATE)) {
+            return lhsTypePkg.equals(rhsTypePkg);
+        } else if (Flags.isFlagOn(lhsFlags, Flags.PUBLIC)) {
+            return Flags.isFlagOn(rhsFlags, Flags.PUBLIC);
+        }
+        return !Flags.isFlagOn(rhsFlags, Flags.PRIVATE) && !Flags.isFlagOn(rhsFlags, Flags.PUBLIC) &&
+                lhsTypePkg.equals(rhsTypePkg);
     }
 
     private static AttachedFunction getMatchingInvokableType(AttachedFunction[] rhsFuncs, AttachedFunction lhsFunc,
@@ -553,7 +506,7 @@ public class TypeChecker {
         }
 
         for (int i = 0; i < source.paramTypes.length; i++) {
-            if (!checkIsType(source.paramTypes[i], target.paramTypes[i], unresolvedTypes)) {
+            if (!checkIsType(target.paramTypes[i], source.paramTypes[i], unresolvedTypes)) {
                 return false;
             }
         }

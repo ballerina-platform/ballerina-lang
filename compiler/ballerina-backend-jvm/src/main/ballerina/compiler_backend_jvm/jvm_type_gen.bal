@@ -42,7 +42,7 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[]
 #
 # + mv - method visitor
 # + typeDefs - array of type definitions
-public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs) {
+public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs, bir:Name moduleName) {
     string fieldName;
 
     // Create the type
@@ -53,7 +53,7 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
         if (bType is bir:BRecordType) {
             createRecordType(mv, bType, typeDef.name.value);
         } else if (bType is bir:BObjectType) {
-            createObjectType(mv, bType, typeDef.name.value);
+            createObjectType(mv, bType, moduleName.value, typeDef.name.value);
         } else if (bType is bir:BErrorType) {
             createErrorType(mv, bType, typeDef.name.value);
         } else {
@@ -315,7 +315,7 @@ function addRecordRestField(jvm:MethodVisitor mv, bir:BType restFieldType) {
 # + mv - method visitor
 # + objectType - object type
 # + name - name of the object
-function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, string name) {
+function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, string moduleName, string name) {
     // Create the object type
     mv.visitTypeInsn(NEW, OBJECT_TYPE);
     mv.visitInsn(DUP);
@@ -325,7 +325,7 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, stri
 
     // Load package path
     // TODO: get it from the type
-    mv.visitLdcInsn("pkg");
+    mv.visitLdcInsn(moduleName);
 
     // Load flags
     mv.visitLdcInsn(0);

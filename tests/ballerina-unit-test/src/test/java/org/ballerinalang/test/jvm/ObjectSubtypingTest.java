@@ -27,6 +27,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases for testing the object subtyping rules.
+ *
+ * @since 0.995.0
+ */
 public class ObjectSubtypingTest {
     private CompileResult compileResult;
 
