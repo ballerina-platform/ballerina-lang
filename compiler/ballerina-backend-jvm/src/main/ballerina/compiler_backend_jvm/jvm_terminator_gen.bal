@@ -56,6 +56,7 @@ type TerminatorGenerator object {
         } else if (bType is bir:BMapType ||
                 bType is bir:BArrayType ||
                 bType is bir:BTypeAny ||
+                bType is bir:BTableType ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BErrorType ||
                 bType is bir:BObjectType ||
@@ -96,7 +97,7 @@ type TerminatorGenerator object {
         //io:println("Call Ins : " + io:sprintf("%s", callIns));
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
-        if (callIns.isVirtual) {
+        if (self.isVirtualCall(callIns)) {
             self.genVirtualCall(callIns, orgName, moduleName, localVarOffset);
         } else {
             self.genStaticCall(callIns, orgName, moduleName, localVarOffset);
@@ -119,6 +120,7 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(ISTORE, lhsLndex);
             } else if (bType is bir:BArrayType ||
                         bType is bir:BMapType ||
+                        bType is bir:BTableType ||
                         bType is bir:BErrorType ||
                         bType is bir:BTypeAny ||
                         bType is bir:BTypeAnyData ||
@@ -139,14 +141,13 @@ type TerminatorGenerator object {
                                             io:sprintf("%s", callIns.lhsOp.typeValue));
                 panic err;
             }
-
         }
         
         // handle trapped function calls.
         if (isInTryBlock &&  currentEE is bir:ErrorEntry) {
             self.errorGen.generateCatchInsForTrap(currentEE, endLabel, handlerLabel, jumpLabel);
         }
-        
+
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
         jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
@@ -157,7 +158,16 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    function genStaticCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
+    private function isVirtualCall(bir:Call callIns) returns boolean {
+        if (!callIns.isVirtual) {
+            return false;
+        }
+
+        bir:VariableDcl selfArg = getVariableDcl(callIns.args[0].variableDcl);
+        return (selfArg.typeValue is bir:BObjectType || selfArg.typeValue is bir:BServiceType);
+    }
+
+    private function genStaticCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
         // load strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
 
@@ -176,7 +186,7 @@ type TerminatorGenerator object {
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, methodName, methodDesc, false);
     }
 
-    function genVirtualCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
+    private function genVirtualCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
         bir:VariableDcl selfArg = getVariableDcl(callIns.args[0].variableDcl);
         int argIndex = self.getJVMIndexOfVarRef(selfArg);
 
@@ -243,6 +253,8 @@ type TerminatorGenerator object {
             self.mv.visitVarInsn(ALOAD, argIndex);
         } else if (bType is bir:BMapType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
+        } else if (bType is bir:BTableType) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
         } else if (bType is bir:BObjectType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
         } else if (bType is bir:BFutureType) {
@@ -303,6 +315,8 @@ type TerminatorGenerator object {
             } else if (bType is bir:BRecordType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BMapType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BTableType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BObjectType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
@@ -462,6 +476,8 @@ type TerminatorGenerator object {
             } else if (bType is bir:BRecordType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BMapType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BTableType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BObjectType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);

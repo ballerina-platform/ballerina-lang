@@ -51,6 +51,8 @@ class BIRGenEnv {
     BIRBasicBlock enclBB;
     BIRBasicBlock trapBB;
     BIROperand targetOperand;
+    BIRBasicBlock enclLoopBB;
+    BIRBasicBlock enclLoopEndBB;
 
     // This is the basic block that contains the return instruction for the current function.
     // A function can have only one basic block that has a return instruction.
