@@ -55,24 +55,25 @@ public const int INS_XML_LOAD_ALL = 47;
 public const int INS_XML_ATTRIBUTE_LOAD = 48;
 public const int INS_XML_ATTRIBUTE_STORE = 49;
 public const int INS_NEW_TABLE = 50;
-public const int INS_NEW_STREAM = 51;
+public const int INS_NEW_TYPEDESC = 51;
+public const int INS_NEW_STREAM = 52;
 
 
 // Binary expression related instructions.
-public const int INS_ADD = 52;
-public const int INS_SUB = 53;
-public const int INS_MUL = 54;
-public const int INS_DIV = 55;
-public const int INS_MOD = 56;
-public const int INS_EQUAL = 57;
-public const int INS_NOT_EQUAL = 58;
-public const int INS_GREATER_THAN = 59;
-public const int INS_GREATER_EQUAL = 60;
-public const int INS_LESS_THAN = 61;
-public const int INS_LESS_EQUAL = 62;
-public const int INS_AND = 63;
-public const int INS_OR = 64;
+public const int INS_ADD = 61;
+public const int INS_SUB = 62;
+public const int INS_MUL = 63;
+public const int INS_DIV = 64;
+public const int INS_MOD = 65;
+public const int INS_EQUAL = 66;
+public const int INS_NOT_EQUAL = 67;
+public const int INS_GREATER_THAN = 68;
+public const int INS_GREATER_EQUAL = 69;
+public const int INS_LESS_THAN = 70;
+public const int INS_LESS_EQUAL = 71;
+public const int INS_AND = 72;
+public const int INS_OR = 73;
 
 // Unary expression related instructions.
-public const int INS_TYPEOF = 70;
-public const int INS_NOT = 71;
+public const int INS_TYPEOF = 80;
+public const int INS_NOT = 81;

@@ -43,7 +43,7 @@ public class BTypes {
     public static BType typeFuture = new BFutureType(TypeConstants.FUTURE_TNAME, null);
     public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, null);
     public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null);
-    // public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, null);
+    public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, null);
     // public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
     public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, null, typeString, typeMap);
     // public static BType typeAnyService = new BServiceType(null, TypeConstants.SERVICE, null, 0);

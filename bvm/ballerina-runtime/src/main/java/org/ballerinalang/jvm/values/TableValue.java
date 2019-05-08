@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.DataIterator;
-import org.ballerinalang.jvm.TableIterator;
 import org.ballerinalang.jvm.TableProvider;
 import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.types.BStructureType;
@@ -32,15 +31,14 @@ import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
 /**
- * The {@code BTable} represents a two dimensional data set in Ballerina.
+ * The {@code {@link TableValue}} represents a two dimensional data set in Ballerina.
  *
- * @since 0.8.0
+ * @since 0.995.0
  */
 public class TableValue implements RefValue, CollectionValue {
 
@@ -315,7 +313,7 @@ public class TableValue implements RefValue, CollectionValue {
     }
 
     @Override
-    public Iterator newIterator() {
+    public IteratorValue getIterator() {
         return new TableValueIterator(this);
     }
 
@@ -377,7 +375,7 @@ public class TableValue implements RefValue, CollectionValue {
      * @since 0.961.0
      */
     //TODO : copy and stamp to be implemented
-    private static class TableValueIterator implements Iterator {
+    private static class TableValueIterator implements IteratorValue {
 
         private TableValue table;
 
