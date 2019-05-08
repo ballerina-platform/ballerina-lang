@@ -123,6 +123,13 @@ under the License.
                     <exclude name="testAbstractObjectInObject" />
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.expressions.checkedexpr.CheckedExpressionOperatorTest">
+                <methods>
+                    <exclude name="testSemanticErrorsWithResources"/>
+                    <exclude name="testCheckInBinaryAndExpression"/>
+                    <exclude name="testCheckExprInBinaryExpr7"/>
+                </methods>
+            </class>
             <class name="org.ballerinalang.test.expressions.binaryoperations.DivisionOperationTest">
                 <methods>
                     <exclude name="testIntDivideByZeroExpr"/>

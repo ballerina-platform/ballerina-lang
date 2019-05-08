@@ -178,7 +178,6 @@ type TerminatorGenerator object {
         string methodLookupName = callIns.name.value;
         int index = methodLookupName.indexOf(".") + 1;
         string methodName = methodLookupName.substring(index, methodLookupName.length());
-
         self.genStaticCall(callIns, orgName, moduleName, localVarOffset, methodName, methodLookupName);
     }
 
