@@ -19,7 +19,8 @@
  */
 import * as path from 'path';
 import { log } from '../utils/logger';
-import { ServerOptions } from 'vscode-languageclient';
+import { ServerOptions, ExecutableOptions } from 'vscode-languageclient';
+import { existsSync } from 'fs';
 
 export function getServerOptions(ballerinaHome: string, experimental: boolean) : ServerOptions {
     log(`Using Ballerina installation at ${ballerinaHome} for Language server.`);
@@ -32,6 +33,12 @@ export function getServerOptions(ballerinaHome: string, experimental: boolean) :
     } else {
         cmd = 'sh';
         args.push(path.join(cwd, 'language-server-launcher.sh'));
+    }
+
+    const newJdkPath = path.join(ballerinaHome, 'bre', 'lib', 'jdk8u202-b08-jre');
+    let opt: ExecutableOptions = {cwd: cwd};
+    if (existsSync(newJdkPath)) {
+        opt.env = {JAVA_HOME: newJdkPath};
     }
 
     if (process.env.LSDEBUG === "true") {
@@ -48,8 +55,6 @@ export function getServerOptions(ballerinaHome: string, experimental: boolean) :
     return {
         command: cmd,
         args,
-        options: {
-            cwd,
-        },
-    }; 
+        options: opt
+    };
 }
