@@ -42,59 +42,7 @@
                     {{#if functions}}
                         <div>
                             {{#each functions}}
-<<<<<<< HEAD
-                                <p>public function <a class="functions" id="{{name}}"><b>{{name}}</b> </a>{{function_params}} </h3>
-                                    <br><b>Return</b> {{return_type}}</p>
-                                <p>{{description}}</p>
-                                {{#if params}}
-                                    <table class="ui table">
-                                        {{#each params}}
-                                            {{#each fields}}
-                                                <thead>
-                                                <tr>
-                                                    <th>Param Name</th>
-                                                    <th>Data Type</th>
-                                                    <th>Default Value</th>
-                                                    <th>Description</th>
-                                                </tr>
-                                                </thead>
-                                                {{#each attributes}}
-                                                    <tbody>
-                                                    <tr>
-                                                        <td>{{field_name}}</td>
-                                                        <td>{{data_type}}</td>
-                                                        <td>{{default_value}}</td>
-                                                        <td>{{description}}</td>
-                                                    </tr>
-                                                    </tbody>
-                                                {{/each}}
-                                            {{/each}}
-                                        {{/each}}
-                                    </table>
-                                {{/if}}
-                                {{#if returns}}
-                                    <table class="ui table">
-                                        {{#each returns}}
-                                            {{#each fields}}
-                                                <thead>
-                                                <tr>
-                                                    <th>Return Type</th>
-                                                    <th>Description</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <tr>
-                                                    <td>{{return_type}}</td>
-                                                    <td>{{description}}</td>
-                                                </tr>
-                                                </tbody>
-                                            {{/each}}
-                                        {{/each}}
-                                    </table>
-                                {{/if}}
-=======
                                 {{> method }}
->>>>>>> f570b2cc3a19b1b771ff406a32d5f90c046cf141
                             {{/each}}
                         </div>
                     {{/if}}
