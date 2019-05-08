@@ -138,6 +138,36 @@ function testUnaryExprInvalid(){
 	boolean comparison = actual == expected;
 	test:assertTrue(comparison, msg = "AssertTrue failed");
 }
+@test:Config
+function testTupleLiteralValid(){
+	json actual = parseAst("parserModule/tests/resources/expression/tupleLiteralExpression/tuple_valid_expr.txt");
+	json expected = validTupleLiteral();
+	boolean comparison = actual == expected;
+	test:assertTrue(comparison, msg = "AssertTrue failed");
+}
+@test:Config
+function testTupleLiteralInvalid(){
+	json actual = parseAst("parserModule/tests/resources/expression/tupleLiteralExpression/tuple_invalid_comma.txt");
+	json expected = tupleInvalidComma();
+	boolean comparison = actual == expected;
+	test:assertTrue(comparison, msg = "AssertTrue failed");
+
+	json actual3 = parseAst("parserModule/tests/resources/expression/tupleLiteralExpression/tuple_missing_expr.txt");
+	json expected3 = tupleMissingExpr();
+	boolean comparison3 = actual3 == expected3;
+	test:assertTrue(comparison3, msg = "AssertTrue failed");
+
+	json actual4 = parseAst("parserModule/tests/resources/expression/tupleLiteralExpression/tuple_missing_lparen.txt");
+	json expected4 = tupleMissinglparen();
+	boolean comparison4 = actual4 == expected4;
+	test:assertTrue(comparison4, msg = "AssertTrue failed");
+
+	json actual5 = parseAst("parserModule/tests/resources/expression/tupleLiteralExpression/tuple_missing_rparen.txt");
+	json expected5 = tupleMissingRparen();
+	boolean comparison5 = actual5 == expected5;
+	test:assertTrue(comparison5, msg = "AssertTrue failed");
+
+}
 
 
 
