@@ -1,10 +1,9 @@
 function foo(){
-int a = x + ;
+int a = b ++;
 }
 
 Output:
-
-ERROR [sachini/parserModule] - no expression found
+ERROR [sachini/parserModule] - <missing unary expression>
 
 {
     nodeKind: "package",
@@ -14,7 +13,7 @@ ERROR [sachini/parserModule] - no expression found
         startPos: 1,
         endPos: 1,
         lineNumber: 3,
-        index: 13,
+        index: 14,
         whiteSpace: null
     }],
     definitionList: [{
@@ -77,7 +76,7 @@ ERROR [sachini/parserModule] - no expression found
                 startPos: 1,
                 endPos: 1,
                 lineNumber: 3,
-                index: 12,
+                index: 13,
                 whiteSpace: "newLine "
             }],
             statementList: [{
@@ -106,8 +105,8 @@ ERROR [sachini/parserModule] - no expression found
                         startPos: 13,
                         endPos: 13,
                         lineNumber: 2,
-                        index: 11,
-                        whiteSpace: "space "
+                        index: 12,
+                        whiteSpace: null
                     }],
                     valueKind: "int",
                     varIdentifier: {
@@ -139,19 +138,33 @@ ERROR [sachini/parserModule] - no expression found
                             nodeKind: "variableReferenceIdentifier",
                             tokenList: [{
                                 tokenType: 7,
-                                text: "x",
+                                text: "b",
                                 startPos: 9,
                                 endPos: 9,
                                 lineNumber: 2,
                                 index: 9,
                                 whiteSpace: "space "
                             }],
-                            varIdentifier: "x"
+                            varIdentifier: "b"
                         },
-                        rightExpr: null
+                        rightExpr: {
+                            nodeKind: "unaryExpressionNode",
+                            tokenList: [{
+                                tokenType: 54,
+                                text: "+",
+                                startPos: 12,
+                                endPos: 12,
+                                lineNumber: 2,
+                                index: 11,
+                                whiteSpace: null
+                            }],
+                            operatorKind: "+",
+                            uExpression: null
+                        }
                     }
                 }
             }]
         }
     }]
 }
+

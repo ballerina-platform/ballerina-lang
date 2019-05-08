@@ -80,11 +80,6 @@ function testVarDefStInvalid(){
 	boolean comparison = actual == expected;
 	test:assertTrue(comparison, msg = "AssertTrue failed");
 
-	json actual2 = parseAst("parserModule/tests/resources/statements/variableDefinitionStatement/varDefSts_missing_binaryRight.txt");
-	json expected2 = missingBinaryRight();
-	boolean comparison2 = actual2 == expected2;
-	test:assertTrue(comparison2, msg = "AssertTrue failed");
-
 	json actual3 = parseAst("parserModule/tests/resources/statements/variableDefinitionStatement/varDefSts_missing_expr&Semicolon.txt");
 	json expected3 = missingExprandSemicolon();
 	boolean comparison3 = actual3 == expected3;
@@ -99,6 +94,30 @@ function testVarDefStInvalid(){
 	json expected5 = missingVarDefIdentifier();
 	boolean comparison5 = actual5 == expected5;
 	test:assertTrue(comparison5, msg = "AssertTrue failed");
+}
+@test:Config
+function testBinaryExprInvalid(){
+	json actual = parseAst("parserModule/tests/resources/expression/binaryExpression/binary_excess_operator.txt");
+	json expected = binaryExcessOperator();
+	boolean comparison = actual == expected;
+	test:assertTrue(comparison, msg = "AssertTrue failed");
+
+	json actual2 = parseAst("parserModule/tests/resources/expression/binaryExpression/binary_missing_operator.txt");
+	json expected2 = binaryMissingOperator();
+	boolean comparison2 = actual2 == expected2;
+	test:assertTrue(comparison2, msg = "AssertTrue failed");
+
+	json actual3 = parseAst("parserModule/tests/resources/expression/binaryExpression/binary_missing_RightExpr.txt");
+	json expected3 = binaryMissingRightExpr();
+	boolean comparison3 = actual3 == expected3;
+	test:assertTrue(comparison3, msg = "AssertTrue failed");
+}
+@test:Config
+function testBinaryExprValid(){
+	json actual = parseAst("parserModule/tests/resources/expression/binaryExpression/binary_expr_valid.txt");
+	json expected = binaryExprValid();
+	boolean comparison = actual == expected;
+	test:assertTrue(comparison, msg = "AssertTrue failed");
 }
 
 

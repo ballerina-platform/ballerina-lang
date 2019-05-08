@@ -430,7 +430,7 @@ type Parser object {
 				if(expr1 == null){
 					//recovered = false;
 					self.errorRecovered = false;
-					log:printError("no expression found");
+					log:printError("binary right expression not found");
 					BinaryExpressionNode bExpr = { nodeKind: BINARY_EXP_NODE, tokenList: [operator], operatorKind: opKind,
 					leftExpr: expr2, rightExpr: expr1 };
 				self.expStack.push(bExpr);
