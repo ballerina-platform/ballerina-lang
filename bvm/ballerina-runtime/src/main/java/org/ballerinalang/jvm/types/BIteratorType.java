@@ -15,19 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.values;
+package org.ballerinalang.jvm.types;
+
+import org.ballerinalang.jvm.values.IteratorValue;
 
 /**
- * {@code {@link CollectionValue}} represents a collection in Ballerina.
+ * {@code BIteratorType} represents the type of iterator in ballerina.
  *
  * @since 0.995.0
  */
-public interface CollectionValue {
+public class BIteratorType extends BType {
 
-    /**
-     * Create new Iterator for this collection.
-     *
-     * @return iterator created.
-     */
-    IteratorValue getIterator();
+    BIteratorType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, IteratorValue.class);
+    }
+
+    public <V extends Object> V getZeroValue() {
+        return null;
+    }
+
+    @Override
+    public <V extends Object> V getEmptyValue() {
+        return null;
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.ITERATOR_TAG;
+    }
 }

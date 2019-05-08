@@ -116,6 +116,8 @@ function generateCheckCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
         mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", io:sprintf("(J)L%s;", STRING_VALUE), false);
     } else if (sourceType is bir:BTypeFloat) {
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "toString", io:sprintf("(D)L%s;", STRING_VALUE), false);
+    } else if (sourceType is bir:BTypeBoolean) {
+        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "toString", io:sprintf("(Z)L%s;", STRING_VALUE), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'string'", sourceType));
         panic err;
@@ -303,6 +305,8 @@ function generateCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
         mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", io:sprintf("(J)L%s;", STRING_VALUE), false);
     } else if (sourceType is bir:BTypeFloat) {
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "toString", io:sprintf("(D)L%s;", STRING_VALUE), false);
+    } else if (sourceType is bir:BTypeBoolean) {
+        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "toString", io:sprintf("(Z)L%s;", STRING_VALUE), false);
     } else if (sourceType is bir:BTypeAny ||
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType ||

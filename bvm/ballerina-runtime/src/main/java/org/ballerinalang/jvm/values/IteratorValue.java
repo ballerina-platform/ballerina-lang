@@ -17,17 +17,33 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+
+import java.util.Iterator;
+import java.util.Map;
+
 /**
- * {@code {@link CollectionValue}} represents a collection in Ballerina.
+ * Represents an iterator of a Ballerina {@code {@link BCollection}}.
  *
  * @since 0.995.0
  */
-public interface CollectionValue {
+public interface IteratorValue extends RefValue, Iterator {
 
-    /**
-     * Create new Iterator for this collection.
-     *
-     * @return iterator created.
-     */
-    IteratorValue getIterator();
+    /* Default implementation */
+
+    @Override
+    default BType getType() {
+        return BTypes.typeIterator;
+    }
+
+    @Override
+    public default void stamp(BType type) {
+        // do nothing
+    }
+
+    @Override
+    public default Object copy(Map<Object, Object> refs) {
+        return null;
+    }
 }
