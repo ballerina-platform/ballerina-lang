@@ -625,7 +625,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     /**
      * The new stream instruction.
      * <p>
-     * e.g. {@code stream<Employee> employeeStream = new}
+     * e.g. {@code stream<Employee> employeeStream = new;}
      *
      * @since 0.995.0
      */
