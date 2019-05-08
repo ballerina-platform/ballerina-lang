@@ -32,6 +32,7 @@ dependencies {
     testCompile project(':ballerina-launcher')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-simple'
+    testCompile 'commons-io:commons-io'
 }
 
 test {
