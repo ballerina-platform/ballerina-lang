@@ -54,7 +54,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testSimpleBooleanRecordValueEqualityUsingDifferentReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleBooleanRecordValueEqualityUsingDifferentReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleBooleanRecordValueEqualityUsingDifferentReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
@@ -85,14 +86,16 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testComplexBooleanRecordValueEqualityUsingDifferentReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexBooleanRecordValueEqualityUsingDifferentReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testComplexBooleanRecordValueEqualityUsingDifferentReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
     public void testComplexBooleanRecordReferenceEqualityUsingSameReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexBooleanRecordReferenceEqualityUsingSameReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testComplexBooleanRecordReferenceEqualityUsingSameReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -143,7 +146,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testSimpleBooleanRecordValueEqualityUsingSameReferenceInRecord() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleBooleanRecordValueEqualityUsingSameReferenceInRecord");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleBooleanRecordValueEqualityUsingSameReferenceInRecord");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
@@ -227,7 +231,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testSimpleIntRecordReferenceEqualityUsingDifferentReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleIntRecordReferenceEqualityUsingDifferentReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleIntRecordReferenceEqualityUsingDifferentReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -257,7 +262,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testComplexIntRecordReferenceEqualityUsingDifferentReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexIntRecordReferenceEqualityUsingDifferentReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testComplexIntRecordReferenceEqualityUsingDifferentReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -266,7 +272,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testComplexIntRecordValueEqualityUsingRecordAccessSameReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexIntRecordValueEqualityUsingRecordAccessSameReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testComplexIntRecordValueEqualityUsingRecordAccessSameReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
@@ -383,7 +390,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testSimpleByteRecordReferenceEqualityUsingDifferentReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleByteRecordReferenceEqualityUsingDifferentReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleByteRecordReferenceEqualityUsingDifferentReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -413,7 +421,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testComplexByteRecordReferenceEqualityUsingDifferentReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexByteRecordReferenceEqualityUsingDifferentReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testComplexByteRecordReferenceEqualityUsingDifferentReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -422,7 +431,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testComplexByteRecordValueEqualityUsingRecordAccessSameReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexByteRecordValueEqualityUsingRecordAccessSameReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testComplexByteRecordValueEqualityUsingRecordAccessSameReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
@@ -455,7 +465,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testSimpleByteRecordValueEqualityUsingSameReferenceInRecord() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleByteRecordValueEqualityUsingSameReferenceInRecord");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleByteRecordValueEqualityUsingSameReferenceInRecord");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
@@ -539,7 +550,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testSimpleFloatRecordReferenceEqualityUsingDifferentReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleFloatRecordReferenceEqualityUsingDifferentReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleFloatRecordReferenceEqualityUsingDifferentReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -613,7 +625,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testSimpleFloatRecordValueEqualityUsingSameReferenceInRecord() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleFloatRecordValueEqualityUsingSameReferenceInRecord");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleFloatRecordValueEqualityUsingSameReferenceInRecord");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
@@ -683,7 +696,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testSimpleDecimalRecordValueEqualityUsingDifferentReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleDecimalRecordValueEqualityUsingDifferentReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleDecimalRecordValueEqualityUsingDifferentReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
@@ -714,14 +728,16 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testComplexDecimalRecordValueEqualityUsingDifferentReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexDecimalRecordValueEqualityUsingDifferentReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testComplexDecimalRecordValueEqualityUsingDifferentReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
     public void testComplexDecimalRecordReferenceEqualityUsingSameReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexDecimalRecordReferenceEqualityUsingSameReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testComplexDecimalRecordReferenceEqualityUsingSameReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -772,7 +788,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testSimpleDecimalRecordValueEqualityUsingSameReferenceInRecord() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleDecimalRecordValueEqualityUsingSameReferenceInRecord");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleDecimalRecordValueEqualityUsingSameReferenceInRecord");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
@@ -873,7 +890,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testComplexStringRecordValueEqualityUsingDifferentReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexStringRecordValueEqualityUsingDifferentReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testComplexStringRecordValueEqualityUsingDifferentReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
@@ -931,7 +949,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testSimpleStringRecordValueEqualityUsingSameReferenceInRecord() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleStringRecordValueEqualityUsingSameReferenceInRecord");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleStringRecordValueEqualityUsingSameReferenceInRecord");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
@@ -1015,7 +1034,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testSimpleNilRecordReferenceEqualityUsingDifferentReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleNilRecordReferenceEqualityUsingDifferentReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleNilRecordReferenceEqualityUsingDifferentReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -1055,7 +1075,8 @@ public class RecordConstantEqualityInDifferentBaloTest {
 
     @Test
     public void testComplexNilRecordValueEqualityUsingRecordAccessSameReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexNilRecordValueEqualityUsingRecordAccessSameReference");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testComplexNilRecordValueEqualityUsingRecordAccessSameReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
