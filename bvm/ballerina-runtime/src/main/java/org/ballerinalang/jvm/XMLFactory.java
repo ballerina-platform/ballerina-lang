@@ -93,7 +93,9 @@ public class XMLFactory {
             Canonicalizer.register(CANONICALIZER_EXCL_WITH_COMMENTS,
                     "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
             canonicalizer = Canonicalizer.getInstance(CANONICALIZER_WITH_COMMENTS);
-        } catch (InvalidCanonicalizerException | AlgorithmAlreadyRegisteredException e) {
+        } catch (AlgorithmAlreadyRegisteredException e) {
+            // ignore
+        } catch (InvalidCanonicalizerException e) {
             throw new BallerinaException("Error initializing canonicalizer: " + e.getMessage());
         }
     }
