@@ -18,11 +18,13 @@
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 dependencies {
-    baloCreat project(':lib-creator')
+    baloCreat project(':lib-creator-milestone')
+//    baloCreat project(':lib-creator')
 }
 
 dependencies {
-    implementation project(':ballerina-lang')
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+//    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-bir')
 
