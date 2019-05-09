@@ -30,10 +30,11 @@ configurations {
 }
 
 dependencies {
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     implementation project(':ballerina-integration-test-utils')
     implementation project(':ballerina-config')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-lang')
+//    implementation project(':ballerina-lang')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-system')
     implementation project(':ballerina-io')
@@ -63,7 +64,6 @@ dependencies {
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
 
-    implementation 'io.netty:netty-tcnative-boringssl-static'
     implementation 'io.netty:netty-tcnative-boringssl-static'
     implementation 'org.slf4j:slf4j-api'
     implementation 'com.google.protobuf:protobuf-java'
