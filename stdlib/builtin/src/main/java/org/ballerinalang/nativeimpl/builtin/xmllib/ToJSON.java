@@ -19,6 +19,10 @@ package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
@@ -65,5 +69,15 @@ public class ToJSON extends BlockingNativeCallableUnit {
 
         ctx.setReturnValues(json);
     }
-}
 
+    public static Object toJSON(Strand strand, XMLValue<?> xml, MapValue<?, ?> options) {
+        try {
+            String attributePrefix = (String) options.get(OPTIONS_ATTRIBUTE_PREFIX);
+            boolean preserveNamespaces = ((Boolean) options.get(OPTIONS_PRESERVE_NS));
+            return org.ballerinalang.jvm.XMLFactory.convertToJSON(xml, attributePrefix, preserveNamespaces);
+        } catch (Throwable e) {
+            BLangExceptionHelper.handleXMLException("convert xml to json", e);
+        }
+        return null;
+    }
+}

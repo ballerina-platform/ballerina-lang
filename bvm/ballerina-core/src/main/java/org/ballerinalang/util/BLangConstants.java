@@ -90,4 +90,8 @@ public class BLangConstants {
                                                                                          MathContext.DECIMAL128);
 
     public static final String DEFAULT_WORKER_NAME = "default";
+
+    public static final String BALLERINA_TARGET = "ballerina.target";
+
+    public static final String JVM_TARGET = "jvm";
 }
