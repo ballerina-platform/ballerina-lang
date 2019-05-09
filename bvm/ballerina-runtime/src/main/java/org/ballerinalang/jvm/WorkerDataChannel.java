@@ -81,40 +81,6 @@ public class WorkerDataChannel {
         }
         releaseChannelLock();
     }
-
-    /**
-     * Put data for async send.
-     * @param data - data to be sent over the channel
-     * @param waitingCtx - sending context, that will be paused
-     * @param retReg - Reg index to assign result of the send
-     * @return true if execution can continue
-     */
-    public boolean syncSendData(RefValue data, Strand waitingCtx, int retReg) {
-        // TODO : Fix later for sync send
-        try {
-            acquireChannelLock();
-            this.channel.add(new WorkerResult(data, true));
-            this.senderCounter++;
-            this.waitingSender = new WaitingSender(waitingCtx, retReg, -1);
-            if (this.receiver != null) {
-//                BVMScheduler.stateChange(this.receiver, State.PAUSED, State.RUNNABLE);
-//                BVMScheduler.schedule(this.receiver);
-                this.receiver = null;
-            } else if (this.panic != null) {
-//                waitingCtx.setError(this.panic);
-//                BVM.handleError(waitingCtx);
-                this.panic = null;
-                return true;
-            } else if (this.error != null) {
-//                waitingCtx.currentFrame.refRegs[retReg] = this.error;
-                this.error = null;
-                return true;
-            }
-            return false;
-        } finally {
-            releaseChannelLock();
-        }
-    }
     
     @SuppressWarnings("rawtypes")
     public Object tryTakeData(Strand strand) {
@@ -124,33 +90,15 @@ public class WorkerDataChannel {
             if (result != null) {
                 this.receiverCounter++;
                 this.channel.remove();
-                // TODO: Fix later for sync send
-//                if (result.isSync) {
-////                    this.waitingSender.waitingCtx.currentFrame.refRegs[this.waitingSender.returnReg] = null;
-//                    //will continue if this is a sync wait, will try to flush again if blocked on flush
-////                    BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
-////                    BVMScheduler.schedule(this.waitingSender.waitingCtx);
-//                    this.waitingSender = null;
-//                } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
-                // TODO: Fix later for flush
-////                    this.flushSender.waitingCtx.flushDetail.flushLock.lock();
-////                    this.flushSender.waitingCtx.flushDetail.flushedCount++;
-////                    if (this.flushSender.waitingCtx.flushDetail.flushedCount
-////                            == this.flushSender.waitingCtx.flushDetail.flushChannels.length) {
-////                        this.flushSender.waitingCtx.currentFrame.refRegs[this.flushSender.returnReg] = null;
-//                        //will continue if this is a sync wait, will try to flush again if blocked on flush
-////                        BVMScheduler.stateChange(this.flushSender.waitingCtx, State.PAUSED, State.RUNNABLE);
-////                        BVMScheduler.schedule(this.flushSender.waitingCtx);
-////                    }
-////                    this.flushSender.waitingCtx.flushDetail.flushLock.unlock();
-//                    this.flushSender = null;
-//                }
-//                BVM.copyArgValueForWorkerReceive(ctx.currentFrame, reg, type, result.value);
+
+                if (result.isSync) {
+                    // TODO: Fix later for sync send
+                } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
+                    // TODO: Fix later for flush
+                }
                 return result.value;
             } else if (this.panic != null && this.senderCounter == this.receiverCounter + 1) {
                 this.receiverCounter++;
-//                ctx.setError(this.panic);
-//                BVM.handleError(ctx);
                 throw new RuntimeException(this.panic);
             } else if (this.error != null && this.senderCounter == this.receiverCounter + 1) {
                 this.receiverCounter++;
@@ -158,46 +106,9 @@ public class WorkerDataChannel {
             } else {
                 this.receiver = strand;
                 strand.blocked = true;
-                strand.yield = true;  // we are going to execute the same worker receive operation later
-//                ctx.currentFrame.ip--;
-//                BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
+                strand.yield = true;
                 return null;
             }
-        } finally {
-            releaseChannelLock();
-        }
-    }
-
-    /**
-     * Method to flush channel.
-     *
-     * @param ctx waiting for flush
-     * @param retReg registry
-     * @return flushable or not
-     */
-    public boolean flushChannel(Strand ctx, int retReg) {
-        acquireChannelLock();
-        try {
-            if (this.panic != null) {
-//                ctx.setError(this.panic);
-//                BVM.handleError(ctx);
-                return true;
-            } else if (this.error != null) {
-//                ctx.currentFrame.refRegs[retReg] = this.error;
-                return true;
-            } else if (this.receiverCounter == this.senderCounter) {
-//                ctx.flushDetail.flushLock.lock();
-//                ctx.flushDetail.flushedCount++;
-//                if (ctx.flushDetail.flushedCount == ctx.flushDetail.flushChannels.length) {
-//                    ctx.currentFrame.refRegs[retReg] = null;
-//                    ctx.flushDetail.flushLock.unlock();
-//                    return true;
-//                }
-//                ctx.flushDetail.flushLock.unlock();
-                return false;
-            }
-            this.flushSender = new WaitingSender(ctx, retReg, this.senderCounter);
-            return false;
         } finally {
             releaseChannelLock();
         }
@@ -212,8 +123,6 @@ public class WorkerDataChannel {
         this.error = error;
         this.senderCounter++;
         if (this.receiver != null) {
-//            BVMScheduler.stateChange(this.receiver, State.PAUSED, State.RUNNABLE);
-//            BVMScheduler.schedule(this.receiver);
             this.receiver.scheduler.unblockStrand(this.receiver);
             this.receiver = null;
         }
@@ -230,59 +139,11 @@ public class WorkerDataChannel {
         this.error = error;
         this.receiverCounter++;
         if (this.flushSender != null) {
-//            this.flushSender.waitingCtx.currentFrame.refRegs[this.flushSender.returnReg] = this.error;
-//            BVMScheduler.stateChange(this.flushSender.waitingCtx, State.PAUSED, State.RUNNABLE);
-//            BVMScheduler.schedule(this.flushSender.waitingCtx);
+            // TODO: FIX for Flush
             this.flushSender = null;
         } else if (this.waitingSender != null) {
-//            this.waitingSender.waitingStrand.scheduler.unblockStrand(this.waitingSender.waitingStrand);
-//            this.waitingSender.waitingCtx.currentFrame.refRegs[waitingSender.returnReg] = this.error;
-//            BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
-//            BVMScheduler.schedule(this.waitingSender.waitingCtx);
+            // TODO: FIX for sync send
             this.waitingSender = null;
-        }
-        releaseChannelLock();
-    }
-
-    /**
-     * Method to set sender panics.
-     *
-     * @param panic to be set
-     */
-    public void setSendPanic(ErrorValue panic) {
-        acquireChannelLock();
-        this.panic  = panic;
-        this.senderCounter++;
-        if (this.receiver != null) {
-//            BVMScheduler.stateChange(this.receiver, State.PAUSED, State.RUNNABLE);
-//            BVMScheduler.schedule(this.receiver);
-            this.receiver.scheduler.unblockStrand(this.receiver);
-            this.receiver = null;
-        }
-        releaseChannelLock();
-    }
-
-    /**
-     * Method to set receiver panics.
-     *
-     * @param panic to be set
-     */
-    public void setReceiverPanic(ErrorValue panic) {
-        acquireChannelLock();
-        this.panic  = panic;
-        this.receiverCounter++;
-        if (this.flushSender != null) {
-//            this.flushSender.waitingCtx.setError(this.panic);
-//            BVM.handleError(this.flushSender.waitingCtx);
-//            BVMScheduler.stateChange(this.flushSender.waitingCtx, State.PAUSED, State.RUNNABLE);
-//            BVMScheduler.schedule(this.flushSender.waitingCtx);
-//            this.flushSender = null;
-        } else if (this.waitingSender != null) {
-//            this.waitingSender.waitingCtx.setError(this.panic);
-//            BVM.handleError(this.waitingSender.waitingCtx);
-//            BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
-//            BVMScheduler.schedule(this.waitingSender.waitingCtx);
-//            this.waitingSender = null;
         }
         releaseChannelLock();
     }

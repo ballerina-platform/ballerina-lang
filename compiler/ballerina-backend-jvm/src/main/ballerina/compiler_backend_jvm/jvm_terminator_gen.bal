@@ -611,11 +611,6 @@ type TerminatorGenerator object {
         self.genYieldCheck(ins.thenBB, funcName);
     }
         
-        
-        
-        
-        
-
     function submitToScheduler(bir:VarRef? lhsOp) {
         bir:BType? futureType = lhsOp.typeValue;
         boolean isVoid = false;

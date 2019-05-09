@@ -66,21 +66,4 @@ public class Strand {
             }
         }
     }
-
-    public void handleChannelPanic(ChannelDetails[] channels, ErrorValue error) {
-        for (int i = 0; i < channels.length; i++) {
-            WorkerDataChannel channel;
-            ChannelDetails channelDetails = channels[i];
-            if (channelDetails.channelInSameStrand) {
-                channel = this.wdChannels.getWorkerDataChannel(channelDetails.name);
-            } else {
-                channel = this.parent.wdChannels.getWorkerDataChannel(channelDetails.name);
-            }
-            if (channelDetails.send) {
-                channel.setSendPanic(error);
-            } else {
-                channel.setReceiverPanic(error);
-            }
-        }
-    }
 }
