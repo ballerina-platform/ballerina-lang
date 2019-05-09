@@ -59,6 +59,7 @@ public function createDir(string dir, boolean parentDirs = false) returns error?
 
 # Removes the specified file or directory.
 # If recursive flag is true, Removes the path and any children  # it contains.
+#
 # + path - String value of file/directory path.
 # + recursive - Indicates whether the `remove` should
 # recursively remove all the file inside the given directory.
