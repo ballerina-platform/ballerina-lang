@@ -34,6 +34,7 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -306,6 +307,10 @@ public class BTable implements BRefType<Object>, BCollection {
 
     public Double getFloat(int columnIndex) {
         return iterator.getFloat(columnIndex);
+    }
+
+    public BigDecimal getDecimal(int columnIndex) {
+        return iterator.getDecimal(columnIndex);
     }
 
     public Boolean getBoolean(int columnIndex) {
