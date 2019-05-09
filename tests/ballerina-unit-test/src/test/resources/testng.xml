@@ -28,7 +28,7 @@ under the License.
     </listeners>
 
     <!--Ballerina language Test Cases. -->
-    <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-lang-test-suite" preserve-order="true">
         <groups>
             <run>
                 <exclude name="HSQLDBNotSupported"/>
@@ -77,7 +77,7 @@ under the License.
 			<class name="org.ballerinalang.test.types.map.MapInitializerExprTest" />
 		</classes>
     </test>
-    <test name="ballerina-main-function-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-main-function-test-suite" preserve-order="true">
         <packages >
             <package name="org.ballerinalang.test.main.function.*"/>
         </packages>
