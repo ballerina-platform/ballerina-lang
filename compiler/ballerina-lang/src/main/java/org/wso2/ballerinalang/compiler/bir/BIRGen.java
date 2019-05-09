@@ -230,7 +230,7 @@ public class BIRGen extends BLangNodeVisitor {
         int i = 0;
         for (String channelName: astFunc.sendsToThis) {
             birFunc.workerChannels[i] = new BIRNode.ChannelDetails(channelName, astFunc.defaultWorkerName.value
-                    .equals(DEFAULT_WORKER_NAME), isChannelSend(channelName, astFunc.defaultWorkerName.value));
+                    .equals(DEFAULT_WORKER_NAME), isWorkerSend(channelName, astFunc.defaultWorkerName.value));
             i++;
         }
 
@@ -284,7 +284,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.clear();
     }
 
-    private boolean isChannelSend(String chnlName, String workerName) {
+    private boolean isWorkerSend(String chnlName, String workerName) {
         return chnlName.startsWith(workerName) && chnlName.split(workerName)[1].startsWith("->");
     }
 

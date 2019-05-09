@@ -75,7 +75,6 @@ public type PackageParser object {
         }
         BasicBlock?[] basicBlocks = self.getBasicBlocks(bodyParser);
         ErrorEntry?[] errorEntries = self.getErrorEntries(bodyParser);
-
         ChannelDetail[] workerChannels = self.getWorkerChannels(bodyParser);
 
         return {
