@@ -77,7 +77,7 @@ public function rename(string oldpath, string newpath) returns error? = external
 
 # Returns the default directory to use for temporary files.
 #
-# + return - Temp directory location.
+# + return - Temporary directory location.
 public function tempDir() returns string = external;
 
 # Creates a file in specified file path.
