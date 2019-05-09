@@ -19,6 +19,8 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -57,5 +59,23 @@ public class PrintlnAny extends BlockingNativeCallableUnit {
             out.println((Object) null);
         }
         ctx.setReturnValues();
+    }
+
+    public static void println(Strand strand, ArrayValue values) {
+        PrintStream out = System.out;
+        if (values == null) {
+            out.println((Object) null);
+            return;
+        }
+
+        StringBuilder content = new StringBuilder();
+        Object value;
+        for (int i = 0; i < values.size(); i++) {
+            value = values.get(i);
+            if (value != null) {
+                content.append(value.toString());
+            }
+        }
+        out.println(content);
     }
 }
