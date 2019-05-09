@@ -1368,8 +1368,9 @@ public class BIRPackageSymbolEnter {
                         int funcFlags = 0;
                         funcFlags = visibilityAsMask(funcFlags, inputStream.readByte());
                         BInvokableType funcType = (BInvokableType) readType();
-                        BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(funcFlags, names.fromString(funcName),
-                                env.pkgSymbol.pkgID, funcType, env.pkgSymbol, Symbols.isFlagOn(objFlags, Flags.NATIVE));
+                        BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(funcFlags,
+                                names.fromString(funcName), env.pkgSymbol.pkgID, funcType,
+                                env.pkgSymbol, Symbols.isFlagOn(objFlags, Flags.NATIVE));
                         invokableSymbol.retType = funcType.retType;
                         objectSymbol.methodScope.define(invokableSymbol.name, invokableSymbol);
 //                        setDocumentation(varSymbol, attrData); // TODO fix - rajith
