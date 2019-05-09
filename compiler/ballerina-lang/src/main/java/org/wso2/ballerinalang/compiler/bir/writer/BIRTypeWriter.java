@@ -161,12 +161,6 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     @Override
-    public void visit(BStreamType bStreamType) {
-        buff.writeByte(bStreamType.tag);
-        bStreamType.constraint.accept(this);
-    }
-
-    @Override
     public void visit(BFutureType bFutureType) {
         buff.writeByte(bFutureType.tag);
         bFutureType.constraint.accept(this);
