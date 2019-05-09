@@ -773,7 +773,7 @@ public class Types {
 
         for (BField lhsField : lhsType.fields) {
             BField rhsField = rhsFields.get(lhsField.name);
-            if (rhsField == null || !hasSameVisibility(lhsField.symbol, rhsField.symbol)
+            if (rhsField == null || !isInSameVisibilityRegion(lhsField.symbol, rhsField.symbol)
                     || !isAssignable(rhsField.type, lhsField.type)) {
                 return false;
             }
@@ -796,7 +796,8 @@ public class Types {
             }
 
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || !hasSameVisibility(lhsFunc.symbol, rhsFunc.symbol)) {
+            if (rhsFunc == null || Symbols.isPrivate(lhsFunc.symbol) || !isInSameVisibilityRegion(lhsFunc.symbol,
+                                                                                                  rhsFunc.symbol)) {
                 return false;
             }
         }
@@ -1645,7 +1646,7 @@ public class Types {
                 .orElse(null);
     }
 
-    private boolean hasSameVisibility(BSymbol lhsSym, BSymbol rhsSym) {
+    private boolean isInSameVisibilityRegion(BSymbol lhsSym, BSymbol rhsSym) {
         if (Symbols.isPrivate(lhsSym)) {
             return Symbols.isPrivate(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID) && lhsSym.name.equals(rhsSym.name);
         } else if (Symbols.isPublic(lhsSym)) {

@@ -3728,7 +3728,7 @@ public class BVM {
 
         for (BField lhsField : lhsType.getFields().values()) {
             BField rhsField = rhsFields.get(lhsField.fieldName);
-            if (rhsField == null || !hasSameVisibility(
+            if (rhsField == null || !isInSameVisibilityRegion(
                     Optional.ofNullable(lhsField.fieldType.getPackagePath()).orElse(""),
                     Optional.ofNullable(rhsField.fieldType.getPackagePath()).orElse(""), lhsField.flags,
                     rhsField.flags) ||
@@ -3745,9 +3745,10 @@ public class BVM {
             }
 
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || !hasSameVisibility(Optional.ofNullable(lhsFunc.type.getPackagePath()).orElse(""),
-                                                      Optional.ofNullable(rhsFunc.type.getPackagePath()).orElse(""),
-                                                      lhsFunc.flags, rhsFunc.flags)) {
+            if (rhsFunc == null || Flags.isFlagOn(lhsFunc.flags, Flags.PRIVATE) ||
+                    !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackagePath()).orElse(""),
+                                              Optional.ofNullable(rhsFunc.type.getPackagePath()).orElse(""),
+                                              lhsFunc.flags, rhsFunc.flags)) {
                 return false;
             }
         }
@@ -3785,7 +3786,7 @@ public class BVM {
         return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
-    private static boolean hasSameVisibility(String lhsTypePkg, String rhsTypePkg, int lhsFlags, int rhsFlags) {
+    private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, int lhsFlags, int rhsFlags) {
         if (Flags.isFlagOn(lhsFlags, Flags.PRIVATE)) {
             return lhsTypePkg.equals(rhsTypePkg);
         } else if (Flags.isFlagOn(lhsFlags, Flags.PUBLIC)) {

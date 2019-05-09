@@ -455,7 +455,7 @@ public class TypeChecker {
 
         for (BField lhsField : targetType.getFields().values()) {
             BField rhsField = rhsFields.get(lhsField.name);
-            if (rhsField == null || !hasSameVisibility(
+            if (rhsField == null || !isInSameVisibilityRegion(
                     Optional.ofNullable(lhsField.type.getPackagePath()).orElse(""),
                     Optional.ofNullable(rhsField.type.getPackagePath()).orElse(""), lhsField.flags,
                     rhsField.flags) ||
@@ -472,9 +472,10 @@ public class TypeChecker {
             }
 
             AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || !hasSameVisibility(Optional.ofNullable(lhsFunc.type.getPackagePath()).orElse(""),
-                                                      Optional.ofNullable(rhsFunc.type.getPackagePath()).orElse(""),
-                                                      lhsFunc.flags, rhsFunc.flags)) {
+            if (rhsFunc == null || Flags.isFlagOn(lhsFunc.flags, Flags.PRIVATE) ||
+                    !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackagePath()).orElse(""),
+                                              Optional.ofNullable(rhsFunc.type.getPackagePath()).orElse(""),
+                                              lhsFunc.flags, rhsFunc.flags)) {
                 return false;
             }
         }
@@ -482,7 +483,7 @@ public class TypeChecker {
         return true;
     }
 
-    private static boolean hasSameVisibility(String lhsTypePkg, String rhsTypePkg, int lhsFlags, int rhsFlags) {
+    private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, int lhsFlags, int rhsFlags) {
         if (Flags.isFlagOn(lhsFlags, Flags.PRIVATE)) {
             return lhsTypePkg.equals(rhsTypePkg);
         } else if (Flags.isFlagOn(lhsFlags, Flags.PUBLIC)) {
