@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
@@ -78,7 +79,7 @@ public class FindAll extends AbstractRegexFunction {
             }
             return stringArray;
         } catch (PatternSyntaxException e) {
-            return BallerinaErrors.createError(e.getMessage(), null);
+            return BallerinaErrors.createError(BallerinaErrorReasons.STRING_OPERATION_ERROR, e.getMessage());
         }
     }
 }

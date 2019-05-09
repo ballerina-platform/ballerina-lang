@@ -312,7 +312,6 @@ public class TableValue implements RefValue, CollectionValue {
         }
     }
 
-
     @Override
     public IteratorValue getIterator() {
         return new TableValueIterator(this);
