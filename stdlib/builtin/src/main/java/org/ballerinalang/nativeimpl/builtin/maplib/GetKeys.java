@@ -20,6 +20,9 @@ package org.ballerinalang.nativeimpl.builtin.maplib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -45,5 +48,9 @@ public class GetKeys extends BlockingNativeCallableUnit {
         BMap<String, BValue> map = (BMap<String, BValue>) ctx.getRefArgument(0);
         BValueArray keyArray = new BValueArray(map.keys());
         ctx.setReturnValues(keyArray);
+    }
+
+    public static ArrayValue keys(Strand strand, MapValue<?, ?> map) {
+        return new ArrayValue((String[]) map.getKeys());
     }
 }

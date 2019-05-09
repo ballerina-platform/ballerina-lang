@@ -20,6 +20,8 @@ package org.ballerinalang.nativeimpl.builtin.maplib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
@@ -46,6 +48,10 @@ public class HasKey extends BlockingNativeCallableUnit {
         BMap<String, BValue> map = (BMap<String, BValue>) ctx.getRefArgument(0);
         String key = ctx.getStringArgument(0);
         ctx.setReturnValues(new BBoolean(map.hasKey(key)));
+    }
+
+    public static boolean hasKey(Strand strand, MapValue<?, ?> map, String key) {
+        return map.containsKey(key);
     }
 }
 
