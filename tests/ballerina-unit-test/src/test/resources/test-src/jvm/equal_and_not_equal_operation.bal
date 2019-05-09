@@ -1095,3 +1095,27 @@ function testEmptyMapAndRecordEquality() returns boolean {
 function isEqual(anydata a, anydata b) returns boolean {
     return a == b && !(b != a);
 }
+
+function testSimpleXmlPositive() returns boolean {
+    xml x1 = xml `<book>The Lost World</book>`;
+    xml x2 = xml `<book>The Lost World</book>`;
+    xml x3 = xml `Hello, world!`;
+    xml x4 = xml `Hello, world!`;
+    xml x5 = xml `<?target data?>`;
+    xml x6 = xml `<?target data?>`;
+    xml x7 = xml `<!-- I'm a comment -->`;
+    xml x8 = xml `<!-- I'm a comment -->`;
+    return x1 == x2 && !(x1 != x2) && x3 == x4 && !(x3 != x4) && x5 == x6 && !(x5 != x6) && x7 == x8 && !(x7 != x8);
+}
+
+function testSimpleXmlNegative() returns boolean {
+    xml x1 = xml `<book>The Lot World</book>`;
+    xml x2 = xml `<book>The Lost World</book>`;
+    xml x3 = xml `Hello, world!`;
+    xml x4 = xml `Hello world!`;
+    xml x5 = xml `<?targt data?>`;
+    xml x6 = xml `<?target data?>`;
+    xml x7 = xml `<!-- I'm comment one -->`;
+    xml x8 = xml `<!-- I'm comment two -->`;
+    return x1 == x2 || !(x1 != x2) || x3 == x4 || !(x3 != x4) || x5 == x6 || !(x5 != x6) || x7 == x8 || !(x7 != x8);
+}
