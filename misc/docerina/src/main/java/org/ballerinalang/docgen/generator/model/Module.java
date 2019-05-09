@@ -36,5 +36,6 @@ public class Module {
     public List<Constant> constants = new ArrayList<>();
     public List<Annotation> annotations = new ArrayList<>();
     public List<Error> errors = new ArrayList<>();
+    public List<FiniteType> finiteTypes = new ArrayList<>();
     public List<UnionType> unionTypes = new ArrayList<>();
 }

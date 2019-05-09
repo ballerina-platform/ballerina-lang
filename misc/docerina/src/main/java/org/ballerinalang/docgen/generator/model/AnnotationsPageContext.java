@@ -15,16 +15,15 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
-/**
- * Represent documentation for an Annotation.
- */
-public class Annotation extends Construct {
-    public Type type;
-    public String attachmentPoints;
+import java.util.List;
 
-    public Annotation(String name, String description, Type type, String attachmentPoints) {
-        super(name, description);
-        this.type = type;
-        this.attachmentPoints = attachmentPoints;
+/**
+ * Page context for annotations page.
+ */
+public class AnnotationsPageContext extends ModulePageContext {
+    public List<Annotation> annotations;
+    public AnnotationsPageContext(List<Annotation> annotations, Module module, Project project, String rootPath, String title) {
+        super(module, project, rootPath, title);
+        this.annotations = annotations;
     }
 }

@@ -9,9 +9,9 @@
         <div class="navi-wrapper-content">
             {{> logo }}
             <div class="primary-list">
-                <h3>Annotations</h3>
+                <h3>Types</h3>
                 <ul>
-                    {{#each module.annotations}}
+                    {{#each module.unionTypes}}
                         <li>
                             <a href="#{{name}}">{{name}}</a>
                         </li>
@@ -26,23 +26,22 @@
 
     <div class="fourteen wide column content-wrapper">
         <div class="main-wrapper">
-            <h1>Annotations</h1>
-            <div class="annotations">
+            <h1>Types</h1>
+            <div class="ui divider"></div>
+            <div class="types">
                 <table class="ui table param-table">
                     <thead>
                     <tr>
                         <th width="20%">Name</th>
-                        <th width="20%">Data Type</th>
-                        <th width="15%">Attachment Points</th>
+                        <th width="35%">Values</th>
                         <th width="35%">Description</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {{#each annotations}}
+                    {{#each types}}
                         <tr id="{{ name }}">
                             <td>{{ name }}</td>
-                            <td>{{{ typeName type }}}</td>
-                            <td>{{ attachmentPoints }}</td>
+                            <td>{{{ unionTypeSummary memberTypes }}}</td>
                             <td>{{{ description }}}</td>
                         </tr>
                     {{/each}}
