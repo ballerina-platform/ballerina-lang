@@ -10,7 +10,7 @@ type Student record {
 };
 
 // This defines a closed record type named `Address`. The `{|` and `|}` delimiters indicate that this record type
-// exclusively allows mapping values which contain the described fields.
+// allows mapping values which contain only the described fields.
 type Address record {|
     string city;
     string country;
@@ -22,7 +22,7 @@ type Grades record {|
     int maths;
     int physics;
     int chemistry;
-    // This is an `int` typed rest field. All additional fields should be of the rest field's type or a subtype of it.
+    // This is a rest field of the type`int`. All additional fields should be of the rest field's type or a subtype of it.
     int...;
 |};
 
@@ -59,6 +59,6 @@ public function main() {
     // This adds an additional field not defined in the record type descriptor above.
     // Note that an attempt to add additional fields to a closed record results in compile errors.
     // e.g., `peter.address.street = "Palm Grove";` will result in a compile error.
-    peter.address = <Address>{city: "Colombo", country: "Sri Lanka"};
+    peter.address = <Address>{ city: "Colombo", country: "Sri Lanka" };
     io:println(peter);
 }
