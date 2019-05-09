@@ -20,6 +20,8 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
@@ -47,5 +49,10 @@ public class Split extends BlockingNativeCallableUnit {
         String[] splitArray = initialString.split(regex);
         BValueArray bSplitArray = new BValueArray(splitArray);
         context.setReturnValues(bSplitArray);
+    }
+
+    public static ArrayValue split(Strand strand, String value, String regex) {
+        String[] splitArray = value.split(regex);
+        return new ArrayValue(splitArray);
     }
 }

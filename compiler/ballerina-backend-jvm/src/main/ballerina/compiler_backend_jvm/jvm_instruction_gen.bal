@@ -71,12 +71,16 @@ type InstructionGenerator object {
             self.generateDivIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_MUL) {
             self.generateMulIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_MOD) {
+            self.generateRemIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_AND) {
             self.generateAndIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_OR) {
             self.generateOrIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_LESS_EQUAL) {
             self.generateLessEqualIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_NOT_EQUAL) {
+            self.generateNotEqualIns(binaryIns);
         } else {
             error err = error("JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind));
             panic err;
@@ -132,20 +136,54 @@ type InstructionGenerator object {
         jvm:Label label1 = new;
         jvm:Label label2 = new;
 
-        // It is assumed that both operands are of same type
-        bir:BType opType = binaryIns.rhsOp1.variableDcl.typeValue;
-        if (opType is bir:BTypeInt) {
+        bir:BType lhsOpType = binaryIns.rhsOp1.variableDcl.typeValue;
+        bir:BType rhsOpType = binaryIns.rhsOp2.variableDcl.typeValue;
+        if (lhsOpType is bir:BTypeInt|bir:BTypeByte && rhsOpType is bir:BTypeInt|bir:BTypeByte) {
             self.mv.visitInsn(LCMP);
             self.mv.visitJumpInsn(IFNE, label1);
-        } else if (opType is bir:BTypeFloat ||
-                    opType is bir:BTypeString ||
-                    opType is bir:BTypeBoolean ||
-                    opType is bir:BTypeByte ) {
-            error err = error( "equal operator is not supported for type " +
-                    io:sprintf("%s", opType));
-            panic err;
+        } else if (lhsOpType is bir:BTypeFloat && rhsOpType is bir:BTypeFloat) {
+            self.mv.visitInsn(DCMPL);
+            self.mv.visitJumpInsn(IFNE, label1);
+        } else if (lhsOpType is bir:BTypeBoolean && rhsOpType is bir:BTypeBoolean) {
+            self.mv.visitJumpInsn(IF_ICMPNE, label1);
         } else {
-            self.mv.visitJumpInsn(IF_ACMPNE, label1);
+            self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isEqual",
+                    io:sprintf("(L%s;L%s;)Z", OBJECT, OBJECT), false);
+            self.storeToVar(binaryIns.lhsOp.variableDcl);
+            return;
+        }
+
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitJumpInsn(GOTO, label2);
+
+        self.mv.visitLabel(label1);
+        self.mv.visitInsn(ICONST_0);
+
+        self.mv.visitLabel(label2);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateNotEqualIns(bir:BinaryOp binaryIns) {
+        self.generateBinaryRhsAndLhsLoad(binaryIns);
+
+        jvm:Label label1 = new;
+        jvm:Label label2 = new;
+
+        // It is assumed that both operands are of same type
+        bir:BType lhsOpType = binaryIns.rhsOp1.variableDcl.typeValue;
+        bir:BType rhsOpType = binaryIns.rhsOp2.variableDcl.typeValue;
+        if (lhsOpType is bir:BTypeInt|bir:BTypeByte && rhsOpType is bir:BTypeInt|bir:BTypeByte) {
+            self.mv.visitInsn(LCMP);
+            self.mv.visitJumpInsn(IFEQ, label1);
+        } else if (lhsOpType is bir:BTypeFloat && rhsOpType is bir:BTypeFloat) {
+            self.mv.visitInsn(DCMPL);
+            self.mv.visitJumpInsn(IFEQ, label1);
+        } else if (lhsOpType is bir:BTypeBoolean && rhsOpType is bir:BTypeBoolean) {
+            self.mv.visitJumpInsn(IF_ICMPEQ, label1);
+        } else {
+            self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isEqual",
+                    io:sprintf("(L%s;L%s;)Z", OBJECT, OBJECT), false);
+            self.mv.visitJumpInsn(IFNE, label1);
         }
 
         self.mv.visitInsn(ICONST_1);
@@ -231,6 +269,21 @@ type InstructionGenerator object {
         self.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
+    function generateRemIns(bir:BinaryOp binaryIns) {
+            bir:BType bType = binaryIns.lhsOp.typeValue;
+            self.generateBinaryRhsAndLhsLoad(binaryIns);
+            if (bType is bir:BTypeInt) {
+                self.mv.visitInsn(LREM);
+            } else if (bType is bir:BTypeFloat) {
+                self.mv.visitInsn(DREM);
+            } else {
+                error err = error( "JVM generation is not supported for type " +
+                                io:sprintf("%s", binaryIns.lhsOp.typeValue));
+                panic err;
+            }
+            self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
     function generateAndIns(bir:BinaryOp binaryIns) {
         // ILOAD
         // ICONST_1
@@ -313,6 +366,18 @@ type InstructionGenerator object {
         loadType(self.mv, mapNewIns.typeValue);
         self.mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(mapNewIns.lhsOp.variableDcl);
+    }
+
+    function generateTableNewIns(bir:NewTable tableNewIns) {
+        self.mv.visitTypeInsn(NEW, TABLE_VALUE);
+        self.mv.visitInsn(DUP);
+        loadType(self.mv, tableNewIns.typeValue);
+        self.loadVar(tableNewIns.indexColOp.variableDcl);
+        self.loadVar(tableNewIns.keyColOp.variableDcl);
+        self.loadVar(tableNewIns.dataOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", BTYPE,
+                ARRAY_VALUE, ARRAY_VALUE, ARRAY_VALUE), false);
+        self.storeToVar(tableNewIns.lhsOp.variableDcl);
     }
 
     function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
@@ -552,7 +617,12 @@ type InstructionGenerator object {
             error err = error( "Expected BInvokableType, found " + io:sprintf("%s", returnType));
             panic err;
         }
-        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid);
+        foreach var v in inst.closureMaps {
+            if (v is bir:VarRef) {
+                self.loadVar(v.variableDcl);
+            }
+        }
+        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid, inst.closureMaps.length());
         generateVarStore(self.mv, inst.lhsOp.variableDcl, self.currentPackageName, 
             self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         lambdas[lambdaName] = (inst, methodClass);
@@ -677,6 +747,39 @@ type InstructionGenerator object {
         self.storeToVar(xmlLoadIns.lhsOp.variableDcl);
     }
 
+    function generateTypeofIns(bir:UnaryOp unaryOp) {
+        self.loadVar(unaryOp.rhsOp.variableDcl);
+        addBoxInsn(self.mv, unaryOp.rhsOp.variableDcl.typeValue);
+        self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "getTypedesc",
+                io:sprintf("(L%s;)L%s;", OBJECT, TYPEDESC_VALUE), false);
+        self.storeToVar(unaryOp.lhsOp.variableDcl);
+    }
+
+    function generateNotIns(bir:UnaryOp unaryOp) {
+        self.loadVar(unaryOp.rhsOp.variableDcl);
+
+        jvm:Label label1 = new;
+        jvm:Label label2 = new;
+
+        self.mv.visitJumpInsn(IFNE, label1);
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitJumpInsn(GOTO, label2);
+        self.mv.visitLabel(label1);
+        self.mv.visitInsn(ICONST_0);
+        self.mv.visitLabel(label2);
+
+        self.storeToVar(unaryOp.lhsOp.variableDcl);
+    }
+
+    function generateNewTypedescIns(bir:NewTypeDesc newTypeDesc) {
+        self.mv.visitTypeInsn(NEW, TYPEDESC_VALUE);
+        self.mv.visitInsn(DUP);
+        loadType(self.mv, newTypeDesc.typeValue);
+        self.mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE, "<init>",
+                io:sprintf("(L%s;)V", BTYPE), false);
+        self.storeToVar(newTypeDesc.lhsOp.variableDcl);
+    }
+
     private function loadVar(bir:VariableDcl varDcl) {
         generateVarLoad(self.mv, varDcl, self.currentPackageName, self.getJVMIndexOfVarRef(varDcl));
     }
@@ -719,6 +822,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
     } else if (bType is bir:BArrayType ||
                 bType is bir:BTypeString ||
                 bType is bir:BMapType ||
+                bType is bir:BTableType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BTypeNil ||
@@ -729,8 +833,10 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BJSONType ||
                 bType is bir:BFutureType ||
                 bType is bir:BObjectType ||
+                bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
-                bType is bir:BXMLType ) {
+                bType is bir:BFiniteType ||
+                bType is bir:BTypeDesc) {
         mv.visitVarInsn(ALOAD, valueIndex);
     } else {
         error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
@@ -758,6 +864,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
     } else if (bType is bir:BArrayType ||
                     bType is bir:BTypeString ||
                     bType is bir:BMapType ||
+                    bType is bir:BTableType ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BTypeNil ||
@@ -768,8 +875,10 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BJSONType ||
                     bType is bir:BFutureType ||
                     bType is bir:BObjectType ||
+                    bType is bir:BXMLType ||
                     bType is bir:BInvokableType ||
-                    bType is bir:BXMLType) {
+                    bType is bir:BFiniteType ||
+                    bType is bir:BTypeDesc) {
         mv.visitVarInsn(ASTORE, valueIndex);
     } else {
         error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));

@@ -74,7 +74,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 @SuppressWarnings("unchecked")
 public final class XMLItem extends XMLValue<OMNode> {
 
-    private OMNode omNode;
+    OMNode omNode;
     private XMLNodeType nodeType;
 
     /**
@@ -574,7 +574,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> slice(int startIndex, int endIndex) {
+    public XMLValue<?> slice(long startIndex, long endIndex) {
         if (startIndex > 1 || endIndex > 1 || startIndex < -1 || endIndex < -1) {
             throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
         }
@@ -892,5 +892,10 @@ public final class XMLItem extends XMLValue<OMNode> {
             }
             bXmlItem.setAttribute(localName, url, null, value);
         }
+    }
+
+    @Override
+    public IteratorValue getIterator() {
+        return new XMLIterator.ItemIterator(this);
     }
 }

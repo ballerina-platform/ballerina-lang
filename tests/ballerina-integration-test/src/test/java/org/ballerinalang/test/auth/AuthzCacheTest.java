@@ -22,7 +22,6 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
@@ -36,7 +35,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class AuthzCacheTest extends AuthBaseTest {
 
-    private final int servicePort = 9100;
+    private final int servicePort = 9098;
 
     @Test(description = "Authn success test case with example1 issuer")
     public void testAuthCache() throws Exception {
@@ -64,10 +63,9 @@ public class AuthzCacheTest extends AuthBaseTest {
                 "l2aawDBFag_4GJhRd__AxjZemCqAdKs-cqX-JNSWnB8m7cBfA9LOH-y2dmowNqv4VeMuuxKriMe9w-7YpnRPJrs-HIxLMgOdJa" +
                 "YsFHEPL1wWDvlpt53wDjCveYw4OgD39S5g-pcemGUflVUMoKB3nti1qjzcIb6nDKdqQiAbnSN2UKEVLXQpZX5WUKe5SuFlKnS9" +
                 "z1BbKC2z79eMe15yx8asas3krgJyKVNISUWlgPWvKHxyfh_RoQYgWPn-rhng1_P8Ag");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo9/test9"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
 
         // JWT used in the second request:
         // {
@@ -93,10 +91,9 @@ public class AuthzCacheTest extends AuthBaseTest {
                 "XichRv_y7_VuY-WTm7QBtR5tqpBVAI59SezTE9NqxCIy-ol4RE7rQ7plOr2y80NNQfoWE6PCwsjFNc2v_FdXzR6ADvsnNZbRu" +
                 "Z2nhnTpkDkdmgDOyonw4YZPG275ZQCRTJEjyUKnF4yEm9c2cwCtbOVzdThtzuJEmEcrRHAre7zZX857R2ZKo84TZ8Tes3maGY" +
                 "dpwoUnOy9aseNB8iy0AAPQwf1MkpbgCUJFGLAWHAQsUBJXPpCPGMKVJ5CYzFiPC_bX_pUrzrXOJw");
-        response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo9/test9"),
+        response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
 
         // JWT used in the third request:
         // {
@@ -122,9 +119,8 @@ public class AuthzCacheTest extends AuthBaseTest {
                 "eO9Kt3EIJHU4njheptz7Qfep_sEyYdq3CvQI5bKxUZw4bA-87AxTv_tFpSAbiBpGhD0rmhYAfkXF7QsWplDts_xFRhMmxHEsel" +
                 "RKMg4F9-iX3HQYouJoRzyDJTETyzxC2vFE0FaCxVDrrs5B2KU3YB-etkPUWDFgzaoV13SaHxPBhj-f5arlfRaDk2XtbNnchHgs" +
                 "LbLux8FaxyAglgRoDNgBgaCynbhUYAUnpr2JSx72FN8J0CJB5f31EMmmd4FukTtv-8w");
-        response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo9/test9"),
+        response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 }

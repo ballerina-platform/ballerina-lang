@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.IsLike;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
@@ -186,7 +187,13 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.UnaryOP birUnaryOp) {
-        throw new AssertionError();
+        writePosition(birUnaryOp.pos);
+        sb.append("\t\t");
+        birUnaryOp.lhsOp.accept(this);
+        sb.append(" = ").append(birUnaryOp.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        birUnaryOp.rhsOp.accept(this);
+        sb.append(" ");
+        sb.append(";\n");
     }
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
@@ -210,6 +217,22 @@ public class BIREmitter extends BIRVisitor {
         birNewArray.lhsOp.accept(this);
         sb.append(" = ").append(birNewArray.kind.name().toLowerCase(Locale.ENGLISH)).append(" [");
         birNewArray.sizeOp.accept(this);
+        sb.append("];\n");
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewTable newTable) {
+        writePosition(newTable.pos);
+        sb.append("\t\t");
+        newTable.lhsOp.accept(this);
+        sb.append(" = ").append(newTable.kind.name().toLowerCase(Locale.ENGLISH)).append(" [");
+        newTable.columnsOp.accept(this);
+        sb.append(", ");
+        newTable.indexColOp.accept(this);
+        sb.append(", ");
+        newTable.keyColOp.accept(this);
+        sb.append(", ");
+        newTable.dataOp.accept(this);
         sb.append("];\n");
     }
 
@@ -373,6 +396,14 @@ public class BIREmitter extends BIRVisitor {
         newStringXMLQName.lhsOp.accept(this);
         sb.append(" = ").append(newStringXMLQName.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         newStringXMLQName.stringQNameOP.accept(this);
+        sb.append(";\n");
+    }
+
+    public void visit(NewTypeDesc newTypeDesc) {
+        sb.append("\t\t");
+        newTypeDesc.lhsOp.accept(this);
+        sb.append(" = ").append(newTypeDesc.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        sb.append(newTypeDesc.type.tsymbol);
         sb.append(";\n");
     }
 

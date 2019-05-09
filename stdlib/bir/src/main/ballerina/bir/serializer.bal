@@ -35,12 +35,16 @@ public function serialize(BType bType) returns string {
         return "function (" + serializeTypes(bType.paramTypes, ", ") + ") returns " + serialize(bType.retType);
     } else if (bType is BArrayType) {
         return serialize(bType.eType) + "[]";
+    } else if (bType is BRecordType) {
+        return "record {" + serializeRecordFields(bType.fields) + "}";
     } else if (bType is BObjectType) {
         return "object {" + serializeFields(bType.fields) + serializeAttachedFunc(bType.attachedFunctions) + "}";
     } else if (bType is Self) {
         return "...";
     } else if (bType is BMapType) {
         return "map<"+ serialize(bType.constraint) +">";
+    } else if (bType is BTableType) {
+        return "table<"+ serialize(bType.tConstraint) +">";
     } else if (bType is BTypeAnyData) {
         return "anydata";
     } else if (bType is BErrorType) {
@@ -70,6 +74,17 @@ function serializeFields(BObjectField?[] fields) returns string {
     var delimiter = "; ";
     foreach var field in fields {
         if (field is BObjectField) {
+            result = result + serialize(field.typeValue) + " " + field.name.value + delimiter;
+        }
+    }
+    return result;
+}
+
+function serializeRecordFields(BRecordField?[] fields) returns string {
+    var result = "";
+    var delimiter = "; ";
+    foreach var field in fields {
+        if (field is BRecordField) {
             result = result + serialize(field.typeValue) + " " + field.name.value + delimiter;
         }
     }

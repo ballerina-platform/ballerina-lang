@@ -241,7 +241,7 @@ public type ClientEndpointConfig record {|
     SecureSocket? secureSocket = ();
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth = ();
+    OutboundAuthConfig? auth = ();
 |};
 
 
@@ -319,11 +319,11 @@ public type ProxyConfig record {|
     string password = "";
 |};
 
-# The `AuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.
+# The `OutboundAuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.
 #
 # + scheme - Authentication scheme
 # + config - Configuration related to the selected authenticator.
-public type AuthConfig record {|
+public type OutboundAuthConfig record {|
     OutboundAuthScheme scheme;
     BasicAuthConfig|OAuth2AuthConfig|JwtAuthConfig config?;
 |};

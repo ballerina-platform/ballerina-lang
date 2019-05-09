@@ -44,6 +44,7 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
@@ -97,15 +98,15 @@ public class CommandUtil {
      * @param line             Node line
      * @return {@link List}    List of commands for the line
      */
-    public static List<Either<Command, CodeAction>> getCommandForNodeType(String topLevelNodeType, String docUri,
+    public static List<CodeAction> getCommandForNodeType(String topLevelNodeType, String docUri,
                                                                           int line) {
-        List<Either<Command, CodeAction>> commands = new ArrayList<>();
+        List<CodeAction> actions = new ArrayList<>();
         if (UtilSymbolKeys.OBJECT_KEYWORD_KEY.equals(topLevelNodeType)) {
-            commands.add(getInitializerGenerationCommand(docUri, line));
+            actions.add(getInitializerGenerationCommand(docUri, line));
         }
-        commands.add(getDocGenerationCommand(topLevelNodeType, docUri, line));
-        commands.add(getAllDocGenerationCommand(docUri));
-        return commands;
+        actions.add(getDocGenerationCommand(topLevelNodeType, docUri, line));
+        actions.add(getAllDocGenerationCommand(docUri));
+        return actions;
     }
 
     /**
@@ -118,12 +119,12 @@ public class CommandUtil {
      * @param lsCompiler       LS Compiler
      * @return {@link Command}  Test Generation command
      */
-    public static List<Either<Command, CodeAction>> getTestGenerationCommand(String topLevelNodeType, String docUri,
+    public static List<CodeAction> getTestGenerationCommand(String topLevelNodeType, String docUri,
                                                          CodeActionParams params,
                                                          WorkspaceDocumentManager documentManager,
                                                          LSCompiler lsCompiler) {
         LSServiceOperationContext context = new LSServiceOperationContext();
-        List<Either<Command, CodeAction>> commands = new ArrayList<>();
+        List<CodeAction> actions = new ArrayList<>();
         List<Object> args = new ArrayList<>();
         args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri));
         Position position = params.getRange().getStart();
@@ -133,17 +134,23 @@ public class CommandUtil {
         boolean isService = UtilSymbolKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType);
         boolean isFunction = UtilSymbolKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType);
         if ((isService || isFunction) && !isTopLevelNode(docUri, documentManager, lsCompiler, context, position)) {
-            return commands;
+            return actions;
         }
 
         if (isService) {
-            commands.add(Either.forLeft(new Command(CommandConstants.CREATE_TEST_SERVICE_TITLE,
-                                                    CreateTestExecutor.COMMAND, args)));
+            CodeAction action = new CodeAction(CommandConstants.CREATE_TEST_SERVICE_TITLE);
+            action.setKind(CodeActionKind.Source);
+            action.setCommand(new Command(CommandConstants.CREATE_TEST_SERVICE_TITLE,
+                                          CreateTestExecutor.COMMAND, args));
+            actions.add(action);
         } else if (isFunction) {
-            commands.add(Either.forLeft(new Command(CommandConstants.CREATE_TEST_FUNC_TITLE,
-                                                    CreateTestExecutor.COMMAND, args)));
+            CodeAction action = new CodeAction(CommandConstants.CREATE_TEST_FUNC_TITLE);
+            action.setKind(CodeActionKind.Source);
+            action.setCommand(new Command(CommandConstants.CREATE_TEST_FUNC_TITLE,
+                                          CreateTestExecutor.COMMAND, args));
+            actions.add(action);
         }
-        return commands;
+        return actions;
     }
 
     private static boolean isTopLevelNode(String docUri, WorkspaceDocumentManager documentManager,
@@ -161,10 +168,9 @@ public class CommandUtil {
      * @param params     Code Action parameters
      * @return {@link List}     List of commands related to the given diagnostic
      */
-    public static List<Either<Command, CodeAction>> getCommandsByDiagnostic(Diagnostic diagnostic,
-                                                                            CodeActionParams params) {
+    public static List<CodeAction> getCommandsByDiagnostic(Diagnostic diagnostic, CodeActionParams params) {
         String diagnosticMessage = diagnostic.getMessage();
-        List<Either<Command, CodeAction>> commands = new ArrayList<>();
+        List<CodeAction> actions = new ArrayList<>();
         Position position = params.getRange().getStart();
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE,
                                                       "" + position.getLine());
@@ -172,6 +178,8 @@ public class CommandUtil {
                                                      "" + position.getCharacter());
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI,
                                                      params.getTextDocument().getUri());
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        diagnostics.add(diagnostic);
 
         if (isUndefinedPackage(diagnosticMessage)) {
             String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
@@ -192,8 +200,12 @@ public class CommandUtil {
                                 + pkgEntry.getFullPackageNameAlias();
                         CommandArgument pkgArgument = new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME,
                                                                           pkgEntry.getFullPackageNameAlias());
-                        commands.add(Either.forLeft(new Command(commandTitle, ImportModuleExecutor.COMMAND,
-                                                 new ArrayList<>(Arrays.asList(pkgArgument, uriArg)))));
+                        CodeAction action = new CodeAction(commandTitle);
+                        action.setKind(CodeActionKind.QuickFix);
+                        action.setCommand(new Command(commandTitle, ImportModuleExecutor.COMMAND,
+                                                      new ArrayList<>(Arrays.asList(pkgArgument, uriArg))));
+                        action.setDiagnostics(diagnostics);
+                        actions.add(action);
                     });
         } else if (isUndefinedFunction(diagnosticMessage)) {
             List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
@@ -203,13 +215,26 @@ public class CommandUtil {
                 functionName = matcher.group(1) + "(...)";
             }
             String commandTitle = CommandConstants.CREATE_FUNCTION_TITLE + functionName;
-            commands.add(Either.forLeft(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args)));
+            CodeAction action = new CodeAction(commandTitle);
+            action.setKind(CodeActionKind.QuickFix);
+            action.setCommand(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args));
+            action.setDiagnostics(diagnostics);
+            actions.add(action);
         } else if (isVariableAssignmentRequired(diagnosticMessage)) {
             List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
-            commands.add(Either.forLeft(new Command(commandTitle, CreateVariableExecutor.COMMAND, args)));
+            CodeAction action = new CodeAction(commandTitle);
+            action.setKind(CodeActionKind.QuickFix);
+            action.setCommand(new Command(commandTitle, CreateVariableExecutor.COMMAND, args));
+            action.setDiagnostics(diagnostics);
+            actions.add(action);
+
             commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
-            commands.add(Either.forLeft(new Command(commandTitle, IgnoreReturnExecutor.COMMAND, args)));
+            action = new CodeAction(commandTitle);
+            action.setKind(CodeActionKind.QuickFix);
+            action.setCommand(new Command(commandTitle, IgnoreReturnExecutor.COMMAND, args));
+            action.setDiagnostics(diagnostics);
+            actions.add(action);
         } else if (isUnresolvedPackage(diagnosticMessage)) {
             Matcher matcher = CommandConstants.UNRESOLVED_MODULE_PATTERN.matcher(
                     diagnosticMessage.toLowerCase(Locale.ROOT)
@@ -220,10 +245,14 @@ public class CommandUtil {
                 args.add(new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME, pkgName));
                 args.add(uriArg);
                 String commandTitle = CommandConstants.PULL_MOD_TITLE;
-                commands.add(Either.forLeft(new Command(commandTitle, PullModuleExecutor.COMMAND, args)));
+                CodeAction action = new CodeAction(commandTitle);
+                action.setKind(CodeActionKind.QuickFix);
+                action.setCommand(new Command(commandTitle, PullModuleExecutor.COMMAND, args));
+                action.setDiagnostics(diagnostics);
+                actions.add(action);
             }
         }
-        return commands;
+        return actions;
     }
 
     /**
@@ -367,29 +396,36 @@ public class CommandUtil {
         return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.UNRESOLVED_MODULE);
     }
 
-    private static Either<Command, CodeAction> getDocGenerationCommand(String nodeType, String docUri, int line) {
+    private static CodeAction getDocGenerationCommand(String nodeType, String docUri, int line) {
         CommandArgument nodeTypeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, nodeType);
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument lineStart = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
         List<Object> args = new ArrayList<>(Arrays.asList(nodeTypeArg, docUriArg, lineStart));
-
-        return Either.forLeft(new Command(CommandConstants.ADD_DOCUMENTATION_TITLE,
-                                          AddDocumentationExecutor.COMMAND, args));
+        CodeAction action = new CodeAction(CommandConstants.ADD_DOCUMENTATION_TITLE);
+        action.setCommand(new Command(CommandConstants.ADD_DOCUMENTATION_TITLE,
+                                      AddDocumentationExecutor.COMMAND, args));
+        action.setKind(CodeActionKind.Source);
+        return action;
     }
 
-    private static Either<Command, CodeAction> getAllDocGenerationCommand(String docUri) {
+    private static CodeAction getAllDocGenerationCommand(String docUri) {
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         List<Object> args = new ArrayList<>(Collections.singletonList(docUriArg));
-        return Either.forLeft(
-                new Command(CommandConstants.ADD_ALL_DOC_TITLE, AddAllDocumentationExecutor.COMMAND, args));
+        CodeAction action = new CodeAction(CommandConstants.ADD_ALL_DOC_TITLE);
+        action.setCommand(new Command(CommandConstants.ADD_ALL_DOC_TITLE, AddAllDocumentationExecutor.COMMAND, args));
+        action.setKind(CodeActionKind.Source);
+        return action;
     }
 
-    private static Either<Command, CodeAction> getInitializerGenerationCommand(String docUri, int line) {
+    private static CodeAction getInitializerGenerationCommand(String docUri, int line) {
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument startLineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
         List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, startLineArg));
-        return Either.forLeft(new Command(CommandConstants.CREATE_INITIALIZER_TITLE,
+        CodeAction codeAction = new CodeAction(CommandConstants.CREATE_INITIALIZER_TITLE);
+        codeAction.setCommand(new Command(CommandConstants.CREATE_INITIALIZER_TITLE,
                                           CreateObjectInitializerExecutor.COMMAND, args));
+        codeAction.setKind(CodeActionKind.Source);
+        return codeAction;
     }
 
     /**

@@ -1,12 +1,10 @@
+import ballerina/auth;
 import ballerina/http;
 
 int port = 9090;
 
-http:AuthProvider basicAuthProvider = {
-    id: "",
-    scheme: "BASIC_AUTH",
-    authStoreProvider: "CONFIG_AUTH_STORE"
-};
+auth:ConfigAuthStoreProvider basicAuthProvider = new;
+http:BasicAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 
 http:ServiceSecureSocket secureSocket = {
     keyStore: {
@@ -15,6 +13,9 @@ http:ServiceSecureSocket secureSocket = {
     }
 };
 
-listener http:Listener apiListener = new(port, config = { authProviders: [basicAuthProvider],
-        secureSocket: secureSocket });
-        
+listener http:Listener apiListener = new(port, config = {
+    auth: {
+        authnHandlers: [basicAuthnHandler]
+    },
+    secureSocket: secureSocket
+});

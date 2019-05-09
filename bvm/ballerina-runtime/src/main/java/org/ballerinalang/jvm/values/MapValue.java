@@ -18,6 +18,8 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.JSONGenerator;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -32,6 +34,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -50,7 +54,7 @@ import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdat
  * 
  * @since 0.995.0
  */
-public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
+public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue {
 
     private static final long serialVersionUID = 1L;
     private BType type;
@@ -103,8 +107,8 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
         return (Boolean) get(key);
     }
 
-    public MapValue getMapValue(String key) {
-        return (MapValue) get(key);
+    public MapValue<?, ?> getMapValue(String key) {
+        return (MapValue<?, ?>) get(key);
     }
 
     public ObjectValue getObjectValue(String key) {
@@ -373,5 +377,45 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
             throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
         }
         return new String(byteOut.toByteArray());
+    }
+
+    @Override
+    public IteratorValue getIterator() {
+        return new MapIterator<K, V>(new LinkedHashMap<>(this).entrySet().iterator());
+    }
+
+    /**
+     * {@link MapIterator} iteration provider for ballerina maps.
+     *
+     * @since 0.995.0
+     */
+    static class MapIterator<K, V> implements IteratorValue {
+
+        Iterator<Map.Entry<K, V>> iterator;
+
+        MapIterator(Iterator<Map.Entry<K, V>> iterator) {
+            this.iterator = iterator;
+        }
+
+        @Override
+        public Object next() {
+            Map.Entry<?, ?> next = iterator.next();
+            Object value = next.getValue();
+
+            List<BType> types = new LinkedList<>();
+            types.add(BTypes.typeString);
+            types.add(TypeChecker.getType(value));
+            BTupleType tupleType = new BTupleType(types);
+
+            ArrayValue tuple = new ArrayValue(tupleType);
+            tuple.add(0, next.getKey());
+            tuple.add(1, value);
+            return tuple;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return iterator.hasNext();
+        }
     }
 }

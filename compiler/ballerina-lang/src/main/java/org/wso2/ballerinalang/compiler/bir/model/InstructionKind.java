@@ -63,19 +63,27 @@ public enum InstructionKind {
     XML_LOAD_ALL((byte) 47),
     XML_ATTRIBUTE_LOAD((byte) 48),
     XML_ATTRIBUTE_STORE((byte) 49),
+    NEW_TABLE((byte) 50),
+    NEW_TYPEDESC((byte) 51),
 
     // Binary expression related instructions.
-    ADD((byte) 50),
-    SUB((byte) 51),
-    MUL((byte) 52),
-    DIV((byte) 53),
-    MOD((byte) 54),
-    EQUAL((byte) 55),
-    NOT_EQUAL((byte) 56),
-    GREATER_THAN((byte) 57),
-    GREATER_EQUAL((byte) 58),
-    LESS_THAN((byte) 59),
-    LESS_EQUAL((byte) 60);
+    ADD((byte) 61),
+    SUB((byte) 62),
+    MUL((byte) 63),
+    DIV((byte) 64),
+    MOD((byte) 65),
+    EQUAL((byte) 66),
+    NOT_EQUAL((byte) 67),
+    GREATER_THAN((byte) 68),
+    GREATER_EQUAL((byte) 69),
+    LESS_THAN((byte) 70),
+    LESS_EQUAL((byte) 71),
+    AND((byte) 72),
+    OR((byte) 73),
+
+    // Unary expression related instructions.
+    TYPEOF((byte) 80),
+    NOT((byte) 81);
 
     byte value;
 

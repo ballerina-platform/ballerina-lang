@@ -36,7 +36,8 @@ public function main(string... args) {
     //do nothing
 }
 
-function generateJarBinary(boolean dumpBir, bir:BIRContext birContext, bir:ModuleID entryModId, string progName) returns JarFile {
+function generateJarBinary(boolean dumpBir, bir:BIRContext birContext, bir:ModuleID entryModId, string progName)
+            returns JarFile {
     currentBIRContext = birContext;
     bir:Package entryMod = birContext.lookupBIRModule(entryModId);
 

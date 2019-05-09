@@ -71,6 +71,7 @@ public const BINARY_ADD = "ADD";
 public const BINARY_SUB = "SUB";
 public const BINARY_MUL = "MUL";
 public const BINARY_DIV = "DIV";
+public const BINARY_MOD = "MOD";
 public const BINARY_EQUAL = "EQUAL";
 public const BINARY_NOT_EQUAL = "NOT_EQUAL";
 public const BINARY_GREATER_THAN = "GREATER_THAN";
@@ -80,9 +81,10 @@ public const BINARY_LESS_EQUAL = "LESS_EQUAL";
 public const BINARY_AND = "AND";
 public const BINARY_OR = "OR";
 
-public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|BINARY_EQUAL|BINARY_NOT_EQUAL
-                                       |BINARY_GREATER_THAN|BINARY_GREATER_EQUAL|BINARY_LESS_THAN|BINARY_LESS_EQUAL
-                                       |BINARY_AND|BINARY_OR;
+public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|BINARY_MOD
+                                        |BINARY_EQUAL|BINARY_NOT_EQUAL
+                                        |BINARY_GREATER_THAN|BINARY_GREATER_EQUAL|BINARY_LESS_THAN|BINARY_LESS_EQUAL
+                                        |BINARY_AND|BINARY_OR;
 
 public const INS_KIND_MOVE = "MOVE";
 public const INS_KIND_CONST_LOAD = "CONST_LOAD";
@@ -112,6 +114,10 @@ public const INS_KIND_XML_LOAD_ALL = "XML_LOAD_ALL";
 public const INS_KIND_XML_ATTRIBUTE_STORE = "XML_ATTRIBUTE_STORE";
 public const INS_KIND_XML_ATTRIBUTE_LOAD = "XML_ATTRIBUTE_LOAD";
 public const INS_KIND_FP_LOAD = "FP_LOAD";
+public const INS_KIND_NEW_TABLE = "NEW_TABLE";
+public const INS_KIND_TYPEOF = "TYPEOF";
+public const INS_KIND_NOT = "NOT";
+public const INS_KIND_NEW_TYPEDESC = "NEW_TYPEDESC";
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
                                 INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
@@ -121,7 +127,8 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_NEW_STRING_XML_QNAME | INS_KIND_XML_SEQ_STORE | INS_KIND_NEW_XML_TEXT |
                                 INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
                                 INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
-                                INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD;
+                                INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_NEW_TABLE | INS_KIND_TYPEOF |
+                                INS_KIND_NOT | INS_KIND_NEW_TYPEDESC;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -221,6 +228,9 @@ public type BTypeDesc TYPE_DESC;
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
 
+public const TYPE_SERVICE = "service";
+public type BServiceType TYPE_SERVICE;
+
 public type BArrayType record {|
     ArrayState state;
     BType eType;
@@ -228,6 +238,10 @@ public type BArrayType record {|
 
 public type BMapType record {|
     BType constraint;
+|};
+
+public type BTableType record {|
+    BType tConstraint;
 |};
 
 public type BErrorType record {|
@@ -284,9 +298,14 @@ public type BFutureType record {|
     BType returnType;
 |};
 
+public type BFiniteType record {|
+    (int | string | boolean | float | byte| ()) [] values;
+|};
+
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc| BXMLType;
+                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType |
+                  BFiniteType | BTableType;
 
 public type ModuleID record {|
     string org = "";
@@ -343,6 +362,17 @@ public type NewMap record {|
     BType typeValue;
 |};
 
+public type NewTable record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef columnsOp;
+    VarRef dataOp;
+    VarRef indexColOp;
+    VarRef keyColOp;
+    BType typeValue;
+|};
+
 public type NewInstance record {|
     DiagnosticPos pos;
     InstructionKind kind;
@@ -373,6 +403,7 @@ public type FPLoad record {|
     ModuleID pkgID;
     Name name;
     VariableDcl?[] params;
+    VarRef?[] closureMaps;
 |};
 
 public type FieldAccess record {|
@@ -486,6 +517,7 @@ public type FPCall record {|
     VarRef fp;
     VarRef? lhsOp;
     VarRef?[] args;
+    boolean isAsync;
     BasicBlock thenBB;
 |};
 
@@ -541,4 +573,18 @@ public type NewXMLPI record {|
     VarRef lhsOp;
     VarRef dataOp;
     VarRef targetOp;
+|};
+
+public type UnaryOp record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef rhsOp;
+|};
+
+public type NewTypeDesc record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    BType typeValue;
 |};
