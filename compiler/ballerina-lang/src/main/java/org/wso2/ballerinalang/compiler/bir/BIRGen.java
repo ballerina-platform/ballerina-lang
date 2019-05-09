@@ -993,7 +993,7 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLQName xmlQName) {
         BIRVariableDcl tempVarDcl =
-                new BIRVariableDcl(xmlQName.type, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+                new BIRVariableDcl(symTable.anyType, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 

@@ -630,7 +630,9 @@ type InstructionGenerator object {
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
         self.loadVar(newXMLElement.startTagOp.variableDcl);
+        self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
         self.loadVar(newXMLElement.endTagOp.variableDcl);
+        self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
         self.loadVar(newXMLElement.defaultNsURIOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
                 io:sprintf("(L%s;L%s;L%s;)L%s;", XML_QNAME, XML_QNAME, STRING_VALUE, XML_VALUE), false);
@@ -699,6 +701,7 @@ type InstructionGenerator object {
 
         // visit attribute name expr
         self.loadVar(xmlAttrStoreIns.keyOp.variableDcl);
+        self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
 
         // invoke getAttribute() method
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttribute",
@@ -715,6 +718,7 @@ type InstructionGenerator object {
 
         // visit attribute name expr
         self.loadVar(xmlAttrStoreIns.keyOp.variableDcl);
+        self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
 
         // visit attribute value expr
         self.loadVar(xmlAttrStoreIns.rhsOp.variableDcl);
