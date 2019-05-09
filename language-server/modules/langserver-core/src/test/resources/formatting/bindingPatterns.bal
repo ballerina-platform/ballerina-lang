@@ -48,7 +48,8 @@ function getPersonWithAge() returns PersonWithAge {
 function recordVarInRecordVar2() returns (string, Age) {
     PersonWithAge p = {name: "Peter", age: {age:29,format: "Y"}, married: true,
     work: "SE"};
-        PersonWithAge {name: fName, age} = p;
+        PersonWithAge {name: fName,
+        age} = p;
     return (fName, age);
 }
 

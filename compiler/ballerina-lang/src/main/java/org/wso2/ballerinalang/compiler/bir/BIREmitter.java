@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.IsLike;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
@@ -395,6 +396,14 @@ public class BIREmitter extends BIRVisitor {
         newStringXMLQName.lhsOp.accept(this);
         sb.append(" = ").append(newStringXMLQName.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         newStringXMLQName.stringQNameOP.accept(this);
+        sb.append(";\n");
+    }
+
+    public void visit(NewTypeDesc newTypeDesc) {
+        sb.append("\t\t");
+        newTypeDesc.lhsOp.accept(this);
+        sb.append(" = ").append(newTypeDesc.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        sb.append(newTypeDesc.type.tsymbol);
         sb.append(";\n");
     }
 
