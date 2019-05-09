@@ -97,8 +97,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.ZipError;
 
 import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
@@ -331,7 +333,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            List<Either<Command, CodeAction>> commands = new ArrayList<>();
+            List<CodeAction> actions = new ArrayList<>();
             TextDocumentIdentifier identifier = params.getTextDocument();
             String fileUri = identifier.getUri();
             try {
@@ -354,7 +356,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     Test generation suggested only when no code diagnosis exists, inside a bal project,
                     inside a module, not inside /tests folder
                      */
-                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params,
+                    actions.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params,
                                                                          documentManager, lsCompiler));
                 }
 
@@ -362,23 +364,23 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 if (!diagnostics.isEmpty()) {
                     diagnostics.forEach(diagnostic -> {
                         if (line == diagnostic.getRange().getStart().getLine()) {
-                            commands.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params));
+                            actions.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params));
                         }
                     });
                 }
 
                 // Add commands base on node type
                 if (topLevelNodeType != null) {
-                    commands.addAll(getCommandForNodeType(topLevelNodeType, fileUri, line));
+                    actions.addAll(getCommandForNodeType(topLevelNodeType, fileUri, line));
                 }
-                return commands;
             } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
                     LOGGER.error("Error while retrieving code actions" + ((msg != null) ? ": " + msg : ""), e);
                 }
-                return commands;
             }
+            return actions.stream().map(
+                    (Function<CodeAction, Either<Command, CodeAction>>) Either::forRight).collect(Collectors.toList());
         });
     }
 

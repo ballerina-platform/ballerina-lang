@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
@@ -192,6 +193,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         } else {
             buf.writeByte(0);
         }
+        buf.writeBoolean(fpCall.isAsync);
         addCpAndWriteString(fpCall.thenBB.id.value);
     }
 
@@ -204,7 +206,10 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.UnaryOP birUnaryOp) {
-        throw new AssertionError();
+        writePosition(birUnaryOp.pos);
+        buf.writeByte(birUnaryOp.kind.getValue());
+        birUnaryOp.rhsOp.accept(this);
+        birUnaryOp.lhsOp.accept(this);
     }
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
@@ -291,6 +296,17 @@ public class BIRInstructionWriter extends BIRVisitor {
         birTypeTest.rhsOp.accept(this);
     }
 
+    public void visit(BIRNonTerminator.NewTable newTable) {
+        writePosition(newTable.pos);
+        buf.writeByte(newTable.kind.getValue());
+        newTable.type.accept(typeWriter);
+        newTable.lhsOp.accept(this);
+        newTable.columnsOp.accept(this);
+        newTable.dataOp.accept(this);
+        newTable.indexColOp.accept(this);
+        newTable.keyColOp.accept(this);
+    }
+
     // Operands
     public void visit(BIROperand birOperand) {
         buf.writeByte(birOperand.variableDcl.kind.getValue());
@@ -319,6 +335,11 @@ public class BIRInstructionWriter extends BIRVisitor {
         int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(fpLoad.funcName.getValue()));
+
+        buf.writeInt(fpLoad.closureMaps.size());
+        for (BIROperand op : fpLoad.closureMaps) {
+            op.accept(this);
+        }
 
         buf.writeInt(fpLoad.params.size());
         fpLoad.params.forEach(param -> {
@@ -394,6 +415,14 @@ public class BIRInstructionWriter extends BIRVisitor {
         newXMLProcIns.lhsOp.accept(this);
         newXMLProcIns.dataOp.accept(this);
         newXMLProcIns.targetOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewTypeDesc newTypeDesc) {
+        writePosition(newTypeDesc.pos);
+        buf.writeByte(newTypeDesc.kind.getValue());
+        newTypeDesc.lhsOp.accept(this);
+        newTypeDesc.type.accept(typeWriter);
     }
 
     // Positions

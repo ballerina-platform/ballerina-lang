@@ -75,10 +75,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
         cw.visitSource(v.sourceFileName);
         // generate methods
         foreach var func in v.functions {
-            bir:Function currentFunc = getFunction(func);
-            if (!isExternFunc(currentFunc)) {
-                generateMethod(currentFunc, cw, module);
-            }
+            generateMethod(getFunction(func), cw, module);
         }
         // generate lambdas created during generating methods
         foreach var (name, call) in lambdas {
@@ -137,10 +134,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
         cw.visitSource(v.sourceFileName);
         // generate methods
         foreach var func in v.functions {
-            bir:Function currentFunc = getFunction(func);
-            if (!isExternFunc(currentFunc)) {
-                generateMethod(currentFunc, cw, module);
-            }
+            generateMethod(getFunction(func), cw, module);
         }
         
         // generate lambdas

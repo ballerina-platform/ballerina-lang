@@ -20,6 +20,9 @@ package org.ballerinalang.utils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.CollectionValue;
+import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BCollection;
 import org.ballerinalang.model.values.BIterator;
@@ -55,6 +58,36 @@ public class Iterate extends BlockingNativeCallableUnit {
         }
 
         context.setReturnValues(((BCollection) collection).newIterator());
+    }
+
+    public static Object iterate(Strand strand, Object collection) {
+        if (collection == null) {
+            // we shouldn't reach here
+            throw new NullPointerException();
+        }
+
+        if (collection instanceof CollectionValue) {
+            return ((CollectionValue) collection).getIterator();
+        }
+
+        // Value is a value-type JSON.
+        return new EmptyIterator();
+    }
+
+    /**
+     * Iterator for non-iterable types (r).
+     */
+    public static class EmptyIterator implements IteratorValue {
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public Object next() {
+            return null;
+        }
     }
 
     /**

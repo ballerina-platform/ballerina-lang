@@ -20,7 +20,10 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply from: "$rootDir/gradle/jsProject.gradle"
 
 configurations {
-    dist {
+    composerDistribution {
+      transitive false
+    }
+    composerFonts {
       transitive false
     }
     ballerinaTools
@@ -60,13 +63,30 @@ task copyDistribution() {
     }
 }
 
+task copyComposerDistribution() {
+    dependsOn(':composer-library:assemble')
+    doFirst {
+        copy {
+            from file(configurations.composerDistribution.asPath)
+            exclude '**/*.map'
+            exclude '**/*.d.ts'
+            into "resources/composer"
+        }
+        copy {
+            from file(configurations.composerFonts.asPath)
+            into "resources/composer/font"
+        }
+    }
+}
+
 task assemble(overwrite: true) {
     dependsOn 'npmBuild'
-    dependsOn(':composer-library:assemble')
+    dependsOn 'copyComposerDistribution'
 }
 
 dependencies {
-    dist project(':composer-library')
+    composerDistribution project(path: ':composer-library', configuration: 'composer')
+    composerFonts project(path: ':composer-library', configuration: 'fonts')
     ballerinaTools project(path: ':ballerina-tools', configuration: 'unzipped')
 }
 
