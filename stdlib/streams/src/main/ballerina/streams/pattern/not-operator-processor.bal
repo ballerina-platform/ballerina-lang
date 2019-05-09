@@ -68,7 +68,10 @@ public type NotOperatorProcessor object {
                 // inject an event with current processors' alias as the stream name.
                 // So that, it will be identifiable in the process method.
                 io:println("NotOperatorProcessor:eventSchedulerService:69 -> Inject to stateMachine");
-                stateMachine.inject(new StreamEvent((p.getAlias(), data), evntType, currentTime));
+                StreamEvent notEvt = new StreamEvent((p.getAlias(), data), evntType, currentTime);
+                // to get rid of event duplication.
+                notEvt.eventId = p.getAlias();
+                stateMachine.inject(notEvt);
             }
             if (p.forTimeMillis > 0) {
                 p.rescheduleNextEvent(());
@@ -203,7 +206,8 @@ public type NotOperatorProcessor object {
         string alias = "!";
         AbstractPatternProcessor? pProcessor = self.processor;
         if (pProcessor is AbstractPatternProcessor) {
-            alias = alias + pProcessor.getAlias();
+            alias = alias + pProcessor.getAlias() + ((self.forTimeMillis > 0)
+            ? " for " + self.forTimeMillis + "millis " : "");
         }
         return alias;
     }
