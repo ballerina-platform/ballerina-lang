@@ -35,6 +35,12 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
             <version>${ballerina.milestone.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-lang</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -118,6 +124,7 @@
                         </goals>
                         <phase>compile</phase>
                         <configuration>
+                            <classpathScope>runtime</classpathScope>
                             <systemProperties>
                                 <systemProperty>
                                     <key>BALLERINA_DEV_MODE_COMPILE</key>
