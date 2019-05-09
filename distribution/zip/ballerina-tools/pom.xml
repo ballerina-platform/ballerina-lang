@@ -262,6 +262,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-oauth2</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>testerina-core</artifactId>
         </dependency>
         <dependency>
@@ -475,6 +481,7 @@
                                 ballerina-websub,
                                 ballerina-jwt,
                                 ballerina-ldap,
+                                ballerina-oauth2,
 
                                 <!-- other artifacts -->
                                 ballerina,
@@ -709,6 +716,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-ldap-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-oauth2-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                             </resources>
