@@ -85,12 +85,18 @@ public class ReadPendingCallback {
         timer.schedule(getTimerTask(), timeout);
     }
 
+    /**
+     * Reset the timer to original time. This will create a new timer instance and start the count down.
+     */
     public void resetTimeout() {
         timer.cancel();
         timer = getTimer();
         timer.schedule(getTimerTask(), this.timeout);
     }
 
+    /**
+     * Cancel already running timer.
+     */
     public void cancelTimeout() {
         timer.cancel();
     }
