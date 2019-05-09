@@ -17,13 +17,11 @@
  */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Scheduler;
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.observability.ObserveUtils;
@@ -120,11 +118,11 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             observerContext.addTag(TAG_KEY_HTTP_URL, (String) inboundMessage.getProperty(HttpConstants.REQUEST_URL));
         }
 
-//        CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
+        CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         //TODO handle BallerinaConnectorException and callback
 //        Executor.submit(balResource, callback, properties, observerContext, signatureParams);
         ObjectValue service = httpResource.getParentService().getBalService();
-        Executor.submit(service, httpResource.getName(), properties, signatureParams);
+        Executor.submit(service, httpResource.getName(), callback, properties, signatureParams);
     }
 
     protected boolean accessed(HttpCarbonMessage inboundMessage) {

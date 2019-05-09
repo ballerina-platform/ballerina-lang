@@ -17,15 +17,16 @@
 */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
  * Empty callback impl for web socket.
  */
-@Deprecated
-public class WebSocketResourceCallableUnitCallback  {
+public class WebSocketResourceCallableUnitCallback implements CallableUnitCallback {
 
     private final WebSocketConnection webSocketConnection;
 
@@ -33,12 +34,14 @@ public class WebSocketResourceCallableUnitCallback  {
         this.webSocketConnection = webSocketConnection;
     }
 
+    @Override
     public void notifySuccess() {
         webSocketConnection.readNextFrame();
     }
 
+    @Override
     public void notifyFailure(ErrorValue error) {
-        ErrorHandlerUtils.printError("error: " + error.toString());
+        ErrorHandlerUtils.printError("error: " + BallerinaErrors.getPrintableStackTrace(error));
         WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
     }
 

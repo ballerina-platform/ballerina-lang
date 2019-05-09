@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
  *
  * @since 0.965.0
  */
-public interface CallableUnitListener {
+public interface CallableUnitCallback {
 
     /**
      * This should be called when you want to notify that your operation

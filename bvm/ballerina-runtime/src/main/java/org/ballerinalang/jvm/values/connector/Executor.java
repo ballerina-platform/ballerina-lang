@@ -19,9 +19,13 @@ package org.ballerinalang.jvm.values.connector;
 
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * {@code Executor} Is the entry point from server connector side to ballerina side.
@@ -93,15 +97,18 @@ public class Executor {
 ////        ResourceExecutor.execute(resource, responseCallback, properties, observerContext, context, values);
 //    }
 
-    public static void submit(ObjectValue service, String resourceName, Map<String, Object> properties,
-                              Object... bValues) {
+    public static void submit(ObjectValue service, String resourceName, CallableUnitCallback callback,
+                                            Map<String, Object> properties, Object... bValues) {
         //TODO this is temp fix till we get the service.start() API
-        service.call(new Strand(new Scheduler(), properties), resourceName, bValues);
-    }
-
-    public static void submit(ObjectValue service, String resourceName, Object... bValues) {
-        //TODO this is temp fix till we get the service.start() API
-        service.call(new Strand(new Scheduler()), resourceName, bValues);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(() -> {
+            Object returnValues = service.call(new Strand(new Scheduler(), properties), resourceName, bValues);
+            if (returnValues instanceof ErrorValue) {
+                callback.notifyFailure((ErrorValue) returnValues);
+            } else {
+                callback.notifySuccess();
+            }
+        });
     }
 
 

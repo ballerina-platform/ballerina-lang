@@ -20,9 +20,6 @@ package org.ballerinalang.net.http;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.jvm.BallerinaValues;
@@ -35,7 +32,6 @@ import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.net.http.actions.httpclient.AbstractHTTPAction;
-import org.ballerinalang.services.ErrorHandlerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
@@ -148,7 +144,7 @@ public class WebSocketUtil {
 //            }
 //        };
         //TODO this is temp fix till we get the service.start() API
-        Executor.submit(wsService.getBalService(), onOpenResource.getName(), bValues);
+        Executor.submit(wsService.getBalService(), onOpenResource.getName(), , bValues);
     }
 
     public static void populateEndpoint(WebSocketConnection webSocketConnection, ObjectValue webSocketEndpoint) {
