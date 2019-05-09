@@ -32,11 +32,7 @@ map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
 function lookupFullQualifiedClassName(string key) returns string {
     if (birFunctionMap.hasKey(key)) {
         BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
-        bir:Function func = getFunction(functionWrapper.func);
-        string balFileName = func.pos.sourceFileName;
-        string orgName = functionWrapper.orgName;
-        string moduleName = functionWrapper.moduleName;
-        return getClassNameForSourceFile(balFileName, orgName, moduleName);
+        return functionWrapper.fullQualifiedClassName;
     } else {
         error err = error("cannot find full qualified class for : " + key);
         panic err;

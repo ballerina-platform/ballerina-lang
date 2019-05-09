@@ -362,5 +362,5 @@ function generateCastToAny(jvm:MethodVisitor mv, bir:BType sourceType) {
 
 function generateXMLToAttributesMap(jvm:MethodVisitor mv, bir:BType sourceType) {
     mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttributesMap", 
-            io:sprintf("()L%s;", MAP_VALUE), false);
+            io:sprintf("()L%s;", MAP_VALUE_IMPL), false);
 }

@@ -361,10 +361,18 @@ type InstructionGenerator object {
     }
 
     function generateMapNewIns(bir:NewMap mapNewIns) {
-        self.mv.visitTypeInsn(NEW, MAP_VALUE);
+        bir:BType typeOfMapNewIns = mapNewIns.typeValue;
+
+        string className = MAP_VALUE_IMPL;
+
+        if (typeOfMapNewIns is bir:BRecordType) {
+            className = self.currentPackageName + cleanupTypeName(typeOfMapNewIns.name.value);
+        }
+
+        self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
         loadType(self.mv, mapNewIns.typeValue);
-        self.mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(mapNewIns.lhsOp.variableDcl);
     }
 
@@ -397,7 +405,7 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setElement",
                     io:sprintf("(L%s;L%s;L%s;)V", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "put",
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "put",
                     io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), false);
 
             // emit a pop, since we are not using the return value from the map.put()
@@ -419,7 +427,7 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
                     io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "get",
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "get",
                     io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
         }
 

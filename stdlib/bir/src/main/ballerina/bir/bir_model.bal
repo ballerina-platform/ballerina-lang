@@ -254,6 +254,7 @@ public type BRecordType record {|
     boolean sealed;
     BType restFieldType;
     BRecordField?[] fields = [];
+    BAttachedFunction initFunction;
 |};
 
 public type BObjectType record {|
