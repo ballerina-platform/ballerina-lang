@@ -199,7 +199,8 @@ function anyTest() returns any {
 
    int[] ia = [1, 3, 5, 6];
    any ar = ia;
-   return acceptAny(g2);
+   any x = g2;
+   return acceptAny(x);
 }
 
 function acceptAny(any anyval) returns any {
