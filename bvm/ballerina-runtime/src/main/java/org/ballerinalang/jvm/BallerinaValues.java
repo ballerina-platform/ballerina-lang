@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.ValueCreator;
 
@@ -35,7 +35,7 @@ public class BallerinaValues {
      * @param recordTypeName name of the record type.
      * @return value of the record.
      */
-    public static MapValue<String, Object> createRecordValue(String pkgName, String recordTypeName) {
+    public static MapValueImpl<String, Object> createRecordValue(String pkgName, String recordTypeName) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(pkgName);
         return valueCreator.createRecordValue(recordTypeName);
     }

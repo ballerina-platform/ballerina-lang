@@ -18,7 +18,7 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 
 /**
  * Util Class for handling Error in Ballerina VM.
@@ -30,7 +30,7 @@ public class BallerinaErrors {
     public static final String ERROR_MESSAGE_FIELD = "message";
 
     public static ErrorValue createError(String reason, String detail) {
-        MapValue<String, Object> detailMap = new MapValue<>();
+        MapValueImpl<String, Object> detailMap = new MapValueImpl<>();
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
         }

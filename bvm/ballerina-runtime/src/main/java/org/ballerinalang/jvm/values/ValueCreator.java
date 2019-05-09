@@ -48,7 +48,7 @@ public abstract class ValueCreator {
         return runtimeValueCreators.get(key);
     }
 
-    public abstract MapValue<String, Object> createRecordValue(String recordTypeName);
+    public abstract MapValueImpl<String, Object> createRecordValue(String recordTypeName);
 
     public abstract ObjectValue createObjectValue(String objectTypeName);
 }

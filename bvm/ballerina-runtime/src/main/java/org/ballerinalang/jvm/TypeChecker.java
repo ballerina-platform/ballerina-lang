@@ -38,7 +38,7 @@ import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -682,7 +682,7 @@ public class TypeChecker {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.MAP_TAG:
-                return ((MapValue) sourceValue).values().stream()
+                return ((MapValueImpl) sourceValue).values().stream()
                         .allMatch(value -> checkIsLikeType(value, BTypes.typeAnydata, unresolvedValues));
             case TypeTags.ARRAY_TAG:
                 ArrayValue arr = (ArrayValue) sourceValue;
@@ -765,11 +765,11 @@ public class TypeChecker {
 
     private static boolean checkIsLikeMapType(Object sourceValue, BMapType targetType,
                                               List<TypeValuePair> unresolvedValues) {
-        if (!(sourceValue instanceof MapValue)) {
+        if (!(sourceValue instanceof MapValueImpl)) {
             return false;
         }
 
-        for (Object mapEntry : ((MapValue) sourceValue).values()) {
+        for (Object mapEntry : ((MapValueImpl) sourceValue).values()) {
             if (!checkIsLikeType(mapEntry, targetType.getConstrainedType(), unresolvedValues)) {
                 return false;
             }
@@ -803,7 +803,7 @@ public class TypeChecker {
                 }
             }
         } else if (sourceType.getTag() == TypeTags.MAP_TAG) {
-            for (Object value : ((MapValue) sourceValue).values()) {
+            for (Object value : ((MapValueImpl) sourceValue).values()) {
                 if (!checkIsLikeType(value, targetType, unresolvedValues)) {
                     return false;
                 }
@@ -814,7 +814,7 @@ public class TypeChecker {
                 return true;
             }
             unresolvedValues.add(typeValuePair);
-            for (Object object : ((MapValue) sourceValue).values()) {
+            for (Object object : ((MapValueImpl) sourceValue).values()) {
                 if (!checkIsLikeType(object, targetType, unresolvedValues)) {
                     return false;
                 }
@@ -825,7 +825,7 @@ public class TypeChecker {
 
     private static boolean checkIsLikeRecordType(Object sourceValue, BRecordType targetType,
                                                  List<TypeValuePair> unresolvedValues) {
-        if (!(sourceValue instanceof MapValue)) {
+        if (!(sourceValue instanceof MapValueImpl)) {
             return false;
         }
 
@@ -844,13 +844,13 @@ public class TypeChecker {
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
-            if (!(((MapValue) sourceValue).containsKey(fieldName)) &&
+            if (!(((MapValueImpl) sourceValue).containsKey(fieldName)) &&
                     !Flags.isFlagOn(targetType.getFields().get(fieldName).flags, Flags.OPTIONAL)) {
                 return false;
             }
         }
 
-        for (Object object : ((MapValue) sourceValue).entrySet()) {
+        for (Object object : ((MapValueImpl) sourceValue).entrySet()) {
             Map.Entry valueEntry = (Map.Entry) object;
             String fieldName = valueEntry.getKey().toString();
 
@@ -994,7 +994,8 @@ public class TypeChecker {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return isMappingType(rhsValTypeTag) && isEqual((MapValue) lhsValue, (MapValue) rhsValue, checkedValues);
+                return isMappingType(rhsValTypeTag) && isEqual((MapValueImpl) lhsValue, (MapValueImpl) rhsValue,
+                        checkedValues);
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
                 return isListType(rhsValTypeTag) &&
@@ -1051,7 +1052,7 @@ public class TypeChecker {
      * @param checkedValues Structured value pairs already compared or being compared
      * @return True if the map values are equal, else false.
      */
-    private static boolean isEqual(MapValue lhsMap, MapValue rhsMap, List<ValuePair> checkedValues) {
+    private static boolean isEqual(MapValueImpl lhsMap, MapValueImpl rhsMap, List<ValuePair> checkedValues) {
         ValuePair compValuePair = new ValuePair(lhsMap, rhsMap);
         if (checkedValues.contains(compValuePair)) {
             return true;
@@ -1092,7 +1093,7 @@ public class TypeChecker {
         checkedValues.add(compValuePair);
 
         return isEqual(lhsError.getReason(), rhsError.getReason(), checkedValues) &&
-                isEqual((MapValue) lhsError.getDetails(), (MapValue) rhsError.getDetails(), checkedValues);
+                isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues);
     }
 
     /**

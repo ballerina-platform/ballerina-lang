@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 
 /**
  * {@code BJSONType} represents a JSON value.
@@ -34,11 +34,11 @@ public class BJSONType extends BType {
      * @param pkgPath of the type
      */
     public BJSONType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, MapValue.class);
+        super(typeName, pkgPath, MapValueImpl.class);
     }
 
     public BJSONType() {
-        super(TypeConstants.JSON_TNAME, null, MapValue.class);
+        super(TypeConstants.JSON_TNAME, null, MapValueImpl.class);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class BJSONType extends BType {
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new MapValue<>();
+        return (V) new MapValueImpl<>();
     }
 
     @Override
