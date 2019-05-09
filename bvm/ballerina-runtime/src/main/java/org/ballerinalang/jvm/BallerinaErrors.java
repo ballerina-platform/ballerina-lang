@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*   Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
@@ -34,9 +34,9 @@ import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
  *
  * @since 0.995.0
  */
-public class BLangVMErrors {
-
-    private static final String ERROR_MESSAGE_FIELD = "message";
+public class BallerinaErrors {
+    
+    public static final String ERROR_MESSAGE_FIELD = "message";
 
     public static final String NULL_REF_EXCEPTION = "NullReferenceException";
 
@@ -53,8 +53,7 @@ public class BLangVMErrors {
     }
 
     public static ErrorValue createConversionError(Object inputValue, BType targetType) {
-        return org.ballerinalang.jvm.BLangVMErrors
-                .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
+        return createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
                              org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
                                      .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
                                                               .INCOMPATIBLE_CONVERT_OPERATION,
@@ -143,6 +142,6 @@ public class BLangVMErrors {
     }
 
     public static void printStackTraceOnMainMethodError(ErrorValue errorValue) {
-        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(errorValue));
+        ErrorHandlerUtils.printError("error: " + getPrintableStackTrace(errorValue));
     }
 }

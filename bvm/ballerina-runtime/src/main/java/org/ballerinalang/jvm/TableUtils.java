@@ -176,7 +176,7 @@ public class TableUtils {
 
     public static ErrorValue createTableOperationError(Throwable throwable) {
         String detail = throwable.getMessage() != null ? throwable.getMessage() : DEFAULT_ERROR_DETAIL_MESSAGE;
-        return BLangVMErrors
+        return BallerinaErrors
                 .createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR, detail);
     }
 }

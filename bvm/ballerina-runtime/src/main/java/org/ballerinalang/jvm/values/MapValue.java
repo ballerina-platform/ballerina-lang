@@ -119,8 +119,8 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue, Col
         return (Boolean) get(key);
     }
 
-    public MapValue getMapValue(String key) {
-        return (MapValue) get(key);
+    public MapValue<?, ?> getMapValue(String key) {
+        return (MapValue<?, ?>) get(key);
     }
 
     public ObjectValue getObjectValue(String key) {

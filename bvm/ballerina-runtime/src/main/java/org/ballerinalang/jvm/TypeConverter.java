@@ -49,18 +49,18 @@ public class TypeConverter {
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
                 return anyToInt(inputValue, () ->
-                        BLangVMErrors.createNumericConversionError(inputValue, BTypes.typeInt));
+                        BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeInt));
             case TypeTags.FLOAT_TAG:
                 return anyToFloat(inputValue, () ->
-                        BLangVMErrors.createNumericConversionError(inputValue, BTypes.typeFloat));
+                        BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeFloat));
             case TypeTags.STRING_TAG:
                 return anyToString(inputValue);
             case TypeTags.BOOLEAN_TAG:
                 return anyToBoolean(inputValue, () ->
-                        BLangVMErrors.createNumericConversionError(inputValue, BTypes.typeBoolean));
+                        BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeBoolean));
             case TypeTags.BYTE_TAG:
                 return anyToByte(inputValue, () ->
-                        BLangVMErrors.createNumericConversionError(inputValue, BTypes.typeByte));
+                        BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeByte));
             default:
                 throw new ErrorValue(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                                      BLangExceptionHelper.getErrorMessage(
@@ -74,10 +74,10 @@ public class TypeConverter {
             return (Long) sourceVal;
         } else if (sourceVal instanceof Double) {
             if (Double.isNaN((Double) sourceVal) || Double.isInfinite((Double) sourceVal)) {
-                throw BLangVMErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
+                throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
             }
             if (!isFloatWithinIntRange((Double) sourceVal)) {
-                throw BLangVMErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
+                throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
             }
             return Math.round((Double) sourceVal);
         } else if (sourceVal instanceof Byte) {
@@ -117,18 +117,18 @@ public class TypeConverter {
     static long anyToByte(Object sourceVal, Supplier<ErrorValue> errorFunc) {
         if (sourceVal instanceof Long) {
             if (!isByteLiteral((Long) sourceVal)) {
-                throw BLangVMErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
+                throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
             }
             return (long) sourceVal;
         } else if (sourceVal instanceof Double) {
 
             Double value = (Double) sourceVal;
             if (Double.isNaN(value) || Double.isInfinite(value)) {
-                throw BLangVMErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
+                throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
             }
             long intVal = Math.round(value);
             if (!isByteLiteral(intVal)) {
-                throw BLangVMErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
+                throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
             }
             return intVal;
 
@@ -150,7 +150,7 @@ public class TypeConverter {
         } else if (sourceVal instanceof Boolean) {
             return Boolean.toString((Boolean) sourceVal);
         }
-        throw BLangVMErrors.createNumericConversionError(sourceVal, BTypes.typeString);
+        throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeString);
     }
 
     private static boolean isByteLiteral(long longValue) {

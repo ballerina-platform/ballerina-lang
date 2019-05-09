@@ -69,25 +69,25 @@ public class TypeChecker {
             return sourceVal;
         }
 
-        throw BLangVMErrors.createTypeCastError(sourceVal, targetType);
+        throw BallerinaErrors.createTypeCastError(sourceVal, targetType);
     }
 
     public static long anyToInt(Object sourceVal) {
-        return TypeConverter.anyToInt(sourceVal, () -> BLangVMErrors.createTypeCastError(sourceVal, BTypes.typeInt));
+        return TypeConverter.anyToInt(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeInt));
     }
 
     public static double anyToFloat(Object sourceVal) {
-        return TypeConverter.anyToFloat(sourceVal, () -> BLangVMErrors.createTypeCastError(sourceVal,
+        return TypeConverter.anyToFloat(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
                                                                                            BTypes.typeFloat));
     }
 
     public static boolean anyToBoolean(Object sourceVal) {
-        return TypeConverter.anyToBoolean(sourceVal, () -> BLangVMErrors.createTypeCastError(sourceVal,
+        return TypeConverter.anyToBoolean(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
                                                                                              BTypes.typeBoolean));
     }
 
     public static long anyToByte(Object sourceVal) {
-        return TypeConverter.anyToByte(sourceVal, () -> BLangVMErrors.createTypeCastError(sourceVal, BTypes.typeByte));
+        return TypeConverter.anyToByte(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeByte));
     }
 
     /**

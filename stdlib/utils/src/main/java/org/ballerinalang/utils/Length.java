@@ -20,7 +20,7 @@ package org.ballerinalang.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.BLangVMErrors;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -60,7 +60,7 @@ public class Length extends BlockingNativeCallableUnit {
     public static long length(Strand strand, Object value) {
         RefValue refValue = (RefValue) value;
         if (refValue == null) {
-            throw BLangVMErrors.createError(BLangVMErrors.NULL_REF_EXCEPTION);
+            throw BallerinaErrors.createError(BallerinaErrors.NULL_REF_EXCEPTION);
         }
         return refValue.size();
     }

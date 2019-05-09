@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
@@ -44,5 +45,9 @@ public class HashCode extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String string = context.getStringArgument(0);
         context.setReturnValues(new BInteger(string.hashCode()));
+    }
+
+    public static long hashCode(Strand strand, String value) {
+        return value.hashCode();
     }
 }

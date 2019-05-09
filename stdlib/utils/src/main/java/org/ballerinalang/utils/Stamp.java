@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.RefValue;
@@ -128,26 +129,25 @@ public class Stamp extends BlockingNativeCallableUnit {
             if (targetType.getTag() == TypeTags.JSON_TAG) {
                 return null;
             }
-            return org.ballerinalang.jvm.BLangVMErrors
+            return BallerinaErrors
                     .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.STAMP_ERROR,
                                  org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
                                          .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
                                                                   .CANNOT_STAMP_NULL, stampType));
         }
         if (!TypeChecker.checkIsLikeType(valueToBeStamped, targetType)) {
-            return org.ballerinalang.jvm.BLangVMErrors
+            return BallerinaErrors
                     .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.STAMP_ERROR,
                                  org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
                                          .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
-                                                                  .INCOMPATIBLE_STAMP_OPERATION, TypeChecker.getType
-                                                 (valueToBeStamped), targetType));
+                                                                  .INCOMPATIBLE_STAMP_OPERATION,
+                                                          TypeChecker.getType(valueToBeStamped), targetType));
         }
         try {
             ((RefValue) valueToBeStamped).stamp(targetType, new ArrayList<>());
         } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
-            return org.ballerinalang.jvm.BLangVMErrors
-                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.STAMP_ERROR,
-                                 e.getDetail());
+            return BallerinaErrors.createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.STAMP_ERROR,
+                                               e.getDetail());
         }
         return valueToBeStamped;
     }

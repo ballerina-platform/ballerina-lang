@@ -20,7 +20,7 @@ package org.ballerinalang.test.util;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
-import org.ballerinalang.jvm.BLangVMErrors;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
@@ -322,7 +322,7 @@ public class BRunUtil {
                         throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
                     if (t instanceof ErrorValue) {
-                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException("error: " + BLangVMErrors
+                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException("error: " + BallerinaErrors
                                 .getPrintableStackTrace((ErrorValue) t));
                     }
                     throw new RuntimeException("Error while invoking function '" + functionName + "'", e);

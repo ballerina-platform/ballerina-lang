@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.RefValue;
@@ -130,21 +131,21 @@ public class Convert extends BlockingNativeCallableUnit {
             if (targetType.getTag() == TypeTags.JSON_TAG) {
                 return null;
             }
-            return org.ballerinalang.jvm.BLangVMErrors
+            return BallerinaErrors
                     .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
                                  org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
                                          .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
                                                                   .CANNOT_CONVERT_NULL, convertType));
         }
         if (!TypeChecker.checkIsLikeType(inputValue, targetType)) {
-            return org.ballerinalang.jvm.BLangVMErrors.createConversionError(inputValue, targetType);
+            return BallerinaErrors.createConversionError(inputValue, targetType);
         }
         try {
             RefValue refValue = (RefValue) inputValue;
             convertedValue = (refValue).copy(new HashMap<>());
             refValue.stamp(targetType, new ArrayList<>());
         } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
-            return org.ballerinalang.jvm.BLangVMErrors
+            return BallerinaErrors
                     .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
                                  e.getDetail());
         }
