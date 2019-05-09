@@ -515,7 +515,7 @@ public class Desugar extends BLangNodeVisitor {
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
                     initFunctionStmts.put(field.symbol,
-                            createObjectFieldUpdate(objectTypeNode.initFunction, field));
+                            createStructFieldUpdate(objectTypeNode.initFunction, field));
                 });
 
         // Adding init statements to the init function.
@@ -538,7 +538,8 @@ public class Desugar extends BLangNodeVisitor {
                         !Symbols.isOptional(field.symbol))
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
-                    recordTypeNode.initFunction.initFunctionStmts.put(field.symbol, createAssignmentStmt(field));
+                    recordTypeNode.initFunction.initFunctionStmts.put(field.symbol,
+                            createStructFieldUpdate(recordTypeNode.initFunction, field));
                 });
 
         //Adding init statements to the init function.
@@ -4366,7 +4367,7 @@ public class Desugar extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
-    private BLangAssignment createObjectFieldUpdate(BLangFunction function, BLangSimpleVariable variable) {
+    private BLangAssignment createStructFieldUpdate(BLangFunction function, BLangSimpleVariable variable) {
         BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(variable.pos, function.receiver.symbol);
         BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, variable.name);
         fieldAccess.symbol = variable.symbol;

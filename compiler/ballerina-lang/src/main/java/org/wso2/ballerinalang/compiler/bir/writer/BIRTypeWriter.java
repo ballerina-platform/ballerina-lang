@@ -232,6 +232,12 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeInt(addStringCPEntry(field.name.value));
             field.type.accept(this);
         }
+
+        BAttachedFunction initializerFunc = tsymbol.initializerFunc;
+
+        buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
+        buff.writeByte(getVisibility(initializerFunc.symbol).value());
+        initializerFunc.type.accept(this);
         
         compositeStack.pop();
     }
