@@ -45,29 +45,34 @@ public class SiddhiStreamSubscription extends StreamSubscription {
         this.inputHandler = inputHandler;
     }
 
-    private Object[] createEvent(MapValue<String, Object> data) {
-        BStructureType streamType = (BStructureType) data.getType();
-        Object[] event = new Object[streamType.getFields().size()];
-        int index = 0;
-        for (Map.Entry<String, BField> fieldEntry : streamType.getFields().entrySet()) {
-            BField field = fieldEntry.getValue();
-            switch (field.getFieldType().getTag()) {
-                case TypeTags.INT_TAG:
-                case TypeTags.FLOAT_TAG:
-                case TypeTags.BOOLEAN_TAG:
-                case TypeTags.STRING_TAG:
-                    event[index++] = data.get(field.getFieldName());
-                    break;
-                default:
-                    throw new BallerinaException("Fields in streams do not support data types other than int, " +
-                                                 "float, boolean and string");
+    private Object[] createEvent(RefValue data) {
+        if (data.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+            MapValue<String, RefValue> dataMap = (MapValue<String, RefValue>) data;
+            BStructureType streamType = (BStructureType) data.getType();
+            Object[] event = new Object[streamType.getFields().size()];
+            int index = 0;
+            for (Map.Entry<String, BField> fieldEntry : streamType.getFields().entrySet()) {
+                BField field = fieldEntry.getValue();
+                switch (field.getFieldType().getTag()) {
+                    case TypeTags.INT_TAG:
+                    case TypeTags.FLOAT_TAG:
+                    case TypeTags.BOOLEAN_TAG:
+                    case TypeTags.STRING_TAG:
+                        event[index++] = dataMap.get(field.getFieldName());
+                        break;
+                    default:
+                        throw new BallerinaException("Fields in streams do not support data types other than int, " +
+                                                     "float, boolean and string");
+                }
             }
+            return event;
+        } else {
+            throw new BallerinaException("Received data is not of type record, found: " + data.getType().toString());
         }
-        return event;
     }
 
     public void execute(RefValue data) {
-        Object[] event = createEvent((MapValue<String, Object>) data);
+        Object[] event = createEvent(data);
         try {
             inputHandler.send(event);
         } catch (InterruptedException e) {
