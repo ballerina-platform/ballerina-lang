@@ -67,7 +67,7 @@ public class EmbeddedDirectoryServer {
      *
      * @param partitionId The partition Id
      * @param partitionDn The partition DN
-     * @param dnFactory The factory for DNs
+     * @param dnFactory   The factory for DNs
      * @return The newly added partition
      * @throws Exception If the partition can't be added
      */
@@ -109,7 +109,7 @@ public class EmbeddedDirectoryServer {
 
         // Create a new partition named 'b7a'.
         Partition b7aPartition = addPartition(LDAP_AUTH_TEST_PARTITION_NAME,
-                                                LDAP_AUTH_TEST_PARTITION_DN, service.getDnFactory());
+                LDAP_AUTH_TEST_PARTITION_DN, service.getDnFactory());
         service.addPartition(b7aPartition);
 
         // Start the service
@@ -119,7 +119,7 @@ public class EmbeddedDirectoryServer {
 
         // Load the LDIF file
         String ldif = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "auth"  + File.separator + "ldif").getAbsolutePath() + File.separator + "users-import.ldif";
+                "auth" + File.separator + "ldif").getAbsolutePath() + File.separator + "users-import.ldif";
         LdifFileLoader ldifLoader = new LdifFileLoader(service.getAdminSession(), ldif);
         ldifLoader.execute();
 
@@ -166,7 +166,7 @@ public class EmbeddedDirectoryServer {
     /**
      * Stops directory apache directory service.
      */
-    public void stopLdapService() {
+    void stopLdapService() {
         ldapServer.stop();
         workDir.delete();
     }

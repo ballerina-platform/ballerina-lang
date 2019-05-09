@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -41,6 +42,8 @@ import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
+import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypeDesc;
@@ -53,6 +56,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -69,9 +73,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Utility methods for run Ballerina functions.
@@ -455,6 +461,24 @@ public class BRunUtil {
                     bmap.put(key, getBVMValue(jvmMap.get(key)));
                 }
                 return bmap;
+
+            case org.ballerinalang.jvm.types.TypeTags.TABLE_TAG:
+                TableValue jvmTable = (TableValue) value;
+                org.ballerinalang.jvm.types.BTableType jvmTableType =
+                        (org.ballerinalang.jvm.types.BTableType) type;
+                BStructureType constraintType = (BStructureType) getBVMType(jvmTableType.getConstrainedType());
+                BValueArray data = new BValueArray(BTypes.typeMap);
+
+                while (jvmTable.hasNext()) {
+                    BMap dataRow = new BMap(constraintType);
+                    dataRow.getMap().putAll(((BMap<String, BValue>) getBVMValue(jvmTable.getNext())).getMap());
+                    data.append(dataRow);
+                }
+
+                jvmTable.close();
+                jvmTable.finalize();
+                return new BTable(new BTableType(constraintType), null, null, data);
+
             case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
                 ErrorValue errorValue = (ErrorValue) value;
                 BRefType<?> details = getBVMValue(errorValue.getDetails());
@@ -517,23 +541,31 @@ public class BRunUtil {
                 org.ballerinalang.jvm.types.BRecordType recordType = (org.ballerinalang.jvm.types.BRecordType) jvmType;
                 BRecordType bvmRecordType =
                         new BRecordType(null, recordType.getName(), recordType.getPackagePath(), recordType.flags);
+                Map<String, BField> recordFields =
+                        recordType.getFields().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
+                        entry -> new BField(getBVMType(entry.getValue().type), entry.getValue().getFieldName(),
+                        entry.getValue().flags), (a, b) -> b, LinkedHashMap::new));
+                bvmRecordType.setFields(recordFields);
                 return bvmRecordType;
             case org.ballerinalang.jvm.types.TypeTags.JSON_TAG:
                 return BTypes.typeJSON;
             case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
                 org.ballerinalang.jvm.types.BMapType mapType = (org.ballerinalang.jvm.types.BMapType) jvmType;
                 return new BMapType(getBVMType(mapType.getConstrainedType()));
+            case org.ballerinalang.jvm.types.TypeTags.TABLE_TAG:
+                org.ballerinalang.jvm.types.BTableType tableType = (org.ballerinalang.jvm.types.BTableType) jvmType;
+                return new BTableType(getBVMType(tableType.getConstrainedType()));
             case org.ballerinalang.jvm.types.TypeTags.UNION_TAG:
                 return BTypes.typePureType;
             case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
                 org.ballerinalang.jvm.types.BObjectType objectType = (org.ballerinalang.jvm.types.BObjectType) jvmType;
                 BObjectType bvmObjectType =
                         new BObjectType(null, objectType.getName(), objectType.getPackagePath(), objectType.flags);
-                Map<String, BField> fields = new HashMap<>();
+                Map<String, BField> objectFields = new HashMap<>();
                 for (org.ballerinalang.jvm.types.BField field : objectType.getFields().values()) {
-                    fields.put(field.name, new BField(getBVMType(field.type), field.name, field.flags));
+                    objectFields.put(field.name, new BField(getBVMType(field.type), field.name, field.flags));
                 }
-                bvmObjectType.setFields(fields);
+                bvmObjectType.setFields(objectFields);
                 return bvmObjectType;
             case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
                 return BTypes.typeXML;

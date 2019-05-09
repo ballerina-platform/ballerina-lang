@@ -55,7 +55,7 @@ import java.util.stream.IntStream;
  * 
  * @since 0.995.0
  */
-public class ArrayValue implements RefValue {
+public class ArrayValue implements RefValue, CollectionValue {
 
     protected BType arrayType;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
@@ -211,6 +211,24 @@ public class ArrayValue implements RefValue {
     public String getString(long index) {
         rangeCheckForGet(index, size);
         return stringValues[(int) index];
+    }
+
+    public Object get(long index) {
+        rangeCheckForGet(index, size);
+        switch (this.elementType.getTag()) {
+            case TypeTags.INT_TAG:
+                return intValues[(int) index];
+            case TypeTags.BOOLEAN_TAG:
+                return booleanValues[(int) index];
+            case TypeTags.BYTE_ARRAY_TAG:
+                return byteValues[(int) index];
+            case TypeTags.FLOAT_TAG:
+                return floatValues[(int) index];
+            case TypeTags.STRING_TAG:
+                return stringValues[(int) index];
+            default:
+                return refValues[(int) index];
+        }
     }
 
     // ----------------------------  add methods --------------------------------------------------
@@ -668,8 +686,7 @@ public class ArrayValue implements RefValue {
             }
         }
     }
-
-
+    
     private boolean isBasicType(BType type) {
         return type == BTypes.typeString || type == BTypes.typeInt || type == BTypes.typeFloat ||
                 type == BTypes.typeBoolean || type == BTypes.typeByte;
@@ -754,5 +771,40 @@ public class ArrayValue implements RefValue {
         this.elementType = arrayElementType;
         this.arrayType = type;
         refValues = null;
+    }
+    
+    @Override
+    public IteratorValue getIterator() {
+        return new ArrayIterator(this);
+    }
+
+    /**
+     * {@code {@link ArrayIterator}} provides iterator implementation for Ballerina array values.
+     *
+     * @since 0.995.0
+     */
+    static class ArrayIterator implements IteratorValue {
+        ArrayValue array;
+        long cursor = 0;
+        long length;
+
+        ArrayIterator(ArrayValue value) {
+            this.array = value;
+            this.length = value.size();
+        }
+
+        @Override
+        public Object next() {
+            long cursor = this.cursor++;
+            if (cursor == length) {
+                return null;
+            }
+            return array.get(cursor);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return cursor < length;
+        }
     }
 }

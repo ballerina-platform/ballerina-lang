@@ -20,7 +20,6 @@ package org.ballerinalang.test.auth;
 
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
@@ -36,20 +35,18 @@ public class TokenPropagationTest extends AuthBaseTest {
     public void testTokenPropagationWithBasicAuthInbound() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9192, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9103, "passthrough"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Test behaviour when JWT Token propagation is disabled, resulting in authn failure")
     public void testWithoutTokenPropagation() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9190, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9101, "passthrough"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 
     @Test(description = "Test JWT Token propagation with JWT auth as the inbound authentication mechanism, without " +
@@ -63,10 +60,10 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
                 "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9103, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9105, "passthrough"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+
+        assertOK(response);
     }
 
     @Test(description = "Test JWT Token propagation with JWT auth as the inbound authentication mechanism, with " +
@@ -80,10 +77,9 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
                 "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9105, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9107, "passthrough"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Negative test for JWT Token propagation with JWT auth as the inbound authentication " +
@@ -97,9 +93,8 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
                 "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9107, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9109, "passthrough"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 }

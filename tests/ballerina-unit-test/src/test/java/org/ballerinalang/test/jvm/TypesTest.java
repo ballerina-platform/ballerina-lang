@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -718,5 +719,17 @@ public class TypesTest {
     public void testSelfReferencingObject() {
         BValue[] result = BRunUtil.invoke(objectsResult, "testSelfReferencingObject");
         Assert.assertEquals((result[0]).stringValue(), "{a:3, f:()}");
+    }
+
+    @Test
+    public void testNewTable() {
+        BValue[] result = BRunUtil.invoke(compileResult, "tableFunc");
+        Assert.assertNotNull(result[0]);
+        BTable table = (BTable) result[0];
+        BMap data = table.getNext();
+        Assert.assertEquals(data.getMap().get("name"), new BString("Mary"));
+        Assert.assertEquals(data.getMap().get("physics"), new BInteger(90));
+        Assert.assertEquals(data.getMap().get("chemistry"), new BInteger(87));
+
     }
 }

@@ -145,7 +145,7 @@ public class JwtTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwt", inputBValues);
         Assert.assertTrue((returns[0]) instanceof BError);
         Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "JWT must contain a valid issuer name");
+                "JWT must contain a valid issuer name.");
     }
 
     @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
@@ -155,7 +155,7 @@ public class JwtTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwt", inputBValues);
         Assert.assertTrue((returns[0]) instanceof BError);
         Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "JWT must contain a valid audience");
+                "JWT must contain a valid audience.");
     }
 
     @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +

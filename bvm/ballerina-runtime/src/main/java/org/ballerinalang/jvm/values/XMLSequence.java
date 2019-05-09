@@ -47,7 +47,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
  */
 public final class XMLSequence extends XMLValue<ArrayValue> {
 
-    private ArrayValue sequence;
+    ArrayValue sequence;
 
     /**
      * Create an empty xml sequence.
@@ -513,5 +513,10 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             this.freezeStatus = freezeStatus;
             Arrays.stream(sequence.refValues).forEach(val -> ((RefValue) val).attemptFreeze(freezeStatus));
         }
+    }
+
+    @Override
+    public IteratorValue getIterator() {
+        return new XMLIterator.SequenceIterator(this);
     }
 }
