@@ -164,7 +164,7 @@ public class EqualBinaryOperatorTest {
                 "nil");
     }
 
-    @Test(description = "Test equals/unequals operation with two equal open records", enabled = false)
+    @Test(description = "Test equals/unequals operation with two equal open records")
     public void testOpenRecordsEqualityPositive() {
         BValue[] returns = BRunUtil.invoke(result, "checkOpenRecordEqualityPositive", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
@@ -172,7 +172,7 @@ public class EqualBinaryOperatorTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected open records to be identified as equal");
     }
 
-    @Test(description = "Test equals/unequals operation with two unequal open records", enabled = false)
+    @Test(description = "Test equals/unequals operation with two unequal open records")
     public void testOpenRecordsEqualityNegative() {
         BValue[] returns = BRunUtil.invoke(result, "checkOpenRecordEqualityNegative", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
@@ -675,6 +675,22 @@ public class EqualBinaryOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "testEmptyMapAndRecordEquality");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as equal.");
+    }
+
+    @Test
+    public void testSimpleXmlPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleXmlPositive");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
+    }
+
+    @Test
+    public void testSimpleXmlNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleXmlNegative");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as not equal.");
     }
 
     @Test(description = "Test equal and not equal with errors")

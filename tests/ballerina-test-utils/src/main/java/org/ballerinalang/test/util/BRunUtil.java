@@ -29,7 +29,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -461,7 +461,7 @@ public class BRunUtil {
             case TypeTags.MAP_TAG:
                 BMapType mapType = (BMapType) type;
                 BMap bMap = (BMap) value;
-                MapValue jvmMap = new MapValue(getJVMType(mapType));
+                MapValueImpl jvmMap = new MapValueImpl(getJVMType(mapType));
                 bMap.getMap().forEach((k, v) -> {
                     BValue bValue = bMap.get(k);
                     jvmMap.put(k, getJVMValue(bValue.getType(), bValue));
@@ -473,7 +473,7 @@ public class BRunUtil {
                 return getJVMValue(value.getType(), value);
             case TypeTags.JSON_TAG:
                 bMap = (BMap) value;
-                jvmMap = new MapValue(getJVMType(type));
+                jvmMap = new MapValueImpl(getJVMType(type));
                 bMap.getMap().forEach((k, v) -> {
                     BValue bValue = bMap.get(k);
                     jvmMap.put(k, getJVMValue(bValue.getType(), bValue));
@@ -625,7 +625,7 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
             case org.ballerinalang.jvm.types.TypeTags.JSON_TAG:
             case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
-                MapValue jvmMap = (MapValue) value;
+                MapValueImpl jvmMap = (MapValueImpl) value;
                 BMap bmap = new BMap(getBVMType(jvmMap.getType()));
                 for (Object key : jvmMap.keySet()) {
                     bmap.put(key, getBVMValue(jvmMap.get(key)));
