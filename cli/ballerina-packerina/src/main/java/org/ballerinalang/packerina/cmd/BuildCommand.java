@@ -31,9 +31,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
-//import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-//import static org.ballerinalang.util.BLangConstants.JVM_TARGET;
 
 /**
  * This class represents the "ballerina build" command.
