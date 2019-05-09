@@ -18,7 +18,6 @@ import ballerina/time;
 
 # FileInfo record contains metadata information of a file.
 # This record is returned by getFileInfo function is os module.
-#
 public type FileInfo object {
   string name;
   int size;
