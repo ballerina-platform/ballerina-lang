@@ -76,3 +76,10 @@ function iterate(any data) returns any = external;
 # + value - Value to get the length
 # + return - Length of the given value
 function length(anydata value) returns int = external;
+
+# Get the next value of an iterator.
+#
+# + iterator - Iterator
+# + targetType - Target type
+# + return - Next value
+function next(any iterator, typedesc targetType) returns anydata|error = external;

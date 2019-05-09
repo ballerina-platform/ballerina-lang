@@ -177,7 +177,6 @@ public type PackageParser object {
 
     function parseTypeDefBodies(TypeDef?[] typeDefs) {
         int numTypeDefs = typeDefs.length();
-
         foreach var typeDef in typeDefs {
             TypeDef tDef = getTypeDef(typeDef);
             BType typeValue = tDef.typeValue;

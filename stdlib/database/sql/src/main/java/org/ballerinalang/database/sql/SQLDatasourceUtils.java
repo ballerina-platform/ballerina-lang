@@ -963,9 +963,10 @@ public class SQLDatasourceUtils {
         case Types.BIT:
         case Types.BOOLEAN:
             return TypeKind.BOOLEAN;
-        case Types.REAL:
         case Types.NUMERIC:
         case Types.DECIMAL:
+            return TypeKind.DECIMAL;
+        case Types.REAL:
         case Types.FLOAT:
         case Types.DOUBLE:
             return TypeKind.FLOAT;
