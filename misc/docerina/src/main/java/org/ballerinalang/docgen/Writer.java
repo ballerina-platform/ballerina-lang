@@ -32,6 +32,7 @@ import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.docgen.generator.model.DefaultableVarible;
 import org.ballerinalang.docgen.generator.model.PageContext;
 import org.ballerinalang.docgen.generator.model.Type;
+import org.ballerinalang.docgen.generator.model.UnionType;
 import org.ballerinalang.docgen.generator.model.Variable;
 import org.ballerinalang.docgen.model.ModuleDoc;
 
@@ -78,6 +79,11 @@ public class Writer {
                     (varList, options) -> varList.stream()
                             .map(variable -> getTypeLabel(variable.type, options) + " " + variable.name)
                             .collect(Collectors.joining(", "))
+            );
+            handlebars.registerHelper("unionTypeSummary", (Helper<List<Type>>)
+                    (typeList, options) -> typeList.stream()
+                            .map(type -> getTypeLabel(type, options))
+                            .collect(Collectors.joining(" | "))
             );
             handlebars.registerHelper("typeName", Writer::getTypeLabel);
             Template template = handlebars.compile(packageTemplateName);

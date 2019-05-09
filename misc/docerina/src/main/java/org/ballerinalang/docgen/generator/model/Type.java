@@ -19,10 +19,13 @@ import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.model.elements.Flag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -47,6 +50,18 @@ public class Type {
             return;
         }
         BTypeSymbol typeSymbol = type.type.tsymbol;
+//        if (typeSymbol == null) {
+//            if (!(type.type instanceof BUnionType) && !(type.type instanceof BInvokableType)) {
+//
+//            }
+//            this.name = "sdsdsdsdsd";
+//        }
+//        if ((typeSymbol != null) && (typeSymbol.name.value.equals(""))) {
+//            this.name = "sdsdsd";
+//            if (!(type instanceof BLangUnionTypeNode) && !(type instanceof BLangArrayType) && !(type instanceof BLangTupleTypeNode)) {
+//
+//            }
+//        }
         if (typeSymbol != null && !typeSymbol.name.value.equals("")) {
             if (type instanceof BLangUserDefinedType) {
                 BLangUserDefinedType userDefinedType = (BLangUserDefinedType) type;
@@ -97,6 +112,12 @@ public class Type {
                 this.category = "objects";
             }
         }
+//        if (typeSymbol == null && !(type.type instanceof BUnionType) && !(type.type instanceof BInvokableType)) {
+//
+//        }
+//        if (type.type == null) {
+//            this.name = "sdsdsd";
+//        }
     }
 
     public Type(String name, String description) {

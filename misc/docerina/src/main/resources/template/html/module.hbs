@@ -113,7 +113,7 @@
                     {{#each module.annotations}}
                         <tr>
                             <td class="module-title truncate annotations" id="{{name}}"><a
-                                    class="annotations" href="annotations/annotations.html">{{name}}</a></td>
+                                    class="annotations" href="annotations.html#{{name}}">{{name}}</a></td>
                             <td class="module-desc">{{{ description }}}</td>
                         </tr>
                     {{/each}}
@@ -126,7 +126,7 @@
                     {{#each module.unionTypes}}
                         <tr>
                             <td class="module-title truncate types" id="{{name}}">
-                                <a class="types" href="types/types.html">{{name}}</a>
+                                <a class="types" href="types.html#{{name}}">{{name}}</a>
                             </td>
                             <td class="module-desc">{{{ description }}}</td>
                         </tr>
@@ -140,10 +140,9 @@
                     {{#each module.errors}}
                         <tr>
                             <td class="module-title truncate errors" id="{{name}}">
-                                <a class="errors" href="errors/errors.html">{{name}}</a>
+                                <a class="errors" href="errors.html#{{name}}">{{name}}</a>
                             </td>
                             <td class="module-desc">{{{ description }}}</td>
-                            <td class="detail-type">{{ detailType.name }}</td>
                         </tr>
                     {{/each}}
                 </table>

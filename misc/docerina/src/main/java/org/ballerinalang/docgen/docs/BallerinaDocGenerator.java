@@ -24,9 +24,11 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.Writer;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.ballerinalang.docgen.generator.model.AnnotationsPageContext;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.ClientPageContext;
 import org.ballerinalang.docgen.generator.model.ConstantsPageContext;
+import org.ballerinalang.docgen.generator.model.ErrorsPageContext;
 import org.ballerinalang.docgen.generator.model.FunctionsPageContext;
 import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.ListenerPageContext;
@@ -38,6 +40,7 @@ import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.docgen.generator.model.ProjectPageContext;
 import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.RecordPageContext;
+import org.ballerinalang.docgen.generator.model.TypesPageContext;
 import org.ballerinalang.docgen.model.Caption;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.ModuleDoc;
@@ -188,6 +191,9 @@ public class BallerinaDocGenerator {
         String listenerTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "listener");
         String functionsTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "functions");
         String constantsTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "constants");
+        String typesTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "types");
+        String annotationsTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "annotations");
+        String errorsTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "errors");
 
         // Generate module pages
         for (Module module : project.modules) {
@@ -269,6 +275,30 @@ public class BallerinaDocGenerator {
                     ConstantsPageContext constantsPageContext = new ConstantsPageContext(module.constants, module, project,
                             "../","API Documentation for " + module.id + " constants");
                     Writer.writeHtmlDocument(constantsPageContext, constantsTemplateName, constantsFile);
+                }
+
+                // Create pages for types
+                if (!module.unionTypes.isEmpty()) {
+                    String typesFile = modDir + File.separator + "types" + HTML;
+                    TypesPageContext typesPageContext = new TypesPageContext(module.unionTypes, module, project,
+                            "../","API Documentation for " + module.id + " types");
+                    Writer.writeHtmlDocument(typesPageContext, typesTemplateName, typesFile);
+                }
+
+                // Create pages for annotations
+                if (!module.annotations.isEmpty()) {
+                    String annotationsFile = modDir + File.separator + "annotations" + HTML;
+                    AnnotationsPageContext annotationsPageContext = new AnnotationsPageContext(module.annotations, module, project,
+                            "../","API Documentation for " + module.id + " annotations");
+                    Writer.writeHtmlDocument(annotationsPageContext, annotationsTemplateName, annotationsFile);
+                }
+
+                // Create pages for errors
+                if (!module.errors.isEmpty()) {
+                    String errorsFile = modDir + File.separator + "errors" + HTML;
+                    ErrorsPageContext errorsPageContext = new ErrorsPageContext(module.errors, module, project,
+                            "../","API Documentation for " + module.id + " errors");
+                    Writer.writeHtmlDocument(errorsPageContext, errorsTemplateName, errorsFile);
                 }
 
                 if (BallerinaDocUtils.isDebugEnabled()) {

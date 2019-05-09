@@ -15,16 +15,19 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
-/**
- * Represent documentation for an Annotation.
- */
-public class Annotation extends Construct {
-    public Type type;
-    public String attachmentPoints;
+import java.util.ArrayList;
+import java.util.List;
 
-    public Annotation(String name, String description, Type type, String attachmentPoints) {
+/**
+ * Represents a finite type.
+ */
+public class FiniteType extends Type {
+
+    public List<String> valueSpace = new ArrayList<>();
+
+    public FiniteType(String name, String description, List<String> valueSpace) {
         super(name, description);
-        this.type = type;
-        this.attachmentPoints = attachmentPoints;
+        this.valueSpace = valueSpace;
     }
 }
+

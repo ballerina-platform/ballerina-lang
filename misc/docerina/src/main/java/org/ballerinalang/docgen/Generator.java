@@ -26,6 +26,7 @@ import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.Constant;
 import org.ballerinalang.docgen.generator.model.DefaultableVarible;
 import org.ballerinalang.docgen.generator.model.Error;
+import org.ballerinalang.docgen.generator.model.FiniteType;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.Module;
@@ -233,11 +234,10 @@ public class Generator {
             added = true;
         } else if (kind == NodeKind.FINITE_TYPE_NODE) {
             BLangFiniteTypeNode enumNode = (BLangFiniteTypeNode) typeNode;
-            String values = enumNode.getValueSet().stream()
+            List<String> values = enumNode.getValueSet().stream()
                     .map(java.lang.Object::toString)
-                    .sorted(Collections.reverseOrder())
-                    .collect(Collectors.joining(" | "));
-            // module.unionTypes.add(new UnionType(typeName, description(typeDefinition), values));
+                    .collect(Collectors.toList());
+            module.finiteTypes.add(new FiniteType(typeName, description(typeDefinition), values));
             added = true;
         } else if (kind == NodeKind.RECORD_TYPE) {
             BLangRecordTypeNode recordNode = (BLangRecordTypeNode) typeNode;
