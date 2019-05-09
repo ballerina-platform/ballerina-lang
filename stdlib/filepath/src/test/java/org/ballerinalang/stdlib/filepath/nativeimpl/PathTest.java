@@ -348,6 +348,10 @@ public class PathTest {
 
     @Test(description = "Test resolve path function for paths")
     public void testResolvePath() throws IOException {
+        if (IS_WINDOWS) {
+            // Temporary disable running this test in windows, due to permission failure in symbolic link creation.
+            return;
+        }
         Path symLinkPath = null;
         try {
             Path filePath = Paths.get("src", "test", "resources", "data-files", "test.txt");
