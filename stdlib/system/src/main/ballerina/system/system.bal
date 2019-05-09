@@ -59,6 +59,7 @@ public function createDir(string dir, boolean parentDirs = false) returns error?
 
 # Removes the specified file or directory.
 # If recursive flag is true, Removes the path and any children  # it contains.
+#
 # + path - String value of file/directory path.
 # + recursive - Indicates whether the `remove` should
 # recursively remove all the file inside the given directory.
@@ -76,7 +77,7 @@ public function rename(string oldpath, string newpath) returns error? = external
 
 # Returns the default directory to use for temporary files.
 #
-# + return - Temp directory location.
+# + return - Temporary directory location.
 public function tempDir() returns string = external;
 
 # Creates a file in specified file path.

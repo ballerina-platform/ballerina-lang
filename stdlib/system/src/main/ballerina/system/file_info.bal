@@ -54,6 +54,7 @@ public type FileInfo object {
   }
 
   # Returns whether file is directory
+  #
   # + return - File is a directory or not.
   public function isDir() returns boolean {
 	return self.dir;
