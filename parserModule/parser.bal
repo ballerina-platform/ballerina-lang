@@ -84,7 +84,8 @@ type Parser object {
 
 	//error recovery token insertion
 	function insertToken(int mToken) returns Token {
-		return { tokenType: PARSER_ERROR_TOKEN, text: "<missing " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
+		log:printError(tokenNames[mToken] + "inserted at line: " );
+		return { tokenType: mToken, text: tokenNames[mToken] , startPos: -1 , endPos:-1,
 			lineNumber: 0, index: -1, whiteSpace: "" };
 	}
 	//error recovery delete token
@@ -103,9 +104,13 @@ type Parser object {
 		if(rule == "variableDefinitionStatement"){
 			if(mToken == SEMICOLON){
 				Token insertSemi = self.insertToken(mToken);
+				insertSemi.text = ";";
 				return insertSemi;
-			}
-			else{
+			}else if(mToken == ASSIGN){
+				Token insertAssign = self.insertToken(mToken);
+				insertAssign.text = "=";
+				return insertAssign;
+			}else{
 				//recovered = false;
 				self.errorRecovered = false;
 				int[] exprPanic = [SEMICOLON,RBRACE];
@@ -130,9 +135,11 @@ type Parser object {
 			//check if the expected token is a lBrace, then insert
 			if(mToken == RBRACE){
 				Token insertRbrace = self.insertToken(mToken);
+				insertRbrace.text = "}";
 				return insertRbrace;
 			}else if(mToken == LBRACE){
 				Token insertLbrace = self.insertToken(mToken);
+				insertLbrace.text = "{";
 				return insertLbrace;
 			}else{
 				int[] functionPanic = [RBRACE,EOF];
@@ -221,7 +228,7 @@ type Parser object {
 	function parseCallableUnitBody() returns BlockNode {
 		StatementNode[] stsList = [];
 		int pos = 0;
-		//token insertion is lBrace is mismatched
+		//token insertion if lBrace is mismatched
 		Token lBrace = self.matchToken(LBRACE,FUNCTION_NODE);
 		while (self.LAToken(1) != RBRACE) {
 			if(self.LAToken(1) == EOF){
@@ -257,18 +264,10 @@ type Parser object {
 				pos += 1;
 			}
 		}
-		//Token insertion of rBrace not found
+		//Token insertion if rBrace not found
 		Token rBrace = self.matchToken(RBRACE,FUNCTION_NODE);
 		BlockNode blNode = { nodeKind: BLOCK_NODE, tokenList: [lBrace, rBrace], statementList: stsList };
 		return blNode;
-		//if(rBrace.tokenType == PARSER_ERROR_TOKEN){
-		//	BlockNode blNode = { nodeKind: BLOCK_NODE, tokenList: [lBrace], statementList: stsList };
-		//	return blNode;
-		//}else{
-		//	BlockNode blNode = { nodeKind: BLOCK_NODE, tokenList: [lBrace, rBrace], statementList: stsList };
-		//	return blNode;
-		//}
-
 	}
 	//Statement
 	//    |<variable definition statement>
@@ -556,7 +555,6 @@ type Parser object {
 					self.invalidOccurence = true;
 					return true;
 				}
-
 			}//else if (self.priorOperator == true) {
 			//	if(self.LAToken(1) == SUB){
 			//		Token unarySub = self.matchToken(SUB, EXPRESSION_NODE);
@@ -710,32 +708,7 @@ type Parser object {
 			ExpressionNode[] tupleList = [];
 			//list to keep track of commas
 			Token[] commaList = [];
-			//if (self.expOperand == true) {
-				//while (self.oprStack.peek() != LPAREN) {
-				//	Token operator = self.oprStack.pop();
-				//	if(operator.tokenType == PARSER_ERROR_TOKEN){
-				//	log:printError("<missing token>");
-				//	self.invalidOccurence = true;
-				//
-				//	break;
-				//	}
-				//}
-				//if(self.oprStack.peek() != LPAREN){
-				//	Token operator = self.oprStack.pop();
-				//	int operatorType = operator.tokenType;
-				//	log:printError("unexpected Token: " + tokenNames[operatorType]);
-				//	operator.tokenType = PARSER_ERROR_TOKEN;
-				//	operator.text =  "<invalid token: " + tokenNames[operatorType] + ">";
-				//	self.errTokens[self.errCount] = operator;
-				//	self.errCount += 1;
-				//	self.invalidOccurence = true;
-				//}
-			//	Token invalidToken = self.deleteToken();
-			//	self.errTokens[self.errCount] = invalidToken;
-			//	self.errCount += 1;
-			//	self.invalidOccurence = true;
-			//	return true;
-			//} else {
+
 				Token rParen = self.matchToken(RPAREN, EXPRESSION_NODE);
 				commaList[self.commaCount] = rParen;
 				self.commaCount +=1;
