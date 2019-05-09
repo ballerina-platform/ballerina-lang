@@ -1,0 +1,417 @@
+/*
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+package org.ballerinalang.jvm.values;
+
+import org.ballerinalang.jvm.ColumnDefinition;
+import org.ballerinalang.jvm.DataIterator;
+import org.ballerinalang.jvm.TableProvider;
+import org.ballerinalang.jvm.TableUtils;
+import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.types.BTableType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.freeze.FreezeUtils;
+import org.ballerinalang.jvm.values.freeze.State;
+import org.ballerinalang.jvm.values.freeze.Status;
+
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
+
+/**
+ * The {@code {@link TableValue}} represents a two dimensional data set in Ballerina.
+ *
+ * @since 0.995.0
+ */
+public class TableValue implements RefValue, CollectionValue {
+
+    protected DataIterator iterator;
+    private boolean hasNextVal;
+    private boolean nextPrefetched;
+    private TableProvider tableProvider;
+    private String tableName;
+    private BStructureType constraintType;
+    private ArrayValue primaryKeys;
+    private ArrayValue indices;
+    private boolean tableClosed;
+    private volatile Status freezeStatus = new Status(State.UNFROZEN);
+    private BType type;
+
+    public TableValue() {
+        this.iterator = null;
+        this.tableProvider = null;
+        this.nextPrefetched = false;
+        this.hasNextVal = false;
+        this.tableName = null;
+        this.type = BTypes.typeTable;
+    }
+
+    public TableValue(String tableName, BStructureType constraintType) {
+        this(constraintType);
+        this.tableName = tableName;
+    }
+
+    public TableValue(BStructureType constraintType) {
+        this.nextPrefetched = false;
+        this.hasNextVal = false;
+        this.constraintType = constraintType;
+        this.type = new BTableType(constraintType);
+    }
+
+    public TableValue(String query, TableValue fromTable, TableValue joinTable,
+                      BStructureType constraintType, ArrayValue params) {
+        this.tableProvider = TableProvider.getInstance();
+        if (!fromTable.isInMemoryTable()) {
+            throw new BallerinaException(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                                         "Table query over a cursor table not supported");
+        }
+        if (joinTable != null) {
+            if (!joinTable.isInMemoryTable()) {
+                throw new BallerinaException(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                                             "Table query over a cursor table not supported");
+            }
+            this.tableName = tableProvider.createTable(fromTable.tableName, joinTable.tableName, query,
+                                                       constraintType, params);
+        } else {
+            this.tableName = tableProvider.createTable(fromTable.tableName, query, constraintType, params);
+        }
+        this.constraintType = constraintType;
+        this.type = new BTableType(constraintType);
+    }
+
+    public TableValue(BType type, ArrayValue indexColumns, ArrayValue keyColumns, ArrayValue dataRows) {
+        //Create table with given constraints.
+        BType constrainedType = ((BTableType) type).getConstrainedType();
+        this.tableProvider = TableProvider.getInstance();
+        this.tableName = tableProvider.createTable(constrainedType, keyColumns, indexColumns);
+        this.constraintType = (BStructureType) constrainedType;
+        this.type = new BTableType(constraintType);
+        this.primaryKeys = keyColumns;
+        this.indices = indexColumns;
+        //Insert initial data
+        if (dataRows != null) {
+            insertInitialData(dataRows);
+        }
+    }
+
+    public String stringValue() {
+        String constraint = constraintType != null ? "<" + constraintType.toString() + ">" : "";
+        StringBuilder tableWrapper = new StringBuilder("table" + constraint + " ");
+        StringJoiner tableContent = new StringJoiner(", ", "{", "}");
+        tableContent.add(createStringValueEntry("index", indices));
+        tableContent.add(createStringValueEntry("primaryKey", primaryKeys));
+        tableContent.add(createStringValueDataEntry());
+        tableWrapper.append(tableContent.toString());
+
+        return tableWrapper.toString();
+    }
+
+    private String createStringValueEntry(String key, ArrayValue contents) {
+        String stringValue = "[]";
+        if (contents != null) {
+            stringValue = contents.toString();
+        }
+        return key + ": " + stringValue;
+    }
+
+    private String createStringValueDataEntry() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("data: ");
+        StringJoiner sj = new StringJoiner(", ", "[", "]");
+        while (hasNext()) {
+            MapValue<?, ?> struct = getNext();
+            sj.add(struct.toString());
+        }
+        sb.append(sj.toString());
+        return sb.toString();
+    }
+
+    @Override
+    public BType getType() {
+        return this.type;
+    }
+
+    @Override
+    public void stamp(BType type) {
+
+    }
+
+    public boolean hasNext() {
+        if (tableClosed) {
+            throw new BallerinaException("Trying to perform hasNext operation over a closed table");
+        }
+        if (isIteratorGenerationConditionMet()) {
+            generateIterator();
+        }
+        if (!nextPrefetched) {
+            hasNextVal = iterator.next();
+            nextPrefetched = true;
+        }
+        if (!hasNextVal) {
+            reset();
+        }
+        return hasNextVal;
+    }
+
+    public void moveToNext() {
+        if (tableClosed) {
+            throw new BallerinaException(BallerinaErrorReasons.TABLE_CLOSED_ERROR,
+                                         "Trying to perform an operation over a closed table");
+        }
+        if (isIteratorGenerationConditionMet()) {
+            generateIterator();
+        }
+        if (!nextPrefetched) {
+            iterator.next();
+        } else {
+            nextPrefetched = false;
+        }
+    }
+
+    public void close() {
+        if (iterator != null) {
+            iterator.close();
+        }
+        tableClosed = true;
+    }
+
+    public void reset() {
+        if (iterator != null) {
+            iterator.reset();
+            iterator = null;
+        }
+        resetIterationHelperAttributes();
+    }
+
+    public MapValue<String, Object> getNext() {
+        // Make next row the current row
+        moveToNext();
+        // Create BStruct from current row
+        return (MapValue<String, Object>) iterator.generateNext();
+    }
+
+    /**
+     * Performs addition of a record to the database.
+     *
+     * @param data    The record to be inserted
+     * @return error if something goes wrong
+     */
+    public Object performAddOperation(MapValue<String, Object> data) {
+        synchronized (this) {
+            if (freezeStatus.getState() != State.UNFROZEN) {
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+            }
+        }
+
+        try {
+            this.addData(data);
+            return null;
+        } catch (Throwable e) {
+            return TableUtils.createTableOperationError(e);
+        }
+    }
+
+    public void addData(MapValue<String, Object> data) {
+        if (data.getType() != this.constraintType) {
+            throw new BallerinaException("incompatible types: record of type:" + data.getType().getName()
+                                         + " cannot be added to a table with type:" + this.constraintType.getName());
+        }
+        tableProvider.insertData(tableName, data);
+        reset();
+    }
+
+    //TODO : to be implemented
+    public Object performRemoveOperation() {
+        synchronized (this) {
+            if (freezeStatus.getState() != State.UNFROZEN) {
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+            }
+        }
+        return TableUtils.createTableOperationError(new Exception("Remove operation is not supported yet"));
+    }
+
+    public String getString(int columnIndex) {
+        return iterator.getString(columnIndex);
+    }
+
+    public Long getInt(int columnIndex) {
+        return iterator.getInt(columnIndex);
+    }
+
+    public Double getFloat(int columnIndex) {
+        return iterator.getFloat(columnIndex);
+    }
+
+    public Boolean getBoolean(int columnIndex) {
+        return iterator.getBoolean(columnIndex);
+    }
+
+    public String getBlob(int columnIndex) {
+        return iterator.getBlob(columnIndex);
+    }
+
+    public Object[] getStruct(int columnIndex) {
+        return iterator.getStruct(columnIndex);
+    }
+
+    public Object[] getArray(int columnIndex) {
+        return iterator.getArray(columnIndex);
+    }
+
+    public List<ColumnDefinition> getColumnDefs() {
+        return iterator.getColumnDefinitions();
+    }
+
+    public BStructureType getStructType() {
+        return iterator.getStructType();
+    }
+
+    @Override
+    public Object copy(Map<Object, Object> refs) {
+        if (tableClosed) {
+            throw new BallerinaException("Trying to invoke clone built-in method over a closed table");
+        }
+
+        if (isFrozen()) {
+            return this;
+        }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
+        TableIterator cloneIterator = tableProvider.createIterator(this.tableName, this.constraintType);
+        ArrayValue data = new ArrayValue();
+        int cursor = 0;
+        try {
+            while (cloneIterator.next()) {
+                data.add(cursor++, cloneIterator.generateNext());
+            }
+            TableValue table = new TableValue(new BTableType(constraintType), this.indices, this.primaryKeys, data);
+            refs.put(this, table);
+            return table;
+        } finally {
+            cloneIterator.close();
+        }
+    }
+
+    @Override
+    public IteratorValue getIterator() {
+        return new TableValueIterator(this);
+    }
+
+    private void generateIterator() {
+        this.iterator = tableProvider.createIterator(tableName, this.constraintType);
+        resetIterationHelperAttributes();
+    }
+
+    protected boolean isIteratorGenerationConditionMet() {
+        return this.iterator == null;
+    }
+
+    protected void resetIterationHelperAttributes() {
+        this.nextPrefetched = false;
+        this.hasNextVal = false;
+    }
+
+    @Override
+    public void finalize() {
+        if (this.iterator != null) {
+            this.iterator.close();
+        }
+        tableProvider.dropTable(this.tableName);
+    }
+
+    private void insertInitialData(ArrayValue data) {
+        int count = data.size();
+        for (int i = 0; i < count; i++) {
+            addData((MapValue<String, Object>) data.getRefValue(i));
+        }
+    }
+
+    /**
+     * Returns a flag indicating whether this table is an in-memory one.
+     * TODO: This is a hack to get the table to JSON conversion works
+     * with in-memory tables. Fix this ASAP. Issue: #10615
+     *
+     * @return Flag indicating whether this table is an in-memory one.
+     */
+    public boolean isInMemoryTable() {
+        return true;
+    }
+
+    /**
+     * Returns the length or the number of rows of the table.
+     *
+     * @return number of rows of the table
+     */
+    public long size() {
+        if (tableName == null) {
+            return 0;
+        }
+        return tableProvider.getRowCount(tableName);
+    }
+
+    /**
+     * Provides iterator implementation for table values.
+     *
+     * @since 0.961.0
+     */
+    //TODO : copy and stamp to be implemented
+    private static class TableValueIterator implements IteratorValue {
+
+        private TableValue table;
+
+        TableValueIterator(TableValue value) {
+            table = value;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return table.hasNext();
+        }
+
+        @Override
+        public Object next() {
+            if (hasNext()) {
+                return table.getNext();
+            }
+            return null;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized boolean isFrozen() {
+        return this.freezeStatus.isFrozen();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void attemptFreeze(Status freezeStatus) {
+        if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            this.freezeStatus = freezeStatus;
+        }
+    }
+}
