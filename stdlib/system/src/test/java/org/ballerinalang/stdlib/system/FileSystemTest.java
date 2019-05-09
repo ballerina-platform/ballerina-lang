@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -185,7 +186,7 @@ public class FileSystemTest {
         assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> bvalue = (BMap) returns[0];
         assertEquals(bvalue.get("name").stringValue(), "src-file.txt");
-        assertEquals(bvalue.get("size").stringValue(), "55");
+        assertTrue(((BInteger) bvalue.get("size")).intValue() > 0);
         assertEquals(bvalue.get("isDir").stringValue(), "false");
     }
 
