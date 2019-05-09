@@ -18,7 +18,6 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.RefValue;
 
 import java.util.LinkedList;
 import java.util.Queue;
