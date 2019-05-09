@@ -321,18 +321,18 @@ public class FileSystemTest {
             assertEquals(tempDestPath.toFile().length(), sourcePath.toFile().length());
 
             // Execute same with replaceExist false
-            long modifiedTime1 = tempDestPath.toFile().lastModified();
+            long modifiedTime = tempDestPath.toFile().lastModified();
             BRunUtil.invoke(compileResult, "testCopy", args);
-            long modifiedTime2 = tempDestPath.toFile().lastModified();
-            assertEquals(modifiedTime2, modifiedTime1);
+            long modifiedTimeWithoutReplace = tempDestPath.toFile().lastModified();
+            assertEquals(modifiedTimeWithoutReplace, modifiedTime);
 
             // Execute same with replaceExist true
             BValue[] args1 = {new BString(sourcePath.toString()), new BString(tempDestPath.toString()),
                     new BBoolean(true)};
             Thread.sleep(1000);
             BRunUtil.invoke(compileResult, "testCopy", args1);
-            long modifiedTime3 = tempDestPath.toFile().lastModified();
-            assertNotEquals(modifiedTime3, modifiedTime2);
+            long modifiedTimeWithReplace = tempDestPath.toFile().lastModified();
+            assertNotEquals(modifiedTimeWithReplace, modifiedTime);
         } finally {
             if (tempDestPath != null) {
                 Files.deleteIfExists(tempDestPath);
