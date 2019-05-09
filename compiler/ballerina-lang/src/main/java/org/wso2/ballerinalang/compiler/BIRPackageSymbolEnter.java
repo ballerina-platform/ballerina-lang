@@ -29,7 +29,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -37,8 +39,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -60,6 +65,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -80,7 +86,7 @@ public class BIRPackageSymbolEnter {
 
     private BIRPackageSymbolEnv env;
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
-    private BStructureTypeSymbol structureTypeSymbol;
+    private boolean defineFuncsInPkg = true;
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
@@ -106,9 +112,9 @@ public class BIRPackageSymbolEnter {
     public BPackageSymbol definePackage(PackageID packageId,
                                         RepoHierarchy packageRepositoryHierarchy,
                                         byte[] packageBinaryContent) {
-        if (packageId.orgName.value.equals("ballerina")) { //TODO remove temp fix
-            return null;
-        }
+//        if (packageId.orgName.value.equals("ballerina")) { //TODO remove temp fix
+//            return null;
+//        }
         BPackageSymbol pkgSymbol = definePackage(packageId, packageRepositoryHierarchy,
                 new ByteArrayInputStream(packageBinaryContent));
 
@@ -190,8 +196,7 @@ public class BIRPackageSymbolEnter {
         // Define package level variables.
         defineSymbols(dataInStream, rethrow(this::definePackageLevelVariables));
 
-        //TODO remove - rajith (temp to skip type defs)
-        defineSymbols(dataInStream, rethrow(this::defineAttachedFunctions));
+        defineAttachedFunctions(dataInStream);
 
 
         // Define annotations.
@@ -220,10 +225,11 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineAttachedFunctions(DataInputStream dataInStream) throws IOException {
-        for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
-            this.structureTypeSymbol = structureTypeSymbol;
+        this.defineFuncsInPkg = false;
+        for (BStructureTypeSymbol ignored : this.structureTypes) {
             defineSymbols(dataInStream, rethrow(this::defineFunction));
         }
+        this.defineFuncsInPkg = true;
     }
 
     private CPEntry[] readConstantPool(DataInputStream dataInStream) throws IOException {
@@ -257,7 +263,6 @@ public class BIRPackageSymbolEnter {
                 if (length >= 0) {
                     byte[] bytes = new byte[length];
                     dataInStream.read(bytes, 0, length);
-//                    strValue = dataInStream.readUTF();
                     strValue = new String(bytes);
                 }
                 return new CPEntry.StringCPEntry(strValue);
@@ -338,7 +343,9 @@ public class BIRPackageSymbolEnter {
 
         dataInStream.skip(dataInStream.readLong()); // read and skip method body
 
-        scopeToDefine.define(invokableSymbol.name, invokableSymbol);
+        if (this.defineFuncsInPkg) { //TODO find a better way?
+            scopeToDefine.define(invokableSymbol.name, invokableSymbol);
+        }
     }
 
     private void skipPosition(DataInputStream dataInStream) throws IOException {
@@ -372,8 +379,12 @@ public class BIRPackageSymbolEnter {
 
         BType type = typeReader.readType();
 
-        BTypeSymbol symbol = type.tsymbol.createLabelSymbol();
+        // Temp solution to add abstract flag if available TODO find a better approach
+        flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.ABSTRACT) ? flags | Flags.ABSTRACT : flags;
+
+        BTypeSymbol symbol = type.tsymbol;
         symbol.type = type;
+
 
         symbol.name = names.fromString(typeDefName);
         symbol.pkgID = this.env.pkgSymbol.pkgID;
@@ -1200,8 +1211,10 @@ public class BIRPackageSymbolEnter {
 //    }
 
     private class BIRTypeReader {
+        public static final int TYPE_TAG_SELF = 50;
+        public static final int SERVICE_TYPE_TAG = 51;
         private DataInputStream inputStream;
-        //TODO implement recursive types
+        private LinkedList<Object> compositeStack = new LinkedList<>();
 
         public BIRTypeReader(DataInputStream inputStream) {
             this.inputStream = inputStream;
@@ -1225,6 +1238,7 @@ public class BIRPackageSymbolEnter {
                 // All the above types are values type
                 case TypeTags.JSON:
                 case TypeTags.XML:
+                    return symTable.xmlType;
                 case TypeTags.TABLE:
                     return new BTableType(TypeTags.TABLE, readType(), symTable.tableType.tsymbol);
                 case TypeTags.NIL:
@@ -1232,6 +1246,33 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.ANYDATA:
                     return symTable.anydataType;
                 case TypeTags.RECORD:
+                    String name = getUTF8CPEntryValue(inputStream);
+                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(name),
+                            env.pkgSymbol.pkgID, null,
+                            env.pkgSymbol);
+                    recordSymbol.scope = new Scope(recordSymbol);
+                    BRecordType recordType = new BRecordType(recordSymbol);
+                    recordSymbol.type = recordType;
+
+                    compositeStack.push(recordType);
+
+                    recordType.sealed = inputStream.readBoolean();
+                    recordType.restFieldType = readType();
+
+                    int recordFields = inputStream.readInt();
+                    for (int i = 0; i < recordFields; i++) {
+                        String fieldName = getUTF8CPEntryValue(inputStream);
+                        BType fieldType = readType();
+                        BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(fieldName),
+                                recordSymbol.pkgID, fieldType, recordSymbol.scope.owner);
+                        recordSymbol.scope.define(varSymbol.name, varSymbol);
+                    }
+
+//                    setDocumentation(varSymbol, attrData); // TODO fix
+
+                    Object poppedRecordType = compositeStack.pop();
+                    assert poppedRecordType == recordType;
+                    return recordType;
                 case TypeTags.TYPEDESC:
                     return symTable.typeDesc;
                 case TypeTags.STREAM:
@@ -1244,9 +1285,6 @@ public class BIRPackageSymbolEnter {
                         paramTypes.add(readType());
                     }
                     BType retType = readType();
-//                    if (retType == null) {
-//                        retType = symTable.nilType;
-//                    }
                     BTypeSymbol tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE,
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null,
                             env.pkgSymbol.owner);
@@ -1273,17 +1311,23 @@ public class BIRPackageSymbolEnter {
                     return BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(unionMemberTypes));
                 case TypeTags.PACKAGE:
                 case TypeTags.NONE:
+                    return symTable.noType;
                 case TypeTags.VOID:
                 case TypeTags.XMLNS:
                 case TypeTags.ANNOTATION:
                 case TypeTags.SEMANTIC_ERROR:
                 case TypeTags.ERROR:
-                    BType reasonType = readType();
-                    BType detailsType = readType();
                     BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
                             env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
-                    BErrorType errorType = new BErrorType(errorSymbol, reasonType, detailsType);
+                    BErrorType errorType = new BErrorType(errorSymbol);
+                    compositeStack.push(errorType);
+                    BType reasonType = readType();
+                    BType detailsType = readType();
+                    errorType.reasonType = reasonType;
+                    errorType.detailType = detailsType;
                     errorSymbol.type = errorType;
+                    Object poppedErrorType = compositeStack.pop();
+                    assert poppedErrorType == errorType;
                     return errorType;
                 case TypeTags.ITERATOR:
                 case TypeTags.TUPLE:
@@ -1299,8 +1343,48 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.INTERMEDIATE_COLLECTION:
                 case TypeTags.FINITE:
                 case TypeTags.OBJECT:
+                    String objName = getUTF8CPEntryValue(inputStream);
+                    int objFlags = inputStream.readBoolean() ? Flags.ABSTRACT : 0;
+                    BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(objFlags,
+                            names.fromString(objName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
+                    objectSymbol.scope = new Scope(objectSymbol);
+                    objectSymbol.methodScope = new Scope(objectSymbol);
+                    BObjectType objectType = new BObjectType(objectSymbol);
+                    objectSymbol.type = objectType;
+                    compositeStack.push(objectType);
+                    int fieldCount = inputStream.readInt();
+                    for (int i = 0; i < fieldCount; i++) {
+                        String fieldName = getUTF8CPEntryValue(inputStream);
+                        int fieldFlags = 0;
+                        fieldFlags = visibilityAsMask(fieldFlags, inputStream.readByte());
+                        BType fieldType = readType();
+                        BVarSymbol objectVarSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
+                                objectSymbol.pkgID, fieldType, objectSymbol.scope.owner);
+                        objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
+//                        setDocumentation(varSymbol, attrData); // TODO fix - rajith
+                    }
+                    int funcCount = inputStream.readInt();
+                    for (int i = 0; i < funcCount; i++) {
+                        String funcName = getUTF8CPEntryValue(inputStream);
+                        int funcFlags = 0;
+                        funcFlags = visibilityAsMask(funcFlags, inputStream.readByte());
+                        BInvokableType funcType = (BInvokableType) readType();
+                        BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(funcFlags, names.fromString(funcName),
+                                env.pkgSymbol.pkgID, funcType, env.pkgSymbol, Symbols.isFlagOn(objFlags, Flags.NATIVE));
+                        invokableSymbol.retType = funcType.retType;
+                        objectSymbol.methodScope.define(invokableSymbol.name, invokableSymbol);
+//                        setDocumentation(varSymbol, attrData); // TODO fix - rajith
+                    }
+                    Object poppedObjType = compositeStack.pop();
+                    assert poppedObjType == objectType;
+                    return objectType;
                 case TypeTags.BYTE_ARRAY:
                 case TypeTags.FUNCTION_POINTER:
+                case TYPE_TAG_SELF:
+                    int index = inputStream.readInt();
+                    return (BType) compositeStack.get(index);
+                case SERVICE_TYPE_TAG:
+                    return symTable.anyServiceType;
 //                case TypeTags.CHANNEL:
 
 //                case TypeTags.SERVICE:

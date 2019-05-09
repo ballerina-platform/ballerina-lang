@@ -122,7 +122,6 @@ public class BIRBinaryWriter {
                                     List<BIRTypeDefinition> birTypeDefList) {
         List<BIRTypeDefinition> filtered = birTypeDefList.stream().filter(t -> t.type.tag == TypeTags.OBJECT
                 || t.type.tag == TypeTags.RECORD).collect(Collectors.toList());
-        buf.writeInt(filtered.size()); //TODO try to remove this
         filtered.forEach(typeDef -> writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs));
     }
 
