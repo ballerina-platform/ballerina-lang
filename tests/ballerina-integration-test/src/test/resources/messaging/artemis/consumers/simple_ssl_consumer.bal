@@ -15,19 +15,21 @@
 // under the License.
 
 import ballerina/artemis;
+import ballerina/io;
 import ballerina/filepath;
 
-public function testSimpleSend() {
-    artemis:Producer prod = new({host: "localhost", port: 61616}, "simple_queue", addressConfig = {autoCreated:false});
-    var err = prod->send("Hello World");
-    err = prod->close();
+@artemis:ServiceConfig {
+    queueConfig: {
+        queueName: "simple_queue"
+    }
 }
-
-public function testSimpleSslSend() {
-    artemis:Producer prod = new({host: "localhost", port:5500,
-    secureSocket: {trustStore: {path: checkpanic filepath:absolute(checkpanic filepath:build("src", "test",
-    "resources", "security", "keystore", "ballerinaTruststore.p12")), password: "ballerina"}}},
-    "simple_queue", addressConfig = {autoCreated:false});
-    var err = prod->send("Sending over ssl");
-    err = prod->close();
+service simpleSSLConsumer on new artemis:Listener({host: "localhost", port:5500,
+             secureSocket: {trustStore: {path: checkpanic filepath:absolute(checkpanic filepath:build("bre", "security",
+                            "ballerinaTruststore.p12")), password: "ballerina"}}}) {
+    resource function onMessage(artemis:Message message) returns error? {
+        var payload = message.getPayload();
+        if (payload is string) {
+            io:println("received: " + payload);
+        }
+    }
 }
