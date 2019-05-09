@@ -74,7 +74,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 @SuppressWarnings("unchecked")
 public final class XMLItem extends XMLValue<OMNode> {
 
-    private OMNode omNode;
+    OMNode omNode;
     private XMLNodeType nodeType;
 
     /**
@@ -892,5 +892,10 @@ public final class XMLItem extends XMLValue<OMNode> {
             }
             bXmlItem.setAttribute(localName, url, null, value);
         }
+    }
+
+    @Override
+    public IteratorValue getIterator() {
+        return new XMLIterator.ItemIterator(this);
     }
 }
