@@ -64,6 +64,6 @@ public class LocalTransactionTest {
         BValue[] consumerVal = BRunUtil.invoke(consumerResult, "createConsumer");
         BRunUtil.invoke(producerResult, "testTransactionSend");
         String returnVal = BRunUtil.invoke(consumerResult, "transactionConsumerReceive", consumerVal)[0].stringValue();
-        Assert.assertEquals(returnVal, "Example ", "Invalid message received");
+        Assert.assertEquals(returnVal, "Example Example ", "Invalid message received");
     }
 }

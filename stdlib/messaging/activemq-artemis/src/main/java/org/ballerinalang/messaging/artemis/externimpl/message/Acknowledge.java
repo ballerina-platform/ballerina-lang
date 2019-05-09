@@ -39,10 +39,14 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "acknowledge",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.MESSAGE_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.MESSAGE_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         isPublic = true
 )
 public class Acknowledge extends BlockingNativeCallableUnit {
@@ -57,7 +61,7 @@ public class Acknowledge extends BlockingNativeCallableUnit {
         try {
             message.acknowledge();
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock(context);
+                transactionContext.handleTransactionBlock(context, ArtemisConstants.MESSAGE_OBJ);
             }
         } catch (ActiveMQException e) {
             context.setReturnValues(ArtemisUtils.getError(context, "Error on acknowledging the message"));

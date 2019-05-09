@@ -41,6 +41,7 @@ public function transactionConsumerReceive(artemis:Consumer consumer) returns st
     string msgTxt = "";
     transaction {
        msgTxt += receiveAndGetText(consumer);
+       msgTxt += receiveAndGetText(consumer);
     }
     return msgTxt;
 }

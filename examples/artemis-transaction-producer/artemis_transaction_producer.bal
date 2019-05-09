@@ -17,11 +17,20 @@ public function main() {
             io:println("Error occurred sending message");
         }
     }
+
+    // Closes the connection
+    error? err = con->close();
+    if (err is error) {
+        io:println("Error occurred closing connection");
+    }
+    // Closes the session
+    err = session->close();
+    if (err is error) {
+        io:println("Error occurred closing session");
+    }
     // Closes the producer.
-    if (!prod.isClosed()) {
-        var err = prod->close();
-        if (err is error) {
-            io:println("Error occured closing the connection");
-        }
+    err = prod->close();
+    if (err is error) {
+        io:println("Error occurred closing the connection");
     }
 }

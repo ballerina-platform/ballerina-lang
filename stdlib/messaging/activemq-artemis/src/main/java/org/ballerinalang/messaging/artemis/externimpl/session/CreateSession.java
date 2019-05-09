@@ -93,7 +93,7 @@ public class CreateSession extends BlockingNativeCallableUnit {
                                          new ArtemisTransactionContext(sessionObj));
             }
         } catch (ActiveMQException e) {
-            ArtemisUtils.throwBallerinaException("Error occurred while starting session", context, e, logger);
+            ArtemisUtils.logAndSetError("Error occurred while starting session", context, e, logger);
         }
     }
 }

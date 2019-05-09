@@ -11,10 +11,8 @@ public function main() {
         }
     }
     // Closes the producer
-    if (!prod.isClosed()) {
-        var err = prod->close();
-        if (err is error) {
-            io:println("Error occured closing the connection");
-        }
+    var err = prod->close();
+    if (err is error) {
+        io:println("Error occurred closing the connection");
     }
 }

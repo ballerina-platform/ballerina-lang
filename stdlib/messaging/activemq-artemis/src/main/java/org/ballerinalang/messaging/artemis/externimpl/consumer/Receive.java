@@ -42,12 +42,19 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "receive",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.CONSUMER_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.CONSUMER_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         args = {
-                @Argument(name = "timeoutInMilliSeconds", type = TypeKind.INT)
+                @Argument(
+                        name = "timeoutInMilliSeconds",
+                        type = TypeKind.INT
+                )
         },
         isPublic = true
 )
@@ -70,7 +77,7 @@ public class Receive extends BlockingNativeCallableUnit {
             if (autoAck) {
                 clientMessage.acknowledge();
                 if (transactionContext != null) {
-                    transactionContext.handleTransactionBlock(context);
+                    transactionContext.handleTransactionBlock(context, ArtemisConstants.CONSUMER_OBJ);
                 }
             }
             context.setReturnValues(messageObj);

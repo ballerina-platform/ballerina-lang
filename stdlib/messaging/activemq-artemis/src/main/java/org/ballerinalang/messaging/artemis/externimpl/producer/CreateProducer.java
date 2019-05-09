@@ -92,7 +92,7 @@ public class CreateProducer implements NativeCallableUnit {
             producerObj.addNativeData(ArtemisConstants.ARTEMIS_PRODUCER, producer);
 
         } catch (ActiveMQException ex) {
-            ArtemisUtils.throwBallerinaException("Error occurred while creating the producer.", context, ex, logger);
+            ArtemisUtils.logAndSetError("Error occurred while creating the producer.", context, ex, logger);
         }
     }
 

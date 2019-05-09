@@ -55,9 +55,9 @@ public class ArtemisUtils {
      * @param exception the exception to be propagated
      * @param logger the logger to log errors
      */
-    public static void throwBallerinaException(String message, Context context, Exception exception, Logger logger) {
+    public static void logAndSetError(String message, Context context, Exception exception, Logger logger) {
         logger.error(message, exception);
-        throw new BallerinaException(message, exception, context);
+        context.setError(getError(context, message));
     }
 
     /**
