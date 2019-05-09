@@ -1853,6 +1853,7 @@
                 <module>misc/protobuf-ballerina</module>
 
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/jballerina-unit-test</module>
                 <module>tests/ballerina-spec-conformance-tests</module>
 
                 <module>cli/ballerina-cli-utils</module>
@@ -1947,6 +1948,7 @@
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/jballerina-unit-test</module>
                 <module>tests/ballerina-spec-conformance-tests</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>cli/ballerina-cli-utils</module>
@@ -2039,6 +2041,7 @@
                 <module>misc/protobuf-ballerina</module>
 
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/jballerina-unit-test</module>
                 <module>tests/ballerina-spec-conformance-tests</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
 
@@ -2385,6 +2388,7 @@
 
     <properties>
         <ballerina.version>0.992.0-m2-SNAPSHOT</ballerina.version>
+        <ballerina.milestone.version>0.992.0-m1</ballerina.milestone.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
