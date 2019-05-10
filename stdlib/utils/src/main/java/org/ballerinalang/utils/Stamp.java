@@ -108,7 +108,7 @@ public class Stamp extends BlockingNativeCallableUnit {
     }
 
     public static Object stamp(Strand strand, TypedescValue typedescValue, Object valueToBeStamped) {
-        org.ballerinalang.jvm.types.BType stampType = typedescValue.getType();
+        org.ballerinalang.jvm.types.BType stampType = typedescValue.getDescribingType();
         org.ballerinalang.jvm.types.BType targetType;
         if (stampType.getTag() == TypeTags.UNION_TAG) {
             List<org.ballerinalang.jvm.types.BType> memberTypes
@@ -144,7 +144,9 @@ public class Stamp extends BlockingNativeCallableUnit {
                                                           TypeChecker.getType(valueToBeStamped), targetType));
         }
         try {
-            ((RefValue) valueToBeStamped).stamp(targetType, new ArrayList<>());
+            if (valueToBeStamped instanceof RefValue) {
+                ((RefValue) valueToBeStamped).stamp(targetType, new ArrayList<>());
+            }
         } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
             return BallerinaErrors.createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.STAMP_ERROR,
                                                e.getDetail());

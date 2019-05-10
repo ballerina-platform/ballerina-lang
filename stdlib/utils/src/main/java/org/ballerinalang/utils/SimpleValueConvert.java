@@ -109,7 +109,7 @@ public class SimpleValueConvert extends BlockingNativeCallableUnit {
     }
 
     public static Object simpleValueConvert(Strand strand, TypedescValue typedescValue, Object inputValue) {
-        org.ballerinalang.jvm.types.BType targetType = typedescValue.getType();
+        org.ballerinalang.jvm.types.BType targetType = typedescValue.getDescribingType();
         if (inputValue == null) {
             return BallerinaErrors
                     .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,

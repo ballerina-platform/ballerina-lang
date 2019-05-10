@@ -110,7 +110,7 @@ public class Convert extends BlockingNativeCallableUnit {
     }
 
     public static Object convert(Strand strand, TypedescValue typeDescValue, Object inputValue) {
-        org.ballerinalang.jvm.types.BType convertType = typeDescValue.getType();
+        org.ballerinalang.jvm.types.BType convertType = typeDescValue.getDescribingType();
         Object convertedValue;
         org.ballerinalang.jvm.types.BType targetType;
         if (convertType.getTag() == TypeTags.UNION_TAG) {
