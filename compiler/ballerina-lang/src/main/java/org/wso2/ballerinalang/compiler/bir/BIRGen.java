@@ -130,7 +130,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -767,6 +766,11 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangIndexBasedAccess.BLangTupleAccessExpr tupleAccessExpr) {
+        generateArrayAccess(tupleAccessExpr);
+    }
+
+    @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         // Emit create array instruction
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(bracedOrTupleExpr.type,
@@ -1178,6 +1182,17 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
         emit(new BIRNonTerminator.NewTypeDesc(accessExpr.pos, toVarRef, accessExpr.resolvedType));
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
+        BIRVariableDcl tempVarDcl =
+                new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind
+                        .TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        emit(new BIRNonTerminator.NewTypeDesc(typeLoad.pos, toVarRef, typeLoad.symbol.type));
         this.env.targetOperand = toVarRef;
     }
 
