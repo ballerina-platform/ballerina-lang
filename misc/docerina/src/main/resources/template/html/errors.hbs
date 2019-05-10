@@ -27,26 +27,20 @@
     <div class="fourteen wide column content-wrapper">
         <div class="main-wrapper">
             <h1>Errors</h1>
-            <div class="ui divider"></div>
             <div class="errors">
-                <table class="ui table param-table">
-                    <thead>
-                    <tr>
-                        <th width="20%">Name</th>
-                        <th width="20%">Detail Type</th>
-                        <th width="35%">Description</th>
-                    </tr>
-                    </thead>
-                    <tbody>
+
+                <div class="data-wrapper">
                     {{#each errors}}
-                        <tr id="{{ name }}">
-                            <td>{{ name }}</td>
-                            <td>{{#if detailType }}{{{ typeName detailType }}}{{/if}}</td>
-                            <td>{{{ description }}}</td>
-                        </tr>
+                        <div class="params-listing">
+                            <ul>
+                                <li> <b>{{ name }}</b><span class="type">{{#if detailType }}{{{ typeName detailType }}}{{/if}}</span> {{ attachmentPoints }}</li>
+                                <li>
+                                    {{{ description }}}
+                                </li>
+                            </ul>
+                        </div>
                     {{/each}}
-                    </tbody>
-                </table>
+                </div>
             </div>
         </div>
     </div>
