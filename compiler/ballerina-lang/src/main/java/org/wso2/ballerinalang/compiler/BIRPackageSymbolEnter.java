@@ -339,6 +339,14 @@ public class BIRPackageSymbolEnter {
 //            }
 //        }
 
+        // set parameter symbols to the function symbol
+        setParamSymbols(invokableSymbol, dataInStream);
+//
+//        // set taint table to the function symbol
+//        setTaintTable(invokableSymbol, attrDataMap);
+//
+//        setDocumentation(invokableSymbol, attrDataMap);
+
 
         dataInStream.skip(dataInStream.readLong()); // read and skip method body
 
@@ -730,58 +738,48 @@ public class BIRPackageSymbolEnter {
 //        }
 //        return attrDataMap;
 //    }
+
+    /**
+     * Set parameter symbols to the invokable symbol.
+     *
+     * @param invokableSymbol Invokable symbol
+     * @param attrDataMap     Attribute data map
+     * @throws IOException
+     */
+    private void setParamSymbols(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)
+            throws IOException {
+
+        int requiredParamCount = dataInStream.readInt();
+
+        for (int i = 0; i < requiredParamCount; i++) {
+            String paramName = getUTF8CPEntryValue(dataInStream);
+//            if (!this.defineFuncsInPkg && i == 0) {
+//                continue;
+//            }
+            BInvokableType invokableType = (BInvokableType) invokableSymbol.type;
+            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(paramName), this.env.pkgSymbol.pkgID,
+                    invokableType.paramTypes.get(i), invokableSymbol);
+            invokableSymbol.params.add(varSymbol);
+        }
+
+        int defaultableParamCount = dataInStream.readInt();
+
+        for (int i = requiredParamCount; i < defaultableParamCount + requiredParamCount; i++) {
+            String paramName = getUTF8CPEntryValue(dataInStream);
+            BInvokableType invokableType = (BInvokableType) invokableSymbol.type;
+            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(paramName), this.env.pkgSymbol.pkgID,
+                    invokableType.paramTypes.get(i), invokableSymbol);
+            invokableSymbol.defaultableParams.add(varSymbol);
+        }
+
+        if (dataInStream.readBoolean()) { //if rest param exist
+            String paramName = getUTF8CPEntryValue(dataInStream);
+            BInvokableType invokableType = (BInvokableType) invokableSymbol.type;
+            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(paramName), this.env.pkgSymbol.pkgID,
+                    invokableType.paramTypes.get(requiredParamCount + defaultableParamCount), invokableSymbol);
+            invokableSymbol.restParam = varSymbol;
+        }
 //
-//    /**
-//     * Set parameter symbols to the invokable symbol.
-//     *
-//     * @param invokableSymbol Invokable symbol
-//     * @param attrDataMap     Attribute data map
-//     * @throws IOException
-//     */
-//    private void setParamSymbols(BInvokableSymbol invokableSymbol, Map<Kind, byte[]> attrDataMap)
-//            throws IOException {
-//
-//        if (!attrDataMap.containsKey(Kind.PARAMETERS_ATTRIBUTE) ||
-//                !attrDataMap.containsKey(Kind.LOCAL_VARIABLES_ATTRIBUTE)) {
-//            return;
-//        }
-//
-//        // Get parameter counts
-//        byte[] paramData = attrDataMap.get(Kind.PARAMETERS_ATTRIBUTE);
-//        DataInputStream paramDataInStream = new DataInputStream(new ByteArrayInputStream(paramData));
-//        int requiredParamCount = paramDataInStream.readInt();
-//        int defaultableParamCount = paramDataInStream.readInt();
-//        int restParamCount = paramDataInStream.readInt();
-//
-//        // Get var names and create var symbols
-//        byte[] localVarData = attrDataMap.get(Kind.LOCAL_VARIABLES_ATTRIBUTE);
-//        DataInputStream localVarDataInStream = new DataInputStream(new ByteArrayInputStream(localVarData));
-//        localVarDataInStream.readShort();
-//        BInvokableType funcType = (BInvokableType) invokableSymbol.typeDescRef;
-//        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.ATTACHED)) {
-//            //remove first variable name
-//            getVarName(localVarDataInStream);
-//        }
-//        for (int i = 0; i < requiredParamCount; i++) {
-//            String varName = getVarName(localVarDataInStream);
-//            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
-//                    funcType.paramTypes.get(i), invokableSymbol);
-//            invokableSymbol.params.add(varSymbol);
-//        }
-//
-//        for (int i = requiredParamCount; i < requiredParamCount + defaultableParamCount; i++) {
-//            String varName = getVarName(localVarDataInStream);
-//            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
-//                    funcType.paramTypes.get(i), invokableSymbol);
-//            invokableSymbol.defaultableParams.add(varSymbol);
-//        }
-//
-//        if (restParamCount == 1) {
-//            String varName = getVarName(localVarDataInStream);
-//            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
-//                    funcType.paramTypes.get(requiredParamCount + defaultableParamCount), invokableSymbol);
-//            invokableSymbol.restParam = varSymbol;
-//        }
 //
 //        byte[] paramDefaultsData = attrDataMap.get(Kind.PARAMETER_DEFAULTS_ATTRIBUTE);
 //        DataInputStream paramDefaultsDataInStream = new DataInputStream(new ByteArrayInputStream(paramDefaultsData));
@@ -789,8 +787,8 @@ public class BIRPackageSymbolEnter {
 //        for (int i = 0; i < paramDefaultsInfoCount; i++) {
 //            invokableSymbol.defaultableParams.get(i).defaultValue = getDefaultValue(paramDefaultsDataInStream);
 //        }
-//    }
-//
+    }
+
 //    private DefaultValueLiteral getDefaultValue(DataInputStream dataInStream)
 //            throws IOException {
 //        String typeDesc = getUTF8CPEntryValue(dataInStream);

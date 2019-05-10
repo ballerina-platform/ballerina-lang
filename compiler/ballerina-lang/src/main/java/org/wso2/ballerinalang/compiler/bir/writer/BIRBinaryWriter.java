@@ -22,6 +22,7 @@ import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
@@ -171,6 +172,23 @@ public class BIRBinaryWriter {
 
         // Function type as a CP Index
         birFunction.type.accept(typeWriter);
+
+        buf.writeInt(birFunction.requiredParams.size());
+        for (BIRParameter parameter : birFunction.requiredParams) {
+            buf.writeInt(addStringCPEntry(parameter.name.value));
+        }
+
+        buf.writeInt(birFunction.defaultParams.size());
+        for (BIRParameter parameter : birFunction.defaultParams) {
+            buf.writeInt(addStringCPEntry(parameter.name.value));
+        }
+
+        // TODO find a better way
+        boolean restParamExist = birFunction.restParam != null;
+        buf.writeBoolean(restParamExist);
+        if (restParamExist) {
+            buf.writeInt(addStringCPEntry(birFunction.restParam.name.value));
+        }
 
         ByteBuf birbuf = Unpooled.buffer();
         BIRTypeWriter funcTypeWriter = new BIRTypeWriter(birbuf, cp);

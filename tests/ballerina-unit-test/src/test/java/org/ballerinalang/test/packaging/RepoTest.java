@@ -1,6 +1,5 @@
 package org.ballerinalang.test.packaging;
 
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -63,7 +62,7 @@ public class RepoTest {
     @Test
     public void testBinaryRepo() {
         PackageID pkg = newPackageID("nice_org", "any.pkg", "10.2.3");
-        BinaryRepo subject = new BinaryRepo((ZipConverter) null, CompilerPhase.CODE_GEN);
+        BinaryRepo subject = new BinaryRepo((ZipConverter) null);
 
         Patten patten = subject.calculate(pkg);
 
