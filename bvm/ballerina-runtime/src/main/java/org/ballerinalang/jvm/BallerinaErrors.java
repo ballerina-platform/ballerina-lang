@@ -115,7 +115,7 @@ public class BallerinaErrors {
         }
         // Remove java sources for bal stacktrace.
         if (!fileName.equals(pkgName.concat(BLANG_SRC_FILE_SUFFIX))) {
-            return false;
+            return true;
         }
         // Append the method name
         sb.append(tab).append(stackFrame.getMethodName());
