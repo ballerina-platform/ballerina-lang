@@ -416,13 +416,4 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "<elem>42|3.14|31.4444|this-is-a-string|<abc></abc></elem>");
     }
-
-    @Test(description = "Test interpolating xml when there are extra dollar signs")
-    public void testXMLLiteralWithExtraDollarSigns() {
-        BValue[] returns = BRunUtil.invoke(result, "testDollarSignOnXMLLiteralTemplate");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<foo id=\"hello $5\">hello</foo>");
-        Assert.assertEquals(returns[1].stringValue(), "<foo id=\"hello $$5\">$hello</foo>");
-        Assert.assertEquals(returns[2].stringValue(), "<foo id=\"hello $$ 5\">$$ hello</foo>");
-    }
 }
