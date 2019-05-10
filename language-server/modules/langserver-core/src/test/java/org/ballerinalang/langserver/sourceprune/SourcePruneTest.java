@@ -82,7 +82,7 @@ public class SourcePruneTest {
             Path expectedPath = expectedRoot.resolve(configObject.getAsJsonPrimitive("expected").getAsString());
             String expected = new String(Files.readAllBytes(expectedPath));
             Assert.assertEquals(prunedSource, expected);
-            BallerinaParser parser = CommonUtil.prepareParser(prunedSource);
+            BallerinaParser parser = CommonUtil.prepareParser(prunedSource, true);
             parser.compilationUnit();
             Assert.assertEquals(parser.getNumberOfSyntaxErrors(), 0);
         } catch (SourcePruneException e) {

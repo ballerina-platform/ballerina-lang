@@ -31,7 +31,7 @@ class ReferencesSubRuleParser {
 
     static void parserCompilationUnit(String content, LSContext context, Position position) {
         // TODO: 1/23/19 Check what happens when the content is not a valid compilation unit and when there are errors
-        BallerinaParser parser = CommonUtil.prepareParser(content);
+        BallerinaParser parser = CommonUtil.prepareParser(content, false);
         parser.setErrorHandler(new ReferenceFindTokenErrorStrategy(context, position));
 
         parser.compilationUnit();

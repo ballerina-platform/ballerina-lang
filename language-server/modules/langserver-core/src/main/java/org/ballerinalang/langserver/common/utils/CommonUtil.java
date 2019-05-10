@@ -1068,9 +1068,12 @@ public class CommonUtil {
                 .replaceAll("(\\$\\{\\d\\})", "");
     }
 
-    public static BallerinaParser prepareParser(String content) {
+    public static BallerinaParser prepareParser(String content, boolean removeErrorListener) {
         ANTLRInputStream inputStream = new ANTLRInputStream(content);
         BallerinaLexer lexer = new BallerinaLexer(inputStream);
+        if (removeErrorListener) {
+            lexer.removeErrorListeners();
+        }
         CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
 
         return new BallerinaParser(commonTokenStream);

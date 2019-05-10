@@ -107,7 +107,8 @@ public class CompletionUtil {
         Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         Path path = Paths.get(URI.create(uri));
         String documentContent = documentManager.getFileContent(path);
-        BallerinaParser parser = CommonUtil.prepareParser(documentContent);
+        BallerinaParser parser = CommonUtil.prepareParser(documentContent, true);
+        parser.removeErrorListeners();
         parser.compilationUnit();
         if (parser.getNumberOfSyntaxErrors() == 0) {
             return;
