@@ -16,8 +16,8 @@ import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.javafx.JavaFxHtmlPanel;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.messages.MessageBusConnection;
-import io.ballerina.plugins.idea.ui.settings.MarkdownApplicationSettings;
 import io.ballerina.plugins.idea.ui.preview.DiagramHtmlPanel;
+import io.ballerina.plugins.idea.ui.settings.MarkdownApplicationSettings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
@@ -58,6 +58,8 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
     protected void registerListeners(@NotNull WebEngine engine) {
         engine.getLoadWorker().stateProperty().addListener(myBridgeSettingListener);
         engine.getLoadWorker().stateProperty().addListener(myScrollPreservingListener);
+        //Used for debugging purposes.
+        engine.setOnAlert(event -> System.out.println(event.getData()));
     }
 
     private void subscribeForGrayscaleSetting() {
@@ -100,7 +102,8 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
     @NotNull
     @Override
     protected String prepareHtml(@NotNull String html) {
-        return ImageRefreshFix.setStamps(html.replace("<head>", "<head>" + "<meta http-equiv=\"Content-Security-Policy\" content=\"" + myCSP + "\"/>"));
+        return ImageRefreshFix.setStamps(html.replace("<head>",
+                "<head>" + "<meta http-equiv=\"Content-Security-Policy\" content=\"" + myCSP + "\"/>"));
     }
 
     @Override

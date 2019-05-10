@@ -15,6 +15,7 @@
  */
 package io.ballerina.plugins.idea.extensions.editoreventmanager;
 
+import com.google.gson.JsonElement;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.event.EditorMouseListener;
@@ -33,11 +34,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.wso2.lsp4intellij.requests.Timeouts.CODEACTION;
-
 public class BallerinaEditorEventManager extends EditorEventManager {
 
-    private final int TIMEOUT_GET_AST = 5000;
+    private final int TIMEOUT_GET_AST = 2000;
 
     public BallerinaEditorEventManager(Editor editor, DocumentListener documentListener,
             EditorMouseListener mouseListener, EditorMouseMotionListener mouseMotionListener,
@@ -53,8 +52,8 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         if (future != null) {
             try {
                 BallerinaASTResponse response = future.get(TIMEOUT_GET_AST, TimeUnit.MILLISECONDS);
-                wrapper.notifySuccess(CODEACTION);
-                return response.getAst().toString();
+                JsonElement ast = response.getAst();
+                return ast != null ? ast.toString() : "";
             } catch (TimeoutException e) {
                 LOG.warn(e);
                 return null;

@@ -32,6 +32,8 @@ import java.awt.*;
 import java.beans.PropertyChangeListener;
 import javax.swing.*;
 
+import static io.ballerina.plugins.idea.ui.preview.VisualizerUtils.generateDiagramHtml;
+
 public class BallerinaDiagramVisualizer extends UserDataHolderBase implements FileEditor {
     private final static long PARSING_CALL_TIMEOUT_MS = 50L;
 
@@ -60,7 +62,7 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
 
     private volatile int myLastScrollOffset;
     @NotNull
-    private String myLastRenderedHtml = "<html><header></header><body>Broke</body></html>";
+    private String myLastRenderedHtml = "<html><header></header><body> Oops! Something went wrong :( </body></html>";
 
     public BallerinaDiagramVisualizer(@NotNull Project project, @NotNull VirtualFile file) {
         myFile = file;
@@ -76,9 +78,7 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
 
                 @Override
                 public void documentChanged(final DocumentEvent e) {
-                    myPooledAlarm.addRequest(() -> {
-                        updateHtml(false);
-                    }, PARSING_CALL_TIMEOUT_MS);
+                    myPooledAlarm.addRequest(() -> updateHtml(false), PARSING_CALL_TIMEOUT_MS);
                 }
             }, this);
         }
@@ -267,9 +267,9 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
         if (!myFile.isValid() || myDocument == null || Disposer.isDisposed(this)) {
             return;
         }
-        final String html = VisualizerUtil.generateMarkdownHtml(myFile);
-
-        // EA-75860: The lines to the top may be processed slowly; Since we're in pooled thread, we can be disposed already.
+        final String html = generateDiagramHtml(myFile, myPanel);
+        // EA-75860: The lines to the top may be processed slowly;
+        // Since we're in a pooled thread, we can be disposed already.
         if (!myFile.isValid() || Disposer.isDisposed(this)) {
             return;
         }
@@ -284,7 +284,7 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
                 }
 
                 final String currentHtml = html;
-                if (!currentHtml.equals(myLastRenderedHtml)) {
+                if (!currentHtml.equals(myLastRenderedHtml) && !currentHtml.isEmpty()) {
                     myLastRenderedHtml = currentHtml;
                     myPanel.setHtml(myLastRenderedHtml);
 
@@ -328,7 +328,6 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
                 MarkdownCssSettings.getDefaultCssSettings(UIUtil.isUnderDarcula()).getStylesheetUri();
 
         panel.setCSS(inlineCss, customCssURI);
-
         panel.render();
     }
 
