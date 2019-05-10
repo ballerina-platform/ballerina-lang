@@ -34,6 +34,13 @@ service artemisConsumer on new artemis:Listener({host:"localhost", port:61616}) 
             io:println("map<boolean>");
         } else if (payload is map<float>) {
             io:println("map<float>");
+        } else if (message.getType() == artemis:STREAM) {
+            io:println("stream");
+            io:WritableByteChannel destinationChannel = io:openWritableFile("./my_file.txt");
+            var err = message.saveToWritableByteChannel(untaint destinationChannel);
+            if (err is error) {
+                io:println("Error occurred while saving stream message");
+            }
         }
         // Prints the payload.
         io:println(payload);

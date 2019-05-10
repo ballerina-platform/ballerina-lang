@@ -1,0 +1,9 @@
+# Make sure to have the ActiveMQ Artemis broker running.
+
+# Navigate to the directory that contains the 'artemis_simple_transaction_consumer.bal' file and issue the
+# 'ballerina run' command as follows.
+$ ballerina run --experimental artemis_simple_transaction_consumer.bal
+# The ActiveMQ Artemis consumer runs as a Ballerina service and listens to the subscribed queue.
+
+[ballerina/http] started HTTP/WS endpoint 172.17.0.1:34985
+2019-04-18 15:19:32,475 INFO  [ballerina/transactions] - Created transaction: 29787878-3686-41b3-9ab3-4bc60ad278f6

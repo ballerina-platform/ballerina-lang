@@ -330,7 +330,7 @@ public class BRunUtil {
             };
 
             Scheduler scheduler = new Scheduler();
-            FutureValue futureValue = scheduler.schedule(jvmArgs, func);
+            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null);
             scheduler.execute();
             jvmResult = futureValue.result;
         } catch (NoSuchMethodException e) {
