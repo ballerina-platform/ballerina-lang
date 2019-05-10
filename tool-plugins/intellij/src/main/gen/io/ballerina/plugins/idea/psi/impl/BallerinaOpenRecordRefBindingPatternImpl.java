@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordFieldDefinitionListImpl extends ASTWrapperPsiElement implements BallerinaRecordFieldDefinitionList {
+public class BallerinaOpenRecordRefBindingPatternImpl extends ASTWrapperPsiElement implements BallerinaOpenRecordRefBindingPattern {
 
-  public BallerinaRecordFieldDefinitionListImpl(@NotNull ASTNode node) {
+  public BallerinaOpenRecordRefBindingPatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitRecordFieldDefinitionList(this);
+    visitor.visitOpenRecordRefBindingPattern(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,20 +44,20 @@ public class BallerinaRecordFieldDefinitionListImpl extends ASTWrapperPsiElement
 
   @Override
   @NotNull
-  public List<BallerinaFieldDefinition> getFieldDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaRecordRestFieldDefinition getRecordRestFieldDefinition() {
-    return findChildByClass(BallerinaRecordRestFieldDefinition.class);
+  public BallerinaEntryRefBindingPattern getEntryRefBindingPattern() {
+    return findNotNullChildByClass(BallerinaEntryRefBindingPattern.class);
   }
 
   @Override
   @NotNull
-  public List<BallerinaTypeReference> getTypeReferenceList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaTypeReference.class);
+  public PsiElement getLeftBrace() {
+    return findNotNullChildByType(LEFT_BRACE);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getRightBrace() {
+    return findNotNullChildByType(RIGHT_BRACE);
   }
 
 }

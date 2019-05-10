@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -68,6 +68,12 @@ public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implem
 
   @Override
   @Nullable
+  public PsiElement getAssign() {
+    return findChildByType(ASSIGN);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getDot() {
     return findChildByType(DOT);
   }
@@ -80,8 +86,8 @@ public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implem
 
   @Override
   @Nullable
-  public PsiElement getExtern() {
-    return findChildByType(EXTERN);
+  public PsiElement getExternal() {
+    return findChildByType(EXTERNAL);
   }
 
   @Override
@@ -108,11 +114,13 @@ public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implem
     return findChildByType(REMOTE);
   }
 
+  @Override
   @Nullable
   public PsiElement getIdentifier() {
     return BallerinaPsiImplUtil.getIdentifier(this);
   }
 
+  @Override
   @Nullable
   public String getName() {
     return BallerinaPsiImplUtil.getName(this);
