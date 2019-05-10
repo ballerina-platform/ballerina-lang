@@ -98,6 +98,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -485,13 +486,27 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public void visit(BLangWorkerSend workerSend) {
+        createWorkerSend(workerSend.workerIdentifier.value, workerSend.expr, workerSend.pos, false, null);
+    }
+
+    public void visit(BLangWorkerSyncSendExpr syncSend) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(syncSend.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand lhsOp = new BIROperand(tempVarDcl);
+        this.env.targetOperand = lhsOp;
+        createWorkerSend(syncSend.workerIdentifier.value, syncSend.expr, syncSend.pos, true, lhsOp);
+    }
+
+    public void createWorkerSend(String workerId, BLangExpression dataExpr, DiagnosticPos pos, boolean isSync,
+                                 BIROperand lhsOp) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
 
-        String channelName = this.env.enclFunc.workerName.value + "->" + workerSend.workerIdentifier.value;
+        String channelName = this.env.enclFunc.workerName.value + "->" + workerId;
         boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
-        workerSend.expr.accept(this);
-        this.env.enclBB.terminator = new BIRTerminator.WorkerSend(workerSend.pos, names.fromString(channelName),
-                this.env.targetOperand, isOnSameStrand, thenBB);
+        dataExpr.accept(this);
+        this.env.enclBB.terminator = new BIRTerminator.WorkerSend(pos, names.fromString(channelName),
+                this.env.targetOperand, isOnSameStrand, isSync,lhsOp, thenBB);
 
         this.env.enclFunc.basicBlocks.add(thenBB);
         this.env.enclBB = thenBB;

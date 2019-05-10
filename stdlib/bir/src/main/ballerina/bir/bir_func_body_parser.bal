@@ -421,9 +421,14 @@ public type FuncBodyParser object {
             string dataChannel = self.reader.readStringCpRef();
             VarRef dataOp = self.parseVarRef();
             boolean isSameStrand = self.reader.readBoolean();
+            boolean isSync = self.reader.readBoolean();
+            VarRef? lhsOp = ();
+            if (isSync) {
+                lhsOp = self.parseVarRef();
+            }
             BasicBlock thenBB = self.parseBBRef();
             WrkSend send = {pos:pos, kind:kind, channelName:{ value:dataChannel }, dataOp:dataOp,
-                isSameStrand:isSameStrand, thenBB:thenBB};
+                isSameStrand:isSameStrand, isSync:isSync, lhsOp:lhsOp, thenBB:thenBB};
             return send;
         }
         error err = error("term instruction kind " + kindTag + " not impl.");

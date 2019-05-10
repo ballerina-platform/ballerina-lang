@@ -489,6 +489,8 @@ public type WrkSend record {|
     VarRef dataOp;
     Name channelName;
     boolean isSameStrand;
+    VarRef? lhsOp;
+    boolean isSync;
     BasicBlock thenBB;
 |};
 
