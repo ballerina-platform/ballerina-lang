@@ -1,0 +1,85 @@
+/*!
+ * # Semantic UI - Reset
+ * http://github.com/semantic-org/semantic-ui/
+ *
+ *
+ * Released under the MIT license
+ * http://opensource.org/licenses/MIT
+ *
+ *//*!
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic&subset=latin);*,:after,:before{box-sizing:inherit}html{box-sizing:border-box}input[type=email],input[type=password],input[type=search],input[type=text]{-webkit-appearance:none;-moz-appearance:none}/*! normalize.css v7.0.0 | MIT License | github.com/necolas/normalize.css */html{line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,footer,header,nav,section{display:block}h1{font-size:2em;margin:.67em 0}figcaption,figure,main{display:block}figure{margin:1em 40px}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent;-webkit-text-decoration-skip:objects}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:inherit}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}dfn{font-style:italic}mark{background-color:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}audio,video{display:inline-block}audio:not([controls]){display:none;height:0}img{border-style:none}svg:not(:root){overflow:hidden}button,input,optgroup,select,textarea{font-family:sans-serif;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=reset],[type=submit],button,html [type=button]{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{display:inline-block;vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-cancel-button,[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details,menu{display:block}summary{display:list-item}canvas{display:inline-block}template{display:none}[hidden]{display:none}/*!
+ * # Semantic UI - Site
+ * http://github.com/semantic-org/semantic-ui/
+ *
+ *
+ * Released under the MIT license
+ * http://opensource.org/licenses/MIT
+ *
+ *//*!
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */body,html{height:100%}html{font-size:14px}body{margin:0;padding:0;overflow-x:hidden;min-width:320px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,Segoe WPC,Segoe UI,HelveticaNeue-Light,Ubuntu,Droid Sans,sans-serif,font-ballerina,'Helvetica Neue',Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4285em;color:rgba(0,0,0,.87);font-smoothing:antialiased}h1,h2,h3,h4,h5{font-family:-apple-system,BlinkMacSystemFont,Segoe WPC,Segoe UI,HelveticaNeue-Light,Ubuntu,Droid Sans,sans-serif,font-ballerina,'Helvetica Neue',Arial,Helvetica,sans-serif;line-height:1.28571429em;margin:calc(2rem - .14285714em) 0 1rem;font-weight:700;padding:0}h1{min-height:1rem;font-size:2rem}h2{font-size:1.71428571rem}h3{font-size:1.28571429rem}h4{font-size:1.07142857rem}h5{font-size:1rem}h1:first-child,h2:first-child,h3:first-child,h4:first-child,h5:first-child{margin-top:0}h1:last-child,h2:last-child,h3:last-child,h4:last-child,h5:last-child{margin-bottom:0}p{margin:0 0 1em;line-height:1.4285em}p:first-child{margin-top:0}p:last-child{margin-bottom:0}a{color:#4183c4;text-decoration:none}a:hover{color:#1e70bf;text-decoration:none}::-webkit-selection{background-color:#cce2ff;color:rgba(0,0,0,.87)}::-moz-selection{background-color:#cce2ff;color:rgba(0,0,0,.87)}::selection{background-color:#cce2ff;color:rgba(0,0,0,.87)}input::-webkit-selection,textarea::-webkit-selection{background-color:rgba(100,100,100,.4);color:rgba(0,0,0,.87)}input::-moz-selection,textarea::-moz-selection{background-color:rgba(100,100,100,.4);color:rgba(0,0,0,.87)}input::selection,textarea::selection{background-color:rgba(100,100,100,.4);color:rgba(0,0,0,.87)}body ::-webkit-scrollbar{-webkit-appearance:none;width:10px;height:10px}body ::-webkit-scrollbar-track{background:rgba(0,0,0,.1);border-radius:0}body ::-webkit-scrollbar-thumb{cursor:pointer;border-radius:5px;background:rgba(0,0,0,.25);transition:color .2s ease}body ::-webkit-scrollbar-thumb:window-inactive{background:rgba(0,0,0,.15)}body ::-webkit-scrollbar-thumb:hover{background:rgba(128,135,139,.8)}body .ui.inverted::-webkit-scrollbar-track{background:rgba(255,255,255,.1)}body .ui.inverted::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25)}body .ui.inverted::-webkit-scrollbar-thumb:window-inactive{background:rgba(255,255,255,.15)}body .ui.inverted::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.35)}/*!
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *//*!
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */body.diagram{background:#f9fafb;display:inline-block;min-width:100%}body.diagram .diagram-container{background:#f9fafb}body.diagram .diagram-container text{fill:#464646;dominant-baseline:central;cursor:default;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}body.diagram .diagram-container text.editable{cursor:text}body.diagram .diagram-container .diagram-canvas{font-family:-apple-system,BlinkMacSystemFont,Segoe WPC,Segoe UI,HelveticaNeue-Light,Ubuntu,Droid Sans,sans-serif,font-ballerina;font-size:14px}body.diagram .diagram-container .diagram-canvas .panel-group-header{fill:#f9fafb}body.diagram .diagram-container .diagram-canvas .panel-group-header .panel-icon{font-family:font-ballerina}body.diagram .diagram-container .diagram-canvas .panel-group-header text{fill:#464646;font-size:18px}body.diagram .diagram-container .diagram-canvas .panel .match line{stroke:#464646;stroke-width:1px}body.diagram .diagram-container .diagram-canvas .panel .match text{fill:#464646}body.diagram .diagram-container .diagram-canvas .panel .match polygon{stroke:#464646;stroke-width:1px}body.diagram .diagram-container .diagram-canvas .panel .frame-border{fill:none;stroke-width:1px;stroke:#464646}body.diagram .diagram-container .diagram-canvas .panel .statement{pointer-events:all}body.diagram .diagram-container .diagram-canvas .panel .hidden-block{stroke:gray;stroke-width:1px;fill:#f0f8ff}body.diagram .diagram-container .diagram-canvas .panel .panel-header{fill:#f9fafb}body.diagram .diagram-container .diagram-canvas .panel .panel-header .panel-icon{font-family:font-ballerina}body.diagram .diagram-container .diagram-canvas .panel .panel-header text{fill:#464646;font-size:calc(14px + 2px)}body.diagram .diagram-container .diagram-canvas .panel .panel-body{fill:#f9fafb}body.diagram .diagram-container .diagram-canvas .panel .panel-body .life-line{stroke:#464646;stroke-width:1px}body.diagram .diagram-container .diagram-canvas .panel .panel-body .life-line rect{fill:#464646;stroke:#464646;stroke-width:0}body.diagram .diagram-container .diagram-canvas .panel .panel-body .life-line text{fill:#464646;stroke-width:0;text-anchor:middle}body.diagram .diagram-container .diagram-canvas .panel .panel-body .life-line.life-line-worker{stroke:#006faa;color:#006faa}body.diagram .diagram-container .diagram-canvas .panel .panel-body .life-line.life-line-worker rect{fill:#006faa}body.diagram .diagram-container .diagram-canvas .panel .panel-body .life-line.life-line-worker text{fill:#006faa}body.diagram .diagram-container .diagram-canvas .panel .panel-body .life-line.life-line-endpoint{stroke:#22b7b1;color:#22b7b1}body.diagram .diagram-container .diagram-canvas .panel .panel-body .life-line.life-line-endpoint rect{fill:#22b7b1}body.diagram .diagram-container .diagram-canvas .panel .panel-body .life-line.life-line-endpoint text{fill:#22b7b1}body.diagram .diagram-container .diagram-canvas .panel .panel-body .life-line-endpoint-activity{fill:#22b7b1}body.diagram .diagram-container .diagram-canvas .panel .panel-body .arrow-head{fill:#464646}body.diagram .diagram-container .diagram-canvas .panel .panel-body .statement{font-size:14px}body.diagram .diagram-container .diagram-canvas .panel .panel-body .statement .expander{visibility:hidden}body.diagram .diagram-container .diagram-canvas .panel .panel-body .statement .expander .circle{fill:#bbb;cursor:pointer}body.diagram .diagram-container .diagram-canvas .panel .panel-body .statement .expander text{cursor:pointer}body.diagram .diagram-container .diagram-canvas .panel .panel-body .statement:hover>.expander{visibility:visible}body.diagram .diagram-container .diagram-canvas .panel .panel-body .expander:hover{visibility:visible}body.diagram .diagram-container .diagram-canvas .panel .panel-body .action-invocation{fill:#464646}body.diagram .diagram-container .diagram-canvas .panel .panel-body .action-invocation line{stroke:#464646;stroke-width:1px}body.diagram .diagram-container .diagram-canvas .panel .panel-body .start-invocation line{stroke:#464646;stroke-width:1px}body.diagram .diagram-container .diagram-canvas .panel .panel-body .condition .condition-case{font-style:italic}body.diagram .diagram-container .diagram-canvas .panel .panel-body .condition .condition-case-background{fill:#f9fafb}body.diagram .diagram-container .diagram-canvas .panel .panel-body .condition .label{text-anchor:middle}body.diagram .diagram-container .diagram-canvas .panel .panel-body .condition polyline{fill:#fff;stroke:#464646;stroke-width:1px}body.diagram .diagram-container .diagram-canvas .panel .panel-body .condition-line{fill:transparent;stroke:#006faa;stroke-width:1px}body.diagram .diagram-container .diagram-canvas .panel .panel-body .condition-block .condition-arrow-head{fill:#006faa}body.diagram .diagram-container .diagram-canvas .panel .panel-body .hide-line{stroke:#f9fafb;stroke-width:2px}body.diagram .diagram-container .diagram-canvas .panel .panel-body .expanded-func .frame{stroke:#bbb;fill:none}body.diagram .diagram-container .diagram-canvas .panel .panel-body .expanded-func .func-name{font-weight:700}body.diagram .diagram-container .diagram-canvas .panel .panel-body .expanded-func .collapser{stroke:#aaa}body.diagram .diagram-container .diagram-canvas .panel .panel-body .expanded-func .life-line{stroke:#006faa;stroke-width:1px}body.diagram .diagram-container .diagram-canvas .panel .worker-block-container .hover-rect{pointer-events:painted}body.diagram .diagram-container .diagram-canvas .svg-dropdown-menu.block-dropdown{display:none}body.diagram .diagram-container .diagram-canvas .svg-dropdown-menu.block-dropdown.active,body.diagram .diagram-container .diagram-canvas .svg-dropdown-menu.block-dropdown.hover{display:block}body.diagram .diagram-container .diagram-canvas .svg-dropdown-menu .trigger{fill:#22b7b1}body.diagram .diagram-container .diagram-canvas .svg-dropdown-menu .trigger text{fill:#fff}body.diagram .diagram-container .diagram-canvas .svg-dropdown-menu .content .item{cursor:pointer;fill:#eaeaea}body.diagram .diagram-container .diagram-canvas .svg-dropdown-menu .content .item text{cursor:pointer;fill:#464646}body.diagram .diagram-container .diagram-canvas .svg-dropdown-menu .content .item:hover .item-body{fill:#d7d7d7}body.diagram .diagram-container .diagram-canvas .source-linked-label:hover{text-decoration:underline;cursor:pointer}body.diagram .diagram-container .diagram-controllers .ui.menu.top-menu{padding:10px;width:100%;background:#fff}body.diagram .diagram-container .diagram-controllers .ui.menu.top-menu .item{padding:0;margin-right:5px}body.diagram .diagram-container .diagram-controllers .ui.menu.top-menu .button{z-index:1}body.diagram .endpoint-search-dialog{top:15px}

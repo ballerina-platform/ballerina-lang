@@ -104,11 +104,11 @@ task copyComposerDistribution() {
             from file(configurations.composerDistribution.asPath)
             exclude '**/*.map'
             exclude '**/*.d.ts'
-            into "resources/composer"
+            into "src/main/resources/composer"
         }
         copy {
             from file(configurations.composerFonts.asPath)
-            into "resources/composer/font"
+            into "src/main/resources/composer/font"
         }
     }
 }
@@ -123,9 +123,23 @@ checkstyle {
         include '**/*.java'
     }
     checkstyleTest {
-        source "src/test/java"
+        source =  fileTree("src/test/java")
     }
 }
+
+spotbugsMain {
+    it.effort "low"
+    it.reportLevel "low"
+    it.reports {
+        xml.enabled false
+        html.enabled true
+    }
+    def excludeFile = file('spotbugs-exclude.xml')
+    if(excludeFile.exists()) {
+        it.excludeFilter = excludeFile
+    }
+}
+
 
 //runIde.dependsOn check
 //buildPlugin.dependsOn check
