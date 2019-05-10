@@ -236,7 +236,7 @@ public abstract class XMLValue<T> implements RefValue, CollectionValue {
      * @param endIndex To slice
      * @return sliced sequence
      */
-    public abstract XMLValue<?> slice(int startIndex, int endIndex);
+    public abstract XMLValue<?> slice(long startIndex, long endIndex);
 
     /**
      * Searches in children recursively for elements matching the name and returns a sequence containing them all.

@@ -1,5 +1,5 @@
 import ballerina/artemis;
-import ballerina/log;
+import ballerina/io;
 
 public function main() {
     // Establishes a connection with the broker
@@ -19,15 +19,24 @@ public function main() {
         addressConfig = {autoCreated:false});
 
     // Sends the message as a string to the Artemis server.
-    var err = prod->send(msg);
+    error? err = prod->send(msg);
     if (err is error) {
-        log:printError("Error occurred while sending message", err = err);
+        io:println("Error occurred while sending message");
+    }
+
+    // Closes the connection
+    err = con->close();
+    if (err is error) {
+        io:println("Error occurred closing connection");
+    }
+    // Closes the session
+    err = session->close();
+    if (err is error) {
+        io:println("Error occurred closing session");
     }
     // Closes the producer.
-    if (!prod.isClosed()) {
-        err = prod->close();
-        if (err is error) {
-            log:printError("Error occurred closing producer", err = err);
-        }
+    err = prod->close();
+    if (err is error) {
+        io:println("Error occurred closing producer");
     }
 }

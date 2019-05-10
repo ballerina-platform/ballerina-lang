@@ -16,6 +16,7 @@
 
 # Represents ActiveMQ Artemis Session.
 public type Session client object {
+    boolean anonymousSession = false;
 
     public function __init(Connection con, SessionConfiguration? config = ()) {
         SessionConfiguration configuration = {};
@@ -42,7 +43,12 @@ public type Session client object {
 #
 # + username - The username
 # + password - The password
+# + autoCommitSends - `true` to automatically commit message sends, `false` to use transaction block for committing
+# + autoCommitAcks - `true` to automatically commit message acknowledgement, `false` to use transaction block for
+# committing
 public type SessionConfiguration record {|
     string? username = ();
     string? password = ();
+    boolean autoCommitSends = true;
+    boolean autoCommitAcks = true;
 |};

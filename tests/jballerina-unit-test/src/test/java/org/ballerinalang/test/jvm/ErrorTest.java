@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.jvm.BLangVMErrors;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.values.BError;
@@ -130,7 +130,7 @@ public class ErrorTest {
 
     private String getPrintableStackTrace(ErrorValue errorValue) {
         StackTraceElement[] stackWithoutJavaTests = Arrays.copyOf(errorValue.getStackTrace(), 2);
-        return BLangVMErrors.getPrintableStackTrace(BLangVMErrors.getErrorMessage(errorValue),
+        return BallerinaErrors.getPrintableStackTrace(BallerinaErrors.getErrorMessage(errorValue),
                                                     stackWithoutJavaTests);
     }
 }

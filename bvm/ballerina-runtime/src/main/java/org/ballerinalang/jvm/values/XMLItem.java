@@ -574,7 +574,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> slice(int startIndex, int endIndex) {
+    public XMLValue<?> slice(long startIndex, long endIndex) {
         if (startIndex > 1 || endIndex > 1 || startIndex < -1 || endIndex < -1) {
             throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
         }

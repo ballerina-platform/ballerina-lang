@@ -2110,8 +2110,7 @@ public class Desugar extends BLangNodeVisitor {
         genVarRefExpr.type = varRefExpr.type;
         genVarRefExpr.pos = varRefExpr.pos;
 
-        if (varRefExpr.lhsVar ||
-                (!types.isValueType(genVarRefExpr.type) && !types.isValueType(genVarRefExpr.symbol.type))) {
+        if (varRefExpr.lhsVar) {
             genVarRefExpr.lhsVar = varRefExpr.lhsVar;
             result = genVarRefExpr;
             return;
@@ -2144,25 +2143,16 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                         (BVarSymbol) fieldAccessExpr.symbol, false);
-
-                // expr symbol is null when their is a array as the field
-                if (!enclLocks.isEmpty() && (((BLangVariableReference) fieldAccessExpr.expr).symbol != null)) {
-                    enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
-                }
+                addToLocks(fieldAccessExpr, targetVarRef);
             }
         } else if (varRefType.tag == TypeTags.RECORD) {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
                     && ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
-                targetVarRef = new BLangStructFunctionVarRef(((BLangVariableReference) fieldAccessExpr.expr),
-                        (BVarSymbol) fieldAccessExpr.symbol);
+                targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                         (BVarSymbol) fieldAccessExpr.symbol, true);
-
-                // expr symbol is null when their is a array as the field
-                if (!enclLocks.isEmpty() && (((BLangVariableReference) fieldAccessExpr.expr).symbol != null)) {
-                    enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
-                }
+                addToLocks(fieldAccessExpr, targetVarRef);
             }
         } else if (varRefType.tag == TypeTags.MAP) {
             BLangExpression expression = fieldAccessExpr.getExpression();
@@ -2187,6 +2177,21 @@ public class Desugar extends BLangNodeVisitor {
         targetVarRef.lhsVar = fieldAccessExpr.lhsVar;
         targetVarRef.type = fieldAccessExpr.type;
         result = targetVarRef;
+    }
+
+    private void addToLocks(BLangExpression expr, BLangVariableReference targetVarRef) {
+        if (enclLocks.isEmpty()) {
+            return;
+        }
+
+        if (expr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+            expr = ((BLangTypeConversionExpr) expr).expr;
+        }
+
+        // expr symbol is null when their is a array as the field
+        if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangVariableReference) expr).symbol != null) {
+            enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
+        }
     }
 
     @Override
@@ -3649,14 +3654,17 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitCallBuiltInMethodInvocation(BLangInvocation iExpr) {
-        Name funcPointerName = ((BLangVariableReference) iExpr.expr).symbol.name;
         if (iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             iExpr.symbol = ((BLangVariableReference) iExpr.expr).symbol;
+            iExpr.expr = null;
+        } else if (iExpr.expr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+            iExpr.symbol = ((BLangVariableReference) ((BLangTypeConversionExpr) iExpr.expr).expr).symbol;
             iExpr.expr = null;
         } else {
             iExpr.expr = ((BLangAccessExpression) iExpr.expr).expr;
         }
 
+        Name funcPointerName = iExpr.symbol.name;
         iExpr.name = ASTBuilderUtil.createIdentifier(iExpr.pos, funcPointerName.value);
         iExpr.builtinMethodInvocation = false;
         iExpr.functionPointerInvocation = true;
