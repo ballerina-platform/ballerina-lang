@@ -119,6 +119,16 @@ body {
                 }
             }
         }
+        .type {
+            a { 
+                color: #0277BD;
+                cursor: pointer;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
         .content-wrapper {
             margin: 0;
             height: 100vh;
@@ -127,8 +137,8 @@ body {
             font-size: 16px;
 
             .main-wrapper {
-                width: 750px; 
-                margin: 20px 30px;
+                width: 800px;
+                margin: 0px 30px;
                 
                 &.module-wrapper {
                     
@@ -152,7 +162,7 @@ body {
                 }
                 p {
                     a {
-                        color: #ea8792;
+                        color: #0067ad;
                         &:hover {
                             text-decoration: underline
                         }
@@ -182,21 +192,60 @@ body {
                 tbody {
                     border-bottom: 1px solid #e8e9e9 ;
                 }
-                .type {
-                    a { 
-                        color: #0277BD;
-                        cursor: pointer;
-
-                        &:hover {
-                            text-decoration: underline;
-                        }
-                    }
-                }
             }
             a {
                 .gen-construct-colors(color);
             }
-
+            .params-wrapper {
+                margin-bottom: 30px;
+                .params-listing {
+                    ul {
+                        padding-left: 24px;
+                        li {
+                            list-style: none;
+                            p {
+                                font-weight: 300;
+                            }
+                        }
+                        li:first-child {
+                            padding-bottom: 6px;
+                            margin-left: -5px;
+                        }
+                    }
+                }
+                .param-title {
+                    padding-bottom: 6px;
+                    margin-bottom: 12px;
+                    display: block;
+                    margin-left: 20px;
+                    margin-top: 20px;
+                    font-weight: 600;               }
+            }
+            
+            .returns-listing {
+                margin-bottom: 30px;
+                margin-left: 20px;
+                ul {
+                    padding-left: 0 ;
+                    li {
+                        list-style: none;
+                        b {
+                            font-weight: 500;
+                        }
+                        p {
+                            font-weight: 300;
+                        }
+                    }
+                    li:first-child {
+                        padding-bottom: 5px;
+                        margin-bottom: 5px;
+                        margin-left: 0;
+                    }
+                }
+            }
+            .details-table {
+                padding-bottom: 20px;
+            }
             .ui.table,
             .ui.table tr td {
                 border: 0;
@@ -243,8 +292,8 @@ body {
                 line-height: 24px;
             }
             code {
-                color: #ea8792;
-                font-style: italic;
+                color: #5e6265;
+                background: #f1f1f1;
 
                 .language-ballerinaDup {
                     color: #888;
@@ -284,7 +333,21 @@ body {
                     }
                 }
                 .method-content {
-                    margin: 20px 0;
+                    margin: 30px 0 40px 0;
+                    .main-method-title {
+                        border-bottom: 1px solid #e8e9e9; 
+                        margin-bottom: 10px;
+                        padding-bottom: 3px;
+                        
+                        h2 {
+                            line-height: 1em;
+                            display: inline;
+                            border: 0;
+                        }
+                        p {
+                            display: inline;
+                        }
+                    }
                     .method-types {
                         font-style: italic;
                         color: #656565;
