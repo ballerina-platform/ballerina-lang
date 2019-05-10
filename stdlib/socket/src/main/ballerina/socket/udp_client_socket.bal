@@ -30,7 +30,7 @@ public type UdpClient client object {
     # Initialize the UDP client based on provided configuration.
     #
     # + localAddress - Locally binding interface and port
-    # + config - Configure additinal details like read timeout etc.
+    # + config - Configure additional details like read timeout etc.
     public function __init(Address? localAddress = (), UdpClientConfig? config = ()) {
         var initResult = self.initEndpoint(localAddress, config);
         if (initResult is error) {
@@ -78,5 +78,5 @@ public type Address record {|
 #
 # + readTimeout - Socket read timeout value to be used in milliseconds. Default is 300000 milliseconds (5 minutes)
 public type UdpClientConfig record {|
-    int readTimeout?;
+    int readTimeout = 300000;
 |};

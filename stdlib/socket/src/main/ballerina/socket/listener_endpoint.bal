@@ -54,5 +54,5 @@ public type Listener object {
 # + readTimeout - Socket read timeout value to be used in milliseconds. Default is 300000 milliseconds (5 minutes)
 public type ListenerConfig record {|
     string? interface = ();
-    int readTimeout?;
+    int readTimeout = 300000;
 |};

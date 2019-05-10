@@ -90,6 +90,6 @@ public type Client client object {
 public type ClientConfig record {|
     string host;
     int port;
-    int readTimeout?;
+    int readTimeout = 300000;
     service callbackService?;
 |};
