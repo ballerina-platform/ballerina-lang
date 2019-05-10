@@ -27,7 +27,6 @@
     <div class="fourteen wide column content-wrapper">
         <div class="main-wrapper">
             <h1>Errors</h1>
-            <div class="ui divider"></div>
             <div class="errors">
                 <table class="ui table param-table">
                     <thead>
@@ -41,7 +40,7 @@
                     {{#each errors}}
                         <tr id="{{ name }}">
                             <td>{{ name }}</td>
-                            <td>{{#if detailType }}{{{ typeName detailType }}}{{/if}}</td>
+                            <td class="type">{{#if detailType }}{{{ typeName detailType }}}{{/if}}</td>
                             <td>{{{ description }}}</td>
                         </tr>
                     {{/each}}

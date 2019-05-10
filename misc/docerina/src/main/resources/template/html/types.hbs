@@ -27,7 +27,6 @@
     <div class="fourteen wide column content-wrapper">
         <div class="main-wrapper">
             <h1>Types</h1>
-            <div class="ui divider"></div>
             <div class="types">
                 <table class="ui table param-table">
                     <thead>
@@ -41,7 +40,7 @@
                     {{#each types}}
                         <tr id="{{ name }}">
                             <td>{{ name }}</td>
-                            <td>{{{ unionTypeSummary memberTypes }}}</td>
+                            <td class="type">{{{ unionTypeSummary memberTypes }}}</td>
                             <td>{{{ description }}}</td>
                         </tr>
                     {{/each}}
