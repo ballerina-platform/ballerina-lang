@@ -1897,42 +1897,42 @@
                 <module>stdlib/builtin</module>
                 <module>stdlib/runtime-api</module>
                 <module>stdlib/test-common</module>
-                <module>stdlib/auth</module>
+                <!--<module>stdlib/auth</module>-->
                 <module>stdlib/cache</module>
                 <module>stdlib/config-api</module>
-                <module>stdlib/crypto</module>
-                <module>stdlib/encoding</module>
-                <module>stdlib/file</module>
-                <module>stdlib/openapi</module>
+                <!--<module>stdlib/crypto</module>-->
+                <!--<module>stdlib/encoding</module>-->
+                <!--<module>stdlib/file</module>-->
+                <!--<module>stdlib/openapi</module>-->
                 <module>stdlib/io</module>
-                <module>stdlib/socket</module>
-                <module>stdlib/internal</module>
-                <module>stdlib/log-api</module>
-                <module>stdlib/transactions</module>
-                <module>stdlib/llvm</module>
-                <module>stdlib/jvm</module>
-                <module>stdlib/bir</module>
-                <module>stdlib/math</module>
-                <module>stdlib/mime</module>
-                <module>stdlib/reflect</module>
-                <module>stdlib/system</module>
-                <module>stdlib/task</module>
-                <module>stdlib/time</module>
-                <module>stdlib/http</module>
-                <module>stdlib/grpc</module>
-                <module>stdlib/filepath</module>
-                <module>stdlib/utils</module>
-                <module>stdlib/websub</module>
-                <module>stdlib/jms</module>
-                <module>stdlib/observability</module>
-                <module>stdlib/database/h2</module>
-                <module>stdlib/database/mysql</module>
-                <module>stdlib/database/sql</module>
-                <module>stdlib/streams</module>
-                <module>stdlib/privacy</module>
-                <module>stdlib/messaging/activemq-artemis</module>
-                <module>stdlib/messaging/rabbitmq</module>
-                <module>stdlib/nats</module>
+                <!--<module>stdlib/socket</module>-->
+                <!--<module>stdlib/internal</module>-->
+                <!--<module>stdlib/log-api</module>-->
+                <!--<module>stdlib/transactions</module>-->
+                <!--<module>stdlib/llvm</module>-->
+                <!--<module>stdlib/jvm</module>-->
+                <!--<module>stdlib/bir</module>-->
+                <!--<module>stdlib/math</module>-->
+                <!--<module>stdlib/mime</module>-->
+                <!--<module>stdlib/reflect</module>-->
+                <!--<module>stdlib/system</module>-->
+                <!--<module>stdlib/task</module>-->
+                <!--<module>stdlib/time</module>-->
+                <!--<module>stdlib/http</module>-->
+                <!--<module>stdlib/grpc</module>-->
+                <!--<module>stdlib/filepath</module>-->
+                <!--<module>stdlib/utils</module>-->
+                <!--<module>stdlib/websub</module>-->
+                <!--<module>stdlib/jms</module>-->
+                <!--<module>stdlib/observability</module>-->
+                <!--<module>stdlib/database/h2</module>-->
+                <!--<module>stdlib/database/mysql</module>-->
+                <!--<module>stdlib/database/sql</module>-->
+                <!--<module>stdlib/streams</module>-->
+                <!--<module>stdlib/privacy</module>-->
+                <!--<module>stdlib/messaging/activemq-artemis</module>-->
+                <!--<module>stdlib/messaging/rabbitmq</module>-->
+                <!--<module>stdlib/nats</module>-->
 
                 <module>misc/lib-creator</module>
 
@@ -1948,28 +1948,28 @@
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
-                <module>misc/protobuf-ballerina</module>
-                <module>tests/ballerina-unit-test</module>
+                <!--<module>misc/protobuf-ballerina</module>-->
+                <!--<module>tests/ballerina-unit-test</module>-->
                 <module>tests/jballerina-unit-test</module>
-                <module>tests/ballerina-spec-conformance-tests</module>
-                <module>tests/ballerina-compiler-plugin-test</module>
+                <!--<module>tests/ballerina-spec-conformance-tests</module>-->
+                <!--<module>tests/ballerina-compiler-plugin-test</module>-->
                 <module>cli/ballerina-cli-utils</module>
 
-                <module>language-server</module>
-                <module>misc/docerina</module>
-                <module>misc/ballerina-maven-plugins</module>
-                <module>misc/openapi-ballerina</module>
-                <module>misc/testerina</module>
-                <module>misc/toml-parser</module>
-                <module>misc/metrics-extensions</module>
-                <module>misc/tracing-extensions</module>
-                <module>misc/strip-bouncycastle</module>
+                <!--<module>language-server</module>-->
+                <!--<module>misc/docerina</module>-->
+                <!--<module>misc/ballerina-maven-plugins</module>-->
+                <!--<module>misc/openapi-ballerina</module>-->
+                <!--<module>misc/testerina</module>-->
+                <!--<module>misc/toml-parser</module>-->
+                <!--<module>misc/metrics-extensions</module>-->
+                <!--<module>misc/tracing-extensions</module>-->
+                <!--<module>misc/strip-bouncycastle</module>-->
 
                 <module>distribution/zip/ballerina</module>
 
-                <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-test-utils</module>
-                <module>tests/ballerina-integration-test</module>
+                <!--<module>tests/observability-test-utils</module>-->
+                <!--<module>tests/ballerina-test-utils</module>-->
+                <!--<module>tests/ballerina-integration-test</module>-->
             </modules>
         </profile>
         <profile>

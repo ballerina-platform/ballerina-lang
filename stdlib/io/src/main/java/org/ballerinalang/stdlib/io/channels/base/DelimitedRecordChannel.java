@@ -17,7 +17,7 @@
 
 package org.ballerinalang.stdlib.io.channels.base;
 
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.stdlib.io.csv.Format;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
@@ -385,7 +385,7 @@ public class DelimitedRecordChannel implements IOChannel {
      * @param fields the list of fields in the record.
      * @return the record constructed through the fields.
      */
-    private String composeRecord(BValueArray fields) {
+    private String composeRecord(ArrayValue fields) {
         StringBuilder recordConsolidator = new StringBuilder();
         String finalizedRecord;
         long numberOfFields = fields.size();
@@ -415,7 +415,7 @@ public class DelimitedRecordChannel implements IOChannel {
      * @param fields the list of fields composing the record.
      * @throws IOException during I/O error.
      */
-    public void write(BValueArray fields) throws IOException {
+    public void write(ArrayValue fields) throws IOException {
         final int writeOffset = 0;
         String record = composeRecord(fields);
         record = record + getRecordSeparatorForWriting();

@@ -18,6 +18,8 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -73,6 +75,29 @@ public class OpenWritableFile extends AbstractNativeChannel {
     public Channel inFlow(Context context) throws BallerinaException {
         String pathUrl = context.getStringArgument(PATH_FIELD_INDEX);
         boolean accessMode = context.getBooleanArgument(APPEND_STATE_INDEX);
+        Channel channel;
+        try {
+            Path path = Paths.get(pathUrl);
+            FileChannel fileChannel;
+            if (accessMode) {
+                fileChannel = IOUtils.openFileChannel(path, APPEND_ACCESS_MODE);
+            } else {
+                fileChannel = IOUtils.openFileChannel(path, WRITE_ACCESS_MODE);
+            }
+            channel = new FileIOChannel(fileChannel);
+        } catch (AccessDeniedException e) {
+            throw new BallerinaException("Do not have access to write file: ", e);
+        } catch (Throwable e) {
+            throw new BallerinaException("failed to open file: " + e.getMessage(), e);
+        }
+        return channel;
+    }
+
+    public static ObjectValue openReadableFile(Strand strand, String pathUrl, boolean accessMode) {
+        return createChannel(inFlow(pathUrl, accessMode));
+    }
+
+    private static Channel inFlow(String pathUrl, boolean accessMode) throws BallerinaException {
         Channel channel;
         try {
             Path path = Paths.get(pathUrl);

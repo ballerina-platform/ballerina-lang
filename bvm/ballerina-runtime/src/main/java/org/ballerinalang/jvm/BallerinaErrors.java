@@ -40,6 +40,10 @@ public class BallerinaErrors {
         return new ErrorValue(reason, detailMap);
     }
 
+    public static ErrorValue createError(String reason, MapValue detailMap) {
+        return new ErrorValue(reason, detailMap);
+    }
+
     public static String getPrintableStackTrace(ErrorValue error) {
         return getPrintableStackTrace(getErrorMessage(error), error.getStackTrace());
     }

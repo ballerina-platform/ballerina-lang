@@ -21,6 +21,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
@@ -55,12 +59,15 @@ public class Utils {
     public static final String PACKAGE_TIME = "ballerina/time";
     public static final String STRUCT_TYPE_TIME = "Time";
     public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
+
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
     public static final String PROTOCOL_PACKAGE_UTIL = "ballerina/util";
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina/mime";
     public static final String BASE64_ENCODE_ERROR = "Base64EncodeError";
     public static final String BASE64_DECODE_ERROR = "Base64DecodeError";
     private static final String STRUCT_TYPE = "ReadableByteChannel";
+    private static final String MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
+
 
     public static BMap<String, BValue> createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
         String zoneIdName;
@@ -113,6 +120,7 @@ public class Utils {
                                          errorMap);
     }
 
+    //TODO remove after migration
     private static BMap<String, BValue> createBase64Error(Context context, String msg, boolean isMimeSpecific,
                                                           boolean isEncoder) {
         PackageInfo filePkg;
@@ -123,6 +131,13 @@ public class Utils {
         }
         StructureTypeInfo entityErrInfo = filePkg.getStructInfo(isEncoder ? BASE64_ENCODE_ERROR : BASE64_DECODE_ERROR);
         return BLangVMStructs.createBStruct(entityErrInfo, msg);
+    }
+
+    private static ErrorValue createBase64Error(String msg, boolean isMimeSpecific) {
+        if (isMimeSpecific) {
+            return BallerinaErrors.createError(MIME_ERROR_CODE, msg);
+        }
+        return BallerinaErrors.createError(IOConstants.IO_ERROR_CODE, msg);
     }
 
     /**
@@ -160,7 +175,7 @@ public class Utils {
             case TypeTags.RECORD_TYPE_TAG:
                 BMap<String, BValue> byteChannel = (BMap<String, BValue>) input;
                 if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
-                    encodeByteChannel(context, byteChannel, isMimeSpecific);
+                    encodeByteChannel(byteChannel, isMimeSpecific);
                 }
                 break;
             case TypeTags.STRING_TAG:
@@ -269,65 +284,54 @@ public class Utils {
     /**
      * Encode a given byte channel using Base64 encoding scheme.
      *
-     * @param context        Represent a ballerina context
      * @param byteChannel    Represent the byte channel that needs to be encoded
-     * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
+     * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not * @return an
+     * @return encoded ReadableByteChannel or an error
      */
-    public static void encodeByteChannel(Context context, BMap<String, BValue> byteChannel, boolean isMimeSpecific) {
+    public static Object encodeByteChannel(ObjectValue byteChannel, boolean isMimeSpecific) {
         Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-        BMap<String, BValue> byteChannelStruct;
+        ObjectValue byteChannelObj;
         try {
             byte[] encodedByteArray;
             if (isMimeSpecific) {
-                encodedByteArray = Base64.getMimeEncoder().encode(Utils.getByteArray(
-                        channel.getInputStream()));
+                encodedByteArray = Base64.getMimeEncoder().encode(Utils.getByteArray(channel.getInputStream()));
             } else {
-                encodedByteArray = Base64.getEncoder().encode(Utils.getByteArray(
-                        channel.getInputStream()));
+                encodedByteArray = Base64.getEncoder().encode(Utils.getByteArray(channel.getInputStream()));
             }
             InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
             Base64ByteChannel decodedByteChannel = new Base64ByteChannel(encodedStream);
-            byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context,
-                    IOConstants.IO_PACKAGE, STRUCT_TYPE);
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
-                    new Base64Wrapper(decodedByteChannel));
-            context.setReturnValues(byteChannelStruct);
+            byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE, STRUCT_TYPE);
+            byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(decodedByteChannel));
+            return byteChannelObj;
         } catch (IOException e) {
-            context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific, true));
+            return Utils.createBase64Error(e.getMessage(), isMimeSpecific);
         }
     }
 
     /**
      * Decode a given byte channel using Base64 encoding scheme.
      *
-     * @param context        Represent a ballerina context
      * @param byteChannel    Represent the byte channel that needs to be decoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
+     * @return decoded ReadableByteChannel or an error
      */
-    public static void decodeByteChannel(Context context, BMap<String, BValue> byteChannel, boolean isMimeSpecific) {
-        if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
-            Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            BMap<String, BValue> byteChannelStruct;
-            byte[] decodedByteArray;
-            try {
-                if (isMimeSpecific) {
-                    decodedByteArray = Base64.getMimeDecoder().decode(Utils.getByteArray(
-                            channel.getInputStream()));
-                } else {
-                    decodedByteArray = Base64.getDecoder().decode(Utils.getByteArray(
-                            channel.getInputStream()));
-                }
-                InputStream decodedStream = new ByteArrayInputStream(decodedByteArray);
-                Base64ByteChannel decodedByteChannel = new Base64ByteChannel(decodedStream);
-                byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context,
-                        IOConstants.IO_PACKAGE, STRUCT_TYPE);
-                byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
-                        new Base64Wrapper(decodedByteChannel));
-                context.setReturnValues(byteChannelStruct);
-            } catch (IOException e) {
-                context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific,
-                        false));
+    public static Object decodeByteChannel(ObjectValue byteChannel, boolean isMimeSpecific) {
+        Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        ObjectValue byteChannelObj;
+        byte[] decodedByteArray;
+        try {
+            if (isMimeSpecific) {
+                decodedByteArray = Base64.getMimeDecoder().decode(Utils.getByteArray(channel.getInputStream()));
+            } else {
+                decodedByteArray = Base64.getDecoder().decode(Utils.getByteArray(channel.getInputStream()));
             }
+            InputStream decodedStream = new ByteArrayInputStream(decodedByteArray);
+            Base64ByteChannel decodedByteChannel = new Base64ByteChannel(decodedStream);
+            byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE, STRUCT_TYPE);
+            byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(decodedByteChannel));
+            return byteChannelObj;
+        } catch (IOException e) {
+            return Utils.createBase64Error(e.getMessage(), isMimeSpecific);
         }
     }
 

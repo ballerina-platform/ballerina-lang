@@ -19,6 +19,9 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
@@ -57,6 +60,7 @@ public class CreateMemoryChannel extends AbstractNativeChannel {
      * @param array byte array with elements initialized.
      * @return byte array which is shrunk.
      */
+    //TODO Remove after migration
     private byte[] shrink(BValueArray array) {
         int contentLength = (int) array.size();
         byte[] content = new byte[contentLength];
@@ -67,6 +71,7 @@ public class CreateMemoryChannel extends AbstractNativeChannel {
     /**
      * {@inheritDoc}
      */
+    //TODO Remove after migration
     @Override
     public Channel inFlow(Context context) throws BallerinaException {
         try {
@@ -78,5 +83,34 @@ public class CreateMemoryChannel extends AbstractNativeChannel {
             String message = "Error occurred while obtaining channel";
             throw new BallerinaIOException(message, e);
         }
+    }
+
+    public static ObjectValue createReadableChannel(Strand strand, ArrayValue content) {
+        return createChannel(inFlow(content));
+    }
+
+    private static Channel inFlow(ArrayValue contentArr) throws BallerinaException {
+        try {
+            byte[] content = shrink(contentArr);
+            ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
+            ReadableByteChannel readableByteChannel = Channels.newChannel(contentStream);
+            return new BlobIOChannel(new BlobChannel(readableByteChannel));
+        } catch (Throwable e) {
+            String message = "Error occurred while obtaining channel";
+            throw new BallerinaIOException(message, e);
+        }
+    }
+
+    /**
+     * Shrink the byte array to fit with the given content.
+     *
+     * @param array byte array with elements initialized.
+     * @return byte array which is shrunk.
+     */
+    private static byte[] shrink(ArrayValue array) {
+        int contentLength = array.size();
+        byte[] content = new byte[contentLength];
+        System.arraycopy(array.getBytes(), 0, content, 0, contentLength);
+        return content;
     }
 }
