@@ -96,7 +96,7 @@ public class CreateMessage extends BlockingNativeCallableUnit {
         if (messageType == Message.TEXT_TYPE) {
             TextMessageUtil.writeBodyText(message.getBodyBuffer(), new SimpleString(dataVal.stringValue()));
         } else if (messageType == Message.BYTES_TYPE) {
-            BytesMessageUtil.bytesWriteBytes(message.getBodyBuffer(), ((BValueArray) dataVal).getBytes());
+            BytesMessageUtil.bytesWriteBytes(message.getBodyBuffer(), ArtemisUtils.getBytesData((BValueArray) dataVal));
         } else if (messageType == Message.MAP_TYPE) {
             @SuppressWarnings(ArtemisConstants.UNCHECKED)
             Map<String, BValue> mapObj = ((BMap<String, BValue>) dataVal).getMap();
@@ -115,7 +115,7 @@ public class CreateMessage extends BlockingNativeCallableUnit {
                 } else if (value instanceof BBoolean) {
                     map.putBooleanProperty(key, ((BBoolean) value).booleanValue());
                 } else if (value instanceof BValueArray) {
-                    map.putBytesProperty(key, ((BValueArray) value).getBytes());
+                    map.putBytesProperty(key, ArtemisUtils.getBytesData((BValueArray) value));
                 }
                 MapMessageUtil.writeBodyMap(message.getBodyBuffer(), map);
             }
@@ -125,7 +125,8 @@ public class CreateMessage extends BlockingNativeCallableUnit {
             Channel channel = (Channel) streamObj.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             message.setBodyInputStream(channel.getInputStream());
         }
-
+        messageObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT,
+                                 sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT));
         messageObj.addNativeData(ArtemisConstants.ARTEMIS_MESSAGE, message);
     }
 

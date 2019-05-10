@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
@@ -47,5 +48,9 @@ public class ToUpper extends BlockingNativeCallableUnit {
         String param1 = context.getStringArgument(0);
         BString upperCaseString = new BString(param1.toUpperCase(Locale.getDefault()));
         context.setReturnValues(upperCaseString);
+    }
+
+    public static String toUpper(Strand strand, String value) {
+        return value.toUpperCase(Locale.getDefault());
     }
 }

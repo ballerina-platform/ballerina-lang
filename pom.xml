@@ -1871,6 +1871,8 @@
                 <module>composer</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
+                <module>distribution/zip/jballerina</module>
+                <module>distribution/zip/jballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-utils</module>
@@ -2061,6 +2063,8 @@
 
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
+                <module>distribution/zip/jballerina</module>
+                <module>distribution/zip/jballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-utils</module>
