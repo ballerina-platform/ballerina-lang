@@ -40,13 +40,13 @@ public function startSpan(string spanName, map<string>? tags = (), int parentSpa
 # + spanId - Id of span to which the tags should be added or -1 to add tags to the current active span
 # + tagKey - Key of the tag
 # + tagValue - Value of the tag
-# + return - An error if an error occured while attaching tag to the span
+# + return - An error if an error occurred while attaching tag to the span
 public function addTagToSpan(int spanId = -1, string tagKey, string tagValue) returns error? = external;
 
 # Finish the current span.
 #
 # + spanId - Id of span to finish
-# + return - An error if an error occured while finishing the span
+# + return - An error if an error occurred while finishing the span
 public function finishSpan(int spanId) returns error? = external;
 
 # Retrieve all registered metrics including default metrics from the ballerina runtime, and user defined metrics.
