@@ -64,14 +64,25 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
     @Override
     public Optional<LSCompletionProvider> getContextProvider(LSContext ctx) {
         List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
+        if (lhsTokens == null || lhsTokens.isEmpty()) {
+            return Optional.empty();
+        }
         if (lhsTokens.get(lhsTokens.size() - 1).getType() == BallerinaParser.AT) {
             return Optional.ofNullable(this.getProvider(AnnotationAttachmentContextProvider.class));
+        }
+        // Handle with the parser rule context
+        Optional<CommonToken> serviceToken = lhsTokens.stream()
+                .filter(commonToken -> commonToken.getType() == BallerinaParser.SERVICE)
+                .findFirst();
+
+        if (serviceToken.isPresent()) {
+            return Optional.ofNullable(this.getProvider(BallerinaParser.ServiceDefinitionContext.class));
         }
         Optional<String> subRule = this.getSubrule(lhsTokens);
         subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinCompilationUnit(rule, ctx));
         ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
 
-        if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
+        if (parserRuleContext != null) {
             return Optional.ofNullable(this.getProvider(parserRuleContext.getClass()));
         }
         return super.getContextProvider(ctx);

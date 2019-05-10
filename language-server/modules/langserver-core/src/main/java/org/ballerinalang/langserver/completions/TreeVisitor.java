@@ -479,9 +479,11 @@ public class TreeVisitor extends LSNodeVisitor {
                 && serviceFields.isEmpty()
                 && CompletionVisitorUtil.isCursorWithinBlock(serviceNode.getPosition(), serviceEnv, this.lsContext,
                 this);
+        boolean cursorWithinAttachedExprs = CompletionVisitorUtil.cusrsorWithinServiceExpressionList(serviceNode,
+                serviceEnv, this.lsContext, this);
 
         if (cpr.isCursorBeforeNode(serviceNode.getPosition(), this, this.lsContext, serviceNode, serviceNode.symbol)
-                || cursorWithinBlock) {
+                || cursorWithinBlock || cursorWithinAttachedExprs) {
             return;
         }
 

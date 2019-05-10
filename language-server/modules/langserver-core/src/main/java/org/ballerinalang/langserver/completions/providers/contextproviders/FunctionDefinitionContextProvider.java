@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -105,9 +104,9 @@ public class FunctionDefinitionContextProvider extends LSCompletionProvider {
                     .map(symbolInfo -> {
                         BSymbol symbol = symbolInfo.getScopeEntry().symbol;
                         String symbolName = symbol.getName().getValue();
-                        CompletionItem completionItem = BTypeCompletionItemBuilder.build((BTypeSymbol) symbol, symbolName);
-                        completionItem.setInsertText(symbolName + ".");
-                        return completionItem;
+                        CompletionItem item = BTypeCompletionItemBuilder.build((BTypeSymbol) symbol, symbolName);
+                        item.setInsertText(symbolName + ".");
+                        return item;
                     }).collect(Collectors.toList());
         }
 //        if (consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)

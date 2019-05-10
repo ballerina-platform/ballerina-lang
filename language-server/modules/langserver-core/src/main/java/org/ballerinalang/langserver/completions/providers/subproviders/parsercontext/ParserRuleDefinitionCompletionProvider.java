@@ -22,12 +22,9 @@ import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.providers.contextproviders.GlobalVarDefContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +45,7 @@ public class ParserRuleDefinitionCompletionProvider extends LSCompletionProvider
         List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
         if (poppedTokens.size() >= 1) {
             // Provides completions after public keyword
-            completionItems.addAll(new ParserRuleGlobalVariableDefinitionCompletionProvider().getCompletions(ctx));
+            completionItems.addAll(new GlobalVarDefContextProvider().getCompletions(ctx));
         }
 
         if (!consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)) {

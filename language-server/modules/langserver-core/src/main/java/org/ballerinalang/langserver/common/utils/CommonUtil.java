@@ -249,7 +249,7 @@ public class CommonUtil {
      *
      * @param tokenStream                   Token Stream
      * @param startIndex                    Start token index
-     * @return {@link Optional<Token>}      Previous default token
+     * @return {@link Optional}      Previous default token
      */
     public static Optional<Token> getPreviousDefaultToken(TokenStream tokenStream, int startIndex) {
         return getDefaultTokenToLeftOrRight(tokenStream, startIndex, -1);
@@ -260,7 +260,7 @@ public class CommonUtil {
      *
      * @param tokenStream                   Token Stream
      * @param startIndex                    Start token index
-     * @return {@link Optional<Token>}      Previous default token
+     * @return {@link Optional}      Previous default token
      */
     public static Optional<Token> getNextDefaultToken(TokenStream tokenStream, int startIndex) {
         return getDefaultTokenToLeftOrRight(tokenStream, startIndex, 1);
@@ -296,7 +296,7 @@ public class CommonUtil {
      * @param tokenStream                   Token Stream to traverse
      * @param startIndex                    Start position of the token stream
      * @param offset                        Number of tokens to traverse left
-     * @return {@link Optional<Token>}      Nth Token
+     * @return {@link Optional}      Nth Token
      */
     public static Optional<Token> getNthDefaultTokensToLeft(TokenStream tokenStream, int startIndex, int offset) {
         Optional<Token> token = Optional.empty();

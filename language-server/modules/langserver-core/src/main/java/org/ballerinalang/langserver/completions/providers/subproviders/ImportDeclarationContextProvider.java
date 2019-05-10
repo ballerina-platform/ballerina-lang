@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.langserver.completions.providers.subproviders;
 
-import org.antlr.v4.runtime.Token;
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.antlr.v4.runtime.CommonToken;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,22 +38,26 @@ import java.util.stream.Stream;
 /**
  * Completion Item Resolver for the Package name context.
  */
-public class PackageNameCompletionProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
+public class ImportDeclarationContextProvider extends LSCompletionProvider {
+
+    public ImportDeclarationContextProvider() {
+        this.attachmentPoints.add(BallerinaParser.ImportDeclarationContext.class);
+    }
+
     @Override
     public List<CompletionItem> getCompletions(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<BallerinaPackage> packagesList = new ArrayList<>();
         Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
                 .forEach(packagesList::addAll);
-        List<String> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
-                .stream()
-                .map(Token::getText)
-                .collect(Collectors.toList());
+        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
+        List<Integer> lhsTokenTypes = lhsTokens.stream().map(CommonToken::getType).collect(Collectors.toList());
         
-        if (poppedTokens.contains(UtilSymbolKeys.SLASH_KEYWORD_KEY)) {
-            String orgName = poppedTokens.get(poppedTokens.indexOf(UtilSymbolKeys.SLASH_KEYWORD_KEY) - 1);
+        if (lhsTokenTypes.contains(BallerinaParser.DIV)) {
+            String orgName = lhsTokens.get(lhsTokenTypes.indexOf(BallerinaParser.DIV) - 1).getText();
             completionItems.addAll(this.getPackageNameCompletions(orgName, packagesList));
-        } else if (poppedTokens.contains(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
+        } else if (lhsTokenTypes.contains(BallerinaParser.IMPORT)) {
             completionItems.addAll(this.getItemsIncludingOrgName(packagesList));
         }
 

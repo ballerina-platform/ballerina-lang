@@ -15,8 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completions.providers.subproviders;
+package org.ballerinalang.langserver.completions.providers.scopeproviders;
 
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -26,6 +27,7 @@ import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +36,13 @@ import java.util.stream.Collectors;
 /**
  * Item Resolver for the BLangRecord node context.
  */
-public class BLangRecordICompletionProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
+public class RecordTypeNodeScopeProvider extends LSCompletionProvider {
+
+    public RecordTypeNodeScopeProvider() {
+        this.attachmentPoints.add(BLangRecordTypeNode.class);
+    }
+
     @Override
     public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();

@@ -21,16 +21,13 @@ import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.providers.contextproviders.InvocationOrFieldAccessContextProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.StatementContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Resolves all items that can appear within the block statement.
@@ -56,16 +53,16 @@ public class BlockStatementScopeProvider extends LSCompletionProvider {
             return Optional.ofNullable(this.getProvider(StatementContextProvider.class));
         }
         int lastLHSTokenIndex = -1;
-        List<CommonToken> defaultTokens = lhsTokens.stream()
-                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
-                .collect(Collectors.toList());
+//        List<CommonToken> defaultTokens = lhsTokens.stream()
+//                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+//                .collect(Collectors.toList());
 
-        int assignTokenIndex = defaultTokens.stream()
-                .map(CommonToken::getType)
-                .collect(Collectors.toList())
-                .indexOf(BallerinaParser.ASSIGN);
+//        int assignTokenIndex = defaultTokens.stream()
+//                .map(CommonToken::getType)
+//                .collect(Collectors.toList())
+//                .indexOf(BallerinaParser.ASSIGN);
 
-        for (int i = lhsTokens.size() - 1; i >= 0 ; i--) {
+        for (int i = lhsTokens.size() - 1; i >= 0; i--) {
             if (lhsTokens.get(i).getChannel() == Token.DEFAULT_CHANNEL) {
                 lastLHSTokenIndex = i;
                 break;
@@ -75,13 +72,12 @@ public class BlockStatementScopeProvider extends LSCompletionProvider {
         if (lastLHSTokenIndex == -1) {
             return Optional.empty();
         }
-        CommonToken lastDefaultToken = lhsTokens.get(lastLHSTokenIndex);
         
-        if (assignTokenIndex > -1) {
-            /*
-            Assignment statement or variable definition context. Use the sub rule parser to decide   
-             */
-        }
+//        if (assignTokenIndex > -1) {
+//            /*
+//            Assignment statement or variable definition context. Use the sub rule parser to decide   
+//             */
+//        }
         /*
         Statement context, since the assign token has been handled from the previous condition
          */

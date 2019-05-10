@@ -63,7 +63,7 @@ public class SourcePruner {
      * @param tokenList List of tokens in the current compilation unit's source
      * @param cLine     Cursor line
      * @param cCol      cursor column
-     * @return {@link Optional<Token>}
+     * @return {@link Optional}
      */
     public static Optional<Token> searchTokenAtCursor(List<Token> tokenList, int cLine, int cCol) {
         if (tokenList.isEmpty()) {

@@ -15,22 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
+package org.ballerinalang.langserver.completions.providers.contextproviders;
 
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.Token;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.providers.contextproviders.VarDefContextProvider;
-import org.ballerinalang.langserver.completions.providers.scopeproviders.TopLevelScopeProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import java.util.ArrayList;
@@ -41,40 +40,57 @@ import java.util.stream.Collectors;
 /**
  * Parser rule based variable definition statement context resolver.
  */
-public class ParserRuleGlobalVariableDefinitionCompletionProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
+public class GlobalVarDefContextProvider extends LSCompletionProvider {
+    public GlobalVarDefContextProvider() {
+        this.attachmentPoints.add(BallerinaParser.GlobalVariableDefinitionContext.class);
+    }
+
     @Override
     public List<CompletionItem> getCompletions(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
-        
-        if (poppedTokens.isEmpty()) {
+        List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY).stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .collect(Collectors.toList());
+        Optional<CommonToken> assignToken = lhsDefaultTokens.stream()
+                .filter(commonToken -> commonToken.getType() == BallerinaParser.ASSIGN)
+                .findAny();
+
+        if (lhsDefaultTokens.isEmpty()) {
             return completionItems;
         }
-        if (poppedTokens.size() >= 2
-                && ItemResolverConstants.MAP_KEYWORD.equals(poppedTokens.get(0))
-                && UtilSymbolKeys.LT_SYMBOL_KEY.equals(poppedTokens.get(1))) {
-            if (!UtilSymbolKeys.GT_SYMBOL_KEY.equals(CommonUtil.getLastItem(poppedTokens))) {
+
+        int firstToken = lhsDefaultTokens.get(0).getType();
+        int lastToken = CommonUtil.getLastItem(lhsDefaultTokens).getType();
+        Optional<CommonToken> listenerKWToken = lhsDefaultTokens.stream()
+                .filter(commonToken -> commonToken.getType() == BallerinaParser.LISTENER)
+                .findAny();
+
+        if (lhsDefaultTokens.size() >= 2
+                && BallerinaParser.TYPE_MAP == lhsDefaultTokens.get(0).getType()
+                && BallerinaParser.LT == lhsDefaultTokens.get(1).getType()) {
+            if (BallerinaParser.GT != CommonUtil.getLastItem(lhsDefaultTokens).getType()) {
                 completionItems.addAll(getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
             }
-        } else if (poppedTokens.size() <= 2) {
-            String firstToken = poppedTokens.get(0);
-            String lastToken = CommonUtil.getLastItem(poppedTokens);
-            if (poppedTokens.contains(ItemResolverConstants.LISTENER_KEYWORD)) {
+        } else if (lhsDefaultTokens.size() <= 2) {
+            if (listenerKWToken.isPresent()) {
                 completionItems.addAll(this.getListenersAndPackages(ctx));
-            } else if (this.isAccessModifierToken(firstToken)) {
-                switch (firstToken) {
-                    case ItemResolverConstants.PUBLIC_KEYWORD:
-                        completionItems.addAll(this.getItemsAfterPublic(ctx));
-                        break;
-                    case ItemResolverConstants.FINAL_KEYWORD:
-                    case ItemResolverConstants.CONST_KEYWORD:
-                        completionItems.addAll(this.getTypesAndPackages(ctx));
-                        break;
-                    default:
-                        break;
-                }
+            } else if (firstToken == BallerinaParser.FINAL) {
+                // todo: Remove the following
+//                switch (firstToken) {
+//                    case BallerinaParser.PUBLIC:
+//                        completionItems.addAll(this.getItemsAfterPublic(ctx));
+//                        break;
+//                    case BallerinaParser.FINAL:
+//                    case BallerinaParser.CONST:
+                completionItems.addAll(this.getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
+                completionItems.addAll(this.getPackagesCompletionItems(ctx));
+//                        break;
+//                    default:
+//                        break;
+//                }
             } else if (this.isInvocationOrInteractionOrFieldAccess(ctx)
-                    && UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(lastToken)) {
+                    && BallerinaParser.COLON == lastToken) {
                 Either<List<CompletionItem>, List<SymbolInfo>> pkgContent = SymbolFilters
                         .get(DelimiterBasedContentFilter.class).filterItems(ctx);
                 completionItems.addAll(this.getCompletionItemList(pkgContent, ctx));
@@ -82,25 +98,26 @@ public class ParserRuleGlobalVariableDefinitionCompletionProvider extends LSComp
                 completionItems.addAll(this.getAllTopLevelItems(ctx));
                 completionItems.addAll(this.getPackagesCompletionItems(ctx));
             }
-        } else if (this.isInvocationOrInteractionOrFieldAccess(ctx)
-                && poppedTokens.contains(ItemResolverConstants.LISTENER_KEYWORD)) {
-            completionItems.addAll(this.getListenersFromPackage(ctx, poppedTokens.get(poppedTokens.size() - 2)));
+        } else if (this.isInvocationOrInteractionOrFieldAccess(ctx)) {
+            if (listenerKWToken.isPresent()) {
+                int pkgDelimiterIndex = lhsDefaultTokens.stream()
+                        .map(CommonToken::getType)
+                        .collect(Collectors.toList())
+                        .indexOf(BallerinaParser.COLON);
+                String pkgAlias = lhsDefaultTokens.get(pkgDelimiterIndex - 1).getText();
+                completionItems.addAll(this.getListenersFromPackage(ctx, pkgAlias));
+            } else {
+                Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
+                        SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(ctx);
+                completionItems.addAll(this.getCompletionItemList(filteredList, ctx));  
+            }
             // TODO: usage of index
-        } else if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
-            completionItems.addAll(new VarDefContextProvider().getCompletions(ctx));
+        } else if (assignToken.isPresent()) {
+            completionItems.addAll(this.getVarDefExpressionCompletions(ctx));
         } else {
-            completionItems.addAll(new TopLevelScopeProvider().getCompletions(ctx));
+            completionItems.addAll(this.getAllTopLevelItems(ctx));
+            completionItems.addAll(this.getPackagesCompletionItems(ctx));
         }
-        return completionItems;
-    }
-    
-    private List<CompletionItem> getItemsAfterPublic(LSContext context) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        completionItems.add(getStaticItem(context, Snippet.DEF_FUNCTION));
-        completionItems.add(getStaticItem(context, Snippet.DEF_ANNOTATION));
-        completionItems.add(getStaticItem(context, Snippet.DEF_OBJECT_SNIPPET));
-        completionItems.add(getStaticItem(context, Snippet.DEF_RECORD));
-        completionItems.add(getStaticItem(context, Snippet.KW_LISTENER));
         return completionItems;
     }
     
@@ -138,14 +155,6 @@ public class ParserRuleGlobalVariableDefinitionCompletionProvider extends LSComp
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.addTopLevelItems(ctx));
         completionItems.addAll(this.getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
-        
-        return completionItems;
-    }
-    
-    private List<CompletionItem> getTypesAndPackages(LSContext ctx) {
-        List<CompletionItem> completionItems =
-                new ArrayList<>(this.getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
-        completionItems.addAll(this.getPackagesCompletionItems(ctx));
         
         return completionItems;
     }

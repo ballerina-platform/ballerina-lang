@@ -64,7 +64,9 @@ public class SubRuleParserErrorStrategy extends DefaultErrorStrategy {
         }
         if (parserRuleContext instanceof BallerinaParser.ExpressionContext
                 || parserRuleContext instanceof BallerinaParser.AnyIdentifierNameContext
-                || parserRuleContext instanceof BallerinaParser.CallableUnitSignatureContext) {
+                || parserRuleContext instanceof BallerinaParser.CallableUnitSignatureContext
+                || parserRuleContext instanceof BallerinaParser.PackageNameContext
+                || parserRuleContext instanceof BallerinaParser.TypeNameContext) {
             this.fillContext(parserRuleContext.getParent());
         } else {
             this.context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY, parserRuleContext);

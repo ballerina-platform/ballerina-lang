@@ -157,9 +157,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             try {
                 CompletionUtil.getPrunedSource(context);
-                BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                                        null,
-                                                                        false);
+                BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false, null, false);
                 context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
                 context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 CompletionUtil.resolveSymbols(context);
