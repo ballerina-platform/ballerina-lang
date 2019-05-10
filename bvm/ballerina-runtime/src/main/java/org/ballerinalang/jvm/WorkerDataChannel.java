@@ -80,6 +80,46 @@ public class WorkerDataChannel {
         }
         releaseChannelLock();
     }
+
+    /**
+     * Put data for sync send.
+     * @param data - data to be sent over the channel
+     * @param strand - sending strand, that will be paused
+     * @return error if receiver already in error state, else null
+     */
+    public ErrorValue syncSendData(Object data, Strand strand) {
+        try {
+            acquireChannelLock();
+            this.channel.add(new WorkerResult(data, true));
+            this.senderCounter++;
+            this.waitingSender = new WaitingSender(strand, -1);
+            if (this.receiver != null) {
+                this.receiver.scheduler.unblockStrand(this.receiver);
+                this.receiver = null;
+            } else if (this.panic != null) {
+                // TODO: Fix for receiver panics
+            } else if (this.error != null) {
+                ErrorValue ret = this.error;
+                this.error = null;
+                return ret;
+            }
+            // could not send the message, should yield. Will pick the ret value from getErrorValue()
+            strand.blocked = true;
+            strand.yield = true;
+            return null;
+        } finally {
+            releaseChannelLock();
+        }
+    }
+
+    /**
+     * Return the current error value, null if no error.
+     * This is required for a waiting sync sender to fetch the result after a resume.
+     * @return
+     */
+    public ErrorValue getErrorValue() {
+        return this.error;
+    }
     
     @SuppressWarnings("rawtypes")
     public Object tryTakeData(Strand strand) {
@@ -91,7 +131,9 @@ public class WorkerDataChannel {
                 this.channel.remove();
 
                 if (result.isSync) {
-                    // TODO: Fix later for sync send
+                    // sync sender will pick the this.error as result, which is null
+                    this.receiver.scheduler.unblockStrand(this.waitingSender.waitingStrand);
+                    this.waitingSender = null;
                 } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
                     // TODO: Fix later for flush
                 }
@@ -183,12 +225,10 @@ public class WorkerDataChannel {
     public static class WaitingSender {
 
         public Strand waitingStrand;
-        public int returnReg;
         public int flushCount;
 
-        public WaitingSender(Strand strand, int reg, int flushCount) {
+        public WaitingSender(Strand strand, int flushCount) {
             this.waitingStrand = strand;
-            this.returnReg = reg;
             this.flushCount = flushCount;
         }
     }
