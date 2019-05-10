@@ -45,7 +45,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -322,7 +321,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue, Col
             this.stamp(type, unresolvedValues);
         } else if (type.getTag() == TypeTags.MAP_TAG) {
             for (Object value : this.values()) {
-                if (value != null) {
+                if (value instanceof RefValue) {
                     ((RefValue) value).stamp(((BMapType) type).getConstrainedType(), unresolvedValues);
                 }
             }
@@ -336,10 +335,10 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue, Col
 
             for (Map.Entry valueEntry : this.entrySet()) {
                 String fieldName = valueEntry.getKey().toString();
-                if ((valueEntry.getValue()) != null) {
-                    RefValue value = (RefValue) valueEntry.getValue();
+                Object value = valueEntry.getValue();
+                if (value instanceof RefValue) {
                     BType bType = targetTypeField.getOrDefault(fieldName, restFieldType);
-                    value.stamp(bType, unresolvedValues);
+                    ((RefValue) value).stamp(bType, unresolvedValues);
                 }
             }
         } else if (type.getTag() == TypeTags.UNION_TAG) {

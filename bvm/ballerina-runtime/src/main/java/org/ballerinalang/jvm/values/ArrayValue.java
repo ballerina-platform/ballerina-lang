@@ -353,7 +353,7 @@ public class ArrayValue implements RefValue, CollectionValue {
             }
             Object[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
-                if (arrayValues[i] != null) {
+                if (arrayValues[i] instanceof RefValue) {
                     BType memberType = ((BTupleType) type).getTupleTypes().get(i);
                     if (memberType.getTag() == TypeTags.ANYDATA_TAG || memberType.getTag() == TypeTags.JSON_TAG) {
                         memberType = TypeConverter.resolveMatchingTypeForUnion(arrayValues[i], memberType);
@@ -372,7 +372,7 @@ public class ArrayValue implements RefValue, CollectionValue {
 
             Object[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
-                if (arrayValues[i] != null) {
+                if (arrayValues[i] instanceof RefValue) {
                     ((RefValue) arrayValues[i]).stamp(TypeConverter.resolveMatchingTypeForUnion(arrayValues[i], type),
                                                       unresolvedValues);
                 }
@@ -410,7 +410,7 @@ public class ArrayValue implements RefValue, CollectionValue {
 
             Object[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
-                if (arrayValues[i] != null) {
+                if (arrayValues[i] instanceof RefValue) {
                     ((RefValue) arrayValues[i]).stamp(arrayElementType, unresolvedValues);
                 }
             }
