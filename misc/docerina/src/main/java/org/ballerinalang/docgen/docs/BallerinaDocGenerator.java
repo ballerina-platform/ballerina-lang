@@ -209,7 +209,7 @@ public class BallerinaDocGenerator {
 
                 // Create module index page
                 ModulePageContext modulePageContext = new ModulePageContext(module, project, "../",
-                        "API Documentation for " + module.id + " module");
+                        "API Docs - " +project.organization + module.id );
                 String modIndexPath = modDir + File.separator + "index" + HTML;
                 Writer.writeHtmlDocument(modulePageContext, moduleTemplateName, modIndexPath);
 
@@ -219,7 +219,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(recordsDir));
                     for (Record record : module.records) {
                         RecordPageContext recordPageContext = new RecordPageContext(record, module, project,
-                                "../../","API Documentation for " + record.name + " record");
+                                "../../","API Docs - Record : " + record.name );
                         String recordFilePath = recordsDir + File.separator + record.name + HTML;
                         Writer.writeHtmlDocument(recordPageContext, recordTemplateName, recordFilePath);
                     }
@@ -231,7 +231,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(objectsDir));
                     for (Object object : module.objects) {
                         ObjectPageContext objectPageContext = new ObjectPageContext(object, module, project,
-                                "../../","API Documentation for " + object.name + " object");
+                                "../../","API Docs - Object : " + object.name );
                         String objectFilePath = objectsDir + File.separator + object.name + HTML;
                         Writer.writeHtmlDocument(objectPageContext, objectTemplateName, objectFilePath);
                     }
@@ -243,7 +243,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(clientsDir));
                     for (Client client : module.clients) {
                         ClientPageContext clientPageContext = new ClientPageContext(client, module, project,
-                                "../../","API Documentation for " + client.name + " client");
+                                "../../","API Docs - Client : " + client.name );
                         String clientFilePath = clientsDir + File.separator + client.name + HTML;
                         Writer.writeHtmlDocument(clientPageContext, clientTemplateName, clientFilePath);
                     }
@@ -255,7 +255,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(listenersDir));
                     for (Listener listener : module.listeners) {
                         ListenerPageContext listenerPageContext = new ListenerPageContext(listener, module, project,
-                                "../../","API Documentation for " + listener.name + " Listener");
+                                "../../","API Docs - Listener : " + listener.name );
                         String listenerFilePath = listenersDir + File.separator + listener.name + HTML;
                         Writer.writeHtmlDocument(listenerPageContext, listenerTemplateName, listenerFilePath);
                     }
@@ -265,7 +265,7 @@ public class BallerinaDocGenerator {
                 if (!module.functions.isEmpty()) {
                     String functionsFile = modDir + File.separator + "functions" + HTML;
                     FunctionsPageContext functionsPageContext = new FunctionsPageContext(module.functions, module, project,
-                            "../","API Documentation for " + module.id + " functions");
+                            "../","API Docs - Functions : " + module.id );
                     Writer.writeHtmlDocument(functionsPageContext, functionsTemplateName, functionsFile);
                 }
 
@@ -273,7 +273,7 @@ public class BallerinaDocGenerator {
                 if (!module.constants.isEmpty()) {
                     String constantsFile = modDir + File.separator + "constants" + HTML;
                     ConstantsPageContext constantsPageContext = new ConstantsPageContext(module.constants, module, project,
-                            "../","API Documentation for " + module.id + " constants");
+                            "../","API Docs - Constants : " + module.id );
                     Writer.writeHtmlDocument(constantsPageContext, constantsTemplateName, constantsFile);
                 }
 
@@ -281,7 +281,7 @@ public class BallerinaDocGenerator {
                 if (!module.unionTypes.isEmpty()) {
                     String typesFile = modDir + File.separator + "types" + HTML;
                     TypesPageContext typesPageContext = new TypesPageContext(module.unionTypes, module, project,
-                            "../","API Documentation for " + module.id + " types");
+                            "../","API Docs - Types : " + module.id );
                     Writer.writeHtmlDocument(typesPageContext, typesTemplateName, typesFile);
                 }
 
@@ -289,7 +289,7 @@ public class BallerinaDocGenerator {
                 if (!module.annotations.isEmpty()) {
                     String annotationsFile = modDir + File.separator + "annotations" + HTML;
                     AnnotationsPageContext annotationsPageContext = new AnnotationsPageContext(module.annotations, module, project,
-                            "../","API Documentation for " + module.id + " annotations");
+                            "../","API Docs - Annotations : " + module.id );
                     Writer.writeHtmlDocument(annotationsPageContext, annotationsTemplateName, annotationsFile);
                 }
 
@@ -297,7 +297,7 @@ public class BallerinaDocGenerator {
                 if (!module.errors.isEmpty()) {
                     String errorsFile = modDir + File.separator + "errors" + HTML;
                     ErrorsPageContext errorsPageContext = new ErrorsPageContext(module.errors, module, project,
-                            "../","API Documentation for " + module.id + " errors");
+                            "../","API Docs - Errors : " + module.id );
                     Writer.writeHtmlDocument(errorsPageContext, errorsTemplateName, errorsFile);
                 }
 
