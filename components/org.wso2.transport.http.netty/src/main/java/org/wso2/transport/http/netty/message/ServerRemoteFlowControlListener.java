@@ -43,6 +43,7 @@ public class ServerRemoteFlowControlListener implements Http2RemoteFlowControlle
     @Override
     public void writabilityChanged(Http2Stream stream) {
         Http2OutboundRespListener.ResponseWriter responseWriter = responseWriters.get(stream.id());
+        //Writability of the push responses is not supported at the moment. Hence null check is needed.
         if (responseWriter == null) {
             return;
         }
