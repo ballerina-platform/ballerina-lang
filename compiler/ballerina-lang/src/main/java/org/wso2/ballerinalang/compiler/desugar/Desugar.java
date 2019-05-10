@@ -3514,7 +3514,7 @@ public class Desugar extends BLangNodeVisitor {
                 break;
             case STAMP:
                 result = visitTypeConversionInvocation(iExpr.expr.pos, iExpr.builtInMethod, iExpr.expr,
-                                                       iExpr.requiredArgs.get(0));
+                                                       iExpr.requiredArgs.get(0), iExpr.type);
                 break;
             case CONVERT:
                 result = visitConvertInvocation(iExpr);
@@ -3589,7 +3589,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             // Handle conversions which can be done with clone.stamp.
             return visitTypeConversionInvocation(iExpr.expr.pos, iExpr.builtInMethod, iExpr.expr,
-                                                 iExpr.requiredArgs.get(0));
+                                                 iExpr.requiredArgs.get(0), iExpr.type);
         }
         // Handle simple value conversion.
         if (iExpr.symbol instanceof BCastOperatorSymbol) {
@@ -3605,7 +3605,7 @@ public class Desugar extends BLangNodeVisitor {
                                                    symTable.anydataType);
         }
         BLangExpression invocationExpr = visitTypeConversionInvocation(iExpr.expr.pos, SIMPLE_VALUE_CONVERT,
-                                                                       iExpr.expr, inputTypeCastExpr);
+                                                                       iExpr.expr, inputTypeCastExpr, iExpr.type);
         if (safe) {
             return createTypeCastExpr(invocationExpr, targetType,
                                       Symbols.createUnboxValueTypeOpSymbol(symTable.anydataType, targetType));
@@ -3621,8 +3621,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression visitTypeConversionInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
-                                                          BLangExpression typeDesc, BLangExpression valExpr) {
-        return visitUtilMethodInvocation(pos, builtInMethod, Lists.of(typeDesc, valExpr));
+                                                          BLangExpression typeDesc, BLangExpression valExpr,
+                                                          BType lhType) {
+        return addConversionExprIfRequired(visitUtilMethodInvocation(pos, builtInMethod, Lists.of(typeDesc, valExpr)),
+                                           lhType);
     }
 
     private BLangExpression visitLengthInvocation(BLangInvocation iExpr) {
