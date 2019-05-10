@@ -88,7 +88,11 @@ public class AttachPoint {
         /**
          * Indicate Channel Attach point.
          */
-        CHANNEL("channel");
+        CHANNEL("channel"),
+        /**
+         * Indicate type cast Attach point.
+         */
+        TYPE_CAST("<>");
 
         private String value;
 

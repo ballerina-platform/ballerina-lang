@@ -157,6 +157,7 @@ sourceOnlyAttachPointIdent
     |   EXTERNAL
     |   VAR
     |   CONST
+    |   LT GT
     ;
 
 workerDeclaration
@@ -714,8 +715,8 @@ expression
     |   errorConstructorExpr                                                # errorConstructorExpression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
-    |   LT typeName GT expression                                           # typeConversionExpression
-    |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT) expression             # unaryExpression
+    |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
+    |   (ADD | SUB | BIT_COMPLEMENT | NOT ) expression                      # unaryExpression
     |   tupleLiteral                                                        # bracedOrTupleExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression

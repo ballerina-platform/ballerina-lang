@@ -1500,11 +1500,15 @@ public class BLangPackageBuilder {
         addExpressionNode(typeAccessExpr);
     }
 
-    void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+    void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws, int annotationCount,
+                                  boolean typeNameAvailable) {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+        attachAnnotations(typeConversionNode, annotationCount);
         typeConversionNode.pos = pos;
         typeConversionNode.addWS(ws);
-        typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
+        if (typeNameAvailable) {
+            typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
+        }
         typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
         addExpressionNode(typeConversionNode);
     }
