@@ -31,13 +31,13 @@ public function table<record {}>.getNext() returns any = external;
 # Add record to the table.
 #
 # + data - A record with data
-# + return - An `error` will be returned if there is any error occured during adding data or else nil is returned
+# + return - An `error` will be returned if there is any error occurred during adding data or else nil is returned
 public function table<record {}>.add(any data) returns error|() = external;
 
 # Remove data from the table.
 #
 # + func - The function pointer for delete crieteria
-# + return - An `int` the number of deleted record count or `error` if any error occured during removing data
+# + return - An `int` the number of deleted record count or `error` if any error occurred during removing data
 public function table<record {}>.remove(function (any) returns (boolean) func) returns int|error = external;
 
 # Execute the given sql query to fetch the records and return as a new in memory table.

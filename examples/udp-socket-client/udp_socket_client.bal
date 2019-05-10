@@ -39,13 +39,13 @@ public function main() {
             io:println("Error: ", str.detail().message);
         }
     } else {
-        io:println("An error occured while receiving the data ",
+        io:println("An error occurred while receiving the data ",
             result);
     }
     // Close the client and release the bound port.
     var closeResult = socketClient->close();
     if (closeResult is error) {
-        io:println("An error occured while closing the connection ",
+        io:println("An error occurred while closing the connection ",
             closeResult);
     }
 }
