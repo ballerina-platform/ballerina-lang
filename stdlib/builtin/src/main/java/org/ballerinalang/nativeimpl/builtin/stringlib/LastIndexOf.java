@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
@@ -48,5 +49,9 @@ public class LastIndexOf extends BlockingNativeCallableUnit {
 
         BInteger bInteger = new BInteger(param1.lastIndexOf(subString));
         context.setReturnValues(bInteger);
+    }
+
+    public static long lastIndexOf(Strand strand, String value, String subString) {
+        return value.lastIndexOf(subString);
     }
 }

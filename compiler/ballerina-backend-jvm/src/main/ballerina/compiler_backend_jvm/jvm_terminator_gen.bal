@@ -94,14 +94,11 @@ type TerminatorGenerator object {
 
     function genCallTerm(bir:Call callIns, string funcName, boolean isInTryBlock, bir:ErrorEntry? currentEE, 
                          jvm:Label endLabel, jvm:Label handlerLabel, jvm:Label jumpLabel, int localVarOffset) {
-        //io:println("Call Ins : " + io:sprintf("%s", callIns));
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
-        if (self.isVirtualCall(callIns)) {
-            self.genVirtualCall(callIns, orgName, moduleName, localVarOffset);
-        } else {
-            self.genStaticCall(callIns, orgName, moduleName, localVarOffset);
-        }
+
+        // invoke the function
+        self.genCall(callIns, orgName, moduleName, localVarOffset);
 
         // store return
         bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp.variableDcl;
@@ -158,17 +155,36 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    private function isVirtualCall(bir:Call callIns) returns boolean {
+    private function genCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
         if (!callIns.isVirtual) {
-            return false;
+            self.genFuncCall(callIns, orgName, moduleName, localVarOffset);
+            return;
         }
 
         bir:VariableDcl selfArg = getVariableDcl(callIns.args[0].variableDcl);
-        return (selfArg.typeValue is bir:BObjectType || selfArg.typeValue is bir:BServiceType);
+        if (selfArg.typeValue is bir:BObjectType || selfArg.typeValue is bir:BServiceType) {
+            self.genVirtualCall(callIns, orgName, moduleName, localVarOffset);
+        } else {
+            // then this is a function attached to a built-in type
+            self.genBuiltinTypeAttachedFuncCall(callIns, orgName, moduleName, localVarOffset);
+        }
     }
 
-    private function genStaticCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
-        string methodName = callIns.name.value;
+    private function genFuncCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
+        string methodName = cleanupName(callIns.name.value);
+        self.genStaticCall(callIns, orgName, moduleName, localVarOffset, methodName, methodName);
+    }
+
+    private function genBuiltinTypeAttachedFuncCall(bir:Call callIns, string orgName, string moduleName, 
+                                                    int localVarOffset) {
+        string methodLookupName = callIns.name.value;
+        int index = methodLookupName.indexOf(".") + 1;
+        string methodName = methodLookupName.substring(index, methodLookupName.length());
+        self.genStaticCall(callIns, orgName, moduleName, localVarOffset, methodName, methodLookupName);
+    }
+
+    private function genStaticCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset, 
+                                   string methodName, string methodLookupName) {
         string methodDesc = "(Lorg/ballerinalang/jvm/Strand;";
 
         // load strand
@@ -185,7 +201,7 @@ type TerminatorGenerator object {
         bir:BType? returnType = callIns.lhsOp.typeValue;
         string returnTypeDesc = generateReturnType(returnType);
         methodDesc = methodDesc + returnTypeDesc;
-        string jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + methodName);
+        string jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + methodLookupName);
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, methodName, methodDesc, false);
     }
 
