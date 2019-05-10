@@ -41,28 +41,6 @@
                         </div>
                     {{/each}}
                 </div>
-
-
-
-                <table class="ui table param-table">
-                    <thead>
-                    <tr>
-                        <th width="20%">Name</th>
-                        <th width="20%">Detail Type</th>
-                        <th width="35%">Description</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {{#each errors}}
-                        <tr id="{{ name }}">
-                            <td>{{ name }}</td>
-                            <td class="type">{{#if detailType }} {{{ typeName detailType }}}{{/if}}</td>
-                            <td>{{{ description }}}</td>
-                        </tr>
-                    {{/each}}
-                    </tbody>
-                </table>
-
             </div>
         </div>
     </div>
