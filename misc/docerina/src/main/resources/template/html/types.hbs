@@ -28,24 +28,18 @@
         <div class="main-wrapper">
             <h1>Types</h1>
             <div class="types">
-                <table class="ui table param-table">
-                    <thead>
-                    <tr>
-                        <th width="20%">Name</th>
-                        <th width="35%">Values</th>
-                        <th width="35%">Description</th>
-                    </tr>
-                    </thead>
-                    <tbody>
+                <div class="data-wrapper">
                     {{#each types}}
-                        <tr id="{{ name }}">
-                            <td>{{ name }}</td>
-                            <td class="type">{{{ unionTypeSummary memberTypes }}}</td>
-                            <td>{{{ description }}}</td>
-                        </tr>
+                        <div class="params-listing">
+                            <ul>
+                                <li id="{{ name }}"> <b>{{ name }}</b><span class="type">  {{{ unionTypeSummary memberTypes }}}</span></li>
+                                <li>
+                                    {{{ description }}}
+                                </li>
+                            </ul>
+                        </div>
                     {{/each}}
-                    </tbody>
-                </table>
+                </div>
             </div>
         </div>
     </div>

@@ -28,6 +28,22 @@
         <div class="main-wrapper">
             <h1>Errors</h1>
             <div class="errors">
+
+                <div class="data-wrapper">
+                    {{#each errors}}
+                        <div class="params-listing">
+                            <ul>
+                                <li> <b>{{ name }}</b><span class="type">{{#if detailType }}{{{ typeName detailType }}}{{/if}}</span> {{ attachmentPoints }}</li>
+                                <li>
+                                    {{{ description }}}
+                                </li>
+                            </ul>
+                        </div>
+                    {{/each}}
+                </div>
+
+
+
                 <table class="ui table param-table">
                     <thead>
                     <tr>
@@ -40,12 +56,13 @@
                     {{#each errors}}
                         <tr id="{{ name }}">
                             <td>{{ name }}</td>
-                            <td class="type">{{#if detailType }}{{{ typeName detailType }}}{{/if}}</td>
+                            <td class="type">{{#if detailType }} {{{ typeName detailType }}}{{/if}}</td>
                             <td>{{{ description }}}</td>
                         </tr>
                     {{/each}}
                     </tbody>
                 </table>
+
             </div>
         </div>
     </div>

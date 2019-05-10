@@ -202,7 +202,7 @@ body {
                     ul {
                         padding-left: 24px;
                         li {
-                            list-style: none;
+                            list-style  : none;
                             margin-left: 6px;
                             p {
                                 font-weight: 300;
@@ -210,7 +210,11 @@ body {
                         }
                         li:first-child {
                             padding-bottom: 6px;
-                            margin-left: -5px;
+                            margin-left: 8px;
+                            &::before {
+                                content: "- ";
+                                margin-left: -12px;
+                              }
                         }
                     }
                 }

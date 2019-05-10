@@ -1,20 +1,12 @@
-<table class="ui table param-table">
-    <thead>
-    <tr>
-        <th width="20%">Field Name</th>
-        <th width="20%">Data Type</th>
-        <th width="15%">Default Value</th>
-        <th width="35%">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-        {{#each fields}}
-        <tr>
-            <td>{{ name }}</td>
-            <td class="type">{{{ typeName type }}}</td>
-            <td>{{ defaultValue }}</td>
-            <td>{{{ description }}}</td>
-        </tr>
-        {{/each}}
-    </tbody>
-</table>
+<div class="data-wrapper">
+    {{#each fields}}    
+    <div class="params-listing">
+        <ul>
+            <li> {{ name }}<span class="type">  {{{ typeName type }}}</span> {{ defaultValue }}</li>
+            <li>
+                <p>{{{ description }}}</p>
+            </li>
+        </ul>
+    </div>
+    {{/each}}
+</div>

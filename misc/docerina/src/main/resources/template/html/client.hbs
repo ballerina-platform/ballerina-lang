@@ -54,11 +54,11 @@
                     </div>
                 {{/if}}
                 
-                <h2>Fields</h2>
-                    {{#if client.fields}}
-                    {{#client}}    
-                        {{> fields }}
-                    {{/client}}
+                {{#if client.fields}}
+                    <h2>Fields</h2>
+                        {{#client}}    
+                            {{> fields }}
+                        {{/client}}
                 {{/if}}
 
                 {{#if client.remoteMethods }}

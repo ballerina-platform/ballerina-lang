@@ -203,7 +203,11 @@ body .ui.grid .content-wrapper .data-wrapper .params-listing ul li p {
 }
 body .ui.grid .content-wrapper .data-wrapper .params-listing ul li:first-child {
   padding-bottom: 6px;
-  margin-left: -5px;
+  margin-left: 8px;
+}
+body .ui.grid .content-wrapper .data-wrapper .params-listing ul li:first-child::before {
+  content: "- ";
+  margin-left: -12px;
 }
 body .ui.grid .content-wrapper .data-wrapper .param-title {
   padding-bottom: 6px;
