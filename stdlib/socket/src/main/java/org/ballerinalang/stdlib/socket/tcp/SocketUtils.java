@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.socket.tcp;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
@@ -41,8 +40,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.CONFIG_READ_TIMEOUT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.DEFAULT_READ_TIMEOUT_VALUE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.ID;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LOCAL_ADDRESS;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LOCAL_PORT;
@@ -184,18 +181,5 @@ public class SocketUtils {
         } catch (InterruptedException e) {
             executorService.shutdownNow();
         }
-    }
-
-    /**
-     * This will return socket read timeout config by the user or default. Default value will be 5 minutes.
-     *
-     * @return Socket read timeout value in milliseconds
-     */
-    public static long getReadTimeout() {
-        long timeout = DEFAULT_READ_TIMEOUT_VALUE;
-        if (ConfigRegistry.getInstance().contains(CONFIG_READ_TIMEOUT)) {
-            timeout = ConfigRegistry.getInstance().getAsInt(CONFIG_READ_TIMEOUT);
-        }
-        return timeout;
     }
 }

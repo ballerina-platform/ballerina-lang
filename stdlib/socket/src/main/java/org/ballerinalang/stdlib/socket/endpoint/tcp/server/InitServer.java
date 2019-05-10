@@ -70,12 +70,7 @@ public class InitServer extends BlockingNativeCallableUnit {
             int port = (int) context.getIntArgument(0);
             serviceEndpoint.addNativeData(CONFIG_FIELD_PORT, port);
             final BValue readTimeoutBValue = endpointConfig.get(READ_TIMEOUT);
-            long timeout;
-            if (readTimeoutBValue != null) {
-                timeout = ((BInteger) readTimeoutBValue).intValue();
-            } else {
-                timeout = SocketUtils.getReadTimeout();
-            }
+            long timeout = ((BInteger) readTimeoutBValue).intValue();
             serviceEndpoint.addNativeData(READ_TIMEOUT, timeout);
         } catch (SocketException e) {
             context.setReturnValues(SocketUtils.createSocketError(context, "Unable to bind the socket port"));
