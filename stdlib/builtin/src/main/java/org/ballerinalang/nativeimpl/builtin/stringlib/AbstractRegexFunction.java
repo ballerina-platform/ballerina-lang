@@ -34,7 +34,7 @@ public abstract class AbstractRegexFunction extends BlockingNativeCallableUnit {
      * @param regex a regex string
      * @return Pattern compiled Pattern
      */
-    protected Pattern validatePattern(String regex) {
+    protected static Pattern validatePattern(String regex) {
         return Pattern.compile(regex);
     }
 }

@@ -48,7 +48,7 @@ public class Resolve extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String inputPath = context.getStringArgument(0);
         try {
-            Path realPath = Files.readSymbolicLink(Paths.get(inputPath));
+            Path realPath = Files.readSymbolicLink(Paths.get(inputPath).toAbsolutePath());
             context.setReturnValues(new BString(realPath.toString()));
         } catch (NotLinkException ex) {
             context.setReturnValues(Utils.getPathError("NOT_LINK_ERROR", ex));

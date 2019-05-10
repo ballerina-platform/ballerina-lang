@@ -36,8 +36,6 @@ import java.nio.file.Paths;
 public class ArtemisTestCommons extends BaseTest {
     private static final Logger log = LoggerFactory.getLogger(ArtemisTestCommons.class);
 
-    protected static final int TIMEOUT_IN_SECS = 10;
-
     private EmbeddedActiveMQ embeddedBroker;
 
     protected static BServerInstance serverInstance;
@@ -58,7 +56,8 @@ public class ArtemisTestCommons extends BaseTest {
 
         // Start Ballerina server
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(path.toAbsolutePath().toString(), "consumers");
+        serverInstance.startServer(path.toAbsolutePath().toString(), "consumers", new String[]{"--experimental"},
+                                   new int[]{});
     }
 
     @AfterGroups(value = "artemis-test", alwaysRun = true)
