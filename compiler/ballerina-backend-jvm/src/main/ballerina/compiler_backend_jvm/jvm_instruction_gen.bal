@@ -377,6 +377,16 @@ type InstructionGenerator object {
         self.storeToVar(tableNewIns.lhsOp.variableDcl);
     }
 
+    function generateStreamNewIns(bir:NewStream streamNewIns) {
+        self.mv.visitTypeInsn(NEW, STREAM_VALUE);
+        self.mv.visitInsn(DUP);
+        loadType(self.mv, streamNewIns.typeValue);
+        self.loadVar(streamNewIns.nameOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESPECIAL, STREAM_VALUE, "<init>", io:sprintf("(L%s;L%s;)V", BTYPE,
+                STRING_VALUE), false);
+        self.storeToVar(streamNewIns.lhsOp.variableDcl);
+    }
+
     function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
         // visit map_ref
         self.loadVar(mapStoreIns.lhsOp.variableDcl);
@@ -824,6 +834,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BTypeString ||
                 bType is bir:BMapType ||
                 bType is bir:BTableType ||
+                bType is bir:BStreamType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BTypeNil ||
@@ -866,6 +877,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BTypeString ||
                     bType is bir:BMapType ||
                     bType is bir:BTableType ||
+                    bType is bir:BStreamType ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BTypeNil ||

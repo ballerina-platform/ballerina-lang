@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -153,9 +154,16 @@ public class BIRTypeWriter implements TypeVisitor {
         bMapType.constraint.accept(this);
     }
 
+    @Override
     public void visit(BTableType bTableType) {
         buff.writeByte(bTableType.tag);
         bTableType.constraint.accept(this);
+    }
+
+    @Override
+    public void visit(BStreamType bStreamType) {
+        buff.writeByte(bStreamType.tag);
+        bStreamType.constraint.accept(this);
     }
 
     @Override
