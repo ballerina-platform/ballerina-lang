@@ -2636,6 +2636,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
+        boolean containUntaintedAnnotation = conversionExpr.annAttachments.stream()
+                .anyMatch(ann -> ann.annotationName.value.equals(TaintAnalyzer.ANNOTATION_UNTAINTED));
+
+        if (conversionExpr.typeNode == null && !conversionExpr.annAttachments.isEmpty() && containUntaintedAnnotation) {
+            result = rewriteExpr(conversionExpr.expr);
+            return;
+        }
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
         result = conversionExpr;
     }

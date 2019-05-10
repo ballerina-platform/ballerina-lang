@@ -226,7 +226,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private boolean topLevelFunctionAllParamsUntaintedAnalysis;
 
     private static final String ANNOTATION_TAINTED = "tainted";
-    private static final String ANNOTATION_UNTAINTED = "untainted";
+    public static final String ANNOTATION_UNTAINTED = "untainted";
     private static final String ANNOTATION_SENSITIVE = "sensitive";
 
     public static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
@@ -1142,6 +1142,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeConversionExpr conversionExpr) {
         // Result of the conversion is tainted if value being converted is tainted.
         conversionExpr.expr.accept(this);
+
+        // If @untainted annotation is attached, we consider resulting value after conversion is untainted
+        if (!conversionExpr.annAttachments.isEmpty()) {
+            getCurrentAnalysisState().taintedStatus = getTaintedStatusBasedOnAnnotations(conversionExpr.annAttachments);
+        }
     }
 
     @Override
