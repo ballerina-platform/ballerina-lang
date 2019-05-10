@@ -261,7 +261,7 @@ const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
 const string FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
 
 // error related classes
-const string BLANG_VM_ERRORS = "org/ballerinalang/jvm/BLangVMErrors";
+const string BALLERINA_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
 const string PRINT_STACKTRACE_ON_MAIN_METHOD_ERROR = "printStackTraceOnMainMethodError";
 
 // service objects, annotation processing related classes

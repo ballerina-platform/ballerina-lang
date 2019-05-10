@@ -27,8 +27,6 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -37,6 +35,8 @@ import org.testng.annotations.Test;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static org.ballerinalang.test.messaging.artemis.ArtemisTestUtils.testSend;
 
 /**
  * Includes tests for different payload types for ANYCAST and MULTICAST queues.
@@ -58,80 +58,80 @@ public class MessagePayloadTest extends ArtemisTestCommons {
 
     @Test(description = "Tests the sending of a string message to a queue")
     public void testSendString() {
-        String errorLog = "string message Hello World";
+        String log = "string message Hello World";
         String functionName = "testSendString";
-        testSend(anyCastResult, errorLog, functionName);
-        testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
+        testSend(anyCastResult, log, functionName, serverInstance);
+        testSend(multiCastResult, log + MULTICAST_MSG, functionName, serverInstance);
 
     }
 
     @Test(description = "Tests the sending of a byte[] message to a queue", dependsOnMethods = "testSendString")
     public void testSendByteArray() {
-        String errorLog = "byte[] message [1, 2, 2, 3, 3, 2]";
+        String log = "byte[] message [1, 2, 2, 3, 3, 2]";
         String functionName = "testSendByteArray";
-        testSend(anyCastResult, errorLog, functionName);
-        testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
+        testSend(anyCastResult, log, functionName, serverInstance);
+        testSend(multiCastResult, log + MULTICAST_MSG, functionName, serverInstance);
     }
 
     @Test(description = "Tests the sending of a map<string> message to a queue", dependsOnMethods = "testSendByteArray")
     public void testSendMapString() {
-        String errorLog = "map<string> message {\"name\":\"Riyafa\", \"hello\":\"world\"}";
+        String log = "map<string> message {\"name\":\"Riyafa\", \"hello\":\"world\"}";
         String functionName = "testSendMapString";
-        testSend(anyCastResult, errorLog, functionName);
-        testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
+        testSend(anyCastResult, log, functionName, serverInstance);
+        testSend(multiCastResult, log + MULTICAST_MSG, functionName, serverInstance);
     }
 
     @Test(description = "Tests the sending of a map<int> message to a queue", dependsOnMethods = "testSendMapString")
     public void testSendMapInt() {
-        String errorLog = "map<int> message {\"num\":1, \"num2\":2}";
+        String log = "map<int> message {\"num\":1, \"num2\":2}";
         String functionName = "testSendMapInt";
-        testSend(anyCastResult, errorLog, functionName);
-        testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
+        testSend(anyCastResult, log, functionName, serverInstance);
+        testSend(multiCastResult, log + MULTICAST_MSG, functionName, serverInstance);
     }
 
 
     @Test(description = "Tests the sending of a map<float> message to a queue", dependsOnMethods = "testSendMapInt")
     public void testSendMapFloat() {
-        String errorLog = "map<float> message {\"numf1\":1.1, \"numf2\":1.2}";
+        String log = "map<float> message {\"numf1\":1.1, \"numf2\":1.2}";
         String functionName = "testSendMapFloat";
-        testSend(anyCastResult, errorLog, functionName);
-        testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
+        testSend(anyCastResult, log, functionName, serverInstance);
+        testSend(multiCastResult, log + MULTICAST_MSG, functionName, serverInstance);
     }
 
     @Test(description = "Tests the sending of a map<byte> message to a queue", dependsOnMethods = "testSendMapFloat")
     public void testSendMapByte() {
-        String errorLog = "map<byte> message {\"byte1\":1, \"byte2\":7}";
+        String log = "map<byte> message {\"byte1\":1, \"byte2\":7}";
         String functionName = "testSendMapByte";
-        testSend(anyCastResult, errorLog, functionName);
-        testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
+        testSend(anyCastResult, log, functionName, serverInstance);
+        testSend(multiCastResult, log + MULTICAST_MSG, functionName, serverInstance);
     }
 
     @Test(description = "Tests the sending of a map<boolean> message to a queue", dependsOnMethods = "testSendMapByte")
     public void testSendMapBoolean() {
-        String errorLog = "map<boolean> message {\"first\":true, \"second\":false}";
+        String log = "map<boolean> message {\"first\":true, \"second\":false}";
         String functionName = "testSendMapBoolean";
-        testSend(anyCastResult, errorLog, functionName);
-        testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
+        testSend(anyCastResult, log, functionName, serverInstance);
+        testSend(multiCastResult, log + MULTICAST_MSG, functionName, serverInstance);
     }
 
     @Test(description = "Tests the sending of a map<byte[]> message to a queue",
             dependsOnMethods = "testSendMapBoolean")
     public void testSendMapByteArray() {
-        String errorLog = "map<byte[]> message {\"array2\":[5], \"array1\":[1, 2, 3]}";
+        String log = "map<byte[]> message {\"array2\":[5], \"array1\":[1, 2, 3]}";
         String functionName = "testSendMapByteArray";
-        testSend(anyCastResult, errorLog, functionName);
-        testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
+        testSend(anyCastResult, log, functionName, serverInstance);
+        testSend(multiCastResult, log + MULTICAST_MSG, functionName, serverInstance);
     }
 
     @Test(description = "Tests the sending of different types of properties with a message to a queue",
             dependsOnMethods = "testSendMapByteArray")
     public void testSendProperties() {
-        String errorLog =
+        String log =
                 "string property Hello again!, int property 123, float property 1.111, boolean property true, byte " +
                         "property 1, byteArray property [1, 1, 0, 0] message Properties' test";
         String functionName = "testSendProperties";
-        testSend(anyCastResult, errorLog, functionName);
-        testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
+        testSend(anyCastResult, log, functionName, serverInstance);
+        testSend(multiCastResult, log + MULTICAST_MSG, functionName, serverInstance);
     }
 
     @Test(description = "Tests the closing of the producer, session and connection",
@@ -143,16 +143,5 @@ public class MessagePayloadTest extends ArtemisTestCommons {
         Assert.assertTrue(((ClientProducer) ((BMap) val[0]).getNativeData("artemis-producer")).isClosed());
         Assert.assertTrue(((ClientSession) ((BMap) val[1]).getNativeData("artemis-session")).isClosed());
         Assert.assertTrue(((ServerLocator) ((BMap) val[2]).getNativeData("artemis-connection-pool")).isClosed());
-    }
-
-    private void testSend(CompileResult result, String expectedErrorLog, String functionName) {
-        LogLeecher logLeecher = new LogLeecher(expectedErrorLog);
-        serverInstance.addLogLeecher(logLeecher);
-        BRunUtil.invoke(result, functionName);
-        try {
-            logLeecher.waitForText(TIMEOUT_IN_SECS * 1000);
-        } catch (BallerinaTestException e) {
-            Assert.fail();
-        }
     }
 }

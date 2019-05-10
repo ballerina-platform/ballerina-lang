@@ -20,6 +20,10 @@ package org.ballerinalang.nativeimpl.builtin.jsonlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BError;
@@ -78,5 +82,24 @@ public class ToXML extends BlockingNativeCallableUnit {
                                                        BallerinaErrorReasons.JSON_CONVERSION_ERROR);
             ctx.setReturnValues(error);
         }
+    }
+
+    public static Object toXML(Object json, MapValue<?, ?> options) {
+        try {
+            if (json == null) {
+                ErrorValue error = BallerinaErrors.createError(BallerinaErrorReasons.JSON_CONVERSION_ERROR,
+                        "cannot convert null json to xml");
+                return error;
+            }
+
+            String attributePrefix = options.get(XML_OPTIONS_ATTRIBUTE_PREFIX).toString();
+            String arrayEntryTag = options.get(XML_OPTIONS_ARRAY_ENTRY_TAG).toString();
+            return org.ballerinalang.jvm.JSONToXMLConverter.convertToXML(json, attributePrefix, arrayEntryTag);
+        } catch (Throwable e) {
+            BLangExceptionHelper.handleJsonException(BallerinaErrorReasons.JSON_OPERATION_ERROR, "get keys from json",
+                    e);
+        }
+
+        return null;
     }
 }
