@@ -1,22 +1,22 @@
 import ballerina/io;
 
-// This defines an open record type named `Student`. The `{` and `}` delimiters indicate that this record type
-// allows mapping values with additional pure-typed (i.e., `anydata|error`) fields in addition to the fields described
-// in the descriptor. The descriptor `record { }` is equivalent to `record {| (anydata|error)...; |}`.
+// Define an open record type named `Student`. The `{` and `}` delimiters indicate that in addition to the fields
+// defined here, this record type allows additional fields with pure-typed (i.e., `anydata|error`) values.
+// The descriptor `record { }` is equivalent to `record {| (anydata|error)...; |}`.
 type Student record {
     string name;
     int age;
     Grades grades;
 };
 
-// This defines a closed record type named `Address`. The `{|` and `|}` delimiters indicate that this record type
+// Define a closed record type named `Address`. The `{|` and `|}` delimiters indicate that this record type
 // allows mapping values which contain only the described fields.
 type Address record {|
     string city;
     string country;
 |};
 
-// This defines an open record type named `Grades`. Although it is defined using the `{|` and `|}` delimiters, it has
+// Define an open record type named `Grades`. Although it is defined using the `{|` and `|}` delimiters, it has
 // an `int` rest field as well. Therefore, this is an open record type.
 type Grades record {|
     int maths;
