@@ -591,8 +591,8 @@ type TerminatorGenerator object {
         self.genYieldCheck(fpCall.thenBB, funcName);   
     }
 
-    function genWrkSendIns(bir:WrkSend ins, string funcName) {
-        self.mv.visitVarInsn(ALOAD, 0);
+    function genWorkerSendIns(bir:WorkerSend ins, string funcName) {
+        self.mv.visitVarInsn(ALOAD, 800);
         if (!ins.isSameStrand) {
             self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));
         }
@@ -607,7 +607,7 @@ type TerminatorGenerator object {
         self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "sendData", io:sprintf("(L%s;L%s;)V", OBJECT, STRAND), false); 
     }
 
-    function genWrkReceiveIns(bir:WrkReceive ins, string funcName) {
+    function genWorkerReceiveIns(bir:WorkerReceive ins, string funcName) {
         self.mv.visitVarInsn(ALOAD, 0);
         if (!ins.isSameStrand) {
             self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));

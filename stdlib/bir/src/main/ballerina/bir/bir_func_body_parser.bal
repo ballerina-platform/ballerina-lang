@@ -413,7 +413,7 @@ public type FuncBodyParser object {
             VarRef lhsOp = self.parseVarRef();
             boolean isSameStrand = self.reader.readBoolean();
             BasicBlock thenBB = self.parseBBRef();
-            WrkReceive receive = {pos:pos, kind:kind, channelName:{ value:dataChannel }, lhsOp:lhsOp,
+            WorkerReceive receive = {pos:pos, kind:kind, channelName:{ value:dataChannel }, lhsOp:lhsOp,
                 isSameStrand:isSameStrand, thenBB:thenBB};
             return receive;
         } else if (kindTag == INS_WK_SEND) {
@@ -427,7 +427,7 @@ public type FuncBodyParser object {
                 lhsOp = self.parseVarRef();
             }
             BasicBlock thenBB = self.parseBBRef();
-            WrkSend send = {pos:pos, kind:kind, channelName:{ value:dataChannel }, dataOp:dataOp,
+            WorkerSend send = {pos:pos, kind:kind, channelName:{ value:dataChannel }, dataOp:dataOp,
                 isSameStrand:isSameStrand, isSync:isSync, lhsOp:lhsOp, thenBB:thenBB};
             return send;
         }

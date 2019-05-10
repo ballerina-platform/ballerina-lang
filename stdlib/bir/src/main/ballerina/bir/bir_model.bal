@@ -474,7 +474,7 @@ public type Wait record {|
     VarRef?[] exprList;
 |};
 
-public type WrkReceive record {|
+public type WorkerReceive record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     VarRef lhsOp;
@@ -483,7 +483,7 @@ public type WrkReceive record {|
     BasicBlock thenBB;
 |};
 
-public type WrkSend record {|
+public type WorkerSend record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     VarRef dataOp;
