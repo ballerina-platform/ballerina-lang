@@ -190,16 +190,16 @@ public class BIRBinaryWriter {
         funcInsWriter.writeBBs(birFunction.basicBlocks);
 
         // Write error table
-        insWriter.writeErrorTable(birFunction.errorTable);
+        funcInsWriter.writeErrorTable(birFunction.errorTable);
 
         // write worker interaction channels info
-        buf.writeInt(birFunction.workerChannels.length);
+        birbuf.writeInt(birFunction.workerChannels.length);
         for (BIRNode.ChannelDetails details : birFunction.workerChannels) {
-            buf.writeInt(addStringCPEntry(details.name));
-            buf.writeBoolean(details.channelInSameStrand);
-            buf.writeBoolean(details.send);
+            birbuf.writeInt(addStringCPEntry(details.name));
+            birbuf.writeBoolean(details.channelInSameStrand);
+            birbuf.writeBoolean(details.send);
         }
-        funcInsWriter.writeErrorTable(birFunction.errorTable);
+
 
         // Write length of the function body so that it can be skipped easily.
         int length = birbuf.nioBuffer().limit();
