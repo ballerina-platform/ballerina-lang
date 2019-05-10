@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
@@ -82,6 +83,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
@@ -360,6 +362,11 @@ public class LauncherUtils {
 
     private static void runBal(Path sourceRootPath, Path sourcePath, String[] args, boolean offline,
                                boolean siddhiRuntimeFlag, boolean experimentalFlag, String srcPathStr, Path fullPath) {
+        if (BLangConstants.JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET))) {
+            throw createLauncherException("'ballerina run' command only supports jar files for jvm target. " 
+                                                  + "Use 'ballerina build' to create the jar file and run it using " 
+                                                  + "'ballerina run'.");
+        }
         ProgramFile programFile = getCompiledProgram(sourceRootPath, sourcePath, offline, siddhiRuntimeFlag,
                                                      experimentalFlag, srcPathStr, fullPath);
 

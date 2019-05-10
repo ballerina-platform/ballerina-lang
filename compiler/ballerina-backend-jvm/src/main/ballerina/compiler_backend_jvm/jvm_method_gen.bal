@@ -742,11 +742,11 @@ function getArgTypeSignature(bir:BType bType) returns string {
     } else if (bType is bir:BTypeAnyData ||
                 bType is bir:BUnionType ||
                 bType is bir:BJSONType ||
-                bType is bir:BFiniteType) {
+                bType is bir:BFiniteType ||
+                bType is bir:BTypeAny) {
         return io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BMapType ||
-                bType is bir:BRecordType ||
-                bType is bir:BTypeAny) {
+                bType is bir:BRecordType) {
         return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BFutureType) {
         return io:sprintf("L%s;", FUTURE_VALUE);

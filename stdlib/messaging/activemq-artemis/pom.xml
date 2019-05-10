@@ -45,6 +45,26 @@
         <version>${ballerina.milestone.version}</version>
     </dependency>
     <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>artemis-core-client</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-crypto</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-system</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-filepath</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-log-api</artifactId>
+    </dependency>
+    <dependency>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-builtin</artifactId>
         <scope>test</scope>
@@ -58,10 +78,6 @@
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-utils</artifactId>
         <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>artemis-core-client</artifactId>
     </dependency>
     <dependency>
         <groupId>org.ballerinalang</groupId>
@@ -91,6 +107,30 @@
     <dependency>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-io</artifactId>
+        <type>zip</type>
+        <classifier>ballerina-binary-repo</classifier>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-crypto</artifactId>
+        <type>zip</type>
+        <classifier>ballerina-binary-repo</classifier>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-filepath</artifactId>
+        <type>zip</type>
+        <classifier>ballerina-binary-repo</classifier>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-system</artifactId>
+        <type>zip</type>
+        <classifier>ballerina-binary-repo</classifier>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-log-api</artifactId>
         <type>zip</type>
         <classifier>ballerina-binary-repo</classifier>
     </dependency>

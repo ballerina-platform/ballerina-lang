@@ -212,6 +212,8 @@ function getTargetClass(bir:BType sourceType, bir:BType targetType) returns stri
         targetTypeClass = ERROR_VALUE;
     } else if (targetType is bir:BXMLType) {
         targetTypeClass = XML_VALUE;
+    } else if (targetType is bir:BTypeDesc) {
+        targetTypeClass = TYPEDESC_VALUE;
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to '%s'", sourceType, targetType));
         panic err;
