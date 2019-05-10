@@ -188,23 +188,24 @@ body .ui.grid .content-wrapper a.types {
 body .ui.grid .content-wrapper a.errors {
   color: #f44336;
 }
-body .ui.grid .content-wrapper .params-wrapper {
+body .ui.grid .content-wrapper .data-wrapper {
   margin-bottom: 30px;
 }
-body .ui.grid .content-wrapper .params-wrapper .params-listing ul {
+body .ui.grid .content-wrapper .data-wrapper .params-listing ul {
   padding-left: 24px;
 }
-body .ui.grid .content-wrapper .params-wrapper .params-listing ul li {
+body .ui.grid .content-wrapper .data-wrapper .params-listing ul li {
   list-style: none;
+  margin-left: 6px;
 }
-body .ui.grid .content-wrapper .params-wrapper .params-listing ul li p {
+body .ui.grid .content-wrapper .data-wrapper .params-listing ul li p {
   font-weight: 300;
 }
-body .ui.grid .content-wrapper .params-wrapper .params-listing ul li:first-child {
+body .ui.grid .content-wrapper .data-wrapper .params-listing ul li:first-child {
   padding-bottom: 6px;
   margin-left: -5px;
 }
-body .ui.grid .content-wrapper .params-wrapper .param-title {
+body .ui.grid .content-wrapper .data-wrapper .param-title {
   padding-bottom: 6px;
   margin-bottom: 12px;
   display: block;
@@ -227,6 +228,7 @@ body .ui.grid .content-wrapper .returns-listing ul li b {
 }
 body .ui.grid .content-wrapper .returns-listing ul li p {
   font-weight: 300;
+  margin-left: 3px;
 }
 body .ui.grid .content-wrapper .returns-listing ul li:first-child {
   padding-bottom: 5px;
