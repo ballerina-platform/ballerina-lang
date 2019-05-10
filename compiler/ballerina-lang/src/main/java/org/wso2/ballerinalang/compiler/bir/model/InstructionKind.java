@@ -31,6 +31,8 @@ public enum InstructionKind {
     ASYNC_CALL((byte) 5),
     WAIT((byte) 6),
     FP_CALL((byte) 7),
+    WK_RECEIVE((byte) 8),
+    WK_SEND((byte) 9),
 
     // Non-terminating instructions
     MOVE((byte) 20),
