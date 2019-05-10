@@ -28,7 +28,7 @@
 # + chunking - Configures the chunking behaviour for the service
 # + cors - The cross origin resource sharing configurations for the service
 # + versioning - The version of the service to be used
-# + authConfig - Authentication configurations for securing the service
+# + auth - Authentication configurations for secure the service
 public type HttpServiceConfig record {|
     Listener?[] endpoints = [];
     string host = "b7a.default";
@@ -37,7 +37,7 @@ public type HttpServiceConfig record {|
     Chunking chunking = CHUNKING_AUTO;
     CorsConfig cors = {};
     Versioning versioning = {};
-    ListenerAuthConfig? authConfig = {};
+    ServiceResourceAuth auth?;
 |};
 
 # Configurations for CORS support.
@@ -109,7 +109,7 @@ public annotation <service> WebSocketServiceConfig WSServiceConfig;
 # + cors - The cross origin resource sharing configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service.
 # + transactionInfectable - Allow to participate in the distributed transactions if value is true
 # + webSocketUpgrade - Annotation to define HTTP to WebSocket upgrade
-# + authConfig - Authentication Configs to secure the resource
+# + auth - Authentication Configs to secure the resource
 public type HttpResourceConfig record {|
     string[] methods = [];
     string path = "";
@@ -119,7 +119,7 @@ public type HttpResourceConfig record {|
     CorsConfig cors = {};
     boolean transactionInfectable = true;
     WebSocketUpgradeConfig? webSocketUpgrade = ();
-    ListenerAuthConfig? authConfig = ();
+    ServiceResourceAuth auth?;
 |};
 
 # Resource configuration to upgrade from HTTP to WebSocket.
@@ -133,20 +133,13 @@ public type WebSocketUpgradeConfig record {|
 
 # Configures the authentication scheme for a service or a resource.
 #
-# + authentication - Enables/disables authentication
-# + authProviders - Array of authentication provider IDs
-# + scopes - Array of scopes
-public type ListenerAuthConfig record {|
-    Authentication? authentication = ();
-    string[]? authProviders = ();
-    string[]? scopes = ();
-|};
-
-# Can be used for enabling/disabling authentication in an HTTP service.
-#
 # + enabled - Specifies whether authentication is enabled
-public type Authentication record {|
-    boolean enabled = false;
+# + authnHandlers - Array of authentication handlers
+# + scopes - Array of scopes
+public type ServiceResourceAuth record {|
+    boolean enabled = true;
+    AuthnHandler[] authnHandlers?;
+    string[] scopes?;
 |};
 
 # The annotation which is used to configure an HTTP resource.

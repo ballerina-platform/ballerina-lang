@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -149,8 +150,7 @@ public class JWTAuthnHandlerTest {
     @Test(description = "Test case for JWT auth interceptor authentication failure")
     public void testHandleHttpJwtAuthFailure() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpJwtAuthFailure");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(returns[0] instanceof BError);
     }
 
     @Test(description = "Test case for JWT auth interceptor authentication success")

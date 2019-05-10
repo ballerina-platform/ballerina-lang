@@ -15,83 +15,82 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/encoding;
 
-function testCreateConfigAuthProvider() returns (auth:ConfigAuthStoreProvider) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+function testCreateConfigAuthProvider() returns auth:ConfigAuthStoreProvider {
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     return configAuthStoreProvider;
 }
 
-function testAuthenticationOfNonExistingUser() returns (boolean) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.authenticate("amila", "abc");
+function testAuthenticationOfNonExistingUser() returns boolean|error {
+    string usernameAndPassword = "amila:abc";
+    return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationOfNonExistingPassword() returns (boolean) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.authenticate("isuru", "xxy");
+function testAuthenticationOfNonExistingPassword() returns boolean|error {
+    string usernameAndPassword = "isuru:xxy";
+    return authenticate(usernameAndPassword);
 }
 
-function testAuthentication() returns (boolean) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.authenticate("isuru", "xxx");
+function testAuthentication() returns boolean|error {
+    string usernameAndPassword = "isuru:xxx";
+    return authenticate(usernameAndPassword);
 }
 
-function testReadScopesOfNonExistingUser() returns (string[]) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.getScopes("amila");
+function testAuthenticationWithEmptyUsername() returns boolean|error {
+    string usernameAndPassword = ":xxx";
+    return authenticate(usernameAndPassword);
 }
 
-function testReadScopesOfUser() returns (string[]) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.getScopes("ishara");
+function testAuthenticationWithEmptyPassword() returns boolean|error {
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    string usernameAndPassword = "isuru:";
+    return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationWithEmptyUsername() returns (boolean) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.authenticate("", "xxx");
+function testAuthenticationWithEmptyPasswordAndInvalidUsername() returns boolean|error {
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    string usernameAndPassword = "invalid:";
+    return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationWithEmptyPassword() returns (boolean) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.authenticate("isuru", "");
+function testAuthenticationWithEmptyUsernameAndEmptyPassword() returns boolean|error {
+    string usernameAndPassword = ":";
+    return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationWithEmptyPasswordAndInvalidUsername() returns (boolean) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.authenticate("invalid", "");
+function testAuthenticationSha256() returns boolean|error {
+    string usernameAndPassword = "hashedSha256:xxx";
+    return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationWithEmptyUsernameAndEmptyPassword() returns (boolean) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.authenticate("", "");
+function testAuthenticationSha384() returns boolean|error {
+    string usernameAndPassword = "hashedSha384:xxx";
+    return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationSha256() returns (boolean) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.authenticate("hashedSha256", "xxx");
+function testAuthenticationSha512() returns boolean|error {
+    string usernameAndPassword = "hashedSha512:xxx";
+    return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationSha384() returns (boolean) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.authenticate("hashedSha384", "xxx");
+function testAuthenticationPlain() returns boolean|error {
+    string usernameAndPassword = "plain:plainpassword";
+    return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationSha512() returns (boolean) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.authenticate("hashedSha512", "xxx");
+function testAuthenticationSha512Negative() returns boolean|error {
+    string usernameAndPassword = "hashedSha512:xxx ";
+    return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationPlain() returns (boolean) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.authenticate("plain", "plainpassword");
+function testAuthenticationPlainNegative() returns boolean|error {
+    string usernameAndPassword = "plain:plainpassword ";
+    return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationSha512Negative() returns (boolean) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.authenticate("hashedSha512", "xxx ");
-}
-
-function testAuthenticationPlainNegative() returns (boolean) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
-    return configAuthStoreProvider.authenticate("plain", "plainpassword ");
+function authenticate(string usernameAndPassword) returns boolean|error {
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
+    return configAuthStoreProvider.authenticate(credential);
 }

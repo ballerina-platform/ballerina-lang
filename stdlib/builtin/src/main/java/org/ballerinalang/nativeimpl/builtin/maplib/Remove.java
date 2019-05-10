@@ -20,6 +20,8 @@ package org.ballerinalang.nativeimpl.builtin.maplib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
@@ -52,5 +54,11 @@ public class Remove extends BlockingNativeCallableUnit {
         } catch (BLangFreezeException e) {
             throw new BallerinaException(e.getMessage(), "Failed to remove element from map: " + e.getDetail());
         }
+    }
+
+    public static boolean remove(Strand strand, MapValue<?, ?> map, String key) {
+        boolean constains = map.containsKey(key);
+        map.remove(key);
+        return constains;
     }
 }

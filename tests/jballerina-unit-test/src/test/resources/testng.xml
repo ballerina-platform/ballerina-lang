@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  ~
+  -->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="ballerina-test-suite">
+
+    <listeners>
+        <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
+        <listener class-name="org.ballerinalang.test.utils.JBallerinaTestInitializer"/>
+        <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
+    </listeners>
+    <test name="jballerina-test" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <packages>
+            <package name="org.ballerinalang.test.jvm.*"/>
+            <package name="org.ballerinalang.test.types.integer"/>
+            <package name="org.ballerinalang.test.types.floattype"/>
+        </packages>
+
+        <classes>
+            <class name="org.ballerinalang.test.functions.FunctionSignatureTest" >
+                <methods>
+                    <exclude name="testOptionalArgsInNativeFunc" />
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.object.ObjectTest" >
+                <methods>
+                    <!-- Fails due to link error at runtime -->
+                    <exclude name="testObjectWithMissingNativeImpl" />
+
+                    <!-- fails in getBIRModuleBinary -->
+                    <exclude name="testObjectAnyTypeFieldAsConstructorParam" />
+                    <exclude name="testObjectWithAttachedFunction" />
+                    <exclude name="testStructPrint" />
+
+                    <!-- fails because of missing lambda functions support -->
+                    <exclude name="testFunctionReferencesFromObjects" />
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.object.AnonymousObjectTest" />
+            <class name="org.ballerinalang.test.object.ObjectEquivalencyNegativeTest" />
+            <class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />
+            <class name="org.ballerinalang.test.object.AbstractObjectTest">
+                <methods>
+                    <!-- Fails because index based access is not implemented -->
+                    <exclude name="testAbstractAnonObjectInFunction" />
+                    <exclude name="testAbstractAnonObjectInMatch" />
+                    <exclude name="testAbstractAnonObjectInVarDef" />
+                    <exclude name="testAbstractObjectInObject" />
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.expressions.checkedexpr.CheckedExpressionOperatorTest">
+                <methods>
+                    <exclude name="testSemanticErrorsWithResources"/>
+                    <exclude name="testCheckInBinaryAndExpression"/>
+                    <exclude name="testCheckExprInBinaryExpr7"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.expressions.elvis.ElvisExpressionTest"/>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.DivisionOperationTest">
+                <methods>
+                    <exclude name="testIntDivideByZeroExpr"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.ModOperationTest">
+                <methods>
+                    <exclude name="testIntModZero"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
+            <class name="org.ballerinalang.test.expressions.binaryoperations.BinaryExprTest" />
+        </classes>
+    </test>
+</suite>

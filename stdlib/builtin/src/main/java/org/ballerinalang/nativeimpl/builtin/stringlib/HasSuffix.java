@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
@@ -48,5 +49,9 @@ public class HasSuffix extends BlockingNativeCallableUnit {
 
         BBoolean booleanValue = new BBoolean(param1.endsWith(suffix));
         context.setReturnValues(booleanValue);
+    }
+
+    public static boolean hasSuffix(Strand strand, String value, String suffix) {
+        return value.endsWith(suffix);
     }
 }

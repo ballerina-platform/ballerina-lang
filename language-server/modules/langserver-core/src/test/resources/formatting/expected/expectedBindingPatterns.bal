@@ -57,7 +57,10 @@ function recordVarInRecordVar2() returns (string, Age) {
         married: true,
         work: "SE"
     };
-    PersonWithAge {name: fName, age} = p;
+    PersonWithAge {
+        name: fName,
+        age
+    } = p;
     return (fName, age);
 }
 

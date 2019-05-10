@@ -22,6 +22,7 @@ package org.ballerinalang.messaging.artemis;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -39,6 +40,8 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 
+import java.util.Arrays;
+
 /**
  * Utility class for Artemis.
  */
@@ -52,9 +55,9 @@ public class ArtemisUtils {
      * @param exception the exception to be propagated
      * @param logger the logger to log errors
      */
-    public static void throwBallerinaException(String message, Context context, Exception exception, Logger logger) {
+    public static void logAndSetError(String message, Context context, Exception exception, Logger logger) {
         logger.error(message, exception);
-        throw new BallerinaException(message, exception, context);
+        context.setError(getError(context, message));
     }
 
     /**
@@ -164,8 +167,7 @@ public class ArtemisUtils {
      * @return the relevant {@link RoutingType}
      */
     public static RoutingType getRoutingTypeFromString(String routingType) {
-        return ArtemisConstants.MULTICAST.equals(routingType) ? RoutingType.ANYCAST :
-                RoutingType.MULTICAST;
+        return ArtemisConstants.MULTICAST.equals(routingType) ? RoutingType.MULTICAST : RoutingType.ANYCAST;
     }
 
     /**
@@ -176,7 +178,7 @@ public class ArtemisUtils {
      */
     public static ClientSession getClientSessionFromBMap(BMap<String, BValue> obj) {
         @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> sessionObj = (BMap<String, BValue>) obj.get("session");
+        BMap<String, BValue> sessionObj = (BMap<String, BValue>) obj.get(ArtemisConstants.SESSION);
         return (ClientSession) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_SESSION);
     }
 
@@ -188,13 +190,66 @@ public class ArtemisUtils {
      * @throws ActiveMQException on session closure failure
      */
     public static void closeIfAnonymousSession(BMap<String, BValue> obj) throws ActiveMQException {
-        boolean anonymousSession = ((BBoolean) obj.get("anonymousSession")).booleanValue();
+        @SuppressWarnings(ArtemisConstants.UNCHECKED)
+        BMap<String, BValue> sessionObj = (BMap<String, BValue>) obj.get(ArtemisConstants.SESSION);
+        boolean anonymousSession = ((BBoolean) sessionObj.get("anonymousSession")).booleanValue();
         if (anonymousSession) {
             ClientSession session = ArtemisUtils.getClientSessionFromBMap(obj);
             if (!session.isClosed()) {
                 session.close();
             }
         }
+    }
+
+    /**
+     * Get only the required bytes data from the BValueArray. This utility function is required because the byte array
+     * can have 100 elements if it is unbounded in the Ballerina code.
+     *
+     * @param bytesArray The {@link BValue} with the bytes array
+     * @return the bytes from the BValue object
+     */
+    public static byte[] getBytesData(BValueArray bytesArray) {
+        return Arrays.copyOf(bytesArray.getBytes(), (int) bytesArray.size());
+    }
+
+    public static ClientConsumer getClientConsumer(BMap<String, BValue> bObj, ClientSession session,
+                                                   String consumerFilter, String queueName,
+                                                   SimpleString addressName, boolean autoCreated, String routingType,
+                                                   boolean temporary, String queueFilter, boolean durable,
+                                                   int maxConsumers, boolean purgeOnNoConsumers, boolean exclusive,
+                                                   boolean lastValue, Logger logger) throws ActiveMQException {
+        if (autoCreated) {
+            SimpleString simpleQueueName = new SimpleString(queueName);
+            SimpleString simpleQueueFilter = queueFilter != null ? new SimpleString(queueFilter) : null;
+            ClientSession.QueueQuery queueQuery = session.queueQuery(simpleQueueName);
+            if (!queueQuery.isExists()) {
+                if (!temporary) {
+                    session.createQueue(addressName, getRoutingTypeFromString(routingType),
+                                        simpleQueueName, simpleQueueFilter, durable, true, maxConsumers,
+                                        purgeOnNoConsumers, exclusive, lastValue);
+                } else {
+                    session.createTemporaryQueue(addressName, getRoutingTypeFromString(routingType),
+                                                 simpleQueueName, simpleQueueFilter, maxConsumers,
+                                                 purgeOnNoConsumers, exclusive, lastValue);
+                }
+            } else {
+                logger.warn(
+                        "Queue with the name {} already exists with routingType: {}, durable: {}, temporary: {}, " +
+                                "filter: {}, purgeOnNoConsumers: {}, exclusive: {}, lastValue: {}",
+                        queueName, queueQuery.getRoutingType(), queueQuery.isDurable(), queueQuery.isTemporary(),
+                        queueQuery.getFilterString(), queueQuery.isPurgeOnNoConsumers(), queueQuery.isExclusive(),
+                        queueQuery.isLastValue());
+            }
+        }
+
+
+        ClientConsumer consumer = session.createConsumer(queueName, consumerFilter, false);
+        bObj.addNativeData(ArtemisConstants.ARTEMIS_CONSUMER, consumer);
+        return consumer;
+    }
+
+    public static boolean isAnonymousSession(BMap<String, BValue> sessionObj) {
+        return ((BBoolean) sessionObj.get("anonymousSession")).booleanValue();
     }
 
     private ArtemisUtils() {
