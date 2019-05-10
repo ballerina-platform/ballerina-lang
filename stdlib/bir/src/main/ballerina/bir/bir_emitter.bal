@@ -143,6 +143,20 @@ public type BirEmitter object {
                 println();// empty line
             }
         }
+        if (bFunction.workerChannels.length() > 0) {
+            print("WORKER_CHANNELS: ");    
+        }
+
+        int channelsSize = bFunction.workerChannels.length();
+        foreach ChannelDetail ch in bFunction.workerChannels {
+            channelsSize -= 1;
+            print(ch.name.value);
+            if (channelsSize > 0) {
+                print(",");
+            } else {
+                println(";");
+            }
+        }
         println(tabs, "}");
     }
 
@@ -356,6 +370,19 @@ type TerminalEmitter object {
                 }
                 i = i + 1;
             }
+            println(";");
+        } else if (term is WrkReceive) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            print(term.channelName.value);
+            println(";");
+        } else if (term is WrkSend) {
+            print(tabs);
+            self.opEmitter.emitOp(term.dataOp);
+            print(" ", term.kind, " ");
+            print(term.channelName.value);
             println(";");
         } else if (term is AsyncCall) {
             print(tabs);

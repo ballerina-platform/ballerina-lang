@@ -196,6 +196,14 @@ public class BIRBinaryWriter {
 
         // Write error table
         insWriter.writeErrorTable(birFunction.errorTable);
+
+        // write worker interaction channels info
+        buf.writeInt(birFunction.workerChannels.length);
+        for (BIRNode.ChannelDetails details : birFunction.workerChannels) {
+            buf.writeInt(addStringCPEntry(details.name));
+            buf.writeBoolean(details.channelInSameStrand);
+            buf.writeBoolean(details.send);
+        }
     }
 
     private int addStringCPEntry(String value) {

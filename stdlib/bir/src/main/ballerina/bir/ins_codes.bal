@@ -21,6 +21,8 @@ public const int INS_RETURN = 4;
 public const int INS_ASYNC_CALL = 5;
 public const int INS_WAIT = 6;
 public const int INS_FP_CALL = 7;
+public const int INS_WK_RECEIVE = 8;
+public const int INS_WK_SEND = 9;
 
 // Non-terminating instructions
 public const int INS_MOVE = 20;

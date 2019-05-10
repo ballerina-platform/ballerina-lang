@@ -587,7 +587,7 @@ type InstructionGenerator object {
         loadType(self.mv, typeTestIns.typeValue);
 
         self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
-                io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE, OBJECT), false);
+                io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE), false);
         self.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 

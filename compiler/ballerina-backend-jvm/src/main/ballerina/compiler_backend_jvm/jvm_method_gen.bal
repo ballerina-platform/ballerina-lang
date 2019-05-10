@@ -314,6 +314,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             termGen.generateWaitIns(terminator, funcName);
         } else if (terminator is bir:FPCall) {
             termGen.genFPCallIns(terminator, funcName);
+        } else if (terminator is bir:WrkSend) {
+            termGen.genWrkSendIns(terminator, funcName);
+        } else if (terminator is bir:WrkReceive) {
+            termGen.genWrkReceiveIns(terminator, funcName);
         } else {
             error err = error( "JVM generation is not supported for terminator instruction " +
                                         io:sprintf("%s", terminator));
@@ -852,8 +856,10 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         string lambdaName = io:sprintf("$lambda$%s$", initFuncName);
         mv.visitInvokeDynamicInsn(initClass, lambdaName, true, 0);
 
+        // no parent strand
+        mv.visitInsn(ACONST_NULL);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
-            io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
+            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, CONSUMER, STRAND, FUTURE_VALUE), false);
         mv.visitInsn(POP);
     }
     
@@ -879,13 +885,15 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     string lambdaName = "$lambda$main$";
     mv.visitInvokeDynamicInsn(initClass, lambdaName, isVoidFunction, 0);
 
+    // no parent strand
+    mv.visitInsn(ACONST_NULL);
     //submit to the scheduler
     if (isVoidFunction) {
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
-            io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
+            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, CONSUMER, STRAND, FUTURE_VALUE), false);
     } else {
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
-            io:sprintf("([L%s;L%s;)L%s;", OBJECT, FUNCTION, FUTURE_VALUE), false);
+            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION, STRAND, FUTURE_VALUE), false);
         mv.visitInsn(DUP);
     }
 

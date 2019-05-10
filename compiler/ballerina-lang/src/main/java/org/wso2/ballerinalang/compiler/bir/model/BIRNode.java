@@ -210,7 +210,18 @@ public abstract class BIRNode {
          */
         public List<BIRErrorEntry> errorTable;
 
-        public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type) {
+        /**
+         * Name of the current worker.
+         */
+        public Name workerName;
+
+        /**
+         * List of channels this worker interacts.
+         */
+        public ChannelDetails[] workerChannels;
+
+        public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type, Name workerName,
+                           int sendInsCount) {
             super(pos);
             this.name = name;
             this.visibility = visibility;
@@ -218,6 +229,8 @@ public abstract class BIRNode {
             this.localVars = new ArrayList<>();
             this.basicBlocks = new ArrayList<>();
             this.errorTable = new ArrayList<>();
+            this.workerName = workerName;
+            this.workerChannels = new ChannelDetails[sendInsCount];
         }
 
         @Override
@@ -315,6 +328,28 @@ public abstract class BIRNode {
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+    }
+
+    /**
+     * Channel details which has channel name and where it resides.
+     *
+     * @since 0.995.0
+     */
+    public static class ChannelDetails {
+        public String name;
+        public boolean channelInSameStrand;
+        public boolean send;
+
+        public ChannelDetails(String name, boolean channelInSameStrand, boolean send) {
+            this.name = name;
+            this.channelInSameStrand = channelInSameStrand;
+            this.send = send;
+        }
+
+        @Override
+        public String toString() {
+            return name;
         }
     }
 }
