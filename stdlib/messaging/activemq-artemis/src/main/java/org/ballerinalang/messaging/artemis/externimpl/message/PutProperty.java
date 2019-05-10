@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
+import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
@@ -73,7 +74,7 @@ public class PutProperty extends BlockingNativeCallableUnit {
         } else if (valObj instanceof BByte) {
             message.putByteProperty(key, (byte) ((BByte) valObj).byteValue());
         } else if (valObj instanceof BValueArray) {
-            message.putBytesProperty(key, ((BValueArray) valObj).getBytes());
+            message.putBytesProperty(key, ArtemisUtils.getBytesData((BValueArray) valObj));
         }//else is not needed because these are the only values supported by the Ballerina the method
     }
 }

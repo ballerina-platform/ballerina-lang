@@ -76,6 +76,8 @@ public type PackageParser object {
         }
         BasicBlock?[] basicBlocks = self.getBasicBlocks(bodyParser);
         ErrorEntry?[] errorEntries = self.getErrorEntries(bodyParser);
+        ChannelDetail[] workerChannels = self.getWorkerChannels(bodyParser);
+
         return {
             pos: pos,
             name: { value: name },
@@ -86,7 +88,8 @@ public type PackageParser object {
             basicBlocks: basicBlocks,
             errorEntries:errorEntries,
             argsCount: argsCount,
-            typeValue: sig
+            typeValue: sig,
+            workerChannels:workerChannels
         };
     }
 
@@ -132,6 +135,20 @@ public type PackageParser object {
             i += 1;
         }
         return errorEntries;
+    }
+
+    function getWorkerChannels(FuncBodyParser bodyParser) returns ChannelDetail[] {
+        ChannelDetail[] channelDetails = [];
+        var count = self.reader.readInt32();
+        int i = 0;
+        while (i < count) {
+            string name = self.reader.readStringCpRef();
+            boolean onSameStrand = self.reader.readBoolean();
+            boolean isSend = self.reader.readBoolean();
+            channelDetails[i] = { name: { value:name }, onSameStrand:onSameStrand, isSend:isSend };
+            i += 1;
+        }
+        return channelDetails;
     }
 
     function parseImportMods() returns ImportModule[] {

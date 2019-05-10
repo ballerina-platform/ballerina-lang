@@ -397,7 +397,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config, CachedT
 # Process the auth token for basic auth.
 #
 # + authConfig - Basic auth configurations
-# + return - Auth token or `error` if an error occured during validation
+# + return - Auth token or `error` if an error occurred during validation
 function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|error {
     string username = authConfig.username;
     string password = authConfig.password;

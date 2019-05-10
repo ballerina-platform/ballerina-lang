@@ -103,7 +103,7 @@ function getError() {
 
 function panicWithError() {
     // Create an error with a reason.
-    error e = error("error occured");
+    error e = error("error occurred");
     panic e;
 }
 ```

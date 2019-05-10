@@ -258,4 +258,60 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
             visitor.visit(this);
         }
     }
+
+    /**
+     * A worker receive instruction.
+     * <p>
+     * e.g., WRK_RECEIVE w1;
+     *
+     * @since 0.995.0
+     */
+    public static class WorkerReceive extends BIRTerminator {
+        public Name workerName;
+        public BIROperand lhsOp;
+        public BIRBasicBlock thenBB;
+        public boolean isSameStrand;
+
+        public WorkerReceive(DiagnosticPos pos, Name workerName, BIROperand lhsOp,
+                             boolean isSameStrand, BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.WK_RECEIVE);
+            this.workerName = workerName;
+            this.lhsOp = lhsOp;
+            this.thenBB = thenBB;
+            this.isSameStrand = isSameStrand;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A worker send instruction.
+     * <p>
+     * e.g., %5 WRK_SEND w1;
+     *
+     * @since 0.995.0
+     */
+    public static class WorkerSend extends BIRTerminator {
+        public Name channel;
+        public BIROperand data;
+        public BIRBasicBlock thenBB;
+        public boolean isSameStrand;
+
+        public WorkerSend(DiagnosticPos pos, Name workerName, BIROperand data, boolean isSameStrand,
+                          BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.WK_SEND);
+            this.channel = workerName;
+            this.data = data;
+            this.thenBB = thenBB;
+            this.isSameStrand = isSameStrand;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

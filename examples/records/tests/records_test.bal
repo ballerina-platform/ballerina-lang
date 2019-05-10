@@ -24,5 +24,6 @@ function testFunc() {
     test:assertEquals(outputs[3], "80");
     test:assertEquals(outputs[4], "{name:\"Peter\", age:16, grades:{maths:40, physics:35, chemistry:35}}");
     test:assertEquals(outputs[5], "{name:\"John Doe\", age:17, grades:{maths:80, physics:75, chemistry:65}}");
-    test:assertEquals(outputs[6], "{name:\"Peter\", age:16, grades:{maths:40, physics:35, chemistry:35}, department:\"Computer Science\"}");
+    test:assertEquals(outputs[6], "{name:\"Peter\", age:16, grades:{maths:40, physics:35, chemistry:35}, " +
+                                         "address:{city:\"Colombo\", country:\"Sri Lanka\"}}");
 }

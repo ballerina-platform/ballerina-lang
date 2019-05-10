@@ -60,7 +60,7 @@ function process(io:ReadableTextRecordChannel srcRecordChannel,
 function closeRc(io:ReadableTextRecordChannel rc) {
     var closeResult = rc.close();
     if (closeResult is error) {
-        log:printError("Error occured while closing the channel: ",
+        log:printError("Error occurred while closing the channel: ",
                        err = closeResult);
     }
 }
@@ -69,7 +69,7 @@ function closeRc(io:ReadableTextRecordChannel rc) {
 function closeWc(io:WritableTextRecordChannel wc) {
     var closeResult = wc.close();
     if (closeResult is error) {
-        log:printError("Error occured while closing the channel: ",
+        log:printError("Error occurred while closing the channel: ",
                        err = closeResult);
     }
 }
