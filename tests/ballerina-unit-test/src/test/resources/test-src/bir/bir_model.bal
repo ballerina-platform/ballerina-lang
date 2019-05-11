@@ -142,3 +142,8 @@ function newTable() returns table<Employee> {
 
     return employeeTable;
 }
+
+function newStream() returns stream<Employee> {
+    stream<Employee> employeeStream = new;
+    return employeeStream;
+}

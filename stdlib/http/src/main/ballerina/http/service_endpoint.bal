@@ -62,7 +62,7 @@ public type Listener object {
     #
     # + s - The service that needs to be attached
     # + name - Name of the service
-    # + return - An `error` if there is any error occured during the service attachment process or else nil
+    # + return - An `error` if there is any error occurred during the service attachment process or else nil
     function register(service s, string? name) returns error? = external;
 
     # Starts the registered service.

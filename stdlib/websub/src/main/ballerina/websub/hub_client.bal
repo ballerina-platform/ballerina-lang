@@ -115,7 +115,7 @@ public remote function Client.registerTopic(string topic) returns error? {
         if (registrationResponse.statusCode != http:ACCEPTED_202) {
             var result = registrationResponse.getTextPayload();
             string payload = result is string ? result : "";
-            map<anydata> errorDetail = { message : "Error occured during topic registration: " + payload };
+            map<anydata> errorDetail = { message : "Error occurred during topic registration: " + payload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
@@ -136,7 +136,7 @@ public remote function Client.unregisterTopic(string topic) returns error? {
         if (unregistrationResponse.statusCode != http:ACCEPTED_202) {
             var result = unregistrationResponse.getTextPayload();
             string payload = result is string ? result : "";
-            map<anydata> errorDetail = { message : "Error occured during topic unregistration: " + payload };
+            map<anydata> errorDetail = { message : "Error occurred during topic unregistration: " + payload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
@@ -172,7 +172,7 @@ public remote function Client.publishUpdate(string topic, string|xml|json|byte[]
         if (!isSuccessStatusCode(response.statusCode)) {
             var result = response.getTextPayload();
             string textPayload = result is string ? result : "";
-            map<anydata> errorDetail = { message : "Error occured publishing update: " + textPayload };
+            map<anydata> errorDetail = { message : "Error occurred publishing update: " + textPayload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
@@ -200,7 +200,7 @@ public remote function Client.notifyUpdate(string topic, map<string>? headers = 
         if (!isSuccessStatusCode(response.statusCode)) {
             var result = response.getTextPayload();
             string textPayload = result is string ? result : "";
-            map<anydata> errorDetail = { message : "Error occured notifying update availability: " + textPayload };
+            map<anydata> errorDetail = { message : "Error occurred notifying update availability: " + textPayload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
