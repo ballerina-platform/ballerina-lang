@@ -89,12 +89,7 @@ public class InitEndpoint implements NativeCallableUnit {
                 }
             }
             BMap<String, BValue> configs = (BMap<String, BValue>) context.getNullableRefArgument(2);
-            long timeout;
-            if (configs != null && configs.get(READ_TIMEOUT) != null) {
-                timeout = ((BInteger) configs.get(READ_TIMEOUT)).intValue();
-            } else {
-                timeout = SocketUtils.getReadTimeout();
-            }
+            long timeout = ((BInteger) configs.get(READ_TIMEOUT)).intValue();
             socketService = new SocketService(socketChannel, null, timeout);
             clientEndpoint.addNativeData(SOCKET_SERVICE, socketService);
             selectorManager = SelectorManager.getInstance();

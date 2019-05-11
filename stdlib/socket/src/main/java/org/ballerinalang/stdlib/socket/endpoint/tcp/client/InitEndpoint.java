@@ -87,12 +87,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             }
             clientEndpoint.addNativeData(CLIENT_CONFIG, endpointConfig);
             final BValue readTimeoutBValue = endpointConfig.get(READ_TIMEOUT);
-            long timeout;
-            if (readTimeoutBValue != null) {
-                timeout = ((BInteger) readTimeoutBValue).intValue();
-            } else {
-                timeout = SocketUtils.getReadTimeout();
-            }
+            long timeout = ((BInteger) readTimeoutBValue).intValue();
             clientEndpoint.addNativeData(SOCKET_SERVICE, new SocketService(socketChannel, resourceMap, timeout));
             context.setReturnValues();
         } catch (SocketException e) {

@@ -32,7 +32,8 @@ public type UdpClient client object {
     # + localAddress - Locally binding interface and port
     # + config - Configure additional details like read timeout etc.
     public function __init(Address? localAddress = (), UdpClientConfig? config = ()) {
-        var initResult = self.initEndpoint(localAddress, config);
+        UdpClientConfig configuration = config ?: {};
+        var initResult = self.initEndpoint(localAddress, configuration);
         if (initResult is error) {
             panic initResult;
         }
@@ -41,7 +42,7 @@ public type UdpClient client object {
         }
     }
 
-    function initEndpoint(Address? localAddress, UdpClientConfig? config) returns error? = external;
+    function initEndpoint(Address? localAddress, UdpClientConfig config) returns error? = external;
 
     # Send given data to the specified remote client.
     #

@@ -25,8 +25,7 @@ dependencies {
 //    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':lib-creator')
-    implementation project(':ballerina-config')
-    
+
     testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-builtin')
