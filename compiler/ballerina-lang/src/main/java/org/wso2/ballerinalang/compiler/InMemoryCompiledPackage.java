@@ -84,7 +84,9 @@ public class InMemoryCompiledPackage implements CompiledPackage {
     @Override
     public List<CompilerOutputEntry> getAllEntries() {
         List<CompilerOutputEntry> allEntries = new ArrayList<>(srcEntries);
-        allEntries.add(pkgBinaryEntry);
+        if (pkgBinaryEntry != null) {
+            allEntries.add(pkgBinaryEntry);
+        }
         if (pkgBirEntry != null) { //TODO remove this check(ideally pkgBinaryEntry shouldn't be there, only the bir)
             allEntries.add(pkgBirEntry);
         }

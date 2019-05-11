@@ -227,6 +227,10 @@ public class CompilerDriver {
 
     public BLangPackage codegen(BLangPackage pkgNode) {
         if (this.compilerPhase == CompilerPhase.BIR_GEN) { //TODO temp fix, remove this - rajith
+            String orgName = pkgNode.packageID.getOrgName().getValue();
+            if (!"ballerina".equals(orgName)) { // TODO temporary fix, remove this - rajith
+                return this.birGenerator.genBIR(pkgNode);
+            }
             this.birGenerator.genBIR(pkgNode);
         }
         return this.codeGenerator.generateBALO(pkgNode);
