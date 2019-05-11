@@ -126,6 +126,10 @@ task pathingJar(type: Jar) {
     }
 }
 
+task clearPathingJar(type: Delete) {
+    delete pathingJar.archiveFile
+}
+
 task generateIndex(type: JavaExec) {
     dependsOn pathingJar
     outputs.dir("$buildDir/lib/tools/lang-server/resources")
@@ -133,7 +137,7 @@ task generateIndex(type: JavaExec) {
     systemProperty("ballerina.home", "$buildDir")
     classpath = files(pathingJar.archivePath) + sourceSets.main.output
     main = 'org.ballerinalang.langserver.index.tools.IndexGenerator'
-
+    finalizedBy 'clearPathingJar'
     // Uncomment the following to run the index generator in the debug mode while build
     // debug = true
 }

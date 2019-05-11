@@ -31,6 +31,8 @@ public enum InstructionKind {
     ASYNC_CALL((byte) 5),
     WAIT((byte) 6),
     FP_CALL((byte) 7),
+    WK_RECEIVE((byte) 8),
+    WK_SEND((byte) 9),
 
     // Non-terminating instructions
     MOVE((byte) 20),
@@ -65,6 +67,7 @@ public enum InstructionKind {
     XML_ATTRIBUTE_STORE((byte) 49),
     NEW_TABLE((byte) 50),
     NEW_TYPEDESC((byte) 51),
+    NEW_STREAM((byte) 52),
 
     // Binary expression related instructions.
     ADD((byte) 61),

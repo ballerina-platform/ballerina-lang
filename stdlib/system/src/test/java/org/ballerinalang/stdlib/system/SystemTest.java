@@ -44,7 +44,7 @@ public class SystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidEnv");
         Assert.assertTrue(returns[0] instanceof BString);
         String expectedValue = System.getenv("JAVA_HOME");
-        Assert.assertEquals(returns[0].stringValue(), expectedValue);
+        Assert.assertEquals(returns[0].stringValue(), expectedValue == null ? "" : expectedValue);
     }
 
     @Test

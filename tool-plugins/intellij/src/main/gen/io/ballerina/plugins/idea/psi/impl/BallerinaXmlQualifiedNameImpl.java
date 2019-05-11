@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,26 +44,8 @@ public class BallerinaXmlQualifiedNameImpl extends ASTWrapperPsiElement implemen
 
   @Override
   @Nullable
-  public BallerinaExpression getExpression() {
-    return findChildByClass(BallerinaExpression.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getExpressionEnd() {
-    return findChildByType(EXPRESSION_END);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getQnameSeparator() {
     return findChildByType(QNAME_SEPARATOR);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getXmlTagExpressionStart() {
-    return findChildByType(XML_TAG_EXPRESSION_START);
   }
 
 }

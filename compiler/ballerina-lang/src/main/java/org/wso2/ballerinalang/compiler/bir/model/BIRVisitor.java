@@ -162,11 +162,23 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRTerminator.WorkerReceive workerReceive) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRTerminator.WorkerSend workerSend) {
+        throw new AssertionError();
+    }
+
     public void visit(TypeTest birTypeTest) {
         throw new AssertionError();
     }
 
     public void visit(BIRNonTerminator.NewTable newTable) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewStream newStream) {
         throw new AssertionError();
     }
 
