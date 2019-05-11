@@ -53,4 +53,6 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 }
