@@ -95,3 +95,7 @@ test {
         suites 'src/test/resources/testng.xml'
     }
 }
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}

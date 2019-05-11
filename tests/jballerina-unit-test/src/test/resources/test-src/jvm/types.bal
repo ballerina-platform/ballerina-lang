@@ -123,6 +123,12 @@ function tableFunc() returns table<Grades> {
               [ {  "Mary",  90, 87 }]
            };
     return gradesTable;
+
+}
+
+function streamFunc() returns stream<Grades> {
+    stream<Grades> gradesStream = new;
+    return gradesStream;
 }
 
 function arrayFunc(string[] strs) returns Grades[] {

@@ -22,4 +22,9 @@ dependencies {
     implementation 'org.apache.ws.commons.axiom:axiom-impl'
     implementation 'org.apache.ws.commons.axiom:axiom-dom'
     implementation 'org.apache.ws.commons.axiom:axiom-c14n'
+
+    implementation project(':ballerina-streaming:siddhi-core')
+    implementation project(':ballerina-streaming:siddhi-query-api')
+    implementation project(':ballerina-streaming:siddhi-query-compiler')
+    implementation project(':ballerina-streaming:siddhi-annotations')
 }

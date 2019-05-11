@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,15 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaRecordFieldDefinitionList extends PsiElement {
-
-  @NotNull
-  List<BallerinaFieldDefinition> getFieldDefinitionList();
+public interface BallerinaFieldDescriptor extends PsiElement {
 
   @Nullable
-  BallerinaRecordRestFieldDefinition getRecordRestFieldDefinition();
+  BallerinaFieldDefinition getFieldDefinition();
 
-  @NotNull
-  List<BallerinaTypeReference> getTypeReferenceList();
+  @Nullable
+  BallerinaTypeReference getTypeReference();
 
 }
