@@ -164,7 +164,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public MapValueImpl<String, ?> getAttributesMap() {
+    public MapValue<String, ?> getAttributesMap() {
         if (sequence.size() == 1) {
             return ((XMLItem) sequence.getRefValue(0)).getAttributesMap();
         }
@@ -173,7 +173,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     }
 
     @Override
-    public void setAttributes(MapValueImpl<String, ?> attributes) {
+    public void setAttributes(MapValue<String, ?> attributes) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState());

@@ -322,7 +322,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public MapValueImpl<String, ?> getAttributesMap() {
+    public MapValue<String, ?> getAttributesMap() {
         BXmlAttrMap attrMap = new BXmlAttrMap(this);
 
         if (nodeType != XMLNodeType.ELEMENT) {
@@ -357,7 +357,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public void setAttributes(MapValueImpl<String, ?> attributes) {
+    public void setAttributes(MapValue<String, ?> attributes) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
