@@ -123,8 +123,8 @@ public function generateValueCreatorMethods(jvm:ClassWriter cw, bir:TypeDef?[] t
 
 function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] recordTypeDefs, string pkgName) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "createRecordValue",
-        io:sprintf("(L%s;)L%s;", STRING_VALUE, MAP_VALUE_IMPL),
-        io:sprintf("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE_IMPL, STRING_VALUE, OBJECT), ());
+        io:sprintf("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
+        io:sprintf("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE, STRING_VALUE, OBJECT), ());
 
     mv.visitCode();
 
