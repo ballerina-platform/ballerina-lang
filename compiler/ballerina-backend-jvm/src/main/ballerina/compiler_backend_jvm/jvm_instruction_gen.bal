@@ -412,8 +412,8 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setElement",
                     io:sprintf("(L%s;L%s;L%s;)V", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "put",
-                    io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), false);
+            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "put",
+                    io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
 
             // emit a pop, since we are not using the return value from the map.put()
             self.mv.visitInsn(POP);
@@ -434,8 +434,8 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
                     io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "get",
-                    io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
+            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
+                    io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
         }
 
         // store in the target reg
