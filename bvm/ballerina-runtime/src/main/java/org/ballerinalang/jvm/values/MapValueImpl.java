@@ -54,7 +54,7 @@ import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdat
  *
  * @since 0.995.0
  */
-public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue {
+public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue<K, V> {
 
     private static final long serialVersionUID = 1L;
     private BType type;
