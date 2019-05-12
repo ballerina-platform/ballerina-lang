@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,15 +21,18 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaWorkerSendAsyncExpression extends BallerinaExpression {
+public interface BallerinaClosedRecordTypeDescriptor extends BallerinaTypeName {
 
   @NotNull
-  BallerinaExpression getExpression();
+  List<BallerinaFieldDescriptor> getFieldDescriptorList();
 
   @NotNull
-  PsiElement getSyncrarrow();
+  PsiElement getLeftBrace();
 
   @Nullable
-  PsiElement getIdentifier();
+  PsiElement getRightBrace();
+
+  @NotNull
+  PsiElement getRecord();
 
 }

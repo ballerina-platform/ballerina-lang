@@ -55,6 +55,9 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
     } else if (targetType is bir:BTableType) {
         checkCast(mv, targetType);
         return;
+    } else if (targetType is bir:BStreamType) {
+        checkCast(mv, targetType);
+        return;
     } else if (targetType is bir:BFiniteType) {
         generateCheckCastToFiniteType(mv, sourceType, targetType);
         return;
@@ -201,6 +204,8 @@ function getTargetClass(bir:BType sourceType, bir:BType targetType) returns stri
         targetTypeClass = MAP_VALUE;
     } else if (targetType is bir:BTableType) {
         targetTypeClass = TABLE_VALUE;
+    } else if (targetType is bir:BStreamType) {
+        targetTypeClass = STREAM_VALUE;
     } else if (targetType is bir:BObjectType) {
         targetTypeClass = OBJECT_VALUE;
     } else if (targetType is bir:BErrorType) {

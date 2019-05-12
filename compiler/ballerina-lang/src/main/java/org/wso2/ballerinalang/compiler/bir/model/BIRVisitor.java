@@ -178,6 +178,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNonTerminator.NewStream newStream) {
+        throw new AssertionError();
+    }
+
     // Operands
     public void visit(BIROperand birVarRef) {
         throw new AssertionError();

@@ -33,7 +33,7 @@ repositories {
 dependencies {
     compile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.6.0'
     compile group: 'com.vladsch.flexmark', name: 'flexmark', version: '0.34.58'
-    compile 'com.github.ballerina-platform:lsp4intellij:improved-inspections-SNAPSHOT'
+    compile 'com.github.ballerina-platform:lsp4intellij:master-SNAPSHOT'
 }
 
 apply plugin: 'java'

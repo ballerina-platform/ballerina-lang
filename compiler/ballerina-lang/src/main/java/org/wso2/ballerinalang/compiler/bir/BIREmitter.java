@@ -236,6 +236,16 @@ public class BIREmitter extends BIRVisitor {
         sb.append("];\n");
     }
 
+    @Override
+    public void visit(BIRNonTerminator.NewStream newStream) {
+        writePosition(newStream.pos);
+        sb.append("\t\t");
+        newStream.lhsOp.accept(this);
+        sb.append(" = ").append(newStream.kind.name().toLowerCase(Locale.ENGLISH)).append(" [");
+        newStream.nameOp.accept(this);
+        sb.append("];\n");
+    }
+
     public void visit(FieldAccess birFieldAccess) {
         writePosition(birFieldAccess.pos);
         sb.append("\t\t");
