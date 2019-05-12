@@ -23,6 +23,23 @@ package org.ballerinalang.jvm.values;
  *
  * @since 0.995.0
  */
-public interface MapValue extends RefValue, CollectionValue {
+public interface MapValue<K, V> extends RefValue, CollectionValue {
 
+    Long getIntValue(String key);
+
+    Double getFloatValue(String key);
+
+    String getStringValue(String key);
+
+    Boolean getBooleanValue(String key);
+
+    MapValue<?, ?> getMapValue(String key);
+
+    ObjectValue getObjectValue(String key);
+
+    ArrayValue getArrayValue(String key);
+
+    V getOrThrow(Object key);
+
+    K[] getKeys();
 }
