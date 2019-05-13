@@ -1644,6 +1644,7 @@ public class Desugar extends BLangNodeVisitor {
         ifNode.expr = rewriteExpr(ifNode.expr);
         ifNode.body = rewrite(ifNode.body, env);
         ifNode.elseStmt = rewrite(ifNode.elseStmt, env);
+
         result = ifNode;
     }
 
@@ -3556,14 +3557,15 @@ public class Desugar extends BLangNodeVisitor {
         return rewrite(invocationExprMethod, env);
     }
 
-    private BLangInvocation visitNextBuiltInMethodInvocation(BLangInvocation iExpr) {
+    private BLangExpression visitNextBuiltInMethodInvocation(BLangInvocation iExpr) {
         BInvokableSymbol invokableSymbol =
                 (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(symTable.utilsPackageSymbol),
                         names.fromString(iExpr.builtInMethod.getName()), SymTag.FUNCTION);
         List<BLangExpression> requiredArgs = Lists.of(iExpr.expr);
-        BLangInvocation invocationExprMethod = ASTBuilderUtil.createInvocationExprMethod(iExpr.pos, invokableSymbol,
+        BLangExpression invocationExprMethod = ASTBuilderUtil.createInvocationExprMethod(iExpr.pos, invokableSymbol,
                 requiredArgs, new ArrayList<>(), new ArrayList<>(), symResolver);
-        return rewrite(invocationExprMethod, env);
+        invocationExprMethod = addConversionExprIfRequired(invocationExprMethod, iExpr.type);
+        return rewriteExpr(invocationExprMethod);
     }
 
     private BLangExpression visitCloneInvocation(BLangExpression expr, BType lhsType) {
