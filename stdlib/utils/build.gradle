@@ -24,4 +24,8 @@ dependencies {
     baloCreat project(':lib-creator')
 }
 
+createBalo {
+    jvmTarget = 'true'
+}
+
 description = 'Ballerina - Utils'

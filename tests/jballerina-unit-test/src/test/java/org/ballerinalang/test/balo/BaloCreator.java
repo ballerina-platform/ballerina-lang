@@ -61,7 +61,7 @@ public class BaloCreator {
 
         // compile and create the balo
         BuilderUtils.compileWithTestsAndWrite(projectPath, packageId, buildFolder + "/" + BALLERINA_HOME_LIB + "/",
-                false, true, false, true, true);
+                false, true, false, true, true, true, false);
 
         // copy the balo to the temp-ballerina-home/libs/
         BFileUtil.delete(Paths.get(buildFolder, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, packageId));

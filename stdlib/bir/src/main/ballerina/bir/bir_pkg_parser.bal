@@ -62,6 +62,9 @@ public type PackageParser object {
             panic err;
         }
         var sig = self.typeParser.parseInvokableType();
+        // Read and ignore parameter details, not used in jvm gen
+        self.readAndIgnoreParamDetails();
+        _ = self.reader.readInt64(); // read and ignore function body length
         var argsCount = self.reader.readInt32();
         var numLocalVars = self.reader.readInt32();
 
@@ -90,6 +93,26 @@ public type PackageParser object {
             typeValue: sig,
             workerChannels:workerChannels
         };
+    }
+
+    private function readAndIgnoreParamDetails() {
+        int requiredParamCount = self.reader.readInt32();
+        int i = 0;
+        while (i < requiredParamCount) {
+            _ = self.reader.readInt32();
+            i += 1;
+        }
+
+        int defaultableParamCount = self.reader.readInt32();
+        int j = 0;
+        while (j < defaultableParamCount) {
+            _ = self.reader.readInt32();
+            j += 1;
+        }
+        boolean restParamExist = self.reader.readBoolean();
+        if (restParamExist) {
+            _ = self.reader.readInt32();
+        }
     }
 
     public function parsePackage() returns Package {

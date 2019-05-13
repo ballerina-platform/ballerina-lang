@@ -137,3 +137,12 @@ function testXMLLiteralWithEscapeSequence() returns (xml, string[], int, any[]) 
     }
     return (x1, strs, x1.elements().length(), elements);
 }
+
+function testDollarSignOnXMLLiteralTemplate() returns (xml, xml, xml) {
+    string a = "hello";
+    xml x1 = xml `<foo id="hello $${ 3 + 6 / 3}" >${a}</foo>`;
+    xml x2 = xml `<foo id="hello $$${ 3 + 6 / 3}" >$${a}</foo>`;
+    xml x3 = xml `<foo id="hello $$ ${ 3 + 6 / 3}" >$$ ${a}</foo>`;
+
+    return (x1, x2, x3);
+}
