@@ -117,6 +117,13 @@
             <class name="org.ballerinalang.test.expressions.stamp.TupleTypeStampInbuiltFunctionTest"/>
             <class name="org.ballerinalang.test.expressions.stamp.UnionTypeStampInbuiltFunctionTest"/>
             <class name="org.ballerinalang.test.expressions.stamp.XMLStampInbuiltFunctionTest"/>
+       
+            <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest">
+                <methods>
+                    <exclude name="testInMapLiteral" />
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
         </classes>
     </test>
 </suite>

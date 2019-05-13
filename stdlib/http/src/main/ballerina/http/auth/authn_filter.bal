@@ -82,7 +82,7 @@ function handleAuthnRequest(AuthnHandler[] authnHandlers, Request request) retur
 # Verifies if the authentication is successful. If not responds to the user.
 #
 # + caller - Caller for outbound HTTP responses
-# + authenticated - Authentication status for the request, or `error` if error occured
+# + authenticated - Authentication status for the request, or `error` if error occurred
 # + return - Authentication result to indicate if the filter can proceed(true) or not(false)
 function isAuthnSuccessful(Caller caller, boolean|error authenticated) returns boolean {
     Response response = new;

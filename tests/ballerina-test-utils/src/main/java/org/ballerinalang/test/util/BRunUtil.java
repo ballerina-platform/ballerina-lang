@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -42,6 +43,7 @@ import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
+import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BTupleType;
@@ -55,6 +57,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
@@ -510,6 +513,9 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG:
                 TypedescValue typedescValue = (TypedescValue) value;
                 return new BTypeDescValue(getBVMType(typedescValue.getDescribingType()));
+             case org.ballerinalang.jvm.types.TypeTags.STREAM_TAG:
+                 StreamValue streamValue = (StreamValue) value;
+                 return new BStream(getBVMType(streamValue.getType()), streamValue.getStreamId());
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
@@ -561,6 +567,9 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.TABLE_TAG:
                 org.ballerinalang.jvm.types.BTableType tableType = (org.ballerinalang.jvm.types.BTableType) jvmType;
                 return new BTableType(getBVMType(tableType.getConstrainedType()));
+            case org.ballerinalang.jvm.types.TypeTags.STREAM_TAG:
+                org.ballerinalang.jvm.types.BStreamType streamType = (org.ballerinalang.jvm.types.BStreamType) jvmType;
+                return new BStreamType(getBVMType(streamType.getConstrainedType()));
             case org.ballerinalang.jvm.types.TypeTags.UNION_TAG:
                 return BTypes.typePureType;
             case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:

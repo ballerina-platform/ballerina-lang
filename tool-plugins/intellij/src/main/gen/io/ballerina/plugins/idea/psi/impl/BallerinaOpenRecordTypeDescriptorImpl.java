@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,17 +24,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaXmlLocalNameImpl extends ASTWrapperPsiElement implements BallerinaXmlLocalName {
+public class BallerinaOpenRecordTypeDescriptorImpl extends BallerinaTypeNameImpl implements BallerinaOpenRecordTypeDescriptor {
 
-  public BallerinaXmlLocalNameImpl(@NotNull ASTNode node) {
+  public BallerinaOpenRecordTypeDescriptorImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitXmlLocalName(this);
+    visitor.visitOpenRecordTypeDescriptor(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,8 +43,32 @@ public class BallerinaXmlLocalNameImpl extends ASTWrapperPsiElement implements B
 
   @Override
   @NotNull
-  public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
+  public List<BallerinaFieldDescriptor> getFieldDescriptorList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldDescriptor.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaRecordRestFieldDefinition getRecordRestFieldDefinition() {
+    return findChildByClass(BallerinaRecordRestFieldDefinition.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getLeftBrace() {
+    return findNotNullChildByType(LEFT_BRACE);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getRightBrace() {
+    return findNotNullChildByType(RIGHT_BRACE);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getRecord() {
+    return findNotNullChildByType(RECORD);
   }
 
 }

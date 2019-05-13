@@ -192,4 +192,13 @@ public class XMLTest {
         Assert.assertEquals(returns[5].stringValue(),
                 "<foo>1</foo><bar>2</bar><foo>3</foo><bar>4</bar><foo>5</foo><bar>6</bar><foo>7</foo><bar>8</bar>");
     }
+
+    @Test(description = "Test interpolating xml when there are extra dollar signs")
+    public void testXMLLiteralWithExtraDollarSigns() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDollarSignOnXMLLiteralTemplate");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<foo id=\"hello $5\">hello</foo>");
+        Assert.assertEquals(returns[1].stringValue(), "<foo id=\"hello $$5\">$hello</foo>");
+        Assert.assertEquals(returns[2].stringValue(), "<foo id=\"hello $$ 5\">$$ hello</foo>");
+    }
 }

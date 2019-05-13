@@ -126,6 +126,25 @@ public abstract class BIRNode {
     }
 
     /**
+     * A parameter.
+     *
+     * @since 0.995.0
+     */
+    public static class BIRParameter extends BIRNode {
+        public Name name;
+
+        public BIRParameter(DiagnosticPos pos, Name name) {
+            super(pos);
+            this.name = name;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+//            visitor.visit(this);
+        }
+    }
+
+    /**
      * A global variable declaration.
      *
      * @since 0.980.0
@@ -187,6 +206,21 @@ public abstract class BIRNode {
         public BInvokableType type;
 
         /**
+         * List of required parameters.
+         */
+        public List<BIRParameter> requiredParams;
+
+        /**
+         * List of defaultable parameters.
+         */
+        public List<BIRParameter> defaultParams;
+
+        /**
+         * Rest parameter.
+         */
+        public BIRParameter restParam;
+
+        /**
          * Number of function arguments.
          */
         public int argsCount;
@@ -227,6 +261,8 @@ public abstract class BIRNode {
             this.visibility = visibility;
             this.type = type;
             this.localVars = new ArrayList<>();
+            this.requiredParams = new ArrayList<>();
+            this.defaultParams = new ArrayList<>();
             this.basicBlocks = new ArrayList<>();
             this.errorTable = new ArrayList<>();
             this.workerName = workerName;

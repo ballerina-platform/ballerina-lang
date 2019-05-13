@@ -81,6 +81,10 @@ type InstructionGenerator object {
             self.generateLessEqualIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_NOT_EQUAL) {
             self.generateNotEqualIns(binaryIns);
+        }  else if (binaryIns.kind == bir:BINARY_GREATER_THAN) {
+            self.generateGreaterThanIns(binaryIns);
+        }  else if (binaryIns.kind == bir:BINARY_GREATER_EQUAL) {
+            self.generateGreaterEqualIns(binaryIns);
         } else {
             error err = error("JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind));
             panic err;
@@ -92,33 +96,35 @@ type InstructionGenerator object {
         self.loadVar(binaryIns.rhsOp2.variableDcl);
     }
 
-    function generateLessThanIns(bir:BinaryOp binaryIns) {
-        self.generateBinaryRhsAndLhsLoad(binaryIns);
-
-        jvm:Label label1 = new;
-        jvm:Label label2 = new;
-
-        self.mv.visitInsn(LCMP);
-        self.mv.visitJumpInsn(IFLT, label1);
-
-        self.mv.visitInsn(ICONST_0);
-        self.mv.visitJumpInsn(GOTO, label2);
-
-        self.mv.visitLabel(label1);
-        self.mv.visitInsn(ICONST_1);
-
-        self.mv.visitLabel(label2);
-        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    private function generateLessThanIns(bir:BinaryOp binaryIns) {
+        self.generateBinaryCompareIns(binaryIns, IFLT);
     }
 
-    function generateLessEqualIns(bir:BinaryOp binaryIns) {
-        self.generateBinaryRhsAndLhsLoad(binaryIns);
+    private function generateGreaterThanIns(bir:BinaryOp binaryIns) {
+        self.generateBinaryCompareIns(binaryIns, IFGT);
+    }
 
+    private function generateLessEqualIns(bir:BinaryOp binaryIns) {
+        self.generateBinaryCompareIns(binaryIns, IFLE);
+
+    }
+
+    private function generateGreaterEqualIns(bir:BinaryOp binaryIns) {
+        self.generateBinaryCompareIns(binaryIns, IFGE);
+    }
+
+    private function generateBinaryCompareIns(bir:BinaryOp binaryIns, int opcode) {
+        if (opcode != IFLT && opcode != IFGT && opcode != IFLE && opcode != IFGE) {
+            error err = error(io:sprintf("Unsupported opcode '%s' for binary operator.", opcode));
+            panic err;
+        }
+
+        self.generateBinaryRhsAndLhsLoad(binaryIns);
         jvm:Label label1 = new;
         jvm:Label label2 = new;
 
         self.mv.visitInsn(LCMP);
-        self.mv.visitJumpInsn(IFLE, label1);
+        self.mv.visitJumpInsn(opcode, label1);
 
         self.mv.visitInsn(ICONST_0);
         self.mv.visitJumpInsn(GOTO, label2);
@@ -375,6 +381,16 @@ type InstructionGenerator object {
         self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", BTYPE,
                 ARRAY_VALUE, ARRAY_VALUE, ARRAY_VALUE), false);
         self.storeToVar(tableNewIns.lhsOp.variableDcl);
+    }
+
+    function generateStreamNewIns(bir:NewStream streamNewIns) {
+        self.mv.visitTypeInsn(NEW, STREAM_VALUE);
+        self.mv.visitInsn(DUP);
+        loadType(self.mv, streamNewIns.typeValue);
+        self.loadVar(streamNewIns.nameOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESPECIAL, STREAM_VALUE, "<init>", io:sprintf("(L%s;L%s;)V", BTYPE,
+                STRING_VALUE), false);
+        self.storeToVar(streamNewIns.lhsOp.variableDcl);
     }
 
     function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
@@ -781,6 +797,25 @@ type InstructionGenerator object {
         self.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }
 
+    function generateTernaryIns(bir:Ternary ternary) {
+        jvm:Label label1 = new;
+        jvm:Label label2 = new;
+
+        self.loadVar(ternary.conditionOp.variableDcl);
+        self.mv.visitJumpInsn(IFNE, label1);
+
+        // if true
+        self.loadVar(ternary.thenOp.variableDcl);
+        self.mv.visitJumpInsn(GOTO, label2);
+
+        // else
+        self.mv.visitLabel(label1);
+        self.loadVar(ternary.elseOp.variableDcl);
+
+        self.mv.visitLabel(label2);
+        self.storeToVar(ternary.lhsOp.variableDcl);
+    }
+
     private function loadVar(bir:VariableDcl varDcl) {
         generateVarLoad(self.mv, varDcl, self.currentPackageName, self.getJVMIndexOfVarRef(varDcl));
     }
@@ -824,6 +859,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BTypeString ||
                 bType is bir:BMapType ||
                 bType is bir:BTableType ||
+                bType is bir:BStreamType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BTypeNil ||
@@ -866,6 +902,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BTypeString ||
                     bType is bir:BMapType ||
                     bType is bir:BTableType ||
+                    bType is bir:BStreamType ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BTypeNil ||
