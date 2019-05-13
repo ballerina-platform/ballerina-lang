@@ -111,7 +111,7 @@ public class Convert extends BlockingNativeCallableUnit {
 
     public static Object convert(Strand strand, TypedescValue typeDescValue, Object inputValue) {
         org.ballerinalang.jvm.types.BType convertType = typeDescValue.getDescribingType();
-        Object convertedValue;
+        RefValue convertedValue;
         org.ballerinalang.jvm.types.BType targetType;
         if (convertType.getTag() == TypeTags.UNION_TAG) {
             List<org.ballerinalang.jvm.types.BType> memberTypes
@@ -142,13 +142,13 @@ public class Convert extends BlockingNativeCallableUnit {
         }
         try {
             RefValue refValue = (RefValue) inputValue;
-            convertedValue = (refValue).copy(new HashMap<>());
-            refValue.stamp(targetType, new ArrayList<>());
+            convertedValue = (RefValue) refValue.copy(new HashMap<>());
+            convertedValue.stamp(targetType, new ArrayList<>());
+            return convertedValue;
         } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
             return BallerinaErrors
                     .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
                                  e.getDetail());
         }
-        return convertedValue;
     }
 }

@@ -110,7 +110,7 @@ public class Stamp extends BlockingNativeCallableUnit {
     public static Object stamp(Strand strand, TypedescValue typedescValue, Object valueToBeStamped) {
         org.ballerinalang.jvm.types.BType stampType = typedescValue.getDescribingType();
         org.ballerinalang.jvm.types.BType targetType;
-        if (stampType.getTag() == TypeTags.UNION_TAG) {
+        if (stampType.getTag() ==  org.ballerinalang.jvm.types.TypeTags.UNION_TAG) {
             List<org.ballerinalang.jvm.types.BType> memberTypes
                     = new ArrayList<>(((org.ballerinalang.jvm.types.BUnionType) stampType).getMemberTypes());
             targetType = new org.ballerinalang.jvm.types.BUnionType(memberTypes);
