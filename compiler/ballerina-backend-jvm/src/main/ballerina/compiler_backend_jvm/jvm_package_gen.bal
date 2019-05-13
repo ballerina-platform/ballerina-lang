@@ -213,49 +213,62 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
     string orgName = module.org.value;
     string moduleName = module.name.value;
     map<JavaClass> jvmClassMap = {};
-
+    // Generate classes for global variables.
     foreach var globalVar in module.globalVars {
         if (globalVar is bir:GlobalVariableDcl) {
             fullQualifiedClassNames[pkgName + globalVar.name.value] = initClass;
         }
     }
-    // filter out functions.
-    foreach var func in module.functions {
-        string? balFileName = func.pos.sourceFileName;
-        if (balFileName is string) {
-            string moduleClass = getClassNameForSourceFile(balFileName, orgName, moduleName, pkgName);
-            var javaClass = jvmClassMap[moduleClass];
-            if (javaClass is JavaClass) {
-                javaClass.functions[javaClass.functions.length()] = func;
-            } else {
-                JavaClass class = { sourceFileName:balFileName, moduleClass:moduleClass };
-                class.functions[0] = func;
-                jvmClassMap[moduleClass] = class;
-            }
 
-            string functionName = getFunction(func).name.value;
+    bir:Function?[] functions = module.functions;
+    if (functions.length() > 0) {
+        int funcSize = functions.length();
+        int count  = 0;
+        // Generate init class. Init function should be the first function of the package, hence check first 
+        // function.
+        bir:Function initFunc = <bir:Function>functions[0];
+        string functionName = initFunc.name.value;
+        if (functionName == getModuleInitFuncName(module)) {
+            JavaClass class = { sourceFileName:initFunc.pos.sourceFileName, moduleClass:initClass };
+            class.functions[0] = initFunc;
+            jvmClassMap[initClass] = class;
+            fullQualifiedClassNames[pkgName + functionName] = initClass;
+            count = 1;
+        }
+        // Generate classes for other functions.
+        while (count < funcSize) {
+            bir:Function func = <bir:Function>functions[count];
+            count = count + 1;
+            string  moduleClass = "";
+            functionName = getFunction(func).name.value;
             if (isExternFunc(getFunction(func))) { // if this function is an extern
                 var result = jvm:lookupExternClassName(cleanupPackageName(pkgName), functionName);
                 if (result is string) {
                     moduleClass = result;
+                    fullQualifiedClassNames[pkgName + functionName] = moduleClass;
+                    continue;
                 } else {
                     error err = error("cannot find full qualified class name for extern function : " + pkgName +
-                                        functionName);
+                        functionName);
                     panic err;
                 }
             }
-
-            fullQualifiedClassNames[pkgName + functionName] = moduleClass;
+         
+            string? balFileName = func.pos.sourceFileName;
+            if (balFileName is string) {
+                moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
+                    untaint cleanupFileName(balFileName));
+                var javaClass = jvmClassMap[moduleClass];
+                if (javaClass is JavaClass) {
+                    javaClass.functions[javaClass.functions.length()] = func;
+                } else {
+                    JavaClass class = { sourceFileName:balFileName, moduleClass:moduleClass };
+                    class.functions[0] = func;
+                    jvmClassMap[moduleClass] = class;
+                }
+                fullQualifiedClassNames[pkgName + functionName] = moduleClass;
+            }
         }
     }
     return jvmClassMap;
-}
-
-function getClassNameForSourceFile(string sourceFileName, string orgName, string moduleName,
-                                   string pkgName) returns string {
-    string className = cleanupFileName(sourceFileName);
-    if( className == "." || className == moduleName) {
-        return getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
-    }
-    return getModuleLevelClassName(untaint orgName, untaint moduleName, untaint className);
 }

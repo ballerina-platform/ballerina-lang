@@ -44,6 +44,10 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[]
 # + typeDefs - array of type definitions
 public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs, string pkgName) {
     string fieldName;
+    string typePkgName = ".";
+    if (pkgName != "") {
+        typePkgName = typePkgName;
+    }
 
     // Create the type
     foreach var optionalTypeDef in typeDefs {
@@ -51,11 +55,11 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
         fieldName = getTypeFieldName(typeDef.name.value);
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
-            createRecordType(mv, bType, typeDef.name.value, pkgName);
+            createRecordType(mv, bType, typeDef.name.value, typePkgName);
         } else if (bType is bir:BObjectType) {
-            createObjectType(mv, bType, typeDef.name.value, pkgName);
+            createObjectType(mv, bType, typeDef.name.value, typePkgName);
         } else if (bType is bir:BErrorType) {
-            createErrorType(mv, bType, typeDef.name.value, pkgName);
+            createErrorType(mv, bType, typeDef.name.value, typePkgName);
         } else {
             // do not generate anything for other types (e.g.: finite type, unions, etc.)
             continue;

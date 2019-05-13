@@ -3634,8 +3634,8 @@ public class Desugar extends BLangNodeVisitor {
                     .lookupSymbol(symTable.pkgEnvMap.get(symTable.builtInPackageSymbol),
                                   names.fromString(BLangBuiltInMethod.STRING_LENGTH.getName()), SymTag.FUNCTION);
             BLangInvocation builtInLengthMethod = ASTBuilderUtil
-                    .createInvocationExprMethod(iExpr.pos, bInvokableSymbol, Lists.of(iExpr.expr),
-                                                new ArrayList<>(),new ArrayList<>(), symResolver);
+                    .createInvocationExprMethod(iExpr.pos, bInvokableSymbol, new ArrayList<>(),
+                                                new ArrayList<>(), new ArrayList<>(), symResolver);
             builtInLengthMethod.expr = iExpr.expr;
             return rewrite(builtInLengthMethod, env);
         }

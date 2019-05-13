@@ -1050,6 +1050,10 @@ function getModuleInitFuncName(bir:Package module) returns string {
     string orgName = module.org.value;
     string moduleName = module.name.value;
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
+        string versionValue = module.versionValue.value;
+        if (versionValue == "") {
+            return orgName  + "/" + moduleName + ".<init>";
+        }
         return orgName  + "/" + moduleName + ":" + module.versionValue.value + ".<init>";
     } else {
         return "..<init>";
@@ -1062,13 +1066,11 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
             string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
-                                                                importedPkg.name.value);
-            mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
+                                                                MODULE_INIT_CLASS_NAME);
+            io:println(initFuncName + ":" + moduleClassName);
+            mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                    "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;", false);
-            mv.visitInsn(POP);
+                    "(Lorg/ballerinalang/jvm/Strand;)V", false);
         }
         generateInitFunctionInvocation(importedPkg, mv);
     }
