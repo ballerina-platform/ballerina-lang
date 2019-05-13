@@ -64,6 +64,7 @@ import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -363,9 +364,9 @@ public class BRunUtil {
             case TypeTags.NULL_TAG:
                 return null;
             case TypeTags.BYTE_TAG:
-                return ((BByte) value).byteValue();
+                return ((BValueType) value).byteValue();
             case TypeTags.INT_TAG:
-                return ((BInteger) value).intValue();
+                return ((BValueType) value).intValue();
             case TypeTags.BOOLEAN_TAG:
                 return ((BBoolean) value).booleanValue();
             case TypeTags.STRING_TAG:
