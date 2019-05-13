@@ -268,7 +268,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             string functionName = currentFunc.name.value;
 
             if (isExternFunc(currentFunc)) { // if this function is an extern
-                var result = jvm:lookupExternClassName(getPackageName(orgName, moduleName), functionName);
+                var result = jvm:lookupExternClassName(cleanupPackageName(pkgName), functionName);
                 if (result is string) {
                     moduleClass = result;
                 } else {
@@ -306,10 +306,10 @@ function getClassNameForSourceFile(string sourceFileName, string orgName, string
 
 function generateBuiltInPackages(bir:BIRContext birContext, map<byte[]> jarEntries) {
     bir:ImportModule utilsBIRMod = {modOrg: {value: "ballerina"}, modName: {value: "utils"},
-                                        modVersion: {value: "0.0.0"}};
+                                        modVersion: {value: ""}};
 
     bir:ImportModule builtInBIRMod = {modOrg: {value: "ballerina"}, modName: {value: "builtin"},
-                                        modVersion: {value: "0.0.0"}};
+                                        modVersion: {value: ""}};
 
     bir:Package utilsModule = lookupModule(utilsBIRMod, birContext);
     bir:Package builtInModule = lookupModule(builtInBIRMod, birContext);
