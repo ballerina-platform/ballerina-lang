@@ -40,7 +40,7 @@ public const string CONFIG_PREFIX_SHA512 = "@sha512:";
 # Extracts the username and password from credential value.
 #
 # + credential - Credential value
-# + return - A `string` tuple with the extracted username and password or `error` occured while extracting credentials
+# + return - A `string` tuple with the extracted username and password or `error` occurred while extracting credentials
 function extractUsernameAndPassword(string credential) returns (string, string)|error {
     string decodedHeaderValue = encoding:byteArrayToString(check encoding:decodeBase64(credential));
     string[] decodedCredentials = decodedHeaderValue.split(":");

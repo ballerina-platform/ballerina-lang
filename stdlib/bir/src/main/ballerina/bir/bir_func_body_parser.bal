@@ -109,6 +109,13 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             NewMap newMap = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType};
             return newMap;
+        } else if (kindTag == INS_NEW_STREAM) {
+            var bType = self.typeParser.parseType();
+            kind = INS_KIND_NEW_STREAM;
+            var lhsOp = self.parseVarRef();
+            var nameOp = self.parseVarRef();
+            NewStream newStream = { pos: pos, kind: kind, lhsOp: lhsOp, nameOp: nameOp, typeValue: bType };
+            return newStream;
         } else if (kindTag == INS_NEW_TABLE) {
             var bType = self.typeParser.parseType();
             kind = INS_KIND_NEW_TABLE;
@@ -117,8 +124,8 @@ public type FuncBodyParser object {
             var dataOp = self.parseVarRef();
             var indexColOp = self.parseVarRef();
             var keyColOp = self.parseVarRef();
-            NewTable newTable = {pos:pos, kind:kind, lhsOp:lhsOp, columnsOp: columnsOp, dataOp: dataOp, indexColOp:
-            indexColOp, keyColOp: keyColOp, typeValue:bType};
+            NewTable newTable = { pos: pos, kind: kind, lhsOp: lhsOp, columnsOp: columnsOp, dataOp: dataOp, indexColOp:
+            indexColOp, keyColOp: keyColOp, typeValue: bType };
             return newTable;
         } else if (kindTag == INS_NEW_INST) {
             var defIndex = self.reader.readInt32();
@@ -407,8 +414,26 @@ public type FuncBodyParser object {
             BasicBlock thenBB = self.parseBBRef();
             FPCall fpCall = {pos:pos, kind:kind, fp:fp, lhsOp:lhsOp, args:args, thenBB:thenBB, isAsync:isAsync};
             return fpCall;
+        } else if (kindTag == INS_WK_RECEIVE) {
+            TerminatorKind kind = TERMINATOR_WK_RECEIVE;
+            string dataChannel = self.reader.readStringCpRef();
+            VarRef lhsOp = self.parseVarRef();
+            boolean isSameStrand = self.reader.readBoolean();
+            BasicBlock thenBB = self.parseBBRef();
+            WrkReceive receive = {pos:pos, kind:kind, channelName:{ value:dataChannel }, lhsOp:lhsOp,
+                isSameStrand:isSameStrand, thenBB:thenBB};
+            return receive;
+        } else if (kindTag == INS_WK_SEND) {
+            TerminatorKind kind = TERMINATOR_WK_SEND;
+            string dataChannel = self.reader.readStringCpRef();
+            VarRef dataOp = self.parseVarRef();
+            boolean isSameStrand = self.reader.readBoolean();
+            BasicBlock thenBB = self.parseBBRef();
+            WrkSend send = {pos:pos, kind:kind, channelName:{ value:dataChannel }, dataOp:dataOp,
+                isSameStrand:isSameStrand, thenBB:thenBB};
+            return send;
         }
-        error err = error("term instrucion kind " + kindTag + " not impl.");
+        error err = error("term instruction kind " + kindTag + " not impl.");
         panic err;
     }
 

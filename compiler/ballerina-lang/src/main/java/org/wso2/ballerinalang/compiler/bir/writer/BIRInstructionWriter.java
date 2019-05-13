@@ -122,6 +122,23 @@ public class BIRInstructionWriter extends BIRVisitor {
         waitEntry.lhsOp.accept(this);
     }
 
+    public void visit(BIRTerminator.WorkerReceive entry) {
+        writePosition(entry.pos);
+        buf.writeByte((entry.kind.getValue()));
+        buf.writeInt(addStringCPEntry(entry.workerName.getValue()));
+        entry.lhsOp.accept(this);
+        buf.writeBoolean(entry.isSameStrand);
+        addCpAndWriteString(entry.thenBB.id.value);
+    }
+
+    public void visit(BIRTerminator.WorkerSend entry) {
+        writePosition(entry.pos);
+        buf.writeByte((entry.kind.getValue()));
+        buf.writeInt(addStringCPEntry(entry.channel.getValue()));
+        entry.data.accept(this);
+        buf.writeBoolean(entry.isSameStrand);
+        addCpAndWriteString(entry.thenBB.id.value);
+    }
 
     // Non-terminating instructions
 
@@ -305,6 +322,14 @@ public class BIRInstructionWriter extends BIRVisitor {
         newTable.dataOp.accept(this);
         newTable.indexColOp.accept(this);
         newTable.keyColOp.accept(this);
+    }
+
+    public void visit(BIRNonTerminator.NewStream newStream) {
+        writePosition(newStream.pos);
+        buf.writeByte(newStream.kind.getValue());
+        newStream.type.accept(typeWriter);
+        newStream.lhsOp.accept(this);
+        newStream.nameOp.accept(this);
     }
 
     // Operands

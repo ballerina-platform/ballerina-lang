@@ -58,7 +58,7 @@ public type Listener object {
 
     # Pauses the task.
     #
-    # + return - Returns error if an error is occured while resuming, nil Otherwise.
+    # + return - Returns error if an error is occurred while resuming, nil Otherwise.
     public function pause() returns error? = external;
 
     # Resumes a paused task.

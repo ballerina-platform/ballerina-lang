@@ -34,7 +34,6 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandl
  *
  * @since 0.970
  */
-
 @BallerinaFunction(
         orgName = JmsConstants.BALLERINA,
         packageName = JmsConstants.JMS,
