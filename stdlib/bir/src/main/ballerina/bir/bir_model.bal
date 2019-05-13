@@ -244,6 +244,7 @@ public type BServiceType TYPE_SERVICE;
 
 public type BArrayType record {|
     ArrayState state;
+    int size;
     BType eType;
 |};
 

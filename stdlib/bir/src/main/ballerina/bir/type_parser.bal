@@ -130,7 +130,7 @@ public type TypeParser object {
     }
 
     function parseArrayType() returns BArrayType {
-        return { state:self.parseArrayState(), eType:self.parseType() };
+        return { state:self.parseArrayState(), size:self.reader.readInt32(), eType:self.parseType() };
     }
 
     function parseMapType() returns BMapType {
