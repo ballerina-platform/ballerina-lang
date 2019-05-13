@@ -20,6 +20,7 @@
 package org.wso2.transport.http.netty.message;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.EventLoop;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2Exception;
@@ -64,10 +65,16 @@ public class Http2InboundContentListener implements Listener {
     public void onAdd(HttpContent httpContent) {
         if (!appConsumeRequired && consumeInboundContent.get()) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Stream {}. HTTP/2 {} onAdd updateLocalFlowController with bytes {} ", streamId, inboundType,
+                LOG.debug("Stream {}. HTTP/2 {} onAdd consumeBytes {} ", streamId, inboundType,
                           httpContent.content().readableBytes());
             }
-            updateLocalFlowController(httpContent.content().readableBytes());
+            EventLoop eventLoop = channelHandlerContext.channel().eventLoop();
+            if (eventLoop.inEventLoop()) {
+                consumeBytes(httpContent.content().readableBytes());
+            } else {
+                LOG.warn("onAdd() method is not called from an I/O thread");
+                updateLocalFlowController(httpContent.content().readableBytes());
+            }
         }
     }
 
@@ -119,14 +126,21 @@ public class Http2InboundContentListener implements Listener {
      * which will result in an incorrect execution order.
      */
     void resumeByteConsumption() {
-        channelHandlerContext.channel().eventLoop().execute(() -> {
+        EventLoop eventLoop = channelHandlerContext.channel().eventLoop();
+        if (eventLoop.inEventLoop()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Stream {}. In thread {}. {} resume byte consumption. Unconsumed bytes: {}",
                           streamId, Thread.currentThread().getName(), inboundType, getUnConsumedBytes());
             }
             consumeOutstandingBytes();
             consumeInboundContent.set(true);
-        });
+        } else {
+            LOG.warn("resumeByteConsumption() method is not called from an I/O thread");
+            eventLoop.execute(() -> {
+                consumeOutstandingBytes();
+                consumeInboundContent.set(true);
+            });
+        }
     }
 
     /**
@@ -149,13 +163,14 @@ public class Http2InboundContentListener implements Listener {
         channelHandlerContext.channel().eventLoop().execute(() -> consumeBytes(consumedBytes));
     }
 
+    /**
+     * Update the local flow controller with consumed bytes. This method should only be executed in an I/O thread.
+     *
+     * @param consumedBytes represents the number of consumed bytes
+     */
     private void consumeBytes(int consumedBytes) {
         try {
             Http2Stream http2Stream = getHttp2Stream();
-            //Because of the netty task execution order is not predictable, onAdd() method's task can get executed
-            //after resumeByteConsumption(), even though onAdd() gets called first. Therefore by the time onAdd()'s
-            //task gets executed, actual unconsumed bytes might be less than the ones depicted by consumedBytes.
-            //ISSUE [https://github.com/netty/netty/issues/9128]
             if (http2Stream != null && consumedBytes <= getUnConsumedBytes()) {
                 boolean windowUpdateSent = http2LocalFlowController.consumeBytes(http2Stream, consumedBytes);
                 if (windowUpdateSent) {
