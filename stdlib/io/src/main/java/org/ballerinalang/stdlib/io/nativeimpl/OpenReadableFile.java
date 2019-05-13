@@ -65,7 +65,7 @@ public class OpenReadableFile extends AbstractNativeChannel {
      * {@inheritDoc}
      */
     @Override
-    //TODO Remove after migration
+    //TODO Remove after migration : implemented using bvm values/types
     public Channel inFlow(Context context) throws BallerinaException {
         String pathUrl = context.getStringArgument(PATH_FIELD_INDEX);
         Channel channel;

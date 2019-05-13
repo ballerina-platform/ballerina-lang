@@ -21,6 +21,8 @@ package org.ballerinalang.stdlib.io.utils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
@@ -105,6 +107,16 @@ public class IOUtils {
     }
 
     /**
+     * Creates an error message.
+     *
+     * @param errMsg  the cause for the error.
+     * @return an error which will be propagated to ballerina user.
+     */
+    public static ErrorValue createError(String errMsg) {
+        return BallerinaErrors.createError(IOConstants.IO_ERROR_CODE, errMsg);
+    }
+
+    /**
      * Asynchronously writes bytes to a channel.
      *
      * @param channel the channel the bytes should be written.
@@ -185,6 +197,7 @@ public class IOUtils {
      * @param eventContext     the context of the event.
      * @throws BallerinaException during i/o error.
      */
+    //TODO Remove after migration : implemented using bvm values/types
     public static void writeFull(CharacterChannel characterChannel, String payload, EventContext eventContext) throws
             BallerinaException {
         try {
@@ -205,6 +218,40 @@ public class IOUtils {
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new BallerinaException(e);
+        }
+    }
+
+    /**
+     * <p>
+     * Writes the whole payload to the channel.
+     * </p>
+     *
+     * @param characterChannel the character channel the payload should be written.
+     * @param payload          the content.
+     * @param eventContext     the context of the event.
+     * @throws BallerinaException during i/o error.
+     */
+    //TODO Rename method name to writeFull after migration
+    public static void writeFullContent(CharacterChannel characterChannel, String payload, EventContext eventContext)
+            throws org.ballerinalang.jvm.util.exceptions.BallerinaException {
+        try {
+            int totalNumberOfCharsWritten = 0;
+            int numberOfCharsWritten;
+            final int lengthOfPayload = payload.getBytes().length;
+            do {
+                WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, payload, 0, eventContext);
+                CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
+                EventResult eventResult = future.get();
+                numberOfCharsWritten = (Integer) eventResult.getResponse();
+                totalNumberOfCharsWritten = totalNumberOfCharsWritten + numberOfCharsWritten;
+            } while (totalNumberOfCharsWritten != lengthOfPayload && numberOfCharsWritten != 0);
+            if (totalNumberOfCharsWritten != lengthOfPayload) {
+                String message = "JSON payload was partially written expected: " + lengthOfPayload + ", written : " +
+                        totalNumberOfCharsWritten;
+                throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(message);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(e);
         }
     }
 

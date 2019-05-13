@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.io.utils;
 
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 /**
  * Will be used to throw Ballerina I/O related runtime exceptions.

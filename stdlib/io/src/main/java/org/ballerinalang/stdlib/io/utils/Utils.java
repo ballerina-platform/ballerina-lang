@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.BTypes;
@@ -166,6 +167,7 @@ public class Utils {
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
     @SuppressWarnings("unchecked")
+    //TODO Remove after migration : implemented using bvm values/types
     public static void encode(Context context, BValue input, String charset, boolean isMimeSpecific) {
         switch (input.getType().getTag()) {
             case TypeTags.ARRAY_TAG:
@@ -175,11 +177,40 @@ public class Utils {
             case TypeTags.RECORD_TYPE_TAG:
                 BMap<String, BValue> byteChannel = (BMap<String, BValue>) input;
                 if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
-                    encodeByteChannel(byteChannel, isMimeSpecific);
+                    encodeByteChannel(context, byteChannel, isMimeSpecific);
                 }
                 break;
             case TypeTags.STRING_TAG:
                 encodeString(context, input.stringValue(), charset, isMimeSpecific);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Encode a given BValue using Base64 encoding scheme.
+     *
+     * @param input          Represent a BValue which can be of type blob, string or byte channel
+     * @param charset        Represent the charset value to be used with string
+     * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
+     */
+    @SuppressWarnings("unchecked")
+    public static void encode(BValue input, String charset, boolean isMimeSpecific) {
+        switch (input.getType().getTag()) {
+            case TypeTags.ARRAY_TAG:
+                encodeBlob(((BValueArray) input).getBytes(), isMimeSpecific);
+                break;
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
+                //TODO : recheck following casing
+                ObjectValue byteChannel = (ObjectValue) input;
+                if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
+                    encodeByteChannel(byteChannel, isMimeSpecific);
+                }
+                break;
+            case TypeTags.STRING_TAG:
+                encodeString(input.stringValue(), charset, isMimeSpecific);
                 break;
             default:
                 break;
@@ -195,6 +226,7 @@ public class Utils {
      * @param isMimeSpecific A boolean indicating whether the decoder should be mime specific or not
      */
     @SuppressWarnings("unchecked")
+    //TODO Remove after migration : implemented using bvm values/types
     public static void decode(Context context, BValue encodedInput, String charset, boolean isMimeSpecific) {
         switch (encodedInput.getType().getTag()) {
             case TypeTags.ARRAY_TAG:
@@ -213,6 +245,30 @@ public class Utils {
     }
 
     /**
+     * Decode a given BValue using Base64 encoding scheme.
+     *
+     * @param encodedInput   Represent an encoded BValue which can be of type blob, string or byte channel
+     * @param charset        Represent the charset value to be used with string
+     * @param isMimeSpecific A boolean indicating whether the decoder should be mime specific or not
+     */
+    public static void decode(BValue encodedInput, String charset, boolean isMimeSpecific) {
+        switch (encodedInput.getType().getTag()) {
+            case TypeTags.ARRAY_TAG:
+                decodeBlob(((BValueArray) encodedInput).getBytes(), isMimeSpecific);
+                break;
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
+                decodeByteChannel((ObjectValue) encodedInput, isMimeSpecific);
+                break;
+            case TypeTags.STRING_TAG:
+                decodeString(encodedInput, charset, isMimeSpecific);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
      * Encode a given string using Base64 encoding scheme.
      *
      * @param context           Represent a ballerina context
@@ -220,6 +276,7 @@ public class Utils {
      * @param charset           Represent the charset value to be used with string
      * @param isMimeSpecific    A boolean indicating whether the encoder should be mime specific or not
      */
+    //TODO Remove after migration : implemented using bvm values/types
     public static void encodeString(Context context, String stringToBeEncoded, String charset, boolean isMimeSpecific) {
         try {
             byte[] encodedValue;
@@ -235,6 +292,27 @@ public class Utils {
     }
 
     /**
+     * Encode a given string using Base64 encoding scheme.
+     *
+     * @param stringToBeEncoded Represent the string that needs to be encoded
+     * @param charset           Represent the charset value to be used with string
+     * @param isMimeSpecific    A boolean indicating whether the encoder should be mime specific or not
+     */
+    public static Object encodeString(String stringToBeEncoded, String charset, boolean isMimeSpecific) {
+        try {
+            byte[] encodedValue;
+            if (isMimeSpecific) {
+                encodedValue = Base64.getMimeEncoder().encode(stringToBeEncoded.getBytes(charset));
+            } else {
+                encodedValue = Base64.getEncoder().encode(stringToBeEncoded.getBytes(charset));
+            }
+            return new String(encodedValue, StandardCharsets.ISO_8859_1);
+        } catch (UnsupportedEncodingException e) {
+            return Utils.createBase64Error(e.getMessage(), isMimeSpecific);
+        }
+    }
+
+    /**
      * Decode a given encoded string using Base64 encoding scheme.
      *
      * @param context           Represent a ballerina context
@@ -242,6 +320,7 @@ public class Utils {
      * @param charset           Represent the charset value to be used with string
      * @param isMimeSpecific    A boolean indicating whether the decoder should be mime specific or not
      */
+    //TODO Remove after migration : implemented using bvm values/types
     private static void decodeString(Context context, BValue stringToBeDecoded, String charset,
                                      boolean isMimeSpecific) {
         try {
@@ -256,6 +335,29 @@ public class Utils {
             context.setReturnValues(new BString(new String(decodedValue, charset)));
         } catch (UnsupportedEncodingException e) {
             context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific, false));
+        }
+    }
+
+    /**
+     * Decode a given encoded string using Base64 encoding scheme.
+     *
+     * @param stringToBeDecoded Represent the string that needs to be decoded
+     * @param charset           Represent the charset value to be used with string
+     * @param isMimeSpecific    A boolean indicating whether the decoder should be mime specific or not
+     */
+    private static Object decodeString(BValue stringToBeDecoded, String charset, boolean isMimeSpecific) {
+        try {
+            byte[] decodedValue;
+            if (isMimeSpecific) {
+                decodedValue = Base64.getMimeDecoder().decode(stringToBeDecoded.stringValue()
+                                                                      .getBytes(StandardCharsets.ISO_8859_1));
+            } else {
+                decodedValue = Base64.getDecoder().decode(stringToBeDecoded.stringValue()
+                                                                  .getBytes(StandardCharsets.ISO_8859_1));
+            }
+           return new String(decodedValue, charset);
+        } catch (UnsupportedEncodingException e) {
+            return Utils.createBase64Error(e.getMessage(), isMimeSpecific);
         }
     }
 
@@ -284,6 +386,38 @@ public class Utils {
     /**
      * Encode a given byte channel using Base64 encoding scheme.
      *
+     * @param context        Represent a ballerina context
+     * @param byteChannel    Represent the byte channel that needs to be encoded
+     * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
+     */
+    //TODO Remove after migration : implemented using bvm values/types
+    public static void encodeByteChannel(Context context, BMap<String, BValue> byteChannel, boolean isMimeSpecific) {
+        Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        BMap<String, BValue> byteChannelStruct;
+        try {
+            byte[] encodedByteArray;
+            if (isMimeSpecific) {
+                encodedByteArray = Base64.getMimeEncoder().encode(Utils.getByteArray(
+                        channel.getInputStream()));
+            } else {
+                encodedByteArray = Base64.getEncoder().encode(Utils.getByteArray(
+                        channel.getInputStream()));
+            }
+            InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
+            Base64ByteChannel decodedByteChannel = new Base64ByteChannel(encodedStream);
+            byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context,
+                                                                    IOConstants.IO_PACKAGE, STRUCT_TYPE);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
+                                            new Base64Wrapper(decodedByteChannel));
+            context.setReturnValues(byteChannelStruct);
+        } catch (IOException e) {
+            context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific, true));
+        }
+    }
+
+    /**
+     * Encode a given byte channel using Base64 encoding scheme.
+     *
      * @param byteChannel    Represent the byte channel that needs to be encoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not * @return an
      * @return encoded ReadableByteChannel or an error
@@ -305,6 +439,41 @@ public class Utils {
             return byteChannelObj;
         } catch (IOException e) {
             return Utils.createBase64Error(e.getMessage(), isMimeSpecific);
+        }
+    }
+
+    /**
+     * Decode a given byte channel using Base64 encoding scheme.
+     *
+     * @param context        Represent a ballerina context
+     * @param byteChannel    Represent the byte channel that needs to be decoded
+     * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
+     */
+    //TODO Remove after migration : implemented using bvm values/types
+    public static void decodeByteChannel(Context context, BMap<String, BValue> byteChannel, boolean isMimeSpecific) {
+        if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
+            Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+            BMap<String, BValue> byteChannelStruct;
+            byte[] decodedByteArray;
+            try {
+                if (isMimeSpecific) {
+                    decodedByteArray = Base64.getMimeDecoder().decode(Utils.getByteArray(
+                            channel.getInputStream()));
+                } else {
+                    decodedByteArray = Base64.getDecoder().decode(Utils.getByteArray(
+                            channel.getInputStream()));
+                }
+                InputStream decodedStream = new ByteArrayInputStream(decodedByteArray);
+                Base64ByteChannel decodedByteChannel = new Base64ByteChannel(decodedStream);
+                byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context,
+                                                                        IOConstants.IO_PACKAGE, STRUCT_TYPE);
+                byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
+                                                new Base64Wrapper(decodedByteChannel));
+                context.setReturnValues(byteChannelStruct);
+            } catch (IOException e) {
+                context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific,
+                                                                false));
+            }
         }
     }
 
@@ -342,6 +511,7 @@ public class Utils {
      * @param bytes          Represent the blob that needs to be encoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
+    //TODO Remove after migration : implemented using bvm values/types
     public static void encodeBlob(Context context, byte[] bytes, boolean isMimeSpecific) {
         byte[] encodedContent;
         if (isMimeSpecific) {
@@ -352,6 +522,21 @@ public class Utils {
         context.setReturnValues(new BValueArray(encodedContent));
     }
 
+    /**
+     * Encode a given blob using Base64 encoding scheme.
+     *  @param bytes          Represent the blob that needs to be encoded
+     * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
+     */
+    public static ArrayValue encodeBlob(byte[] bytes, boolean isMimeSpecific) {
+        byte[] encodedContent;
+        if (isMimeSpecific) {
+            encodedContent = Base64.getMimeEncoder().encode(bytes);
+        } else {
+            encodedContent = Base64.getEncoder().encode(bytes);
+        }
+        return new ArrayValue(encodedContent);
+    }
+
 
     /**
      * Decode a given blob using Base64 encoding scheme.
@@ -360,6 +545,7 @@ public class Utils {
      * @param encodedContent Represent the blob that needs to be decoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
+    //TODO Remove after migration : implemented using bvm values/types
     public static void decodeBlob(Context context, byte[] encodedContent, boolean isMimeSpecific) {
         byte[] decodedContent;
         if (isMimeSpecific) {
@@ -368,5 +554,20 @@ public class Utils {
             decodedContent = Base64.getDecoder().decode(encodedContent);
         }
         context.setReturnValues(new BValueArray(decodedContent));
+    }
+
+    /**
+     * Decode a given blob using Base64 encoding scheme.
+     * @param encodedContent Represent the blob that needs to be decoded
+     * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
+     */
+    public static ArrayValue decodeBlob(byte[] encodedContent, boolean isMimeSpecific) {
+        byte[] decodedContent;
+        if (isMimeSpecific) {
+            decodedContent = Base64.getMimeDecoder().decode(encodedContent);
+        } else {
+            decodedContent = Base64.getDecoder().decode(encodedContent);
+        }
+        return new ArrayValue(decodedContent);
     }
 }

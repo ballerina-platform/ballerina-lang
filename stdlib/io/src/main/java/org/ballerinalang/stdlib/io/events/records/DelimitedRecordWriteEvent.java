@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.io.events.records;
 
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.events.Event;
@@ -35,6 +36,8 @@ import java.io.IOException;
  * Represents write event of delimited records channel.
  */
 public class DelimitedRecordWriteEvent implements Event {
+    //TODO remove following flag after removing bvm values
+    private boolean jvmValue = false;
     /**
      * Channel the record content will be written.
      */
@@ -42,7 +45,8 @@ public class DelimitedRecordWriteEvent implements Event {
     /**
      * Content which will be written to the channel.
      */
-    private ArrayValue content;
+    private BValueArray content;
+    private ArrayValue arrayValueContent;
     /**
      * Holds the context to the event.
      */
@@ -50,15 +54,23 @@ public class DelimitedRecordWriteEvent implements Event {
 
     private static final Logger log = LoggerFactory.getLogger(DelimitedRecordWriteEvent.class);
 
-    public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, ArrayValue content) {
+    public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, BValueArray content) {
         this.channel = channel;
         this.content = content;
     }
 
-    public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, ArrayValue content, EventContext context) {
+    public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, BValueArray content, EventContext context) {
         this.channel = channel;
         this.content = content;
         this.context = context;
+    }
+
+    public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, ArrayValue content,
+                                     EventContext context, boolean jvmValue) {
+        this.channel = channel;
+        this.arrayValueContent = content;
+        this.context = context;
+        this.jvmValue = jvmValue;
     }
 
     /**
@@ -68,7 +80,12 @@ public class DelimitedRecordWriteEvent implements Event {
     public EventResult get() {
         NumericResult result;
         try {
-            channel.write(content);
+            //TODO remove following flag after removing bvm values
+            if (jvmValue) {
+                channel.write(arrayValueContent);
+            } else {
+                channel.write(content);
+            }
             result = new NumericResult(-1, context);
         } catch (IOException e) {
             log.error("Error occurred while reading from record channel", e);

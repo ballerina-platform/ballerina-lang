@@ -72,6 +72,7 @@ public class OpenWritableFile extends AbstractNativeChannel {
      * {@inheritDoc}
      */
     @Override
+    //TODO Remove after migration : implemented using bvm values/types
     public Channel inFlow(Context context) throws BallerinaException {
         String pathUrl = context.getStringArgument(PATH_FIELD_INDEX);
         boolean accessMode = context.getBooleanArgument(APPEND_STATE_INDEX);

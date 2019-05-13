@@ -60,7 +60,6 @@ public class CreateMemoryChannel extends AbstractNativeChannel {
      * @param array byte array with elements initialized.
      * @return byte array which is shrunk.
      */
-    //TODO Remove after migration
     private byte[] shrink(BValueArray array) {
         int contentLength = (int) array.size();
         byte[] content = new byte[contentLength];
@@ -71,7 +70,6 @@ public class CreateMemoryChannel extends AbstractNativeChannel {
     /**
      * {@inheritDoc}
      */
-    //TODO Remove after migration
     @Override
     public Channel inFlow(Context context) throws BallerinaException {
         try {

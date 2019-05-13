@@ -21,6 +21,9 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
@@ -102,4 +105,34 @@ public class WriteString implements NativeCallableUnit {
         return false;
     }
 
+    public static void writeString(Strand strand, ObjectValue dataChannelObj, String value, String encoding) {
+        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
+        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(callback);
+        WriteStringEvent writeStringEvent = new WriteStringEvent(channel, value, encoding, eventContext);
+        Register register = EventRegister.getFactory().register(writeStringEvent, WriteString::writeStringResponse);
+        eventContext.setRegister(register);
+        register.submit();
+        //TODO : Remove callback once strand non-blocking support is given
+        callback.sync();
+    }
+
+    /**
+     * Triggers upon receiving the response.
+     *
+     * @param result the response received after writing string.
+     */
+    private static EventResult writeStringResponse(EventResult<Long, EventContext> result) {
+        EventContext eventContext = result.getContext();
+        //TODO : Remove callback once strand non-blocking support is given
+        TempCallableUnitCallback callback = eventContext.getTempCallback();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
+        }
+        callback.notifySuccess();
+        return result;
+    }
 }

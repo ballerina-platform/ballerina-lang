@@ -19,6 +19,10 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
@@ -100,5 +104,43 @@ public class NextTextRecord implements NativeCallableUnit {
     @Override
     public boolean isBlocking() {
         return false;
+    }
+
+    public static void getNext(Strand strand, ObjectValue channel) {
+        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
+        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+
+        DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(
+                IOConstants.TXT_RECORD_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(callback);
+        DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(delimitedRecordChannel, eventContext);
+        Register register = EventRegister.getFactory().register(event, NextTextRecord::getResponse);
+        eventContext.setRegister(register);
+        register.submit();
+        //TODO : Remove callback once strand non-blocking support is given
+        callback.sync();
+    }
+
+
+    /**
+     * Response obtained after reading record.
+     *
+     * @param result the result obtained after processing the record.
+     * @return the response obtained after reading record.
+     */
+    private static EventResult getResponse(EventResult<String[], EventContext> result) {
+        EventContext eventContext = result.getContext();
+        //TODO : Remove callback once strand non-blocking support is given
+        TempCallableUnitCallback callback = eventContext.getTempCallback();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
+        } else {
+            String[] fields = result.getResponse();
+            callback.setReturnValues(new ArrayValue(fields));
+        }
+        IOUtils.validateChannelState(eventContext);
+        callback.notifySuccess();
+        return result;
     }
 }

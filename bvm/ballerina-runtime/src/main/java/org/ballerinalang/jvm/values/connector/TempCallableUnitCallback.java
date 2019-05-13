@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.values.connector;
 
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 
 import java.util.concurrent.Semaphore;
@@ -27,21 +28,29 @@ import java.util.concurrent.TimeUnit;
  */
 public class TempCallableUnitCallback implements CallableUnitCallback{
 
+    private final Strand strand;
     private volatile Semaphore executionWaitSem;
     private int timeOut = 120;
     private Object returnValue;
 
-    public TempCallableUnitCallback() {
+    public TempCallableUnitCallback(Strand strand) {
+        strand.yield = true;
+        this.strand = strand;
         executionWaitSem = new Semaphore(0);
     }
 
     public void notifySuccess() {
         this.executionWaitSem.release();
+        //TODO : Replace following with callback.notifySuccess() once strand non-blocking support is given
+        this.strand.resume();
     }
 
     public void notifyFailure(ErrorValue error) {
         this.returnValue = error;
         this.executionWaitSem.release();
+        //TODO : Replace following with callback.notifyFailure() once strand non-blocking support is given
+        strand.setReturnValues(returnValue);
+        this.strand.resume();
     }
 
     public void sync() {
@@ -54,6 +63,8 @@ public class TempCallableUnitCallback implements CallableUnitCallback{
 
     public void setReturnValues(Object returnValue) {
         this.returnValue = returnValue;
+        //TODO : Replace following with callback.setReturnValues() once strand non-blocking support is given
+        strand.setReturnValues(returnValue);
     }
 
     public Object getReturnValue() {
