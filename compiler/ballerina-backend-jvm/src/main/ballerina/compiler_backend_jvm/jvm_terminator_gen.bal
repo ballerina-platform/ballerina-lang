@@ -592,7 +592,7 @@ type TerminatorGenerator object {
     }
 
     function genWorkerSendIns(bir:WorkerSend ins, string funcName) {
-        self.mv.visitVarInsn(ALOAD, 800);
+        self.mv.visitVarInsn(ALOAD, 0);
         if (!ins.isSameStrand) {
             self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));
         }
@@ -604,7 +604,29 @@ type TerminatorGenerator object {
         generateVarLoad(self.mv, ins.dataOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(ins.dataOp.variableDcl));
         addBoxInsn(self.mv, ins.dataOp.typeValue);
         self.mv.visitVarInsn(ALOAD, 0);
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "sendData", io:sprintf("(L%s;L%s;)V", OBJECT, STRAND), false); 
+        if (!ins.isSync) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "sendData", io:sprintf("(L%s;L%s;)V", OBJECT, 
+                STRAND), false);
+        } else {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "syncSendData", io:sprintf("(L%s;L%s;)L%s;", 
+                OBJECT, STRAND, OBJECT), false);
+            
+            
+            bir:VarRef? lhsOp = ins.lhsOp;
+            if (lhsOp is bir:VarRef) {
+                    self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(lhsOp.variableDcl));
+            }
+
+            self.mv.visitVarInsn(ALOAD, 0);
+            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
+            jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
+            self.mv.visitJumpInsn(IFNE, yieldLabel);
+
+            // goto thenBB
+            jvm:Label gotoLabel = self.labelGen.getLabel(funcName + ins.thenBB.id.value);
+            self.mv.visitJumpInsn(GOTO, gotoLabel);            
+        }
+        
     }
 
     function genWorkerReceiveIns(bir:WorkerReceive ins, string funcName) {

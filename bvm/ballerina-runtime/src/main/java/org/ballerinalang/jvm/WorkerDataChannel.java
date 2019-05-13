@@ -87,38 +87,44 @@ public class WorkerDataChannel {
      * @param strand - sending strand, that will be paused
      * @return error if receiver already in error state, else null
      */
-    public ErrorValue syncSendData(Object data, Strand strand) {
+    public Object syncSendData(Object data, Strand strand) {
         try {
             acquireChannelLock();
-            this.channel.add(new WorkerResult(data, true));
-            this.senderCounter++;
-            this.waitingSender = new WaitingSender(strand, -1);
+            boolean messageReceived = (this.waitingSender != null) ? true : false;
+            if (!messageReceived) {
+                this.channel.add(new WorkerResult(data, true));
+                this.senderCounter++;
+                this.waitingSender = new WaitingSender(strand, -1);
+            } else {
+                //  this is a reschedule after receiving the message
+                this.waitingSender = null;
+            }
+
             if (this.receiver != null) {
                 this.receiver.scheduler.unblockStrand(this.receiver);
                 this.receiver = null;
-            } else if (this.panic != null) {
+                return null;
+            }
+
+            if (this.panic != null) {
                 // TODO: Fix for receiver panics
-            } else if (this.error != null) {
+            }
+
+            if (this.error != null) {
                 ErrorValue ret = this.error;
                 this.error = null;
                 return ret;
             }
+
             // could not send the message, should yield. Will pick the ret value from getErrorValue()
-            strand.blocked = true;
-            strand.yield = true;
+            if (!messageReceived) {
+                strand.blocked = true;
+                strand.yield = true;
+            }
             return null;
         } finally {
             releaseChannelLock();
         }
-    }
-
-    /**
-     * Return the current error value, null if no error.
-     * This is required for a waiting sync sender to fetch the result after a resume.
-     * @return
-     */
-    public ErrorValue getErrorValue() {
-        return this.error;
     }
     
     @SuppressWarnings("rawtypes")
@@ -132,8 +138,8 @@ public class WorkerDataChannel {
 
                 if (result.isSync) {
                     // sync sender will pick the this.error as result, which is null
-                    this.receiver.scheduler.unblockStrand(this.waitingSender.waitingStrand);
-                    this.waitingSender = null;
+                    Strand waiting  = this.waitingSender.waitingStrand;
+                    waiting.scheduler.unblockStrand(waiting);
                 } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
                     // TODO: Fix later for flush
                 }
