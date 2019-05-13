@@ -1,5 +1,3 @@
-import ballerina/runtime;
-
 function test1 (int value) returns (int) {
     int x = value > 10 ? 15 : 5;
     return x;
