@@ -392,7 +392,7 @@ public abstract class BIRNode {
     }
 
     /**
-     * Annotation definitoin node in BIR
+     * Annotation definition node in BIR.
      *
      * @since 0.995.0
      */
