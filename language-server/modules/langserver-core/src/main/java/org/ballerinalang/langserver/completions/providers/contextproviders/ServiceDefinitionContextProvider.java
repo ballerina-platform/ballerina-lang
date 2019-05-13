@@ -65,12 +65,12 @@ public class ServiceDefinitionContextProvider extends LSCompletionProvider {
                 return completionItems;
             }
             CommonToken token = lhsDefaultTokens.get(startIndex);
-            String tokenString = token.getText();
-            switch (tokenString) {
-                case ItemResolverConstants.SERVICE:
-                case ItemResolverConstants.ON:
-                case ItemResolverConstants.NEW:
-                case UtilSymbolKeys.PKG_DELIMITER_KEYWORD:
+            int tokenType = token.getType();
+            switch (tokenType) {
+                case BallerinaParser.SERVICE:
+                case BallerinaParser.ON:
+                case BallerinaParser.NEW:
+                case BallerinaParser.COLON:
                     break tokenScanner;
                 default:
                     break;

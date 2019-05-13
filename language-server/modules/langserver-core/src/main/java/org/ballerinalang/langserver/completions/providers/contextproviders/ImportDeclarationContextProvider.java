@@ -15,10 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.providers.subproviders;
+package org.ballerinalang.langserver.completions.providers.contextproviders;
 
 import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -52,13 +54,27 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
         Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
                 .forEach(packagesList::addAll);
         List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
-        List<Integer> lhsTokenTypes = lhsTokens.stream().map(CommonToken::getType).collect(Collectors.toList());
-        
-        if (lhsTokenTypes.contains(BallerinaParser.DIV)) {
-            String orgName = lhsTokens.get(lhsTokenTypes.indexOf(BallerinaParser.DIV) - 1).getText();
+        List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .collect(Collectors.toList());
+        List<Integer> lhsDefaultTokenTypes = lhsDefaultTokens.stream()
+                .map(CommonToken::getType)
+                .collect(Collectors.toList());
+        int divIndex = lhsDefaultTokenTypes.indexOf(BallerinaParser.DIV);
+        int importTokenIndex = lhsDefaultTokenTypes.indexOf(BallerinaParser.IMPORT);
+        CommonToken lastToken = CommonUtil.getLastItem(lhsTokens);
+
+        if (divIndex > -1 && (divIndex == lhsDefaultTokenTypes.size() - 1 
+                || divIndex == lhsDefaultTokenTypes.size() - 2)) {
+            String orgName = lhsDefaultTokens.get(lhsDefaultTokenTypes.indexOf(BallerinaParser.DIV) - 1).getText();
             completionItems.addAll(this.getPackageNameCompletions(orgName, packagesList));
-        } else if (lhsTokenTypes.contains(BallerinaParser.IMPORT)) {
+        } else if (importTokenIndex > -1 && (importTokenIndex == lhsDefaultTokenTypes.size() - 1
+                || importTokenIndex == lhsDefaultTokenTypes.size() - 2)) {
             completionItems.addAll(this.getItemsIncludingOrgName(packagesList));
+        } else if (importTokenIndex > -1 && lhsDefaultTokenTypes.size() >= 2
+                && (lastToken.getChannel() == Token.HIDDEN_CHANNEL
+                || lhsTokens.get(lhsTokens.size() - 2).getChannel() == Token.HIDDEN_CHANNEL)) {
+            completionItems.add(getAsKeyword());
         }
 
         return completionItems;
@@ -107,6 +123,16 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
         item.setInsertText(insertText);
         item.setKind(CompletionItemKind.Module);
         item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
+        
+        return item;
+    }
+    
+    private static CompletionItem getAsKeyword() {
+        CompletionItem item = new CompletionItem();
+        item.setLabel("as");
+        item.setInsertText("as ");
+        item.setKind(CompletionItemKind.Keyword);
+        item.setDetail(ItemResolverConstants.KEYWORD_TYPE);
         
         return item;
     }
