@@ -71,6 +71,8 @@ public class BIRBinaryWriter {
         writeTypeDefBodies(birbuf, typeWriter, insWriter, birPackage.typeDefs);
         // Write functions
         writeFunctions(birbuf, typeWriter, insWriter, birPackage.functions);
+        // Write annotations
+        writeAnnotations(birbuf, typeWriter, insWriter, birPackage.annotations);
 
         // Write the constant pool entries.
         // TODO Only one constant pool is available for now. This will change in future releases
@@ -223,6 +225,23 @@ public class BIRBinaryWriter {
         int length = birbuf.nioBuffer().limit();
         buf.writeLong(length);
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
+    }
+
+    private void writeAnnotations(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
+                                List<BIRNode.BIRAnnotation> birAnnotationList) {
+        buf.writeInt(birAnnotationList.size());
+        birAnnotationList.forEach(annotation -> writeAnnotation(buf, typeWriter, annotation));
+    }
+
+    private void writeAnnotation(ByteBuf buf, BIRTypeWriter typeWriter,
+                               BIRNode.BIRAnnotation birAnnotation) {
+        // Annotation name CP Index
+        buf.writeInt(addStringCPEntry(birAnnotation.name.value));
+
+        buf.writeByte(birAnnotation.visibility.value());
+
+        buf.writeInt(birAnnotation.attachPoints);
+        birAnnotation.annotationType.accept(typeWriter);
     }
 
     private int addStringCPEntry(String value) {

@@ -45,7 +45,7 @@ public enum BArrayState {
         }
     }
 
-    public static BArrayState valueOf(int state) {
+    public static BArrayState valueOf(byte state) {
         return map.get(state);
     }
 
