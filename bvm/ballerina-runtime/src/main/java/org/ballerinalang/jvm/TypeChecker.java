@@ -87,7 +87,8 @@ public class TypeChecker {
     }
 
     public static long anyToByte(Object sourceVal) {
-        return TypeConverter.anyToByte(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeByte));
+        return TypeConverter.anyToByte(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
+                                                                                            BTypes.typeByte));
     }
 
     /**

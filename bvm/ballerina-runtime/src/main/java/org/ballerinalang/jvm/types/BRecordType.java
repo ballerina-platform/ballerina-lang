@@ -20,8 +20,6 @@ package org.ballerinalang.jvm.types;
 import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.StringJoiner;
 
 /**
  * {@code BRecordType} represents a user defined record type in Ballerina.
