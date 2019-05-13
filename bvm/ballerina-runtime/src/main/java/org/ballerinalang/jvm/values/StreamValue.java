@@ -19,6 +19,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
@@ -26,6 +27,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -86,8 +88,8 @@ public class StreamValue implements RefValue {
     }
 
     @Override
-    public void stamp(BType type) {
-
+    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
+        
     }
 
     @Override

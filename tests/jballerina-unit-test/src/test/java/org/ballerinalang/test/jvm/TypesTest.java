@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.jvm;
 
-
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BRecordType;
