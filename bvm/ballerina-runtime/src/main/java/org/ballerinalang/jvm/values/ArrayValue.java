@@ -736,7 +736,7 @@ public class ArrayValue implements RefValue, CollectionValue {
         if (arrayElementType.getTag() == TypeTags.INT_TAG) {
             intValues = (long[]) newArrayInstance(Long.TYPE);
             for (int i = 0; i < this.size(); i++) {
-                intValues[i] = ((int) arrayValues[i]);
+                intValues[i] = ((long) arrayValues[i]);
             }
         }
 

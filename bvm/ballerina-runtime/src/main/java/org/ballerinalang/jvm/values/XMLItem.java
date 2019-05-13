@@ -50,7 +50,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
@@ -733,6 +732,14 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
 
         return this;
+    }
+
+    public int size() {
+        if (getNodeType() == XMLNodeType.TEXT) {
+            String textContent = ((OMText) this.omNode).getText();
+            return textContent.codePointCount(0, textContent.length());
+        }
+        return this.omNode == null ? 0 : 1;
     }
 
     /**

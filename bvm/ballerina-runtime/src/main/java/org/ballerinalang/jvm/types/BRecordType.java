@@ -79,15 +79,6 @@ public class BRecordType extends BStructureType {
         return TypeTags.RECORD_TYPE_TAG;
     }
 
-    public String toString() {
-        String name = (pkgPath == null || pkgPath.equals(".")) ? typeName : pkgPath + ":" + typeName;
-        StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");
-        for (Entry<String, BField> field : getFields().entrySet()) {
-            sj.add(field.getKey() + " : " + field.getValue().type);
-        }
-        return sj.toString();
-    }
-
     @Override
     public String getAnnotationKey() {
         return this.typeName;

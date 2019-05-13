@@ -22,6 +22,7 @@ import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
@@ -34,7 +35,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.namespace.QName;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_EMPTY_VALUE;
@@ -458,10 +458,22 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     }
 
     /**
-     * {@inheritDoc}
+     * Get the length of this XML sequence.
+     *
+     * @return length of this XML sequence.
      */
-    public int length() {
-        return this.sequence.size;
+    public int size() {
+        int size = 0;
+        for (int i = 0; i < this.sequence.size; i++) {
+            RefValue refValue = (RefValue) sequence.getRefValue(i);
+            if ((refValue.getType().getTag() == TypeTags.XML_TAG)) {
+                XMLValue xmlItem = (XMLValue) refValue;
+                size += xmlItem.size();
+            } else {
+                size += 1;
+            }
+        }
+        return size;
     }
 
     /**

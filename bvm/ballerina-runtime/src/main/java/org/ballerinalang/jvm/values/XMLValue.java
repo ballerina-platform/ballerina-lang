@@ -263,7 +263,7 @@ public abstract class XMLValue<T> implements RefValue, CollectionValue {
      * 
      * @return length of this XML sequence.
      */
-    public abstract int length();
+    public abstract int size();
 
     /**
      * Builds itself.
