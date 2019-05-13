@@ -29,14 +29,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.*;
 
 import static io.ballerina.plugins.idea.ui.preview.VisualizerUtils.generateDiagramHtml;
 
 public class BallerinaDiagramVisualizer extends UserDataHolderBase implements FileEditor {
-    private final static long PARSING_CALL_TIMEOUT_MS = 50L;
 
+    private final static long PARSING_CALL_TIMEOUT_MS = 50L;
     private final static long RENDERING_DELAY_MS = 20L;
 
     @NotNull
@@ -64,13 +66,14 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
     @NotNull
     private String myLastRenderedHtml = "<html><header></header><body> Oops! Something went wrong :( </body></html>";
 
+    private boolean isHidden = true;
+
     public BallerinaDiagramVisualizer(@NotNull Project project, @NotNull VirtualFile file) {
         myFile = file;
         myDocument = FileDocumentManager.getInstance().getDocument(myFile);
 
         if (myDocument != null) {
             myDocument.addDocumentListener(new DocumentListener() {
-
                 @Override
                 public void beforeDocumentChange(DocumentEvent e) {
                     myPooledAlarm.cancelAllRequests();
@@ -78,39 +81,42 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
 
                 @Override
                 public void documentChanged(final DocumentEvent e) {
-                    myPooledAlarm.addRequest(() -> updateHtml(false), PARSING_CALL_TIMEOUT_MS);
+                    if (!isHidden) {
+                        myPooledAlarm.addRequest(() -> updateHtml(false), PARSING_CALL_TIMEOUT_MS);
+                    }
                 }
             }, this);
         }
 
         myHtmlPanelWrapper = new JPanel(new BorderLayout());
         //TODO:Restore component listener if needed
-        //        myHtmlPanelWrapper.addComponentListener(new ComponentAdapter() {
-        //            @Override
-        //            public void componentShown(ComponentEvent e) {
-        //                mySwingAlarm.addRequest(() -> {
-        //                    if (myPanel != null) {
-        //                        return;
-        //                    }
-        //                    attachHtmlPanel();
-        //                }, 0, ModalityState.stateForComponent(getComponent()));
-        //
-        //                myPooledAlarm.addRequest(() -> {
-        //                    updateHtml(false);
-        //                }, PARSING_CALL_TIMEOUT_MS);
-        //            }
-        //
-        //            @Override
-        //            public void componentHidden(ComponentEvent e) {
-        //                mySwingAlarm.addRequest(() -> {
-        //                    if (myPanel == null) {
-        //                        return;
-        //                    }
-        //                    //TODO:
-        //              //      detachHtmlPanel();
-        //                }, 0, ModalityState.stateForComponent(getComponent()));
-        //            }
-        //        });
+        myHtmlPanelWrapper.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                mySwingAlarm.addRequest(() -> {
+                    if (myPanel != null) {
+                        return;
+                    }
+                    attachHtmlPanel();
+                }, 0, ModalityState.stateForComponent(getComponent()));
+
+                myPooledAlarm.addRequest(() -> {
+                    updateHtml(false);
+                }, PARSING_CALL_TIMEOUT_MS);
+                isHidden = false;
+            }
+
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                mySwingAlarm.addRequest(() -> {
+                    if (myPanel == null) {
+                        return;
+                    }
+                    detachHtmlPanel();
+                }, 0, ModalityState.stateForComponent(getComponent()));
+                isHidden = true;
+            }
+        });
 
         if (isPreviewShown(project, file)) {
             attachHtmlPanel();

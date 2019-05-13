@@ -187,10 +187,6 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
             if (compositeState.getSecondState() != null) {
                 mySecondEditor.setState(compositeState.getSecondState());
             }
-            if (compositeState.getSplitLayout() != null) {
-                mySplitEditorLayout = SplitEditorLayout.valueOf(compositeState.getSplitLayout());
-                invalidateLayout(true);
-            }
         }
     }
 

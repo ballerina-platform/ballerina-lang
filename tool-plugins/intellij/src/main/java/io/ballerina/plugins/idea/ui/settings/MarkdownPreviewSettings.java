@@ -14,7 +14,7 @@ public final class MarkdownPreviewSettings {
 
   @Attribute("DefaultSplitLayout")
   @NotNull
-  private SplitFileEditor.SplitEditorLayout mySplitEditorLayout = SplitFileEditor.SplitEditorLayout.SPLIT;
+  private SplitFileEditor.SplitEditorLayout mySplitEditorLayout = SplitFileEditor.SplitEditorLayout.FIRST;
 
   @Tag("HtmlPanelProviderInfo")
   @Property(surroundWithTag = false)
