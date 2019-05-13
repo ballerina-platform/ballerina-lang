@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -428,7 +429,12 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
                 org.ballerinalang.jvm.types.BArrayType arrayType = (org.ballerinalang.jvm.types.BArrayType) type;
                 ArrayValue array = (ArrayValue) value;
-                BValueArray bvmArray = new BValueArray(getBVMType(arrayType.getElementType()));
+                BValueArray bvmArray;
+                if (arrayType.getElementType().getTag() == org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG) {
+                    bvmArray = new BValueArray(getBVMType(arrayType));
+                } else {
+                    bvmArray = new BValueArray(getBVMType(arrayType.getElementType()));
+                }
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.getElementType().getTag()) {
                         case TypeTags.INT_TAG:
