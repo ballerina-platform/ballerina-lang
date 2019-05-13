@@ -72,7 +72,9 @@ public class Http2InboundContentListener implements Listener {
             if (eventLoop.inEventLoop()) {
                 consumeBytes(httpContent.content().readableBytes());
             } else {
-                LOG.warn("onAdd() method is not called from an I/O thread");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Call to onAdd() did not happen in eventloop thread");
+                }
                 updateLocalFlowController(httpContent.content().readableBytes());
             }
         }
@@ -135,7 +137,9 @@ public class Http2InboundContentListener implements Listener {
             consumeOutstandingBytes();
             consumeInboundContent.set(true);
         } else {
-            LOG.warn("resumeByteConsumption() method is not called from an I/O thread");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Call to resumeByteConsumption() did not happen in eventloop thread");
+            }
             eventLoop.execute(() -> {
                 consumeOutstandingBytes();
                 consumeInboundContent.set(true);
