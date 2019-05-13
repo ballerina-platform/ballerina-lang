@@ -38,3 +38,12 @@ function testFieldBasedAccess() returns (xml, xml, xml, xml, xml, xml) {
 
     return (x4, x5, x6, x7, x8, x9);
 }
+
+function testDollarSignOnXMLLiteralTemplate() returns (xml, xml, xml) {
+    string a = "hello";
+    xml x1 = xml `<foo id="hello $${ 3 + 6 / 3}" >${a}</foo>`;
+    xml x2 = xml `<foo id="hello $$${ 3 + 6 / 3}" >$${a}</foo>`;
+    xml x3 = xml `<foo id="hello $$ ${ 3 + 6 / 3}" >$$ ${a}</foo>`;
+
+    return (x1, x2, x3);
+}
