@@ -73,6 +73,10 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+        
+        public Name getSourceFileName() {
+            return sourceFileName;
+        }
     }
 
     /**
