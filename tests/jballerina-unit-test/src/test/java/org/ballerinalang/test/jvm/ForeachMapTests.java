@@ -33,6 +33,7 @@ import java.util.Map;
  *
  * @since 0.995.0
  */
+@Test(groups = "broken")
 public class ForeachMapTests {
 
     private CompileResult program;

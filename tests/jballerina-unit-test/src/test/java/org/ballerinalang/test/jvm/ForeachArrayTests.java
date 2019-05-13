@@ -33,6 +33,7 @@ import java.util.Arrays;
  *
  * @since 0.995.0
  */
+@Test(groups = "broken")
 public class ForeachArrayTests {
 
     private CompileResult program;
