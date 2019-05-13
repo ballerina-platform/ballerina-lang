@@ -65,6 +65,7 @@ public enum InstructionKind {
     XML_ATTRIBUTE_STORE((byte) 49),
     NEW_TABLE((byte) 50),
     NEW_TYPEDESC((byte) 51),
+    TERNARY((byte) 52),
 
     // Binary expression related instructions.
     ADD((byte) 61),

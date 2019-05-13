@@ -87,6 +87,7 @@
             </class>
             <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
             <class name="org.ballerinalang.test.expressions.binaryoperations.BinaryExprTest" />
+            <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest" />
         </classes>
     </test>
 </suite>

@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TernaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
@@ -404,6 +405,19 @@ public class BIREmitter extends BIRVisitor {
         newTypeDesc.lhsOp.accept(this);
         sb.append(" = ").append(newTypeDesc.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         sb.append(newTypeDesc.type.tsymbol);
+        sb.append(";\n");
+    }
+
+    public void visit(TernaryOp ternaryOp) {
+        sb.append("\t\t");
+        ternaryOp.lhsOp.accept(this);
+        sb.append(" = ").append(ternaryOp.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        ternaryOp.conditionOp.accept(this);
+        sb.append(" ");
+        ternaryOp.thenOp.accept(this);
+        sb.append(" ");
+        ternaryOp.elseOp.accept(this);
+        sb.append(" ");
         sb.append(";\n");
     }
 

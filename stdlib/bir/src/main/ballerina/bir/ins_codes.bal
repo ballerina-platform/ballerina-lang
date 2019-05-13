@@ -54,8 +54,10 @@ public const int INS_XML_LOAD = 46;
 public const int INS_XML_LOAD_ALL = 47;
 public const int INS_XML_ATTRIBUTE_LOAD = 48;
 public const int INS_XML_ATTRIBUTE_STORE = 49;
+
 public const int INS_NEW_TABLE = 50;
 public const int INS_NEW_TYPEDESC = 51;
+public const int INS_TERNARY = 52;
 
 // Binary expression related instructions.
 public const int INS_ADD = 61;
