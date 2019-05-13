@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -55,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -221,6 +224,7 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.globalVars.forEach(astGlobalVar -> astGlobalVar.accept(this));
         astPkg.initFunction.accept(this);
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
+        astPkg.annotations.forEach(astAnn -> astAnn.accept(this));
 
         astPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
     }
@@ -321,6 +325,19 @@ public class BIRGen extends BLangNodeVisitor {
         birFunc.errorTable.sort(Comparator.comparing(o -> o.trapBB.id.value));
         this.env.clear();
     }
+
+    @Override
+    public void visit(BLangAnnotation astAnnotation) {
+        BAnnotationSymbol annSymbol = (BAnnotationSymbol) astAnnotation.symbol;
+
+        Visibility visibility = getVisibility(astAnnotation.symbol);
+        //TODO is it good to send nill type? fix
+        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, visibility, annSymbol.attachPoints,
+                annSymbol.attachedType == null ? symTable.nilType : annSymbol.attachedType.type);
+
+        this.env.enclPkg.annotations.add(birAnn);
+    }
+
 
     private boolean isWorkerSend(String chnlName, String workerName) {
         return chnlName.startsWith(workerName) && chnlName.split(workerName)[1].startsWith("->");
