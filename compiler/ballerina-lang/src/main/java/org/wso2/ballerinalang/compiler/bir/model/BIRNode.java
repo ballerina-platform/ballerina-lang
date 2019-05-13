@@ -391,6 +391,11 @@ public abstract class BIRNode {
         }
     }
 
+    /**
+     * Annotation definitoin node in BIR
+     *
+     * @since 0.995.0
+     */
     public static class BIRAnnotation extends BIRNode {
         /**
          * Name of the annotation definition.
