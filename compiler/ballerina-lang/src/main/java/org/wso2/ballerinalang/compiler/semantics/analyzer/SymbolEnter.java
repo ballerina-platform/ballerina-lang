@@ -120,6 +120,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -139,6 +140,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final BLangDiagnosticLog dlog;
     private final Types types;
     private List<BLangTypeDefinition> unresolvedTypes;
+    private List<PackageID> importedPackages;
     private int typePrecedence;
 
     private SymbolEnv env;
@@ -161,6 +163,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
+        this.importedPackages = new ArrayList<>();
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -203,10 +206,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
 
+        // Add the current package node's ID to the imported package list. This is used to identify cyclic module
+        // imports.
+        importedPackages.add(pkgNode.packageID);
+
         defineConstructs(pkgNode, pkgEnv);
         pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv,
                                                                                    pkgNode.imports));
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
+
+        // After we have visited a package node, we need to remove it from the imports list.
+        importedPackages.remove(pkgNode.packageID);
     }
 
     private void defineConstructs(BLangPackage pkgNode, SymbolEnv pkgEnv) {
@@ -318,6 +328,47 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (pkgId.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
             dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
+            return;
+        }
+
+        // Detect cyclic module dependencies. This will not detect cycles which starts with the entry package because
+        // entry package has a version. So we check import cycles which starts with the entry package in next step.
+        if (importedPackages.contains(pkgId)) {
+            int index = importedPackages.indexOf(pkgId);
+            // Generate the import cycle.
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = index; i < importedPackages.size(); i++) {
+                stringBuilder.append(importedPackages.get(i).toString()).append(" -> ");
+            }
+            // Append the current package to complete the cycle.
+            stringBuilder.append(pkgId);
+            dlog.error(importPkgNode.pos, DiagnosticCode.CYCLIC_MODULE_IMPORTS_DETECTED, stringBuilder.toString());
+            return;
+        }
+
+        boolean samePkg = false;
+        // Get the entry package.
+        PackageID entryPackage = importedPackages.get(0);
+        if (entryPackage.isUnnamed == pkgId.isUnnamed) {
+            samePkg = (!entryPackage.isUnnamed) || (entryPackage.sourceFileName.equals(pkgId.sourceFileName));
+        }
+        // Check whether the package which we have encountered is the same as the entry package. We don't need to
+        // check the version here because we cannot import two different versions of the same package at the moment.
+        if (samePkg && entryPackage.orgName.equals(pkgId.orgName) && entryPackage.name.equals(pkgId.name)) {
+            StringBuilder stringBuilder = new StringBuilder();
+            String entryPackageString = importedPackages.get(0).toString();
+            // We need to remove the package.
+            int packageIndex = entryPackageString.indexOf(":");
+            if (packageIndex != -1) {
+                entryPackageString = entryPackageString.substring(0, packageIndex);
+            }
+            // Generate the import cycle.
+            stringBuilder.append(entryPackageString).append(" -> ");
+            for (int i = 1; i < importedPackages.size(); i++) {
+                stringBuilder.append(importedPackages.get(i).toString()).append(" -> ");
+            }
+            stringBuilder.append(pkgId);
+            dlog.error(importPkgNode.pos, DiagnosticCode.CYCLIC_MODULE_IMPORTS_DETECTED, stringBuilder.toString());
             return;
         }
 
@@ -850,27 +901,40 @@ public class SymbolEnter extends BLangNodeVisitor {
         constant.symbol = constantSymbol;
 
         // Note - This is checked and error is logged in semantic analyzer.
-        if (((BLangExpression) constant.value).getKind() != NodeKind.LITERAL &&
-                ((BLangExpression) constant.value).getKind() != NodeKind.NUMERIC_LITERAL) {
+        if (!isValidConstantExpression((BLangExpression) constant.value)) {
             if (symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
                 env.scope.define(constantSymbol.name, constantSymbol);
             }
             return;
         }
 
-        // Visit the associated type definition. This will set the type of the type definition.
-        defineNode(constant.associatedTypeDefinition, env);
-
-        // Get the type of the associated type definition and set it as the type of the symbol. This is needed to
-        // resolve the types of any type definition which uses the constant in type node.
-        constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-        constantSymbol.literalValue = ((BLangLiteral) constant.value).value;
-        constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).type.tag;
-        constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
-
         // Note - constant.typeNode.type will be resolved in a `resolveConstantTypeNode()` later since at this
         // point we might not be able to resolve the type properly because type definitions in the package are not yet
         // visited.
+
+        NodeKind nodeKind = ((BLangExpression) constant.value).getKind();
+
+        if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
+            // Visit the associated type definition. This will set the type of the type definition.
+            defineNode(constant.associatedTypeDefinition, env);
+
+            // Get the type of the associated type definition and set it as the type of the symbol. This is needed to
+            // resolve the types of any type definition which uses the constant in type node.
+            constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
+
+            BLangLiteral literal = (BLangLiteral) constant.value;
+            constantSymbol.literalValue = literal.value;
+            constantSymbol.literalValueTypeTag = literal.type.tag;
+        } else if (nodeKind == NodeKind.RECORD_LITERAL_EXPR) {
+            // We need to update the symbol type to noType here. Then it will be updated properly when
+            // resolving the type node in resolveConstantTypeNode().
+            if (constant.typeNode != null) {
+                constant.symbol.type = symTable.noType;
+            }
+            constantSymbol.literalValue = constant.value;
+        }
+
+        constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
         // Add the symbol to the enclosing scope.
         if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
@@ -990,6 +1054,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * Checks whether the given expression type is allowed as an expression in a constant.
+     *
+     * @param expression the expression which needs to be checked
+     * @return {@code true} if the given expression is allowed, {@code false} otherwise.
+     */
+    boolean isValidConstantExpression(BLangExpression expression) {
+        switch (expression.getKind()) {
+            case LITERAL:
+            case NUMERIC_LITERAL:
+            case RECORD_LITERAL_EXPR:
+                return true;
+        }
+        return false;
+    }
 
     // Private methods
 
@@ -1007,13 +1086,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                 constant.symbol.literalValueType = symTable.getTypeFromTag(constant.symbol.literalValueTypeTag);
             }
 
-            if (!isAllowedConstantType(constant.symbol)) {
+            if (isAllowedConstantType(constant.symbol, constant.typeNode)) {
+                continue;
+            }
+            // Constant might not have a typeNode.
+            if (constant.typeNode != null) {
                 dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, constant.typeNode);
             }
         }
     }
 
-    private boolean isAllowedConstantType(BConstantSymbol symbol) {
+    private boolean isAllowedConstantType(BConstantSymbol symbol, BLangType typeNode) {
         switch (symbol.literalValueType.tag) {
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
@@ -1023,8 +1106,30 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.STRING:
             case TypeTags.NIL:
                 return true;
+            case TypeTags.MAP:
+                return isAllowedMapConstraintType(typeNode);
         }
         return false;
+    }
+
+    private boolean isAllowedMapConstraintType(BLangType typeNode) {
+        switch (typeNode.type.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+            case TypeTags.NIL:
+                return true;
+            case TypeTags.MAP:
+                return isAllowedMapConstraintType(((BLangConstrainedType) typeNode).constraint);
+            default:
+                dlog.error(typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, typeNode);
+                break;
+        }
+        // Return true anyway since otherwise there will be two errors logged for this.
+        return true;
     }
 
     private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {

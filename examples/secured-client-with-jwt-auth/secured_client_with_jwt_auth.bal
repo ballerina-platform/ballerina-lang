@@ -1,3 +1,4 @@
+import ballerina/auth;
 import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
@@ -38,28 +39,26 @@ public function main() {
 }
 
 // Create a JWT authentication provider with the relevant configurations.
-http:AuthProvider jwtAuthProvider = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "ballerina",
-        audience: ["ballerina.io"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
+auth:JWTAuthProvider jwtAuthProvider = new({
+    issuer: "ballerina",
+    audience: ["ballerina.io"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
     }
-};
+});
+
+// Create a JWT authentication handler with the created JWT auth provider.
+http:JwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
 
 listener http:Listener ep = new(9090, config = {
-    authProviders: [jwtAuthProvider],
+    auth: {
+        authnHandlers: [jwtAuthnHandler]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
-        },
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }
@@ -67,8 +66,8 @@ listener http:Listener ep = new(9090, config = {
 
 @http:ServiceConfig {
     basePath: "/hello",
-    authConfig: {
-        authentication: { enabled: true }
+    auth: {
+        enabled: true
     }
 }
 service echo on ep {

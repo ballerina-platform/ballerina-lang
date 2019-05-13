@@ -20,7 +20,7 @@
     <parent>
         <artifactId>ballerina-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.990.4-SNAPSHOT</version>
+        <version>0.992.0-m2-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -37,6 +37,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -234,6 +235,16 @@
             <artifactId>HikariCP</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-stdlib-test-common</artifactId>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
 
     <build>
@@ -276,6 +287,7 @@
                 </executions>
                 <configuration>
                     <mainClass>org.ballerinalang.stdlib.utils.GenerateBalo</mainClass>
+                    <classpathScope>test</classpathScope>
                 </configuration>
             </plugin>
 
@@ -397,6 +409,10 @@
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                    <classpathDependencyExcludes>
+                        <classpathDependencyExcludes>org.slf4j:slf4j-log4j12</classpathDependencyExcludes>
+                        <classpathDependencyExcludes>org.slf4j:slf4j-simple</classpathDependencyExcludes>
+                    </classpathDependencyExcludes>
                 </configuration>
             </plugin>
             <plugin>

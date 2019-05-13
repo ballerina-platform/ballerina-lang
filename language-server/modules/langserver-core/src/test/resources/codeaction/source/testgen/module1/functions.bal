@@ -17,8 +17,8 @@ public function returnUnion(int n1, int n2, int n3) returns (int|string) {
     return 5000;
 }
 
-public function returnMap(int n1, int n2, int n3) returns map {
-    map m = { key: n1 };
+public function returnMap(int n1, int n2, int n3) returns map<int> {
+    map<int> m = { key: n1 };
     return m;
 }
 
@@ -43,7 +43,7 @@ public function returnJson(int n1, int n2, int n3) returns json {
 }
 
 function functionPointerAsParam(int a, function (int x, int y) returns (int) func) returns (int) {
-    int x = a + func(6, 70);
+    int x = a + func.call(6, 70);
     return x;
 }
 
@@ -55,13 +55,19 @@ public function returnOptionalAny(int n1, int n2, int n3) returns any? {
     return 1;
 }
 
-public function complexInput(task:Timer timer) returns error? {
+public function complexInput(task:Scheduler scheduler) returns error? {
     return ();
 }
 
 function complexReturnType(string url) returns http:Client {
-    endpoint http:Client myclient {
-        url: "https://postman-echo.com/get?foo1=bar1&foo2=bar2"
-    };
+    http:Client myclient = new("https://postman-echo.com/get?foo1=bar1&foo2=bar2");
     return myclient;
+}
+
+public function errorAsParam(error s) {
+    //do nothing
+}
+
+public function voidFunc(int a) {
+    //do nothing
 }

@@ -19,6 +19,9 @@ package org.ballerinalang.nativeimpl.builtin.tablelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BTable;
@@ -51,6 +54,15 @@ public class Add extends BlockingNativeCallableUnit {
             table.performAddOperation(data, context);
         } catch (BLangFreezeException e) {
             throw new BallerinaException(e.getMessage(), "Failed to add data to the table: " + e.getDetail());
+        }
+    }
+
+    public static void add(Strand strand, TableValue table, MapValue<?, ?> data) {
+        try {
+            table.performAddOperation((MapValue<String, Object>) data);
+        } catch (BLangFreezeException e) {
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(e.getMessage(),
+                    "Failed to add data to the table: " + e.getDetail());
         }
     }
 }

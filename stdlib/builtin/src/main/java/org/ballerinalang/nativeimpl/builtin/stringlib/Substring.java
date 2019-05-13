@@ -18,6 +18,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
@@ -68,5 +69,23 @@ public class Substring extends BlockingNativeCallableUnit {
         }
         BString subString = new BString(initialString.substring(from, to));
         context.setReturnValues(subString);
+    }
+
+    public static String substring(Strand strand, String value, long startIndex, long endIndex) {
+        if (startIndex != (int) startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
+        }
+        if (endIndex != (int) endIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, endIndex);
+        }
+
+        if (startIndex < 0 || endIndex > value.length()) {
+            throw new BallerinaException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                    "String index out of range. Actual:" + value.length() + " requested: " + startIndex + " to " +
+                            endIndex);
+        }
+        return value.substring((int) startIndex, (int) endIndex);
     }
 }

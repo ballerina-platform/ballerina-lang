@@ -136,6 +136,41 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     }
 
     /**
+     * A function pointer invocation instruction.
+     * <p>
+     * e.g., _4 = fp.call();
+     *
+     * @since 0.995.0
+     */
+    public static class FPCall extends BIRTerminator {
+        public BIROperand fp;
+        public BIROperand lhsOp;
+        public List<BIROperand> args;
+        public BIRBasicBlock thenBB;
+        public boolean isAsync;
+
+        public FPCall(DiagnosticPos pos,
+                      InstructionKind kind,
+                      BIROperand fp,
+                      List<BIROperand> args,
+                      BIROperand lhsOp,
+                      boolean isAsync,
+                      BIRBasicBlock thenBB) {
+            super(pos, kind);
+            this.fp = fp;
+            this.lhsOp = lhsOp;
+            this.args = args;
+            this.isAsync = isAsync;
+            this.thenBB = thenBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * A return instruction.
      * <p>
      * e.g., return _4
@@ -193,6 +228,85 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public Panic(DiagnosticPos pos, BIROperand errorOp) {
             super(pos, InstructionKind.PANIC);
             this.errorOp = errorOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A wait instruction.
+     * <p>
+     * e.g., wait w1|w2;
+     *
+     * @since 0.995.0
+     */
+    public static class Wait extends BIRTerminator {
+        public List<BIROperand> exprList;
+        public BIROperand lhsOp;
+
+        public Wait(DiagnosticPos pos, List<BIROperand> exprList, BIROperand lhsOp) {
+            super(pos, InstructionKind.WAIT);
+            this.exprList = exprList;
+            this.lhsOp = lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A worker receive instruction.
+     * <p>
+     * e.g., WRK_RECEIVE w1;
+     *
+     * @since 0.995.0
+     */
+    public static class WorkerReceive extends BIRTerminator {
+        public Name workerName;
+        public BIROperand lhsOp;
+        public BIRBasicBlock thenBB;
+        public boolean isSameStrand;
+
+        public WorkerReceive(DiagnosticPos pos, Name workerName, BIROperand lhsOp,
+                             boolean isSameStrand, BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.WK_RECEIVE);
+            this.workerName = workerName;
+            this.lhsOp = lhsOp;
+            this.thenBB = thenBB;
+            this.isSameStrand = isSameStrand;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A worker send instruction.
+     * <p>
+     * e.g., %5 WRK_SEND w1;
+     *
+     * @since 0.995.0
+     */
+    public static class WorkerSend extends BIRTerminator {
+        public Name channel;
+        public BIROperand data;
+        public BIRBasicBlock thenBB;
+        public boolean isSameStrand;
+
+        public WorkerSend(DiagnosticPos pos, Name workerName, BIROperand data, boolean isSameStrand,
+                          BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.WK_SEND);
+            this.channel = workerName;
+            this.data = data;
+            this.thenBB = thenBB;
+            this.isSameStrand = isSameStrand;
         }
 
         @Override

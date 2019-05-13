@@ -34,7 +34,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.channels.Channels;
 
@@ -67,8 +66,7 @@ public class SaveToWritableByteChannel extends BlockingNativeCallableUnit {
             try {
                 message.saveToOutputStream(Channels.newOutputStream(channel.getByteChannel()));
             } catch (ActiveMQException e) {
-                context.setReturnValues(ArtemisUtils.getError(context, new BallerinaException(
-                        "Error while writing to WritableByteChannel")));
+                context.setReturnValues(ArtemisUtils.getError(context, "Error while writing to WritableByteChannel"));
             }
 
         } else {

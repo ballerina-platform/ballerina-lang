@@ -1,10 +1,10 @@
 import {
     Assignment, ASTKindChecker,
-    ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant, ExpressionStatement,
-    Foreach, Function as BalFunction, Identifier, If, Invocation, Lambda, Literal,
-    Match, MatchStaticPatternClause, ObjectType, Panic, RecordVariable,
-    Return, Service, TupleVariable, TypeDefinition, UnionTypeNode, UserDefinedType, ValueType,
-    Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerSend
+    ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant,
+    ExpressionStatement, Foreach, Function as BalFunction, If, Invocation, Lambda,
+    Literal, Match, MatchStaticPatternClause, ObjectType,
+    Panic, Return, Service, TypeDefinition, UnionTypeNode,
+    ValueType, Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerReceive, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -12,15 +12,18 @@ import { EndpointViewState, FunctionViewState, SimpleBBox, StmntViewState, ViewS
 import { BlockViewState } from "../view-model/block";
 import { ReturnViewState } from "../view-model/return";
 import { WorkerViewState } from "../view-model/worker";
+import { WorkerSendViewState } from "../view-model/worker-send";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 interface WorkerTuple { block: Block; view: WorkerViewState; }
 
 class SizingVisitor implements Visitor {
     private endpointHolder: VisibleEndpoint[] = [];
+    private endpointWidth: number = 0;
     private returnStatements: Return[] = [];
 
     public beginVisitFunction(node: BalFunction) {
+        this.endpointWidth = 0;
         const viewState: FunctionViewState = node.viewState;
         if (!node.lambda) {
             this.endpointHolder = (node.viewState as FunctionViewState).containingVisibleEndpoints;
@@ -43,59 +46,38 @@ class SizingVisitor implements Visitor {
                 viewState.client = new ViewState();
             }
         }
+    }
 
-        // make endpoints, which are defined in function, visible
-        if (node.VisibleEndpoints && node.body) {
-            const varDefStmts = node.body.statements.filter(ASTKindChecker.isVariableDef);
-            const isVariableOfEP = (
-                        variable: Variable | TupleVariable | RecordVariable | Identifier,
-                        targetEP: VisibleEndpoint): boolean => {
-                let foundMatch = false;
-                if (ASTKindChecker.isTupleVariable(variable)) {
-                    const variables = (variable as TupleVariable).variables;
-                    variables.forEach((varToBeChecked) => {
-                        foundMatch = foundMatch || isVariableOfEP(varToBeChecked, targetEP);
-                    });
-                } else if (ASTKindChecker.isRecordVariable(variable)) {
-                    const variables = (variable as RecordVariable).variables;
-                    variables.forEach((varToBeChecked) => {
-                        foundMatch = foundMatch || isVariableOfEP(varToBeChecked, targetEP);
-                    });
-                } else if (ASTKindChecker.isIdentifier(variable)) {
-                    foundMatch = false;
-                } else if (ASTKindChecker.isVariable(variable)) {
-                    const varToBeChecked = variable as Variable;
-                    const variableTypeNode = varToBeChecked.typeNode as UserDefinedType;
-                    foundMatch = varToBeChecked.name.value === targetEP.name
-                            && variableTypeNode.packageAlias.value === targetEP.pkgAlias
-                            && variableTypeNode.typeName.value === targetEP.typeName;
-                }
-                return foundMatch;
-            };
-            node.VisibleEndpoints.forEach((visibleEndpoint) => {
-                const epDef = varDefStmts.find((varDefStmt) => {
-                    const varDef = varDefStmt as VariableDef;
-                    return isVariableOfEP(varDef.variable, visibleEndpoint);
-                });
-                if (epDef) {
-                    (visibleEndpoint.viewState as EndpointViewState).visible = true;
-                    // link position info of var def stmt to make revealPosition work
-                    visibleEndpoint.position = epDef.position;
-                }
-            });
+    public beginVisitVariableDef(node: VariableDef) {
+        if (ASTUtil.isWorker(node)) {
+            const variable = node.variable;
+            const lambda: Lambda = variable.initialExpression as Lambda;
+            const functionNode = lambda.functionNode;
+            if (functionNode.VisibleEndpoints) {
+                this.endpointHolder = [...functionNode.VisibleEndpoints, ...this.endpointHolder];
+            }
         }
     }
 
     public beginVisitIf(node: If) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+        if (node.VisibleEndpoints) {
+            this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
+        }
     }
 
     public beginVisitWhile(node: While) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+        if (node.VisibleEndpoints) {
+            this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
+        }
     }
 
     public beginVisitForeach(node: Foreach) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+        if (node.VisibleEndpoints) {
+            this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
+        }
     }
 
     public endVisitFunction(node: BalFunction) {
@@ -131,15 +113,20 @@ class SizingVisitor implements Visitor {
         let lineHeight = (client.bBox.h > defaultWorker.bBox.h) ? client.bBox.h : defaultWorker.bBox.h;
         let workerWidth = 0;
         defaultWorker.initHeight = this.calcPreWorkerHeight(node.body);
-        node.body!.statements.filter((element) => ASTUtil.isWorker(element)).forEach((worker) => {
-            this.sizeWorker(worker as VariableDef, defaultWorker.initHeight, workerHolder);
+        const workers: {[s: string]: VariableDef} = {};
+        node.body!.statements.filter((element) => ASTUtil.isWorker(element)).forEach((workerEl) => {
+            const worker = workerEl as VariableDef;
+            this.sizeWorker(worker, defaultWorker.initHeight, workerHolder);
             if (lineHeight < worker.viewState.bBox.h) {
                 lineHeight = worker.viewState.bBox.h;
             }
             workerWidth += worker.viewState.bBox.w;
+            const workerName = ((worker.variable.initialExpression as Lambda)
+                .functionNode.viewState as WorkerViewState).name;
+            workers[workerName] = worker;
         });
         // Set Worker Arrows
-        this.syncWorkerInvocations(workerHolder);
+        this.syncWorkerInteractions(workerHolder);
         // Sync up the heights of lifelines
         client.bBox.h = defaultWorker.bBox.h = lineHeight;
         defaultWorker.lifeline.bBox.h = defaultWorker.bBox.h; // Set the height of lifeline.
@@ -151,19 +138,18 @@ class SizingVisitor implements Visitor {
         });
 
         // Size endpoints
-        let endpointWidth = 0;
-        if (node.VisibleEndpoints) {
-            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+        if (this.endpointHolder) {
+            this.endpointHolder.forEach((endpoint: VisibleEndpoint) => {
                 if (!endpoint.caller && endpoint.viewState.visible) {
                     endpoint.viewState.bBox.w = config.lifeLine.width;
                     endpoint.viewState.bBox.h = client.bBox.h;
-                    endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
+                    this.endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
                 }
             });
         }
 
         const lifeLinesWidth = client.bBox.w + config.lifeLine.gutter.h
-            + defaultWorker.bBox.w + endpointWidth + workerWidth;
+            + defaultWorker.bBox.w + this.endpointWidth + workerWidth;
         body.w = config.panel.padding.left + lifeLinesWidth + config.panel.padding.right;
         body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;
 
@@ -381,7 +367,8 @@ class SizingVisitor implements Visitor {
             return;
         }
 
-        const label = DiagramUtils.getTextWidth(ASTUtil.genSource(node));
+        const source = ASTUtil.genSource(node);
+        const label = DiagramUtils.getTextWidth(source);
         viewState.bBox.h = config.statement.height;
         viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
         viewState.bBox.label = label.text;
@@ -421,6 +408,7 @@ class SizingVisitor implements Visitor {
             // add space for the expander
             viewState.bBox.w += 10;
             if (viewState.expandContext.expandedSubTree) {
+                viewState.expandContext.labelWidth = DiagramUtils.calcTextLength(source, {bold: true});
                 this.handleExpandedFn(viewState.expandContext.expandedSubTree, viewState);
             }
         }
@@ -467,10 +455,10 @@ class SizingVisitor implements Visitor {
             expandedDefaultWorker.h : expandedBody.h;
 
         viewState.bBox.h = expandedFnHeight + sizes.header + sizes.footer + sizes.bottomMargin;
+        const fullLabelWidth = config.statement.padding.left + viewState.expandContext!.labelWidth
+            + config.statement.expanded.rightMargin + (2 * config.statement.expanded.labelGutter);
 
-        if (expandedFnWidth > viewState.bBox.w) {
-            viewState.bBox.w = expandedFnWidth;
-        }
+        viewState.bBox.w = expandedFnWidth > fullLabelWidth ? expandedFnWidth : fullLabelWidth;
     }
 
     private sizeWorker(node: VariableDef, preWorkerHeight = 0, workerHolder: WorkerTuple[]) {
@@ -510,83 +498,112 @@ class SizingVisitor implements Visitor {
         return height;
     }
 
-    private syncWorkerInvocations(workerBlocks: WorkerTuple[]) {
-        const workerMap: { [s: string]: Block; } = {};
-        workerBlocks.forEach((workerBlock) => {
-            workerMap[workerBlock.view.name] = workerBlock.block;
-        });
-        // Clear out previous calculations.
-        this.setZeroPadding(workerBlocks);
-        // traverse default identify interaction
-        workerBlocks.forEach((workerBlock) => {
-            workerBlock.block.statements.forEach((statement, index) => {
+    private syncWorkerInteractions(workers: WorkerTuple[]) {
+        const sendReceivePairs: Array<{
+            send: WorkerSend,
+            sendIndex: number,
+            receive: WorkerReceive,
+            receiveIndex: number,
+            receiveHolder: ASTNode}> = [];
+        const sends: {[fromWorker: string]: {[toWorker: string]:
+            Array<{statement: WorkerSend, index: number}>}} = {};
+        const receives: {[toWorker: string]: {[fromWorker: string]:
+            Array<{statement: WorkerReceive, index: number, holder: ASTNode}>}} = {};
+
+        const workersMap: {[workerName: string]: WorkerTuple} = {};
+        const workerHeightInfo: {[workerName: string]: {currentHeight: number, currentIndex: number}} = {};
+
+        workers.forEach((worker) => {
+            sends[worker.view.name] = {};
+            receives[worker.view.name] = {};
+            workersMap[worker.view.name] = worker;
+            workerHeightInfo[worker.view.name] = {
+                currentHeight: 0,
+                currentIndex: 0
+            };
+
+            worker.block.statements.forEach((statement, index) => {
                 if (ASTKindChecker.isWorkerSend(statement)) {
-                    const workerViewState = workerBlocks.find((worker) => {
-                        return worker.view.name === (statement as WorkerSend).workerName.value;
-                    });
-                    if (!workerViewState) { return; }
-                    (statement as WorkerSend).viewState.to = workerViewState!.view;
-                    // if statement is not synced call balance.
-                    this.balanceWorkerInvocation(index,
-                        workerBlock.view.name,
-                        (statement as WorkerSend).workerName.value,
-                        workerMap);
-                }
-            });
-        });
-    }
-
-    private setZeroPadding(workerBlocks: WorkerTuple[]) {
-        workerBlocks.forEach((workerBlock) => {
-            workerBlock.block.statements.forEach((statement) => {
-                statement.viewState.synced = false;
-                statement.viewState.paddingTop = 0;
-            });
-        });
-    }
-
-    private balanceWorkerInvocation(index: number, from: string, to: string, workerMap: { [s: string]: Block; }) {
-        // Iterate the specifc worker till you find the index.
-        const fromWorker: Block = workerMap[from];
-        const toWorker: Block = workerMap[to];
-        let toHeight = 0;
-        for (let i = 0; i < index; i++) {
-            // Add height while you iterate.
-            toHeight += fromWorker.statements[i].viewState.bBox.h
-                + fromWorker.statements[i].viewState.bBox.paddingTop;
-        }
-        const sendStatement = fromWorker.statements[index];
-
-        // Iterate the target worker till you find a compatible receive.
-        let receiveHeight = 0;
-        // tslint:disable-next-line:prefer-for-of
-        for (let j = 0; j < toWorker.statements.length; j++) {
-            // If you find another send or receive call recursive
-            const stmt = toWorker.statements[j];
-            // Add height while iterating.
-            if (ASTKindChecker.isWorkerSend(stmt) && !stmt.viewState.synced) {
-                this.balanceWorkerInvocation(j, to, (stmt as WorkerSend).workerName.value, workerMap);
-            }
-            const receiveName = ASTUtil.isWorkerReceive(stmt);
-            if (receiveName) {
-                if (!stmt.viewState.synced) {
-                    // Check if compatible
-                    if (from === (receiveName as string)) {
-                        if (receiveHeight > toHeight) {
-                            sendStatement.viewState.bBox.paddingTop = receiveHeight - toHeight;
-                        } else {
-                            stmt.viewState.bBox.paddingTop = toHeight - receiveHeight;
-                        }
-                        sendStatement.viewState.synced = true;
-                        stmt.viewState.synced = true;
-                    } else {
-                        // ToDo bug need to find other send.
-                        // balanceWorkerInvocation(j, to, (receiveName as string), workerMap);
+                    if (sends[worker.view.name][statement.workerName.value] === undefined) {
+                        sends[worker.view.name][statement.workerName.value] = [];
                     }
+                    sends[worker.view.name][statement.workerName.value].push({statement, index});
+                    return;
                 }
+
+                const receiveStatement = ASTUtil.extractWorkerReceive(statement);
+                if (receiveStatement) {
+                    if (receives[worker.view.name][receiveStatement.workerName.value] === undefined) {
+                        receives[worker.view.name][receiveStatement.workerName.value] = [];
+                    }
+                    receives[worker.view.name][receiveStatement.workerName.value].push(
+                        {statement: receiveStatement, index, holder: statement});
+                }
+            });
+        });
+
+        workers.forEach((fromWorker) => {
+            workers.forEach((toWorker) => {
+                if (fromWorker === toWorker) {
+                    return;
+                }
+                if (!sends[fromWorker.view.name][toWorker.view.name]
+                    || !receives[toWorker.view.name][fromWorker.view.name]) {
+                    return;
+                }
+                sends[fromWorker.view.name][toWorker.view.name].forEach(({statement: send, index: sendIndex}) => {
+                    (send.viewState as WorkerSendViewState).to = toWorker.view;
+                    const r = receives[toWorker.view.name][fromWorker.view.name].shift();
+                    if (!r) {
+                        return;
+                    }
+
+                    const { statement: receive, index: receiveIndex, holder: receiveHolder } = r;
+                    sendReceivePairs.push({ send, sendIndex, receive, receiveIndex, receiveHolder});
+                });
+            });
+        });
+        sendReceivePairs.sort((p1, p2) => {
+            if (p1.send.workerName.value === p2.send.workerName.value) {
+                return p1.receiveIndex - p2.receiveIndex;
             }
-            receiveHeight += stmt.viewState.bBox.h + stmt.viewState.bBox.paddingTop;
-        }
+            if (p1.send.workerName.value === p2.receive.workerName.value) {
+                return p1.receiveIndex - p2.sendIndex;
+            }
+            if (p1.receive.workerName.value === p2.send.workerName.value) {
+                return p1.sendIndex - p2.receiveIndex;
+            }
+            if (p1.receive.workerName.value === p2.receive.workerName.value) {
+                return p1.sendIndex - p2.sendIndex;
+            }
+            return 0;
+        });
+        sendReceivePairs.forEach((pair) => {
+            const sendWorker = workersMap[pair.receive.workerName.value];
+            for (let index = workerHeightInfo[sendWorker.view.name].currentIndex; index < pair.sendIndex; index++) {
+                workerHeightInfo[sendWorker.view.name].currentHeight +=
+                    sendWorker.block.statements[index].viewState.bBox.h
+                    + sendWorker.block.statements[index].viewState.bBox.paddingTop;
+            }
+            workerHeightInfo[sendWorker.view.name].currentIndex = pair.sendIndex;
+
+            const receiveWorker = workersMap[pair.send.workerName.value];
+            for (let index = workerHeightInfo[receiveWorker.view.name].currentIndex;
+                index < pair.receiveIndex; index++) {
+                workerHeightInfo[receiveWorker.view.name].currentHeight +=
+                    receiveWorker.block.statements[index].viewState.bBox.h
+                    + receiveWorker.block.statements[index].viewState.bBox.paddingTop;
+            }
+            workerHeightInfo[receiveWorker.view.name].currentIndex = pair.receiveIndex;
+            const sendHeight = workerHeightInfo[sendWorker.view.name].currentHeight;
+            const receiveHeight = workerHeightInfo[receiveWorker.view.name].currentHeight;
+
+            if (sendHeight > receiveHeight) {
+                pair.receiveHolder.viewState.bBox.paddingTop = sendHeight - receiveHeight;
+            } else {
+                pair.send.viewState.bBox.paddingTop = receiveHeight - sendHeight;
+            }
+        });
     }
 }
 

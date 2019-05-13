@@ -7,7 +7,7 @@
   "items": [
     {
       "label":"Person",
-      "detail":"BType",
+      "detail":"Object",
       "sortText":"170",
       "insertText":"Person."
     }

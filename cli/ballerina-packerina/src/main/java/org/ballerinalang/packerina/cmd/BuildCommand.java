@@ -31,7 +31,9 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.JVM_TARGET;
 
 /**
  * This class represents the "ballerina build" command.
@@ -81,6 +83,12 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
     private boolean experimentalFlag;
 
+    @CommandLine.Option(names = {"--config"}, description = "path to the configuration file")
+    private String configFilePath;
+
+    @CommandLine.Option(names = "--siddhiruntime", description = "enable siddhi runtime for stream processing")
+    private boolean siddhiRuntimeFlag;
+
     public void execute() {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -98,7 +106,8 @@ public class BuildCommand implements BLauncherCmd {
             genNativeBinary(sourceRootPath, argList);
         } else if (argList == null || argList.size() == 0) {
             // ballerina build
-            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests, experimentalFlag);
+            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests, experimentalFlag,
+                    siddhiRuntimeFlag);
         } else {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
@@ -178,12 +187,16 @@ public class BuildCommand implements BLauncherCmd {
                                                             + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
 
-            if (jvmTarget) {
+            // Load the configuration file. If no config file is given then the default config file i.e.
+            // "ballerina.conf" in the source root path is taken.
+            LauncherUtils.loadConfigurations(sourceRootPath, configFilePath);
+
+            if (jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET))) {
                 BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                         offline, lockEnabled, skiptests, experimentalFlag, dumpBIR);
             } else {
                 BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-                        offline, lockEnabled, skiptests, experimentalFlag);
+                        offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag);
             }
         }
         Runtime.getRuntime().exit(0);
@@ -228,10 +241,6 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-    }
-
-    @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
     }
 
     private void genNativeBinary(Path projectDirPath, List<String> argList) {

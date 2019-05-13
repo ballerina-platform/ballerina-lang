@@ -1,10 +1,7 @@
-# Download Ballerina message broker from [here](https://github.com/ballerina-platform/ballerina-message-broker/releases/download/v0.970.5/message-broker-0.970.5.zip)
-# Extract the zip file and navigate to <BROKER_HOME>/bin
-# Start Ballerina message broker by executing either the `broker` or the `broker.bat` command.
-$ ./broker
+# Start the Artemis message broker
+# Copy the artemis-jms-client-<version>.jar and artemis-selector-<version>.jar files to <BALLERINA_HOME>/bre/lib
 
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run jms_headers_and_properties.bal
-Initiating service(s) in 'jms_headers_and_properties.bal'
 2018-06-14 15:14:30,739 INFO  [ballerina/jms] - Message receiver created for queue MyQueue

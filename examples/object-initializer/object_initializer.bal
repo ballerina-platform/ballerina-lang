@@ -1,28 +1,35 @@
 import ballerina/io;
 
-// Defines an object called `Person`. Each object has its own `__init()` method which gets invoked when creating objects. You can place the logic for initializing the fields of the object within the body of the `__init()` method.
+// Defines an object called `Person`. Each object has its own `__init()` method which gets
+// invoked when creating objects. You can place the logic for initializing the fields of the
+// object within the body of the `__init()` method.
 type Person object {
-    public int age;
+
     public string name;
-    public string fullName;
+    private int age;
 
-    private string email = "default@abc.com";
-    private int[] marks;
-
-    function __init(int age, string name = "John", string firstname,
-        string lastname = "Doe", int... scores) {
+    function __init(string name, int age) returns error? {
+        self.name = check validateName(name);
         self.age = age;
-        self.name = name;
-        self.fullName = firstname + " " + lastname;
-        self.marks = scores;
     }
 };
 
+function validateName(string name) returns string|error {
+    if (check name.matches("[A-Za-z]*")) {
+        return name;
+    }
+
+    error invName = error("Invalid name format");
+    return invName;
+}
+
 public function main() {
-    // Initializing variable of `object` type `Person`
-    Person p1 = new(5, "John", 4, 5);
+    // Since the `__init()` method potentially returns an `error`, the `p1` variable should
+    // be of type `Person|error`.
+    Person|error p1 = new("John", 25);
     io:println(p1);
 
-    Person p2 = new(5, "Adam", name = "Adam", lastname = "Page", 3);
+    // `p2` will be an error since the name does not conform to the expected format.
+    Person|error p2 = new("John123", 25);
     io:println(p2);
 }

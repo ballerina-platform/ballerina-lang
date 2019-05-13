@@ -25,6 +25,7 @@ package org.ballerinalang.util.diagnostic;
 public enum DiagnosticCode {
 
     UNDEFINED_MODULE("undefined.module"),
+    CYCLIC_MODULE_IMPORTS_DETECTED("cyclic.module.imports.detected"),
     UNUSED_IMPORT_MODULE("unused.import.module"),
     MODULE_NOT_FOUND("module.not.found"),
     REDECLARED_IMPORT_MODULE("redeclared.import.module"),
@@ -369,8 +370,12 @@ public enum DiagnosticCode {
 
     // Constants related codes.
     ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST("only.simple.literals.can.be.assigned.to.const"),
+    TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS("type.required.for.const.with.record.literals"),
+    CANNOT_UPDATE_CONSTANT_VALUE("cannot.update.constant.value"),
     CANNOT_ASSIGN_VALUE_TO_CONSTANT("cannot.assign.value.to.constant"),
     CANNOT_DEFINE_CONSTANT_WITH_TYPE("cannot.define.constant.with.type"),
+    EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION("expression.is.not.a.constant.expression"),
+    KEY_NOT_FOUND("key.not.found"),
 
     // Anonymous functions related codes
     ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("arrow.expression.mismatched.parameter.length"),

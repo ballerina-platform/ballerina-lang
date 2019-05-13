@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -43,21 +43,15 @@ public class BallerinaRestBindingPatternImpl extends ASTWrapperPsiElement implem
   }
 
   @Override
-  @Nullable
-  public BallerinaSealedLiteral getSealedLiteral() {
-    return findChildByClass(BallerinaSealedLiteral.class);
-  }
-
-  @Override
-  @Nullable
+  @NotNull
   public PsiElement getEllipsis() {
-    return findChildByType(ELLIPSIS);
+    return findNotNullChildByType(ELLIPSIS);
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

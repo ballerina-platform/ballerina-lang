@@ -20,22 +20,27 @@ package org.ballerinalang.stdlib.utils;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.repository.CompiledPackage;
+import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.BinaryFileWriter;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.StringJoiner;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
@@ -59,16 +64,19 @@ public class GenerateBalo {
         String sourceDir = args[1];
         String targetDir = args[2];
         String libDir = args[3];
+        boolean skipReportingWarnings = args.length > 4 && Boolean.parseBoolean(args[4]);
 
         String originalShouldCompileBalOrg = System.getProperty(COMPILE_BALLERINA_ORG_PROP);
         String originalIsBuiltin = System.getProperty(LOAD_BUILTIN_FROM_SOURCE_PROP);
         String originalHome = System.getProperty(BALLERINA_INSTALL_DIR_PROP);
         try {
             System.setProperty(COMPILE_BALLERINA_ORG_PROP, "true");
-            System.setProperty(LOAD_BUILTIN_FROM_SOURCE_PROP, Boolean.valueOf(isBuiltinFlag).toString());
+            boolean isBuiltin = Boolean.parseBoolean(isBuiltinFlag);
+            System.setProperty(LOAD_BUILTIN_FROM_SOURCE_PROP, Boolean.toString(isBuiltin));
             System.setProperty(BALLERINA_INSTALL_DIR_PROP, libDir);
 
-            genBalo(targetDir, sourceDir);
+            boolean reportWarnings = !skipReportingWarnings;
+            genBalo(targetDir, sourceDir, isBuiltin, reportWarnings);
         } finally {
             unsetProperty(COMPILE_BALLERINA_ORG_PROP, originalShouldCompileBalOrg);
             unsetProperty(LOAD_BUILTIN_FROM_SOURCE_PROP, originalIsBuiltin);
@@ -85,10 +93,15 @@ public class GenerateBalo {
     }
 
 
-    private static void genBalo(String targetDir, String sourceRootDir) throws IOException {
+    private static void genBalo(String targetDir, String sourceRootDir, boolean saveBuiltin, boolean reportWarnings)
+            throws IOException {
         Files.createDirectories(Paths.get(targetDir));
 
         CompilerContext context = new CompilerContext();
+
+        CompileResult.CompileResultDiagnosticListener diagListner = new CompileResult.CompileResultDiagnosticListener();
+        context.put(DiagnosticListener.class, diagListner);
+
         context.put(SourceDirectory.class, new MvnSourceDirectory(sourceRootDir, targetDir));
 
         CompilerOptions options = CompilerOptions.getInstance(context);
@@ -101,18 +114,23 @@ public class GenerateBalo {
         SymbolTable symbolTable = SymbolTable.getInstance(context);
 
         Compiler compiler = Compiler.getInstance(context);
-        compiler.write(compiler.build());
+        List<BLangPackage> buildPackages = compiler.compilePackages(false);
 
-
-        BLangDiagnosticLog diagnosticLog = BLangDiagnosticLog.getInstance(context);
-        if (diagnosticLog.errorCount > 0) {
-            throw new BLangCompilerException("Compilation failed with " + diagnosticLog.errorCount + " error(s).");
+        List<Diagnostic> diagnostics = diagListner.getDiagnostics();
+        if (diagListner.getErrorCount() > 0 || (reportWarnings && diagListner.getWarnCount() > 0)) {
+            StringJoiner sj = new StringJoiner("\n  ");
+            diagnostics.forEach(e -> sj.add(e.toString()));
+            String warnMsg = reportWarnings ? " and " + diagListner.getWarnCount() + " warning(s)" : "";
+            throw new BLangCompilerException("Compilation failed with " + diagListner.getErrorCount() +
+                                             " error(s)" + warnMsg + " " + "\n  " + sj.toString());
         }
 
+        compiler.write(buildPackages);
+
         BinaryFileWriter writer = BinaryFileWriter.getInstance(context);
-        BPackageSymbol symbol = symbolTable.builtInPackageSymbol;
-        if (symbol != null && symbol.compiledPackage != null) {
-            writer.writeLibraryPackage(symbol, Names.BUILTIN_PACKAGE.getValue());
+        BPackageSymbol buitlinSymbol = symbolTable.builtInPackageSymbol;
+        if (saveBuiltin && buitlinSymbol != null && buitlinSymbol.compiledPackage != null) {
+            writer.writeLibraryPackage(buitlinSymbol, Names.BUILTIN_PACKAGE.getValue());
         }
     }
 

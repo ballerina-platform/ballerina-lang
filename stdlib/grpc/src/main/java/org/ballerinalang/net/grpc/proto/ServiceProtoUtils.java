@@ -488,8 +488,7 @@ public class ServiceProtoUtils {
                 break;
             }
             default: {
-                throw new GrpcServerException("Unsupported field type, field type " + messageType.getKind()
-                        .typeName() + " currently not supported.");
+                throw new GrpcServerException("Field type '" + messageType.toString() + "' currently not supported");
             }
         }
         return message;

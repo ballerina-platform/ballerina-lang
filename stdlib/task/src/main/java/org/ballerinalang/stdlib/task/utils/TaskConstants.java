@@ -76,4 +76,16 @@ public class TaskConstants {
 
     // ID of the Task object in native data
     public static final String NATIVE_DATA_TASK_OBJECT = "TaskObject";
+
+    // Quarts property names
+    public static final String QUARTZ_INSTANCE_NAME = "org.quartz.scheduler.instanceName";
+    public static final String QUARTZ_INSTANCE_ID = "org.quartz.scheduler.instanceId";
+    public static final String QUARTZ_THREAD_COUNT = "org.quartz.threadPool.threadCount";
+    public static final String QUARTZ_THREAD_POOL_CLASS = "org.quartz.threadPool.class";
+    public static final String QUARTZ_JOB_STORE_CLASS = "org.quartz.jobStore.class";
+
+    // Quartz property values
+    public static final String QUARTZ_THREAD_COUNT_VALUE = "1";
+    public static final String QUARTZ_THREAD_POOL_CLASS_VALUE = "org.quartz.simpl.SimpleThreadPool";
+    public static final String QUARTZ_JOB_STORE_CLASS_VALUE = "org.quartz.simpl.RAMJobStore";
 }

@@ -55,6 +55,19 @@ function handleEndpointParams(expandContext: ExpandContext) {
     });
 }
 
+function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
+    if (viewState.expandContext) {
+        return;
+    }
+
+    if (ASTKindChecker.isInvocation(expression)) {
+            viewState.expandContext = new ExpandContext(expression);
+    } else if (ASTKindChecker.isCheckExpr(expression) &&
+        ASTKindChecker.isInvocation(expression.expression)) {
+            viewState.expandContext = new ExpandContext(expression.expression);
+    }
+}
+
 export const visitor: Visitor = {
 
     beginVisitASTNode(node: ASTNode) {
@@ -140,23 +153,22 @@ export const visitor: Visitor = {
             return;
         }
 
-        const viewState = node.viewState as StmntViewState;
-        if (node.variable.initialExpression &&
-            ASTKindChecker.isInvocation(node.variable.initialExpression) &&
-            !viewState.expandContext) {
-                viewState.expandContext = new ExpandContext(node.variable.initialExpression);
+        if (ASTKindChecker.isVariable(node.variable) && node.variable.initialExpression) {
+            handleExpanding(node.variable.initialExpression, node.viewState as StmntViewState);
         }
     },
 
     endVisitAssignment(node: Assignment) {
         initStatement(node);
+        handleExpanding(node.expression, node.viewState as StmntViewState);
     },
 
     beginVisitVisibleEndpoint(node: VisibleEndpoint) {
         if (!node.viewState) {
             node.viewState = new EndpointViewState();
         }
-        (node.viewState as EndpointViewState).visible = false;
+        // show locally defined endpoints by default
+        (node.viewState as EndpointViewState).visible = node.isLocal;
     },
 
     beginVisitReturn(node: Return) {

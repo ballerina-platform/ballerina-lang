@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -1260,6 +1261,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         compoundAssignment.expr,
                         compoundAssignment.opKind,
                         opSymbol);
+                compoundAssignment.modifiedExpr.parent = compoundAssignment;
                 this.types.checkTypes(compoundAssignment.modifiedExpr,
                         Lists.of(compoundAssignment.modifiedExpr.type), expTypes);
             }
@@ -1982,42 +1984,89 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstant constant) {
         BLangExpression expression = (BLangExpression) constant.value;
-        if (expression.getKind() != NodeKind.LITERAL && expression.getKind() != NodeKind.NUMERIC_LITERAL) {
+        if (!symbolEnter.isValidConstantExpression(expression)) {
             dlog.error(expression.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
             return;
         }
 
-        BLangLiteral value = (BLangLiteral) constant.value;
-        BType resultType;
-        if (constant.typeNode != null) {
-            // Check the type of the value.
-            resultType = typeChecker.checkExpr(value, env, constant.symbol.literalValueType);
-            constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
-        } else {
-            // We don't have any expected type in this case since the type node is not available. So we get the type
-            // from the value.
-            resultType = typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.type.tag));
-            constant.symbol.literalValueTypeTag = value.type.tag;
-        }
+        if (expression.getKind() == NodeKind.LITERAL || expression.getKind() == NodeKind.NUMERIC_LITERAL) {
+            BLangLiteral value = (BLangLiteral) constant.value;
+            BType resultType;
+            if (constant.typeNode != null) {
+                // Check the type of the value.
+                resultType = typeChecker.checkExpr(value, env, constant.symbol.literalValueType);
+                // We need to update the type tag because the type might get changed. i.e.- int -> decimal.
+                constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
+            } else {
+                // We don't have any expected type in this case since the type node is not available. So we get the type
+                // from the value.
+                resultType = typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.type.tag));
+                constant.symbol.literalValueTypeTag = value.type.tag;
+            }
 
-        // We need to update the literal value and the type tag here. Otherwise we will encounter issues when
-        // creating new literal nodes in desugar because we wont be able to identify byte and decimal types.
-        constant.symbol.literalValue = value.value;
+            // We need to update the literal value here. Otherwise we will encounter issues when creating new literal
+            // nodes in desugar because we wont be able to identify byte and decimal types.
+            constant.symbol.literalValue = value.value;
 
-        // We need to check types for the values in value spaces. Otherwise, float, decimal will not be identified in
-        // codegen when retrieving the default value.
-        BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
-        for (BLangExpression literal : typeNode.valueSpace) {
-            if (resultType.tag != TypeTags.SEMANTIC_ERROR) {
+            // We need to check types for the values in value spaces. Otherwise, float, decimal will not be identified
+            // in codegen when retrieving the default value.
+            BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
+            for (BLangExpression literal : typeNode.valueSpace) {
+                if (resultType.tag != TypeTags.SEMANTIC_ERROR) {
                 // Check type for the literals in the value space to update to the correct types. Otherwise, we won't
                 // be able to differentiate between decimal, float and int, byte as the type of the literals in the
                 // above cases would be float and int respectively.
-                typeChecker.checkExpr(literal, env, constant.symbol.literalValueType);
+                    typeChecker.checkExpr(literal, env, constant.symbol.literalValueType);
+                }
             }
+        } else if (expression.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            // Type node is mandatory if the RHS is a record literal.
+            if (constant.typeNode == null) {
+                constant.type = symTable.semanticError;
+                dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS);
+                return;
+            }
+            constant.symbol.type = constant.symbol.literalValueType =
+                    typeChecker.checkExpr(expression, env, constant.typeNode.type);
+            constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
+        } else {
+            throw new RuntimeException("unsupported node kind");
         }
+
+        // Check nested expressions.
+        checkConstantExpression(expression);
     }
 
     // Private methods
+
+    private void checkConstantExpression(BLangExpression expression) {
+        // Recursively check whether all the nested expressions in the provided expression are constants or can be
+        // evaluated to constants.
+        switch (expression.getKind()) {
+            case LITERAL:
+            case NUMERIC_LITERAL:
+                break;
+            case SIMPLE_VARIABLE_REF:
+                BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
+                // Symbol can be null in some invalid scenarios. Eg - const string m = { name: "Ballerina" };
+                if (symbol != null && (symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
+                    dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+                }
+                break;
+            case RECORD_LITERAL_EXPR:
+                ((BLangRecordLiteral) expression).keyValuePairs.forEach(pair -> {
+                    checkConstantExpression(pair.key.expr);
+                    checkConstantExpression(pair.valueExpr);
+                });
+                break;
+            case FIELD_BASED_ACCESS_EXPR:
+                checkConstantExpression(((BLangFieldBasedAccess) expression).expr);
+                break;
+            default:
+                dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+                break;
+        }
+    }
 
     private void visitChannelSend(BLangWorkerSend node, BSymbol channelSymbol) {
         node.isChannel = true;

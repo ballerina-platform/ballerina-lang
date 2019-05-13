@@ -256,7 +256,7 @@
       "kind": "Function",
       "detail": "Function",
       "sortText": "121",
-      "insertText": "map(function(xml v) returns (any) {\n\t${1}\n})",
+      "insertText": "map(function (xml v) returns any {\n\t${1}\n})",
       "insertTextFormat": "Snippet"
     },
     {

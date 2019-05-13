@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
@@ -45,5 +46,9 @@ public class Trim extends BlockingNativeCallableUnit {
         String param1 = context.getStringArgument(0);
         BString trimmedString = new BString(param1.trim());
         context.setReturnValues(trimmedString);
+    }
+
+    public static String trim(Strand strand, String value) {
+        return value.trim();
     }
 }

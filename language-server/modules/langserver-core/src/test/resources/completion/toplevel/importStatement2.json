@@ -195,13 +195,6 @@
       "insertText": "ballerina/h2"
     },
     {
-      "label": "ballerina/builtin",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/builtin"
-    },
-    {
       "label": "ballerina/math",
       "kind": "Module",
       "detail": "Package",

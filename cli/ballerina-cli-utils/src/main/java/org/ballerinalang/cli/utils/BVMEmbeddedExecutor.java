@@ -49,10 +49,10 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
         
         try {
             URI balxResource = resource.toURI();
-            BValue[] returns = ExecutorUtils.executeFunction(balxResource, args);
+            BValue returns = ExecutorUtils.executeFunction(balxResource, args);
             // Check if the return is an error
-            if (returns.length == 1 && returns[0] instanceof BError) {
-                BError bError = (BError) returns[0];
+            if (returns instanceof BError) {
+                BError bError = (BError) returns;
                 return Optional.of(createEmbeddedExecutorError(bError));
             } else {
                 return Optional.empty();

@@ -2,71 +2,56 @@
 
 ## Single-line formatting
 ### Keywords and types
-* If there is a keyword followed by a keyword, separate them using a single space only.
+* Keep only a single space between the type and a pipe operator when it is in an union type `string | int`.
   
   Example,
   ```ballerina
-  public remote function getUserName(http:Caller caller, http:Request req) {
+  type method "POST" | "GET" | "PUT";
+    
+  (int | string) variable = 0;
   
-  } 
-  ```
-* If there is a keyword or type followed by an identifier, separate them using a single space only.
-  
-  Example,
-  ```ballerina
-  string fullName = "john doe"; 
-  
-  function getFullName() returns string {
-      return fullName;
-  }
-  ```
-* Do not keep spaces around a type when it is enclosed using angle brackets `<string>`. 
-  
-  Example,
-  ```ballerina
-  map<string> names = {};
-  ```
-* Do not keep spaces between the type and opening bracket in the array definition `string[]`.
-  
-  Example,
-  ```ballerina
-  string[] names = [];
-  
-  ```
-* Keep single spaces between the type and a pipe operator when it is in an union type `string | int`.
-  
-  Example,
-  ```ballerina
   function getValue(string key) returns (string | error) {
-      if (key == "") {
-          error err = error("key '" + key + "' not found", {key: key});
-          return err;
-      } else {
-          return "this is a value";
-      }
+      ...
   }
   
   function getName() returns string | error {
       (string | error) valueOrError = getValue("name");
-      return valueOrError;
+      ...
   }
-  
   ```
-* When accessing a type(Record or Object) from a another module, do not keep spaces around the colon (e.g., `http:Response`).
 * Do not keep spaces between the type and the optional operator `?`.
   
   Example,
   ```ballerina
   string? name;
   ```
+* Avoid line breaks in constrained types.
+  
+  Dos
+  ```ballerina
+    map<int | string> // map reference type
+  ```
+  
+  Don'ts
+  ```ballerina
+  map<
+      int
+      |
+      string
+  > 
+  ```
 ### Operators
-* Do not keep spaces before and after the `=` operator.
+* Keep only a single space before and after the `=` operator.
+  
+  Example,
+  ```ballerina
+  int a = 0;
+  ```
 * Do not keep spaces around the semicolon `;`.
 * Do not keep spaces between the unary operator and expression.
 
   Example,
   ```ballerina
-  int a = 0;
   a = -a;
   ``` 
 
@@ -85,5 +70,12 @@
   Example,
   ```ballerina
   name += lastName;
+  ```
+* When accessing a function, object or record from another module, do not keep spaces around `:`.
+  
+  Example,
+  ```ballerina
+  io:println("john");
+  http:Response res = new();
   ```
   

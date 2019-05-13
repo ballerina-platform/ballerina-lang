@@ -22,8 +22,10 @@ public function main() {
     // Define an `array` of `int` values.
     int[] numbers = [-5, -3, 2, 7, 12];
     // The `filter()` operation returns a collection of all the elements that satisfy the input predicate function.
-    // The `average()` operation returns the average of an `int`/`float` collection.
-    // Other supported operations are `max()`, `min()`, and `sum()`.
+    // The `average()` operation returns the average of a collection of `int` or `float`.
+    // The `max()` operation returns the maximum element from a collection.
+    // The `min()` operation returns the minimum element from a collection.
+    // The `sum()` operation returns the sum of all elements in a collection.
     float avg = numbers.filter(function (int i) returns boolean {
                                   return i >= 0;
                               }).average();

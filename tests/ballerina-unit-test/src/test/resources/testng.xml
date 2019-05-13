@@ -27,12 +27,13 @@ under the License.
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
 
-    <!-- Ballerina language Test Cases. -->
+    <!--Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <groups>
             <run>
                 <exclude name="HSQLDBNotSupported"/>
                 <exclude name="broken"/>
+                <exclude name="no-bvm-support"/>
             </run>
         </groups>
         <packages>
@@ -66,6 +67,7 @@ under the License.
             <package name="org.ballerinalang.test.serializer.json.*" />
             <package name="org.ballerinalang.test.dataflow.*" />
             <package name="org.ballerinalang.test.error.*" />
+            <package name="org.ballerinalang.test.imports.*" />
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->
@@ -78,15 +80,6 @@ under the License.
     <test name="ballerina-main-function-test-suite" preserve-order="true" parallel="false">
         <packages >
             <package name="org.ballerinalang.test.main.function.*"/>
-        </packages>
-    </test>
-
-    <test name="jballerina-test" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <packages>
-            <package name="org.ballerinalang.test.jvm.*"/>
-            <package name="org.ballerinalang.test.types.integer"/>
-            <package name="org.ballerinalang.test.types.floattype"/>
         </packages>
     </test>
 </suite>

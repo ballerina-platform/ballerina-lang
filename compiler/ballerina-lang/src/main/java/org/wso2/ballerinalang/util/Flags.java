@@ -70,9 +70,6 @@ public class Flags {
                 case ATTACHED:
                     mask |= ATTACHED;
                     break;
-                case DEPRECATED:
-                    mask |= DEPRECATED;
-                    break;
                 case READONLY:
                     mask |= READONLY;
                     break;
@@ -142,9 +139,6 @@ public class Flags {
                     break;
                 case ATTACHED:
                     flagVal = ATTACHED;
-                    break;
-                case DEPRECATED:
-                    flagVal = DEPRECATED;
                     break;
                 case READONLY:
                     flagVal = READONLY;

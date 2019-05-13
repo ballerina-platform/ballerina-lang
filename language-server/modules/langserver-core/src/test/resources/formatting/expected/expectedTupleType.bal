@@ -9,3 +9,26 @@ function name8() returns (int, string) {
     var (intd, stringd) = theft;
     return (0, "");
 }
+
+function name1() returns (int, (string, int, float)) {
+    return (1, ("ABC", 42, 0.023));
+}
+
+function name2() returns (int, (string, int, float)) {
+    return
+    (1
+    ,
+    (
+    "ABC"
+    ,
+    42
+    ,
+    0.023
+    )
+    )
+    ;
+}
+
+function searchPeople() returns ((string, int, float)) {
+    return (("", 1, 1.0));
+}

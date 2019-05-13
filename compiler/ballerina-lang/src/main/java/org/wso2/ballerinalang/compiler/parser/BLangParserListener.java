@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
+import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.RestBindingPatternState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -288,7 +289,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         // Since the function definition's super parent is CompilationUnit and it is the only super parent for
         // FunctionDefinition, following cast is safe.
         int annotCount = ((BallerinaParser.CompilationUnitContext) ctx.parent.parent).annotationAttachment().size();
-        this.pkgBuilder.startFunctionDef(annotCount);
+        this.pkgBuilder.startFunctionDef(annotCount, false);
     }
 
     /**
@@ -482,14 +483,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String name = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
 
-        boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
         int annotationCount = ctx.annotationAttachment().size();
 
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean isPublic = ctx.PUBLIC() != null;
 
-        this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable, deprecatedDocExists, annotationCount,
-                isPrivate, isPublic);
+        this.pkgBuilder.addObjectFieldVariable(currentPos, ws, name, exprAvailable, annotationCount, isPrivate,
+                isPublic);
     }
 
     /**
@@ -520,10 +520,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean nativeFunc = ctx.EXTERNAL() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
-        boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate, remoteFunc,
-                resourceFunc, nativeFunc, bodyExists, markdownDocExists, deprecatedDocExists,
-                ctx.annotationAttachment().size());
+                resourceFunc, nativeFunc, bodyExists, markdownDocExists, ctx.annotationAttachment().size());
     }
 
     /**
@@ -694,7 +692,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterOpenRecordTypeDescriptor(BallerinaParser.OpenRecordTypeDescriptorContext ctx) {
+    public void enterInclusiveRecordTypeDescriptor(BallerinaParser.InclusiveRecordTypeDescriptorContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -703,7 +701,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitOpenRecordTypeDescriptor(BallerinaParser.OpenRecordTypeDescriptorContext ctx) {
+    public void exitInclusiveRecordTypeDescriptor(BallerinaParser.InclusiveRecordTypeDescriptorContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -714,15 +712,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
                         ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
                         ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
-
-        boolean hasExplicitRestField = ctx.recordRestFieldDefinition() != null;
 
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, false,
-                                      hasExplicitRestField);
+                                      false);
     }
 
     @Override
-    public void enterClosedRecordTypeDescriptor(BallerinaParser.ClosedRecordTypeDescriptorContext ctx) {
+    public void enterExclusiveRecordTypeDescriptor(BallerinaParser.ExclusiveRecordTypeDescriptorContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -731,7 +727,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitClosedRecordTypeDescriptor(BallerinaParser.ClosedRecordTypeDescriptorContext ctx) {
+    public void exitExclusiveRecordTypeDescriptor(BallerinaParser.ExclusiveRecordTypeDescriptorContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -743,8 +739,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                         ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
                         ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
 
-        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, true,
-                                      false);
+        boolean hasRestField = ctx.recordRestFieldDefinition() != null;
+
+        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous,
+                                      hasRestField, true);
     }
 
     @Override
@@ -1781,17 +1779,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         FieldContext field = ctx.field();
         String fieldName;
+        DiagnosticPos fieldNamePos;
         FieldKind fieldType;
         if (field.Identifier() != null) {
             fieldName = field.Identifier().getText();
+            fieldNamePos = getCurrentPos(field);
             fieldType = FieldKind.SINGLE;
+
         } else {
             fieldName = field.MUL().getText();
+            // Set the position as same as field position.
+            fieldNamePos = getCurrentPos(field);
             fieldType = FieldKind.ALL;
         }
-
-        this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName, fieldType,
-                ctx.field().NOT() != null);
+        this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName, fieldNamePos,
+                fieldType, ctx.field().NOT() != null);
     }
 
     @Override
@@ -2422,7 +2424,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value, ctx.getText());
         } else if (ctx.floatingPointLiteral() != null) {
             if ((node = ctx.floatingPointLiteral().DecimalFloatingPointNumber()) != null) {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, getNodeValue(ctx, node), node.getText());
+                String nodeValue = getNodeValue(ctx, node);
+                int literalTypeTag = NumericLiteralSupport.isDecimalDiscriminated(nodeValue)
+                        ? TypeTags.DECIMAL : TypeTags.FLOAT;
+                this.pkgBuilder.addLiteralValue(pos, ws, literalTypeTag, nodeValue, node.getText());
             } else if ((node = ctx.floatingPointLiteral().HexadecimalFloatingPointLiteral()) != null) {
                 this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, getHexNodeValue(ctx, node), node.getText());
             }
@@ -3272,18 +3277,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
         this.pkgBuilder.endReturnParameterDocumentationDescription(getWS(ctx), description);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitDeprecatedAttachment(BallerinaParser.DeprecatedAttachmentContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        String contentText = ctx.deprecatedText() != null ? ctx.deprecatedText().getText() : "";
-        this.pkgBuilder.createDeprecatedNode(getCurrentPos(ctx), getWS(ctx), contentText);
     }
 
     @Override

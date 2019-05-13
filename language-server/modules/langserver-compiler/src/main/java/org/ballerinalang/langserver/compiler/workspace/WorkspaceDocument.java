@@ -77,8 +77,9 @@ public class WorkspaceDocument {
             return newText;
         }
         String trimmedOldText = oldText.trim();
-        int leadingNewLines = oldText.indexOf(trimmedOldText);
-        int trailingNewLines = oldText.length() - leadingNewLines - trimmedOldText.length();
+        int trimmedTextStart = oldText.indexOf(trimmedOldText);
+        int trailingNewLines = oldText.substring(trimmedTextStart + trimmedOldText.length())
+                .replaceAll("\\r?\\n", " ").length();
         List<String> oldTextLines = new ArrayList<>(Arrays.asList(oldText.split(LINE_SEPARATOR_SPLIT)));
         oldTextLines.addAll(Collections.nCopies(trailingNewLines, ""));
         Position start = range.getStart();
@@ -91,7 +92,14 @@ public class WorkspaceDocument {
             oldTextLines.set(start.getLine(), mLine);
         } else {
             // multi-line edit
-            String[] newTextArr = newText.split(LINE_SEPARATOR_SPLIT);
+
+            String trimmedNewText = newText.trim();
+            int trimmedNewTextStart = newText.indexOf(trimmedNewText);
+            int newTextTrailingNewLines = newText.substring(trimmedNewTextStart + trimmedNewText.length())
+                    .replaceAll("\\r?\\n", " ").length();
+            List<String> newTextList = new ArrayList<>(Arrays.asList(newText.split(LINE_SEPARATOR_SPLIT)));
+            newTextList.addAll(Collections.nCopies(newTextTrailingNewLines, ""));
+
             String sLine = oldTextLines.get(start.getLine());
             String eLine = oldTextLines.get(end.getLine());
 
@@ -104,10 +112,10 @@ public class WorkspaceDocument {
 
             //add lines
             int j = 0;
-            while (j < newTextArr.length) {
-                String changeText = newTextArr[j];
+            while (j < newTextList.size()) {
+                String changeText = newTextList.get(j);
                 String prefix = (j == 0) ? sLine.substring(0, start.getCharacter()) : "";
-                String suffix = (j == newTextArr.length - 1) ? eLine.substring(end.getCharacter()) : "";
+                String suffix = (j == newTextList.size() - 1) ? eLine.substring(end.getCharacter()) : "";
                 String mLine = prefix + changeText + suffix;
                 oldTextLines.add(start.getLine() + j, mLine);
                 j++;

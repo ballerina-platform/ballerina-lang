@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
+
 # The gRPC client endpoint provides the capability for initiating contact with a remote gRPC service. The API it
 # provides includes functions to send request/error messages.
 public type Client client object {
@@ -125,8 +127,8 @@ public type ProxyConfig record {|
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
 public type SecureSocket record {|
-    TrustStore? trustStore = ();
-    KeyStore? keyStore = ();
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";

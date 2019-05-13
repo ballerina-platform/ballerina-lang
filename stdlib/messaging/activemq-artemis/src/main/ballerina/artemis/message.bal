@@ -20,9 +20,7 @@ public type Message client object {
     private MessageType messageType = TEXT;
     private MessageConfiguration configuration;
 
-    public function __init(Session session, io:ReadableByteChannel | int | float | byte | boolean | string |
- map<string | int | float | byte | boolean | byte[]> | xml | json | byte[] data,
-     MessageConfiguration? config = ()) {
+    public function __init(Session session, @sensitive MessageContent data, MessageConfiguration? config = ()) {
         if (config is MessageConfiguration) {
             self.configuration = config;
         } else {
@@ -50,8 +48,8 @@ public type Message client object {
         }
     }
 
-    function createMessage(Session session, string | byte[] | map<string | int | float | byte | boolean | byte[]>
- | io:ReadableByteChannel data, MessageConfiguration config) = external;
+    function createMessage(Session session, string | byte[] | map<string | int | float | byte | boolean | byte[]> |
+                            io:ReadableByteChannel data, MessageConfiguration config) = external;
 
     # Acknowledges reception of this message.
     #
@@ -66,15 +64,15 @@ public type Message client object {
     # Add message property.
     #
     # + key - The name of the property
-    # + value - The value of the property 
-    # + return - If an error occures while setting the property
-    public function putProperty(string key, string | int | float | boolean | byte | byte[] value) = external;
+    # + value - The value of the property
+    public function putProperty(string key, @sensitive string | int | float | boolean | byte | byte[] value) = external;
 
     # Get a message property.
     #
     # + key - The name of the property
     # + return - The value of the property or nil if not found
-    public function getProperty(string key) returns string | int | float | boolean | byte | byte[] | () | error = external;
+    public function getProperty(string key) returns @tainted string | int | float | boolean | byte | byte[] | () |
+                                                        error = external;
 
     # The type of the message.
     #
@@ -85,14 +83,14 @@ public type Message client object {
     #
     # + return - The message payload or error on failure to retrieve payload or if the type is unsupported.
     #  A map payload can contain an error if the type is unsupported.
-    public function getPayload() returns string | byte[] | map<string | int | float | byte | boolean | byte[]> |
-error | () = external;
+    public function getPayload() returns @tainted string | byte[] | map<string | int | float | byte | boolean | byte[]> |
+                                            error | () = external;
 
     # Call this function to save to a WritableByteChannel if the message is `STREAM` type.
     #
     # + ch - The byte channel to save to
     # + return - will return an `error` if the message is not of type `STREAM` or on failure
-    public function saveToWritableByteChannel(io:WritableByteChannel ch) returns error? = external;
+    public function saveToWritableByteChannel(@sensitive io:WritableByteChannel ch) returns error? = external;
 
     # Get the message configuration.
     #

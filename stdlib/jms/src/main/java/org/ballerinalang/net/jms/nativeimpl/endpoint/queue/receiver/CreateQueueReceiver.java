@@ -20,8 +20,7 @@
 package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.receiver;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -45,7 +44,6 @@ import javax.jms.Session;
  *
  * @since 0.970
  */
-
 @BallerinaFunction(
         orgName = JmsConstants.BALLERINA,
         packageName = JmsConstants.JMS,
@@ -58,11 +56,11 @@ import javax.jms.Session;
         },
         isPublic = true
 )
-public class CreateQueueReceiver implements NativeCallableUnit {
+public class CreateQueueReceiver extends BlockingNativeCallableUnit {
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    public void execute(Context context) {
         @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> queueConsumerBObject = (BMap<String, BValue>) context.getRefArgument(0);
+        BMap<String, BValue> queueConsumerObject = (BMap<String, BValue>) context.getRefArgument(0);
         @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         String messageSelector = context.getStringArgument(0);
@@ -88,17 +86,12 @@ public class CreateQueueReceiver implements NativeCallableUnit {
             MessageConsumer consumer = session.createConsumer(queue, messageSelector);
             @SuppressWarnings(JmsConstants.UNCHECKED)
             BMap<String, BValue> consumerConnectorBObject =
-                    (BMap<String, BValue>) queueConsumerBObject.get(JmsConstants.CONSUMER_ACTIONS);
+                    (BMap<String, BValue>) queueConsumerObject.get(JmsConstants.CONSUMER_ACTIONS);
             consumerConnectorBObject.addNativeData(JmsConstants.JMS_CONSUMER_OBJECT, consumer);
             consumerConnectorBObject.addNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT,
                                                    new SessionConnector(session));
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error while creating queue consumer.", context, e);
         }
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return true;
     }
 }

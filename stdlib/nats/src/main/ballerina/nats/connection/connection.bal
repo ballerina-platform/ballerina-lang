@@ -25,4 +25,9 @@ public type Connection object {
     }
 
     function init(ConnectionConfig config) = external;
+
+    # Close a given connection.
+    #
+    # + return - () or error if unable to complete close operation.
+    public function close() returns error? = external;
 };

@@ -23,7 +23,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -95,5 +100,33 @@ public class EndpointFindVisitor extends LSNodeVisitor {
             list.add(variable);
         }
         return list;
+    }
+
+    @Override
+    public void visit(BLangBlockStmt blockNode) {
+        blockNode.stmts.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangIf ifNode) {
+        this.acceptNode(ifNode.body);
+        if (ifNode.elseStmt != null) {
+            this.acceptNode(ifNode.elseStmt);
+        }
+    }
+
+    @Override
+    public void visit(BLangWhile whileNode) {
+        this.acceptNode(whileNode.body);
+    }
+
+    @Override
+    public void visit(BLangWorker workerNode) {
+        this.acceptNode(workerNode.body);
+    }
+
+    @Override
+    public void visit(BLangForeach foreach) {
+        this.acceptNode(foreach.body);
     }
 }

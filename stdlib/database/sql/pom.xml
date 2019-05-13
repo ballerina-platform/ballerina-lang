@@ -20,7 +20,7 @@
     <parent>
         <artifactId>ballerina-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.990.4-SNAPSHOT</version>
+        <version>0.992.0-m2-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -42,6 +42,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <!-- TODO check whether below dependency can be removed -->
         <dependency>
@@ -132,6 +133,7 @@
                 </executions>
                 <configuration>
                     <mainClass>org.ballerinalang.stdlib.utils.GenerateBalo</mainClass>
+                    <classpathScope>test</classpathScope>
                 </configuration>
             </plugin>
 
