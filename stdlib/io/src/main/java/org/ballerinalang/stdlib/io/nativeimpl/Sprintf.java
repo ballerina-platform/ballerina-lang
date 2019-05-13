@@ -261,7 +261,8 @@ public class Sprintf extends BlockingNativeCallableUnit {
     private static void formatHexString(ArrayValue args, StringBuilder result, int k, StringBuilder padding, char x) {
         RefValue ref = (RefValue) args.getRefValue(k);
         if (TypeTags.ARRAY_TAG == ref.getType().getTag() &&
-                TypeTags.BYTE_TAG == ((org.ballerinalang.jvm.types.BArrayType) ref.getType()).getElementType().getTag()) {
+                TypeTags.BYTE_TAG ==
+                        ((org.ballerinalang.jvm.types.BArrayType) ref.getType()).getElementType().getTag()) {
             ArrayValue byteArray = ((ArrayValue) ref);
             for (int i = 0; i < byteArray.size(); i++) {
                 result.append(String.format("%" + padding + x, byteArray.getByte(i)));

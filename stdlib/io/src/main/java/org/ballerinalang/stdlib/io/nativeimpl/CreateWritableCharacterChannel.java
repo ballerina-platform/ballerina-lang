@@ -92,7 +92,7 @@ public class CreateWritableCharacterChannel extends BlockingNativeCallableUnit {
         }
     }
 
-    public void init(Strand strand, ObjectValue characterChannel, ObjectValue byteChannelInfo, String encoding) {
+    public static void init(Strand strand, ObjectValue characterChannel, ObjectValue byteChannelInfo, String encoding) {
         try {
             Channel byteChannel = (Channel) byteChannelInfo.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             CharacterChannel bCharacterChannel = new CharacterChannel(byteChannel, encoding);

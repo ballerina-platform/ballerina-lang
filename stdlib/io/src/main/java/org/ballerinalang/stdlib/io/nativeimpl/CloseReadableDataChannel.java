@@ -103,7 +103,7 @@ public class CloseReadableDataChannel implements NativeCallableUnit {
         return false;
     }
 
-    public void close(Strand strand, ObjectValue dataChannelObj) {
+    public static void close(Strand strand, ObjectValue dataChannelObj) {
         //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
         TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
 

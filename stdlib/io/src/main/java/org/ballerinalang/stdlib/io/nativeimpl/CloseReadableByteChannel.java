@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
@@ -93,7 +92,7 @@ public class CloseReadableByteChannel implements NativeCallableUnit {
         return false;
     }
 
-    public void close(Strand strand, ObjectValue channel) {
+    public static void close(Strand strand, ObjectValue channel) {
         //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
         TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
 

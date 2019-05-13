@@ -24,9 +24,10 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Temp callback implementation for non-blocking service tests.
+ * Temporary callback implementation to handle non-blocking function behaviour.
+ * TODO : Remove this calss once strand non-blocking support is provided.
  */
-public class TempCallableUnitCallback implements CallableUnitCallback{
+public class TempCallableUnitCallback {
 
     private final Strand strand;
     private volatile Semaphore executionWaitSem;
@@ -65,9 +66,5 @@ public class TempCallableUnitCallback implements CallableUnitCallback{
         this.returnValue = returnValue;
         //TODO : Replace following with callback.setReturnValues() once strand non-blocking support is given
         strand.setReturnValues(returnValue);
-    }
-
-    public Object getReturnValue() {
-        return returnValue;
     }
 }

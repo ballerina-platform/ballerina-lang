@@ -98,7 +98,7 @@ public class CloseWritableCharacterChannel implements NativeCallableUnit {
         return false;
     }
 
-    public void close(Strand strand, ObjectValue channel) {
+    public static void close(Strand strand, ObjectValue channel) {
         //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
         TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
 

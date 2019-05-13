@@ -235,7 +235,8 @@ public class GetTable implements NativeCallableUnit {
     private static TableValue getbTable(EventContext eventContext, List records) throws BallerinaIOException {
         TypedescValue type = (TypedescValue) eventContext.getProperties().get(TYPE_DESC_VALUE);
         TableValue table = new TableValue(new org.ballerinalang.jvm.types.BTableType(type.getType()), null, null, null);
-        org.ballerinalang.jvm.types.BStructureType structType = (org.ballerinalang.jvm.types.BStructureType) type.getType();
+        org.ballerinalang.jvm.types.BStructureType structType =
+                (org.ballerinalang.jvm.types.BStructureType) type.getType();
         for (Object obj : records) {
             String[] fields = (String[]) obj;
             final MapValue<String, Object> struct = getStruct(fields, structType);
@@ -246,7 +247,8 @@ public class GetTable implements NativeCallableUnit {
         return table;
     }
 
-    private static MapValue<String, Object> getStruct(String[] fields, final org.ballerinalang.jvm.types.BStructureType structType) {
+    private static MapValue<String, Object> getStruct(String[] fields,
+                                                      final org.ballerinalang.jvm.types.BStructureType structType) {
         //TODO : Recheck following migration
         Map<String, org.ballerinalang.jvm.types.BField> internalStructFields = structType.getFields();
         int fieldLength = internalStructFields.size();
@@ -256,25 +258,27 @@ public class GetTable implements NativeCallableUnit {
                 String msg = "Record row fields count and the give struct's fields count are mismatch";
                 throw new BallerinaIOException(msg);
             }
-            Iterator<Map.Entry<String, org.ballerinalang.jvm.types.BField>> itr = internalStructFields.entrySet().iterator();
+            Iterator<Map.Entry<String, org.ballerinalang.jvm.types.BField>> itr =
+                    internalStructFields.entrySet().iterator();
             struct = new MapValue<>(structType);
             for (int i = 0; i < fieldLength; i++) {
                 String value = fields[i];
-                final org.ballerinalang.jvm.types.BField internalStructField = itr.next().getValue(); // TODO: 11/15/18 double check this logic
+                final org.ballerinalang.jvm.types.BField internalStructField =
+                        itr.next().getValue(); // TODO: 11/15/18 double check this logic
                 final int type = internalStructField.getFieldType().getTag();
                 String fieldName = internalStructField.getFieldName();
                 switch (type) {
                     case TypeTags.INT_TAG:
-                        struct.put(fieldName, new BInteger(Long.parseLong(value)));
+                        struct.put(fieldName, Long.parseLong(value));
                         break;
                     case TypeTags.FLOAT_TAG:
-                        struct.put(fieldName, new BFloat(Double.parseDouble(value)));
+                        struct.put(fieldName, Double.parseDouble(value));
                         break;
                     case TypeTags.STRING_TAG:
-                        struct.put(fieldName, new BString(value));
+                        struct.put(fieldName, value);
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        struct.put(fieldName, new BBoolean((Boolean.parseBoolean(value))));
+                        struct.put(fieldName, (Boolean.parseBoolean(value)));
                         break;
                     default:
                         throw new BallerinaIOException("Type casting support only for int, float, boolean and string. "
