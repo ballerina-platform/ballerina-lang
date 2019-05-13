@@ -51,6 +51,7 @@ public type Function record {|
     BInvokableType typeValue = {};
     Visibility visibility = "PACKAGE_PRIVATE";
     ChannelDetail[] workerChannels;
+    BType? receiverType;
 |};
 
 public type BasicBlock record {|

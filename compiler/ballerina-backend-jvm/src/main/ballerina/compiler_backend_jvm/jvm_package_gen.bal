@@ -279,7 +279,9 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             }
 
             bir:BInvokableType functionTypeDesc = currentFunc.typeValue;
-            string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType);
+            bir:BType? attachedType = currentFunc.receiverType;
+            string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
+                                                        attachedType = attachedType);
 
             BIRFunctionWrapper functionWrapper = {
                 orgName : orgName,

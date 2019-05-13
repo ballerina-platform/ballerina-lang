@@ -190,6 +190,12 @@ public class BIRBinaryWriter {
             buf.writeInt(addStringCPEntry(birFunction.restParam.name.value));
         }
 
+        boolean hasReceiverType = birFunction.receiverType != null;
+        buf.writeBoolean(hasReceiverType);
+        if (hasReceiverType) {
+            birFunction.receiverType.accept(typeWriter);
+        }
+
         ByteBuf birbuf = Unpooled.buffer();
         BIRTypeWriter funcTypeWriter = new BIRTypeWriter(birbuf, cp);
         BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, funcTypeWriter, cp);

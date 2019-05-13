@@ -39,10 +39,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -739,13 +741,6 @@ public class BIRPackageSymbolEnter {
 //        return attrDataMap;
 //    }
 
-    /**
-     * Set parameter symbols to the invokable symbol.
-     *
-     * @param invokableSymbol Invokable symbol
-     * @param attrDataMap     Attribute data map
-     * @throws IOException
-     */
     private void setParamSymbols(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)
             throws IOException {
 
@@ -779,6 +774,12 @@ public class BIRPackageSymbolEnter {
                     invokableType.paramTypes.get(requiredParamCount + defaultableParamCount), invokableSymbol);
             invokableSymbol.restParam = varSymbol;
         }
+
+        boolean hasReceiver = dataInStream.readBoolean(); //if receiver type is written, read and ignore
+        if (hasReceiver) {
+            typeReader.readType();
+        }
+
 //
 //
 //        byte[] paramDefaultsData = attrDataMap.get(Kind.PARAMETER_DEFAULTS_ATTRIBUTE);
@@ -1234,6 +1235,7 @@ public class BIRPackageSymbolEnter {
                     return symTable.booleanType;
                 // All the above types are values type
                 case TypeTags.JSON:
+                    return symTable.jsonType;
                 case TypeTags.XML:
                     return symTable.xmlType;
                 case TypeTags.TABLE:
@@ -1278,6 +1280,7 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.TYPEDESC:
                     return symTable.typeDesc;
                 case TypeTags.STREAM:
+                    return new BStreamType(TypeTags.STREAM, readType(), symTable.streamType.tsymbol);
                 case TypeTags.MAP:
                     return new BMapType(TypeTags.MAP, readType(), symTable.mapType.tsymbol);
                 case TypeTags.INVOKABLE:
@@ -1342,6 +1345,7 @@ public class BIRPackageSymbolEnter {
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
                     return new BTupleType(tupleTypeSymbol, tupleMemberTypes);
                 case TypeTags.FUTURE:
+                    return new BFutureType(TypeTags.FUTURE, readType(), symTable.futureType.tsymbol);
                 case TypeTags.INTERMEDIATE_COLLECTION:
                 case TypeTags.FINITE:
                 case TypeTags.OBJECT:

@@ -64,6 +64,13 @@ public type PackageParser object {
         var sig = self.typeParser.parseInvokableType();
         // Read and ignore parameter details, not used in jvm gen
         self.readAndIgnoreParamDetails();
+
+        BType? receiverType = ();
+        boolean hasReceiverType = self.reader.readBoolean();
+        if (hasReceiverType) {
+            receiverType = self.typeParser.parseType();
+        }
+
         _ = self.reader.readInt64(); // read and ignore function body length
         var argsCount = self.reader.readInt32();
         var numLocalVars = self.reader.readInt32();
@@ -91,7 +98,8 @@ public type PackageParser object {
             errorEntries:errorEntries,
             argsCount: argsCount,
             typeValue: sig,
-            workerChannels:workerChannels
+            workerChannels:workerChannels,
+            receiverType : receiverType
         };
     }
 

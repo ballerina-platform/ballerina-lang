@@ -552,7 +552,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitInsn(AASTORE);
 
     termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
-    mv.visitMaxs(0, 0);
+    mv.visitMaxs(200, 400);
     mv.visitEnd();
 }
 
@@ -694,8 +694,13 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
     }
 }
 
-function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType) returns string {
+function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, bir:BType? attachedType = ()) returns string {
     string desc = "(Lorg/ballerinalang/jvm/Strand;";
+
+    if (attachedType is bir:BType) {
+        desc = desc + getArgTypeSignature(attachedType);
+    }
+
     int i = 0;
     while (i < paramTypes.length()) {
         bir:BType paramType = getType(paramTypes[i]);

@@ -216,6 +216,11 @@ public abstract class BIRNode {
         public List<BIRParameter> defaultParams;
 
         /**
+         * Type of the receiver. This is an optional field.
+         */
+        public BType receiverType;
+
+        /**
          * Rest parameter.
          */
         public BIRParameter restParam;
@@ -263,6 +268,23 @@ public abstract class BIRNode {
             this.localVars = new ArrayList<>();
             this.requiredParams = new ArrayList<>();
             this.defaultParams = new ArrayList<>();
+            this.basicBlocks = new ArrayList<>();
+            this.errorTable = new ArrayList<>();
+            this.workerName = workerName;
+            this.workerChannels = new ChannelDetails[sendInsCount];
+            this.receiverType = null;
+        }
+
+        public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type, BType receiverType,
+                           Name workerName, int sendInsCount) {
+            super(pos);
+            this.name = name;
+            this.visibility = visibility;
+            this.type = type;
+            this.localVars = new ArrayList<>();
+            this.requiredParams = new ArrayList<>();
+            this.defaultParams = new ArrayList<>();
+            this.receiverType = receiverType;
             this.basicBlocks = new ArrayList<>();
             this.errorTable = new ArrayList<>();
             this.workerName = workerName;
