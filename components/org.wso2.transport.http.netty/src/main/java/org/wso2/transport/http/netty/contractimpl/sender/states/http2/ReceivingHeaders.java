@@ -36,9 +36,9 @@ import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStat
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
-import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
+import org.wso2.transport.http.netty.message.Http2InboundContentListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
@@ -50,8 +50,8 @@ import static org.wso2.transport.http.netty.contract.Constants.EXECUTOR_WORKER_P
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
+import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY;
-
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseContent;
 
 /**
@@ -219,7 +219,8 @@ public class ReceivingHeaders implements SenderState {
                     notifyHttpListener(new Exception("Error while setting http headers", e));
         }
         // Create HTTP Carbon Response
-        HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse, new DefaultListener(ctx));
+        HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse, new Http2InboundContentListener(
+            streamId, ctx, http2TargetHandler.getConnection(), INBOUND_RESPONSE));
 
         // Setting properties of the HTTP Carbon Response
         responseCarbonMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));

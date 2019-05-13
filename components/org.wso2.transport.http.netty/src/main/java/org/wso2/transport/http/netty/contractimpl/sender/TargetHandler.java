@@ -38,6 +38,7 @@ import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandle
 import org.wso2.transport.http.netty.contractimpl.sender.http2.TimeoutHandler;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
+import org.wso2.transport.http.netty.message.ClientRemoteFlowControlListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contractimpl.common.Util.createInboundRespCarbonMsg;
@@ -170,9 +171,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void handoverChannelToHttp2ConnectionManager() {
+        Http2ClientChannel upgradedHttp2ClientChannel = targetChannel.getHttp2ClientChannel();
         connectionManager.getHttp2ConnectionManager().addHttp2ClientChannel(targetChannel.getChannel().eventLoop(),
                                                                             targetChannel.getHttpRoute(),
-                                                                            targetChannel.getHttp2ClientChannel());
+                                                                            upgradedHttp2ClientChannel);
+        upgradedHttp2ClientChannel.getConnection().remote().flowController().listener(
+            new ClientRemoteFlowControlListener(upgradedHttp2ClientChannel));
     }
 
     public void closeChannel(ChannelHandlerContext ctx) {

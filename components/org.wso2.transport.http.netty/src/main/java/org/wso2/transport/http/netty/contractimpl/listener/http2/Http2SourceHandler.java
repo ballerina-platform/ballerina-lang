@@ -28,6 +28,7 @@ import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
+import io.netty.handler.codec.http2.Http2RemoteFlowController;
 import io.netty.util.internal.PlatformDependent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
@@ -41,12 +42,14 @@ import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
+import org.wso2.transport.http.netty.message.ServerRemoteFlowControlListener;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.wso2.transport.http.netty.contract.Constants.STREAM_ID_ONE;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.notifyRequestListener;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.setupCarbonRequest;
 
@@ -70,6 +73,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     private String serverName;
     private String remoteAddress;
     private Map<String, GenericObjectPool> targetChannelPool; //Keeps only h1 target channels
+    private ServerRemoteFlowControlListener serverRemoteFlowControlListener;
 
     Http2SourceHandler(HttpServerChannelInitializer serverChannelInitializer, Http2ConnectionEncoder encoder,
                        String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture,
@@ -81,6 +85,13 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         this.conn = conn;
         this.serverName = serverName;
         this.targetChannelPool = new ConcurrentHashMap<>();
+        setRemoteFlowController();
+    }
+
+    private void setRemoteFlowController() {
+        Http2RemoteFlowController remoteFlowController = this.conn.remote().flowController();
+        serverRemoteFlowControlListener = new ServerRemoteFlowControlListener(remoteFlowController);
+        remoteFlowController.listener(serverRemoteFlowControlListener);
     }
 
     @Override
@@ -114,9 +125,9 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
                     new HttpVersion(Constants.HTTP_VERSION_2_0, true), upgradedRequest.method(),
                     upgradedRequest.uri(), upgradedRequest.headers());
 
-            HttpCarbonRequest requestCarbonMessage = setupCarbonRequest(httpRequest, this);
+            HttpCarbonRequest requestCarbonMessage = setupCarbonRequest(httpRequest, this, STREAM_ID_ONE);
             requestCarbonMessage.addHttpContent(new DefaultLastHttpContent(upgradedRequest.content()));
-            notifyRequestListener(this, requestCarbonMessage, 1);
+            notifyRequestListener(this, requestCarbonMessage, STREAM_ID_ONE);
         }
     }
 
@@ -212,5 +223,9 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     public ChannelHandlerContext getInboundChannelContext() {
         return ctx;
+    }
+
+    public ServerRemoteFlowControlListener getServerRemoteFlowControlListener() {
+        return serverRemoteFlowControlListener;
     }
 }

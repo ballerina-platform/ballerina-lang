@@ -33,6 +33,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
@@ -42,7 +43,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.validatePromisedStreamState;
-import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
 
 /**
  * State between start and end of outbound response headers write.
@@ -61,9 +61,11 @@ public class SendingHeaders implements ListenerState {
     private final HttpCarbonMessage inboundRequestMsg;
     private final int originalStreamId;
     private final String serverName;
+    private final Http2OutboundRespListener http2OutboundRespListener;
 
     public SendingHeaders(Http2OutboundRespListener http2OutboundRespListener,
                           Http2MessageStateContext http2MessageStateContext) {
+        this.http2OutboundRespListener = http2OutboundRespListener;
         this.http2MessageStateContext = http2MessageStateContext;
         this.ctx = http2OutboundRespListener.getChannelHandlerContext();
         this.conn = http2OutboundRespListener.getConnection();
@@ -123,6 +125,7 @@ public class SendingHeaders implements ListenerState {
         // Construct Http2 headers
         Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMessage, true);
         validatePromisedStreamState(originalStreamId, streamId, conn, inboundRequestMsg);
-        writeHttp2Headers(ctx, encoder, outboundRespStatusFuture, streamId, http2Headers, false);
+        Http2StateUtil.writeHttp2ResponseHeaders(ctx, encoder, outboundRespStatusFuture, streamId, http2Headers, false,
+                                                 http2OutboundRespListener);
     }
 }

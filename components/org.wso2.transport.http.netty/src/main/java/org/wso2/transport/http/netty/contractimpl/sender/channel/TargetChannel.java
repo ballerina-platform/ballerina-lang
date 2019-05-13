@@ -204,8 +204,7 @@ public class TargetChannel {
     public void writeContent(HttpCarbonMessage httpOutboundRequest) {
         BackPressureHandler backpressureHandler = Util.getBackPressureHandler(targetHandler.getContext());
 
-        Util.setBackPressureListener(httpOutboundRequest.isPassthrough(), backpressureHandler,
-                                     httpOutboundRequest.getSourceContext());
+        Util.setBackPressureListener(httpOutboundRequest, backpressureHandler, httpOutboundRequest.getSourceContext());
 
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetRequestReceiving(httpOutboundRequest);

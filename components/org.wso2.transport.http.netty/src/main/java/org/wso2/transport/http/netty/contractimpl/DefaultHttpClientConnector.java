@@ -52,6 +52,7 @@ import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ConnectionMa
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.RequestWriteStarter;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.TimeoutHandler;
+import org.wso2.transport.http.netty.message.ClientRemoteFlowControlListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -251,6 +252,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     connectionManager.getHttp2ConnectionManager().
                         addHttp2ClientChannel(freshHttp2ClientChannel.getChannel().eventLoop(), route,
                                               freshHttp2ClientChannel);
+                    freshHttp2ClientChannel.getConnection().remote().flowController().listener(
+                        new ClientRemoteFlowControlListener(freshHttp2ClientChannel));
                     freshHttp2ClientChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
                                                                  new TimeoutHandler(socketIdleTimeout,
                                                                                     freshHttp2ClientChannel));

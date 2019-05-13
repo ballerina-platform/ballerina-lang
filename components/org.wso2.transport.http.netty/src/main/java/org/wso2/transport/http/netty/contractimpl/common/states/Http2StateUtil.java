@@ -44,8 +44,8 @@ import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHand
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
-import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
+import org.wso2.transport.http.netty.message.Http2InboundContentListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
@@ -57,6 +57,7 @@ import static org.wso2.transport.http.netty.contract.Constants.CHNL_HNDLR_CTX;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION;
+import static org.wso2.transport.http.netty.contract.Constants.INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.contract.Constants.LISTENER_INTERFACE_ID;
 import static org.wso2.transport.http.netty.contract.Constants.LISTENER_PORT;
 import static org.wso2.transport.http.netty.contract.Constants.LOCAL_ADDRESS;
@@ -88,10 +89,10 @@ public class Http2StateUtil {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
                 outboundRespFuture.setHttpConnectorListener(new Http2OutboundRespListener(
-                        http2SourceHandler.getServerChannelInitializer(), httpRequestMsg,
-                        http2SourceHandler.getChannelHandlerContext(), http2SourceHandler.getConnection(),
-                        http2SourceHandler.getEncoder(), streamId, http2SourceHandler.getServerName(),
-                        http2SourceHandler.getRemoteAddress()));
+                    http2SourceHandler.getServerChannelInitializer(), httpRequestMsg,
+                    http2SourceHandler.getChannelHandlerContext(), http2SourceHandler.getConnection(),
+                    http2SourceHandler.getEncoder(), streamId, http2SourceHandler.getServerName(),
+                    http2SourceHandler.getRemoteAddress(), http2SourceHandler.getServerRemoteFlowControlListener()));
                 http2SourceHandler.getServerConnectorFuture().notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 LOG.error("Error while notifying listeners", e);
@@ -108,9 +109,11 @@ public class Http2StateUtil {
      * @param http2SourceHandler the HTTP/2 source handler
      * @return the CarbonRequest Message created from given HttpRequest
      */
-    public static HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest, Http2SourceHandler http2SourceHandler) {
+    public static HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest, Http2SourceHandler http2SourceHandler,
+                                                       int streamId) {
         ChannelHandlerContext ctx = http2SourceHandler.getChannelHandlerContext();
-        HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest, new DefaultListener(ctx));
+        HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest, new Http2InboundContentListener(
+            streamId, ctx, http2SourceHandler.getConnection(), INBOUND_REQUEST));
         sourceReqCMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
         sourceReqCMsg.setProperty(CHNL_HNDLR_CTX, ctx);
         sourceReqCMsg.setProperty(Constants.SRC_HANDLER, http2SourceHandler);
@@ -144,14 +147,15 @@ public class Http2StateUtil {
      * @param endStream                is this the end of stream
      * @throws Http2Exception throws if a protocol-related error occurred
      */
-    public static void writeHttp2Headers(ChannelHandlerContext ctx, Http2ConnectionEncoder encoder,
-                                         HttpResponseFuture outboundRespStatusFuture, int streamId,
-                                         Http2Headers http2Headers, boolean endStream) throws Http2Exception {
+    public static void writeHttp2ResponseHeaders(ChannelHandlerContext ctx, Http2ConnectionEncoder encoder,
+                                                 HttpResponseFuture outboundRespStatusFuture, int streamId,
+                                                 Http2Headers http2Headers, boolean endStream,
+                                                 Http2OutboundRespListener respListener) throws Http2Exception {
         ChannelFuture channelFuture = encoder.writeHeaders(
-                ctx, streamId, http2Headers, 0, endStream, ctx.newPromise());
+            ctx, streamId, http2Headers, 0, endStream, ctx.newPromise());
         encoder.flowController().writePendingBytes();
         ctx.flush();
-        Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture);
+        Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture, respListener);
     }
 
     /**

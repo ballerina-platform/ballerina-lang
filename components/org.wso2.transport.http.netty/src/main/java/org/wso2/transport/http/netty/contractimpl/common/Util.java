@@ -48,6 +48,7 @@ import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
@@ -55,6 +56,8 @@ import org.wso2.transport.http.netty.contractimpl.sender.CertificateValidationHa
 import org.wso2.transport.http.netty.contractimpl.sender.OCSPStaplingHandler;
 import org.wso2.transport.http.netty.message.DefaultBackPressureListener;
 import org.wso2.transport.http.netty.message.DefaultListener;
+import org.wso2.transport.http.netty.message.Http2InboundContentListener;
+import org.wso2.transport.http.netty.message.Http2PassthroughBackPressureListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
@@ -83,8 +86,7 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.IS_PROXY_ENABLED;
 import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_HANDSHAKE_RESULT;
 import static org.wso2.transport.http.netty.contract.Constants.PROTOCOL;
-import static org.wso2.transport.http.netty.contract.Constants
-        .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
 import static org.wso2.transport.http.netty.contract.Constants.URL_AUTHORITY;
 
@@ -650,13 +652,15 @@ public class Util {
      * @param channelFuture            the channel future related to response write operation
      */
     public static void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
-                                                       ChannelFuture channelFuture) {
+                                                       ChannelFuture channelFuture,
+                                                       Http2OutboundRespListener http2OutboundRespListener) {
         channelFuture.addListener(writeOperationPromise -> {
             Throwable throwable = writeOperationPromise.cause();
             if (throwable != null) {
                 if (throwable instanceof ClosedChannelException) {
                     throwable = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
                 }
+                http2OutboundRespListener.removeDefaultResponseWriter();
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             }
         });
@@ -845,20 +849,40 @@ public class Util {
     /**
      * Sets the backPressure listener the to the Observable of the handler.
      *
-     * @param passthrough         true if passthrough
-     * @param backpressureHandler the handler that checks for writability.
-     * @param inContext           {@link ChannelHandlerContext} of a handler in the incoming channel.
+     * @param outboundMessage     represents the outbound request or response
+     * @param backpressureHandler the handler that checks the writability
+     * @param ctx                 represents channel handler context
      */
-    public static void setBackPressureListener(boolean passthrough, BackPressureHandler backpressureHandler,
-                                               ChannelHandlerContext inContext) {
+    public static void setBackPressureListener(HttpCarbonMessage outboundMessage,
+                                               BackPressureHandler backpressureHandler, ChannelHandlerContext ctx) {
         if (backpressureHandler != null) {
-            if (inContext != null && passthrough) {
-                backpressureHandler.getBackPressureObservable().setListener(
-                        new PassthroughBackPressureListener(inContext));
+            if (outboundMessage.isPassthrough()) {
+                setPassthroughBackOffListener(outboundMessage, backpressureHandler, ctx);
             } else {
                 backpressureHandler.getBackPressureObservable().setListener(
-                        new DefaultBackPressureListener());
+                    new DefaultBackPressureListener());
             }
+        }
+    }
+
+    /**
+     * Based on the inbound listener type, sets the relevant backpressure listener. Passthrough scenarios
+     * that are applicable here are (request HTTP/1.1-HTTP/1.1), (request HTTP/2-HTTP/1.1), (response HTTP/1.1-HTTP/1.1)
+     * and (response HTTP/2-HTTP/1.1).
+     *
+     * @param outboundMessage     represent the outbound request or response
+     * @param backpressureHandler the handler that checks the writability
+     * @param ctx                 represents channel handler context
+     */
+    private static void setPassthroughBackOffListener(HttpCarbonMessage outboundMessage,
+                                                      BackPressureHandler backpressureHandler,
+                                                      ChannelHandlerContext ctx) {
+        Listener inboundListener = outboundMessage.getListener();
+        if (inboundListener instanceof Http2InboundContentListener) {
+            backpressureHandler.getBackPressureObservable().setListener(
+                new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
+        } else if (inboundListener instanceof DefaultListener && ctx != null) {
+            backpressureHandler.getBackPressureObservable().setListener(new PassthroughBackPressureListener(ctx));
         }
     }
 
@@ -873,6 +897,9 @@ public class Util {
         if (backpressureHandler != null) {
             Channel channel = context.channel();
             if (!channel.isWritable() && channel.isActive()) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("HTTP/1.1 channel is not writable in thread {} ", Thread.currentThread().getName());
+                }
                 backpressureHandler.getBackPressureObservable().notifyUnWritable();
             }
         }

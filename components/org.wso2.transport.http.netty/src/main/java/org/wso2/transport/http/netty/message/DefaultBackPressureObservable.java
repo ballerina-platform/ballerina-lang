@@ -51,4 +51,9 @@ public class DefaultBackPressureObservable implements BackPressureObservable {
             listener.onWritable();
         }
     }
+
+    @Override
+    public BackPressureListener getListener() {
+        return listener;
+    }
 }

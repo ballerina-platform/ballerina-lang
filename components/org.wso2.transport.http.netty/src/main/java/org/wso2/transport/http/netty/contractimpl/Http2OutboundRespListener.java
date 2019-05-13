@@ -33,10 +33,20 @@ import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStat
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.listener.states.http2.EntityBodyReceived;
 import org.wso2.transport.http.netty.contractimpl.listener.states.http2.SendingHeaders;
+import org.wso2.transport.http.netty.message.BackPressureObservable;
+import org.wso2.transport.http.netty.message.DefaultBackPressureListener;
+import org.wso2.transport.http.netty.message.DefaultBackPressureObservable;
+import org.wso2.transport.http.netty.message.DefaultListener;
+import org.wso2.transport.http.netty.message.Http2InboundContentListener;
+import org.wso2.transport.http.netty.message.Http2PassthroughBackPressureListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.Listener;
+import org.wso2.transport.http.netty.message.PassthroughBackPressureListener;
+import org.wso2.transport.http.netty.message.ServerRemoteFlowControlListener;
 
 import java.util.Calendar;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.isValidStreamId;
@@ -60,11 +70,14 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private HttpServerChannelInitializer serverChannelInitializer;
     private Calendar inboundRequestArrivalTime;
     private String remoteAddress = "-";
+    private ServerRemoteFlowControlListener remoteFlowControlListener;
+    private ResponseWriter defaultResponseWriter;
 
     public Http2OutboundRespListener(HttpServerChannelInitializer serverChannelInitializer,
                                      HttpCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
                                      Http2Connection conn, Http2ConnectionEncoder encoder, int streamId,
-                                     String serverName, String remoteAddress) {
+                                     String serverName, String remoteAddress,
+                                     ServerRemoteFlowControlListener remoteFlowControlListener) {
         this.serverChannelInitializer = serverChannelInitializer;
         this.inboundRequestMsg = inboundRequestMsg;
         this.ctx = ctx;
@@ -78,11 +91,12 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         inboundRequestArrivalTime = Calendar.getInstance();
         http2MessageStateContext = inboundRequestMsg.getHttp2MessageStateContext();
+        this.remoteFlowControlListener = remoteFlowControlListener;
     }
 
     @Override
     public void onMessage(HttpCarbonMessage outboundResponseMsg) {
-        writeMessage(outboundResponseMsg, originalStreamId);
+        writeMessage(outboundResponseMsg, originalStreamId, true);
     }
 
     @Override
@@ -98,7 +112,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     @Override
     public void onPushResponse(int promiseId, HttpCarbonMessage outboundResponseMsg) {
         if (isValidStreamId(promiseId, conn)) {
-            writeMessage(outboundResponseMsg, promiseId);
+            writeMessage(outboundResponseMsg, promiseId, false);
         } else {
             inboundRequestMsg.getHttpOutboundRespStatusFuture()
                     .notifyHttpListener(new ServerConnectorException(PROMISED_STREAM_REJECTED_ERROR));
@@ -120,36 +134,98 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         });
     }
 
-    private void writeMessage(HttpCarbonMessage outboundResponseMsg, int streamId) {
+    private void writeMessage(HttpCarbonMessage outboundResponseMsg, int streamId, boolean backOffEnabled) {
         ResponseWriter writer = new ResponseWriter(streamId);
-        ctx.channel().eventLoop().execute(() -> outboundResponseMsg.getHttpContentAsync().setMessageListener(
-                httpContent -> ctx.channel().eventLoop().execute(() -> {
-                    try {
-                        writer.writeOutboundResponse(outboundResponseMsg, httpContent);
-                    } catch (Http2Exception ex) {
-                        LOG.error("Failed to send the outbound response : " + ex.getMessage(), ex);
-                        inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(ex);
-                    }
-                })));
+        if (backOffEnabled) {
+            remoteFlowControlListener.addResponseWriter(writer);
+            defaultResponseWriter = writer;
+        }
+        setBackPressureListener(outboundResponseMsg, writer);
+        outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent -> {
+            checkStreamUnwritability(writer);
+            ctx.channel().eventLoop().execute(() -> {
+                try {
+                    writer.writeOutboundResponse(outboundResponseMsg, httpContent);
+                } catch (Http2Exception ex) {
+                    LOG.error("Failed to send the outbound response : " + ex.getMessage(), ex);
+                    inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(ex);
+                }
+            });
+        });
     }
 
-    private class ResponseWriter {
-
+    /**
+     * Responsible for writing HTTP/2 outbound response to the caller.
+     */
+    public class ResponseWriter {
         private int streamId;
+        private AtomicBoolean streamWritable = new AtomicBoolean(true);
+        private final BackPressureObservable backPressureObservable = new DefaultBackPressureObservable();
 
         ResponseWriter(int streamId) {
             this.streamId = streamId;
         }
 
         private void writeOutboundResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
-                throws Http2Exception {
+            throws Http2Exception {
             if (http2MessageStateContext == null) {
                 http2MessageStateContext = new Http2MessageStateContext();
                 http2MessageStateContext.setListenerState(
-                        new SendingHeaders(Http2OutboundRespListener.this, http2MessageStateContext));
+                    new SendingHeaders(Http2OutboundRespListener.this, http2MessageStateContext));
             }
-            http2MessageStateContext.getListenerState().writeOutboundResponseBody(Http2OutboundRespListener.this,
-                    outboundResponseMsg, httpContent, streamId);
+            http2MessageStateContext.getListenerState().
+                writeOutboundResponseBody(Http2OutboundRespListener.this, outboundResponseMsg,
+                                          httpContent, streamId);
+        }
+
+        public int getStreamId() {
+            return streamId;
+        }
+
+        public void setStreamWritable(boolean streamWritable) {
+            this.streamWritable.set(streamWritable);
+        }
+
+        boolean isStreamWritable() {
+            return streamWritable.get();
+        }
+
+        public BackPressureObservable getBackPressureObservable() {
+            return backPressureObservable;
+        }
+    }
+
+    private void setBackPressureListener(HttpCarbonMessage outboundResponseMsg, ResponseWriter writer) {
+        if (outboundResponseMsg.isPassthrough()) {
+            setPassthroughBackOffListener(outboundResponseMsg, writer);
+        } else {
+            writer.getBackPressureObservable().setListener(new DefaultBackPressureListener());
+        }
+    }
+
+    /**
+     * Passthrough backoff scenarios involved here are (response HTTP/2-HTTP/2) and (response HTTP/1.1-HTTP/2).
+     *
+     * @param outboundResponseMsg outbound response message
+     * @param writer              HTTP/2 response writer
+     */
+    private void setPassthroughBackOffListener(HttpCarbonMessage outboundResponseMsg, ResponseWriter writer) {
+        Listener inboundListener = outboundResponseMsg.getListener();
+        if (inboundListener instanceof Http2InboundContentListener) {
+            writer.getBackPressureObservable().setListener(
+                new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
+        } else if (inboundListener instanceof DefaultListener) {
+            writer.getBackPressureObservable().setListener(
+                new PassthroughBackPressureListener(outboundResponseMsg.getTargetContext()));
+        }
+    }
+
+    private void checkStreamUnwritability(ResponseWriter writer) {
+        if (!writer.isStreamWritable()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("In thread {}. Stream is not writable.", Thread.currentThread().getName());
+            }
+            writer.getBackPressureObservable().notifyUnWritable();
         }
     }
 
@@ -191,5 +267,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     public String getServerName() {
         return serverName;
+    }
+
+    public void removeDefaultResponseWriter() {
+        remoteFlowControlListener.removeResponseWriter(defaultResponseWriter);
     }
 }

@@ -34,10 +34,7 @@ public class DefaultObservable implements Observable {
 
     @Override
     public void removeListener() {
-        if (listener != null) {
-            listener.resumeReadInterest();
-            listener = null;
-        }
+        listener = null;
     }
 
     @Override
@@ -52,5 +49,17 @@ public class DefaultObservable implements Observable {
         if (listener != null) {
             listener.onRemove(httpContent);
         }
+    }
+
+    @Override
+    public void notifyReadInterest() {
+        if (listener != null) {
+            listener.resumeReadInterest();
+        }
+    }
+
+    @Override
+    public Listener getListener() {
+        return this.listener;
     }
 }

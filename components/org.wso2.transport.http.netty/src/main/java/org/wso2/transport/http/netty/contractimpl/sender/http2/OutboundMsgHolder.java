@@ -20,6 +20,8 @@ package org.wso2.transport.http.netty.contractimpl.sender.http2;
 
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
+import org.wso2.transport.http.netty.message.BackPressureObservable;
+import org.wso2.transport.http.netty.message.DefaultBackPressureObservable;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
@@ -27,6 +29,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * {@code OutboundMsgHolder} holds data related to a single outbound invocation.
@@ -47,6 +50,8 @@ public class OutboundMsgHolder {
     private long lastReadWriteTime;
     private boolean requestWritten;
     private boolean firstContentWritten;
+    private AtomicBoolean streamWritable = new AtomicBoolean(true);
+    private final BackPressureObservable backPressureObservable = new DefaultBackPressureObservable();
 
     public OutboundMsgHolder(HttpCarbonMessage httpOutboundRequest) {
         this.requestCarbonMessage = httpOutboundRequest;
@@ -216,5 +221,17 @@ public class OutboundMsgHolder {
 
     void setFirstContentWritten(boolean firstContentWritten) {
         this.firstContentWritten = firstContentWritten;
+    }
+
+    boolean isStreamWritable() {
+        return streamWritable.get();
+    }
+
+    public void setStreamWritable(boolean streamWritable) {
+        this.streamWritable.set(streamWritable);
+    }
+
+    public BackPressureObservable getBackPressureObservable() {
+        return backPressureObservable;
     }
 }

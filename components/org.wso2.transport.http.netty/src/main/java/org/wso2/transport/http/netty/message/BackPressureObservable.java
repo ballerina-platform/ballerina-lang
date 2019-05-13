@@ -43,4 +43,9 @@ public interface BackPressureObservable {
      * Notify to release throttling.
      */
     void notifyWritable();
+
+    /**
+     * Get the registered listener.
+     */
+    BackPressureListener getListener();
 }
