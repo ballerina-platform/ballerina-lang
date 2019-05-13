@@ -98,7 +98,7 @@ public type LdapAuthStoreProvider object {
     # Authenticate with username and password.
     #
     # + credential - Credential value
-    # + return - `true` if authentication is successful, otherwise `false` or `error` occured while extracting credentials
+    # + return - `true` if authentication is successful, otherwise `false` or `error` occurred while extracting credentials
     public function authenticate(string credential) returns boolean|error {
         if (credential == EMPTY_STRING) {
             return false;

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.compiler.CompilerOptionName;
+import org.ballerinalang.compiler.CompilerPhase;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,5 +58,14 @@ public class CompilerOptions {
 
     public void put(CompilerOptionName optionName, String value) {
         optionMap.put(optionName, value);
+    }
+
+    public CompilerPhase getCompilerPhase() {
+        String phaseName = get(CompilerOptionName.COMPILER_PHASE);
+        if (phaseName == null || phaseName.isEmpty()) {
+            return CompilerPhase.CODE_GEN; //TODO may need to remove this as this is not generic return value
+        }
+
+        return CompilerPhase.fromValue(phaseName);
     }
 }

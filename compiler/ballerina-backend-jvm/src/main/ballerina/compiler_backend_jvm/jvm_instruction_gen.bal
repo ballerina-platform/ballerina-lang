@@ -197,31 +197,28 @@ type InstructionGenerator object {
     }
 
     function generateAddIns(bir:BinaryOp binaryIns) {
-        //io:println("ADD Ins " + io:sprintf("%s", binaryIns));
-
         bir:BType bType = binaryIns.lhsOp.typeValue;
-
         if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
             self.generateBinaryRhsAndLhsLoad(binaryIns);
-
             self.mv.visitInsn(LADD);
-            self.storeToVar(binaryIns.lhsOp.variableDcl);
         } else if (bType is bir:BTypeString) {
-            self.loadVar(binaryIns.rhsOp1.variableDcl);
-            self.loadVar(binaryIns.rhsOp2.variableDcl);
+            self.generateBinaryRhsAndLhsLoad(binaryIns);
             self.mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat",
-                                         "(Ljava/lang/String;)Ljava/lang/String;", false);
-            self.storeToVar(binaryIns.lhsOp.variableDcl);
+                                    io:sprintf("(L%s;)L%s;", STRING_VALUE, STRING_VALUE) , false);
         } else if (bType is bir:BTypeFloat) {
             self.generateBinaryRhsAndLhsLoad(binaryIns);
-
             self.mv.visitInsn(DADD);
-            self.storeToVar(binaryIns.lhsOp.variableDcl);
+        } else if (bType is bir:BXMLType) {
+            self.generateBinaryRhsAndLhsLoad(binaryIns);
+            self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "concatenate", 
+                                    io:sprintf("(L%s;L%s;)L%s;", XML_VALUE, XML_VALUE, XML_VALUE), false);
         } else {
-            error err = error( "JVM generation is not supported for type " +
-                            io:sprintf("%s", binaryIns.lhsOp.typeValue));
+            error err = error("JVM generation is not supported for type " +
+                              io:sprintf("%s", binaryIns.lhsOp.typeValue));
             panic err;
         }
+
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
     function generateSubIns(bir:BinaryOp binaryIns) {
@@ -378,6 +375,16 @@ type InstructionGenerator object {
         self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", BTYPE,
                 ARRAY_VALUE, ARRAY_VALUE, ARRAY_VALUE), false);
         self.storeToVar(tableNewIns.lhsOp.variableDcl);
+    }
+
+    function generateStreamNewIns(bir:NewStream streamNewIns) {
+        self.mv.visitTypeInsn(NEW, STREAM_VALUE);
+        self.mv.visitInsn(DUP);
+        loadType(self.mv, streamNewIns.typeValue);
+        self.loadVar(streamNewIns.nameOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESPECIAL, STREAM_VALUE, "<init>", io:sprintf("(L%s;L%s;)V", BTYPE,
+                STRING_VALUE), false);
+        self.storeToVar(streamNewIns.lhsOp.variableDcl);
     }
 
     function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
@@ -579,7 +586,7 @@ type InstructionGenerator object {
         loadType(self.mv, typeTestIns.typeValue);
 
         self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
-                io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE, OBJECT), false);
+                io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE), false);
         self.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
@@ -630,7 +637,9 @@ type InstructionGenerator object {
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
         self.loadVar(newXMLElement.startTagOp.variableDcl);
+        self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
         self.loadVar(newXMLElement.endTagOp.variableDcl);
+        self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
         self.loadVar(newXMLElement.defaultNsURIOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
                 io:sprintf("(L%s;L%s;L%s;)L%s;", XML_QNAME, XML_QNAME, STRING_VALUE, XML_VALUE), false);
@@ -699,6 +708,7 @@ type InstructionGenerator object {
 
         // visit attribute name expr
         self.loadVar(xmlAttrStoreIns.keyOp.variableDcl);
+        self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
 
         // invoke getAttribute() method
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttribute",
@@ -715,6 +725,7 @@ type InstructionGenerator object {
 
         // visit attribute name expr
         self.loadVar(xmlAttrStoreIns.keyOp.variableDcl);
+        self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
 
         // visit attribute value expr
         self.loadVar(xmlAttrStoreIns.rhsOp.variableDcl);
@@ -842,6 +853,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BTypeString ||
                 bType is bir:BMapType ||
                 bType is bir:BTableType ||
+                bType is bir:BStreamType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BTypeNil ||
@@ -884,6 +896,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BTypeString ||
                     bType is bir:BMapType ||
                     bType is bir:BTableType ||
+                    bType is bir:BStreamType ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BTypeNil ||

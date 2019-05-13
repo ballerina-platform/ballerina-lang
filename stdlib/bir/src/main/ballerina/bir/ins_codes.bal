@@ -21,6 +21,8 @@ public const int INS_RETURN = 4;
 public const int INS_ASYNC_CALL = 5;
 public const int INS_WAIT = 6;
 public const int INS_FP_CALL = 7;
+public const int INS_WK_RECEIVE = 8;
+public const int INS_WK_SEND = 9;
 
 // Non-terminating instructions
 public const int INS_MOVE = 20;
@@ -57,7 +59,8 @@ public const int INS_XML_ATTRIBUTE_STORE = 49;
 
 public const int INS_NEW_TABLE = 50;
 public const int INS_NEW_TYPEDESC = 51;
-public const int INS_TERNARY = 52;
+public const int INS_NEW_STREAM = 52;
+public const int INS_TERNARY = 53;
 
 // Binary expression related instructions.
 public const int INS_ADD = 61;

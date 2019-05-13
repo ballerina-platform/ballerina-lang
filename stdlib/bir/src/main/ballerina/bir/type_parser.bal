@@ -100,6 +100,8 @@ public type TypeParser object {
             return self.parseMapType();
         } else if (typeTag == self.TYPE_TAG_TABLE){
             return self.parseTableType();
+        } else if (typeTag == self.TYPE_TAG_STREAM){
+            return self.parseStreamType();
         } else if (typeTag == self.TYPE_TAG_INVOKABLE){
             return self.parseInvokableType();
         } else if (typeTag == self.TYPE_TAG_RECORD){
@@ -128,7 +130,7 @@ public type TypeParser object {
     }
 
     function parseArrayType() returns BArrayType {
-        return { state:self.parseArrayState(), eType:self.parseType() };
+        return { state:self.parseArrayState(), size:self.reader.readInt32(), eType:self.parseType() };
     }
 
     function parseMapType() returns BMapType {
@@ -137,6 +139,10 @@ public type TypeParser object {
 
     function parseTableType() returns BTableType {
         return { tConstraint:self.parseType() };
+    }
+
+    function parseStreamType() returns BStreamType {
+        return { sConstraint:self.parseType() };
     }
 
     function parseFutureType() returns BFutureType {

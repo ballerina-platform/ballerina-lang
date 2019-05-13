@@ -36,7 +36,7 @@ public type AuthzHandler object {
     # Checks if the request can be authorized
     #
     # + req - `Request` instance
-    # + return - `true` if can be authorized, else `false`, or `error` if error occured
+    # + return - `true` if can be authorized, else `false`, or `error` if error occurred
     function canHandle(Request req) returns boolean|error;
 
     # Tries to authorize the request
