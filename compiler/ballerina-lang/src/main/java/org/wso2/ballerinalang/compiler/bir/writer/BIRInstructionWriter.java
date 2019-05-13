@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TernaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -448,6 +449,16 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(newTypeDesc.kind.getValue());
         newTypeDesc.lhsOp.accept(this);
         newTypeDesc.type.accept(typeWriter);
+    }
+
+    @Override
+    public void visit(TernaryOp ternaryOp) {
+        writePosition(ternaryOp.pos);
+        buf.writeByte(ternaryOp.kind.getValue());
+        ternaryOp.lhsOp.accept(this);
+        ternaryOp.conditionOp.accept(this);
+        ternaryOp.thenOp.accept(this);
+        ternaryOp.elseOp.accept(this);
     }
 
     // Positions
