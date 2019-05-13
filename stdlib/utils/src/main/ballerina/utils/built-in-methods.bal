@@ -80,6 +80,5 @@ function length(anydata value) returns int = external;
 # Get the next value of an iterator.
 #
 # + iterator - Iterator
-# + targetType - Target type
 # + return - Next value
-function next(any iterator, typedesc targetType) returns anydata|error = external;
+function next(any iterator) returns anydata|error = external;
