@@ -29,6 +29,10 @@ public enum InstructionKind {
     BRANCH((byte) 3),
     RETURN((byte) 4),
     ASYNC_CALL((byte) 5),
+    WAIT((byte) 6),
+    FP_CALL((byte) 7),
+    WK_RECEIVE((byte) 8),
+    WK_SEND((byte) 9),
 
     // Non-terminating instructions
     MOVE((byte) 20),
@@ -44,20 +48,45 @@ public enum InstructionKind {
     IS_LIKE((byte) 30),
     TYPE_TEST((byte) 31),
     NEW_INSTANCE((byte) 32),
-    PANIC((byte) 33),
+    OBJECT_STORE((byte) 33),
+    OBJECT_LOAD((byte) 34),
+    PANIC((byte) 35),
+    FP_LOAD((byte) 36),
+    NEW_XML_ELEMENT((byte) 37),
+    NEW_XML_TEXT((byte) 38),
+    NEW_XML_COMMENT((byte) 39),
+    NEW_XML_PI((byte) 40),
+    NEW_XML_SEQ((byte) 41),
+    NEW_XML_QNAME((byte) 42),
+    NEW_STRING_XML_QNAME((byte) 43),
+    XML_SEQ_STORE((byte) 44),
+    XML_SEQ_LOAD((byte) 45),
+    XML_LOAD((byte) 46),
+    XML_LOAD_ALL((byte) 47),
+    XML_ATTRIBUTE_LOAD((byte) 48),
+    XML_ATTRIBUTE_STORE((byte) 49),
+    NEW_TABLE((byte) 50),
+    NEW_TYPEDESC((byte) 51),
+    NEW_STREAM((byte) 52),
 
     // Binary expression related instructions.
-    ADD((byte) 50),
-    SUB((byte) 51),
-    MUL((byte) 52),
-    DIV((byte) 53),
-    MOD((byte) 54),
-    EQUAL((byte) 55),
-    NOT_EQUAL((byte) 56),
-    GREATER_THAN((byte) 57),
-    GREATER_EQUAL((byte) 58),
-    LESS_THAN((byte) 59),
-    LESS_EQUAL((byte) 60);
+    ADD((byte) 61),
+    SUB((byte) 62),
+    MUL((byte) 63),
+    DIV((byte) 64),
+    MOD((byte) 65),
+    EQUAL((byte) 66),
+    NOT_EQUAL((byte) 67),
+    GREATER_THAN((byte) 68),
+    GREATER_EQUAL((byte) 69),
+    LESS_THAN((byte) 70),
+    LESS_EQUAL((byte) 71),
+    AND((byte) 72),
+    OR((byte) 73),
+
+    // Unary expression related instructions.
+    TYPEOF((byte) 80),
+    NOT((byte) 81);
 
     byte value;
 

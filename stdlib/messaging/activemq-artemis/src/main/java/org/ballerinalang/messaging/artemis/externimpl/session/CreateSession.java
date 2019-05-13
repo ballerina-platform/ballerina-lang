@@ -24,11 +24,12 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
+import org.ballerinalang.messaging.artemis.ArtemisTransactionContext;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -54,11 +55,11 @@ import org.slf4j.LoggerFactory;
                 @Argument(name = "config", type = TypeKind.RECORD, structType = "SessionConfiguration")
         }
 )
-public class CreateSession implements NativeCallableUnit {
+public class CreateSession extends BlockingNativeCallableUnit {
     private static final Logger logger = LoggerFactory.getLogger(CreateSession.class);
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    public void execute(Context context) {
         @SuppressWarnings(ArtemisConstants.UNCHECKED)
         BMap<String, BValue> sessionObj = (BMap<String, BValue>) context.getRefArgument(0);
         @SuppressWarnings(ArtemisConstants.UNCHECKED)
@@ -81,17 +82,18 @@ public class CreateSession implements NativeCallableUnit {
             if (passValue instanceof BString) {
                 password = passValue.stringValue();
             }
-            ClientSession session = sessionFactory.createSession(username, password, false, true, true,
-                                                                 serverLocator.isPreAcknowledge(),
+            boolean autoCommitSends = ((BBoolean) config.get(ArtemisConstants.AUTO_COMMIT_SENDS)).booleanValue();
+            boolean autoCommitAcks = ((BBoolean) config.get(ArtemisConstants.AUTO_COMMIT_ACKS)).booleanValue();
+            ClientSession session = sessionFactory.createSession(username, password, false, autoCommitSends,
+                                                                 autoCommitAcks, serverLocator.isPreAcknowledge(),
                                                                  serverLocator.getAckBatchSize());
             sessionObj.addNativeData(ArtemisConstants.ARTEMIS_SESSION, session);
+            if (!autoCommitSends || !autoCommitAcks) {
+                sessionObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT,
+                                         new ArtemisTransactionContext(sessionObj));
+            }
         } catch (ActiveMQException e) {
-            ArtemisUtils.throwBallerinaException("Error occurred while starting session", context, e, logger);
+            ArtemisUtils.logAndSetError("Error occurred while starting session", context, e, logger);
         }
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return true;
     }
 }

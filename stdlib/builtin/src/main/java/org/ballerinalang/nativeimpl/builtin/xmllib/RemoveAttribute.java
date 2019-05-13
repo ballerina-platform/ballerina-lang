@@ -20,6 +20,9 @@ package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
@@ -54,5 +57,14 @@ public class RemoveAttribute extends BlockingNativeCallableUnit {
         
         // Setting output value.
         ctx.setReturnValues();
+    }
+
+    public static void removeAttribute(Strand strand, XMLValue<?> xml, String qname) {
+        try {
+            xml.removeAttribute(qname);
+        } catch (Throwable e) {
+            BLangExceptionHelper.handleXMLException(OPERATION, e);
+        }
+
     }
 }

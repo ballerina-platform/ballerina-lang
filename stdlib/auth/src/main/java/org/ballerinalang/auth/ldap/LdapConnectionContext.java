@@ -21,6 +21,7 @@ package org.ballerinalang.auth.ldap;
 import org.ballerinalang.auth.ldap.util.LdapUtils;
 
 import java.util.Hashtable;
+
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;

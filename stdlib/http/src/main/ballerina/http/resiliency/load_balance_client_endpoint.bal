@@ -332,8 +332,8 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 # + chunking - The chunking behaviour of the request
 # + followRedirects - Redirect related options
 # + retryConfig - Retry related options
+# + poolConfig - Configurations associated with request pooling
 # + proxy - Proxy related options
-# + connectionThrottling - The configurations for controlling the number of connections allowed concurrently
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be distributed
 # + cache - The configurations for controlling the caching behaviour
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
@@ -354,7 +354,7 @@ public type LoadBalanceClientEndpointConfiguration record {|
     TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth = ();
+    OutboundAuthConfig? auth = ();
     LoadBalancerRule? lbRule = ();
     boolean failover = true;
 |};

@@ -19,16 +19,22 @@
 public type Listener object {
     *AbstractListener;
     private Session session;
-    private boolean anonymousSession;
 
-    public function __init(Session | URLConfiguration sesssionOrURLConfig) {
-        if (sesssionOrURLConfig is Session) {
-            self.session = sesssionOrURLConfig;
+    public function __init(Session | EndpointConfiguration sessionOrEndpointConfig) {
+        if (sessionOrEndpointConfig is Session) {
+            self.session = sessionOrEndpointConfig;
         } else {
-            Connection connection = new("tcp://" + sesssionOrURLConfig.host + ":" + sesssionOrURLConfig.port);
-            self.session = new(connection, config = { username: sesssionOrURLConfig["username"],
-                    password: sesssionOrURLConfig["password"] });
-            self.anonymousSession = true;
+            Connection connection;
+            var secureSocket = sessionOrEndpointConfig["secureSocket"];
+            if (secureSocket is SecureSocket) {
+                connection = new(parseUrl(sessionOrEndpointConfig), config = {secureSocket: secureSocket});
+            } else {
+                connection = new(parseUrl(sessionOrEndpointConfig));
+            }
+            self.session = new(connection, config = { username: sessionOrEndpointConfig["username"],
+                    password: sessionOrEndpointConfig["password"],
+                    autoCommitSends: false, autoCommitAcks:  false });
+            self.session.anonymousSession = true;
         }
     }
     public function __start() returns error? {
@@ -41,22 +47,33 @@ public type Listener object {
         return self.createConsumer(serviceType);
     }
 
-    function start() returns error? = external;
-    function createConsumer(service serviceType) returns error? = external;
-    function stop() returns error? = external;
+    # The Artemis consumer is represented by the `Service` object.
+    # However, if there is a need to make blocking synchronous calls, within a transaction block,
+    # this method can be used to create and get a `Consumer` object.
+    # 
+    # + config - the configuration for the queue
+    # + autoAck - whether to acknowledge the received message automatically
+    # + filter - only messages, which match this filter will be consumed
+    # + return - the `Consumer` object for the listener to make blocking calls
+    public function createAndGetConsumer(QueueConfiguration config, boolean autoAck = true, string? filter = ())
+    returns Consumer | error {
+        return new Consumer(self.session, config, autoAck, filter);
+    }
+
+    private function start() returns error? = external;
+    private function createConsumer(service serviceType) returns error? = external;
+    private function stop() returns error? = external;
 };
 
 # The configuration for an Artemis consumer service.
 #
-# + autoAck - whether to automatically acknowledge a service when a resource completes
+# + autoAck - whether to acknowledge a message automatically when a resource completes
 # + queueConfig - the configuration for the queue to consume from
 # + filter - only messages which match this filter will be consumed
-# + browseOnly - whether the ClientConsumer will only browse the queue or consume messages
 public type ArtemisServiceConfig record {|
     boolean autoAck = true;
     QueueConfiguration queueConfig;
     string? filter = ();
-    boolean browseOnly = false;
 |};
 
 public annotation ArtemisServiceConfig ServiceConfig on service;
@@ -90,3 +107,15 @@ public type QueueConfiguration record {|
     boolean exclusive = false;
     boolean lastValue = false;
 |};
+
+# Representation of the ActiveMQ Artemis client consumer to make blocking receive calls.
+public type Consumer client object {
+    function __init(Session sessObj, QueueConfiguration config, boolean autoAck, string? filter)
+    returns error? {
+        check self.createConsumer(sessObj, config, autoAck, filter);
+    }
+
+    private function createConsumer(Session sessObj, QueueConfiguration config, boolean autoAck, string? filter)
+    returns error? = external;
+    public remote function receive(int timeoutInMilliSeconds = 0) returns    @tainted Message | error = external;
+};

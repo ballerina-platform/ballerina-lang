@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
@@ -52,6 +54,16 @@ public class ToByteArray extends BlockingNativeCallableUnit {
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
                                          "Unsupported Encoding " + e.getMessage());
+        }
+    }
+
+    public static ArrayValue toByteArray(Strand strand, String value, String encoding) {
+        try {
+            byte[] bytes = value.getBytes(encoding);
+            return new ArrayValue(bytes);
+        } catch (UnsupportedEncodingException e) {
+            throw new BallerinaException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                    "Unsupported Encoding " + e.getMessage());
         }
     }
 }

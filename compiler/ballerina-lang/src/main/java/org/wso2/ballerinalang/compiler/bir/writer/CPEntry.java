@@ -208,7 +208,7 @@ public class CPEntry {
      *
      * @since 0.87
      */
-    enum Type {
+    public enum Type {
         CP_ENTRY_INTEGER((byte) 1),
         CP_ENTRY_FLOAT((byte) 2),
         CP_ENTRY_BOOLEAN((byte) 3),

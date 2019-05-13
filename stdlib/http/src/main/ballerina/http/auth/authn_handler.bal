@@ -14,23 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 # Representation of Authentication handler for HTTP traffic.
-#
-# + name - Name of the http authn handler
-public type HttpAuthnHandler abstract object {
-
-    public string name = "";
+public type AuthnHandler abstract object {
 
     # Checks if the request can be authenticated with the relevant `HttpAuthnHandler` implementation
     #
     # + req - `Request` instance
-    # + return - true if can be authenticated, else false
+    # + return - `true` if can be authenticated, else `false`
     public function canHandle(Request req) returns boolean;
 
     # Tries to authenticate the request with the relevant `HttpAuthnHandler` implementation
     #
     # + req - `Request` instance
-    # + return - true if authenticated successfully, else false
-    public function handle(Request req) returns boolean;
+    # + return - `true` if authenticated successfully, else `false` or, `error` in case of errors
+    public function handle(Request req) returns boolean|error;
 };

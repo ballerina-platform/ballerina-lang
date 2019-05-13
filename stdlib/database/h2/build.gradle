@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+ 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
@@ -25,8 +42,10 @@ dependencies {
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
 
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    baloCreat project(':lib-creator-milestone')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-lang')
+//    implementation project(':ballerina-lang')
     implementation project(':ballerina-sql')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-config')
@@ -51,9 +70,9 @@ dependencies {
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-cache')
-    testCompile 'org.testng:testng:6.13.1'
-    testCompile 'org.slf4j:slf4j-simple:1.7.22'
-    testCompile 'com.h2database:h2:1.4.199'
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-simple'
+    testCompile 'com.h2database:h2'
 }
 
 test {

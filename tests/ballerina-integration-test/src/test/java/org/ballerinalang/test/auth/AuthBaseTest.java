@@ -20,6 +20,8 @@ package org.ballerinalang.test.auth;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
+import org.ballerinalang.test.util.HttpResponse;
+import org.testng.Assert;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
@@ -32,12 +34,12 @@ import java.io.File;
 public class AuthBaseTest extends BaseTest {
 
     protected static BServerInstance serverInstance;
-    protected static EmbeddedDirectoryServer embeddedDirectoryServer;
+    private static EmbeddedDirectoryServer embeddedDirectoryServer;
 
     @BeforeGroups(value = "auth-test", alwaysRun = true)
     public void start() throws Exception {
         int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9101, 9102,
-                9103, 9104, 9105, 9106, 9107, 9108, 9190, 9191, 9192, 9193, 9194, 9195, 9196};
+                9103, 9104, 9105, 9106, 9107, 9108, 9109, 9110, 9111, 9112, 9113, 9190, 9195, 9196};
         embeddedDirectoryServer = new EmbeddedDirectoryServer();
         embeddedDirectoryServer.startLdapServer(9389);
 
@@ -54,5 +56,24 @@ public class AuthBaseTest extends BaseTest {
         embeddedDirectoryServer.stopLdapService();
         serverInstance.removeAllLeechers();
         serverInstance.shutdownServer();
+    }
+
+    void assertOK(HttpResponse response) {
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    void assertUnauthorized(HttpResponse response) {
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+    }
+
+    void assertForbidden(HttpResponse response) {
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    void assertContains(HttpResponse response, String text) {
+        Assert.assertTrue(response.getData().contains(text));
     }
 }

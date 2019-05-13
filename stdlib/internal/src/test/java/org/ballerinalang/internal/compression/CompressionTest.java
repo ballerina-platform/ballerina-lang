@@ -382,7 +382,7 @@ public class CompressionTest {
             }
             zipFile.close();
         } catch (IOException e) {
-            new BLangRuntimeException("Error occured when retrieving the files from the archived file");
+            new BLangRuntimeException("Error occurred when retrieving the files from the archived file");
         }
         return filesContained;
     }

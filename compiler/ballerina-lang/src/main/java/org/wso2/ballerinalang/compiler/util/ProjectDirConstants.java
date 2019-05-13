@@ -30,6 +30,7 @@ public class ProjectDirConstants {
     public static final String BLANG_SOURCE_EXT = ".bal";
     public static final String BLANG_COMPILED_PROG_EXT = ".balx";
     public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".balo";
+    public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
     public static final String BLANG_COMPILED_PKG_EXT = ".zip";
     public static final String BLANG_COMPILED_JAR_EXT = ".jar";
 
@@ -63,5 +64,9 @@ public class ProjectDirConstants {
     public static final String DS_STORE_FILE = ".DS_Store";
 
     public static final String BALLERINA_CENTRAL_ACCESS_TOKEN = "BALLERINA_CENTRAL_ACCESS_TOKEN";
+
+    public static final String MAIN_CLASS_MANIFEST_ENTRY = "Main-Class";
+
+    public static final String JAVA_MAIN = "main";
 
 }

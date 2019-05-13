@@ -20,7 +20,6 @@ package org.ballerinalang.test.auth;
 
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
@@ -32,7 +31,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class ResourceLevelAuthTest extends AuthBaseTest {
 
-    private final int servicePort = 9093;
+    private final int servicePort = 9094;
 
     @Test(description = "Authn and authz success test case")
     public void testAuthSuccessWithResourceLevelConfigs() throws Exception {
@@ -40,8 +39,7 @@ public class ResourceLevelAuthTest extends AuthBaseTest {
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
     }
 
     @Test(description = "Authn success and authz failure test case")
@@ -50,8 +48,7 @@ public class ResourceLevelAuthTest extends AuthBaseTest {
         headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        assertForbidden(response);
     }
 
     @Test(description = "Authn and authz failure test case")
@@ -60,7 +57,6 @@ public class ResourceLevelAuthTest extends AuthBaseTest {
         headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
     }
 }

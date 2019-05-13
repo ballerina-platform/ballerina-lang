@@ -36,7 +36,7 @@
     {
       "label": "io",
       "kind": "Module",
-      "detail": "BType",
+      "detail": "Package",
       "sortText": "150",
       "insertText": "io"
     },
@@ -101,7 +101,7 @@
     {
       "label": "http",
       "kind": "Module",
-      "detail": "BType",
+      "detail": "Package",
       "sortText": "150",
       "insertText": "http"
     },

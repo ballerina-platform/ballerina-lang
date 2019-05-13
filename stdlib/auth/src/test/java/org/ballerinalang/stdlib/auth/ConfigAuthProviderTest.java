@@ -25,7 +25,6 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -80,114 +79,94 @@ public class ConfigAuthProviderTest {
     @Test(description = "Test case for authenticating non-existing user")
     public void testAuthenticationOfNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationOfNonExistingUser");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for authenticating with invalid password")
     public void testAuthenticationOfNonExistingPassword() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationOfNonExistingPassword");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for successful authentication")
     public void testAuthentication() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthentication");
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test(description = "Test case for reading groups of non-existing user")
-    public void testReadScopesOfNonExistingUser() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReadScopesOfNonExistingUser");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(((BValueArray) returns[0]).size(), 0);
-    }
-
-    @Test(description = "Test case for reading groups of a user")
-    public void testReadScopesOfUser() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReadScopesOfUser");
-        Assert.assertNotNull(returns);
-        BValueArray groups = ((BValueArray) returns[0]);
-        Assert.assertEquals(groups.size(), 1);
-
-        Assert.assertEquals(groups.getString(0), "scope1");
+        assertSuccessOfResults(returns);
     }
 
     @Test(description = "Test case for unsuccessful authentication when username is empty")
     public void testAuthenticationWithEmptyUsername() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyUsername");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for unsuccessful authentication when password is empty")
     public void testAuthenticationWithEmptyPassword() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyPassword");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for unsuccessful authentication when password is empty and username is invalid")
     public void testAuthenticationWithEmptyPasswordAndInvalidUsername() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyPasswordAndInvalidUsername");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for unsuccessful authentication when username and password are empty")
     public void testAuthenticationWithEmptyUsernameAndEmptyPassword() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyUsernameAndEmptyPassword");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for successful authentication with sha-256 hashed password")
     public void testAuthenticationSha256() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha256");
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        assertSuccessOfResults(returns);
     }
 
     @Test(description = "Test case for successful authentication with sha-384 hashed password")
     public void testAuthenticationSha384() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha384");
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        assertSuccessOfResults(returns);
     }
 
     @Test(description = "Test case for successful authentication with sha-512 hashed password")
     public void testAuthenticationSha512() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha512");
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        assertSuccessOfResults(returns);
     }
 
     @Test(description = "Test case for successful authentication with plain text password")
     public void testAuthenticationPlain() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationPlain");
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        assertSuccessOfResults(returns);
     }
 
     @Test(description = "Test case for unsuccessful authentication with sha-512 hashed password, using invalid " +
             "password")
     public void testAuthenticationSha512Negative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha512Negative");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for unsuccessful authentication with plain text password, using invalid password")
     public void testAuthenticationPlainNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationPlainNegative");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @AfterClass
     public void tearDown() throws IOException {
         Files.deleteIfExists(secretCopyPath);
+    }
+
+    private void assertSuccessOfResults(BValue[] returns) {
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+    }
+
+    private void assertFailureOfResults(BValue[] returns) {
+        Assert.assertNotNull(returns);
+        Assert.assertFalse(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
     }
 }

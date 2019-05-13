@@ -231,10 +231,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangDeprecatedNode deprecatedNode) {
-        throw new AssertionError();
-    }
-
     // Statements
     public void visit(BLangBlockStmt blockNode) {
         throw new AssertionError();
@@ -728,7 +724,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangXMLAccessExpr xmlIndexAccessExpr) {
+    public void visit(BLangXMLAccessExpr xmlAccessExpr) {
         throw new AssertionError();
     }
 

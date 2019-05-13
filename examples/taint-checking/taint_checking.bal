@@ -77,7 +77,7 @@ public function main(string... args) {
         // trusted.
         userDefinedSecureOperation(sanitizedData2);
     }
-    customerDBEP.stop();
+    checkpanic customerDBEP.stop();
     return;
 }
 

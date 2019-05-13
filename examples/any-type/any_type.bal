@@ -26,7 +26,7 @@ public function main() {
     any a = new Person("John", "Doe");
 
     // Before anything useful can be done with `a`, we need to ascertain
-    // its type. To this end, a type assertion or a type guard can be used.
+    // its type. To this end, a type cast or a type guard can be used.
     Person john = <Person>a;
     io:println("Full name: ", john.getFullName());
 

@@ -85,4 +85,26 @@ public class SocketClientCallbackServiceTestCase extends SocketBaseTest {
         joineeServerLeecher.waitForText(20000);
         serverInstance.removeAllLeechers();
     }
+
+    @Test(description = "Check read timeout")
+    public void testSocketReadTimeout() {
+        LogLeecher timeoutLeecher = new LogLeecher("Read timed out");
+        serverInstance.addLogLeecher(timeoutLeecher);
+        try (SocketChannel socketChannel = SocketChannel.open()) {
+            socketChannel.configureBlocking(true);
+            socketChannel.connect(new InetSocketAddress("localhost", 61599));
+            ByteBuffer buf = ByteBuffer.allocate(64);
+            String welcomeMsg = "Hello Ballerina";
+            buf.put(welcomeMsg.getBytes(StandardCharsets.UTF_8));
+            buf.flip();
+            while (buf.hasRemaining()) {
+                socketChannel.write(buf);
+            }
+            Thread.sleep(2000L);
+            timeoutLeecher.waitForText(22000);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage(), e);
+        }
+        serverInstance.removeAllLeechers();
+    }
 }
