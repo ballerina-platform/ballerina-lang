@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
@@ -257,16 +258,19 @@ public class BIRGen extends BLangNodeVisitor {
         boolean isTypeAttachedFunction = astFunc.flagSet.contains(Flag.ATTACHED) &&
                 !typeDefs.containsKey(astFunc.receiver.type.tsymbol);
 
-        Name funcName;
-        if (isTypeAttachedFunction) {
-            funcName = names.fromString(astFunc.symbol.name.value);
-        } else {
-            funcName = getFuncName(astFunc.symbol);
-        }
-
         Name workerName = names.fromIdNode(astFunc.defaultWorkerName);
-        BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type, workerName,
-                astFunc.sendsToThis.size());
+
+        BIRFunction birFunc;
+
+        if (isTypeAttachedFunction) {
+            Name funcName = names.fromString(astFunc.symbol.name.value);
+            birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type, astFunc.receiver.type, workerName,
+                    astFunc.sendsToThis.size());
+        } else {
+            Name funcName = getFuncName(astFunc.symbol);
+            birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type, workerName,
+                    astFunc.sendsToThis.size());
+        }
 
         //create channelDetails array
         int i = 0;
@@ -880,6 +884,11 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangStructFieldAccessExpr astStructFieldAccessExpr) {
         generateMappingAccess(astStructFieldAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangTupleAccessExpr tupleAccessExpr) {
+        generateArrayAccess(tupleAccessExpr);
     }
 
     @Override

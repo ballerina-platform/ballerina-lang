@@ -51,6 +51,7 @@ public type Function record {|
     BInvokableType typeValue = {};
     Visibility visibility = "PACKAGE_PRIVATE";
     ChannelDetail[] workerChannels;
+    BType? receiverType;
 |};
 
 public type BasicBlock record {|
@@ -272,6 +273,7 @@ public type BRecordType record {|
     boolean sealed;
     BType restFieldType;
     BRecordField?[] fields = [];
+    BAttachedFunction initFunction;
 |};
 
 public type BObjectType record {|

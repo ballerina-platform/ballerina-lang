@@ -22,7 +22,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BIterator;
@@ -94,7 +94,7 @@ public class Next extends BlockingNativeCallableUnit {
         // We create a new map and add the value to the map with the key `value`. Then we set this
         // map to the corresponding registry location.
         BMapType mapType = new BMapType(TypeChecker.getType(value));
-        MapValue<String, Object> newMap = new MapValue<>(mapType);
+        MapValueImpl<String, Object> newMap = new MapValueImpl<>(mapType);
         newMap.put(KEY, value);
         return newMap;
     }

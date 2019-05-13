@@ -33,7 +33,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 
 import java.math.BigDecimal;
@@ -64,7 +64,7 @@ public class JSONUtils {
         if (!isJSONObject(json)) {
             return false;
         }
-        return ((MapValue<String, ?>) json).containsKey(elementName);
+        return ((MapValueImpl<String, ?>) json).containsKey(elementName);
     }
 
     /**
@@ -94,16 +94,16 @@ public class JSONUtils {
     /**
      * Convert map value to JSON.
      *
-     * @param map value {@link MapValue} to be converted to JSON
+     * @param map value {@link MapValueImpl} to be converted to JSON
      * @param targetType the target JSON type to be convert to
      * @return JSON representation of the provided array
      */
-    public static Object convertMapToJSON(MapValue<String, ?> map, BJSONType targetType) {
+    public static Object convertMapToJSON(MapValueImpl<String, ?> map, BJSONType targetType) {
         if (map == null) {
             return null;
         }
 
-        MapValue<String, Object> json = new MapValue<>(targetType);
+        MapValueImpl<String, Object> json = new MapValueImpl<>(targetType);
         for (Entry<String, ?> structField : map.entrySet()) {
             String key = structField.getKey();
             Object value = structField.getValue();
@@ -125,7 +125,7 @@ public class JSONUtils {
         }
 
         try {
-            return ((MapValue<String, Object>) json).get(elementName);
+            return ((MapValueImpl<String, Object>) json).get(elementName);
         } catch (BallerinaException e) {
             if (e.getDetail() != null) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetail());
@@ -152,7 +152,7 @@ public class JSONUtils {
         }
 
         try {
-            ((MapValue<String, Object>) json).put(elementName, element);
+            ((MapValueImpl<String, Object>) json).put(elementName, element);
         } catch (BLangFreezeException e) {
             throw e;
         } catch (Throwable t) {
@@ -249,20 +249,20 @@ public class JSONUtils {
      *
      * @param json JSON to convert
      * @param mapType MapType which the JSON is converted to.
-     * @return If the provided JSON is of object-type, this method will return a {@link MapValue} containing the values
-     *         of the JSON object. Otherwise a {@link BallerinaException} will be thrown.
+     * @return If the provided JSON is of object-type, this method will return a {@link MapValueImpl} containing the
+     *          values of the JSON object. Otherwise a {@link BallerinaException} will be thrown.
      */
-    public static MapValue<String, ?> jsonToMap(Object json, BMapType mapType) {
+    public static MapValueImpl<String, ?> jsonToMap(Object json, BMapType mapType) {
         if (json == null || !isJSONObject(json)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
-        MapValue<String, Object> map = new MapValue<>(mapType);
+        MapValueImpl<String, Object> map = new MapValueImpl<>(mapType);
         BType mapConstraint = mapType.getConstrainedType();
         if (mapConstraint == null || mapConstraint.getTag() == TypeTags.ANY_TAG ||
                 mapConstraint.getTag() == TypeTags.JSON_TAG) {
-            ((MapValue<String, Object>) json).entrySet().forEach(entry -> {
+            ((MapValueImpl<String, Object>) json).entrySet().forEach(entry -> {
                 map.put(entry.getKey(), entry.getValue());
             });
 
@@ -270,7 +270,7 @@ public class JSONUtils {
         }
 
         // We reach here if the map is constrained.
-        ((MapValue<String, Object>) json).entrySet().forEach(entry -> {
+        ((MapValueImpl<String, Object>) json).entrySet().forEach(entry -> {
             map.put(entry.getKey(), convertJSON(entry.getValue(), mapConstraint));
         });
 
@@ -282,17 +282,17 @@ public class JSONUtils {
      *
      * @param json JSON to convert
      * @param structType Type (definition) of the target record
-     * @return If the provided JSON is of object-type, this method will return a {@link MapValue} containing the values
-     *         of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
+     * @return If the provided JSON is of object-type, this method will return a {@link MapValueImpl} containing the
+     *         values of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
      */
-    public static MapValue<String, Object> convertJSONToRecord(Object json, BStructureType structType) {
+    public static MapValueImpl<String, Object> convertJSONToRecord(Object json, BStructureType structType) {
         if (json == null || !isJSONObject(json)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
-        MapValue<String, Object> bStruct = new MapValue<>(structType);
-        MapValue<String, Object> jsonObject = (MapValue<String, Object>) json;
+        MapValueImpl<String, Object> bStruct = new MapValueImpl<>(structType);
+        MapValueImpl<String, Object> jsonObject = (MapValueImpl<String, Object>) json;
         for (Map.Entry<String, BField> field : structType.getFields().entrySet()) {
             BType fieldType = field.getValue().type;
             String fieldName = field.getValue().name;
@@ -375,7 +375,7 @@ public class JSONUtils {
             return new ArrayValue(BTypes.typeString);
         }
 
-        String[] keys = ((MapValue<String, ?>) json).getKeys();
+        String[] keys = ((MapValueImpl<String, ?>) json).getKeys();
         return new ArrayValue(keys);
     }
 
@@ -397,7 +397,7 @@ public class JSONUtils {
             case TypeTags.MAP_TAG:
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return convertMapToJSON((MapValue<String, Object>) source, targetType);
+                return convertMapToJSON((MapValueImpl<String, Object>) source, targetType);
             case TypeTags.JSON_TAG:
                 return source;
             default:
@@ -416,7 +416,7 @@ public class JSONUtils {
             return;
         }
 
-        ((MapValue<String, ?>) json).remove(fieldName);
+        ((MapValueImpl<String, ?>) json).remove(fieldName);
     }
 
     /**
@@ -594,7 +594,7 @@ public class JSONUtils {
                 case TypeTags.MAP_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
                 case TypeTags.OBJECT_TYPE_TAG:
-                    json.append(convertMapToJSON((MapValue<String, ?>) value, (BJSONType) BTypes.typeJSON));
+                    json.append(convertMapToJSON((MapValueImpl<String, ?>) value, (BJSONType) BTypes.typeJSON));
                     break;
                 case TypeTags.ARRAY_TAG:
                     json.append(convertArrayToJSON((ArrayValue) value));
@@ -666,7 +666,7 @@ public class JSONUtils {
         return json;
     }
 
-    private static void populateJSON(MapValue<String, Object> json, String key, Object value, BType exptType) {
+    private static void populateJSON(MapValueImpl<String, Object> json, String key, Object value, BType exptType) {
         try {
             if (value == null) {
                 json.put(key, null);
@@ -689,7 +689,7 @@ public class JSONUtils {
                 case TypeTags.MAP_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
                 case TypeTags.OBJECT_TYPE_TAG:
-                    json.put(key, convertMapToJSON((MapValue<String, ?>) value, (BJSONType) exptType));
+                    json.put(key, convertMapToJSON((MapValueImpl<String, ?>) value, (BJSONType) exptType));
                     break;
                 default:
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, BTypes.typeJSON,

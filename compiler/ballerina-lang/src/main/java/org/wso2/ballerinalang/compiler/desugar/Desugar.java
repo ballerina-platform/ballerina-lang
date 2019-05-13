@@ -515,7 +515,7 @@ public class Desugar extends BLangNodeVisitor {
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
                     initFunctionStmts.put(field.symbol,
-                            createObjectFieldUpdate(objectTypeNode.initFunction, field));
+                            createStructFieldUpdate(objectTypeNode.initFunction, field));
                 });
 
         // Adding init statements to the init function.
@@ -538,7 +538,8 @@ public class Desugar extends BLangNodeVisitor {
                         !Symbols.isOptional(field.symbol))
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
-                    recordTypeNode.initFunction.initFunctionStmts.put(field.symbol, createAssignmentStmt(field));
+                    recordTypeNode.initFunction.initFunctionStmts.put(field.symbol,
+                            createStructFieldUpdate(recordTypeNode.initFunction, field));
                 });
 
         //Adding init statements to the init function.
@@ -1643,6 +1644,7 @@ public class Desugar extends BLangNodeVisitor {
         ifNode.expr = rewriteExpr(ifNode.expr);
         ifNode.body = rewrite(ifNode.body, env);
         ifNode.elseStmt = rewrite(ifNode.elseStmt, env);
+
         result = ifNode;
     }
 
@@ -3555,14 +3557,15 @@ public class Desugar extends BLangNodeVisitor {
         return rewrite(invocationExprMethod, env);
     }
 
-    private BLangInvocation visitNextBuiltInMethodInvocation(BLangInvocation iExpr) {
+    private BLangExpression visitNextBuiltInMethodInvocation(BLangInvocation iExpr) {
         BInvokableSymbol invokableSymbol =
                 (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(symTable.utilsPackageSymbol),
                         names.fromString(iExpr.builtInMethod.getName()), SymTag.FUNCTION);
         List<BLangExpression> requiredArgs = Lists.of(iExpr.expr);
-        BLangInvocation invocationExprMethod = ASTBuilderUtil.createInvocationExprMethod(iExpr.pos, invokableSymbol,
+        BLangExpression invocationExprMethod = ASTBuilderUtil.createInvocationExprMethod(iExpr.pos, invokableSymbol,
                 requiredArgs, new ArrayList<>(), new ArrayList<>(), symResolver);
-        return rewrite(invocationExprMethod, env);
+        invocationExprMethod = addConversionExprIfRequired(invocationExprMethod, iExpr.type);
+        return rewriteExpr(invocationExprMethod);
     }
 
     private BLangExpression visitCloneInvocation(BLangExpression expr, BType lhsType) {
@@ -4373,7 +4376,7 @@ public class Desugar extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
-    private BLangAssignment createObjectFieldUpdate(BLangFunction function, BLangSimpleVariable variable) {
+    private BLangAssignment createStructFieldUpdate(BLangFunction function, BLangSimpleVariable variable) {
         BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(variable.pos, function.receiver.symbol);
         BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, variable.name);
         fieldAccess.symbol = variable.symbol;
