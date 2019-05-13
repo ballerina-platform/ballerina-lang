@@ -1265,6 +1265,11 @@ public class BIRPackageSymbolEnter {
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }
 
+                    // read record init function
+                    getUTF8CPEntryValue(inputStream);
+                    inputStream.readByte();
+                    readType();
+
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 
                     Object poppedRecordType = compositeStack.pop();
