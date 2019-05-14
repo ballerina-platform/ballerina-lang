@@ -337,7 +337,7 @@ public class BIRGen extends BLangNodeVisitor {
         Visibility visibility = getVisibility(astAnnotation.symbol);
         //TODO is it good to send nill type? fix
         BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, visibility, annSymbol.attachPoints,
-                annSymbol.attachedType == null ? symTable.nilType : annSymbol.attachedType.type);
+                annSymbol.attachedType == null ? symTable.noType : annSymbol.attachedType.type);
 
         this.env.enclPkg.annotations.add(birAnn);
     }
