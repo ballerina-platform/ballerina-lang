@@ -19,6 +19,8 @@ package org.ballerinalang.jvm.values.connector;
 
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +33,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TempCallableUnitCallback {
 
+    private static final Logger log = LoggerFactory.getLogger(TempCallableUnitCallback.class);
     private final Strand strand;
     private volatile Semaphore executionWaitSem;
     private int timeOut = 120;
@@ -58,7 +61,9 @@ public class TempCallableUnitCallback {
 
     public void sync() {
         try {
-            executionWaitSem.tryAcquire(timeOut, TimeUnit.SECONDS);
+            if (!executionWaitSem.tryAcquire(timeOut, TimeUnit.SECONDS)) {
+                log.debug("Failed to acquire");
+            }
         } catch (InterruptedException e) {
             //ignore
         }

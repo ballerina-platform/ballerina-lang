@@ -29,11 +29,6 @@
     </listeners>
     <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
         <packages>
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
@@ -99,6 +94,10 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.MultiplyOperationTest"/>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.OperatorPrecedenceTest"/>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.RefEqualAndNotEqualOperationsTest"/>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.SubtractOperationTest"/>
             <class name="org.ballerinalang.test.io.IOTest"/>
         </classes>
     </test>
