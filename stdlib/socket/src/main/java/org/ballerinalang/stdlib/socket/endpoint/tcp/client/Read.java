@@ -65,12 +65,14 @@ public class Read implements NativeCallableUnit {
             callback.notifyFailure(SocketUtils.createSocketError(context, msg));
             return;
         }
-        SocketChannel socketChannel = (SocketChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
-        final ReadPendingCallback readPendingCallback = new ReadPendingCallback(context, callback, expectedLength);
-        ReadPendingSocketMap.getInstance().add(socketChannel.hashCode(), readPendingCallback);
         SocketService socketService = (SocketService) clientEndpoint.getNativeData(SocketConstants.SOCKET_SERVICE);
+        SocketChannel socketChannel = (SocketChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
+        int socketHash = socketChannel.hashCode();
+        ReadPendingCallback readPendingCallback = new ReadPendingCallback(context, callback, expectedLength, socketHash,
+                socketService.getReadTimeout());
+        ReadPendingSocketMap.getInstance().add(socketChannel.hashCode(), readPendingCallback);
         log.debug("Notify to invokeRead");
-        SelectorManager.getInstance().invokeRead(socketChannel.hashCode(), socketService.getResources() != null);
+        SelectorManager.getInstance().invokeRead(socketHash, socketService.getResources() != null);
     }
 
     @Override

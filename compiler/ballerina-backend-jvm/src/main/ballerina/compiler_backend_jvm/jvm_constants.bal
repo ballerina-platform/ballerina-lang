@@ -206,6 +206,7 @@ final int V1_8 = 0 << 16 | 52;
 
 // jvm runtime values related classes
 const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
+const string MAP_VALUE_IMPL = "org/ballerinalang/jvm/values/MapValueImpl";
 const string TABLE_VALUE = "org/ballerinalang/jvm/values/TableValue";
 const string STREAM_VALUE = "org/ballerinalang/jvm/values/StreamValue";
 const string ARRAY_VALUE = "org/ballerinalang/jvm/values/ArrayValue";

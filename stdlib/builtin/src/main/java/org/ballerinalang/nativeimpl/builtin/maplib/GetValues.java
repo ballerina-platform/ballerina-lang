@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -54,7 +54,7 @@ public class GetValues extends BlockingNativeCallableUnit {
         ctx.setReturnValues(bRefValueArray);
     }
 
-    public static ArrayValue values(Strand strand, MapValue<?, ?> map) {
+    public static ArrayValue values(Strand strand, MapValueImpl<?, ?> map) {
         BMapType mapType = (BMapType) map.getType();
         return new ArrayValue(map.values().toArray(new Object[0]), new BArrayType(mapType.getConstrainedType()));
     }

@@ -87,6 +87,10 @@ type InstructionGenerator object {
             self.generateLessEqualIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_NOT_EQUAL) {
             self.generateNotEqualIns(binaryIns);
+        }  else if (binaryIns.kind == bir:BINARY_GREATER_THAN) {
+            self.generateGreaterThanIns(binaryIns);
+        }  else if (binaryIns.kind == bir:BINARY_GREATER_EQUAL) {
+            self.generateGreaterEqualIns(binaryIns);
         } else {
             error err = error("JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind));
             panic err;
@@ -98,33 +102,35 @@ type InstructionGenerator object {
         self.loadVar(binaryIns.rhsOp2.variableDcl);
     }
 
-    function generateLessThanIns(bir:BinaryOp binaryIns) {
-        self.generateBinaryRhsAndLhsLoad(binaryIns);
-
-        jvm:Label label1 = new;
-        jvm:Label label2 = new;
-
-        self.mv.visitInsn(LCMP);
-        self.mv.visitJumpInsn(IFLT, label1);
-
-        self.mv.visitInsn(ICONST_0);
-        self.mv.visitJumpInsn(GOTO, label2);
-
-        self.mv.visitLabel(label1);
-        self.mv.visitInsn(ICONST_1);
-
-        self.mv.visitLabel(label2);
-        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    private function generateLessThanIns(bir:BinaryOp binaryIns) {
+        self.generateBinaryCompareIns(binaryIns, IFLT);
     }
 
-    function generateLessEqualIns(bir:BinaryOp binaryIns) {
-        self.generateBinaryRhsAndLhsLoad(binaryIns);
+    private function generateGreaterThanIns(bir:BinaryOp binaryIns) {
+        self.generateBinaryCompareIns(binaryIns, IFGT);
+    }
 
+    private function generateLessEqualIns(bir:BinaryOp binaryIns) {
+        self.generateBinaryCompareIns(binaryIns, IFLE);
+
+    }
+
+    private function generateGreaterEqualIns(bir:BinaryOp binaryIns) {
+        self.generateBinaryCompareIns(binaryIns, IFGE);
+    }
+
+    private function generateBinaryCompareIns(bir:BinaryOp binaryIns, int opcode) {
+        if (opcode != IFLT && opcode != IFGT && opcode != IFLE && opcode != IFGE) {
+            error err = error(io:sprintf("Unsupported opcode '%s' for binary operator.", opcode));
+            panic err;
+        }
+
+        self.generateBinaryRhsAndLhsLoad(binaryIns);
         jvm:Label label1 = new;
         jvm:Label label2 = new;
 
         self.mv.visitInsn(LCMP);
-        self.mv.visitJumpInsn(IFLE, label1);
+        self.mv.visitJumpInsn(opcode, label1);
 
         self.mv.visitInsn(ICONST_0);
         self.mv.visitJumpInsn(GOTO, label2);
@@ -380,10 +386,18 @@ type InstructionGenerator object {
     }
 
     function generateMapNewIns(bir:NewMap mapNewIns) {
-        self.mv.visitTypeInsn(NEW, MAP_VALUE);
+        bir:BType typeOfMapNewIns = mapNewIns.typeValue;
+
+        string className = MAP_VALUE_IMPL;
+
+        if (typeOfMapNewIns is bir:BRecordType) {
+            className = self.currentPackageName + cleanupTypeName(typeOfMapNewIns.name.value);
+        }
+
+        self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
         loadType(self.mv, mapNewIns.typeValue);
-        self.mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(mapNewIns.lhsOp.variableDcl);
     }
 
@@ -426,8 +440,8 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setElement",
                     io:sprintf("(L%s;L%s;L%s;)V", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "put",
-                    io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), false);
+            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "put",
+                    io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
 
             // emit a pop, since we are not using the return value from the map.put()
             self.mv.visitInsn(POP);
@@ -448,8 +462,8 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
                     io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "get",
-                    io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
+            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
+                    io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
         }
 
         // store in the target reg
@@ -628,7 +642,7 @@ type InstructionGenerator object {
 
         if (isServiceType) {
             string varName = "#0";
-            string pkgClassName = lookupFullQualifiedClassName(self.currentPackageName + varName);
+            string pkgClassName = lookupGlobalVarClassName(self.currentPackageName + varName);
             self.mv.visitFieldInsn(GETSTATIC, pkgClassName, varName, io:sprintf("L%s;", MAP_VALUE));
             loadType(self.mv, objectNewIns.typeDef.typeValue);
             self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
@@ -815,6 +829,25 @@ type InstructionGenerator object {
         self.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }
 
+    function generateTernaryIns(bir:Ternary ternary) {
+        jvm:Label label1 = new;
+        jvm:Label label2 = new;
+
+        self.loadVar(ternary.conditionOp.variableDcl);
+        self.mv.visitJumpInsn(IFNE, label1);
+
+        // if true
+        self.loadVar(ternary.thenOp.variableDcl);
+        self.mv.visitJumpInsn(GOTO, label2);
+
+        // else
+        self.mv.visitLabel(label1);
+        self.loadVar(ternary.elseOp.variableDcl);
+
+        self.mv.visitLabel(label2);
+        self.storeToVar(ternary.lhsOp.variableDcl);
+    }
+
     private function loadVar(bir:VariableDcl varDcl) {
         generateVarLoad(self.mv, varDcl, self.currentPackageName, self.getJVMIndexOfVarRef(varDcl));
     }
@@ -839,7 +872,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
 
     if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
         string varName = varDcl.name.value;
-        string className = lookupFullQualifiedClassName(currentPackageName + varName);
+        string className = lookupGlobalVarClassName(currentPackageName + varName);
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
         return;
@@ -886,7 +919,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
 
     if (varDcl.kind == "GLOBAL") {
         string varName = varDcl.name.value;
-        string className = lookupFullQualifiedClassName(currentPackageName + varName);
+        string className = lookupGlobalVarClassName(currentPackageName + varName);
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
         return;
