@@ -32,15 +32,14 @@ public class ReturnStmtNegativeTest {
     public void testNotEnoughArgsToReturn1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible return types: expected '(int,int)', found '()'", 2, 5);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected '(int,int)', found '()'", 2, 5);
     }
 
     @Test(description = "Test not enough arguments to return")
     public void testNotEnoughArgsToReturn2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0,
-                                  "incompatible return types: expected '(string,string)', found 'string'", 2, 12);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected '(string,string)', found 'string'", 2, 12);
     }
 
     @Test(description = "Test not enough arguments to return")
@@ -61,8 +60,7 @@ public class ReturnStmtNegativeTest {
     public void testTooManyArgsToReturn2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/too-many-args-to-return-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0,
-                                  "incompatible return types: expected 'string', found '(string,string)'", 2, 12);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found '(string,string)'", 2, 12);
     }
 
     @Test(description = "Test type mismatch")
@@ -70,7 +68,7 @@ public class ReturnStmtNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-type-mismatch-1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         BAssertUtil.validateError(result,
-                0, "incompatible return types: expected '(string,int,string)', found '(string,string,string)'",
+                0, "incompatible types: expected '(string,int,string)', found '(string,string,string)'",
                 2, 12);
     }
 
@@ -78,7 +76,7 @@ public class ReturnStmtNegativeTest {
     public void testInputTypeMismatch2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-type-mismatch-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible return types: expected 'boolean', found 'int'", 2, 26);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'boolean', found 'int'", 2, 26);
     }
 
     @Test(description = "Test missing return")
@@ -172,8 +170,7 @@ public class ReturnStmtNegativeTest {
     public void testMultiValueInSingleContext() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/multi-value-in-single-context.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0,
-                                  "incompatible return types: expected 'string', found '(string,int)'", 2, 13);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found '(string,int)'", 2, 13);
     }
 
     @Test(description = "Test return statement in resource with mismatching types")
@@ -181,8 +178,8 @@ public class ReturnStmtNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-in-resource-with-" +
                 "mismatching-types.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
-        BAssertUtil.validateError(result, 0, "incompatible return types: expected 'string', found 'int'", 22, 16);
-        BAssertUtil.validateError(result, 1, "incompatible return types: expected 'int', found 'string'", 26, 16);
-        BAssertUtil.validateError(result, 2, "incompatible return types: expected '()', found 'string'", 30, 16);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'int'", 22, 16);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected 'int', found 'string'", 26, 16);
+        BAssertUtil.validateError(result, 2, "incompatible types: expected '()', found 'string'", 30, 16);
     }
 }
