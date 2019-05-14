@@ -209,6 +209,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     instGen.generateTypeofIns(inst);
                 } else if (inst.kind == bir:INS_KIND_NOT) {
                     instGen.generateNotIns(inst);
+                } else if (inst.kind == bir:INS_KIND_NEGATE) {
+                    instGen.generateNegateIns(inst);
                 } else {
                     error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                     panic err;
@@ -1080,22 +1082,20 @@ function getModuleInitFuncName(bir:Package module) returns string {
 }
 
 function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
-    foreach var mod in pkg.importModules {
-        bir:Package importedPkg = lookupModule(mod, currentBIRContext);
-        if (hasInitFunction(importedPkg)) {
-            string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
-            string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
-                                                                importedPkg.name.value);
-            mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
-            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                    "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;", false);
-            mv.visitInsn(POP);
-        }
-        generateInitFunctionInvocation(importedPkg, mv);
-    }
+   foreach var mod in pkg.importModules {
+       bir:Package importedPkg = lookupModule(mod, currentBIRContext);
+       if (hasInitFunction(importedPkg)) {
+           string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
+           string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
+                                                            MODULE_INIT_CLASS_NAME);
+           mv.visitVarInsn(ALOAD, 0);
+           mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                   "(Lorg/ballerinalang/jvm/Strand;)V", false);
+       }
+       generateInitFunctionInvocation(importedPkg, mv);
+   }
 }
+
 
 function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {
     // load BValue array
