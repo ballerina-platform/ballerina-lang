@@ -19,10 +19,13 @@ package org.ballerinalang.langserver.formatting;
  * Formatting constants for keywords used in the formatting util.
  */
 public class FormattingConstants {
+    // Indentation whitespace values.
     public static final String SPACE_TAB = "    ";
     public static final String SINGLE_SPACE = " ";
     public static final String NEW_LINE = System.lineSeparator();
     public static final String EMPTY_SPACE = "";
+
+    // Formatting config related properties.
     public static final String SKIP_FORMATTING = "skipFormatting";
     public static final String NEW_LINE_COUNT = "newLineCount";
     public static final String SPACE_COUNT = "spacesCount";
@@ -32,10 +35,9 @@ public class FormattingConstants {
     public static final String FORMATTING_CONFIG = "formattingConfig";
     public static final String USE_PARENT_INDENTATION = "useParentIndentation";
 
+    // Node's WS related constants.
     public static final String WS = "ws";
     public static final String TEXT = "text";
-    public static final String PUBLIC = "public";
-    public static final String FINAL = "final";
     public static final String PARENT = "parent";
     public static final String POSITION = "position";
     public static final String EXPRESSION = "expression";
@@ -45,4 +47,11 @@ public class FormattingConstants {
     public static final String STATEMENTS = "statements";
     public static final String ANON_TYPE = "anonType";
     public static final String FIELDS = "fields";
+    public static final String TYPE_NODE = "typeNode";
+    public static final String VALUE = "value";
+    public static final String IS_EXPRESSION = "isExpression";
+    public static final String VARIABLE = "variable";
+    public static final String KIND = "kind";
+    public static final String TYPE = "type";
+    public static final String NAME = "name";
 }
