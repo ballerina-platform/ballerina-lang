@@ -76,6 +76,8 @@ public const int INS_LESS_THAN = 70;
 public const int INS_LESS_EQUAL = 71;
 public const int INS_AND = 72;
 public const int INS_OR = 73;
+public const int INS_REF_EQUAL = 74;
+public const int INS_REF_NOT_EQUAL = 75;
 
 // Unary expression related instructions.
 public const int INS_TYPEOF = 80;
