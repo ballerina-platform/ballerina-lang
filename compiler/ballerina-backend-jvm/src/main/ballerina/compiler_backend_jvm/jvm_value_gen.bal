@@ -286,7 +286,8 @@ public type ObjectGenerator object {
         mv.visitInsn(DUP);
         mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Scheduler");
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Scheduler", "<init>", "()V", false);
+        mv.visitInsn(ICONST_4);
+        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Scheduler", "<init>", "(I)V", false);
         mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>",
                             "(Lorg/ballerinalang/jvm/Scheduler;)V", false);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "__init_", "(Lorg/ballerinalang/jvm/Strand;)V", false);
