@@ -82,6 +82,8 @@ public type TypeParser object {
             return TYPE_INT;
         } else if (typeTag == self.TYPE_TAG_BYTE){
             return TYPE_BYTE;
+        } else if (typeTag == self.TYPE_TAG_DECIMAL){
+            return TYPE_DECIMAL;
         } else if (typeTag == self.TYPE_TAG_FLOAT){
             return TYPE_FLOAT;
         } else if (typeTag == self.TYPE_TAG_STRING){

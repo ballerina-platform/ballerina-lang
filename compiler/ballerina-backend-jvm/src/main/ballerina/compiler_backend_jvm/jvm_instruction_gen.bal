@@ -39,6 +39,12 @@ type InstructionGenerator object {
         } else if (bType is bir:BTypeString) {
             any val = loadIns.value;
             self.mv.visitLdcInsn(val);
+        } else if (bType is bir:BTypeDecimal) {
+            any val = loadIns.value;
+            self.mv.visitTypeInsn(NEW, DECIMAL_VALUE);
+            self.mv.visitInsn(DUP);
+            self.mv.visitLdcInsn(val);
+            self.mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", "(Ljava/lang/String;)V", false);
         } else if (bType is bir:BTypeBoolean) {
             any val = loadIns.value;
             self.mv.visitLdcInsn(val);
@@ -205,6 +211,10 @@ type InstructionGenerator object {
             self.generateBinaryRhsAndLhsLoad(binaryIns);
             self.mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat",
                                     io:sprintf("(L%s;)L%s;", STRING_VALUE, STRING_VALUE) , false);
+        } else if (bType is bir:BTypeDecimal) {
+            self.generateBinaryRhsAndLhsLoad(binaryIns);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "add",
+                io:sprintf("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE) , false);
         } else if (bType is bir:BTypeFloat) {
             self.generateBinaryRhsAndLhsLoad(binaryIns);
             self.mv.visitInsn(DADD);
@@ -228,6 +238,9 @@ type InstructionGenerator object {
             self.mv.visitInsn(LSUB);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitInsn(DSUB);
+        } else if (bType is bir:BTypeDecimal) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "subtract",
+                io:sprintf("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE) , false);
         } else {
             error err = error( "JVM generation is not supported for type " +
                             io:sprintf("%s", binaryIns.lhsOp.typeValue));
@@ -243,6 +256,9 @@ type InstructionGenerator object {
             self.mv.visitInsn(LDIV);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitInsn(DDIV);
+        } else if (bType is bir:BTypeDecimal) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "divide",
+                io:sprintf("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE) , false);
         } else {
             error err = error( "JVM generation is not supported for type " +
                             io:sprintf("%s", binaryIns.lhsOp.typeValue));
@@ -258,6 +274,9 @@ type InstructionGenerator object {
             self.mv.visitInsn(LMUL);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitInsn(DMUL);
+        } else if (bType is bir:BTypeDecimal) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "multiply",
+                io:sprintf("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE) , false);
         } else {
             error err = error( "JVM generation is not supported for type " +
                             io:sprintf("%s", binaryIns.lhsOp.typeValue));
@@ -273,6 +292,9 @@ type InstructionGenerator object {
                 self.mv.visitInsn(LREM);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitInsn(DREM);
+            } else if (bType is bir:BTypeDecimal) {
+                self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "remainder",
+                    io:sprintf("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE) , false);
             } else {
                 error err = error( "JVM generation is not supported for type " +
                                 io:sprintf("%s", binaryIns.lhsOp.typeValue));
@@ -510,6 +532,8 @@ type InstructionGenerator object {
                 valueDesc = "J";
             } else if (varRefType.eType is bir:BTypeString) {
                 valueDesc = io:sprintf("L%s;", STRING_VALUE);
+            } else if (varRefType.eType is bir:BTypeDecimal) {
+                valueDesc = io:sprintf("L%s;", DECIMAL_VALUE);
             } else if (varRefType.eType is bir:BTypeBoolean) {
                 valueDesc = "Z";
             } else if (varRefType.eType is bir:BTypeFloat) {
@@ -845,6 +869,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BJSONType ||
                 bType is bir:BFutureType ||
                 bType is bir:BObjectType ||
+                bType is bir:BTypeDecimal ||
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
                 bType is bir:BFiniteType ||
@@ -883,6 +908,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BTypeNil ||
                     bType is bir:BUnionType ||
                     bType is bir:BTupleType ||
+                    bType is bir:BTypeDecimal ||
                     bType is bir:BRecordType ||
                     bType is bir:BErrorType ||
                     bType is bir:BJSONType ||

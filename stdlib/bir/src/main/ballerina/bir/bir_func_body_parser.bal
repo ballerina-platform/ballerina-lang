@@ -164,6 +164,8 @@ public type FuncBodyParser object {
                 value = self.reader.readIntCpRef();
             } else if (bType is BTypeString) {
                 value = self.reader.readStringCpRef();
+            } else if (bType is BTypeDecimal) {
+                value = self.reader.readStringCpRef();
             } else if (bType is BTypeBoolean) {
                 value = self.reader.readBoolean();
             } else if (bType is BTypeFloat) {

@@ -60,6 +60,7 @@ type TerminatorGenerator object {
                 bType is bir:BStreamType ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BObjectType ||
+                bType is bir:BTypeDecimal ||
                 bType is bir:BRecordType ||
                 bType is bir:BTupleType ||
                 bType is bir:BJSONType ||
@@ -165,6 +166,7 @@ type TerminatorGenerator object {
                         bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
                         bType is bir:BObjectType ||
+                        bType is bir:BTypeDecimal ||
                         bType is bir:BUnionType ||
                         bType is bir:BRecordType || 
                         bType is bir:BTupleType ||
@@ -308,6 +310,9 @@ type TerminatorGenerator object {
         } else if (bType is bir:BTypeString) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             return "Ljava/lang/String;";
+        } else if (bType is bir:BTypeDecimal) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+            return "Ljava/lang/BigDecimal;";
         } else if (bType is bir:BTypeBoolean) {
             self.mv.visitVarInsn(ILOAD, argIndex);
             return "Z";
@@ -387,6 +392,8 @@ type TerminatorGenerator object {
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DLOAD, argIndex);
             } else if (bType is bir:BTypeString) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BTypeDecimal) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
@@ -539,6 +546,8 @@ type TerminatorGenerator object {
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DLOAD, argIndex);
             } else if (bType is bir:BTypeString) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BTypeDecimal) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ILOAD, argIndex);

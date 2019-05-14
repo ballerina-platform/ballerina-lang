@@ -366,6 +366,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", STRING_VALUE));
             mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BTypeDecimal) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", DECIMAL_VALUE));
+            mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeBoolean) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "Z");
             mv.visitVarInsn(ISTORE, index);
@@ -459,6 +463,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", STRING_VALUE));
+        } else if (bType is bir:BTypeDecimal) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", DECIMAL_VALUE));
         } else if (bType is bir:BTypeBoolean) {
             mv.visitVarInsn(ILOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "Z");
@@ -676,6 +684,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BObjectType ||
+                bType is bir:BTypeDecimal ||
                 bType is bir:BUnionType ||
                 bType is bir:BRecordType ||
                 bType is bir:BTupleType ||
@@ -735,6 +744,8 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return "D";
     } else if (bType is bir:BTypeString) {
         return io:sprintf("L%s;", STRING_VALUE);
+    } else if (bType is bir:BTypeDecimal) {
+        return io:sprintf("L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         return "Z";
     } else if (bType is bir:BTypeNil) {
@@ -785,6 +796,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return ")D";
     } else if (bType is bir:BTypeString) {
         return io:sprintf(")L%s;", STRING_VALUE);
+    } else if (bType is bir:BTypeDecimal) {
+        return io:sprintf(")L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         return ")Z";
     } else if (bType is bir:BTypeNil) {
@@ -1028,6 +1041,8 @@ function castFromString(bir:BType targetType, jvm:MethodVisitor mv) {
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "parseDouble", "(Ljava/lang/String;)D", false);
     } else if (targetType is bir:BTypeBoolean) {
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", "(Ljava/lang/String;)Z", false);
+    } else if (targetType is bir:BTypeDecimal) {
+        mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", "(Ljava/lang/String;)V", false);
     } else if (targetType is bir:BArrayType) {
         mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
     } else if (targetType is bir:BMapType) {
@@ -1206,6 +1221,8 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
         typeSig = "D";
     } else if (bType is bir:BTypeString) {
         typeSig = io:sprintf("L%s;", STRING_VALUE);
+    } else if (bType is bir:BTypeDecimal) {
+        typeSig = io:sprintf("L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         typeSig = "Z";
     } else if (bType is bir:BTypeNil) {

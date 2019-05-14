@@ -28,6 +28,9 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
     } else if (targetType is bir:BTypeString) {
         generateCheckCastToString(mv, sourceType);
         return;
+    } else if (targetType is bir:BTypeDecimal) {
+        checkCast(mv, targetType);
+        return;
     } else if (targetType is bir:BTypeBoolean) {
         generateCheckCastToBoolean(mv, sourceType);
         return;
@@ -214,6 +217,8 @@ function getTargetClass(bir:BType sourceType, bir:BType targetType) returns stri
         targetTypeClass = XML_VALUE;
     } else if (targetType is bir:BTypeDesc) {
         targetTypeClass = TYPEDESC_VALUE;
+    } else if (targetType is bir:BTypeDecimal) {
+        targetTypeClass = DECIMAL_VALUE;
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to '%s'", sourceType, targetType));
         panic err;

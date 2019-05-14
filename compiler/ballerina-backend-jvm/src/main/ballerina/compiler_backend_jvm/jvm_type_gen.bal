@@ -510,6 +510,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         typeFieldName = "typeFloat";
     } else if (bType is bir:BTypeString) {
         typeFieldName = "typeString";
+    } else if (bType is bir:BTypeDecimal) {
+        typeFieldName = "typeDecimal";
     } else if (bType is bir:BTypeBoolean) {
         typeFieldName = "typeBoolean";
     } else if (bType is bir:BTypeByte) {
