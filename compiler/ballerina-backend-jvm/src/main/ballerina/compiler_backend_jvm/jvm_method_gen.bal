@@ -1073,10 +1073,6 @@ function getModuleInitFuncName(bir:Package module) returns string {
     string orgName = module.org.value;
     string moduleName = module.name.value;
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        string versionValue = module.versionValue.value;
-        if (versionValue == "") {
-            return orgName  + "/" + moduleName + ".<init>";
-        }
         return orgName  + "/" + moduleName + ":" + module.versionValue.value + ".<init>";
     } else {
         return "..<init>";
