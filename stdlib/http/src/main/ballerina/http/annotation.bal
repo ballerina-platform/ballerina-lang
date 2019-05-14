@@ -91,10 +91,10 @@ public type WSServiceConfig record {|
 //public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
 
 # The annotation which is used to configure an HTTP service.
-public annotation HttpServiceConfig ServiceConfig on service;
+public annotation <service> ServiceConfig HttpServiceConfig;
 
 # The annotation which is used to configure a WebSocket service.
-public annotation WSServiceConfig WebSocketServiceConfig on service;
+public annotation <service> WebSocketServiceConfig WSServiceConfig;
 
 ////////////////////////////
 /// Resource Annotations ///
@@ -143,4 +143,4 @@ public type ServiceResourceAuth record {|
 |};
 
 # The annotation which is used to configure an HTTP resource.
-public annotation HttpResourceConfig ResourceConfig on resource function;
+public annotation <resource> ResourceConfig HttpResourceConfig;

@@ -76,7 +76,7 @@ public type ArtemisServiceConfig record {|
     string? filter = ();
 |};
 
-public annotation ArtemisServiceConfig ServiceConfig on service;
+public annotation<service> ServiceConfig ArtemisServiceConfig;
 
 # ActiveMQ Artemis Queue configuration.
 # If the `autoCreated` is `false` an error will be thrown if the queue does not exist.
