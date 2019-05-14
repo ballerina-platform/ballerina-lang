@@ -99,6 +99,7 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
+            <class name="org.ballerinalang.test.io.IOTest"/>
         </classes>
     </test>
 </suite>

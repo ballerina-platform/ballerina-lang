@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -240,7 +240,7 @@ public class GetTable implements NativeCallableUnit {
                 (org.ballerinalang.jvm.types.BStructureType) type.getType();
         for (Object obj : records) {
             String[] fields = (String[]) obj;
-            final MapValue<String, Object> struct = getStruct(fields, structType);
+            final MapValueImpl<String, Object> struct = getStruct(fields, structType);
             if (struct != null) {
                 table.addData(struct);
             }
@@ -248,12 +248,12 @@ public class GetTable implements NativeCallableUnit {
         return table;
     }
 
-    private static MapValue<String, Object> getStruct(String[] fields,
-                                                      final org.ballerinalang.jvm.types.BStructureType structType) {
+    private static MapValueImpl<String, Object> getStruct(String[] fields,
+                                                          final org.ballerinalang.jvm.types.BStructureType structType) {
         //TODO : Recheck following migration
         Map<String, org.ballerinalang.jvm.types.BField> internalStructFields = structType.getFields();
         int fieldLength = internalStructFields.size();
-        MapValue<String, Object> struct = null;
+        MapValueImpl<String, Object> struct = null;
         if (fields.length > 0) {
             if (internalStructFields.size() != fields.length) {
                 String msg = "Record row fields count and the give struct's fields count are mismatch";
@@ -261,7 +261,7 @@ public class GetTable implements NativeCallableUnit {
             }
             Iterator<Map.Entry<String, org.ballerinalang.jvm.types.BField>> itr =
                     internalStructFields.entrySet().iterator();
-            struct = new MapValue<>(structType);
+            struct = new MapValueImpl<>(structType);
             for (int i = 0; i < fieldLength; i++) {
                 String value = fields[i];
                 final org.ballerinalang.jvm.types.BField internalStructField =
