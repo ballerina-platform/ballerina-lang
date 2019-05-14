@@ -85,6 +85,10 @@ public class Writer {
                             .map(type -> getTypeLabel(type, options))
                             .collect(Collectors.joining(" | "))
             );
+            handlebars.registerHelper("pipeJoin", (Helper<List<String>>)
+                    (typeList, options) -> typeList.stream()
+                            .collect(Collectors.joining(" | "))
+            );
             handlebars.registerHelper("typeName", Writer::getTypeLabel);
             Template template = handlebars.compile(packageTemplateName);
 
@@ -102,11 +106,20 @@ public class Writer {
 
     private static String getTypeLabel(Type type, Options options) {
         String root = getRootPath(options);
-        return type.isAnonymousUnionType
-                ? type.memberTypes.stream()
-                    .map(type1 -> getHtmlLink(type1, root))
-                    .collect(Collectors.joining(" | "))
-                : getHtmlLink(type, root);
+        String label;
+        if (type.isAnonymousUnionType) {
+            label = type.memberTypes.stream()
+                    .map(type1 -> getTypeLabel(type1, options))
+                    .collect(Collectors.joining(" | "));
+        } else if (type.isTuple) {
+            label = "<span>(</span>" + type.memberTypes.stream()
+                    .map(type1 -> getTypeLabel(type1, options))
+                    .collect(Collectors.joining(", "))
+                    + "<span>)</span>";
+        } else {
+            label = getHtmlLink(type, root);
+        }
+        return label;
     }
 
     private static String getRootPath(Options options) {
@@ -122,12 +135,17 @@ public class Writer {
     private static String getHtmlLink(Type type, String root) {
         String orgName = BallerinaDocDataHolder.getInstance().getOrgName();
         Map<String, ModuleDoc> packageMap = BallerinaDocDataHolder.getInstance().getPackageMap();
-        String link = root + type.moduleName + "/" + type.category + "/" + type.name + ".html";;
+        String link = root + type.moduleName + "/" + type.category + "/" + type.name + ".html";
+        if ("types".equals(type.category)) {
+            link = root + type.moduleName + "/" + type.category + ".html#" + type.name;
+        }
         // If this is a local module, generate relative link to the type
         if (orgName.equals(type.orgName) && packageMap.containsKey(type.moduleName)) {
             // TODO fix the orgName equals
         }
+        String suffix = type.isArrayType ? "[]" : "";
+        suffix += type.isNullable ? "?" : "";
 
-        return "<a href=\"" + link + "\">" + type.name + "</a>";
+        return "<a href=\"" + link + "\">" + type.name + "</a>" + suffix;
     }
 }

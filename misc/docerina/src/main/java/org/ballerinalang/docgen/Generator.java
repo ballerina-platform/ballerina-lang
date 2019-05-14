@@ -256,12 +256,12 @@ public class Generator {
         } else if (kind == NodeKind.USER_DEFINED_TYPE) {
             BLangUserDefinedType userDefinedType = (BLangUserDefinedType) typeNode;
             module.unionTypes.add(new UnionType(typeName, description(typeDefinition),
-                    Arrays.asList(new Type(userDefinedType))));
+                    Arrays.asList(Type.fromTypeNode(userDefinedType))));
             added = true;
         } else if (kind == NodeKind.ERROR_TYPE) {
             BLangErrorType errorType = (BLangErrorType) typeNode;
             module.errors.add(new Error(errorType.type.tsymbol.name.value, description(typeDefinition),
-                    new Type(errorType.detailType)));
+                    Type.fromTypeNode(errorType.detailType)));
             added = true;
         }
         if (!added) {
@@ -280,8 +280,8 @@ public class Generator {
         String attachments = annotationNode.attachPoints.stream()
                 .map(AttachPoint::getValue)
                 .collect(Collectors.joining(", "));
-        return new Annotation(annotationName, description(annotationNode), new Type(annotationNode.typeNode),
-                attachments);
+        Type dataType = annotationNode.typeNode != null ? Type.fromTypeNode(annotationNode.typeNode) : null;
+        return new Annotation(annotationName, description(annotationNode), dataType, attachments);
     }
 
     private static String extractLink(Collection<BType> types) {
@@ -344,7 +344,8 @@ public class Generator {
         String constantName = constant.getName().getValue();
         java.lang.Object value = constant.value;
         String desc = description(constant);
-        return new Constant(constantName, desc, new Type(constant.typeNode), value.toString());
+        BLangType typeNode = constant.typeNode != null ? constant.typeNode : constant.associatedTypeDefinition.typeNode;
+        return new Constant(constantName, desc, Type.fromTypeNode(typeNode), value.toString());
     }
 
     /**

@@ -29,16 +29,17 @@
             <h1>Annotations</h1>
             <div class="annotations">
                 <div class="data-wrapper">
-                {{#each annotations}}
-                    <div class="params-listing">
-                        <ul>
-                            <li> <b>{{ name }}</b><span class="type">  {{{ typeName type }}}</span> {{ attachmentPoints }}</li>
-                            <li>
-                                {{{ description }}}
-                            </li>
-                        </ul>
-                    </div>
-                {{/each}}
+                    {{#each annotations}}
+                        <div class="params-listing">
+                            <ul>
+                                <li><b>{{ name }}</b><span class="type">{{#if type}}{{{ typeName
+                                        type }}}{{/if}}</span> {{ attachmentPoints }}</li>
+                                <li>
+                                    {{{ description }}}
+                                </li>
+                            </ul>
+                        </div>
+                    {{/each}}
                 </div>
             </div>
         </div>

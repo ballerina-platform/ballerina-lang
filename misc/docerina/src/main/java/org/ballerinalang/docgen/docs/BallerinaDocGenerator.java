@@ -278,7 +278,7 @@ public class BallerinaDocGenerator {
                 }
 
                 // Create pages for types
-                if (!module.unionTypes.isEmpty()) {
+                if (!(module.unionTypes.isEmpty() && module.finiteTypes.isEmpty())) {
                     String typesFile = modDir + File.separator + "types" + HTML;
                     TypesPageContext typesPageContext = new TypesPageContext(module.unionTypes, module, project,
                             "../","API Documentation for " + module.id + " types");
