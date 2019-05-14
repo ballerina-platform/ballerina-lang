@@ -17,6 +17,9 @@
 
 package org.ballerinalang.stdlib.io;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
@@ -27,9 +30,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -58,7 +58,7 @@ public class IOTest {
 
     @BeforeClass
     public void setup() {
-        bytesInputOutputProgramFile = BCompileUtil.compile("test-src/io/bytes_io.bal");
+        bytesInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/bytes_io.bal");
         characterInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/char_io.bal");
         recordsInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/record_io.bal");
         stringInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/string_io.bal");
