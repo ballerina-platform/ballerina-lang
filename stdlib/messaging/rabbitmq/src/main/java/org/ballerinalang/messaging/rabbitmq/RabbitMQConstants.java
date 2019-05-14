@@ -30,8 +30,7 @@ public class RabbitMQConstants {
     // RabbitMQ package name constant fields
     public static final String ORG_NAME = "ballerina";
     public static final String RABBITMQ = "rabbitmq";
-    public static final String PACKAGE_RABBITMQ = ORG_NAME
-            + ORG_NAME_SEPARATOR + RABBITMQ;
+    public static final String PACKAGE_RABBITMQ = ORG_NAME + ORG_NAME_SEPARATOR + RABBITMQ;
 
     // Error constant fields
     static final String RABBITMQ_ERROR_RECORD = "RabbitMQError";
@@ -80,6 +79,8 @@ public class RabbitMQConstants {
     public static final String ALIAS_EXCHANGE_NAME = "exchangeName";
     public static final String ALIAS_EXCHANGE_TYPE = "exchangeType";
     public static final String ALIAS_EXCHANGE_DURABLE = "durable";
+
+    public static final String CONSUMER_SERVICES = "consumer_services";
 
     private RabbitMQConstants(){
     }
