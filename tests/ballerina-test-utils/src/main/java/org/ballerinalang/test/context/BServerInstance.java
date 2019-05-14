@@ -353,9 +353,7 @@ public class BServerInstance implements BServer {
         File commandDir = new File(balServer.getServerHome());
         try {
             if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
-                commandDir = new File(balServer.getServerHome() + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run"};
-
+                cmdArray = new String[]{"cmd.exe", "/c", "bin\\" + scriptName + ".bat", "run"};
             } else {
                 cmdArray = new String[]{"bash", "bin/" + scriptName, "run"};
             }
