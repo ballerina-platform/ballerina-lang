@@ -130,7 +130,7 @@ public type TypeParser object {
     }
 
     function parseArrayType() returns BArrayType {
-        return { state:self.parseArrayState(), eType:self.parseType() };
+        return { state:self.parseArrayState(), size:self.reader.readInt32(), eType:self.parseType() };
     }
 
     function parseMapType() returns BMapType {
@@ -163,7 +163,8 @@ public type TypeParser object {
 
     function parseRecordType() returns BRecordType {
         return { name:{value:self.reader.readStringCpRef()}, sealed:self.reader.readBoolean(),
-                    restFieldType: self.parseType(), fields: self.parseRecordFields() };
+                    restFieldType: self.parseType(), fields: self.parseRecordFields(),
+                    initFunction: self.parseRecordInitFunction() };
     }
 
     function parseRecordFields() returns BRecordField?[] {
@@ -175,6 +176,18 @@ public type TypeParser object {
             c = c + 1;
         }
         return fields;
+    }
+
+    function parseRecordInitFunction() returns BAttachedFunction {
+        var funcName = self.reader.readStringCpRef();
+        var visibility = parseVisibility(self.reader);
+
+        var typeTag = self.reader.readInt8();
+        if (typeTag != self.TYPE_TAG_INVOKABLE) {
+            error err = error("expected invokable type tag (" + self.TYPE_TAG_INVOKABLE + ") but found " + typeTag);
+            panic err;
+        }
+        return {name:{value:funcName},visibility:visibility,funcType:self.parseInvokableType()};
     }
 
     function parseRecordField() returns BRecordField {

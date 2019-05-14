@@ -200,6 +200,18 @@ public class Types {
     }
 
     public boolean isSameType(BType source, BType target) {
+        return isSameType(source, target, new ArrayList<>());
+    }
+
+    private boolean isSameType(BType source, BType target, List<TypePair> unresolvedTypes) {
+        // If we encounter two types that we are still resolving, then skip it.
+        // This is done to avoid recursive checking of the same type.
+        TypePair pair = new TypePair(source, target);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+        BTypeVisitor<BType, Boolean> sameTypeVisitor = new BSameTypeVisitor(unresolvedTypes);
         return target.accept(sameTypeVisitor, source);
     }
 
@@ -1420,7 +1432,15 @@ public class Types {
         }
     };
 
-    private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
+    private class BSameTypeVisitor implements BTypeVisitor<BType, Boolean> {
+
+        List<TypePair> unresolvedTypes;
+
+        BSameTypeVisitor(List<TypePair> unresolvedTypes) {
+            this.unresolvedTypes = unresolvedTypes;
+        }
+
+//    private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
         @Override
         public Boolean visit(BType t, BType s) {
             return t == s;
@@ -1450,7 +1470,7 @@ public class Types {
             // At this point both source and target types are of map types. Inorder to be equal in type as whole
             // constraints should be in equal type.
             BMapType sType = ((BMapType) s);
-            return isSameType(sType.constraint, t.constraint);
+            return isSameType(sType.constraint, t.constraint, this.unresolvedTypes);
         }
 
         @Override
@@ -1500,7 +1520,7 @@ public class Types {
                 if (t.getTupleTypes().get(i) == symTable.noType) {
                     continue;
                 }
-                if (!isSameType(source.getTupleTypes().get(i), t.tupleTypes.get(i))) {
+                if (!isSameType(source.getTupleTypes().get(i), t.tupleTypes.get(i), this.unresolvedTypes)) {
                     return false;
                 }
             }
@@ -1538,7 +1558,7 @@ public class Types {
                     .stream()
                     .map(sT -> targetTypes
                             .stream()
-                            .anyMatch(it -> isSameType(it, sT)))
+                            .anyMatch(it -> isSameType(it, sT, this.unresolvedTypes)))
                     .anyMatch(foundSameType -> !foundSameType);
             return !notSameType;
         }
@@ -1555,7 +1575,7 @@ public class Types {
             }
             BErrorType source = (BErrorType) s;
 
-            if (!isSameType(source.reasonType, t.reasonType)) {
+            if (!isSameType(source.reasonType, t.reasonType, this.unresolvedTypes)) {
                 return false;
             }
 
@@ -1563,7 +1583,7 @@ public class Types {
                 return true;
             }
 
-            return isSameType(source.detailType, t.detailType);
+            return isSameType(source.detailType, t.detailType, this.unresolvedTypes);
         }
 
         @Override

@@ -117,11 +117,11 @@ public function generateValueCreatorMethods(jvm:ClassWriter cw, bir:TypeDef?[] t
         }
     }
 
-    generateRecordValueCreateMethod(cw, recordTypeDefs);
+    generateRecordValueCreateMethod(cw, recordTypeDefs, pkgName);
     generateObjectValueCreateMethod(cw, objectTypeDefs, pkgName);
 }
 
-function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] recordTypeDefs) {
+function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] recordTypeDefs, string pkgName) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "createRecordValue",
         io:sprintf("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
         io:sprintf("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE, STRING_VALUE, OBJECT), ());
@@ -147,10 +147,11 @@ function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] reco
         jvm:Label targetLabel = targetLabels[i];
         mv.visitLabel(targetLabel);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitTypeInsn(NEW, MAP_VALUE);
+        string className = pkgName + cleanupTypeName(typeDef.name.value);
+        mv.visitTypeInsn(NEW, className);
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
-        mv.visitMethodInsn(INVOKESPECIAL, io:sprintf("%s", MAP_VALUE), "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         mv.visitInsn(ARETURN);
         i += 1;
     }

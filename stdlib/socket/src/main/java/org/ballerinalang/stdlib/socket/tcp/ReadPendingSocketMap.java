@@ -18,8 +18,7 @@
 
 package org.ballerinalang.stdlib.socket.tcp;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This map will hold all the pending read action that coming through
@@ -28,7 +27,7 @@ import java.util.Map;
  * @since 0.995.0
  */
 public class ReadPendingSocketMap {
-    private Map<Integer, ReadPendingCallback> queue = new HashMap<>();
+    private ConcurrentHashMap<Integer, ReadPendingCallback> queue = new ConcurrentHashMap<>();
 
     private ReadPendingSocketMap() {
     }
