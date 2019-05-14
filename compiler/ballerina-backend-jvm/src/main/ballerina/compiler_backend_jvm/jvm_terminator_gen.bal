@@ -300,39 +300,29 @@ type TerminatorGenerator object {
             self.mv.visitVarInsn(LLOAD, argIndex);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitVarInsn(DLOAD, argIndex);
-        } else if (bType is bir:BTypeString) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
         } else if (bType is bir:BTypeBoolean) {
             self.mv.visitVarInsn(ILOAD, argIndex);
-        } else if (bType is bir:BArrayType ||
-                    bType is bir:BTupleType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BRecordType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BMapType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BTableType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BStreamType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BObjectType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BFutureType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
         } else if (bType is bir:BTypeDesc) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             self.mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
-        } else if (bType is bir:BErrorType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BInvokableType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BTypeAny ||
+        } else if (bType is bir:BTypeString ||
+                    bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BTypeNil ||
                     bType is bir:BUnionType ||
+                    bType is bir:BErrorType ||
+                    bType is bir:BObjectType ||
+                    bType is bir:BStreamType ||
+                    bType is bir:BTableType ||
+                    bType is bir:BMapType ||
+                    bType is bir:BRecordType ||
+                    bType is bir:BArrayType ||
+                    bType is bir:BTupleType ||
+                    bType is bir:BFutureType ||
                     bType is bir:BJSONType ||
                     bType is bir:BXMLType ||
-                    bType is bir:BFiniteType) {
+                    bType is bir:BFiniteType ||
+                    bType is bir:BInvokableType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
         } else {
             error err = error( "JVM generation is not supported for type " + io:sprintf("%s", argRef.typeValue));
@@ -363,35 +353,29 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(LLOAD, argIndex);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DLOAD, argIndex);
-            } else if (bType is bir:BTypeString) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
             } else if (bType is bir:BTypeByte) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
-            } else if (bType is bir:BArrayType ||
-                        bType is bir:BTupleType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BRecordType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BMapType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BTableType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BStreamType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BObjectType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BErrorType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BTypeAny ||
+            } else if (bType is bir:BTypeString ||
+                        bType is bir:BTypeAny ||
                         bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
                         bType is bir:BUnionType ||
+                        bType is bir:BErrorType ||
+                        bType is bir:BObjectType ||
+                        bType is bir:BStreamType ||
+                        bType is bir:BTableType ||
+                        bType is bir:BMapType ||
+                        bType is bir:BRecordType ||
+                        bType is bir:BArrayType ||
+                        bType is bir:BTupleType ||
+                        bType is bir:BFutureType ||
                         bType is bir:BJSONType ||
                         bType is bir:BXMLType ||
-                        bType is bir:BInvokableType ||
-                        bType is bir:BFiniteType) {
+                        bType is bir:BFiniteType ||
+                        bType is bir:BTypeDesc ||
+                        bType is bir:BInvokableType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
@@ -515,31 +499,29 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(LLOAD, argIndex);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DLOAD, argIndex);
-            } else if (bType is bir:BTypeString) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
             } else if (bType is bir:BTypeByte) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
-            } else if (bType is bir:BArrayType ||
-                        bType is bir:BTupleType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BRecordType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BMapType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BTableType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BStreamType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BObjectType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BErrorType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BTypeAny ||
+            } else if (bType is bir:BTypeString ||
+                        bType is bir:BTypeAny ||
                         bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
-                        bType is bir:BUnionType) {
+                        bType is bir:BUnionType ||
+                        bType is bir:BErrorType ||
+                        bType is bir:BObjectType ||
+                        bType is bir:BStreamType ||
+                        bType is bir:BTableType ||
+                        bType is bir:BMapType ||
+                        bType is bir:BRecordType ||
+                        bType is bir:BArrayType ||
+                        bType is bir:BTupleType ||
+                        bType is bir:BFutureType ||
+                        bType is bir:BJSONType ||
+                        bType is bir:BXMLType ||
+                        bType is bir:BFiniteType ||
+                        bType is bir:BTypeDesc ||
+                        bType is bir:BInvokableType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +

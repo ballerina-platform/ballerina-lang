@@ -102,6 +102,8 @@
             <!-- <class name="org.ballerinalang.test.types.constant.SimpleConstantTest" /> -->
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
             <class name="org.ballerinalang.test.types.constant.MapConstantTest" />
+
+            <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" />
         </classes>
     </test>
 </suite>
