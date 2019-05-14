@@ -30,6 +30,7 @@ import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.tcp.ReadPendingCallback;
 import org.ballerinalang.stdlib.socket.tcp.ReadPendingSocketMap;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
+import org.ballerinalang.stdlib.socket.tcp.SocketService;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,10 +66,13 @@ public class ReceiveFrom implements NativeCallableUnit {
             return;
         }
         DatagramChannel socket = (DatagramChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
-        final ReadPendingCallback readPendingCallback = new ReadPendingCallback(context, callback, expectedLength);
+        int socketHash = socket.hashCode();
+        SocketService socketService = (SocketService) clientEndpoint.getNativeData(SocketConstants.SOCKET_SERVICE);
+        ReadPendingCallback readPendingCallback = new ReadPendingCallback(context, callback, expectedLength, socketHash,
+                socketService.getReadTimeout());
         ReadPendingSocketMap.getInstance().add(socket.hashCode(), readPendingCallback);
         log.debug("Notify to invokeRead");
-        SelectorManager.getInstance().invokeRead(socket.hashCode(), false);
+        SelectorManager.getInstance().invokeRead(socketHash, false);
     }
 
     @Override

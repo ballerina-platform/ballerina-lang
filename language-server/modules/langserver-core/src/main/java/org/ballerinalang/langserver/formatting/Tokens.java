@@ -38,4 +38,5 @@ public class Tokens {
     public static final String RIGHT_ARROW = "->";
     public static final String SEAL_OPENING = "{|";
     public static final String SEAL_CLOSING = "|}";
+    public static final String VAR = "var";
 }

@@ -26,7 +26,7 @@ public type Connection client object {
         if (config is ConnectionConfiguration) {
             configuration = config;
         }
-        self.createConnection(url, configuration);
+        self.createConnection(self.getPopulatedUrl(url, configuration["secureSocket"]), configuration);
     }
 
     function createConnection(string url, ConnectionConfiguration config) = external;
@@ -38,10 +38,91 @@ public type Connection client object {
 
     # Closes the connection and release all its resources.
     public remote function close() = external;
+
+    private function getPopulatedUrl(string url, SecureSocket? secureSocket) returns string {
+        if (secureSocket is SecureSocket) {
+            return self.buildUrlFromQueryParams(url, self.populateQueryParamsFromConfigs(secureSocket));
+        }
+        return url;
+    }
+
+    private function populateQueryParamsFromConfigs(SecureSocket secureSocket) returns map<string> {
+        map<string> queryParams = {};
+        self.setQueryParamsForKeyAndTrustStores(secureSocket, queryParams);
+        self.setQueryCipherParams(secureSocket, queryParams);
+        queryParams["verifyHost"] = string.convert(secureSocket.verifyHost);
+        return queryParams;
+    }
+
+    private function setQueryParamsForKeyAndTrustStores(SecureSocket secureSocket, map<string> queryParams) {
+        var trustStore = secureSocket["trustStore"];
+        if (trustStore is crypto:TrustStore) {
+            var trustStorePath = trustStore.path.trim();
+            self.checkAndSetPath(trustStorePath, queryParams, "trustStorePath");
+            var trustStorePassword = trustStore.password;
+            if (self.isNotBlankString(trustStorePassword)) {
+                queryParams["trustStorePassword"] = trustStorePassword;
+            }
+        }
+
+        var keyStore = secureSocket["keyStore"];
+        if (keyStore is crypto:KeyStore) {
+            var keyStorePath = keyStore.path.trim();
+            self.checkAndSetPath(keyStorePath, queryParams, "keyStorePath");
+            var keyStorePassword = keyStore.password;
+            if (self.isNotBlankString(keyStorePassword)) {
+                queryParams["keyStorePassword"] = keyStorePassword;
+            }
+        }
+    }
+
+    private function checkAndSetPath(string path, map<string> queryParams, string configName) {
+        if (self.isNotBlankString(path)) {
+            string absPath = checkpanic filepath:absolute(path);
+            queryParams[configName] = absPath.replaceAll(" ", "%20");
+        }
+    }
+
+    private function setQueryCipherParams(SecureSocket secureSocket, map<string> queryParams) {
+        string ciphers = "";
+        boolean first = true;
+        foreach (var cipher in secureSocket.ciphers) {
+            if (first) {
+                ciphers = cipher;
+                first = false;
+            } else {
+                queryParams["enabledCipherSuites"] = "," + cipher;
+            }
+        }
+    }
+
+    private function isNotBlankString(string value) returns boolean {
+        return value.trim() != "";
+    }
+
+    private function buildUrlFromQueryParams(string initialUrl, map<string> queryParams) returns string {
+        boolean first = true;
+        var populatedUrl = initialUrl;
+        foreach (var (key, value) in queryParams) {
+            if (first) {
+                populatedUrl += "?sslEnabled=true";
+                populatedUrl += self.getQueryParamPart(key, value);
+                first = false;
+            } else {
+                populatedUrl += self.getQueryParamPart(key, value);
+            }
+        }
+        return populatedUrl;
+    }
+
+    private function getQueryParamPart(string key, string value) returns string {
+        return "&" + key + "=" + value;
+    }
 };
 
 # Configurations related to a Artemis `Connection`.
 #
+# + secureSocket - Configurations related to SSL/TLS
 # + timeToLive - Connection's time-to-live. negative to disable or greater or equals to 0
 # + callTimeout - The blocking calls timeout in milliseconds
 # + consumerWindowSize - Window size in bytes for flow control of the consumers created through this `Connection`
@@ -54,7 +135,7 @@ public type Connection client object {
 # + reconnectAttempts - The maximum number of attempts to retry connection in case of failure
 # + initialConnectAttempts - The maximum number of attempts to establish an initial connection
 public type ConnectionConfiguration record {|
-    //Add this once working
+    SecureSocket secureSocket?;
     int timeToLive = 60000;
     int callTimeout = 30000;
     int consumerWindowSize = 1024 * 1024;

@@ -1006,6 +1006,18 @@
             {
                 "name": "Artemis Simple MULTICAST Producer",
                 "url": "artemis-multicast-producer"
+            },
+            {
+                "name": "Artemis Simple Blocking Transaction Consumer",
+                "url": "artemis-simple-transaction-consumer"
+            },
+            {
+                "name": "Artemis Simple Blocking Transaction Producer",
+                "url": "artemis-simple-transaction-producer"
+            },
+            {
+                "name": "Artemis Transaction Producer",
+                "url": "artemis-transaction-producer"
             }
         ]
     },
@@ -1014,11 +1026,11 @@
         "column": 3,
         "category": "Working over the network",
         "samples": [{
-                "name": "TCP Socket Basic Example",
+                "name": "Basic TCP Socket",
                 "url": "tcp-socket-listener-client"
             },
             {
-                "name": "UDP Client Socket Basic Example",
+                "name": "Basic UDP Client Socket",
                 "url": "udp-socket-client"
             }
         ]

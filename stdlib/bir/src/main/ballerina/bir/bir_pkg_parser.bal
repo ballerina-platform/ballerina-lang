@@ -37,6 +37,22 @@ public type PackageParser object {
         return dcl;
     }
 
+    function skipAnnotations() {
+        var numFuncs = self.reader.readInt32();
+        int i = 0;
+        while (i < numFuncs) {
+            self.skipAnnotation();
+            i += 1;
+        }
+    }
+
+    public function skipAnnotation() {
+        _ = self.reader.readInt32();
+        _ = self.reader.readInt8();
+        _ = self.reader.readInt32();
+        _ = self.typeParser.parseType();
+    }
+
     function parseFunctions(TypeDef?[] typeDefs) returns Function?[] {
         var numFuncs = self.reader.readInt32();
         Function?[] funcs = [];
@@ -62,6 +78,16 @@ public type PackageParser object {
             panic err;
         }
         var sig = self.typeParser.parseInvokableType();
+        // Read and ignore parameter details, not used in jvm gen
+        self.readAndIgnoreParamDetails();
+
+        BType? receiverType = ();
+        boolean hasReceiverType = self.reader.readBoolean();
+        if (hasReceiverType) {
+            receiverType = self.typeParser.parseType();
+        }
+
+        _ = self.reader.readInt64(); // read and ignore function body length
         var argsCount = self.reader.readInt32();
         var numLocalVars = self.reader.readInt32();
 
@@ -75,6 +101,8 @@ public type PackageParser object {
         }
         BasicBlock?[] basicBlocks = self.getBasicBlocks(bodyParser);
         ErrorEntry?[] errorEntries = self.getErrorEntries(bodyParser);
+        ChannelDetail[] workerChannels = self.getWorkerChannels(bodyParser);
+
         return {
             pos: pos,
             name: { value: name },
@@ -85,8 +113,30 @@ public type PackageParser object {
             basicBlocks: basicBlocks,
             errorEntries:errorEntries,
             argsCount: argsCount,
-            typeValue: sig
+            typeValue: sig,
+            workerChannels:workerChannels,
+            receiverType : receiverType
         };
+    }
+
+    private function readAndIgnoreParamDetails() {
+        int requiredParamCount = self.reader.readInt32();
+        int i = 0;
+        while (i < requiredParamCount) {
+            _ = self.reader.readInt32();
+            i += 1;
+        }
+
+        int defaultableParamCount = self.reader.readInt32();
+        int j = 0;
+        while (j < defaultableParamCount) {
+            _ = self.reader.readInt32();
+            j += 1;
+        }
+        boolean restParamExist = self.reader.readBoolean();
+        if (restParamExist) {
+            _ = self.reader.readInt32();
+        }
     }
 
     public function parsePackage() returns Package {
@@ -100,6 +150,8 @@ public type PackageParser object {
         self.parseTypeDefBodies(typeDefs);
 
         Function?[] funcs = self.parseFunctions(typeDefs);
+
+        self.skipAnnotations();
 
         return { importModules : importModules,
                     typeDefs : typeDefs, 
@@ -133,6 +185,20 @@ public type PackageParser object {
         return errorEntries;
     }
 
+    function getWorkerChannels(FuncBodyParser bodyParser) returns ChannelDetail[] {
+        ChannelDetail[] channelDetails = [];
+        var count = self.reader.readInt32();
+        int i = 0;
+        while (i < count) {
+            string name = self.reader.readStringCpRef();
+            boolean onSameStrand = self.reader.readBoolean();
+            boolean isSend = self.reader.readBoolean();
+            channelDetails[i] = { name: { value:name }, onSameStrand:onSameStrand, isSend:isSend };
+            i += 1;
+        }
+        return channelDetails;
+    }
+
     function parseImportMods() returns ImportModule[] {
         int numImportMods = self.reader.readInt32();
         ImportModule[] importModules = [];
@@ -160,7 +226,6 @@ public type PackageParser object {
 
     function parseTypeDefBodies(TypeDef?[] typeDefs) {
         int numTypeDefs = typeDefs.length();
-
         foreach var typeDef in typeDefs {
             TypeDef tDef = getTypeDef(typeDef);
             BType typeValue = tDef.typeValue;

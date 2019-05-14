@@ -43,7 +43,7 @@ import javax.xml.namespace.QName;
  * @param <T> Type of the underlying impl
  * @since 0.995.0
  */
-public abstract class XMLValue<T> implements RefValue {
+public abstract class XMLValue<T> implements RefValue, CollectionValue {
 
     BType type = BTypes.typeXML;
 
@@ -156,14 +156,14 @@ public abstract class XMLValue<T> implements RefValue {
     }
 
     /**
-     * Get attributes as a {@link MapValue}.
+     * Get attributes as a {@link MapValueImpl}.
      * 
-     * @return Attributes as a {@link MapValue}
+     * @return Attributes as a {@link MapValueImpl}
      */
     public abstract MapValue<String, ?> getAttributesMap();
 
     /**
-     * Set the attributes of the XML{@link MapValue}.
+     * Set the attributes of the XML{@link MapValueImpl}.
      * 
      * @param attributes Attributes to be set.
      */
@@ -236,7 +236,7 @@ public abstract class XMLValue<T> implements RefValue {
      * @param endIndex To slice
      * @return sliced sequence
      */
-    public abstract XMLValue<?> slice(int startIndex, int endIndex);
+    public abstract XMLValue<?> slice(long startIndex, long endIndex);
 
     /**
      * Searches in children recursively for elements matching the name and returns a sequence containing them all.

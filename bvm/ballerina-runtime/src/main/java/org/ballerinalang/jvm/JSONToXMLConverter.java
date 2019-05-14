@@ -26,7 +26,7 @@ import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -149,7 +149,7 @@ public class JSONToXMLConverter {
         } else {
             switch (TypeChecker.getType(json).getTag()) {
                 case TypeTags.JSON_TAG:
-                    LinkedHashMap<String, Object> map = (MapValue) json;
+                    LinkedHashMap<String, Object> map = (MapValueImpl) json;
                     for (Entry<String, Object> entry : map.entrySet()) {
                         currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot,
                                 omElementArrayList, attributePrefix, arrayEntryTag);

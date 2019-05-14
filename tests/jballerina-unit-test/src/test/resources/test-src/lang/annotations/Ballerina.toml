@@ -1,0 +1,3 @@
+[project]
+# Name of the package
+org-name = "lang.annotations.foo"

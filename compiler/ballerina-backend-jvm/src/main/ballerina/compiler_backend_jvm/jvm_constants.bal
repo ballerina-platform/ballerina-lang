@@ -206,6 +206,9 @@ final int V1_8 = 0 << 16 | 52;
 
 // jvm runtime values related classes
 const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
+const string MAP_VALUE_IMPL = "org/ballerinalang/jvm/values/MapValueImpl";
+const string TABLE_VALUE = "org/ballerinalang/jvm/values/TableValue";
+const string STREAM_VALUE = "org/ballerinalang/jvm/values/StreamValue";
 const string ARRAY_VALUE = "org/ballerinalang/jvm/values/ArrayValue";
 const string OBJECT_VALUE = "org/ballerinalang/jvm/values/ObjectValue";
 const string ABSTRACT_OBJECT_VALUE = "org/ballerinalang/jvm/values/AbstractObjectValue";
@@ -237,12 +240,18 @@ const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
 const string XML_FACTORY = "org/ballerinalang/jvm/XMLFactory";
 const string SET = "java/util/Set";
 const string LINKED_HASH_SET = "java/util/LinkedHashSet";
+const string WD_CHANNELS = "org/ballerinalang/jvm/WDChannels";
+const string WORKER_DATA_CHANNEL = "org/ballerinalang/jvm/WorkerDataChannel";
+const string CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
+const string WORKER_UTILS = "org/ballerinalang/jvm/WorkerUtils";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
 const string BTYPES = "org/ballerinalang/jvm/types/BTypes";
 const string ARRAY_TYPE = "org/ballerinalang/jvm/types/BArrayType";
 const string MAP_TYPE = "org/ballerinalang/jvm/types/BMapType";
+const string TABLE_TYPE = "org/ballerinalang/jvm/types/BTableType";
+const string STREAM_TYPE = "org/ballerinalang/jvm/types/BStreamType";
 const string UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
 const string RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
 const string OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";
@@ -255,7 +264,7 @@ const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
 const string FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
 
 // error related classes
-const string BLANG_VM_ERRORS = "org/ballerinalang/jvm/BLangVMErrors";
+const string BALLERINA_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
 const string PRINT_STACKTRACE_ON_MAIN_METHOD_ERROR = "printStackTraceOnMainMethodError";
 
 // service objects, annotation processing related classes

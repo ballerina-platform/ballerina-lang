@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
@@ -48,5 +49,9 @@ public class IndexOf extends BlockingNativeCallableUnit {
 
         BInteger intValue = new BInteger(param1.indexOf(subString));
         context.setReturnValues(intValue);
+    }
+
+    public static long indexOf(Strand strand, String value, String subString) {
+        return value.indexOf(subString);
     }
 }

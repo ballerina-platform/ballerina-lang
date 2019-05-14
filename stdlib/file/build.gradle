@@ -20,9 +20,11 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 description = 'Ballerina - File'
 
 dependencies {
-    implementation project(':ballerina-lang')
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    baloCreat project(':lib-creator-milestone')
+//    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-    implementation project(':lib-creator')
+//    implementation project(':lib-creator')
     implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system'
 
     testCompile project(':ballerina-launcher')

@@ -16,7 +16,7 @@ string?, map<any>, any, any, any) {
         fatal: true
     });
     SMS error (reason11, detail11) = err1;
-    SMS error (reason12, { message: message12, detail: detail12, extra: extra12}) = err1;
+    SMS error (reason12, {message: message12, detail: detail12, extra: extra12}) = err1;
 
     SMA
     error
@@ -28,7 +28,7 @@ string?, map<any>, any, any, any) {
     =
     err2
     ;
-    SMA error (reason22, { message: message22, detail: detail22, extra: extra22}) = err2;
+    SMA error (reason22, {message: message22, detail: detail22, extra: extra22}) = err2;
 
     return (reason11, reason12, reason21, reason22, detail11, message12, detail12, extra12, detail21, message22,
     detail22, extra22);

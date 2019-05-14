@@ -80,6 +80,11 @@ public type BirEmitter object {
             println();
             self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
             print("}");
+        } else if (typeValue is BRecordType) {
+            self.typeEmitter.emitRecordType(typeValue, "");
+            println();
+            self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
+            print("}");
         } else {
             self.typeEmitter.emitType(bTypeDef.typeValue);
         }
@@ -136,6 +141,20 @@ public type BirEmitter object {
             if (e is ErrorEntry) {
                 self.emitErrorEntry(e);
                 println();// empty line
+            }
+        }
+        if (bFunction.workerChannels.length() > 0) {
+            print("WORKER_CHANNELS: ");    
+        }
+
+        int channelsSize = bFunction.workerChannels.length();
+        foreach ChannelDetail ch in bFunction.workerChannels {
+            channelsSize -= 1;
+            print(ch.name.value);
+            if (channelsSize > 0) {
+                print(",");
+            } else {
+                println(";");
             }
         }
         println(tabs, "}");
@@ -227,6 +246,14 @@ type InstructionEmitter object {
             print(" = ", ins.kind, " ");
             self.typeEmitter.emitType(ins.typeValue);
             println(";");
+        } else if (ins is NewStream) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.typeEmitter.emitType(ins.typeValue);
+            print(", ");
+            self.opEmitter.emitOp(ins.nameOp);
+            println(";");
         } else if (ins is NewTable) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
@@ -273,7 +300,7 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ");
-            print(" ", ins.kind, " ");
+            print(ins.kind, " ");
             print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "(");
 
             foreach var v in ins.closureMaps {
@@ -352,6 +379,19 @@ type TerminalEmitter object {
                 i = i + 1;
             }
             println(";");
+        } else if (term is WrkReceive) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            print(term.channelName.value);
+            println(";");
+        } else if (term is WrkSend) {
+            print(tabs);
+            self.opEmitter.emitOp(term.dataOp);
+            print(" ", term.kind, " ");
+            print(term.channelName.value);
+            println(";");
         } else if (term is AsyncCall) {
             print(tabs);
             VarRef? lhsOp = term.lhsOp;
@@ -359,7 +399,7 @@ type TerminalEmitter object {
                 self.opEmitter.emitOp(lhsOp);
                 print(" = ");
             }
-            print(" START ");
+            print("START ");
             print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
             int i = 0;
             foreach var arg in term.args {
@@ -378,6 +418,9 @@ type TerminalEmitter object {
             if (lhsOp is VarRef) {
                 self.opEmitter.emitOp(lhsOp);
                 print(" = ");
+            }
+            if (term.isAsync) {
+                print("START ");
             }
             print(term.kind, " ");
             self.opEmitter.emitOp(term.fp);
