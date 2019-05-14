@@ -45,15 +45,14 @@ type Parser object {
 						ErrorNode fnErNode = {nodeKind: ERROR_NODE,tokenList:self.errTokens,errorFunction:function1};
 						dList[pos] = fnErNode;
 						pos += 1;
-						self.errorRecovered = true;
 						self.errTokens = [];
 					}
 					else{
 						ErrorNode erNode = {nodeKind: ERROR_NODE,errorFunction:function1};
 						dList[pos] = erNode;
 						pos += 1;
-						self.errorRecovered = true;
 					}
+					self.errorRecovered = true;
 				}
 				else{
 					dList[pos] = defNode;
@@ -74,8 +73,8 @@ type Parser object {
 			return currToken;
 		} else {
 			string capturedErr = tokenNames[self.LAToken(1)];
-			Token panicToken = self.panicRecovery(mToken, rule);
 			log:printError("Expected " + tokenNames[mToken] + ";found " + capturedErr);
+			Token panicToken = self.panicRecovery(mToken, rule);
 			return panicToken;
 		}
 	}
@@ -97,6 +96,7 @@ type Parser object {
 	//here all the token will be removed and added to the error token list until we meet a terminal token
 	function panicRecovery(int mToken,NodeKind rule) returns Token {
 		boolean panicMode = true;
+		self.errorRecovered = false;
 		if(rule == "variableDefinitionStatement"){
 			if(mToken == SEMICOLON){
 				Token insertSemi = self.insertToken(mToken);
@@ -108,7 +108,6 @@ type Parser object {
 				return insertAssign;
 			}else{
 				//recovered = false;
-				self.errorRecovered = false;
 				int[] exprPanic = [SEMICOLON,RBRACE];
 				while(panicMode){
 					if(self.LAToken(1) == exprPanic[0]){
@@ -214,7 +213,6 @@ type Parser object {
 		}else{
 			Token lParen = self.matchToken(LPAREN,FUNCTION_NODE);
 			if(lParen.tokenType == PARSER_ERROR_TOKEN){
-				io:println(lParen.tokenType);
 				IdentifierNode idNode = { nodeKind: IDENTIFIER_NODE, tokenList: [identifier], identifier: identifier.text };
 				FunctionSignatureNode signature1 = { nodeKind: FN_SIGNATURE_NODE,functionIdentifier: idNode };
 			return signature1;
@@ -254,7 +252,6 @@ type Parser object {
 				self.errorRecovered = true;
 				self.invalidOccurence = false;
 				self.errTokens = [];
-
 			}
 			else if(self.errorRecovered == false || self.invalidOccurence == true){//this was recovered == false
 				if(self.errTokens.length()>0){
@@ -262,8 +259,6 @@ type Parser object {
 					stsList[pos] = erNode;
 					pos += 1;
 					//recovered = true;
-					self.errorRecovered = true;
-					self.invalidOccurence = false;
 					self.errTokens = [];
 				}
 				else{
@@ -271,9 +266,9 @@ type Parser object {
 					stsList[pos] = erNode;
 					pos += 1;
 					//recovered = true;
+				}
 					self.errorRecovered = true;
 					self.invalidOccurence = false;
-				}
 			}else{
 				stsList[pos] = stNode;
 				pos += 1;
@@ -847,6 +842,7 @@ type Parser object {
 
 
 		}else if (self.LAToken(1) == LBRACE){//for record literal
+		//ToDo:add error recovery for record literal
 			self.priorOperator = false;
 			RecordKeyValueNode[] recordList = [];
 			int pos = 0;
