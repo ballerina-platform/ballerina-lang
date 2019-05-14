@@ -19,19 +19,26 @@ import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.model.elements.Flag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents a Ballerina Type.
@@ -43,25 +50,20 @@ public class Type {
     public String description;
     public String category;
     public boolean isAnonymousUnionType;
+    public boolean isArrayType;
+    public boolean isNullable;
+    public boolean isTuple;
     public List<Type> memberTypes = new ArrayList<>();
 
+    public Type(BType type) {
+        this.name = type.tsymbol.name != null ? type.tsymbol.name.value : null;
+        this.orgName = type.tsymbol.pkgID.orgName.value;
+        this.moduleName = type.tsymbol.pkgID.name.value;
+        this.category = getCategory(type.tag);
+    }
+
     public Type(BLangType type) {
-        if (type == null) {
-            return;
-        }
         BTypeSymbol typeSymbol = type.type.tsymbol;
-//        if (typeSymbol == null) {
-//            if (!(type.type instanceof BUnionType) && !(type.type instanceof BInvokableType)) {
-//
-//            }
-//            this.name = "sdsdsdsdsd";
-//        }
-//        if ((typeSymbol != null) && (typeSymbol.name.value.equals(""))) {
-//            this.name = "sdsdsd";
-//            if (!(type instanceof BLangUnionTypeNode) && !(type instanceof BLangArrayType) && !(type instanceof BLangTupleTypeNode)) {
-//
-//            }
-//        }
         if (typeSymbol != null && !typeSymbol.name.value.equals("")) {
             if (type instanceof BLangUserDefinedType) {
                 BLangUserDefinedType userDefinedType = (BLangUserDefinedType) type;
@@ -112,12 +114,6 @@ public class Type {
                 this.category = "objects";
             }
         }
-//        if (typeSymbol == null && !(type.type instanceof BUnionType) && !(type.type instanceof BInvokableType)) {
-//
-//        }
-//        if (type.type == null) {
-//            this.name = "sdsdsd";
-//        }
     }
 
     public Type(String name, String description) {
@@ -126,6 +122,51 @@ public class Type {
     }
 
     public static Type fromTypeNode(BLangType type) {
+        if (type instanceof BLangFunctionTypeNode){
+            return new Type("lambda", "TODO");
+        }
+        if (type.nullable && type.type instanceof BUnionType) {
+            BUnionType unionType = (BUnionType) type.type;
+            if (unionType.getMemberTypes().size() == 2) {
+                Type typeObj = new Type((BType) unionType.getMemberTypes().toArray()[0]);
+                typeObj.isNullable = true;
+                return typeObj;
+            }
+        }
+        if (type instanceof BLangFiniteTypeNode) {
+            List<BLangExpression> valueSpace = ((BLangFiniteTypeNode) type).valueSpace;
+            if (valueSpace.size() == 1) {
+                return new Type(valueSpace.get(0).type);
+            }
+        }
+        if (type instanceof  BLangArrayType) {
+            BLangType elemtype = ((BLangArrayType) type).elemtype;
+            Type typeObj = fromTypeNode(elemtype);
+            typeObj.isArrayType = true;
+            return typeObj;
+        }
+        if (type instanceof BLangTupleTypeNode) {
+            List<BLangType> memberTypeNodes = ((BLangTupleTypeNode) type).memberTypeNodes;
+            Type type1 = new Type(type);
+            type1.isTuple = true;
+            type1.memberTypes = memberTypeNodes.stream()
+                                    .map(Type::fromTypeNode)
+                                    .collect(Collectors.toList());
+            return type1;
+        }
         return new Type(type);
+    }
+
+    private String getCategory(int tag) {
+        String category = "";
+        switch (tag) {
+            case TypeTags
+                    .OBJECT: category = "object";break;
+            case TypeTags
+                    .RECORD: category = "record";break;
+            case TypeTags
+                    .UNION: category = "type";break;
+        }
+        return category;
     }
 }

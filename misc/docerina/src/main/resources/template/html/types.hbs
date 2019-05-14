@@ -32,7 +32,18 @@
                     {{#each types}}
                         <div class="params-listing">
                             <ul>
-                                <li id="{{ name }}"> <b>{{ name }}</b><span class="type">  {{{ unionTypeSummary memberTypes }}}</span></li>
+                                <li id="{{ name }}"><b>{{ name }}</b><span class="type">  {{{ unionTypeSummary
+                                        memberTypes }}}</span></li>
+                                <li>
+                                    {{{ description }}}
+                                </li>
+                            </ul>
+                        </div>
+                    {{/each}}
+                    {{#each module.finiteTypes }}
+                        <div class="params-listing">
+                            <ul>
+                                <li id="{{ name }}"><b>{{ name }}</b><span class="type">  {{{ pipeJoin valueSpace }}}</span></li>
                                 <li>
                                     {{{ description }}}
                                 </li>
