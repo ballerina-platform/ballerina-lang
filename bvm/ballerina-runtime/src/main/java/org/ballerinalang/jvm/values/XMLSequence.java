@@ -459,10 +459,9 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     }
 
     /**
-     * Get the length of this XML sequence.
-     *
-     * @return length of this XML sequence.
+     * {@inheritDoc}
      */
+    @Override
     public int size() {
         int size = 0;
         for (int i = 0; i < this.sequence.size; i++) {

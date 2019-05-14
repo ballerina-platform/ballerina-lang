@@ -3608,10 +3608,6 @@ public class Desugar extends BLangNodeVisitor {
         }
         BLangExpression invocationExpr = visitTypeConversionInvocation(iExpr.expr.pos, SIMPLE_VALUE_CONVERT,
                                                                        iExpr.expr, inputTypeCastExpr, iExpr.type);
-        if (safe) {
-            return createTypeCastExpr(invocationExpr, targetType,
-                                      Symbols.createUnboxValueTypeOpSymbol(symTable.anydataType, targetType));
-        }
         return invocationExpr;
     }
 
