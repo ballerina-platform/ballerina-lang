@@ -614,7 +614,7 @@ type TerminatorGenerator object {
             
             bir:VarRef? lhsOp = ins.lhsOp;
             if (lhsOp is bir:VarRef) {
-                    self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(lhsOp.variableDcl));
+                generateVarStore(self.mv, lhsOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(lhsOp.variableDcl));
             }
 
             self.mv.visitVarInsn(ALOAD, 0);

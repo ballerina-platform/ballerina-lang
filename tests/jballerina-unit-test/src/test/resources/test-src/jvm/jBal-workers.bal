@@ -95,10 +95,10 @@ public function receiveWithCheckForDefault() returns boolean|error {
     return wait w1;
 }
 
-int append = 0;
+int res = 0;
 function simpleSyncSend() returns int {
     string done = process();
-    return append;
+    return res;
 }
 
 function process() returns string {
@@ -108,7 +108,7 @@ function process() returns string {
      () result = a ->> w2;
      int i = 0;
      while (i < 1000) {
-         append = 10;
+         res = 10;
          i += 1;
      }
      a -> w2;
@@ -120,7 +120,7 @@ function process() returns string {
      b = <- w1;
      int i = 0;
      while (i < 1000) {
-          append = 10;
+          res = 10;
           i += 1;
      }
 
@@ -131,4 +131,185 @@ function process() returns string {
    wait w1;
 
    return "done";
+}
+
+string append2 = "";
+function multipleSyncSend() returns string{
+    worker w1 {
+        int a = 10;
+        var result = a ->> w2;
+        int i = 0;
+        while (i < 5) {
+            append2 = append2 + "w1";
+            i += 1;
+        }
+        result = a ->> w2;
+        i = 0;
+        while (i < 5) {
+            append2 = append2 + "w11";
+            i += 1;
+        }
+    }
+
+    worker w2 returns error? {
+        int b = 15;
+        int i = 0;
+        while (i < 5) {
+            append2 = append2 + "w2";
+            i += 1;
+        }
+        if (false) {
+            error err = error("err", { message: "err msg" });
+            return err;
+        }
+        b = <- w1;
+        i = 0;
+        while (i < 5) {
+            append2 = append2 + "w22";
+            i += 1;
+        }
+        b = <- w1;
+        return;
+    }
+    wait w1;
+    return append2;
+}
+
+string append = "";
+function process2() returns any|error {
+    return returnNil();
+}
+
+function returnNil() returns any|error {
+    worker w1 returns any|error {
+        int a = 10;
+        a -> w2;
+        var result = a ->> w2;
+        int i = 0;
+        while (i < 5) {
+            append = append + "w1";
+            i += 1;
+        }
+        return result;
+    }
+
+   worker w2 returns error? {
+    if (false) {
+        error err = error("err", { message: "err msg" });
+        return err;
+    }
+    int b = 15;
+
+    int i = 0;
+    while (i < 5) {
+        append = append + "w2";
+        i += 1;
+    }
+    b = <- w1;
+    b = <- w1;
+    return;
+   }
+
+   var result = wait w1;
+   return result;
+}
+
+string append3 = "";
+function multiWorkerSend() returns string{
+    worker w1 {
+        int a = 10;
+        var result = a ->> w2;
+        a -> w3;
+        int i = 0;
+        while (i < 5) {
+            append3 = append3 + "w1";
+            i += 1;
+        }
+        result = a ->> w2;
+        a -> w3;
+        i = 0;
+        while (i < 5) {
+            append3 = append3 + "w11";
+            i += 1;
+        }
+       }
+
+    worker w2 returns error? {
+         if (false) {
+            error err = error("err", { message: "err msg" });
+            return err;
+         }
+
+        if (false) {
+            error err = error("err", { message: "err msg" });
+            return err;
+        }
+        int b = 15;
+        int i = 0;
+        while (i < 5) {
+            append3 = append3 + "w2";
+            i += 1;
+        }
+        b -> w3;
+        b = <- w1;
+        b -> w3;
+        i = 0;
+        while (i < 5) {
+            append3 = append3 + "w22";
+            i += 1;
+        }
+        b = <- w1;
+        return;
+    }
+
+
+    worker w3 returns error? {
+        int|error x =  <- w2;
+        int b;
+        int i = 0;
+            while (i < 5)  {
+                append3 = append3 + "w3";
+                i += 1;
+            }
+        b = <- w1;
+        x = <- w2;
+        i = 0;
+        while (i < 5) {
+            append3 = append3 + "w33";
+            i += 1;
+        }
+        b = <- w1;
+        return;
+    }
+
+    wait w1;
+    return append3;
+}
+
+string append4 = "";
+function errorResult() returns error? {
+    worker w1 returns error? {
+        int a = 10;
+        if (false) {
+            error err = error("err", { message: "err msg" });
+            return err;
+        }
+        var result = a ->> w2;
+
+        return result;
+    }
+
+    worker w2 returns error? {
+        if (true) {
+            error err = error("error3", { message: "err msg" });
+            return err;
+        }
+        var b = 15;
+
+        b = <- w1;
+        return;
+    }
+
+    error? w1Result = wait w1;
+    return w1Result;
 }

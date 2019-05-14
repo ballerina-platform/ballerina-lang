@@ -40,6 +40,7 @@ public class WorkerDataChannel {
     private ErrorValue panic;
     private int senderCounter;
     private int receiverCounter;
+    private boolean syncSent = false;
 
     private Lock channelLock;
 
@@ -90,14 +91,11 @@ public class WorkerDataChannel {
     public Object syncSendData(Object data, Strand strand) {
         try {
             acquireChannelLock();
-            boolean messageReceived = (this.waitingSender != null) ? true : false;
-            if (!messageReceived) {
+            if (!syncSent) {
+                // this is a new message, not a reschedule
                 this.channel.add(new WorkerResult(data, true));
                 this.senderCounter++;
                 this.waitingSender = new WaitingSender(strand, -1);
-            } else {
-                //  this is a reschedule after receiving the message
-                this.waitingSender = null;
             }
 
             if (this.receiver != null) {
@@ -117,7 +115,7 @@ public class WorkerDataChannel {
             }
 
             // could not send the message, should yield. Will pick the ret value from getErrorValue()
-            if (!messageReceived) {
+            if (!syncSent) {
                 strand.blocked = true;
                 strand.yield = true;
             }
@@ -140,6 +138,8 @@ public class WorkerDataChannel {
                     // sync sender will pick the this.error as result, which is null
                     Strand waiting  = this.waitingSender.waitingStrand;
                     waiting.scheduler.unblockStrand(waiting);
+                    this.waitingSender = null;
+                    this.syncSent = true;
                 } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
                     // TODO: Fix later for flush
                 }
@@ -189,7 +189,8 @@ public class WorkerDataChannel {
             // TODO: FIX for Flush
             this.flushSender = null;
         } else if (this.waitingSender != null) {
-            // TODO: FIX for sync send
+            Strand waiting = this.waitingSender.waitingStrand;
+            waiting.scheduler.unblockStrand(waiting);
             this.waitingSender = null;
         }
         releaseChannelLock();

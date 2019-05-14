@@ -105,4 +105,36 @@ public class WorkerTest {
                 "Returned wrong value:" + returns[0].stringValue());
     }
 
+    @Test
+    public void multipleSyncSendTest() {
+        BValue[] returns = BRunUtil.invoke(result, "multipleSyncSend");
+        Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2"),
+                "Returned wrong value:" + returns[0].stringValue());
+        Assert.assertFalse(returns[0].stringValue().startsWith("w11"),
+                "Returned wrong value:" + returns[0].stringValue());
+    }
+
+    @Test
+    public void nilReturnTest() {
+        BValue[] returns = BRunUtil.invoke(result, "process2");
+        Assert.assertEquals(returns[0], null);
+    }
+
+    @Test
+    public void multiWorkerTest() {
+        BValue[] returns = BRunUtil.invoke(result, "multiWorkerSend");
+        Assert.assertFalse(returns[0].stringValue().startsWith("w1"),
+                "Returned wrong value:" + returns[0].stringValue());
+        Assert.assertFalse(returns[0].stringValue().startsWith("w11"),
+                "Returned wrong value:" + returns[0].stringValue());
+    }
+
+    @Test
+    public void errorAfterSendTest() {
+
+        BValue[] returns = BRunUtil.invoke(result, "errorResult");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "error3");
+    }
+
 }
