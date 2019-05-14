@@ -364,10 +364,18 @@ type InstructionGenerator object {
     }
 
     function generateMapNewIns(bir:NewMap mapNewIns) {
-        self.mv.visitTypeInsn(NEW, MAP_VALUE);
+        bir:BType typeOfMapNewIns = mapNewIns.typeValue;
+
+        string className = MAP_VALUE_IMPL;
+
+        if (typeOfMapNewIns is bir:BRecordType) {
+            className = self.currentPackageName + cleanupTypeName(typeOfMapNewIns.name.value);
+        }
+
+        self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
         loadType(self.mv, mapNewIns.typeValue);
-        self.mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(mapNewIns.lhsOp.variableDcl);
     }
 
@@ -410,8 +418,8 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setElement",
                     io:sprintf("(L%s;L%s;L%s;)V", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "put",
-                    io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), false);
+            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "put",
+                    io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
 
             // emit a pop, since we are not using the return value from the map.put()
             self.mv.visitInsn(POP);
@@ -432,8 +440,8 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
                     io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "get",
-                    io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
+            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
+                    io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
         }
 
         // store in the target reg
@@ -610,7 +618,7 @@ type InstructionGenerator object {
 
         if (isServiceType) {
             string varName = "#0";
-            string pkgClassName = lookupFullQualifiedClassName(self.currentPackageName + varName);
+            string pkgClassName = lookupGlobalVarClassName(self.currentPackageName + varName);
             self.mv.visitFieldInsn(GETSTATIC, pkgClassName, varName, io:sprintf("L%s;", MAP_VALUE));
             loadType(self.mv, objectNewIns.typeDef.typeValue);
             self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
@@ -840,7 +848,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
 
     if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
         string varName = varDcl.name.value;
-        string className = lookupFullQualifiedClassName(currentPackageName + varName);
+        string className = lookupGlobalVarClassName(currentPackageName + varName);
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
         return;
@@ -886,7 +894,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
 
     if (varDcl.kind == "GLOBAL") {
         string varName = varDcl.name.value;
-        string className = lookupFullQualifiedClassName(currentPackageName + varName);
+        string className = lookupGlobalVarClassName(currentPackageName + varName);
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
         return;

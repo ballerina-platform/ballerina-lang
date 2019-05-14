@@ -554,7 +554,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitInsn(AASTORE);
 
     termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
-    mv.visitMaxs(0, 0);
+    mv.visitMaxs(200, 400);
     mv.visitEnd();
 }
 
@@ -696,8 +696,13 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
     }
 }
 
-function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType) returns string {
+function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, bir:BType? attachedType = ()) returns string {
     string desc = "(Lorg/ballerinalang/jvm/Strand;";
+
+    if (attachedType is bir:BType) {
+        desc = desc + getArgTypeSignature(attachedType);
+    }
+
     int i = 0;
     while (i < paramTypes.length()) {
         bir:BType paramType = getType(paramTypes[i]);
@@ -751,8 +756,7 @@ function getArgTypeSignature(bir:BType bType) returns string {
                 bType is bir:BFiniteType ||
                 bType is bir:BTypeAny) {
         return io:sprintf("L%s;", OBJECT);
-    } else if (bType is bir:BMapType ||
-                bType is bir:BRecordType) {
+    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
         return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BFutureType) {
         return io:sprintf("L%s;", FUTURE_VALUE);
@@ -1188,6 +1192,8 @@ function getFrameClassName(string pkgName, string funcName, bir:BType? attachedT
     string frameClassName = pkgName;
     if (attachedType is bir:BObjectType) {
         frameClassName += cleanupTypeName(attachedType.name.value) + "_";
+    } else if (attachedType is bir:BRecordType) {
+        frameClassName += cleanupTypeName(attachedType.name.value) + "_";
     }
 
     return frameClassName + cleanupFunctionName(funcName) + "Frame";
@@ -1198,7 +1204,7 @@ function cleanupTypeName(string name) returns string {
     return name.replace("$","_");
 }
 
-function cleanupFileName(string name) returns string {
+function cleanupBalExt(string name) returns string {
     return name.replace(BAL_EXTENSION, "");
 }
 

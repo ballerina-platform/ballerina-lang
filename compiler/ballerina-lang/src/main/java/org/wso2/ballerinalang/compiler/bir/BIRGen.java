@@ -143,7 +143,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -257,16 +256,19 @@ public class BIRGen extends BLangNodeVisitor {
         boolean isTypeAttachedFunction = astFunc.flagSet.contains(Flag.ATTACHED) &&
                 !typeDefs.containsKey(astFunc.receiver.type.tsymbol);
 
-        Name funcName;
-        if (isTypeAttachedFunction) {
-            funcName = names.fromString(astFunc.symbol.name.value);
-        } else {
-            funcName = getFuncName(astFunc.symbol);
-        }
-
         Name workerName = names.fromIdNode(astFunc.defaultWorkerName);
-        BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type, workerName,
-                astFunc.sendsToThis.size());
+
+        BIRFunction birFunc;
+
+        if (isTypeAttachedFunction) {
+            Name funcName = names.fromString(astFunc.symbol.name.value);
+            birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type, astFunc.receiver.type, workerName,
+                    astFunc.sendsToThis.size());
+        } else {
+            Name funcName = getFuncName(astFunc.symbol);
+            birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type, workerName,
+                    astFunc.sendsToThis.size());
+        }
 
         //create channelDetails array
         int i = 0;

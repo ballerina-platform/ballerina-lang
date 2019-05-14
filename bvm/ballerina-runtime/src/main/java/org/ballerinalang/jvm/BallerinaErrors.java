@@ -23,7 +23,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
@@ -41,11 +41,11 @@ public class BallerinaErrors {
     public static final String NULL_REF_EXCEPTION = "NullReferenceException";
 
     public static ErrorValue createError(String reason) {
-        return new ErrorValue(reason, new MapValue<>());
+        return new ErrorValue(reason, new MapValueImpl<>());
     }
 
     public static ErrorValue createError(String reason, String detail) {
-        MapValue<String, Object> detailMap = new MapValue<>();
+        MapValueImpl<String, Object> detailMap = new MapValueImpl<>();
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
         }

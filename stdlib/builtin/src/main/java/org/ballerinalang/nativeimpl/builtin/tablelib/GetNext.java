@@ -20,7 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.tablelib;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BTable;
@@ -47,7 +47,7 @@ public class GetNext extends BlockingNativeCallableUnit {
         context.setReturnValues(table.getNext());
     }
 
-    public static MapValue<?, ?> getNext(Strand strand, TableValue table) {
+    public static MapValueImpl<?, ?> getNext(Strand strand, TableValue table) {
         return table.getNext();
     }
 }

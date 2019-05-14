@@ -50,7 +50,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
@@ -879,7 +878,9 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
     }
 
-    private static class BXmlAttrMap extends MapValue<String, String> {
+
+    private static class BXmlAttrMap extends MapValueImpl<String, String> {
+        
         private final XMLItem bXmlItem;
         private boolean constructed = false;
 
