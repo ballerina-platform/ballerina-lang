@@ -22,6 +22,8 @@ import ballerina/http;
 # + authProvider - AuthProvider instance
 public type OAuth2Handler object {
 
+    *http:AuthnHandler;
+
     public auth:AuthProvider authProvider;
 
     public function __init(auth:AuthProvider authProvider) {
