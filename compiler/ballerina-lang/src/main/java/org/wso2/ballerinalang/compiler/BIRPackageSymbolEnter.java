@@ -18,10 +18,13 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.bir.model.VisibilityFlags;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
@@ -43,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -53,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -395,7 +400,7 @@ public class BIRPackageSymbolEnter {
         annotationSymbol.type = new BAnnotationType((BAnnotationSymbol) annotationSymbol);
 
         this.env.pkgSymbol.scope.define(annotationSymbol.name, annotationSymbol);
-        if (annotationType != null) { //TODO fix properly
+        if (annotationType != symTable.noType) { //TODO fix properly
             ((BAnnotationSymbol) annotationSymbol).attachedType = annotationType.tsymbol;
         }
     }
@@ -950,6 +955,8 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.ANY:
                     return symTable.anyType;
                 case TypeTags.ENDPOINT:
+                    // TODO fix
+                    break;
                 case TypeTags.ARRAY:
                     byte state = inputStream.readByte();
                     int size = inputStream.readInt();
@@ -967,12 +974,22 @@ public class BIRPackageSymbolEnter {
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
                     return BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(unionMemberTypes));
                 case TypeTags.PACKAGE:
+                    // TODO fix
+                    break;
                 case TypeTags.NONE:
                     return symTable.noType;
                 case TypeTags.VOID:
+                    // TODO fix
+                    break;
                 case TypeTags.XMLNS:
+                    // TODO fix
+                    break;
                 case TypeTags.ANNOTATION:
+                    // TODO fix
+                    break;
                 case TypeTags.SEMANTIC_ERROR:
+                    // TODO fix
+                    break;
                 case TypeTags.ERROR:
                     BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
                             env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
@@ -987,6 +1004,8 @@ public class BIRPackageSymbolEnter {
                     assert poppedErrorType == errorType;
                     return errorType;
                 case TypeTags.ITERATOR:
+                    // TODO fix
+                    break;
                 case TypeTags.TUPLE:
                     int tupleMemberCount = inputStream.readInt();
                     List<BType> tupleMemberTypes = new ArrayList<>();
@@ -999,7 +1018,19 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.FUTURE:
                     return new BFutureType(TypeTags.FUTURE, readType(), symTable.futureType.tsymbol);
                 case TypeTags.INTERMEDIATE_COLLECTION:
+                    // TODO fix
+                    break;
                 case TypeTags.FINITE:
+                    BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, 0, Names.EMPTY,
+                            env.pkgSymbol.pkgID, null, env.pkgSymbol);
+                    symbol.scope = new Scope(symbol);
+                    BFiniteType finiteType = new BFiniteType(symbol);
+                    symbol.type = finiteType;
+                    int valueSpaceSize = inputStream.readInt();
+                    for (int i = 0; i < valueSpaceSize; i++) {
+                        defineValueSpace(inputStream, finiteType);
+                    }
+                    return finiteType;
                 case TypeTags.OBJECT:
                     String objName = getUTF8CPEntryValue(inputStream);
                     int objFlags = inputStream.readBoolean() ? Flags.ABSTRACT : 0;
@@ -1038,7 +1069,11 @@ public class BIRPackageSymbolEnter {
                     assert poppedObjType == objectType;
                     return objectType;
                 case TypeTags.BYTE_ARRAY:
+                    // TODO fix
+                    break;
                 case TypeTags.FUNCTION_POINTER:
+                    // TODO fix
+                    break;
                 case TYPE_TAG_SELF:
                     int index = inputStream.readInt();
                     return (BType) compositeStack.get(index);
@@ -1051,5 +1086,42 @@ public class BIRPackageSymbolEnter {
             }
             return null;
         }
+    }
+
+    private void defineValueSpace(DataInputStream dataInStream, BFiniteType finiteType) throws IOException {
+        BType valueType = typeReader.readType();
+        BLangLiteral litExpr = createLiteralBasedOnType(valueType);
+        switch (valueType.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+                litExpr.value = dataInStream.readInt();
+                break;
+            case TypeTags.FLOAT:
+                int floatCpIndex = dataInStream.readInt();
+                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[floatCpIndex];
+                litExpr.value = Double.toString(floatCPEntry.value);
+                break;
+            case TypeTags.STRING:
+            case TypeTags.DECIMAL:
+                litExpr.value = getUTF8CPEntryValue(dataInStream);
+                break;
+            case TypeTags.BOOLEAN:
+                litExpr.value = dataInStream.readByte() == 1;
+                break;
+            case TypeTags.NIL:
+                break;
+            default:
+                throw new UnsupportedOperationException("finite type value is not supported for type: " + valueType);
+        }
+
+        litExpr.type = valueType;
+
+        finiteType.valueSpace.add(litExpr);
+    }
+
+    private BLangLiteral createLiteralBasedOnType(BType valueType) {
+        NodeKind nodeKind = valueType.tag <= TypeTags.DECIMAL ? NodeKind.NUMERIC_LITERAL : NodeKind.LITERAL;
+        return nodeKind == NodeKind.LITERAL ? (BLangLiteral) TreeBuilder.createLiteralExpression() :
+                (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
     }
 }
