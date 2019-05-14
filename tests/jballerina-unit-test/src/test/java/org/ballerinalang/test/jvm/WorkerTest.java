@@ -51,7 +51,7 @@ public class WorkerTest {
         Assert.assertEquals(ret.intValue(), 52);
     }
 
-    @Test(enabled = false)
+    @Test
     public void workerSendToWorkerTest() {
         BValue[] returns = BRunUtil.invoke(result, "workerSendToWorker", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
@@ -59,7 +59,7 @@ public class WorkerTest {
         Assert.assertEquals(ret.intValue(), 41);
     }
 
-    @Test(enabled = false)
+    @Test
     public void workerSendToDefault() {
         BValue[] returns = BRunUtil.invoke(result, "workerSendToDefault", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
@@ -67,7 +67,7 @@ public class WorkerTest {
         Assert.assertEquals(ret.intValue(), 51);
     }
 
-    @Test(enabled = false)
+    @Test
     public void workerSendFromDefault() {
         BValue[] returns = BRunUtil.invoke(result, "workerSendFromDefault", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
@@ -75,7 +75,7 @@ public class WorkerTest {
         Assert.assertEquals(ret.intValue(), 51);
     }
 
-    @Test(enabled = false)
+    @Test
     public void receiveWithCheck() {
         BValue[] returns = BRunUtil.invoke(result, "receiveWithCheck", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
@@ -83,7 +83,7 @@ public class WorkerTest {
         Assert.assertEquals(ret.getReason(), "err");
     }
 
-    @Test(enabled = false)
+    @Test
     public void receiveWithCheckForDefault() {
         BValue[] returns = BRunUtil.invoke(result, "receiveWithCheckForDefault");
         Assert.assertEquals(returns.length, 1);
