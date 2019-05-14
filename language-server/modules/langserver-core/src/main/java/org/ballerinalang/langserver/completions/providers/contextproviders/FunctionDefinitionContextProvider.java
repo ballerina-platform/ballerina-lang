@@ -23,7 +23,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
@@ -115,19 +114,18 @@ public class FunctionDefinitionContextProvider extends LSCompletionProvider {
     private List<CompletionItem> getObjectAttachedFunctions(LSContext context, List<CommonToken> lhsDefaultTokens) {
         String objectName = lhsDefaultTokens.get(1).getText();
         List<CompletionItem> completionItems = new ArrayList<>();
-        Optional filtered = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
+        Optional<BObjectTypeSymbol> filtered = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                 .stream()
                 .filter(symbolInfo -> {
                     BSymbol symbol = symbolInfo.getScopeEntry().symbol;
                     return symbol instanceof BObjectTypeSymbol && symbol.getName().getValue().equals(objectName);
-                }).findFirst();
+                }).map(symbolInfo -> (BObjectTypeSymbol) symbolInfo.getScopeEntry().symbol).findAny();
 
-        if (!(filtered.isPresent()
-                && ((SymbolInfo) filtered.get()).getScopeEntry().symbol instanceof BObjectTypeSymbol)) {
+        if (!filtered.isPresent()) {
             return completionItems;
         }
 
-        BObjectTypeSymbol objectType = (BObjectTypeSymbol) (((SymbolInfo) filtered.get()).getScopeEntry().symbol);
+        BObjectTypeSymbol objectType = filtered.get();
 
         objectType.attachedFuncs.stream()
                 .filter(attachedFunc -> !attachedFunc.symbol.bodyExist)
