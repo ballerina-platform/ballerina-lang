@@ -100,9 +100,6 @@
             <class name="org.ballerinalang.test.expressions.binaryoperations.SubtractOperationTest"/>
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
             <class name="org.ballerinalang.test.types.constant.MapConstantTest" />
-
-            <!-- TODO: enable once decimal support is added -->
-            <!-- <class name="org.ballerinalang.test.types.constant.SimpleConstantTest" /> -->
         </classes>
     </test>
 </suite>
