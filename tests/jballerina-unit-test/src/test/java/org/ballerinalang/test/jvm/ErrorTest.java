@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.jvm.BLangVMErrors;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -56,7 +56,7 @@ public class ErrorTest {
             Assert.assertTrue(((InvocationTargetException) e.getCause()).getTargetException() instanceof ErrorValue);
             ErrorValue bError = (ErrorValue) ((InvocationTargetException) e.getCause()).getTargetException();
             Assert.assertEquals(bError.getReason(), "reason foo 2");
-            Assert.assertEquals(((MapValue) bError.getDetails()).get("message").toString(), "int value");
+            Assert.assertEquals(((MapValueImpl) bError.getDetails()).get("message").toString(), "int value");
             Assert.assertEquals(getPrintableStackTrace(bError), "reason foo 2 {\"message\":\"int value\"}\n"
                     + "\tat foo(errors.bal:46)\n"
                     + "\t   testPanic(errors.bal:18)");
@@ -130,7 +130,7 @@ public class ErrorTest {
 
     private String getPrintableStackTrace(ErrorValue errorValue) {
         StackTraceElement[] stackWithoutJavaTests = Arrays.copyOf(errorValue.getStackTrace(), 2);
-        return BLangVMErrors.getPrintableStackTrace(BLangVMErrors.getErrorMessage(errorValue),
+        return BallerinaErrors.getPrintableStackTrace(BallerinaErrors.getErrorMessage(errorValue),
                                                     stackWithoutJavaTests);
     }
 }

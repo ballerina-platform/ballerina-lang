@@ -105,7 +105,7 @@ function writeDataToCSVChannel(io:WritableCSVChannel csvChannel,
 function closeReadableCSVChannel(io:ReadableCSVChannel csvChannel) {
     var result = csvChannel.close();
     if (result is error) {
-        log:printError("Error occured while closing the channel: ",
+        log:printError("Error occurred while closing the channel: ",
                         err = result);
     }
 }
@@ -114,7 +114,7 @@ function closeReadableCSVChannel(io:ReadableCSVChannel csvChannel) {
 function closeWritableCSVChannel(io:WritableCSVChannel csvChannel) {
     var result = csvChannel.close();
     if (result is error) {
-        log:printError("Error occured while closing the channel: ",
+        log:printError("Error occurred while closing the channel: ",
                         err = result);
     }
 }

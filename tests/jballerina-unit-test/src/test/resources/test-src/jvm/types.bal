@@ -123,6 +123,12 @@ function tableFunc() returns table<Grades> {
               [ {  "Mary",  90, 87 }]
            };
     return gradesTable;
+
+}
+
+function streamFunc() returns stream<Grades> {
+    stream<Grades> gradesStream = new;
+    return gradesStream;
 }
 
 function arrayFunc(string[] strs) returns Grades[] {
@@ -199,7 +205,8 @@ function anyTest() returns any {
 
    int[] ia = [1, 3, 5, 6];
    any ar = ia;
-   return acceptAny(g2);
+   any x = g2;
+   return acceptAny(x);
 }
 
 function acceptAny(any anyval) returns any {

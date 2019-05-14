@@ -178,4 +178,27 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
     }
+
+    @Test
+    public void testFieldBasedAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFieldBasedAccess");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<fname><foo>1</foo><bar>2</bar></fname><lname1><foo>3</foo><bar>4</bar></lname1><fname><foo>5</foo>" +
+                        "<bar>6</bar></fname><lname2><foo>7</foo><bar>8</bar></lname2>apple");
+        Assert.assertEquals(returns[1].stringValue(), "<fname><foo>1</foo><bar>2</bar></fname>");
+        Assert.assertEquals(returns[2].stringValue(), "<foo>5</foo>");
+        Assert.assertEquals(returns[3].stringValue(), "<foo>5</foo>");
+        Assert.assertEquals(returns[4].stringValue(), "<bar>4</bar>");
+        Assert.assertEquals(returns[5].stringValue(),
+                "<foo>1</foo><bar>2</bar><foo>3</foo><bar>4</bar><foo>5</foo><bar>6</bar><foo>7</foo><bar>8</bar>");
+    }
+
+    @Test(description = "Test interpolating xml when there are extra dollar signs")
+    public void testXMLLiteralWithExtraDollarSigns() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDollarSignOnXMLLiteralTemplate");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<foo id=\"hello $5\">hello</foo>");
+        Assert.assertEquals(returns[1].stringValue(), "<foo id=\"hello $$5\">$hello</foo>");
+        Assert.assertEquals(returns[2].stringValue(), "<foo id=\"hello $$ 5\">$$ hello</foo>");
+    }
 }

@@ -18,7 +18,7 @@ All notable changes to this project will be documented in this file. When sendin
 
 ### Standard Libraries
 
-- 
+- [Add read timeout support for TCP and UDP sockets](https://github.com/ballerina-platform/ballerina-lang/pull/15261)
 - 
 - 
 - 

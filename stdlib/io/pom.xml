@@ -35,7 +35,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
-            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -96,6 +95,10 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-runtime</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -123,6 +126,7 @@
                                 <argument>${project.build.directory}/generated-balo/repo/ballerina</argument>
                                 <argument>${project.build.directory}</argument>
                                 <argument>${project.version}</argument>
+                                <argument>true</argument>
                             </arguments>
                         </configuration>
                     </execution>

@@ -180,7 +180,7 @@ public class TableIterator implements DataIterator {
 
     @Override
     public Map<String, Object> generateNext() {
-        Map<String, Object> bStruct = new MapValue<>(type);
+        Map<String, Object> bStruct = new MapValueImpl<>(type);
         int index = 0;
         try {
             Collection<BField> structFields = type.getFields().values();

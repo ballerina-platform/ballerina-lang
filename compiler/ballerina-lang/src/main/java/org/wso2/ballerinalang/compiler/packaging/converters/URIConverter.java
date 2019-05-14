@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.spi.EmbeddedExecutor;
@@ -47,7 +48,7 @@ import java.util.stream.Stream;
 public class URIConverter implements Converter<URI> {
 
     private static CacheRepo binaryRepo = new CacheRepo(RepoUtils.createAndGetHomeReposPath(),
-                                                        ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
+            ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, CompilerPhase.CODE_GEN); // TODO check phase
     private final URI base;
     private boolean isBuild = true;
     private PrintStream outStream = System.err;

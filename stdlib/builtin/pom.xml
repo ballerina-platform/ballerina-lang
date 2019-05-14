@@ -46,6 +46,10 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-runtime</artifactId>
+        </dependency>
     </dependencies>
     
     <build>
@@ -87,6 +91,7 @@
                                 <argument>${project.build.directory}</argument>
                                 <!--not used-->
                                 <argument>${project.version}</argument>
+                                <argument>true</argument>
                             </arguments>
                         </configuration>
                     </execution>

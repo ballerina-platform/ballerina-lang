@@ -23,10 +23,10 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
+import org.ballerinalang.messaging.artemis.ArtemisTransactionContext;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -41,18 +41,26 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "externSend",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.PRODUCER_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.PRODUCER_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         args = {
-                @Argument(name = "data", type = TypeKind.OBJECT, structType = ArtemisConstants.MESSAGE_OBJ)
+                @Argument(
+                        name = "data",
+                        type = TypeKind.OBJECT,
+                        structType = ArtemisConstants.MESSAGE_OBJ
+                )
         }
 )
-public class Send implements NativeCallableUnit {
+public class Send extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    public void execute(Context context) {
         try {
             @SuppressWarnings(ArtemisConstants.UNCHECKED)
             BMap<String, BValue> producerObj = (BMap<String, BValue>) context.getRefArgument(0);
@@ -60,15 +68,16 @@ public class Send implements NativeCallableUnit {
             BMap<String, BValue> data = (BMap<String, BValue>) context.getRefArgument(1);
             ClientProducer producer = (ClientProducer) producerObj.getNativeData(ArtemisConstants.ARTEMIS_PRODUCER);
             ClientMessage message = (ClientMessage) data.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
-            producer.send(message, message1 -> callableUnitCallback.notifySuccess());
+            ArtemisTransactionContext transactionContext =
+                    (ArtemisTransactionContext) producerObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
+            // Having to use the blocking function because of an issue in Artemis:
+            // https://issues.apache.org/jira/browse/ARTEMIS-2325
+            producer.send(message);
+            if (transactionContext != null) {
+                transactionContext.handleTransactionBlock(context, ArtemisConstants.PRODUCER_OBJ);
+            }
         } catch (ActiveMQException e) {
             context.setReturnValues(ArtemisUtils.getError(context, e));
-            callableUnitCallback.notifySuccess();
         }
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
     }
 }

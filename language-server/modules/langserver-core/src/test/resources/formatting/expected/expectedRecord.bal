@@ -8,20 +8,14 @@ public type RecordName2 record {
     string s;
 };
 
-public type RecordName3 record {
+public type RecordName3 record {};
 
-};
-
-type RecordName4 record {
-
-};
+type RecordName4 record {};
 
 type RecordName5 record {
     int a = 0;
     string s;
-    record {
-        int hd = 0;
-    } sdd;
+    record {int hd = 0;} sdd;
 };
 
 public type RecordName6 record {|

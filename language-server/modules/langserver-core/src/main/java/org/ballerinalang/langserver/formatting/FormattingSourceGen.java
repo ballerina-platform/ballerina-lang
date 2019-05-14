@@ -1104,8 +1104,9 @@ public class FormattingSourceGen {
                     && node.getAsJsonObject("typeName").has("value")
                     && anonTypes.containsKey(node.getAsJsonObject("typeName").get("value").getAsString())) {
                 node.addProperty("isAnonType", true);
-                node.add("anonType",
-                        anonTypes.get(node.getAsJsonObject("typeName").get("value").getAsString()));
+                JsonObject anonType = anonTypes.get(node.getAsJsonObject("typeName").get("value").getAsString());
+                anonType.addProperty("isAnonType", true);
+                node.add("anonType", anonType);
                 anonTypes.remove(node.getAsJsonObject("typeName").get("value").getAsString());
             }
         }

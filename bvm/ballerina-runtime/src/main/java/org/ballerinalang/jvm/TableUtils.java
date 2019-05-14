@@ -26,7 +26,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -44,7 +44,7 @@ public class TableUtils {
 
     private static final String DEFAULT_ERROR_DETAIL_MESSAGE = "Error occurred during table manipulation";
 
-    public static String generateInsertDataStatment(String tableName, MapValue<?, ?> constrainedType) {
+    public static String generateInsertDataStatment(String tableName, MapValueImpl<?, ?> constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         StringBuilder sbValues = new StringBuilder();
         sbSql.append(TableConstants.SQL_INSERT_INTO).append(tableName).append(" (");
@@ -60,7 +60,7 @@ public class TableUtils {
         return sbSql.toString();
     }
 
-    public static String generateDeleteDataStatment(String tableName, MapValue<?, ?> constrainedType) {
+    public static String generateDeleteDataStatment(String tableName, MapValueImpl<?, ?> constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         sbSql.append(TableConstants.SQL_DELETE_FROM).append(tableName).append(TableConstants.SQL_WHERE);
         Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
@@ -73,7 +73,7 @@ public class TableUtils {
         return sbSql.toString();
     }
 
-    public static void prepareAndExecuteStatement(PreparedStatement stmt, MapValue<?, ?> data) {
+    public static void prepareAndExecuteStatement(PreparedStatement stmt, MapValueImpl<?, ?> data) {
         try {
             Collection<BField> structFields = ((BStructureType) data.getType()).getFields().values();
             int index = 1;
