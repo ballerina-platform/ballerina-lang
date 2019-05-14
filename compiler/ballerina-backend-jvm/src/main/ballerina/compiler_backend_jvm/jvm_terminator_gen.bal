@@ -587,7 +587,8 @@ type TerminatorGenerator object {
         self.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", io:sprintf("(L%s;)L%s;", 
             STRING_VALUE, WORKER_DATA_CHANNEL), false);
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
-        generateVarLoad(self.mv, ins.dataOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(ins.dataOp.variableDcl));
+        generateVarLoad(self.mv, ins.dataOp.variableDcl, currentPackageName, 
+            self.getJVMIndexOfVarRef(ins.dataOp.variableDcl));
         addBoxInsn(self.mv, ins.dataOp.typeValue);
         self.mv.visitVarInsn(ALOAD, 0);
         if (!ins.isSync) {
@@ -596,11 +597,10 @@ type TerminatorGenerator object {
         } else {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "syncSendData", io:sprintf("(L%s;L%s;)L%s;", 
                 OBJECT, STRAND, OBJECT), false);
-            
-            
             bir:VarRef? lhsOp = ins.lhsOp;
             if (lhsOp is bir:VarRef) {
-                generateVarStore(self.mv, lhsOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(lhsOp.variableDcl));
+                generateVarStore(self.mv, lhsOp.variableDcl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(lhsOp.variableDcl));
             }
 
             self.mv.visitVarInsn(ALOAD, 0);
@@ -611,8 +611,7 @@ type TerminatorGenerator object {
             // goto thenBB
             jvm:Label gotoLabel = self.labelGen.getLabel(funcName + ins.thenBB.id.value);
             self.mv.visitJumpInsn(GOTO, gotoLabel);            
-        }
-        
+        }   
     }
 
     function genWorkerReceiveIns(bir:WorkerReceive ins, string funcName) {

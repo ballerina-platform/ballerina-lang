@@ -564,22 +564,27 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         this.env.enclFunc.basicBlocks.add(thenBB);
         workerSend.expr.accept(this);
-        createWorkerSend(workerSend.workerIdentifier.value, workerSend.pos, false, null, thenBB);
+
+        String channelName = this.env.enclFunc.workerName.value + "->" + workerSend.workerIdentifier.value;
+        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
+
+        this.env.enclBB.terminator = new BIRTerminator.WorkerSend(workerSend.pos, names.fromString(channelName),
+                this.env.targetOperand, isOnSameStrand, false, null, thenBB);
+
+        this.env.enclBB = thenBB;
     }
 
     public void visit(BLangWorkerSyncSendExpr syncSend) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
-
         syncSend.expr.accept(this);
         BIROperand dataOp = this.env.targetOperand;
-
 
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(syncSend.type, this.env.nextLocalVarId(names),
                 VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
-//        createWorkerSend(syncSend.workerIdentifier.value, syncSend.pos, true, lhsOp, thenBB);
+
         String channelName = this.env.enclFunc.workerName.value + "->" + syncSend.workerIdentifier.value;
         boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
 
@@ -587,20 +592,6 @@ public class BIRGen extends BLangNodeVisitor {
                 dataOp, isOnSameStrand, true, lhsOp, thenBB);
 
         this.env.enclFunc.basicBlocks.add(thenBB);
-
-        this.env.enclBB = thenBB;
-    }
-
-    public void createWorkerSend(String workerId, DiagnosticPos pos, boolean isSync,
-                                 BIROperand lhsOp, BIRBasicBlock thenBB) {
-
-        String channelName = this.env.enclFunc.workerName.value + "->" + workerId;
-        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
-
-        this.env.enclBB.terminator = new BIRTerminator.WorkerSend(pos, names.fromString(channelName),
-                this.env.targetOperand, isOnSameStrand, isSync, lhsOp, thenBB);
-
-
         this.env.enclBB = thenBB;
     }
 

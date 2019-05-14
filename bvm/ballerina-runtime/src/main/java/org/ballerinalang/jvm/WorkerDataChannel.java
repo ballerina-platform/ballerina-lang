@@ -121,6 +121,7 @@ public class WorkerDataChannel {
             }
             return null;
         } finally {
+            this.syncSent = false;
             releaseChannelLock();
         }
     }
