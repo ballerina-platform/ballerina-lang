@@ -63,7 +63,8 @@ public class ObjectFieldDefinitionContextProvider extends LSCompletionProvider {
 
         completionItems.addAll(this.getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
-        
+        completionItems.add(Snippet.KW_PUBLIC.get().build(ctx));
+
         if (scopeNode instanceof BLangService) {
             Optional<List<CompletionItem>> resourceSnippets = this.getResourceSnippets(ctx);
             resourceSnippets.ifPresent(completionItems::addAll);

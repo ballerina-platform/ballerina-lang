@@ -218,7 +218,7 @@ public class CommonUtil {
     }
 
     /**
-     * Clone the diagnostic position given
+     * Clone the diagnostic position given.
      *
      * @param diagnosticPos - diagnostic position to be cloned
      * @return {@link DiagnosticPos} cloned diagnostic position
