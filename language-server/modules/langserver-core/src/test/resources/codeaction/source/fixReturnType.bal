@@ -7,6 +7,6 @@ function addTwoIntegers2(int a, int b) returns () {
 }
 
 function addTwoIntegers3(int a, int b) returns (boolean) {
-   int[] a = [];
-   return a;
+   int[] d = [];
+   return d;
 }
