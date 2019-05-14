@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaXmlNamespaceNameImpl extends ASTWrapperPsiElement implements BallerinaXmlNamespaceName {
+public class BallerinaClosedRecordRefBindingPatternImpl extends ASTWrapperPsiElement implements BallerinaClosedRecordRefBindingPattern {
 
-  public BallerinaXmlNamespaceNameImpl(@NotNull ASTNode node) {
+  public BallerinaClosedRecordRefBindingPatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitXmlNamespaceName(this);
+    visitor.visitClosedRecordRefBindingPattern(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,8 +44,20 @@ public class BallerinaXmlNamespaceNameImpl extends ASTWrapperPsiElement implemen
 
   @Override
   @NotNull
-  public PsiElement getQuotedStringLiteral() {
-    return findNotNullChildByType(QUOTED_STRING_LITERAL);
+  public List<BallerinaFieldRefBindingPattern> getFieldRefBindingPatternList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldRefBindingPattern.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getLeftBrace() {
+    return findNotNullChildByType(LEFT_BRACE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRightBrace() {
+    return findChildByType(RIGHT_BRACE);
   }
 
 }

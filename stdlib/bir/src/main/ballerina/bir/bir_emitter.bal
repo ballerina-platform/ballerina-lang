@@ -80,6 +80,11 @@ public type BirEmitter object {
             println();
             self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
             print("}");
+        } else if (typeValue is BRecordType) {
+            self.typeEmitter.emitRecordType(typeValue, "");
+            println();
+            self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
+            print("}");
         } else {
             self.typeEmitter.emitType(bTypeDef.typeValue);
         }
@@ -240,6 +245,14 @@ type InstructionEmitter object {
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
             self.typeEmitter.emitType(ins.typeValue);
+            println(";");
+        } else if (ins is NewStream) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.typeEmitter.emitType(ins.typeValue);
+            print(", ");
+            self.opEmitter.emitOp(ins.nameOp);
             println(";");
         } else if (ins is NewTable) {
             print(tabs);

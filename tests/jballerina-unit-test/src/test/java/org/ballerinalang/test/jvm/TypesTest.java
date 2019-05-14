@@ -15,15 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test.jvm;
 
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
+import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
@@ -34,6 +38,8 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.Map;
 
 /**
  * Test cases to cover some basic types related tests on JBallerina.
@@ -709,7 +715,7 @@ public class TypesTest {
         Assert.assertEquals(result[2].stringValue(), "00112233");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSelfReferencingRecord() {
         BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingRecord");
         Assert.assertEquals((result[0]).stringValue(), "{a:2, f:{a:1}}");
@@ -731,5 +737,20 @@ public class TypesTest {
         Assert.assertEquals(data.getMap().get("physics"), new BInteger(90));
         Assert.assertEquals(data.getMap().get("chemistry"), new BInteger(87));
 
+    }
+
+    @Test
+    public void testNewStream() {
+        BValue[] result = BRunUtil.invoke(compileResult, "streamFunc");
+        Assert.assertNotNull(result[0]);
+        BStream stream = (BStream) result[0];
+        Assert.assertEquals(stream.getStreamId(), "gradesStream");
+        BRecordType recordType = (BRecordType) stream.getConstraintType();
+        Assert.assertEquals(recordType.getName(), "Grades");
+        Map<String, BField> fields = recordType.getFields();
+        Assert.assertEquals(fields.size(), 3);
+        Assert.assertEquals(fields.get("name").getFieldType(), BTypes.typeString);
+        Assert.assertEquals(fields.get("physics").getFieldType(), BTypes.typeInt);
+        Assert.assertEquals(fields.get("chemistry").getFieldType(), BTypes.typeInt);
     }
 }

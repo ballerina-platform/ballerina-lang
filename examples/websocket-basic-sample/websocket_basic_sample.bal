@@ -83,7 +83,7 @@ service basic on new http:WebSocketListener(9090) {
         var err = caller->close(statusCode = 1001, reason =
                                     "Connection timeout");
         if (err is error) {
-            log:printError("Error occured when closing the connection",
+            log:printError("Error occurred when closing the connection",
                                 err = err);
         }
     }

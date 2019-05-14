@@ -51,8 +51,10 @@ public class Scheduler {
 
     /**
      * Add a task to the runnable list, which will eventually be executed by the Scheduler.
-     * @param params - parameters to be passed to the function
+     *
+     * @param params   - parameters to be passed to the function
      * @param function - function to be executed
+     * @param parent   - parent strand that makes the request to schedule another
      * @return - Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Function function, Strand parent) {
@@ -65,8 +67,10 @@ public class Scheduler {
 
     /**
      * Add a void returning task to the runnable list, which will eventually be executed by the Scheduler.
-     * @param params - parameters to be passed to the function
+     *
+     * @param params   - parameters to be passed to the function
      * @param consumer - consumer to be executed
+     * @param parent   - parent strand that makes the request to schedule another
      * @return - Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Consumer consumer, Strand parent) {

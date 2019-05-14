@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,7 +42,7 @@ public class BRecordType extends BStructureType {
      * @param sealed flag indicating the sealed status
      */
     public BRecordType(String typeName, String pkgPath, int flags, boolean sealed) {
-        super(typeName, pkgPath, flags, MapValue.class);
+        super(typeName, pkgPath, flags, MapValueImpl.class);
         this.sealed = sealed;
     }
 
@@ -58,7 +58,7 @@ public class BRecordType extends BStructureType {
      */
     public BRecordType(String typeName, String pkgPath, int flags, Map<String, BField> fields, BType restFieldType,
             boolean sealed) {
-        super(typeName, pkgPath, flags, MapValue.class, fields);
+        super(typeName, pkgPath, flags, MapValueImpl.class, fields);
         this.restFieldType = restFieldType;
         this.sealed = sealed;
     }
@@ -71,7 +71,7 @@ public class BRecordType extends BStructureType {
     @SuppressWarnings("unchecked")
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new MapValue<>(this);
+        return (V) new MapValueImpl<>(this);
     }
 
     @Override

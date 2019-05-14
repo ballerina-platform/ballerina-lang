@@ -33,6 +33,7 @@ import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import java.nio.channels.ServerSocketChannel;
 import java.util.Map;
 
+import static org.ballerinalang.stdlib.socket.SocketConstants.READ_TIMEOUT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
@@ -62,7 +63,8 @@ public class Register extends BlockingNativeCallableUnit {
     private SocketService getSocketService(Context context, Struct listenerEndpoint) {
         Map<String, Resource> resources = getResourceMap(context);
         ServerSocketChannel serverSocket = (ServerSocketChannel) listenerEndpoint.getNativeData(SERVER_SOCKET_KEY);
-        return new SocketService(serverSocket, resources);
+        long timeout = (long) listenerEndpoint.getNativeData(READ_TIMEOUT);
+        return new SocketService(serverSocket, resources, timeout);
     }
 
     private Map<String, Resource> getResourceMap(Context context) {

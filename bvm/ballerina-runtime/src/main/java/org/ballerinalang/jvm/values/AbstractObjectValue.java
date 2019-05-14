@@ -79,8 +79,8 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
-    public MapValue getMapValue(String fieldName) {
-        return (MapValue) get(fieldName);
+    public MapValueImpl getMapValue(String fieldName) {
+        return (MapValueImpl) get(fieldName);
     }
 
     @Override
