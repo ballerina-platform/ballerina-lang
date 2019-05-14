@@ -341,9 +341,12 @@ public class BRunUtil {
                 }
             };
 
-            Scheduler scheduler = new Scheduler();
+            Scheduler scheduler = new Scheduler(4);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null);
-            scheduler.execute();
+            scheduler.start();
+            if (futureValue.panic instanceof RuntimeException) {
+                throw (RuntimeException) futureValue.panic;
+            }
             jvmResult = futureValue.result;
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
