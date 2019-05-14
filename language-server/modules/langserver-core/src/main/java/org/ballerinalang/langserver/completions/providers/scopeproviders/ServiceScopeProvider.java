@@ -74,8 +74,7 @@ public class ServiceScopeProvider extends LSCompletionProvider {
         completionItems.addAll(this.getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
         completionItems.add(Snippet.KW_PUBLIC.get().build(ctx));
-        Optional<List<CompletionItem>> resourceSnippets = this.getResourceSnippets(ctx);
-        resourceSnippets.ifPresent(completionItems::addAll);
+        completionItems.addAll(this.getResourceSnippets(ctx));
         completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
 
         return completionItems;

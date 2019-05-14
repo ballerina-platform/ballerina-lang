@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -66,8 +65,7 @@ public class ObjectFieldDefinitionContextProvider extends LSCompletionProvider {
         completionItems.add(Snippet.KW_PUBLIC.get().build(ctx));
 
         if (scopeNode instanceof BLangService) {
-            Optional<List<CompletionItem>> resourceSnippets = this.getResourceSnippets(ctx);
-            resourceSnippets.ifPresent(completionItems::addAll);
+            completionItems.addAll(this.getResourceSnippets(ctx));
             completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
         }
 

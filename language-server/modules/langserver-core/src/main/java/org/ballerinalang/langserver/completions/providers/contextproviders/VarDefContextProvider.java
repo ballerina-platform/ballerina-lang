@@ -47,7 +47,6 @@ public class VarDefContextProvider extends LSCompletionProvider {
     @SuppressWarnings("unchecked")
     public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-//        String checkOrTrapKW = this.getCheckOrTrapKeyword(poppedTokens);
 
         Class sorterKey;
         if (isInvocationOrInteractionOrFieldAccess(context)) {
@@ -59,41 +58,10 @@ public class VarDefContextProvider extends LSCompletionProvider {
             sorterKey = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
             completionItems.addAll(this.getVarDefExpressionCompletions(context));
         }
-        /*else if (checkOrTrapKW.equalsIgnoreCase(ItemResolverConstants.TRAP)) {
-            List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-            // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
-            filteredList.removeIf(symbolInfo -> {
-                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                return (bSymbol instanceof BInvokableSymbol
-                        && ((BInvokableSymbol) bSymbol).receiverSymbol != null
-                        && CommonUtil.isValidInvokableSymbol(bSymbol))
-                        || ((bSymbol instanceof BTypeSymbol)
-                        && !(bSymbol instanceof BPackageSymbol))
-                        || (bSymbol instanceof BInvokableSymbol
-                        && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED));
-            });
-            completionItems.addAll(this.getCompletionItemList(filteredList, context));
-            sorterKey = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
-        } */
 
         CompletionItemSorter itemSorter = ItemSorters.get(sorterKey);
         itemSorter.sortItems(context, completionItems);
 
         return completionItems;
     }
-
-//    private String getCheckOrTrapKeyword(List<String> poppedTokens) {
-//        String retrievedToken = "";
-//        for (String token : Lists.reverse(poppedTokens)) {
-//            if (token.equals(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
-//                break;
-//            } else if (token.equals(ItemResolverConstants.CHECK_KEYWORD)
-//                    || token.equals(ItemResolverConstants.TRAP)) {
-//                retrievedToken = token;
-//                break;
-//            }
-//        }
-//
-//        return retrievedToken;
-//    }
 }

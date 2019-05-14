@@ -53,14 +53,6 @@ public class BlockStatementScopeProvider extends LSCompletionProvider {
             return Optional.ofNullable(this.getProvider(StatementContextProvider.class));
         }
         int lastLHSTokenIndex = -1;
-//        List<CommonToken> defaultTokens = lhsTokens.stream()
-//                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
-//                .collect(Collectors.toList());
-
-//        int assignTokenIndex = defaultTokens.stream()
-//                .map(CommonToken::getType)
-//                .collect(Collectors.toList())
-//                .indexOf(BallerinaParser.ASSIGN);
 
         for (int i = lhsTokens.size() - 1; i >= 0; i--) {
             if (lhsTokens.get(i).getChannel() == Token.DEFAULT_CHANNEL) {
@@ -72,12 +64,6 @@ public class BlockStatementScopeProvider extends LSCompletionProvider {
         if (lastLHSTokenIndex == -1) {
             return Optional.empty();
         }
-        
-//        if (assignTokenIndex > -1) {
-//            /*
-//            Assignment statement or variable definition context. Use the sub rule parser to decide   
-//             */
-//        }
         /*
         Statement context, since the assign token has been handled from the previous condition
          */

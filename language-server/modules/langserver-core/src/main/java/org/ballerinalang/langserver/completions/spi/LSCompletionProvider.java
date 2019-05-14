@@ -396,7 +396,7 @@ public abstract class LSCompletionProvider {
      * @param ctx Language Server Context
      * @return {@link Optional} Completion List
      */
-    protected Optional<List<CompletionItem>> getResourceSnippets(LSContext ctx) {
+    protected List<CompletionItem> getResourceSnippets(LSContext ctx) {
         BLangNode symbolEnvNode = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
         List<CompletionItem> items = new ArrayList<>();
         if (symbolEnvNode instanceof BLangService) {
@@ -415,7 +415,7 @@ public abstract class LSCompletionProvider {
                         addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
                         break;
                     }
-                    return Optional.empty();
+                    return items;
                 case "grpc":
                     items.add(Snippet.DEF_RESOURCE_GRPC.get().build(ctx));
                     break;
@@ -424,10 +424,10 @@ public abstract class LSCompletionProvider {
                     addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
                     break;
                 default:
-                    return Optional.empty();
+                    return items;
             }
         }
-        return !items.isEmpty() ? Optional.of(items) : Optional.empty();
+        return items;
     }
 
     // Private Methods

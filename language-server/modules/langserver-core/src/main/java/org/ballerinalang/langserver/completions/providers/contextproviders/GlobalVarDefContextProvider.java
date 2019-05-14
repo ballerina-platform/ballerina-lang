@@ -76,19 +76,8 @@ public class GlobalVarDefContextProvider extends LSCompletionProvider {
             if (listenerKWToken.isPresent()) {
                 completionItems.addAll(this.getListenersAndPackages(ctx));
             } else if (firstToken == BallerinaParser.FINAL) {
-                // todo: Remove the following
-//                switch (firstToken) {
-//                    case BallerinaParser.PUBLIC:
-//                        completionItems.addAll(this.getItemsAfterPublic(ctx));
-//                        break;
-//                    case BallerinaParser.FINAL:
-//                    case BallerinaParser.CONST:
                 completionItems.addAll(this.getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
                 completionItems.addAll(this.getPackagesCompletionItems(ctx));
-//                        break;
-//                    default:
-//                        break;
-//                }
             } else if (this.isInvocationOrInteractionOrFieldAccess(ctx)
                     && BallerinaParser.COLON == lastToken) {
                 Either<List<CompletionItem>, List<SymbolInfo>> pkgContent = SymbolFilters

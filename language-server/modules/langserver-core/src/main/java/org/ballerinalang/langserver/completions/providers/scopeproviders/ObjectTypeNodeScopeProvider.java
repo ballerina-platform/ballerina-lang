@@ -62,8 +62,8 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
 public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ObjectTypeNodeScopeProvider.class);
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ObjectTypeNodeScopeProvider.class);
     public ObjectTypeNodeScopeProvider() {
         this.attachmentPoints.add(BLangObjectTypeNode.class);
     }

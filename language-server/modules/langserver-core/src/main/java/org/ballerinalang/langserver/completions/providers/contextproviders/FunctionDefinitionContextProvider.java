@@ -109,51 +109,6 @@ public class FunctionDefinitionContextProvider extends LSCompletionProvider {
                         return item;
                     }).collect(Collectors.toList());
         }
-//        if (consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)
-//                && CommonUtil.getLastItem(consumedTokens).equals(".")) {
-//            String objectName = consumedTokens.get(1);
-//            Optional filtered = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
-//                    .stream()
-//                    .filter(symbolInfo -> {
-//                        BSymbol symbol = symbolInfo.getScopeEntry().symbol;
-//                        return symbol instanceof BObjectTypeSymbol && symbol.getName().getValue().equals(objectName);
-//                    }).findFirst();
-//
-//            if (!(filtered.isPresent()
-//                    && ((SymbolInfo) filtered.get()).getScopeEntry().symbol instanceof BObjectTypeSymbol)) {
-//                return completionItems;
-//            }
-//
-//            BObjectTypeSymbol objectType = (BObjectTypeSymbol) (((SymbolInfo) filtered.get()).getScopeEntry().symbol);
-//
-//            objectType.attachedFuncs.stream()
-//                    .filter(attachedFunc -> !attachedFunc.symbol.bodyExist)
-//                    .forEach(attachedFunc -> {
-//                        String functionName = attachedFunc.funcName.getValue();
-//                        List<String> funcArguments = getFuncArguments(attachedFunc.symbol);
-//                        String label = functionName + "(" + String.join(", ", funcArguments) + ")";
-//                        if (!(attachedFunc.symbol.retType instanceof BNilType)) {
-//                            label += " returns " + generateTypeDefinition(null, objectType.pkgID,
-//                                    attachedFunc.symbol.retType);
-//                        }
-//                        String insertText = label + " {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
-//                                + CommonUtil.LINE_SEPARATOR + "}";
-//                        completionItems.add(BFunctionCompletionItemBuilder.build(attachedFunc.symbol, label,
-//                                insertText));
-//                    });
-//        } else if (consumedTokens.size() == 2 && consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)
-//                && !CommonUtil.getLastItem(consumedTokens).equals(".")) {
-//            return context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
-//                    .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol)
-//                    .map(symbolInfo -> {
-//                        BSymbol symbol = symbolInfo.getScopeEntry().symbol;
-//                        String symbolName = symbol.getName().getValue();
-//                        CompletionItem completionItem = BTypeCompletionItemBuilder.build((BTypeSymbol) symbol,
-//                                symbolName);
-//                        completionItem.setInsertText(symbolName + ".");
-//                        return completionItem;
-//                    }).collect(Collectors.toList());
-//        }
         return completionItems;
     }
 
