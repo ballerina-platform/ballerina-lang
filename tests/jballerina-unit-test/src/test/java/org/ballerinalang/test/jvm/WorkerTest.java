@@ -98,4 +98,11 @@ public class WorkerTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 88);
     }
 
+    @Test
+    public void simpleSyncSendTest() {
+        BValue[] returns = BRunUtil.invoke(result, "simpleSyncSend");
+        Assert.assertEquals(returns[0].stringValue(), "10",
+                "Returned wrong value:" + returns[0].stringValue());
+    }
+
 }

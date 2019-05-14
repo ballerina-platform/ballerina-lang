@@ -94,3 +94,41 @@ public function receiveWithCheckForDefault() returns boolean|error {
     error|int j = check <- w1;
     return wait w1;
 }
+
+int append = 0;
+function simpleSyncSend() returns int {
+    string done = process();
+    return append;
+}
+
+function process() returns string {
+   worker w1 {
+     int a = 10;
+     a -> w2;
+     () result = a ->> w2;
+     int i = 0;
+     while (i < 1000) {
+         append = 10;
+         i += 1;
+     }
+     a -> w2;
+
+    }
+
+   worker w2 {
+     int b = 15;
+     b = <- w1;
+     int i = 0;
+     while (i < 1000) {
+          append = 10;
+          i += 1;
+     }
+
+     b = <- w1;
+     b = <- w1;
+   }
+
+   wait w1;
+
+   return "done";
+}
