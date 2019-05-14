@@ -33,24 +33,205 @@ type CInfo record {
     string name;
 };
 
-type ABCDInfo record {
+type ABCInfo record {
     int aId;
     int bId;
     int cId;
-    int dId;
-    string abcd;
 };
 
-ABCDInfo[] abcdInfoArray = [];
+ABCInfo[] abcArray = [];
 int index = 0;
 stream<AInfo> aStream = new;
 stream<BInfo> bStream = new;
 stream<CInfo> cStream = new;
-stream<ABCDInfo> abcdStream = new;
+stream<ABCInfo> abcStream = new;
 
-public function startPatternQuery() returns (ABCDInfo[]) {
-    runPatternQuery();
+function addToGlobalArray(ABCInfo a) {
+    abcArray[index] = a;
+    index = index + 1;
+    io:println("ABCInfo Array: ", abcArray);
+}
 
+function reset() {
+    abcArray = [];
+    index = 0;
+    aStream = new;
+    bStream = new;
+    cStream = new;
+    abcStream = new;
+}
+
+function waitAndGetEvents() returns (ABCInfo[]) {
+    int count = 0;
+    while(true) {
+        runtime:sleep(100);
+        count += 1;
+        if((abcArray.length()) > 0 || count == 10) {
+            break;
+        }
+    }
+    return abcArray;
+}
+
+// A -> not B for 2 sec
+public function runPatternQuery1() returns (ABCInfo[]) {
+    reset();
+
+    // create output function
+    function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
+        foreach map<anydata> m in events {
+            // just cast input map into the output type
+            ABCInfo o = <ABCInfo>ABCInfo.convert(m);
+            abcStream.publish(o);
+        }
+    };
+
+    // create output processor
+    streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
+
+    // create selector
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
+        [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
+            return {
+                "aId": e.data["a.id"],
+                "bId": 0,
+                "cId": 0
+            };
+        }
+    );
+
+    // A -> not B for 2 sec
+    streams:CompoundPatternProcessor root = streams:createCompoundPatternProcessor();
+    streams:FollowedByProcessor fab = streams:createFollowedByProcessor();
+    streams:NotOperatorProcessor not = streams:createNotOperatorProcessor(2000);
+    streams:OperandProcessor a = streams:createOperandProcessor("a", ());
+    streams:OperandProcessor b = streams:createOperandProcessor("b", ());
+
+    root.setProcessor(fab);
+    fab.setLHSProcessor(a);
+    fab.setRHSProcessor(not);
+    not.setProcessor(b);
+    io:println(root.getAlias());
+
+    // create state machine.
+    streams:StateMachine stateMachine = streams:createStateMachine(root, function (streams:StreamEvent?[] e) {
+            select.process(e);
+        }
+    );
+
+    // subscribe to input/output streams.
+    aStream.subscribe(function (AInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "a");
+            stateMachine.process(eventArr);
+        }
+    );
+    bStream.subscribe(function (BInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr =  streams:buildStreamEvent(keyVal, "b");
+            stateMachine.process(eventArr);
+        }
+    );
+    abcStream.subscribe(addToGlobalArray);
+
+    // generate and send events.
+    AInfo a1 = {id:11, name:"a1"};
+    AInfo a2 = {id:12, name:"a2"};
+
+    BInfo b1 = {id:21, name:"b1"};
+    BInfo b2 = {id:22, name:"b2"};
+
+    // success events.
+    aStream.publish(a1);
+    runtime:sleep(3000);
+    bStream.publish(b1);
+    runtime:sleep(500);
+
+    // failed events.
+    aStream.publish(a2);
+    runtime:sleep(500);
+    bStream.publish(b2);
+
+    return waitAndGetEvents();
+}
+
+// A -> not B and C
+public function runPatternQuery2() returns (ABCInfo[]) {
+    reset();
+
+    // create output function
+    function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
+        foreach map<anydata> m in events {
+            // just cast input map into the output type
+            ABCInfo o = <ABCInfo>ABCInfo.convert(m);
+            abcStream.publish(o);
+        }
+    };
+
+    // create output processor
+    streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
+
+    // create selector
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
+        [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
+            return {
+                "aId": e.data["a.id"],
+                "bId": 0,
+                "cId": e.data["c.id"]
+            };
+        }
+    );
+
+    // A -> not B and C
+    streams:CompoundPatternProcessor root = streams:createCompoundPatternProcessor();
+    streams:CompoundPatternProcessor bc = streams:createCompoundPatternProcessor();
+
+    streams:FollowedByProcessor fabc = streams:createFollowedByProcessor();
+
+    streams:AndOperatorProcessor and = streams:createAndOperatorProcessor();
+    streams:NotOperatorProcessor not = streams:createNotOperatorProcessor(());
+
+    streams:OperandProcessor a = streams:createOperandProcessor("a", ());
+    streams:OperandProcessor b = streams:createOperandProcessor("b", ());
+    streams:OperandProcessor c = streams:createOperandProcessor("c", ());
+
+    root.setProcessor(fabc);
+    fabc.setLHSProcessor(a);
+    fabc.setRHSProcessor(bc);
+    bc.setProcessor(and);
+    and.setLHSProcessor(not);
+    and.setRHSProcessor(c);
+    not.setProcessor(b);
+    io:println(root.getAlias());
+
+    // create state machine.
+    streams:StateMachine stateMachine = streams:createStateMachine(root, function (streams:StreamEvent?[] e) {
+            select.process(e);
+        }
+    );
+
+    // subscribe to input/output streams.
+    aStream.subscribe(function (AInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "a");
+            stateMachine.process(eventArr);
+        }
+    );
+    bStream.subscribe(function (BInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr =  streams:buildStreamEvent(keyVal, "b");
+            stateMachine.process(eventArr);
+        }
+    );
+    cStream.subscribe(function (CInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "c");
+            stateMachine.process(eventArr);
+        }
+    );
+    abcStream.subscribe(addToGlobalArray);
+
+    // generate and send events.
     AInfo a1 = {id:11, name:"a1"};
     AInfo a2 = {id:12, name:"a2"};
 
@@ -60,129 +241,821 @@ public function startPatternQuery() returns (ABCDInfo[]) {
     CInfo c1 = {id:31, name:"c1"};
     CInfo c2 = {id:32, name:"c2"};
 
-    abcdStream.subscribe(printABCD);
-
+    // successful
     aStream.publish(a1);
-    runtime:sleep(4000);
-
-    //bStream.publish(b1);
-    //runtime:sleep(1000);
-
+    runtime:sleep(100);
     cStream.publish(c1);
-    cStream.publish(c1);
-    //runtime:sleep(1000);
+    runtime:sleep(100);
 
-    //cStream.publish(c2);
-    //runtime:sleep(1000);
+    // un-successful
+    aStream.publish(a2);
+    runtime:sleep(100);
+    bStream.publish(b2);
+    runtime:sleep(100);
+    cStream.publish(c2);
+    runtime:sleep(100);
 
-    //bStream.publish(b1);
-    //runtime:sleep(1000);
-
-    int count = 0;
-    while(true) {
-        runtime:sleep(1000);
-        count += 1;
-        if((abcdInfoArray.length()) > 0 || count == 10) {
-            break;
-        }
-    }
-    return abcdInfoArray;
+    return waitAndGetEvents();
 }
 
-//forever {
-//    A => !B (for 4 seconds) => C
-//}
-function runPatternQuery() {
+// A -> not B for 2 sec and C
+public function runPatternQuery3() returns (ABCInfo[]) {
+    reset();
 
+    // create output function
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach map<anydata> m in events {
             // just cast input map into the output type
-            ABCDInfo o = <ABCDInfo>ABCDInfo.convert(m);
-            abcdStream.publish(o);
+            ABCInfo o = <ABCInfo>ABCInfo.convert(m);
+            abcStream.publish(o);
         }
     };
 
-    // Output processor
+    // create output processor
     streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
 
-    // Selector
+    // create selector
     streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
-            io:println("data: ", e.data);
             return {
-                //"aId": e.data["e1.0.roomNo"],
-                "aId": 4,
-                "bId": 4,
-                "cId": e.data["a.id"],
-                "dId": e.data["c.id"],
-                "abcd": "abcd" //<int> e.data["e3.0.tempSet"] - <int> e.data["e2.0.temp"]
+                "aId": e.data["a.id"],
+                "bId": 0,
+                "cId": e.data["c.id"]
             };
         }
     );
 
-    // A => !B (for 4 sec) => C
-    streams:CompoundPatternProcessor abc = streams:createCompoundPatternProcessor();
+    // A -> not B for 2 sec and C
+    streams:CompoundPatternProcessor root = streams:createCompoundPatternProcessor();
     streams:CompoundPatternProcessor bc = streams:createCompoundPatternProcessor();
 
     streams:FollowedByProcessor fabc = streams:createFollowedByProcessor();
-    streams:FollowedByProcessor fbc = streams:createFollowedByProcessor();
 
-    streams:NotOperatorProcessor not = streams:createNotOperatorProcessor(4000);
+    streams:AndOperatorProcessor and = streams:createAndOperatorProcessor();
+    streams:NotOperatorProcessor not = streams:createNotOperatorProcessor(2000);
 
     streams:OperandProcessor a = streams:createOperandProcessor("a", ());
     streams:OperandProcessor b = streams:createOperandProcessor("b", ());
     streams:OperandProcessor c = streams:createOperandProcessor("c", ());
 
-    abc.setProcessor(fabc);
-
+    root.setProcessor(fabc);
     fabc.setLHSProcessor(a);
     fabc.setRHSProcessor(bc);
-
-    bc.setProcessor(fbc);
-    fbc.setLHSProcessor(not);
-    fbc.setRHSProcessor(c);
-
+    bc.setProcessor(and);
+    and.setLHSProcessor(not);
+    and.setRHSProcessor(c);
     not.setProcessor(b);
+    io:println(root.getAlias());
 
-    io:println(abc.getAlias());
-
-    // Create state machine.
-    streams:StateMachine stateMachine = streams:createStateMachine(abc, function (streams:StreamEvent?[] e) {
+    // create state machine.
+    streams:StateMachine stateMachine = streams:createStateMachine(root, function (streams:StreamEvent?[] e) {
             select.process(e);
         }
     );
 
-    // Subscribe to input streams.
-    // aStream as a
+    // subscribe to input/output streams.
     aStream.subscribe(function (AInfo i) {
             map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
             streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "a");
             stateMachine.process(eventArr);
         }
     );
-    // bStream as b
     bStream.subscribe(function (BInfo i) {
             map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
             streams:StreamEvent?[] eventArr =  streams:buildStreamEvent(keyVal, "b");
             stateMachine.process(eventArr);
         }
     );
-    // cStream as c
     cStream.subscribe(function (CInfo i) {
             map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
             streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "c");
             stateMachine.process(eventArr);
         }
     );
+    abcStream.subscribe(addToGlobalArray);
+
+    // generate and send events.
+    AInfo a1 = {id:11, name:"a1"};
+    AInfo a2 = {id:12, name:"a2"};
+
+    BInfo b1 = {id:21, name:"b1"};
+    BInfo b2 = {id:22, name:"b2"};
+
+    CInfo c1 = {id:31, name:"c1"};
+    CInfo c2 = {id:32, name:"c2"};
+
+    // successful
+    aStream.publish(a1);
+    runtime:sleep(3000);
+    cStream.publish(c1);
+    runtime:sleep(100);
+
+    // un-successful
+    aStream.publish(a2);
+    runtime:sleep(1000);
+    bStream.publish(b2);
+    runtime:sleep(100);
+    cStream.publish(c2);
+    runtime:sleep(100);
+
+    return waitAndGetEvents();
 }
 
-function printABCD(ABCDInfo abcd) {
-    addToGlobalArray(abcd);
-    io:println("final: ", abcdInfoArray);
+// A -> not B for 2 sec or C
+public function runPatternQuery4() returns (ABCInfo[]) {
+    reset();
+
+    // create output function
+    function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
+        foreach map<anydata> m in events {
+            // just cast input map into the output type
+            ABCInfo o = <ABCInfo>ABCInfo.convert(m);
+            abcStream.publish(o);
+        }
+    };
+
+    // create output processor
+    streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
+
+    // create selector
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
+        [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
+            return {
+                "aId": e.data["a.id"],
+                "bId": 0,
+                "cId": 0
+            };
+        }
+    );
+
+    // A -> not B for 2 sec or C
+    streams:CompoundPatternProcessor root = streams:createCompoundPatternProcessor();
+    streams:CompoundPatternProcessor bc = streams:createCompoundPatternProcessor();
+
+    streams:FollowedByProcessor fabc = streams:createFollowedByProcessor();
+
+    streams:OrOperatorProcessor or = streams:createOrOperatorProcessor();
+    streams:NotOperatorProcessor not = streams:createNotOperatorProcessor(2000);
+
+    streams:OperandProcessor a = streams:createOperandProcessor("a", ());
+    streams:OperandProcessor b = streams:createOperandProcessor("b", ());
+    streams:OperandProcessor c = streams:createOperandProcessor("c", ());
+
+    root.setProcessor(fabc);
+    fabc.setLHSProcessor(a);
+    fabc.setRHSProcessor(bc);
+    bc.setProcessor(or);
+    or.setLHSProcessor(not);
+    or.setRHSProcessor(c);
+    not.setProcessor(b);
+    io:println(root.getAlias());
+
+    // create state machine.
+    streams:StateMachine stateMachine = streams:createStateMachine(root, function (streams:StreamEvent?[] e) {
+            select.process(e);
+        }
+    );
+
+    // subscribe to input/output streams.
+    aStream.subscribe(function (AInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "a");
+            stateMachine.process(eventArr);
+        }
+    );
+    bStream.subscribe(function (BInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr =  streams:buildStreamEvent(keyVal, "b");
+            stateMachine.process(eventArr);
+        }
+    );
+    cStream.subscribe(function (CInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "c");
+            stateMachine.process(eventArr);
+        }
+    );
+    abcStream.subscribe(addToGlobalArray);
+
+    // generate and send events.
+    AInfo a1 = {id:11, name:"a1"};
+    AInfo a2 = {id:12, name:"a2"};
+
+    BInfo b1 = {id:21, name:"b1"};
+    BInfo b2 = {id:22, name:"b2"};
+
+    CInfo c1 = {id:31, name:"c1"};
+    CInfo c2 = {id:32, name:"c2"};
+
+    // successful
+    aStream.publish(a1);
+    runtime:sleep(3000);
+
+    // un-successful
+    aStream.publish(a2);
+    runtime:sleep(1000);
+    bStream.publish(b2);
+    runtime:sleep(100);
+
+    return waitAndGetEvents();
 }
 
-function addToGlobalArray(ABCDInfo a) {
-    abcdInfoArray[index] = a;
-    index = index + 1;
+// A -> not B for 2 sec and not C for 2 sec
+public function runPatternQuery5() returns (ABCInfo[]) {
+    reset();
+
+    // create output function
+    function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
+        foreach map<anydata> m in events {
+            // just cast input map into the output type
+            ABCInfo o = <ABCInfo>ABCInfo.convert(m);
+            abcStream.publish(o);
+        }
+    };
+
+    // create output processor
+    streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
+
+    // create selector
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
+        [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
+            return {
+                "aId": e.data["a.id"],
+                "bId": 0,
+                "cId": 0
+            };
+        }
+    );
+
+    // A -> not B for 2 sec and not C for 2 sec
+    streams:CompoundPatternProcessor root = streams:createCompoundPatternProcessor();
+    streams:CompoundPatternProcessor bc = streams:createCompoundPatternProcessor();
+
+    streams:FollowedByProcessor fabc = streams:createFollowedByProcessor();
+
+    streams:AndOperatorProcessor and = streams:createAndOperatorProcessor();
+    streams:NotOperatorProcessor notb = streams:createNotOperatorProcessor(2000);
+    streams:NotOperatorProcessor notc = streams:createNotOperatorProcessor(2000);
+
+    streams:OperandProcessor a = streams:createOperandProcessor("a", ());
+    streams:OperandProcessor b = streams:createOperandProcessor("b", ());
+    streams:OperandProcessor c = streams:createOperandProcessor("c", ());
+
+    root.setProcessor(fabc);
+    fabc.setLHSProcessor(a);
+    fabc.setRHSProcessor(bc);
+    bc.setProcessor(and);
+    and.setLHSProcessor(notb);
+    and.setRHSProcessor(notc);
+    notb.setProcessor(b);
+    notc.setProcessor(c);
+    io:println(root.getAlias());
+
+    // create state machine.
+    streams:StateMachine stateMachine = streams:createStateMachine(root, function (streams:StreamEvent?[] e) {
+            select.process(e);
+        }
+    );
+
+    // subscribe to input/output streams.
+    aStream.subscribe(function (AInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "a");
+            stateMachine.process(eventArr);
+        }
+    );
+    bStream.subscribe(function (BInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr =  streams:buildStreamEvent(keyVal, "b");
+            stateMachine.process(eventArr);
+        }
+    );
+    cStream.subscribe(function (CInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "c");
+            stateMachine.process(eventArr);
+        }
+    );
+    abcStream.subscribe(addToGlobalArray);
+
+    // generate and send events.
+    AInfo a1 = {id:11, name:"a1"};
+    AInfo a2 = {id:12, name:"a2"};
+
+    BInfo b1 = {id:21, name:"b1"};
+    BInfo b2 = {id:22, name:"b2"};
+
+    CInfo c1 = {id:31, name:"c1"};
+    CInfo c2 = {id:32, name:"c2"};
+
+    // successful
+    aStream.publish(a1);
+    runtime:sleep(3000);
+
+    // un-successful
+    aStream.publish(a2);
+    runtime:sleep(1000);
+    cStream.publish(c2);
+    runtime:sleep(100);
+
+    return waitAndGetEvents();
 }
 
+// A -> not B for 2 sec or not C for 2 sec
+public function runPatternQuery6() returns (ABCInfo[]) {
+    reset();
+
+    // create output function
+    function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
+        foreach map<anydata> m in events {
+            // just cast input map into the output type
+            ABCInfo o = <ABCInfo>ABCInfo.convert(m);
+            abcStream.publish(o);
+        }
+    };
+
+    // create output processor
+    streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
+
+    // create selector
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
+        [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
+            return {
+                "aId": e.data["a.id"],
+                "bId": 0,
+                "cId": 0
+            };
+        }
+    );
+
+    // A -> not B for 2 sec or not C for 2 sec
+    streams:CompoundPatternProcessor root = streams:createCompoundPatternProcessor();
+    streams:CompoundPatternProcessor bc = streams:createCompoundPatternProcessor();
+
+    streams:FollowedByProcessor fabc = streams:createFollowedByProcessor();
+
+    streams:OrOperatorProcessor or = streams:createOrOperatorProcessor();
+    streams:NotOperatorProcessor notb = streams:createNotOperatorProcessor(2000);
+    streams:NotOperatorProcessor notc = streams:createNotOperatorProcessor(2000);
+
+    streams:OperandProcessor a = streams:createOperandProcessor("a", ());
+    streams:OperandProcessor b = streams:createOperandProcessor("b", ());
+    streams:OperandProcessor c = streams:createOperandProcessor("c", ());
+
+    root.setProcessor(fabc);
+    fabc.setLHSProcessor(a);
+    fabc.setRHSProcessor(bc);
+    bc.setProcessor(or);
+    or.setLHSProcessor(notb);
+    or.setRHSProcessor(notc);
+    notb.setProcessor(b);
+    notc.setProcessor(c);
+    io:println(root.getAlias());
+
+    // create state machine.
+    streams:StateMachine stateMachine = streams:createStateMachine(root, function (streams:StreamEvent?[] e) {
+            select.process(e);
+        }
+    );
+
+    // subscribe to input/output streams.
+    aStream.subscribe(function (AInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "a");
+            stateMachine.process(eventArr);
+        }
+    );
+    bStream.subscribe(function (BInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr =  streams:buildStreamEvent(keyVal, "b");
+            stateMachine.process(eventArr);
+        }
+    );
+    cStream.subscribe(function (CInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "c");
+            stateMachine.process(eventArr);
+        }
+    );
+    abcStream.subscribe(addToGlobalArray);
+
+    // generate and send events.
+    AInfo a1 = {id:11, name:"a1"};
+    AInfo a2 = {id:12, name:"a2"};
+
+    BInfo b1 = {id:21, name:"b1"};
+    BInfo b2 = {id:22, name:"b2"};
+
+    CInfo c1 = {id:31, name:"c1"};
+    CInfo c2 = {id:32, name:"c2"};
+
+    // A -> not B for 2 sec or not C for 2 sec
+
+    // successful
+    aStream.publish(a1);
+    runtime:sleep(500);
+    // publish an event for b, but not for c
+    bStream.publish(b2);
+    runtime:sleep(3000);
+
+    // un-successful
+    aStream.publish(a2);
+    runtime:sleep(500);
+    bStream.publish(b2);
+    runtime:sleep(100);
+    cStream.publish(c2);
+    runtime:sleep(100);
+
+    return waitAndGetEvents();
+}
+
+// not A for 2 sec -> B
+public function runPatternQuery7() returns (ABCInfo[]) {
+    reset();
+
+    // create output function
+    function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
+        foreach map<anydata> m in events {
+            // just cast input map into the output type
+            ABCInfo o = <ABCInfo>ABCInfo.convert(m);
+            abcStream.publish(o);
+        }
+    };
+
+    // create output processor
+    streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
+
+    // create selector
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
+        [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
+            return {
+                "aId": 0,
+                "bId": e.data["b.id"],
+                "cId": 0
+            };
+        }
+    );
+
+    // not A for 2 sec -> B
+    streams:CompoundPatternProcessor root = streams:createCompoundPatternProcessor();
+    streams:FollowedByProcessor fab = streams:createFollowedByProcessor();
+    streams:NotOperatorProcessor not = streams:createNotOperatorProcessor(2000);
+
+    streams:OperandProcessor a = streams:createOperandProcessor("a", ());
+    streams:OperandProcessor b = streams:createOperandProcessor("b", ());
+
+    root.setProcessor(fab);
+    fab.setLHSProcessor(not);
+    fab.setRHSProcessor(b);
+    not.setProcessor(a);
+    io:println(root.getAlias());
+
+    // create state machine.
+    streams:StateMachine stateMachine = streams:createStateMachine(root, function (streams:StreamEvent?[] e) {
+            select.process(e);
+        }
+    );
+
+    // subscribe to input/output streams.
+    aStream.subscribe(function (AInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "a");
+            stateMachine.process(eventArr);
+        }
+    );
+    bStream.subscribe(function (BInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr =  streams:buildStreamEvent(keyVal, "b");
+            stateMachine.process(eventArr);
+        }
+    );
+    cStream.subscribe(function (CInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "c");
+            stateMachine.process(eventArr);
+        }
+    );
+    abcStream.subscribe(addToGlobalArray);
+
+    // generate and send events.
+    AInfo a1 = {id:11, name:"a1"};
+    AInfo a2 = {id:12, name:"a2"};
+
+    BInfo b1 = {id:21, name:"b1"};
+    BInfo b2 = {id:22, name:"b2"};
+
+    // un-successful
+    runtime:sleep(500);
+    aStream.publish(a1);
+
+    // successful
+    runtime:sleep(2200);
+    bStream.publish(b2);
+    runtime:sleep(100);
+
+    return waitAndGetEvents();
+}
+
+// not A and B -> C
+public function runPatternQuery8() returns (ABCInfo[]) {
+    reset();
+
+    // create output function
+    function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
+        foreach map<anydata> m in events {
+            // just cast input map into the output type
+            ABCInfo o = <ABCInfo>ABCInfo.convert(m);
+            abcStream.publish(o);
+        }
+    };
+
+    // create output processor
+    streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
+
+    // create selector
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
+        [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
+            return {
+                "aId": 0,
+                "bId": e.data["b.id"],
+                "cId": e.data["c.id"]
+            };
+        }
+    );
+
+    // not A and B -> C
+    streams:CompoundPatternProcessor root = streams:createCompoundPatternProcessor();
+    streams:CompoundPatternProcessor ab = streams:createCompoundPatternProcessor();
+
+    streams:FollowedByProcessor fabc = streams:createFollowedByProcessor();
+
+    streams:AndOperatorProcessor and = streams:createAndOperatorProcessor();
+    streams:NotOperatorProcessor not = streams:createNotOperatorProcessor(());
+
+    streams:OperandProcessor a = streams:createOperandProcessor("a", ());
+    streams:OperandProcessor b = streams:createOperandProcessor("b", ());
+    streams:OperandProcessor c = streams:createOperandProcessor("c", ());
+
+    root.setProcessor(fabc);
+    fabc.setLHSProcessor(ab);
+    fabc.setRHSProcessor(c);
+    ab.setProcessor(and);
+    and.setLHSProcessor(not);
+    and.setRHSProcessor(b);
+    not.setProcessor(a);
+    io:println(root.getAlias());
+
+    // create state machine.
+    streams:StateMachine stateMachine = streams:createStateMachine(root, function (streams:StreamEvent?[] e) {
+            select.process(e);
+        }
+    );
+
+    // subscribe to input/output streams.
+    aStream.subscribe(function (AInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "a");
+            stateMachine.process(eventArr);
+        }
+    );
+    bStream.subscribe(function (BInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr =  streams:buildStreamEvent(keyVal, "b");
+            stateMachine.process(eventArr);
+        }
+    );
+    cStream.subscribe(function (CInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "c");
+            stateMachine.process(eventArr);
+        }
+    );
+    abcStream.subscribe(addToGlobalArray);
+
+    // generate and send events.
+    AInfo a1 = {id:11, name:"a1"};
+    AInfo a2 = {id:12, name:"a2"};
+
+    BInfo b1 = {id:21, name:"b1"};
+    BInfo b2 = {id:22, name:"b2"};
+
+    CInfo c1 = {id:31, name:"c1"};
+    CInfo c2 = {id:32, name:"c2"};
+
+    // successful
+    bStream.publish(b1);
+    runtime:sleep(200);
+    cStream.publish(c1);
+    runtime:sleep(200);
+
+    // un-successful
+    aStream.publish(a2);
+    runtime:sleep(100);
+
+    return waitAndGetEvents();
+}
+
+// not A for 2 sec and B -> C
+public function runPatternQuery9() returns (ABCInfo[]) {
+    reset();
+
+    // create output function
+    function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
+        foreach map<anydata> m in events {
+            // just cast input map into the output type
+            ABCInfo o = <ABCInfo>ABCInfo.convert(m);
+            abcStream.publish(o);
+        }
+    };
+
+    // create output processor
+    streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
+
+    // create selector
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
+        [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
+            return {
+                "aId": 0,
+                "bId": e.data["b.id"],
+                "cId": e.data["c.id"]
+            };
+        }
+    );
+
+    // not A for 2 sec and B -> C
+    streams:CompoundPatternProcessor root = streams:createCompoundPatternProcessor();
+    streams:CompoundPatternProcessor ab = streams:createCompoundPatternProcessor();
+
+    streams:FollowedByProcessor fabc = streams:createFollowedByProcessor();
+
+    streams:AndOperatorProcessor and = streams:createAndOperatorProcessor();
+    streams:NotOperatorProcessor not = streams:createNotOperatorProcessor(2000);
+
+    streams:OperandProcessor a = streams:createOperandProcessor("a", ());
+    streams:OperandProcessor b = streams:createOperandProcessor("b", ());
+    streams:OperandProcessor c = streams:createOperandProcessor("c", ());
+
+    root.setProcessor(fabc);
+    fabc.setLHSProcessor(ab);
+    fabc.setRHSProcessor(c);
+    ab.setProcessor(and);
+    and.setLHSProcessor(not);
+    and.setRHSProcessor(b);
+    not.setProcessor(a);
+    io:println(root.getAlias());
+
+    // create state machine.
+    streams:StateMachine stateMachine = streams:createStateMachine(root, function (streams:StreamEvent?[] e) {
+            select.process(e);
+        }
+    );
+
+    // subscribe to input/output streams.
+    aStream.subscribe(function (AInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "a");
+            stateMachine.process(eventArr);
+        }
+    );
+    bStream.subscribe(function (BInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr =  streams:buildStreamEvent(keyVal, "b");
+            stateMachine.process(eventArr);
+        }
+    );
+    cStream.subscribe(function (CInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "c");
+            stateMachine.process(eventArr);
+        }
+    );
+    abcStream.subscribe(addToGlobalArray);
+
+    // generate and send events.
+    AInfo a1 = {id:11, name:"a1"};
+    AInfo a2 = {id:12, name:"a2"};
+
+    BInfo b1 = {id:21, name:"b1"};
+    BInfo b2 = {id:22, name:"b2"};
+
+    CInfo c1 = {id:31, name:"c1"};
+    CInfo c2 = {id:32, name:"c2"};
+
+    // successful
+    runtime:sleep(2100);
+    bStream.publish(b1);
+    runtime:sleep(100);
+    cStream.publish(c1);
+    runtime:sleep(500);
+
+    // un-successful
+    aStream.publish(a2);
+    runtime:sleep(100);
+    bStream.publish(b1);
+    runtime:sleep(100);
+    cStream.publish(c1);
+    runtime:sleep(500);
+
+    return waitAndGetEvents();
+}
+
+// not A for 2 sec and not B for 2 sec -> C
+public function runPatternQuery10() returns (ABCInfo[]) {
+    reset();
+
+    // create output function
+    function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
+        foreach map<anydata> m in events {
+            // just cast input map into the output type
+            ABCInfo o = <ABCInfo>ABCInfo.convert(m);
+            abcStream.publish(o);
+        }
+    };
+
+    // create output processor
+    streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
+
+    // create selector
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
+        [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
+            return {
+                "aId": 0,
+                "bId": 0,
+                "cId": e.data["c.id"]
+            };
+        }
+    );
+
+    // not A for 2 sec and not B for 2 sec -> C
+    streams:CompoundPatternProcessor root = streams:createCompoundPatternProcessor();
+    streams:CompoundPatternProcessor ab = streams:createCompoundPatternProcessor();
+
+    streams:FollowedByProcessor fabc = streams:createFollowedByProcessor();
+
+    streams:AndOperatorProcessor and = streams:createAndOperatorProcessor();
+    streams:NotOperatorProcessor nota = streams:createNotOperatorProcessor(2000);
+    streams:NotOperatorProcessor notb = streams:createNotOperatorProcessor(2000);
+
+    streams:OperandProcessor a = streams:createOperandProcessor("a", ());
+    streams:OperandProcessor b = streams:createOperandProcessor("b", ());
+    streams:OperandProcessor c = streams:createOperandProcessor("c", ());
+
+    root.setProcessor(fabc);
+    fabc.setLHSProcessor(ab);
+    fabc.setRHSProcessor(c);
+    ab.setProcessor(and);
+    and.setLHSProcessor(nota);
+    and.setRHSProcessor(notb);
+    nota.setProcessor(a);
+    notb.setProcessor(b);
+    io:println(root.getAlias());
+
+    // create state machine.
+    streams:StateMachine stateMachine = streams:createStateMachine(root, function (streams:StreamEvent?[] e) {
+            select.process(e);
+        }
+    );
+
+    // subscribe to input/output streams.
+    aStream.subscribe(function (AInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "a");
+            stateMachine.process(eventArr);
+        }
+    );
+    bStream.subscribe(function (BInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr =  streams:buildStreamEvent(keyVal, "b");
+            stateMachine.process(eventArr);
+        }
+    );
+    cStream.subscribe(function (CInfo i) {
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "c");
+            stateMachine.process(eventArr);
+        }
+    );
+    abcStream.subscribe(addToGlobalArray);
+
+    // generate and send events.
+    AInfo a1 = {id:11, name:"a1"};
+    AInfo a2 = {id:12, name:"a2"};
+
+    BInfo b1 = {id:21, name:"b1"};
+    BInfo b2 = {id:22, name:"b2"};
+
+    CInfo c1 = {id:31, name:"c1"};
+    CInfo c2 = {id:32, name:"c2"};
+
+    // successful
+    runtime:sleep(2300);
+    cStream.publish(c1);
+
+    // un-successful
+    aStream.publish(a2);
+    runtime:sleep(200);
+    cStream.publish(c2);
+    runtime:sleep(100);
+
+    return waitAndGetEvents();
+}
