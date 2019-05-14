@@ -31,7 +31,6 @@ import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -137,7 +136,7 @@ public class TableValue implements RefValue, CollectionValue {
         sb.append("data: ");
         StringJoiner sj = new StringJoiner(", ", "[", "]");
         while (hasNext()) {
-            MapValue<?, ?> struct = getNext();
+            MapValueImpl<?, ?> struct = getNext();
             sj.add(struct.toString());
         }
         sb.append(sj.toString());
@@ -201,11 +200,11 @@ public class TableValue implements RefValue, CollectionValue {
         resetIterationHelperAttributes();
     }
 
-    public MapValue<String, Object> getNext() {
+    public MapValueImpl<String, Object> getNext() {
         // Make next row the current row
         moveToNext();
         // Create BStruct from current row
-        return (MapValue<String, Object>) iterator.generateNext();
+        return (MapValueImpl<String, Object>) iterator.generateNext();
     }
 
     /**
@@ -214,7 +213,7 @@ public class TableValue implements RefValue, CollectionValue {
      * @param data    The record to be inserted
      * @return error if something goes wrong
      */
-    public Object performAddOperation(MapValue<String, Object> data) {
+    public Object performAddOperation(MapValueImpl<String, Object> data) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
@@ -229,7 +228,7 @@ public class TableValue implements RefValue, CollectionValue {
         }
     }
 
-    public void addData(MapValue<String, Object> data) {
+    public void addData(MapValueImpl<String, Object> data) {
         if (data.getType() != this.constraintType) {
             throw new BallerinaException("incompatible types: record of type:" + data.getType().getName()
                                          + " cannot be added to a table with type:" + this.constraintType.getName());
@@ -314,7 +313,7 @@ public class TableValue implements RefValue, CollectionValue {
     }
 
     @Override
-    public Iterator newIterator() {
+    public IteratorValue getIterator() {
         return new TableValueIterator(this);
     }
 
@@ -343,7 +342,7 @@ public class TableValue implements RefValue, CollectionValue {
     private void insertInitialData(ArrayValue data) {
         int count = data.size();
         for (int i = 0; i < count; i++) {
-            addData((MapValue<String, Object>) data.getRefValue(i));
+            addData((MapValueImpl<String, Object>) data.getRefValue(i));
         }
     }
 
@@ -376,7 +375,7 @@ public class TableValue implements RefValue, CollectionValue {
      * @since 0.961.0
      */
     //TODO : copy and stamp to be implemented
-    private static class TableValueIterator implements Iterator {
+    private static class TableValueIterator implements IteratorValue {
 
         private TableValue table;
 

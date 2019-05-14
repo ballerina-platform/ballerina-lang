@@ -218,6 +218,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     private String getTopLevelDirNameInPackage(Kind kind, FileSystem fs) {
         switch (kind) {
             case SRC:
+            case BIR:
             case OBJ:
                 return kind.getValue();
             case ROOT:

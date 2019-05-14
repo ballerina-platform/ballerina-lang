@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -52,7 +53,7 @@ import java.util.stream.IntStream;
  * 
  * @since 0.995.0
  */
-public class ArrayValue implements RefValue {
+public class ArrayValue implements RefValue, CollectionValue {
 
     protected BType arrayType;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
@@ -129,6 +130,10 @@ public class ArrayValue implements RefValue {
             AtomicInteger counter = new AtomicInteger(0);
             tupleType.getTupleTypes()
                     .forEach(memType -> refValues[counter.getAndIncrement()] = memType.getEmptyValue());
+        } else if (type.getTag() == TypeTags.UNION_TAG) {
+            BUnionType unionType = (BUnionType) type;
+            this.size = maxArraySize = unionType.getMemberTypes().size();
+            unionType.getMemberTypes().forEach(this::initArrayValues);
         } else {
             refValues = (Object[]) newArrayInstance(Object.class);
             Arrays.fill(refValues, type.getEmptyValue());
@@ -180,6 +185,25 @@ public class ArrayValue implements RefValue {
 
     // -----------------------  get methods ----------------------------------------------------
 
+    public Object getValue(long index) {
+        if (elementType != null) {
+            if (elementType.getTag() == TypeTags.INT_TAG) {
+                return getInt(index);
+            } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
+                return getBoolean(index);
+            } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                return getByte(index);
+            } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
+                return getFloat(index);
+            } else if (elementType.getTag() == TypeTags.STRING_TAG) {
+                return getString(index);
+            } else {
+                return getRefValue(index);
+            }
+        }
+        return getRefValue(index);
+    }
+
     public Object getRefValue(long index) {
         rangeCheckForGet(index, size);
         return refValues[(int) index];
@@ -208,6 +232,24 @@ public class ArrayValue implements RefValue {
     public String getString(long index) {
         rangeCheckForGet(index, size);
         return stringValues[(int) index];
+    }
+
+    public Object get(long index) {
+        rangeCheckForGet(index, size);
+        switch (this.elementType.getTag()) {
+            case TypeTags.INT_TAG:
+                return intValues[(int) index];
+            case TypeTags.BOOLEAN_TAG:
+                return booleanValues[(int) index];
+            case TypeTags.BYTE_ARRAY_TAG:
+                return byteValues[(int) index];
+            case TypeTags.FLOAT_TAG:
+                return floatValues[(int) index];
+            case TypeTags.STRING_TAG:
+                return stringValues[(int) index];
+            default:
+                return refValues[(int) index];
+        }
     }
 
     // ----------------------------  add methods --------------------------------------------------
@@ -541,6 +583,41 @@ public class ArrayValue implements RefValue {
                 Object refValue = this.getRefValue(i);
                 ((RefValue) refValue).attemptFreeze(freezeStatus);
             }
+        }
+    }
+
+    @Override
+    public IteratorValue getIterator() {
+        return new ArrayIterator(this);
+    }
+
+    /**
+     * {@code {@link ArrayIterator}} provides iterator implementation for Ballerina array values.
+     *
+     * @since 0.995.0
+     */
+    static class ArrayIterator implements IteratorValue {
+        ArrayValue array;
+        long cursor = 0;
+        long length;
+
+        ArrayIterator(ArrayValue value) {
+            this.array = value;
+            this.length = value.size();
+        }
+
+        @Override
+        public Object next() {
+            long cursor = this.cursor++;
+            if (cursor == length) {
+                return null;
+            }
+            return array.get(cursor);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return cursor < length;
         }
     }
 }

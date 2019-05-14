@@ -55,6 +55,9 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
     } else if (targetType is bir:BTableType) {
         checkCast(mv, targetType);
         return;
+    } else if (targetType is bir:BStreamType) {
+        checkCast(mv, targetType);
+        return;
     } else if (targetType is bir:BFiniteType) {
         generateCheckCastToFiniteType(mv, sourceType, targetType);
         return;
@@ -116,6 +119,8 @@ function generateCheckCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
         mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", io:sprintf("(J)L%s;", STRING_VALUE), false);
     } else if (sourceType is bir:BTypeFloat) {
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "toString", io:sprintf("(D)L%s;", STRING_VALUE), false);
+    } else if (sourceType is bir:BTypeBoolean) {
+        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "toString", io:sprintf("(Z)L%s;", STRING_VALUE), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'string'", sourceType));
         panic err;
@@ -199,12 +204,16 @@ function getTargetClass(bir:BType sourceType, bir:BType targetType) returns stri
         targetTypeClass = MAP_VALUE;
     } else if (targetType is bir:BTableType) {
         targetTypeClass = TABLE_VALUE;
+    } else if (targetType is bir:BStreamType) {
+        targetTypeClass = STREAM_VALUE;
     } else if (targetType is bir:BObjectType) {
         targetTypeClass = OBJECT_VALUE;
     } else if (targetType is bir:BErrorType) {
         targetTypeClass = ERROR_VALUE;
     } else if (targetType is bir:BXMLType) {
         targetTypeClass = XML_VALUE;
+    } else if (targetType is bir:BTypeDesc) {
+        targetTypeClass = TYPEDESC_VALUE;
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to '%s'", sourceType, targetType));
         panic err;
@@ -303,6 +312,8 @@ function generateCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
         mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", io:sprintf("(J)L%s;", STRING_VALUE), false);
     } else if (sourceType is bir:BTypeFloat) {
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "toString", io:sprintf("(D)L%s;", STRING_VALUE), false);
+    } else if (sourceType is bir:BTypeBoolean) {
+        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "toString", io:sprintf("(Z)L%s;", STRING_VALUE), false);
     } else if (sourceType is bir:BTypeAny ||
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType ||

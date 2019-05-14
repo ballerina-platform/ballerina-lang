@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
+import org.ballerinalang.messaging.artemis.ArtemisTransactionContext;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -38,10 +39,14 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "acknowledge",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.MESSAGE_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.MESSAGE_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         isPublic = true
 )
 public class Acknowledge extends BlockingNativeCallableUnit {
@@ -51,8 +56,13 @@ public class Acknowledge extends BlockingNativeCallableUnit {
         @SuppressWarnings(ArtemisConstants.UNCHECKED)
         BMap<String, BValue> messageObj = (BMap<String, BValue>) context.getRefArgument(0);
         ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
+        ArtemisTransactionContext transactionContext =
+                (ArtemisTransactionContext) messageObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
         try {
             message.acknowledge();
+            if (transactionContext != null) {
+                transactionContext.handleTransactionBlock(context, ArtemisConstants.MESSAGE_OBJ);
+            }
         } catch (ActiveMQException e) {
             context.setReturnValues(ArtemisUtils.getError(context, "Error on acknowledging the message"));
         }

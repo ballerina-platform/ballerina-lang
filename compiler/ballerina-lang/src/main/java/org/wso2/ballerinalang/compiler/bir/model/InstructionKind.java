@@ -31,6 +31,8 @@ public enum InstructionKind {
     ASYNC_CALL((byte) 5),
     WAIT((byte) 6),
     FP_CALL((byte) 7),
+    WK_RECEIVE((byte) 8),
+    WK_SEND((byte) 9),
 
     // Non-terminating instructions
     MOVE((byte) 20),
@@ -64,25 +66,28 @@ public enum InstructionKind {
     XML_ATTRIBUTE_LOAD((byte) 48),
     XML_ATTRIBUTE_STORE((byte) 49),
     NEW_TABLE((byte) 50),
+    NEW_TYPEDESC((byte) 51),
+    NEW_STREAM((byte) 52),
+    TERNARY((byte) 53),
 
     // Binary expression related instructions.
-    ADD((byte) 51),
-    SUB((byte) 52),
-    MUL((byte) 53),
-    DIV((byte) 54),
-    MOD((byte) 55),
-    EQUAL((byte) 56),
-    NOT_EQUAL((byte) 57),
-    GREATER_THAN((byte) 58),
-    GREATER_EQUAL((byte) 59),
-    LESS_THAN((byte) 60),
-    LESS_EQUAL((byte) 61),
-    AND((byte) 62),
-    OR((byte) 63),
+    ADD((byte) 61),
+    SUB((byte) 62),
+    MUL((byte) 63),
+    DIV((byte) 64),
+    MOD((byte) 65),
+    EQUAL((byte) 66),
+    NOT_EQUAL((byte) 67),
+    GREATER_THAN((byte) 68),
+    GREATER_EQUAL((byte) 69),
+    LESS_THAN((byte) 70),
+    LESS_EQUAL((byte) 71),
+    AND((byte) 72),
+    OR((byte) 73),
 
     // Unary expression related instructions.
-    TYPEOF((byte) 70),
-    NOT((byte) 71);
+    TYPEOF((byte) 80),
+    NOT((byte) 81);
 
     byte value;
 

@@ -20,7 +20,7 @@ function process(io:ReadableCharacterChannel sc,
 function closeRc(io:ReadableCharacterChannel ch) {
     var cr = ch.close();
     if (cr is error) {
-        log:printError("Error occured while closing the channel: ", err = cr);
+        log:printError("Error occurred while closing the channel: ", err = cr);
     }
 }
 
@@ -28,7 +28,7 @@ function closeRc(io:ReadableCharacterChannel ch) {
 function closeWc(io:WritableCharacterChannel ch) {
     var cr = ch.close();
     if (cr is error) {
-        log:printError("Error occured while closing the channel: ", err = cr);
+        log:printError("Error occurred while closing the channel: ", err = cr);
     }
 }
 

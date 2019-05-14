@@ -49,6 +49,8 @@ function generateJarBinary(boolean dumpBir, bir:BIRContext birContext, bir:Modul
     map<byte[]> jarEntries = {};
     map<string> manifestEntries = {};
 
+    generateBuiltInPackages(birContext, jarEntries);
+
     foreach var importModule in entryMod.importModules {
         bir:Package module = lookupModule(importModule, birContext);
         generateImportedPackage(module, jarEntries);

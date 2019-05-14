@@ -26,11 +26,13 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TernaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -121,6 +123,23 @@ public class BIRInstructionWriter extends BIRVisitor {
         waitEntry.lhsOp.accept(this);
     }
 
+    public void visit(BIRTerminator.WorkerReceive entry) {
+        writePosition(entry.pos);
+        buf.writeByte((entry.kind.getValue()));
+        buf.writeInt(addStringCPEntry(entry.workerName.getValue()));
+        entry.lhsOp.accept(this);
+        buf.writeBoolean(entry.isSameStrand);
+        addCpAndWriteString(entry.thenBB.id.value);
+    }
+
+    public void visit(BIRTerminator.WorkerSend entry) {
+        writePosition(entry.pos);
+        buf.writeByte((entry.kind.getValue()));
+        buf.writeInt(addStringCPEntry(entry.channel.getValue()));
+        entry.data.accept(this);
+        buf.writeBoolean(entry.isSameStrand);
+        addCpAndWriteString(entry.thenBB.id.value);
+    }
 
     // Non-terminating instructions
 
@@ -306,6 +325,14 @@ public class BIRInstructionWriter extends BIRVisitor {
         newTable.keyColOp.accept(this);
     }
 
+    public void visit(BIRNonTerminator.NewStream newStream) {
+        writePosition(newStream.pos);
+        buf.writeByte(newStream.kind.getValue());
+        newStream.type.accept(typeWriter);
+        newStream.lhsOp.accept(this);
+        newStream.nameOp.accept(this);
+    }
+
     // Operands
     public void visit(BIROperand birOperand) {
         buf.writeByte(birOperand.variableDcl.kind.getValue());
@@ -414,6 +441,24 @@ public class BIRInstructionWriter extends BIRVisitor {
         newXMLProcIns.lhsOp.accept(this);
         newXMLProcIns.dataOp.accept(this);
         newXMLProcIns.targetOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewTypeDesc newTypeDesc) {
+        writePosition(newTypeDesc.pos);
+        buf.writeByte(newTypeDesc.kind.getValue());
+        newTypeDesc.lhsOp.accept(this);
+        newTypeDesc.type.accept(typeWriter);
+    }
+
+    @Override
+    public void visit(TernaryOp ternaryOp) {
+        writePosition(ternaryOp.pos);
+        buf.writeByte(ternaryOp.kind.getValue());
+        ternaryOp.lhsOp.accept(this);
+        ternaryOp.conditionOp.accept(this);
+        ternaryOp.thenOp.accept(this);
+        ternaryOp.elseOp.accept(this);
     }
 
     // Positions

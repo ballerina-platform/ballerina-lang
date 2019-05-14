@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
@@ -50,5 +51,9 @@ public class Replace extends BlockingNativeCallableUnit {
 
         String replacedString = s.replace(regex, replaceWith);
         context.setReturnValues(new BString(replacedString));
+    }
+
+    public static String replace(Strand strand, String value, String regex, String replaceWith) {
+        return value.replace(regex, replaceWith);
     }
 }

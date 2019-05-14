@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.jvm.values;
 
-import java.util.Iterator;
-
 /**
  * {@code {@link CollectionValue}} represents a collection in Ballerina.
  *
@@ -31,5 +29,5 @@ public interface CollectionValue {
      *
      * @return iterator created.
      */
-    Iterator newIterator();
+    IteratorValue getIterator();
 }

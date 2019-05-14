@@ -40,6 +40,15 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-lang</artifactId>
+            <version>${ballerina.milestone.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-mysql</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -83,6 +92,7 @@
                                 <argument>${project.build.directory}/generated-balo/repo/ballerina</argument>
                                 <argument>${project.build.directory}</argument>
                                 <argument>${project.version}</argument>
+                                <argument>false</argument>
                             </arguments>
                         </configuration>
                     </execution>

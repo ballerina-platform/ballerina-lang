@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -188,12 +188,28 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitCheckPanicExpression(@NotNull BallerinaCheckPanicExpression o) {
+    visitExpression(o);
+  }
+
   public void visitCheckedExpression(@NotNull BallerinaCheckedExpression o) {
     visitExpression(o);
   }
 
   public void visitCloseTag(@NotNull BallerinaCloseTag o) {
     visitPsiElement(o);
+  }
+
+  public void visitClosedRecordBindingPattern(@NotNull BallerinaClosedRecordBindingPattern o) {
+    visitPsiElement(o);
+  }
+
+  public void visitClosedRecordRefBindingPattern(@NotNull BallerinaClosedRecordRefBindingPattern o) {
+    visitPsiElement(o);
+  }
+
+  public void visitClosedRecordTypeDescriptor(@NotNull BallerinaClosedRecordTypeDescriptor o) {
+    visitTypeName(o);
   }
 
   public void visitComment(@NotNull BallerinaComment o) {
@@ -313,6 +329,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitFieldDefinition(@NotNull BallerinaFieldDefinition o) {
+    visitPsiElement(o);
+  }
+
+  public void visitFieldDescriptor(@NotNull BallerinaFieldDescriptor o) {
     visitPsiElement(o);
   }
 
@@ -528,6 +548,18 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitOpenRecordBindingPattern(@NotNull BallerinaOpenRecordBindingPattern o) {
+    visitPsiElement(o);
+  }
+
+  public void visitOpenRecordRefBindingPattern(@NotNull BallerinaOpenRecordRefBindingPattern o) {
+    visitPsiElement(o);
+  }
+
+  public void visitOpenRecordTypeDescriptor(@NotNull BallerinaOpenRecordTypeDescriptor o) {
+    visitTypeName(o);
+  }
+
   public void visitOrderByClause(@NotNull BallerinaOrderByClause o) {
     visitPsiElement(o);
   }
@@ -588,6 +620,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitPeerWorker(@NotNull BallerinaPeerWorker o) {
+    visitPsiElement(o);
+  }
+
   public void visitProcIns(@NotNull BallerinaProcIns o) {
     visitPsiElement(o);
   }
@@ -597,10 +633,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitRecordDestructuringStatement(@NotNull BallerinaRecordDestructuringStatement o) {
-    visitPsiElement(o);
-  }
-
-  public void visitRecordFieldDefinitionList(@NotNull BallerinaRecordFieldDefinitionList o) {
     visitPsiElement(o);
   }
 
@@ -630,10 +662,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
 
   public void visitRecordRestFieldDefinition(@NotNull BallerinaRecordRestFieldDefinition o) {
     visitPsiElement(o);
-  }
-
-  public void visitRecordTypeName(@NotNull BallerinaRecordTypeName o) {
-    visitTypeName(o);
   }
 
   public void visitReferenceTypeName(@NotNull BallerinaReferenceTypeName o) {
@@ -1008,16 +1036,20 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitTopLevelDefinition(o);
   }
 
-  public void visitWorkerReceiveExpression(@NotNull BallerinaWorkerReceiveExpression o) {
-    visitExpression(o);
+  public void visitWorkerName(@NotNull BallerinaWorkerName o) {
+    visitPsiElement(o);
   }
 
-  public void visitWorkerSendAsyncExpression(@NotNull BallerinaWorkerSendAsyncExpression o) {
+  public void visitWorkerReceiveExpression(@NotNull BallerinaWorkerReceiveExpression o) {
     visitExpression(o);
   }
 
   public void visitWorkerSendAsyncStatement(@NotNull BallerinaWorkerSendAsyncStatement o) {
     visitPsiElement(o);
+  }
+
+  public void visitWorkerSendSyncExpression(@NotNull BallerinaWorkerSendSyncExpression o) {
+    visitExpression(o);
   }
 
   public void visitWorkerWithStatementsBlock(@NotNull BallerinaWorkerWithStatementsBlock o) {
@@ -1046,14 +1078,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
 
   public void visitXmlLiteralExpression(@NotNull BallerinaXmlLiteralExpression o) {
     visitExpression(o);
-  }
-
-  public void visitXmlLocalName(@NotNull BallerinaXmlLocalName o) {
-    visitPsiElement(o);
-  }
-
-  public void visitXmlNamespaceName(@NotNull BallerinaXmlNamespaceName o) {
-    visitPsiElement(o);
   }
 
   public void visitXmlQualifiedName(@NotNull BallerinaXmlQualifiedName o) {

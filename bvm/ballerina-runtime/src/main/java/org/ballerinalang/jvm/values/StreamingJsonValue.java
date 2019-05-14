@@ -144,4 +144,48 @@ public class StreamingJsonValue extends ArrayValue {
             throw new BallerinaException("error occurred while building JSON: ", t);
         }
     }
+
+    @Override
+    public IteratorValue getIterator() {
+        return new ArrayIterator(this);
+    }
+
+    /**
+     * {@code {@link StreamingJsonIterator}} provides iterator implementation for Ballerina array values.
+     *
+     * @since 0.995.0
+     */
+    static class StreamingJsonIterator implements IteratorValue {
+        StreamingJsonValue array;
+        long cursor = 0;
+
+        StreamingJsonIterator(StreamingJsonValue value) {
+            this.array = value;
+        }
+
+        @Override
+        public Object next() {
+            Object value;
+            // If the current index is loaded in to memory, then read from it
+            if (cursor < array.size) {
+                value = array.get(cursor);
+            } else {
+                // Otherwise read the next value from data-source and cache it in memory
+                value = array.datasource.next();
+                array.appendToCache(value);
+            }
+
+            this.cursor++;
+            return value;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (cursor < array.size) {
+                return true;
+            }
+
+            return array.datasource.hasNext();
+        }
+    }
 }

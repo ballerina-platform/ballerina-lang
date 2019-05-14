@@ -21,6 +21,11 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
+    baloCreat project(':lib-creator')
+}
+
+createBalo {
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - Utils'

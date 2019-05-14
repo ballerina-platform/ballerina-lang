@@ -48,7 +48,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
  */
 public final class XMLSequence extends XMLValue<ArrayValue> {
 
-    private ArrayValue sequence;
+    ArrayValue sequence;
 
     /**
      * Create an empty xml sequence.
@@ -324,7 +324,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> slice(int startIndex, int endIndex) {
+    public XMLValue<?> slice(long startIndex, long endIndex) {
         if (startIndex > this.sequence.size() || endIndex > this.sequence.size() || startIndex < -1 || endIndex < -1) {
             throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
         }
@@ -347,7 +347,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
 
         int j = 0;
         ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
-        for (int i = startIndex; i < endIndex; i++) {
+        for (int i = (int) startIndex; i < endIndex; i++) {
             elementsSeq.add(j++, sequence.getRefValue(i));
         }
 
@@ -500,7 +500,11 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
 
     @Override
     public void stamp(BType type) {
-        // TODO Auto-generated method stub
+        // TODO
+    }
 
+    @Override
+    public IteratorValue getIterator() {
+        return new XMLIterator.SequenceIterator(this);
     }
 }

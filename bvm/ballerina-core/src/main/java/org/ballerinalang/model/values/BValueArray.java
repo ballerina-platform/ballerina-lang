@@ -182,6 +182,11 @@ public class BValueArray extends BNewArray implements Serializable {
 
     public long getInt(long index) {
         rangeCheckForGet(index, size);
+
+        if (elementType.getTag() == TypeTags.BYTE_TAG) {
+            return byteValues[(int) index];
+        }
+
         return intValues[(int) index];
     }
 

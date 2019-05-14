@@ -26,6 +26,7 @@ configurations {
 class CreateBaloTask extends JavaExec {
     def isBuiltin = 'false'
     def skipWarnings = 'false'
+    def jvmTarget = 'false'
 
     CreateBaloTask() {
         setClasspath(project.configurations.baloCreat)
@@ -42,6 +43,7 @@ class CreateBaloTask extends JavaExec {
         args << "${project.buildDir}/generated-balo/repo/ballerina"
         args << "${project.buildDir}"
         args << skipWarnings
+        args << jvmTarget
         super.setArgs(args)
         super.exec()
     }

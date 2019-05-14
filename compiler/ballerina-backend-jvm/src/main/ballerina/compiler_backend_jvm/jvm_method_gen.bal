@@ -218,9 +218,18 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             } else if (inst is bir:NewArray) {
                 instGen.generateArrayNewIns(inst);
             } else if (inst is bir:NewMap) {
-                instGen.generateMapNewIns(inst);
+                if (inst.kind == bir:INS_KIND_NEW_MAP) {
+                    instGen.generateMapNewIns(inst);
+                } else if (inst.kind == bir:INS_KIND_NEW_TYPEDESC) {
+                    instGen.generateNewTypedescIns(inst);
+                } else {
+                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
+                    panic err;
+                }
             } else if (inst is bir:NewTable) {
                 instGen.generateTableNewIns(inst);
+            } else if (inst is bir:NewStream) {
+                instGen.generateStreamNewIns(inst);
             } else if (inst is bir:NewError) {
                 instGen.generateNewErrorIns(inst);
             } else if (inst is bir:NewInstance) {
@@ -269,6 +278,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                 }
             } else if (inst is bir:NewXMLPI) {
                 instGen.generateNewXMLProcIns(inst);
+            }  else if (inst is bir:Ternary) {
+                instGen.generateTernaryIns(inst);
             } else {
                 error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
@@ -307,6 +318,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             termGen.generateWaitIns(terminator, funcName);
         } else if (terminator is bir:FPCall) {
             termGen.genFPCallIns(terminator, funcName);
+        } else if (terminator is bir:WrkSend) {
+            termGen.genWrkSendIns(terminator, funcName);
+        } else if (terminator is bir:WrkReceive) {
+            termGen.genWrkReceiveIns(terminator, funcName);
         } else {
             error err = error( "JVM generation is not supported for terminator instruction " +
                                         io:sprintf("%s", terminator));
@@ -363,6 +378,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BTableType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", TABLE_VALUE));
+            mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BStreamType) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", STREAM_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BArrayType ||
                     bType is bir:BTupleType) {
@@ -454,6 +473,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", TABLE_VALUE));
+        } else if (bType is bir:BStreamType) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", STREAM_VALUE));
         } else if (bType is bir:BArrayType ||
                     bType is bir:BTupleType) {
             mv.visitVarInsn(ALOAD, index);
@@ -531,7 +554,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitInsn(AASTORE);
 
     termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
-    mv.visitMaxs(0, 0);
+    mv.visitMaxs(200, 400);
     mv.visitEnd();
 }
 
@@ -649,6 +672,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
     } else if (bType is bir:BMapType ||
                 bType is bir:BArrayType ||
                 bType is bir:BTableType ||
+                bType is bir:BStreamType ||
                 bType is bir:BErrorType ||
                 bType is bir:BTypeNil ||
                 bType is bir:BTypeAny ||
@@ -672,8 +696,13 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
     }
 }
 
-function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType) returns string {
+function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, bir:BType? attachedType = ()) returns string {
     string desc = "(Lorg/ballerinalang/jvm/Strand;";
+
+    if (attachedType is bir:BType) {
+        desc = desc + getArgTypeSignature(attachedType);
+    }
+
     int i = 0;
     while (i < paramTypes.length()) {
         bir:BType paramType = getType(paramTypes[i]);
@@ -724,16 +753,17 @@ function getArgTypeSignature(bir:BType bType) returns string {
     } else if (bType is bir:BTypeAnyData ||
                 bType is bir:BUnionType ||
                 bType is bir:BJSONType ||
-                bType is bir:BFiniteType) {
-        return io:sprintf("L%s;", OBJECT);
-    } else if (bType is bir:BMapType ||
-                bType is bir:BRecordType ||
+                bType is bir:BFiniteType ||
                 bType is bir:BTypeAny) {
+        return io:sprintf("L%s;", OBJECT);
+    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
         return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BFutureType) {
         return io:sprintf("L%s;", FUTURE_VALUE);
     } else if (bType is bir:BTableType) {
         return io:sprintf("L%s;", TABLE_VALUE);
+    } else if (bType is bir:BStreamType) {
+        return io:sprintf("L%s;", STREAM_VALUE);
     } else if (bType is bir:BInvokableType) {
         if (bType.retType is bir:BTypeNil) {
             return io:sprintf("L%s;", CONSUMER);
@@ -775,6 +805,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", ERROR_VALUE);
     } else if (bType is bir:BTableType) {
         return io:sprintf(")L%s;", TABLE_VALUE);
+    } else if (bType is bir:BStreamType) {
+        return io:sprintf(")L%s;", STREAM_VALUE);
     } else if (bType is bir:BFutureType) {
         return io:sprintf(")L%s;", FUTURE_VALUE);
     } else if (bType is bir:BTypeDesc) {
@@ -846,8 +878,10 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         string lambdaName = io:sprintf("$lambda$%s$", initFuncName);
         mv.visitInvokeDynamicInsn(initClass, lambdaName, true, 0);
 
+        // no parent strand
+        mv.visitInsn(ACONST_NULL);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
-            io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
+            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, CONSUMER, STRAND, FUTURE_VALUE), false);
         mv.visitInsn(POP);
     }
     
@@ -873,13 +907,15 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     string lambdaName = "$lambda$main$";
     mv.visitInvokeDynamicInsn(initClass, lambdaName, isVoidFunction, 0);
 
+    // no parent strand
+    mv.visitInsn(ACONST_NULL);
     //submit to the scheduler
     if (isVoidFunction) {
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
-            io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
+            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, CONSUMER, STRAND, FUTURE_VALUE), false);
     } else {
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
-            io:sprintf("([L%s;L%s;)L%s;", OBJECT, FUNCTION, FUTURE_VALUE), false);
+            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION, STRAND, FUTURE_VALUE), false);
         mv.visitInsn(DUP);
     }
 
@@ -1004,6 +1040,8 @@ function castFromString(bir:BType targetType, jvm:MethodVisitor mv) {
         mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
     } else if (targetType is bir:BTableType) {
         mv.visitTypeInsn(CHECKCAST, TABLE_VALUE);
+    } else if (targetType is bir:BStreamType) {
+        mv.visitTypeInsn(CHECKCAST, STREAM_VALUE);
     } else if (targetType is bir:BTypeAny ||
                 targetType is bir:BTypeAnyData ||
                 targetType is bir:BTypeNil ||
@@ -1152,6 +1190,8 @@ function getFrameClassName(string pkgName, string funcName, bir:BType? attachedT
     string frameClassName = pkgName;
     if (attachedType is bir:BObjectType) {
         frameClassName += cleanupTypeName(attachedType.name.value) + "_";
+    } else if (attachedType is bir:BRecordType) {
+        frameClassName += cleanupTypeName(attachedType.name.value) + "_";
     }
 
     return frameClassName + cleanupFunctionName(funcName) + "Frame";
@@ -1162,7 +1202,7 @@ function cleanupTypeName(string name) returns string {
     return name.replace("$","_");
 }
 
-function cleanupFileName(string name) returns string {
+function cleanupBalExt(string name) returns string {
     return name.replace(BAL_EXTENSION, "");
 }
 
@@ -1182,6 +1222,8 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
         typeSig = io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BTableType) {
         typeSig = io:sprintf("L%s;", TABLE_VALUE);
+    } else if (bType is bir:BStreamType) {
+        typeSig = io:sprintf("L%s;", STREAM_VALUE);
     } else if (bType is bir:BRecordType) {
         typeSig = io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BArrayType ||

@@ -50,6 +50,8 @@ public type Function record {|
     Name name = {};
     BInvokableType typeValue = {};
     Visibility visibility = "PACKAGE_PRIVATE";
+    ChannelDetail[] workerChannels;
+    BType? receiverType;
 |};
 
 public type BasicBlock record {|
@@ -61,6 +63,12 @@ public type BasicBlock record {|
 public type ErrorEntry record {|
     BasicBlock trapBB;
     VarRef errorOp;
+|};
+
+public type ChannelDetail record {|
+    Name name;
+    boolean onSameStrand;
+    boolean isSend;
 |};
 
 public type Name record {|
@@ -115,8 +123,11 @@ public const INS_KIND_XML_ATTRIBUTE_STORE = "XML_ATTRIBUTE_STORE";
 public const INS_KIND_XML_ATTRIBUTE_LOAD = "XML_ATTRIBUTE_LOAD";
 public const INS_KIND_FP_LOAD = "FP_LOAD";
 public const INS_KIND_NEW_TABLE = "NEW_TABLE";
+public const INS_KIND_NEW_STREAM = "NEW_STREAM";
 public const INS_KIND_TYPEOF = "TYPEOF";
 public const INS_KIND_NOT = "NOT";
+public const INS_KIND_NEW_TYPEDESC = "NEW_TYPEDESC";
+public const INS_KIND_TERNARY = "TERNARY";
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
                                 INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
@@ -127,7 +138,7 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
                                 INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
                                 INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_NEW_TABLE | INS_KIND_TYPEOF |
-                                INS_KIND_NOT;
+                                INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM | INS_KIND_TERNARY ;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -137,9 +148,12 @@ public const TERMINATOR_RETURN = "RETURN";
 public const TERMINATOR_PANIC = "PANIC";
 public const TERMINATOR_WAIT = "WAIT";
 public const TERMINATOR_FP_CALL = "FP_CALL";
+public const TERMINATOR_WK_RECEIVE = "WK_RECEIVE";
+public const TERMINATOR_WK_SEND = "WK_SEND";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
-                                |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL;
+                                |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL|TERMINATOR_WK_RECEIVE
+                                |TERMINATOR_WK_SEND;
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -232,6 +246,7 @@ public type BServiceType TYPE_SERVICE;
 
 public type BArrayType record {|
     ArrayState state;
+    int size;
     BType eType;
 |};
 
@@ -243,6 +258,11 @@ public type BTableType record {|
     BType tConstraint;
 |};
 
+public type BStreamType record {|
+    BType sConstraint;
+|};
+
+
 public type BErrorType record {|
     BType reasonType;
     BType detailType;
@@ -253,6 +273,7 @@ public type BRecordType record {|
     boolean sealed;
     BType restFieldType;
     BRecordField?[] fields = [];
+    BAttachedFunction initFunction;
 |};
 
 public type BObjectType record {|
@@ -304,7 +325,7 @@ public type BFiniteType record {|
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
                   BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType |
-                  BFiniteType | BTableType;
+                  BFiniteType | BTableType | BStreamType;
 
 public type ModuleID record {|
     string org = "";
@@ -369,6 +390,14 @@ public type NewTable record {|
     VarRef dataOp;
     VarRef indexColOp;
     VarRef keyColOp;
+    BType typeValue;
+|};
+
+public type NewStream record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef nameOp;
     BType typeValue;
 |};
 
@@ -461,6 +490,24 @@ public type Wait record {|
     TerminatorKind kind;
     VarRef lhsOp;
     VarRef?[] exprList;
+|};
+
+public type WrkReceive record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    VarRef lhsOp;
+    Name channelName;
+    boolean isSameStrand;
+    BasicBlock thenBB;
+|};
+
+public type WrkSend record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    VarRef dataOp;
+    Name channelName;
+    boolean isSameStrand;
+    BasicBlock thenBB;
 |};
 
 public type Call record {|
@@ -579,4 +626,20 @@ public type UnaryOp record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
+|};
+
+public type NewTypeDesc record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    BType typeValue;
+|};
+
+public type Ternary record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef conditionOp;
+    VarRef thenOp;
+    VarRef elseOp;
 |};

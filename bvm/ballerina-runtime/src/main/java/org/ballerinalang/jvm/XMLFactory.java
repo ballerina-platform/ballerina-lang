@@ -40,7 +40,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -84,24 +84,18 @@ public class XMLFactory {
     static {
         Canonicalizer.init();
         try {
-            if (Canonicalizer.getInstance(CANONICALIZER_OMIT_COMMENTS) == null) {
-                Canonicalizer.register(CANONICALIZER_OMIT_COMMENTS,
-                        "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
-            }
-            if (Canonicalizer.getInstance(CANONICALIZER_WITH_COMMENTS) == null) {
-                Canonicalizer.register(CANONICALIZER_WITH_COMMENTS,
-                        "org.apache.axiom.c14n.impl.Canonicalizer20010315WithComments");
-            }
-            if (Canonicalizer.getInstance(CANONICALIZER_EXCL_OMIT_COMMENTS) == null) {
-                Canonicalizer.register(CANONICALIZER_EXCL_OMIT_COMMENTS,
-                        "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclOmitComments");
-            }
-            if (Canonicalizer.getInstance(CANONICALIZER_EXCL_WITH_COMMENTS) == null) {
-                Canonicalizer.register(CANONICALIZER_EXCL_WITH_COMMENTS,
-                        "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
-            }
+            Canonicalizer.register(CANONICALIZER_OMIT_COMMENTS,
+                    "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
+            Canonicalizer.register(CANONICALIZER_WITH_COMMENTS,
+                    "org.apache.axiom.c14n.impl.Canonicalizer20010315WithComments");
+            Canonicalizer.register(CANONICALIZER_EXCL_OMIT_COMMENTS,
+                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclOmitComments");
+            Canonicalizer.register(CANONICALIZER_EXCL_WITH_COMMENTS,
+                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
             canonicalizer = Canonicalizer.getInstance(CANONICALIZER_WITH_COMMENTS);
-        } catch (InvalidCanonicalizerException | AlgorithmAlreadyRegisteredException e) {
+        } catch (AlgorithmAlreadyRegisteredException e) {
+            // ignore
+        } catch (InvalidCanonicalizerException e) {
             throw new BallerinaException("Error initializing canonicalizer: " + e.getMessage());
         }
     }
@@ -384,7 +378,7 @@ public class XMLFactory {
             } else if (OMNode.TEXT_NODE == omNode.getType()) {
                 json = JSONParser.parse("\"" + ((OMText) omNode).getText() + "\"");
             } else {
-                json = new MapValue<String, Object>(BTypes.typeJSON);
+                json = new MapValueImpl<String, Object>(BTypes.typeJSON);
             }
         } else {
             // Process xml sequence
@@ -479,14 +473,14 @@ public class XMLFactory {
      * @return ObjectNode Json object node corresponding to the given xml element
      */
     @SuppressWarnings("rawtypes")
-    private static MapValue<String, Object> traverseXMLElement(OMElement omElement, String attributePrefix,
-                                                               boolean preserveNamespaces) {
-        MapValue<String, Object> rootNode = new MapValue<>(BTypes.typeJSON);
+    private static MapValueImpl<String, Object> traverseXMLElement(OMElement omElement, String attributePrefix,
+                                                                   boolean preserveNamespaces) {
+        MapValueImpl<String, Object> rootNode = new MapValueImpl<>(BTypes.typeJSON);
         LinkedHashMap<String, String> attributeMap = collectAttributesAndNamespaces(omElement, preserveNamespaces);
         Iterator iterator = omElement.getChildElements();
         String keyValue = getElementKey(omElement, preserveNamespaces);
         if (iterator.hasNext()) {
-            MapValue<String, Object> currentRoot = new MapValue<>(BTypes.typeJSON);
+            MapValueImpl<String, Object> currentRoot = new MapValueImpl<>(BTypes.typeJSON);
             ArrayList<OMElement> childArray = new ArrayList<>();
             LinkedHashMap<String, ArrayList<Object>> rootMap = new LinkedHashMap<>();
             while (iterator.hasNext()) {
@@ -500,7 +494,7 @@ public class XMLFactory {
                     String childKeyValue = getElementKey(omChildElement, preserveNamespaces);
                     if (iteratorChild.hasNext()) {
                         // The child element itself has more child elements
-                        MapValue<String, ?> nodeIntermediate =
+                        MapValueImpl<String, ?> nodeIntermediate =
                                 traverseXMLElement(omChildElement, attributePrefix, preserveNamespaces);
                         addToRootMap(rootMap, childKeyValue, nodeIntermediate.get(childKeyValue));
                     } else {
@@ -527,7 +521,7 @@ public class XMLFactory {
             // Process the single element
             if (attributeMap.size() > 0) {
                 // Element has attributes or namespaces
-                MapValue<String, Object> attrObject =
+                MapValueImpl<String, Object> attrObject =
                         processAttributeAndNamespaces(null, attributeMap, attributePrefix, omElement.getText());
                 rootNode.put(keyValue, attrObject);
             } else {
@@ -566,7 +560,7 @@ public class XMLFactory {
             textArrayNode = processTextArray(textArray);
         }
 
-        MapValue<String, Object> jsonNode = new MapValue<>(BTypes.typeJSON);
+        MapValueImpl<String, Object> jsonNode = new MapValueImpl<>(BTypes.typeJSON);
         if (childArray.size() > 0) {
             processChildelements(jsonNode, childArray, attributePrefix, preserveNamespaces);
             if (textArrayNode != null) {
@@ -590,7 +584,7 @@ public class XMLFactory {
      * @param attributePrefix Prefix to use in attributes
      * @param preserveNamespaces preserve the namespaces when converting
      */
-    private static void processChildelements(MapValue<String, Object> root, ArrayList<OMElement> childArray,
+    private static void processChildelements(MapValueImpl<String, Object> root, ArrayList<OMElement> childArray,
                                              String attributePrefix, boolean preserveNamespaces) {
         LinkedHashMap<String, ArrayList<OMElement>> rootMap = new LinkedHashMap<>();
         // Check child elements and group them from the key. XML sequences contain multiple child elements with same key
@@ -607,7 +601,7 @@ public class XMLFactory {
                     OMElement element = elementList.get(0);
                     if (element.getChildElements().hasNext()) {
                         // If the element it self has child elements traverse through them
-                        MapValue<String, Object> node =
+                        MapValueImpl<String, Object> node =
                                 traverseXMLElement(element, attributePrefix, preserveNamespaces);
                         root.put(nodeKey, node.get(nodeKey));
                     } else {
@@ -631,7 +625,7 @@ public class XMLFactory {
      * @param root JSON root object to which child nodes are added
      * @param rootMap List of child JSON nodes
      */
-    private static void processRootNodes(MapValue<String, Object> root,
+    private static void processRootNodes(MapValueImpl<String, Object> root,
                                          LinkedHashMap<String, ArrayList<Object>> rootMap) {
         for (Map.Entry<String, ArrayList<Object>> entry : rootMap.entrySet()) {
             String key = entry.getKey();
@@ -694,12 +688,13 @@ public class XMLFactory {
      * @param singleElementValue Whether the given root is a single element
      * @return ObjectNode Json object node corresponding to the given attributes and namespaces
      */
-    private static MapValue<String, Object>
-            processAttributeAndNamespaces(MapValue<String, Object> rootNode, LinkedHashMap<String, String> attributeMap,
+    private static MapValueImpl<String, Object>
+            processAttributeAndNamespaces(MapValueImpl<String, Object> rootNode,
+                                          LinkedHashMap<String, String> attributeMap,
                                           String attributePrefix, String singleElementValue) {
         boolean singleElement = false;
         if (rootNode == null) {
-            rootNode = new MapValue<>(BTypes.typeJSON);
+            rootNode = new MapValueImpl<>(BTypes.typeJSON);
             singleElement = true;
         }
         // All the attributes and namesapces are set as key value pairs with given prefix
