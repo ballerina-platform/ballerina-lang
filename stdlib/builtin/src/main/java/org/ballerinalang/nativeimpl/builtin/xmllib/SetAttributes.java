@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -61,9 +61,9 @@ public class SetAttributes extends BlockingNativeCallableUnit {
         ctx.setReturnValues();
     }
 
-    public static void setAttributes(Strand strand, XMLValue<?> xml, MapValue<?, ?> attributes) {
+    public static void setAttributes(Strand strand, XMLValue<?> xml, MapValueImpl<?, ?> attributes) {
         try {
-            xml.setAttributes((MapValue<String, ?>) attributes);
+            xml.setAttributes((MapValueImpl<String, ?>) attributes);
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

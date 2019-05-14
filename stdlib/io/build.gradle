@@ -22,9 +22,9 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
-//    implementation project(':ballerina-lang')
+//    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    baloCreat project(':lib-creator')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-builtin')
@@ -39,6 +39,10 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'commons-codec:commons-codec'
     testCompile 'org.apache.ws.commons.axiom:axiom-dom'
+}
+
+createBalo {
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - I/O'

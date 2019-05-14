@@ -156,14 +156,14 @@ public abstract class XMLValue<T> implements RefValue, CollectionValue {
     }
 
     /**
-     * Get attributes as a {@link MapValue}.
+     * Get attributes as a {@link MapValueImpl}.
      * 
-     * @return Attributes as a {@link MapValue}
+     * @return Attributes as a {@link MapValueImpl}
      */
     public abstract MapValue<String, ?> getAttributesMap();
 
     /**
-     * Set the attributes of the XML{@link MapValue}.
+     * Set the attributes of the XML{@link MapValueImpl}.
      * 
      * @param attributes Attributes to be set.
      */

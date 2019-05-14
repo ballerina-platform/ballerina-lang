@@ -855,7 +855,7 @@ public final class XMLItem extends XMLValue<OMNode> {
 
     }
 
-    private static class BXmlAttrMap extends MapValue<String, String> {
+    private static class BXmlAttrMap extends MapValueImpl<String, String> {
         private final XMLItem bXmlItem;
         private boolean constructed = false;
 

@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
@@ -67,7 +67,7 @@ public class QueryTableWithoutJoinClause extends BlockingNativeCallableUnit {
     }
 
     public static TableValue queryTableWithoutJoinClause(Strand strand, String query, TableValue fromTable,
-                                                         ArrayValue array, MapValue<?, ?> tableType) {
+                                                         ArrayValue array, MapValueImpl<?, ?> tableType) {
         return new TableValue(query, fromTable, null, (org.ballerinalang.jvm.types.BStructureType) tableType.getType(),
                 array);
     }

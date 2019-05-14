@@ -80,6 +80,11 @@ public type BirEmitter object {
             println();
             self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
             print("}");
+        } else if (typeValue is BRecordType) {
+            self.typeEmitter.emitRecordType(typeValue, "");
+            println();
+            self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
+            print("}");
         } else {
             self.typeEmitter.emitType(bTypeDef.typeValue);
         }

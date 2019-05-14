@@ -17,9 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
@@ -36,6 +38,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TernaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
@@ -69,6 +72,14 @@ public abstract class BIRVisitor {
     }
 
     public void visit(BIRBasicBlock birBasicBlock) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRParameter birParameter) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRAnnotation birAnnotation) {
         throw new AssertionError();
     }
 
@@ -216,6 +227,10 @@ public abstract class BIRVisitor {
     }
 
     public void visit(NewTypeDesc newTypeDesc) {
+        throw new AssertionError();
+    }
+
+    public void visit(TernaryOp ternaryOp) {
         throw new AssertionError();
     }
 }
