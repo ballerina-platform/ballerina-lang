@@ -14,8 +14,8 @@ const int EOF = 9;
 const int NUMBER = 10;
 const int EQUAL = 11;
 const int REF_EQUAL = 12;
-const int STRING_LITERAL = 13;
-const int DOUBLE_QUOTE = 14;
+const int QUOTED_STRING_LITERAL = 13;
+const int FINAL = 14;
 const int FUNCTION = 15;
 const int INT = 16;
 const int STRING = 17;
@@ -54,7 +54,8 @@ const int LT_EQUAL = 49;
 const int LARROW = 50;
 const int COMPOUND_LEFT_SHIFT = 51;
 const int NOT_EQUAL = 52;
-//to get the operator procedence, wont be used in builidng the AST
+//sub and add tokens will be renamed as unaryMinus and unaryPlus,
+//in the parser during unary expressions
 const int UNARY_MINUS = 53;
 const int UNARY_PLUS = 54;
 
@@ -62,7 +63,7 @@ const int BIT_COMPLEMENT = 55;
 const int UNTAINT = 56;
 
 string[] tokenNames = ["LBRACE", "RBRACE", "LPAREN", "RPAREN", "ADD", "ASSIGN", "SEMICOLON", "IDENTIFIER", "EQUALITY",
-"EOF", "NUMBER", "EQUAL", "REF_EQUAL", "STRING_LITERAL", "DOUBLE_QUOTE", "FUNCTION", "INT", "STRING",
+"EOF", "NUMBER", "EQUAL", "REF_EQUAL", "QUOTED_STRING_LITERAL", "FINAL", "FUNCTION", "INT", "STRING",
 "SUB", "DIV", "MUL","LEXER_ERROR_TOKEN","COLON","PARSER_ERROR_TOKEN","COMMA",
 "DOT","RANGE","ELLIPSIS","HALF_OPEN_RANGE","LEFT_BRACKET","RIGHT_BRACKET","QUESTION_MARK","ELVIS","HASH",
 "EQUAL_GT","COMPOUND_ADD","RARROW","COMPOUND_SUB","SYNCRARROW","COMPOUND_MUL","COMPOUND_DIV","MOD",
@@ -72,8 +73,10 @@ string[] tokenNames = ["LBRACE", "RBRACE", "LPAREN", "RPAREN", "ADD", "ASSIGN", 
 
 
 public type Lexer object {
+	//token position relative to the line number
 	int position = 0;
 	int lineNum = 1;
+	//index of the token relative to the input file
 	int tokenIndex = 0;
 	WhiteSpaceStack wpStack = new ();
 	
@@ -86,10 +89,14 @@ public type Lexer object {
         return self.buffer.consume();
     }
     function nextToken() returns Token{
+		//current character
         string currChar = "";
+		//while the currChar is not Eof, consume the lexems and build tokens
         while (!self.buffer.isEOF()) {
             currChar = self.nextLexeme();
             self.position += 1;
+			//check if the current lexeme is a whitespace, if so increase the position,lineNumbers
+			//relevant to the whitespace type and add the whitespaces as the input string itself to the stack.
             if (isWhiteSpace(currChar)) {
                 int tabCount = 0;
                 if (isEnter(currChar)) {
@@ -341,15 +348,19 @@ public type Lexer object {
 				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 			} else if (currChar == "\"") {
                 string str = currChar;
+				//empty string literal - ex:""
                 if (self.buffer.lookAhead() == "\"") {
                     currChar = self.nextLexeme();
                     self.position += 1;
 					self.tokenIndex += 1;
-                    return { tokenType: STRING_LITERAL, text: "\"\"", startPos: self.position - 1 , endPos: self.position,
+                    return { tokenType: QUOTED_STRING_LITERAL, text: "\"\"", startPos: self.position - 1 , endPos: self.position,
                         lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace()} ;
                 }
+				//keeps track whether the string literal is complete ()
                 boolean completeStr = true;
+				//length of the string
                 int strPos = 0;
+				//run while we consume another inverted comma and complete the string literal
                 while (completeStr) {
                     currChar = self.nextLexeme();
                     self.position += 1;
@@ -362,14 +373,13 @@ public type Lexer object {
                         str = str + currChar;
                         completeStr = false;
 						self.tokenIndex += 1;
-                        return { tokenType: STRING_LITERAL, text: str, startPos: self.position - strPos , endPos:
+                        return { tokenType: QUOTED_STRING_LITERAL, text: str, startPos: self.position - strPos , endPos:
                         self.position, lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
                     }
 					//loop until Eof
                     if (self.buffer.lookAhead() == "") {
                         completeStr = false;
-                        //error err = error("string expected, found incomplete string");
-                        //panic err;
+                        //if no inverted comma is found,all the lexes until Eof is captured and returned as an Lexer Error Token
 						return { tokenType: LEXER_ERROR_TOKEN, text: str, startPos: self.position - strPos , endPos:
 						self.position, lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
 
@@ -379,12 +389,14 @@ public type Lexer object {
                 string numb = currChar;
 				int digitPos = 0;
 				boolean validNum = true;
+				//append the number while the lookahead lexme is also a number
 				while(isDigit(self.buffer.lookAhead())){
 					currChar = self.nextLexeme();
 					    self.position += 1;
 					    digitPos += 1;
 					    numb = numb + currChar;
 				}
+				//no identifier can be names with number to the front, if occured, it is returned as an lexer Error Token
 				if(isLetter(self.buffer.lookAhead())){
 					validNum = false;
 					while(isLetter(self.buffer.lookAhead())){
@@ -393,8 +405,6 @@ public type Lexer object {
 						digitPos += 1;
 						numb = numb + currChar;
 					}
-					//error err = error("Unexpected identifier after numeric literal");
-					//panic err;
 					self.tokenIndex += 1;
 					return { tokenType: LEXER_ERROR_TOKEN, text: numb, startPos: self.position - digitPos , endPos:self.position, lineNumber:
 					self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
@@ -429,6 +439,7 @@ public type Lexer object {
 		self.tokenIndex += 1;
         return { tokenType: EOF, text: "EOF", startPos: self.position, endPos: self.position, lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
     }
+
 	function getWhiteSpace() returns string?{
 		string space2= "";
 		if(self.wpStack.top != 0){
@@ -516,6 +527,7 @@ function isReserved(string word) returns int {
         "int" => resWord = INT;
         "string" => resWord = STRING;
 		"untaint" => resWord = UNTAINT;
+		"final" => resWord = FINAL;
     }
     return resWord;
 }
@@ -523,20 +535,18 @@ function isReserved(string word) returns int {
 //stack to keep the whiepsaces
 type WhiteSpaceStack object{
    string [] spaceStack  = [];
-    int top;
+   int top;
    public function __init(int top = 0) {
        self.top = top;
    }
-    function push (string wSpace1){
+   function push (string wSpace1){
         self.spaceStack [self.top] = wSpace1;
         self.top = self.top + 1;
-    }
-    function pop () returns string{
+   }
+   function pop () returns string{
         self.top = self.top - 1;
         string spaceSaved = self.spaceStack[self.top];
         return spaceSaved;
-    }
-
-
+   }
 };
 

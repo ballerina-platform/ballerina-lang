@@ -13,7 +13,7 @@ public function main() {
 }
 function parseFile(string fileLocation) returns PackageNode? {
     io:ReadableCharacterChannel sourceChannel = new(io:openReadableFile(fileLocation), "UTF-8");
-    io:println("Started to process the file.");
+
     BufferReader|error bReader = trap new BufferReader(capacity = 5, sourceChannel);
 
     if (bReader is error) {

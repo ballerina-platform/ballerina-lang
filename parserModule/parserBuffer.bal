@@ -7,11 +7,10 @@ public type ParserBufferReader object {
     private Lexer lex2;
     private Token[] tokenArray = [];
 
-    public function __init(Lexer lex2, int capacity = 0) {
+    public function __init(Lexer lex2, int capacity = 5) {
         self.lex2 = lex2;
         self.capacity = capacity;
         self.fillTokenBuffer();
-
     }
 
     function fillTokenBuffer() {
