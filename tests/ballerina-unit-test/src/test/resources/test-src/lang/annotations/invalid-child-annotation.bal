@@ -12,4 +12,4 @@ type Property record {
     string name;
 };
 
-annotation Arguments Args;
+annotation Args Arguments;

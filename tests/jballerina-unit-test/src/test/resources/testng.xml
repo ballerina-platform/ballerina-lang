@@ -33,6 +33,7 @@
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
+            <package name="org.ballerinalang.test.annotations"/>
         </packages>
 
         <classes>

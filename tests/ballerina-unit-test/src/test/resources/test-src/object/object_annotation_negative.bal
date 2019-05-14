@@ -12,7 +12,7 @@ type Tst record {
     string cd = "";
 };
 
-annotation Tst Test;
+annotation Test Tst;
 
 # Documentation for testConst constant
 #
