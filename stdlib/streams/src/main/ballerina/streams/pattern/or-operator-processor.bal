@@ -21,6 +21,8 @@ public type OrOperatorProcessor object {
     *AbstractOperatorProcessor;
     public AbstractPatternProcessor? lhsProcessor;
     public AbstractPatternProcessor? rhsProcessor;
+    public map<StreamEvent> lhsEvicted;
+    public map<StreamEvent> rhsEvicted;
     public string lhsAlias = "lhs";
     public string rhsAlias = "rhs";
 
@@ -30,6 +32,8 @@ public type OrOperatorProcessor object {
         self.lhsProcessor = ();
         self.rhsProcessor = ();
         self.stateMachine = ();
+        self.lhsEvicted = {};
+        self.rhsEvicted = {};
     }
 
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
@@ -97,25 +101,51 @@ public type OrOperatorProcessor object {
     }
 
     public function promote(StreamEvent stateEvent, string? processorAlias) {
-        io:println("OrOperatorProcessor:promote:100 -> ", stateEvent, "|", processorAlias);
+        io:println("OrOperatorProcessor:promote:104 -> ", stateEvent, "|", processorAlias);
+        // if there's partial eviction, clean it beforehand.
+        string pAlias = <string>processorAlias;
+        boolean cleaned = false;
+        if (pAlias == self.lhsAlias) {
+            cleaned = self.rhsEvicted.remove(stateEvent.getEventId());
+        } else {
+            cleaned = self.lhsEvicted.remove(stateEvent.getEventId());
+        }
         self.stateEvents.addLast(stateEvent);
     }
 
     public function evict(StreamEvent stateEvent, string? processorAlias) {
-        // remove matching fulfilled states from this processor.
-        self.stateEvents.resetToFront();
-        while (self.stateEvents.hasNext()) {
-            StreamEvent s = getStreamEvent(self.stateEvents.next());
-            if (stateEvent.getEventId() == s.getEventId()) {
-                self.stateEvents.removeCurrent();
+        boolean proceed = false;
+        string pAlias = <string>processorAlias;
+        // in `or` processor, either side can be true,
+        // therefore have to check both sides before evict
+        if (pAlias == self.lhsAlias) {
+            proceed = self.rhsEvicted.remove(stateEvent.getEventId());
+            if (!proceed) {
+                self.lhsEvicted[stateEvent.getEventId()] = stateEvent;
+            }
+        } else {
+            proceed = self.lhsEvicted.remove(stateEvent.getEventId());
+            if (!proceed) {
+                self.rhsEvicted[stateEvent.getEventId()] = stateEvent;
             }
         }
-        // remove matching states from prev processor.
-        AbstractOperatorProcessor? pProcessor = self.prevProcessor;
-        if (pProcessor is AbstractOperatorProcessor) {
-            io:println("OrOperatorProcessor:evict:116 -> ", stateEvent, "|", processorAlias);
-            pProcessor.evict(stateEvent, processorAlias);
-            io:println("OrOperatorProcessor:evict:118 -> ", stateEvent, "|", processorAlias);
+
+        if (proceed) {
+            // remove matching fulfilled states from this processor.
+            self.stateEvents.resetToFront();
+            while (self.stateEvents.hasNext()) {
+                StreamEvent s = getStreamEvent(self.stateEvents.next());
+                if (stateEvent.getEventId() == s.getEventId()) {
+                    self.stateEvents.removeCurrent();
+                }
+            }
+            // remove matching states from prev processor.
+            AbstractOperatorProcessor? pProcessor = self.prevProcessor;
+            if (pProcessor is AbstractOperatorProcessor) {
+                io:println("OrOperatorProcessor:evict:145 -> ", stateEvent, "|", processorAlias);
+                pProcessor.evict(stateEvent, processorAlias);
+                io:println("OrOperatorProcessor:evict:147 -> ", stateEvent, "|", processorAlias);
+            }
         }
     }
 
