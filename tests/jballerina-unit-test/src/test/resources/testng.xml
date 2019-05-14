@@ -97,6 +97,7 @@
             <class name="org.ballerinalang.test.expressions.binaryoperations.MultiplyOperationTest"/>
             <class name="org.ballerinalang.test.expressions.binaryoperations.OperatorPrecedenceTest"/>
             <class name="org.ballerinalang.test.expressions.binaryoperations.RefEqualAndNotEqualOperationsTest"/>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.SubtractOperationTest"/>
         </classes>
     </test>
 </suite>
