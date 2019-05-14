@@ -77,7 +77,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;

@@ -151,7 +151,7 @@ public class TableValue implements RefValue, CollectionValue {
 
     @Override
     public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-        
+
     }
 
     public boolean hasNext() {

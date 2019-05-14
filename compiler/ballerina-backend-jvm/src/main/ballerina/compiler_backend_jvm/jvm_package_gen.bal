@@ -319,5 +319,3 @@ function generateBuiltInPackages(bir:BIRContext birContext, map<byte[]> jarEntri
     generateImportedPackage(utilsModule, jarEntries);
     generateImportedPackage(builtInModule, jarEntries);
 }
-
-

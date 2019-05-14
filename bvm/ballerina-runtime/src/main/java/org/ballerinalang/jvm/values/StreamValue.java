@@ -89,7 +89,7 @@ public class StreamValue implements RefValue {
 
     @Override
     public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-        
+
     }
 
     @Override

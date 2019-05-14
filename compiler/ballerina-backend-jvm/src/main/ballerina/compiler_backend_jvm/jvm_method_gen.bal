@@ -1087,7 +1087,6 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
             string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
                                                                 MODULE_INIT_CLASS_NAME);
-            io:println(initFuncName + ":" + moduleClassName);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
                     "(Lorg/ballerinalang/jvm/Strand;)V", false);
