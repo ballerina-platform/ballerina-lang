@@ -19,7 +19,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
-import org.ballerinalang.langserver.command.executors.FixReturnTypeExecutor;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
@@ -43,8 +42,11 @@ import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.BLangConstants;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -65,13 +67,19 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -172,25 +180,30 @@ public class CommandUtil {
      *
      * @param diagnostic Diagnostic to get the command against
      * @param params     Code Action parameters
+     * @param context    context
      * @return {@link List}     List of commands related to the given diagnostic
      */
-    public static List<CodeAction> getCommandsByDiagnostic(Diagnostic diagnostic, CodeActionParams params) {
+    public static List<CodeAction> getCommandsByDiagnostic(Diagnostic diagnostic, CodeActionParams params,
+                                                           LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();
         List<CodeAction> actions = new ArrayList<>();
-        Position position = params.getRange().getStart();
+        Position position = diagnostic.getRange().getStart();
+        int line = position.getLine();
+        int column = position.getCharacter();
+        String uri = params.getTextDocument().getUri();
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE,
-                                                      "" + position.getLine());
+                                                      "" + line);
         CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN,
-                                                     "" + position.getCharacter());
+                                                     "" + column);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI,
-                                                     params.getTextDocument().getUri());
+                                                     uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
         diagnostics.add(diagnostic);
 
         if (isUndefinedPackage(diagnosticMessage)) {
             String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                                                               diagnosticMessage.lastIndexOf("'"));
-            LSDocument sourceDocument = new LSDocument(params.getTextDocument().getUri());
+            LSDocument sourceDocument = new LSDocument(uri);
             String sourceRoot = LSCompilerUtil.getSourceRoot(sourceDocument.getPath());
             sourceDocument.setSourceRoot(sourceRoot);
             List<BallerinaPackage> packagesList = new ArrayList<>();
@@ -261,17 +274,71 @@ public class CommandUtil {
             Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
             if (matcher.find() && matcher.groupCount() > 1) {
                 String foundType = matcher.group(2);
-                CommandArgument typeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, foundType);
-                List<Object> args = Arrays.asList(lineArg, colArg, typeArg, uriArg);
-                String commandTitle = CommandConstants.CHANGE_RETURN_TYPE_TITLE + foundType;
-                CodeAction action = new CodeAction(commandTitle);
-                action.setKind(CodeActionKind.QuickFix);
-                action.setCommand(new Command(commandTitle, FixReturnTypeExecutor.COMMAND, args));
-                action.setDiagnostics(diagnostics);
-                actions.add(action);
+                WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+                LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+                Node bLangNode = CommandUtil.getBLangNodeByPosition(line, column,
+                                                                    uri, documentManager, lsCompiler, context);
+                if (bLangNode instanceof BLangFunction &&
+                        !BLangConstants.MAIN_FUNCTION_NAME.equals(((BLangFunction) bLangNode).name.value)) {
+                    BLangStatement statement = CommandUtil.getStatementByLocation(
+                            ((BLangFunction) bLangNode).getBody().getStatements(), line + 1, column + 1);
+                    if (statement instanceof BLangReturn) {
+                        // Process full-qualified BType name  eg. ballerina/http:Client and if required; add auto-import
+                        matcher = CommandConstants.FQ_TYPE_PATTERN.matcher(foundType);
+                        List<TextEdit> edits = new ArrayList<>();
+                        String editText = extractTypeName(context, matcher, foundType, edits);
+
+                        // Process function node
+                        Position start;
+                        Position end;
+                        BLangFunction func = (BLangFunction) bLangNode;
+                        if (func.returnTypeNode instanceof BLangValueType
+                                && TypeKind.NIL.equals(((BLangValueType) func.returnTypeNode).getTypeKind())
+                                && func.returnTypeNode.getWS() == null) {
+                            // eg. function test() {...}
+                            start = new Position(func.returnTypeNode.pos.sLine - 1, func.returnTypeNode.pos.eCol - 1);
+                            end = new Position(func.returnTypeNode.pos.eLine - 1, func.returnTypeNode.pos.eCol - 1);
+                            editText = " returns (" + editText + ")";
+                        } else {
+                            // eg. function test() returns () {...}
+                            start = new Position(func.returnTypeNode.pos.sLine - 1, func.returnTypeNode.pos.sCol - 1);
+                            end = new Position(func.returnTypeNode.pos.eLine - 1, func.returnTypeNode.pos.eCol - 1);
+                        }
+                        edits.add(new TextEdit(new Range(start, end), editText));
+
+                        // Add code action
+                        String commandTitle = CommandConstants.CHANGE_RETURN_TYPE_TITLE + foundType + "'";
+                        CodeAction action = new CodeAction(commandTitle);
+                        action.setKind(CodeActionKind.QuickFix);
+                        action.setDiagnostics(diagnostics);
+                        action.setEdit(new WorkspaceEdit(Collections.singletonList(
+                                Either.forLeft(
+                                        new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
+                        actions.add(action);
+                    }
+                }
             }
         }
         return actions;
+    }
+
+    private static String extractTypeName(LSContext context, Matcher matcher, String foundType, List<TextEdit> edits) {
+        if (matcher.find() && matcher.groupCount() > 2) {
+            String orgName = matcher.group(1);
+            String alias = matcher.group(2);
+            String typeName = matcher.group(3);
+            String pkgId = orgName + "/" + alias;
+            PackageID currentPkgId = context.get(
+                    DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
+            if (pkgId.equals(currentPkgId.toString()) || ("ballerina".equals(orgName) &&
+                    "builtin".equals(alias))) {
+                foundType = typeName;
+            } else {
+                edits.addAll(CommonUtil.getAutoImportTextEdits(context, orgName, alias));
+                foundType = alias + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + typeName;
+            }
+        }
+        return foundType;
     }
 
     /**
@@ -432,6 +499,63 @@ public class CommandUtil {
         return result;
     }
 
+    /**
+     * Find statement by location.
+     *
+     * @param statements list of statements
+     * @param line       line
+     * @param column     column
+     * @return {@link BLangStatement} if found, NULL otherwise
+     */
+    public static BLangStatement getStatementByLocation(List<BLangStatement> statements, int line, int column) {
+        BLangStatement node = null;
+        for (BLangStatement statement : statements) {
+            BLangStatement rv;
+            if ((rv = getStatementByLocation(statement, line, column)) != null) {
+                return rv;
+            }
+        }
+        return node;
+    }
+
+    /**
+     * Find statements by location.
+     *
+     * @param node   lookup {@link BLangNode}
+     * @param line   line
+     * @param column column
+     * @return {@link BLangStatement} if found, NULL otherwise
+     */
+    public static BLangStatement getStatementByLocation(BLangNode node, int line, int column) {
+        try {
+            if (checkNodeWithin(node, line, column) && node instanceof BLangStatement) {
+                return (BLangStatement) node;
+            }
+            for (Field field : node.getClass().getDeclaredFields()) {
+                Object obj = field.get(node);
+                if (obj instanceof BLangBlockStmt) {
+                    // Found a block-statement field, drilling down further
+                    BLangStatement rv;
+                    if ((rv = getStatementByLocation(((BLangBlockStmt) obj).getStatements(), line, column)) != null) {
+                        return rv;
+                    }
+                } else if (obj instanceof BLangStatement) {
+                    if (checkNodeWithin((BLangStatement) obj, line, column)) {
+                        return (BLangStatement) obj;
+                    }
+                    // Found a statement field, drilling down further
+                    BLangStatement rv;
+                    if ((rv = getStatementByLocation((BLangStatement) obj, line, column)) != null) {
+                        return rv;
+                    }
+                }
+            }
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            return null;
+        }
+        return null;
+    }
+
     public static Pair<BLangNode, Object> getBLangNode(int line, int column, String uri,
                                                        WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
                                                        LSContext context) {
@@ -451,6 +575,15 @@ public class CommandUtil {
         currentBLangPackage.accept(positionTreeVisitor);
         return new ImmutablePair<>(context.get(NodeContextKeys.NODE_KEY),
                                    context.get(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY));
+    }
+
+    private static boolean checkNodeWithin(BLangNode node, int line, int column) {
+        int sLine = node.getPosition().getStartLine();
+        int eLine = node.getPosition().getEndLine();
+        int sCol = node.getPosition().getStartColumn();
+        int eCol = node.getPosition().getEndColumn();
+        return (line > sLine || (line == sLine && column >= sCol)) &&
+                (line < eLine || (line == eLine && column <= eCol));
     }
 
     private static boolean isUndefinedPackage(String diagnosticMessage) {

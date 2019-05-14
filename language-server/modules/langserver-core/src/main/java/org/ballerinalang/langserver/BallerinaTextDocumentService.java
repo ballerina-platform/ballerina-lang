@@ -19,11 +19,13 @@ import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
 import org.ballerinalang.langserver.command.CommandUtil;
+import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
@@ -362,9 +364,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 // Add commands base on node diagnostics
                 if (!diagnostics.isEmpty()) {
+                    LSContext context = new LSServiceOperationContext();
+                    context.put(ExecuteCommandKeys.LS_COMPILER_KEY, lsCompiler);
+                    context.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, documentManager);
                     diagnostics.forEach(diagnostic -> {
                         if (line == diagnostic.getRange().getStart().getLine()) {
-                            actions.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params));
+                            actions.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params, context));
                         }
                     });
                 }
