@@ -297,6 +297,7 @@ public class Utils {
      * @param stringToBeEncoded Represent the string that needs to be encoded
      * @param charset           Represent the charset value to be used with string
      * @param isMimeSpecific    A boolean indicating whether the encoder should be mime specific or not
+     * @return encoded string or an error
      */
     public static Object encodeString(String stringToBeEncoded, String charset, boolean isMimeSpecific) {
         try {
@@ -419,7 +420,7 @@ public class Utils {
      * Encode a given byte channel using Base64 encoding scheme.
      *
      * @param byteChannel    Represent the byte channel that needs to be encoded
-     * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not * @return an
+     * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      * @return encoded ReadableByteChannel or an error
      */
     public static Object encodeByteChannel(ObjectValue byteChannel, boolean isMimeSpecific) {
@@ -524,8 +525,10 @@ public class Utils {
 
     /**
      * Encode a given blob using Base64 encoding scheme.
-     *  @param bytes          Represent the blob that needs to be encoded
+     *
+     * @param bytes          Represent the blob that needs to be encoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
+     * @return encoded blob
      */
     public static ArrayValue encodeBlob(byte[] bytes, boolean isMimeSpecific) {
         byte[] encodedContent;
@@ -558,8 +561,10 @@ public class Utils {
 
     /**
      * Decode a given blob using Base64 encoding scheme.
+     *
      * @param encodedContent Represent the blob that needs to be decoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
+     * @return decoded blob
      */
     public static ArrayValue decodeBlob(byte[] encodedContent, boolean isMimeSpecific) {
         byte[] decodedContent;

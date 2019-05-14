@@ -24,8 +24,6 @@ import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
@@ -48,7 +46,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Locale;
-
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
@@ -447,19 +444,8 @@ public class MimeUtil {
      * @param errMsg  Actual error message
      * @return Ballerina error record
      */
-    //TODO remove after migration
     public static BError createError(Context context, String errMsg) {
         return createError(context, MIME_ERROR_CODE, errMsg);
-    }
-
-    /**
-     * Create mime specific error record with '{ballerina/mime}MIMEError' as error code.
-     *
-     * @param errMsg  Actual error message
-     * @return Ballerina error record
-     */
-    public static ErrorValue createError(String errMsg) {
-        return BallerinaErrors.createError(MIME_ERROR_CODE, errMsg);
     }
 
     /**

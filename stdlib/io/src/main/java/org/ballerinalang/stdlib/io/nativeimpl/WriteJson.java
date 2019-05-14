@@ -89,7 +89,7 @@ public class WriteJson implements NativeCallableUnit {
             IOUtils.writeFullContent(characterChannel, content.toString(), eventContext);
             //TODO : Remove callback once strand non-blocking support is given
             callback.sync();
-        } catch (BallerinaException e) {
+        } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
             callback.setReturnValues(IOUtils.createError(e.getMessage()));
         } finally {
             callback.notifySuccess();

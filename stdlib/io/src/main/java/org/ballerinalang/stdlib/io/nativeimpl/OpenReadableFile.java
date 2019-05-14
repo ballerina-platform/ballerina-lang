@@ -85,17 +85,18 @@ public class OpenReadableFile extends AbstractNativeChannel {
         return createChannel(inFlow(pathUrl));
     }
 
-    private static Channel inFlow(String pathUrl) throws BallerinaException {
+    private static Channel inFlow(String pathUrl) throws org.ballerinalang.jvm.util.exceptions.BallerinaException {
         Channel channel;
         try {
             Path path = Paths.get(pathUrl);
-            FileChannel fileChannel = IOUtils.openFileChannel(path, READ_ACCESS_MODE);
+            FileChannel fileChannel = IOUtils.openFileChannelExtended(path, READ_ACCESS_MODE);
             channel = new FileIOChannel(fileChannel);
             channel.setReadable(true);
         } catch (AccessDeniedException e) {
-            throw new BallerinaException("Do not have access to read file: ", e);
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("Do not have access to read file: ", e);
         } catch (Throwable e) {
-            throw new BallerinaException("failed to open file: " + e.getMessage(), e);
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("failed to open file: " + e.getMessage(),
+                                                                               e);
         }
         return channel;
     }

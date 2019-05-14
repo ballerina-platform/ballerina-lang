@@ -87,7 +87,7 @@ public class ReadXml implements NativeCallableUnit {
         final XMLValue xml;
         try {
             xml = XMLFactory.parse(reader);
-        } catch (BallerinaException e) {
+        } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
             callback.setReturnValues(IOUtils.createError(e.getMessage()));
             callback.notifySuccess();
             return;

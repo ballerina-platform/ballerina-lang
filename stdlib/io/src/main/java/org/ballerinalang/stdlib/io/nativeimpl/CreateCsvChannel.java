@@ -118,7 +118,7 @@ public class CreateCsvChannel extends BlockingNativeCallableUnit {
         try {
             ObjectValue textRecordChannel = BallerinaValues.createObjectValue(RECORD_CHANNEL_PACKAGE, STRUCT_TYPE);
             DelimitedRecordChannel delimitedRecordChannel =
-                    IOUtils.createDelimitedRecordChannel(filePath, charset, accessMode, Format.valueOf(format));
+                    IOUtils.createDelimitedRecordChannelExtended(filePath, charset, accessMode, Format.valueOf(format));
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);
             return textRecordChannel;
         } catch (Throwable e) {

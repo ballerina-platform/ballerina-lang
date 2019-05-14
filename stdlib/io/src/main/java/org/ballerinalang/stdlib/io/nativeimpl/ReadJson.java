@@ -86,7 +86,7 @@ public class ReadJson implements NativeCallableUnit {
         final Object json;
         try {
             json = JSONParser.parse(reader);
-        } catch (BallerinaException e) {
+        } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
             callback.setReturnValues(IOUtils.createError(e.getMessage()));
             callback.notifySuccess();
             return;

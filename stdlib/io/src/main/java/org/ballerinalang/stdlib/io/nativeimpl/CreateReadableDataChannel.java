@@ -113,7 +113,7 @@ public class CreateReadableDataChannel extends BlockingNativeCallableUnit {
         } catch (Exception e) {
             String message = "Error while creating data channel:" + e.getMessage();
             log.error(message, e);
-            throw new BallerinaIOException(message, e);
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(message, e);
         }
     }
 }

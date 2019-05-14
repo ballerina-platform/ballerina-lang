@@ -87,7 +87,8 @@ public class CreateMemoryChannel extends AbstractNativeChannel {
         return createChannel(inFlow(content));
     }
 
-    private static Channel inFlow(ArrayValue contentArr) throws BallerinaException {
+    private static Channel inFlow(ArrayValue contentArr)
+            throws org.ballerinalang.jvm.util.exceptions.BallerinaException {
         try {
             byte[] content = shrink(contentArr);
             ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
@@ -95,7 +96,7 @@ public class CreateMemoryChannel extends AbstractNativeChannel {
             return new BlobIOChannel(new BlobChannel(readableByteChannel));
         } catch (Throwable e) {
             String message = "Error occurred while obtaining channel";
-            throw new BallerinaIOException(message, e);
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(message, e);
         }
     }
 

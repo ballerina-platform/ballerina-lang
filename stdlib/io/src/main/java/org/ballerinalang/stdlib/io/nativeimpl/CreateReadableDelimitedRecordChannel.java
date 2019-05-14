@@ -134,7 +134,7 @@ public class CreateReadableDelimitedRecordChannel extends BlockingNativeCallable
             String message =
                     "Error occurred while converting character channel to textRecord channel:" + e.getMessage();
             log.error(message, e);
-            throw new BallerinaIOException(message, e);
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(message, e);
         }
     }
 }

@@ -21,8 +21,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.BArrayType;
@@ -34,6 +32,8 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.util.IllegalFormatConversionException;
 
@@ -107,7 +107,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
                         case 'f':
                             if (ref == null) {
                                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
-                                        format.charAt(j) + " != ()");
+                                                                               format.charAt(j) + " != ()");
                             }
                             result.append(String.format("%" + padding + formatSpecifier, ref.value()));
                             break;
@@ -115,7 +115,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
                         case 'X':
                             if (ref == null) {
                                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
-                                        format.charAt(j) + " != ()");
+                                                                               format.charAt(j) + " != ()");
                             }
                             formatHexString(args, result, k, padding, formatSpecifier);
                             break;
@@ -194,7 +194,8 @@ public class Sprintf extends BlockingNativeCallableUnit {
 
                 if (k >= args.size()) {
                     // there's not enough arguments
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
+                    throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
+                            org.ballerinalang.jvm.util.exceptions.RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
                 }
                 StringBuilder padding = new StringBuilder();
                 while (Character.isDigit(format.charAt(j)) || format.charAt(j) == '.') {
@@ -211,7 +212,8 @@ public class Sprintf extends BlockingNativeCallableUnit {
                         case 'd':
                         case 'f':
                             if (ref == null) {
-                                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
+                                        org.ballerinalang.jvm.util.exceptions.RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
                                         format.charAt(j) + " != ()");
                             }
                             //TODO recheck ref.toString()
@@ -220,7 +222,8 @@ public class Sprintf extends BlockingNativeCallableUnit {
                         case 'x':
                         case 'X':
                             if (ref == null) {
-                                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
+                                        org.ballerinalang.jvm.util.exceptions.RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
                                         format.charAt(j) + " != ()");
                             }
                             formatHexString(args, result, k, padding, formatSpecifier);
@@ -235,12 +238,13 @@ public class Sprintf extends BlockingNativeCallableUnit {
                             break;
                         default:
                             // format string not supported
-                            throw BLangExceptionHelper.getRuntimeException(
-                                    RuntimeErrors.INVALID_FORMAT_SPECIFIER, format.charAt(j));
+                            throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
+                                    org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INVALID_FORMAT_SPECIFIER,
+                                    format.charAt(j));
                     }
                 } catch (IllegalFormatConversionException e) {
-                    throw BLangExceptionHelper.getRuntimeException(
-                            RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                    throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
+                            org.ballerinalang.jvm.util.exceptions.RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
                             format.charAt(j) + " != " + TypeChecker.getType(args.getRefValue(k)));
                 }
                 if (format.charAt(j) == '%') {

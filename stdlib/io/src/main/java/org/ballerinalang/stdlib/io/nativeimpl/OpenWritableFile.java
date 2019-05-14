@@ -98,21 +98,23 @@ public class OpenWritableFile extends AbstractNativeChannel {
         return createChannel(inFlow(pathUrl, accessMode));
     }
 
-    private static Channel inFlow(String pathUrl, boolean accessMode) throws BallerinaException {
+    private static Channel inFlow(String pathUrl, boolean accessMode)
+            throws org.ballerinalang.jvm.util.exceptions.BallerinaException {
         Channel channel;
         try {
             Path path = Paths.get(pathUrl);
             FileChannel fileChannel;
             if (accessMode) {
-                fileChannel = IOUtils.openFileChannel(path, APPEND_ACCESS_MODE);
+                fileChannel = IOUtils.openFileChannelExtended(path, APPEND_ACCESS_MODE);
             } else {
-                fileChannel = IOUtils.openFileChannel(path, WRITE_ACCESS_MODE);
+                fileChannel = IOUtils.openFileChannelExtended(path, WRITE_ACCESS_MODE);
             }
             channel = new FileIOChannel(fileChannel);
         } catch (AccessDeniedException e) {
-            throw new BallerinaException("Do not have access to write file: ", e);
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("Do not have access to write file: ", e);
         } catch (Throwable e) {
-            throw new BallerinaException("failed to open file: " + e.getMessage(), e);
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("failed to open file: " + e.getMessage(),
+                                                                               e);
         }
         return channel;
     }

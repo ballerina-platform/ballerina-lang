@@ -308,6 +308,7 @@ public class IOUtils {
      *
      * @param path the file location url
      */
+    //TODO Remove after migration : implemented using bvm values/types
     private static void createDirs(Path path) {
         Path parent = path.getParent();
         if (parent != null && !Files.exists(parent)) {
@@ -327,6 +328,7 @@ public class IOUtils {
      * @return the filechannel which will hold the reference.
      * @throws IOException during i/o error.
      */
+    //TODO Remove after migration : implemented using bvm values/types
     public static FileChannel openFileChannel(Path path, String accessMode) throws IOException {
         String accessLC = accessMode.toLowerCase(Locale.getDefault());
         Set<OpenOption> opts = new HashSet<>();
@@ -366,6 +368,7 @@ public class IOUtils {
      * @return delimited record channel to read from CSV.
      * @throws IOException during I/O error.
      */
+    //TODO Remove after migration : implemented using bvm values/types
     public static DelimitedRecordChannel createDelimitedRecordChannel(String filePath, String encoding, String mode,
                                                                       Format format)
             throws IOException {
@@ -376,4 +379,76 @@ public class IOUtils {
         return new DelimitedRecordChannel(characterChannel, format);
     }
 
+    /**
+     * Creates a directory at the specified path.
+     *
+     * @param path the file location url
+     */
+    private static void createDirsExtended(Path path) {
+        Path parent = path.getParent();
+        if (parent != null && !Files.exists(parent)) {
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException e) {
+                throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("Error in creating directory.", e);
+            }
+        }
+    }
+
+    /**
+     * Open a file channel from the given path.
+     *
+     * @param path       path to the file.
+     * @param accessMode file access mode.
+     * @return the filechannel which will hold the reference.
+     * @throws IOException during i/o error.
+     */
+    public static FileChannel openFileChannelExtended(Path path, String accessMode) throws IOException {
+        String accessLC = accessMode.toLowerCase(Locale.getDefault());
+        Set<OpenOption> opts = new HashSet<>();
+        if (accessLC.contains("r")) {
+            if (!Files.exists(path)) {
+                throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("file not found: " + path);
+            }
+            if (!Files.isReadable(path)) {
+                throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("file is not readable: " + path);
+            }
+            opts.add(StandardOpenOption.READ);
+        }
+        boolean write = accessLC.contains("w");
+        boolean append = accessLC.contains("a");
+        if (write || append) {
+            if (Files.exists(path) && !Files.isWritable(path)) {
+                throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("file is not writable: " + path);
+            }
+            createDirsExtended(path);
+            opts.add(StandardOpenOption.CREATE);
+            if (append) {
+                opts.add(StandardOpenOption.APPEND);
+            } else {
+                opts.add(StandardOpenOption.WRITE);
+            }
+        }
+        return FileChannel.open(path, opts);
+    }
+
+    /**
+     * Creates a delimited record channel to read from CSV file.
+     *
+     * @param filePath path to the CSV file.
+     * @param encoding the encoding of CSV file.
+     * @param mode     permission to access the file.
+     * @param format   format of the CSV file.
+     * @return delimited record channel to read from CSV.
+     * @throws IOException during I/O error.
+     */
+    public static DelimitedRecordChannel createDelimitedRecordChannelExtended(String filePath, String encoding,
+                                                                              String mode, Format format)
+            throws IOException {
+        Path path = Paths.get(filePath);
+        FileChannel sourceChannel = openFileChannelExtended(path, mode);
+        FileIOChannel fileIOChannel = new FileIOChannel(sourceChannel);
+        CharacterChannel characterChannel = new CharacterChannel(fileIOChannel, Charset.forName(encoding).name());
+        return new DelimitedRecordChannel(characterChannel, format);
+    }
 }

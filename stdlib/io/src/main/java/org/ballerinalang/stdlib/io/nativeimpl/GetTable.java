@@ -224,7 +224,7 @@ public class GetTable implements NativeCallableUnit {
                 table = getbTable(eventContext, records);
                 callback.setReturnValues(table);
             } catch (Throwable e) {
-                callback.setReturnValues(IOUtils.createError(error.getMessage()));
+                callback.setReturnValues(IOUtils.createError(e.getMessage()));
             }
         }
         IOUtils.validateChannelState(eventContext);
@@ -232,7 +232,8 @@ public class GetTable implements NativeCallableUnit {
         return result;
     }
 
-    private static TableValue getbTable(EventContext eventContext, List records) throws BallerinaIOException {
+    private static TableValue getbTable(EventContext eventContext, List records)
+            throws org.ballerinalang.jvm.util.exceptions.BallerinaException {
         TypedescValue type = (TypedescValue) eventContext.getProperties().get(TYPE_DESC_VALUE);
         TableValue table = new TableValue(new org.ballerinalang.jvm.types.BTableType(type.getType()), null, null, null);
         org.ballerinalang.jvm.types.BStructureType structType =
@@ -256,7 +257,7 @@ public class GetTable implements NativeCallableUnit {
         if (fields.length > 0) {
             if (internalStructFields.size() != fields.length) {
                 String msg = "Record row fields count and the give struct's fields count are mismatch";
-                throw new BallerinaIOException(msg);
+                throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(msg);
             }
             Iterator<Map.Entry<String, org.ballerinalang.jvm.types.BField>> itr =
                     internalStructFields.entrySet().iterator();
@@ -281,8 +282,9 @@ public class GetTable implements NativeCallableUnit {
                         struct.put(fieldName, (Boolean.parseBoolean(value)));
                         break;
                     default:
-                        throw new BallerinaIOException("Type casting support only for int, float, boolean and string. "
-                                                               + "Invalid value for the struct field: " + value);
+                        throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(
+                                "Type casting support only for int, float, boolean and string. "
+                                        + "Invalid value for the struct field: " + value);
                 }
             }
         }

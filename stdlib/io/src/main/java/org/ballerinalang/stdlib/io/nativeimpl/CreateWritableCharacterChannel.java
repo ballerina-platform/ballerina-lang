@@ -100,7 +100,7 @@ public class CreateWritableCharacterChannel extends BlockingNativeCallableUnit {
         } catch (Throwable e) {
             String message = "Error occurred while converting byte channel to character channel:" + e.getMessage();
             log.error(message, e);
-            throw new BallerinaIOException(message, e);
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(message, e);
         }
     }
 }
