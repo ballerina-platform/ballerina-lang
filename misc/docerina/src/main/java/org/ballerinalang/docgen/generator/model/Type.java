@@ -20,12 +20,14 @@ import org.ballerinalang.model.elements.Flag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
@@ -38,6 +40,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -59,7 +62,7 @@ public class Type {
         this.name = type.tsymbol.name != null ? type.tsymbol.name.value : null;
         this.orgName = type.tsymbol.pkgID.orgName.value;
         this.moduleName = type.tsymbol.pkgID.name.value;
-        this.category = getCategory(type.tag);
+        setCategory(type);
     }
 
     public Type(BLangType type) {
@@ -100,20 +103,7 @@ public class Type {
                 }
             }
         }
-        if (type.type instanceof BUnionType) {
-            this.category = "types";
-        } else if(type.type instanceof BRecordType) {
-            this.category = "records";
-        } else if(type.type.getClass().equals(BObjectType.class)) {
-            BObjectTypeSymbol objSymbol = (BObjectTypeSymbol) type.type.tsymbol;
-            if (objSymbol.getFlags().contains(Flag.CLIENT)) {
-                this.category = "clients";
-            } else if (objSymbol.getFlags().contains(Flag.LISTENER)) {
-                this.category = "listeners";
-            } else {
-                this.category = "objects";
-            }
-        }
+        setCategory(type.type);
     }
 
     public Type(String name, String description) {
@@ -139,7 +129,7 @@ public class Type {
                 return new Type(valueSpace.get(0).type);
             }
         }
-        if (type instanceof  BLangArrayType) {
+        if (type instanceof BLangArrayType) {
             BLangType elemtype = ((BLangArrayType) type).elemtype;
             Type typeObj = fromTypeNode(elemtype);
             typeObj.isArrayType = true;
@@ -157,16 +147,44 @@ public class Type {
         return new Type(type);
     }
 
-    private String getCategory(int tag) {
-        String category = "";
-        switch (tag) {
-            case TypeTags
-                    .OBJECT: category = "object";break;
-            case TypeTags
-                    .RECORD: category = "record";break;
-            case TypeTags
-                    .UNION: category = "type";break;
+    private void setCategory(BType type) {
+        if(type.getClass().equals(BObjectType.class)) {
+            BObjectTypeSymbol objSymbol = (BObjectTypeSymbol) type.tsymbol;
+            if (objSymbol.getFlags().contains(Flag.CLIENT)) {
+                this.category = "clients";
+            } else if (objSymbol.getFlags().contains(Flag.LISTENER)) {
+                this.category = "listeners";
+            } else {
+                this.category = "objects";
+            }
+        } else {
+            switch (type.tag) {
+                case TypeTags
+                        .ANNOTATION: this.category = "annotations";break;
+                case TypeTags
+                        .RECORD: this.category = "records";break;
+                case TypeTags
+                        .UNION:
+                case TypeTags
+                        .FINITE:
+                        if (type instanceof BFiniteType) {
+                            Set<BLangExpression> valueSpace = ((BFiniteType) type).valueSpace;
+                            if (valueSpace.size() == 1 && valueSpace.toArray()[0] instanceof BLangLiteral) {
+                                BLangLiteral literal = (BLangLiteral) valueSpace.toArray()[0];
+                                if (literal.isConstant) {
+                                    this.category = "constants";
+                                    break;
+                                }
+                            }
+                        }
+                        this.category = "types";break;
+                case TypeTags
+                        .ERROR: this.category = "errors";break;
+                default:
+                    this.category = "UNKOWN";
+            }
+
         }
-        return category;
+
     }
 }

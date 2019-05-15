@@ -249,7 +249,7 @@ public class Generator {
         } else if (kind == NodeKind.UNION_TYPE_NODE) {
             List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) typeNode).memberTypeNodes;
             List<Type> memberTypes = memberTypeNodes.stream()
-                    .map(Type::new)
+                    .map(Type::fromTypeNode)
                     .collect(Collectors.toList());
             module.unionTypes.add(new UnionType(typeName, description(typeDefinition), memberTypes));
             added = true;
