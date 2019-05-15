@@ -17,13 +17,16 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Root class of Ballerina intermediate representation-BIR.
@@ -265,24 +268,13 @@ public abstract class BIRNode {
          */
         public ChannelDetails[] workerChannels;
 
-        public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type, Name workerName,
-                           int sendInsCount) {
-            super(pos);
-            this.name = name;
-            this.visibility = visibility;
-            this.type = type;
-            this.localVars = new ArrayList<>();
-            this.requiredParams = new ArrayList<>();
-            this.defaultParams = new ArrayList<>();
-            this.basicBlocks = new ArrayList<>();
-            this.errorTable = new ArrayList<>();
-            this.workerName = workerName;
-            this.workerChannels = new ChannelDetails[sendInsCount];
-            this.receiverType = null;
-        }
+        /**
+         * Taint table for the function.
+         */
+        public TaintTable taintTable;
 
         public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type, BType receiverType,
-                           Name workerName, int sendInsCount) {
+                           Name workerName, int sendInsCount, TaintTable taintTable) {
             super(pos);
             this.name = name;
             this.visibility = visibility;
@@ -295,6 +287,7 @@ public abstract class BIRNode {
             this.errorTable = new ArrayList<>();
             this.workerName = workerName;
             this.workerChannels = new ChannelDetails[sendInsCount];
+            this.taintTable = taintTable;
         }
 
         @Override
@@ -460,5 +453,20 @@ public abstract class BIRNode {
             visitor.visit(this);
         }
 
+    }
+
+    /**
+     * Taint table of the function.
+     *
+     * @since 0.995.0
+     */
+    public static class TaintTable {
+        public int columnCount;
+        public int rowCount;
+        public Map<Integer, List<Byte>> taintTable;
+
+        public TaintTable() {
+            this.taintTable = new LinkedHashMap<>();
+        }
     }
 }

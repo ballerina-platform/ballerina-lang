@@ -87,6 +87,9 @@ public type PackageParser object {
             receiverType = self.typeParser.parseType();
         }
 
+        int taintLength = self.reader.readInt64();
+        _ = self.reader.readByteArray(untaint taintLength); // read and ignore taint table
+
         _ = self.reader.readInt64(); // read and ignore function body length
         var argsCount = self.reader.readInt32();
         var numLocalVars = self.reader.readInt32();
