@@ -34,9 +34,9 @@ import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.*;
 
-import static io.ballerina.plugins.idea.webview.diagram.preview.VisualizerUtils.generateDiagramHtml;
+import static io.ballerina.plugins.idea.webview.diagram.preview.BallerinaDiagramUtils.generateDiagramHtml;
 
-public class BallerinaDiagramVisualizer extends UserDataHolderBase implements FileEditor {
+public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEditor {
 
     private final static long PARSING_CALL_TIMEOUT_MS = 500L;
     private final static long RENDERING_DELAY_MS = 20L;
@@ -68,7 +68,7 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
 
     private boolean isHidden = true;
 
-    public BallerinaDiagramVisualizer(@NotNull Project project, @NotNull VirtualFile file) {
+    public BallerinaDiagramEditor(@NotNull Project project, @NotNull VirtualFile file) {
         myFile = file;
         myDocument = FileDocumentManager.getInstance().getDocument(myFile);
 

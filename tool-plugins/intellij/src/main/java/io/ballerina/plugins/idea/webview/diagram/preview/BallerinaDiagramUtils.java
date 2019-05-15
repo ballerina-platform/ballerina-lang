@@ -35,8 +35,8 @@ import java.util.Objects;
 
 import static org.wso2.lsp4intellij.utils.FileUtils.editorToURIString;
 
-public class VisualizerUtils {
-    private static final Logger LOG = Logger.getInstance(VisualizerUtils.class);
+public class BallerinaDiagramUtils {
+    private static final Logger LOG = Logger.getInstance(BallerinaDiagramUtils.class);
 
     private static final String TEMPLATES_CLASSPATH = "/fileTemplates/diagram";
     private static final String RESOURCE_COMPOSER = "/composer/composer.js";
@@ -49,6 +49,9 @@ public class VisualizerUtils {
     private static final String LANG_CLIENT_TEMPLATE_NAME = "lang-client";
     private static final String BODY_TEMPLATE = "<div id=\"warning\"></div>\n"
             + "<div class=\"ballerina-editor design-view-container\" id=\"diagram\"></div>\n";
+    private static final String DISABLE_EDITING_CSS =
+            "#diagram > div > div > div.diagram-controllers > div.ui.sticky > div > div > div:nth-child(1){\n"
+                    + "display: none;\n" + "}";
     private static final String BODY_CSS_CLASS = "diagram";
 
     public static String md5(String buffer, @NonNls String key) {
@@ -137,6 +140,8 @@ public class VisualizerUtils {
             webviewContents.put("codePoints", codePointsJsContent);
             webviewContents.put("composer", composerJsContent);
             webviewContents.put("loadedScript", scriptTemplate.apply(scriptContext));
+            //Todo - remove when the editing support is added.
+            webviewContents.put("disableEdit", DISABLE_EDITING_CSS);
             Context webviewContext = Context.newBuilder(webviewContents).resolver(MapValueResolver.INSTANCE).build();
             return webviewTemplate.apply(webviewContext);
 
@@ -148,10 +153,10 @@ public class VisualizerUtils {
 
     private static String getFileContent(String resource) throws IOException, RuntimeException {
         File file;
-        URL res = VisualizerUtils.class.getResource(resource);
+        URL res = BallerinaDiagramUtils.class.getResource(resource);
         if (res.getProtocol().equals("jar")) {
             try {
-                InputStream input = VisualizerUtils.class.getResourceAsStream(resource);
+                InputStream input = BallerinaDiagramUtils.class.getResourceAsStream(resource);
                 file = File.createTempFile("tempfile", ".tmp");
                 OutputStream out = new FileOutputStream(file);
                 int read;

@@ -10,10 +10,10 @@ import io.ballerina.plugins.idea.webview.diagram.settings.DiagramApplicationSett
 import io.ballerina.plugins.idea.webview.diagram.split.SplitFileEditor;
 import org.jetbrains.annotations.NotNull;
 
-public class BallerinaSplitEditor extends SplitFileEditor<TextEditor, BallerinaDiagramVisualizer> implements TextEditor {
+public class BallerinaSplitEditor extends SplitFileEditor<TextEditor, BallerinaDiagramEditor> implements TextEditor {
     private boolean myAutoScrollPreview = DiagramApplicationSettings.getInstance().getDiagramPreviewSettings().isAutoScrollPreview();
 
-    public BallerinaSplitEditor(@NotNull TextEditor mainEditor, @NotNull BallerinaDiagramVisualizer secondEditor) {
+    public BallerinaSplitEditor(@NotNull TextEditor mainEditor, @NotNull BallerinaDiagramEditor secondEditor) {
         super(mainEditor, secondEditor);
 
         DiagramApplicationSettings.SettingsChangedListener settingsChangedListener =

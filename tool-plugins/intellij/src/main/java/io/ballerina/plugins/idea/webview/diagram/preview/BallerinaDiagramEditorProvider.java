@@ -12,7 +12,7 @@ import io.ballerina.plugins.idea.BallerinaFileType;
 import io.ballerina.plugins.idea.BallerinaLanguage;
 import org.jetbrains.annotations.NotNull;
 
-public class BallerinaDiagramVisualizerProvider extends WeighedFileEditorProvider {
+public class BallerinaDiagramEditorProvider extends WeighedFileEditorProvider {
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile file) {
         final FileType fileType = file.getFileType();
@@ -24,7 +24,7 @@ public class BallerinaDiagramVisualizerProvider extends WeighedFileEditorProvide
     @NotNull
     @Override
     public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
-        return new BallerinaDiagramVisualizer(project, file);
+        return new BallerinaDiagramEditor(project, file);
     }
 
     @NotNull
