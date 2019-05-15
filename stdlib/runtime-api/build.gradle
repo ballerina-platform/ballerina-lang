@@ -21,8 +21,8 @@ dependencies {
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     baloCreat project(':lib-creator-milestone')
     implementation project(':ballerina-core')
-//    implementation project(':ballerina-lang')
-    implementation project(':ballerina-builtin')
+    implementation 'org.ballerinalang:ballerina-builtin:0.992.0-m1'
+    baloCreat project(':lib-creator-milestone')
     implementation 'org.slf4j:slf4j-api'
     testCompile project(':ballerina-launcher')
     testCompile 'org.slf4j:slf4j-jdk14'

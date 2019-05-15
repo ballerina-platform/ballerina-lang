@@ -45,6 +45,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -63,6 +64,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
