@@ -76,10 +76,13 @@ public class BallerinaStreamsV2NotPatternTest {
     public void runPatternQuery4() {
         BValue[] outputEvents = BRunUtil.invoke(notPatternTests, "runPatternQuery4");
         Assert.assertNotNull(outputEvents);
-        Assert.assertEquals(outputEvents.length, 1);
+        Assert.assertEquals(outputEvents.length, 2);
         Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("aId"), new BInteger(11));
         Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("bId"), new BInteger(0));
         Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("cId"), new BInteger(0));
+        Assert.assertEquals(((BMap) outputEvents[1]).getMap().get("aId"), new BInteger(12));
+        Assert.assertEquals(((BMap) outputEvents[1]).getMap().get("bId"), new BInteger(0));
+        Assert.assertEquals(((BMap) outputEvents[1]).getMap().get("cId"), new BInteger(0));
     }
 
     @Test(description = "Test (A -> not B for 2 sec and not C for 2 sec) pattern query.")

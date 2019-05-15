@@ -54,7 +54,8 @@ stream<CInfo> cStream = new;
 stream<DInfo> dStream = new;
 stream<ABCDInfo> abcdStream = new;
 
-public function startSimplePatternQuery() returns (ABCDInfo[]) {
+// (A || B) => (C && D)
+public function startPatternQuery() returns (ABCDInfo[]) {
     runPatternQuery();
 
     AInfo a1 = {id:11, name:"a1"};
@@ -69,25 +70,18 @@ public function startSimplePatternQuery() returns (ABCDInfo[]) {
     DInfo d1 = {id:41, name:"d1"};
     DInfo d2 = {id:42, name:"d2"};
 
-    abcdStream.subscribe(printABCD);
+    abcdStream.subscribe(addToGlobalArray);
 
     aStream.publish(a1);
-    runtime:sleep(1000);
-
-    bStream.publish(b1);
-    runtime:sleep(1000);
-    //
     cStream.publish(c1);
-    //runtime:sleep(1000);
-    //
-    dStream.publish(d2);
-    //runtime:sleep(1000);
+    dStream.publish(d1);
 
-    ////
-    cStream.publish(c1);
-    //runtime:sleep(1000);
-    ////
+    runtime:sleep(100);
+
+    bStream.publish(b2);
+    cStream.publish(c2);
     dStream.publish(d2);
+
     runtime:sleep(1000);
 
     int count = 0;
@@ -100,17 +94,6 @@ public function startSimplePatternQuery() returns (ABCDInfo[]) {
     }
     return abcdInfoArray;
 }
-
-//forever {
-//    from every regulatorStream as e1 followed by tempStream where e1.roomNo == roomNo as e2
-//    followed by regulatorStream where e1.roomNo == roomNo as e3
-//    select e1.roomNo, e2[1].temp - e2[0].temp as tempDifference
-//    => (TempDiffInfo[] emp) {
-//        foreach var e in emp {
-//            tempDiffStream.publish(e);
-//        }
-//    }
-//}
 
 function runPatternQuery() {
 
@@ -130,12 +113,11 @@ function runPatternQuery() {
         [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             io:println("data: ", e.data);
             return {
-                //"aId": e.data["e1.0.roomNo"],
-                "aId": 4,
-                "bId": 4,
+                "aId": 0,
+                "bId": 0,
                 "cId": e.data["c.id"],
                 "dId": e.data["d.id"],
-                "abcd": "abcd" //<int> e.data["e3.0.tempSet"] - <int> e.data["e2.0.temp"]
+                "abcd": "abcd"
             };
         }
     );

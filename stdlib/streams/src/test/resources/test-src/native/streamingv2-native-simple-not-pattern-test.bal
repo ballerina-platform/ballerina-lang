@@ -59,6 +59,7 @@ function reset() {
     bStream = new;
     cStream = new;
     abcStream = new;
+    runtime:sleep(200);
 }
 
 function waitAndGetEvents() returns (ABCInfo[]) {
@@ -451,11 +452,12 @@ public function runPatternQuery4() returns (ABCInfo[]) {
     aStream.publish(a1);
     runtime:sleep(3000);
 
-    // un-successful
+    // successful
     aStream.publish(a2);
     runtime:sleep(1000);
     bStream.publish(b2);
     runtime:sleep(100);
+    cStream.publish(c2);
 
     return waitAndGetEvents();
 }
@@ -550,13 +552,12 @@ public function runPatternQuery5() returns (ABCInfo[]) {
 
     // successful
     aStream.publish(a1);
-    runtime:sleep(3000);
+    runtime:sleep(2500);
 
     // un-successful
     aStream.publish(a2);
-    runtime:sleep(1000);
-    cStream.publish(c2);
     runtime:sleep(100);
+    cStream.publish(c2);
 
     return waitAndGetEvents();
 }

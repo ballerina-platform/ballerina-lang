@@ -21,6 +21,8 @@ package org.ballerinalang.stdlib.streams.nativeimpl;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -33,16 +35,25 @@ import org.testng.annotations.Test;
  */
 public class BallerinaStreamsV2SimplePatternTest {
 
-    private CompileResult result;
+    private CompileResult simplePatternTests;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/native/streamingv2-native-simple-pattern-test.bal");
+        simplePatternTests = BCompileUtil.compile("test-src/native/streamingv2-native-simple-pattern-test.bal");
     }
 
     @Test(description = "Test simple pattern query.")
-    public void testStreamJoinQuery() {
-        BValue[] outputEvents = BRunUtil.invoke(result, "startSimplePatternQuery");
+    public void testSimplePatternQuery() {
+        BValue[] outputEvents = BRunUtil.invoke(simplePatternTests, "startPatternQuery");
         Assert.assertNotNull(outputEvents);
+        Assert.assertEquals(outputEvents.length, 2);
+        Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("aId"), new BInteger(0));
+        Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("bId"), new BInteger(0));
+        Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("cId"), new BInteger(31));
+        Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("dId"), new BInteger(41));
+        Assert.assertEquals(((BMap) outputEvents[1]).getMap().get("aId"), new BInteger(0));
+        Assert.assertEquals(((BMap) outputEvents[1]).getMap().get("bId"), new BInteger(0));
+        Assert.assertEquals(((BMap) outputEvents[1]).getMap().get("cId"), new BInteger(32));
+        Assert.assertEquals(((BMap) outputEvents[1]).getMap().get("dId"), new BInteger(42));
     }
 }
