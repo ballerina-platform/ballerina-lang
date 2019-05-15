@@ -299,14 +299,18 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public BIROperand data;
         public BIRBasicBlock thenBB;
         public boolean isSameStrand;
+        public boolean isSync;
+        public BIROperand lhsOp;
 
-        public WorkerSend(DiagnosticPos pos, Name workerName, BIROperand data, boolean isSameStrand,
-                          BIRBasicBlock thenBB) {
+        public WorkerSend(DiagnosticPos pos, Name workerName, BIROperand data, boolean isSameStrand, boolean isSync,
+                          BIROperand lhsOp, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.WK_SEND);
             this.channel = workerName;
             this.data = data;
             this.thenBB = thenBB;
+            this.lhsOp = lhsOp;
             this.isSameStrand = isSameStrand;
+            this.isSync = isSync;
         }
 
         @Override

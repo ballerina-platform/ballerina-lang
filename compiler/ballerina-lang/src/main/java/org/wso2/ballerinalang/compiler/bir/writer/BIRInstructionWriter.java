@@ -138,6 +138,10 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(addStringCPEntry(entry.channel.getValue()));
         entry.data.accept(this);
         buf.writeBoolean(entry.isSameStrand);
+        buf.writeBoolean(entry.isSync);
+        if (entry.isSync) {
+            entry.lhsOp.accept(this);
+        }
         addCpAndWriteString(entry.thenBB.id.value);
     }
 

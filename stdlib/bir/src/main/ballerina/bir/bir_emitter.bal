@@ -379,15 +379,22 @@ type TerminalEmitter object {
                 i = i + 1;
             }
             println(";");
-        } else if (term is WrkReceive) {
+        } else if (term is WorkerReceive) {
             print(tabs);
             self.opEmitter.emitOp(term.lhsOp);
             print(" = ");
             print(term.kind, " ");
             print(term.channelName.value);
             println(";");
-        } else if (term is WrkSend) {
+        } else if (term is WorkerSend) {
             print(tabs);
+            if (term.isSync) {
+                VarRef? ref = term.lhsOp;
+                if (ref is VarRef) {
+                    self.opEmitter.emitOp(ref);
+                    print(" = ");
+                }   
+            }
             self.opEmitter.emitOp(term.dataOp);
             print(" ", term.kind, " ");
             print(term.channelName.value);
