@@ -752,7 +752,7 @@ public class BIRPackageSymbolEnter {
                     BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
                     BUnionType unionType = BUnionType.create(unionTypeSymbol,
-                            new LinkedHashSet<>());//TODO improve(useless second param)
+                            new LinkedHashSet<>()); //TODO improve(useless second param)
                     int unionMemberCount = inputStream.readInt();
                     for (int i = 0; i < unionMemberCount; i++) {
                         unionType.add(readType());
