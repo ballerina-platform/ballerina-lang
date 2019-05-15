@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -44,15 +45,15 @@ import static org.ballerinalang.langserver.completions.util.MatchStatementResolv
 /**
  * Completion Item provider for the BLangMatch Scope.
  */
-public class BLangMatchCompletionProvider extends AbstractSubCompletionProvider {
+public class BLangMatchCompletionProvider extends LSCompletionProvider {
 
     private static final String LABEL_STRUCTURED_FIXED = "Structured Fixed Value Match";
     private static final String LABEL_VARIABLE_VALUE = "Variable Value Destructure Match";
 
     @Override
-    public List<CompletionItem> resolveItems(LSContext ctx) {
+    public List<CompletionItem> getCompletions(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        BLangNode symbolEnvNode = ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
+        BLangNode symbolEnvNode = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
         List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
 

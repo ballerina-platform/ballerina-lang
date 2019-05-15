@@ -36,7 +36,7 @@ public type ChannelListener object {
     #
     # + return - Nil or error upon failure to start.
     public function __start() returns error? {
-        //ignore
+        return self.start();
     }
 
     # Stops consuming messages through ChannelListener endpoint.
@@ -64,6 +64,8 @@ public type ChannelListener object {
     #
     # + return - () or error upon failure to close the channel.
     private function stop() returns error? = external;
+
+    private function start() returns error? = external;
 };
 
 # Represents the list of parameters required to create a subscription.

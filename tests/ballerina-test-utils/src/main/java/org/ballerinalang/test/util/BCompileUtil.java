@@ -567,7 +567,7 @@ public class BCompileUtil {
         String funcName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).initFunction);
         try {
             Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
-            method.invoke(null, new Strand(new Scheduler()));
+            method.invoke(null, new Strand(new Scheduler(4)));
         } catch (Exception e) {
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         }
