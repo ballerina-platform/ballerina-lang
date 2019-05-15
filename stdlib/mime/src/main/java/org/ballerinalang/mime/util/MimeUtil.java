@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -176,7 +177,7 @@ public class MimeUtil {
      */
     public static ObjectValue parseMediaType(ObjectValue mediaType, String contentType) {
         try {
-            MapValue parameterMap = new MapValue<>();
+            MapValueImpl<String, String> parameterMap = new MapValueImpl<>();
             String suffix, primaryType, subType;
 
             if (contentType != null) {

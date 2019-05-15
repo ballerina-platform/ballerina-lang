@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * {@code Executor} Is the entry point from server connector side to ballerina side.
@@ -102,7 +101,8 @@ public class Executor {
         //TODO this is temp fix till we get the service.start() API
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
-            Object returnValues = service.call(new Strand(new Scheduler(), properties), resourceName, bValues);
+            //TODO check the scheduler thread count
+            Object returnValues = service.call(new Strand(new Scheduler(4), properties), resourceName, bValues);
             if (returnValues instanceof ErrorValue) {
                 callback.notifyFailure((ErrorValue) returnValues);
             } else {

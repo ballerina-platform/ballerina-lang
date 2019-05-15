@@ -19,7 +19,6 @@
 package org.ballerinalang.mime.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;

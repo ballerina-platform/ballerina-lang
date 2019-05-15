@@ -53,6 +53,12 @@ public class Strand {
         this.wdChannels = new WDChannels();
     }
 
+    public Strand(Scheduler scheduler, Map<String, Object> properties) {
+        this.scheduler = scheduler;
+        this.globalProps = properties;
+        this.wdChannels = new WDChannels();
+    }
+
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {
         for (int i = 0; i < channels.length; i++) {
             WorkerDataChannel channel;
@@ -80,11 +86,6 @@ public class Strand {
 
     public void resume() {
 
-    }
-
-    public Strand(Scheduler scheduler, Map<String, Object> properties) {
-        this.scheduler = scheduler;
-        this.globalProps = properties;
     }
 
     public Object getProperty(String key) {
