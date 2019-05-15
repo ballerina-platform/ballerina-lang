@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.completions.util;
 
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemContext;
-import org.ballerinalang.langserver.completions.resolvers.CompletionItemsContext;
+import org.ballerinalang.langserver.completions.resolvers.CompletionItemScope;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -42,77 +42,74 @@ import java.util.Map;
  */
 public enum CompletionItemResolver {
     STATEMENT_CONTEXT(BLangStatement.class,
-                      CompletionItemsContext.STATEMENT),
+                      CompletionItemScope.STATEMENT),
     PACKAGE_LEVEL_CONTEXT(BLangPackage.class,
-                          CompletionItemsContext.TOP_LEVEL),
+                          CompletionItemScope.TOP_LEVEL),
     TESTABLE_PACKAGE_LEVEL_CONTEXT(BLangTestablePackage.class,
-                                   CompletionItemsContext.TOP_LEVEL),
+                                   CompletionItemScope.TOP_LEVEL),
     PACKAGE_NAME_CONTEXT(BallerinaParser.PackageNameContext.class,
-                         CompletionItemsContext.PACKAGE_NAME),
+                         CompletionItemScope.PACKAGE_NAME),
     IMPORT_DECLARATION_CONTEXT(BallerinaParser.ImportDeclarationContext.class,
-                               CompletionItemsContext.PACKAGE_NAME),
+                               CompletionItemScope.PACKAGE_NAME),
     PARAMETER_CONTEXT(BallerinaParser.ParameterContext.class,
-                      CompletionItemsContext.PARAMETER),
+                      CompletionItemScope.PARAMETER),
     PARAMETER_LIST_CONTEXT(BallerinaParser.ParameterListContext.class,
-                           CompletionItemsContext.PARAMETER),
+                           CompletionItemScope.PARAMETER),
     BLOCK_STATEMENT_CONTEXT(BLangBlockStmt.class,
-                            CompletionItemsContext.BLOCK_STATEMENT),
+                            CompletionItemScope.BLOCK_STATEMENT),
     ANNOTATION_ATTACHMENT(BallerinaParser.AnnotationAttachmentContext.class,
-                          CompletionItemsContext.PR_ANNOTATION_ATTACHMENT),
+                          CompletionItemScope.PR_ANNOTATION_ATTACHMENT),
     RECORD_CONTEXT(BLangRecordTypeNode.class,
-                   CompletionItemsContext.RECORD),
+                   CompletionItemScope.RECORD),
     SERVICE_CONTEXT(BLangService.class,
-                    CompletionItemsContext.SERVICE),
+                    CompletionItemScope.SERVICE),
     FUNCTION_DEF_CONTEXT(BLangFunction.class,
-                         CompletionItemsContext.FUNCTION),
+                         CompletionItemScope.FUNCTION),
     OBJECT_TYPE_CONTEXT(BLangObjectTypeNode.class,
-                        CompletionItemsContext.OBJECT_TYPE),
+                        CompletionItemScope.OBJECT_TYPE),
     RECORD_LITERAL_CONTEXT(BLangRecordLiteral.class,
-                           CompletionItemsContext.RECORD_LITERAL),
+                           CompletionItemScope.RECORD_LITERAL),
     MATCH_STATEMENT_CONTEXT(BLangMatch.class,
-                            CompletionItemsContext.MATCH),
+                            CompletionItemScope.MATCH),
     MATCH_EXPRESSION_CONTEXT(BLangMatchExpression.class,
-                             CompletionItemsContext.MATCH_EXPRESSION),
+                             CompletionItemScope.MATCH_EXPRESSION),
     BLANG_ANNOTATION_ATTACHMENT_CONTEXT(BLangAnnotationAttachment.class,
-                                        CompletionItemsContext.ANNOTATION_ATTACHMENT),
+                                        CompletionItemScope.ANNOTATION_ATTACHMENT),
 
     PARSER_RULE_STATEMENT_CONTEXT(BallerinaParser.StatementContext.class,
-                                  CompletionItemsContext.PR_STATEMENT),
+                                  CompletionItemScope.PR_STATEMENT),
     PARSER_RULE_VAR_DEF_STMT_CONTEXT(BallerinaParser.VariableDefinitionStatementContext.class,
-                                     CompletionItemsContext.PR_VARIABLE_DEFINITION),
-    // todo we have removed this from the grammar
-//    PARSER_RULE_TRIGGER_WORKER_CONTEXT(BallerinaParser.TriggerWorkerContext.class,
-//            new ParserRuleTriggerWorkerContext()),
+                                     CompletionItemScope.PR_VARIABLE_DEFINITION),
     PARSER_RULE_WORKER_REPLY_CONTEXT(BallerinaParser.WorkerReceiveExpressionContext.class,
-                                     CompletionItemsContext.PR_WORKER_REPLY),
+                                     CompletionItemScope.PR_WORKER_REPLY),
     PARSER_RULE_GLOBAL_VAR_DEF_CONTEXT(BallerinaParser.GlobalVariableDefinitionContext.class,
-                                       CompletionItemsContext.PR_GLOBAL_VARIABLE_DEFINITION),
+                                       CompletionItemScope.PR_GLOBAL_VARIABLE_DEFINITION),
     PARSER_RULE_ATTACHMENT_POINT_CONTEXT(BallerinaParser.AttachmentPointContext.class,
-                                         CompletionItemsContext.PR_ANNOTATION_ATTACHMENT),
+                                         CompletionItemScope.PR_ANNOTATION_ATTACHMENT),
     PARSER_RULE_ASSIGN_STMT_CONTEXT(BallerinaParser.AssignmentStatementContext.class,
-                                    CompletionItemsContext.PR_ASSIGNMENT_STATEMENT),
+                                    CompletionItemScope.PR_ASSIGNMENT_STATEMENT),
     PARSER_RULE_EXPRESSION_CONTEXT(BallerinaParser.ExpressionContext.class,
-                                   CompletionItemsContext.PR_EXPRESSION),
+                                   CompletionItemScope.PR_EXPRESSION),
     PARSER_RULE_IF_CLAUSE_CONTEXT(BallerinaParser.IfElseStatementContext.class,
-                                  CompletionItemsContext.PR_CONDITIONAL_CLAUSE),
+                                  CompletionItemScope.PR_CONDITIONAL_CLAUSE),
     PARSER_RULE_WHILE_CLAUSE_CONTEXT(BallerinaParser.WhileStatementContext.class,
-                                     CompletionItemsContext.PR_CONDITIONAL_CLAUSE),
+                                     CompletionItemScope.PR_CONDITIONAL_CLAUSE),
     PARSER_RULE_SERVICE_DEF_CONTEXT(BallerinaParser.ServiceDefinitionContext.class,
-                                    CompletionItemsContext.PR_SERVICE_DEFINITION),
+                                    CompletionItemScope.PR_SERVICE_DEFINITION),
     PARSER_RULE_DEFINITION_CONTEXT(BallerinaParser.DefinitionContext.class,
-                                   CompletionItemsContext.PR_DEFINITION),
+                                   CompletionItemScope.PR_DEFINITION),
     PARSER_RULE_FUNCTION_DEF_CONTEXT(BallerinaParser.FunctionDefinitionContext.class,
-                                     CompletionItemsContext.PR_FUNCTION_DEFINITION),
+                                     CompletionItemScope.PR_FUNCTION_DEFINITION),
     PARSER_RULE_RETURN_STMT_CONTEXT(BallerinaParser.ReturnStatementContext.class,
-                                    CompletionItemsContext.PR_RETURN_STMT_DEFINITION),
+                                    CompletionItemScope.PR_RETURN_STMT_DEFINITION),
     // TODO: Can be removed
     PARSER_RULE_PANIC_STATEMENT_CONTEXT(BallerinaParser.PanicStatementContext.class,
-                                        CompletionItemsContext.PR_PANIC_STATEMENT),
+                                        CompletionItemScope.PR_PANIC_STATEMENT),
     PARSER_RULE_MATCH_STATEMENT_CONTEXT(BallerinaParser.MatchStatementContext.class,
-                                        CompletionItemsContext.PR_MATCH_STATEMENT);
+                                        CompletionItemScope.PR_MATCH_STATEMENT);
 
     private final Class context;
-    private static final Map<Class, CompletionItemsContext> classToResolverMap = new HashMap<>();
+    private static final Map<Class, CompletionItemScope> classToResolverMap = new HashMap<>();
 
     static {
         for (CompletionItemResolver resolver : CompletionItemResolver.values()) {
@@ -120,9 +117,9 @@ public enum CompletionItemResolver {
         }
     }
 
-    private final CompletionItemsContext completionItemResolver;
+    private final CompletionItemScope completionItemResolver;
 
-    CompletionItemResolver(Class context, CompletionItemsContext itemResolver) {
+    CompletionItemResolver(Class context, CompletionItemScope itemResolver) {
         this.context = context;
         this.completionItemResolver = itemResolver;
     }
@@ -138,11 +135,11 @@ public enum CompletionItemResolver {
      * @param ctx                           LS Context
      * @return {@link AbstractItemContext}     Item resolver for the given context
      */
-    public static CompletionItemsContext get(Class context, LSContext ctx) {
+    public static CompletionItemScope get(Class context, LSContext ctx) {
         return classToResolverMap.get(context).resolve(ctx);
     }
 
-    private CompletionItemsContext getCompletionItemResolver() {
+    private CompletionItemScope getCompletionItemResolver() {
         return completionItemResolver;
     }
 }

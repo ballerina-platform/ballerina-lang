@@ -9,15 +9,15 @@ public function main() {
     rabbitmq:Channel newChannel = new(connection);
 
     // Declares the queue.
-    var queueResult = newChannel->queueDeclare(queueConfig = { queueName: "testQueue" });
+    var queueResult = newChannel->queueDeclare(queueConfig = { queueName: "MyQueue" });
     if (queueResult is error) {
         io:println("An error occurred while creating the queue");
     } else {
         io:println("The queue was created successfully");
     }
 
-    // Publishes the message using the routing key named "testing".
-    var sendResult = newChannel->basicPublish("Hello from Ballerina", "testQueue");
+    // Publishes the message using the routing key named "MyQueue".
+    var sendResult = newChannel->basicPublish("Hello from Ballerina", "MyQueue");
     if (sendResult is error) {
         io:println("An error occurred while sending the message");
     } else {

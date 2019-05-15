@@ -59,9 +59,9 @@ public class TypeTags {
     public static final int OBJECT = FINITE + 1;
     public static final int BYTE_ARRAY = OBJECT + 1;
     public static final int FUNCTION_POINTER = BYTE_ARRAY + 1;
-    public static final int CHANNEL = BYTE_ARRAY + 1;
+    public static final int CHANNEL = FUNCTION_POINTER + 1;
 
-    public static final int SERVICE = OBJECT;
+    public static final int SERVICE = CHANNEL + 1;
 
     private TypeTags() {
     }
