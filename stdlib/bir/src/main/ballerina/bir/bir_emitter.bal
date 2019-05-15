@@ -379,6 +379,20 @@ type TerminalEmitter object {
                 i = i + 1;
             }
             println(";");
+        } else if (term is Flush) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            int i = 0;
+            foreach var detail in term.workerChannels {
+                if (i != 0) {
+                    print(",");
+                }
+                print(detail.name);
+                i += 1;
+            }
+            println(";");
         } else if (term is WorkerReceive) {
             print(tabs);
             self.opEmitter.emitOp(term.lhsOp);
