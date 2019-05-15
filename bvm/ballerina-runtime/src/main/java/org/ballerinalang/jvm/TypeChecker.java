@@ -467,8 +467,17 @@ public class TypeChecker {
             return false;
         }
 
+        // Adjust the number of the attached functions of the lhs struct based on
+        //  the availability of the initializer function.
+        int targetAttachedFunctionCount = targetType.initializer != null ?
+                targetType.getAttachedFunctions().length - 1 :
+                targetType.getAttachedFunctions().length;
+        int sourceAttachedFunctionCount = sourceObjectType.initializer != null ?
+                sourceObjectType.getAttachedFunctions().length - 1 :
+                sourceObjectType.getAttachedFunctions().length;
+
         if (targetType.getFields().size() > sourceObjectType.getFields().size() ||
-                targetType.getAttachedFunctions().length > sourceObjectType.getAttachedFunctions().length) {
+                targetAttachedFunctionCount > sourceAttachedFunctionCount) {
             return false;
         }
 

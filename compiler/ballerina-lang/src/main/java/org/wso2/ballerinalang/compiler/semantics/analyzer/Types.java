@@ -771,8 +771,15 @@ public class Types {
     }
 
     public boolean checkObjectEquivalency(BObjectType rhsType, BObjectType lhsType, List<TypePair> unresolvedTypes) {
+        BObjectTypeSymbol lhsStructSymbol = (BObjectTypeSymbol) lhsType.tsymbol;
+        BObjectTypeSymbol rhsStructSymbol = (BObjectTypeSymbol) rhsType.tsymbol;
+        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BObjectTypeSymbol) rhsType.tsymbol).attachedFuncs;
+        int lhsAttachedFuncCount = getObjectFuncCount(lhsStructSymbol);
+        int rhsAttachedFuncCount = getObjectFuncCount(rhsStructSymbol);
+
         // RHS type should have at least all the fields as well attached functions of LHS type.
-        if (lhsType.fields.size() > rhsType.fields.size()) {
+        if (lhsType.fields.size() > rhsType.fields.size() || lhsAttachedFuncCount > rhsAttachedFuncCount) {
             return false;
         }
 
@@ -791,25 +798,14 @@ public class Types {
             }
         }
 
-        BObjectTypeSymbol lhsStructSymbol = (BObjectTypeSymbol) lhsType.tsymbol;
-        BObjectTypeSymbol rhsStructSymbol = (BObjectTypeSymbol) rhsType.tsymbol;
-        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = ((BObjectTypeSymbol) rhsType.tsymbol).attachedFuncs;
-        int lhsAttachedFuncCount = getObjectFuncCount(lhsStructSymbol);
-        int rhsAttachedFuncCount = getObjectFuncCount(rhsStructSymbol);
-
-        if (lhsAttachedFuncCount > rhsAttachedFuncCount) {
-            return false;
-        }
-
         for (BAttachedFunction lhsFunc : lhsFuncs) {
             if (lhsFunc == lhsStructSymbol.initializerFunc) {
                 continue;
             }
 
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || Symbols.isPrivate(lhsFunc.symbol) || !isInSameVisibilityRegion(lhsFunc.symbol,
-                                                                                                  rhsFunc.symbol)) {
+            if (rhsFunc == null || Symbols.isPrivate(lhsFunc.symbol) ||
+                    !isInSameVisibilityRegion(lhsFunc.symbol, rhsFunc.symbol)) {
                 return false;
             }
         }
@@ -820,11 +816,13 @@ public class Types {
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
         // If an explicit initializer is available, it could mean,
         // 1) User explicitly defined an initializer
-        // 2) The object type is coming from an already compiled source, hence the initializer is already set
+        // 2) The object type is coming from an already compiled source, hence the initializer is already set.
+        //    If it's coming from a compiled binary, the attached functions list of the symbol would already contain
+        //    the initializer in it.
         if (sym.initializerFunc != null && sym.attachedFuncs.contains(sym.initializerFunc)) {
-            return sym.attachedFuncs.size();
+            return sym.attachedFuncs.size() - 1;
         }
-        return sym.attachedFuncs.size() + 1;
+        return sym.attachedFuncs.size();
     }
 
     public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType, List<TypePair> unresolvedTypes) {

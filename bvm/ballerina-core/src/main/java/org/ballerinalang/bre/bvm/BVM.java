@@ -3719,8 +3719,17 @@ public class BVM {
         }
         unresolvedTypes.add(pair);
 
+        // Adjust the number of the attached functions of the lhs struct based on
+        //  the availability of the initializer function.
+        int lhsAttachedFunctionCount = lhsType.initializer != null ?
+                lhsType.getAttachedFunctions().length - 1 :
+                lhsType.getAttachedFunctions().length;
+        int rhsAttachedFunctionCount = rhsType.initializer != null ?
+                rhsType.getAttachedFunctions().length - 1 :
+                rhsType.getAttachedFunctions().length;
+
         if (lhsType.getFields().size() > rhsType.getFields().size() ||
-                lhsType.getAttachedFunctions().length > rhsType.getAttachedFunctions().length) {
+                lhsAttachedFunctionCount > rhsAttachedFunctionCount) {
             return false;
         }
 
