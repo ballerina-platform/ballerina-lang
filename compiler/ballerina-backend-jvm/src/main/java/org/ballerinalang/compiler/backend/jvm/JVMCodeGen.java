@@ -39,32 +39,20 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import static org.ballerinalang.util.BLangConstants.BALLERINA_HOME;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 
 /**
  * Ballerina compiler JVM backend.
@@ -78,7 +66,6 @@ public class JVMCodeGen {
     private static final String functionName = "generateJarBinary";
     private static final String JAR_ENTRIES = "jarEntries";
     private static final String MANIFEST_ENTRIES = "manifestEntries";
-    private static final String BALLERINA_RUNTIME_JAR_NAME = "ballerina-runtime";
 
     public static byte[] generateJarBinary(boolean dumpBIR, BLangPackage bLangPackage, CompilerContext context,
                                            String packagePath) {
@@ -132,45 +119,9 @@ public class JVMCodeGen {
                 target.write(entryContent);
                 target.closeEntry();
             }
-            writeBallerinaRuntimeDependency(target);
         }
 
         return baos.toByteArray();
-    }
-
-    private static void writeBallerinaRuntimeDependency(JarOutputStream target) throws IOException {
-        String ballerinaHome = System.getProperty(BALLERINA_HOME);
-        Path ballerinaRuntimeLib = Paths.get(ballerinaHome, BALLERINA_HOME_BRE, BALLERINA_HOME_LIB);
-
-        File ballerinaRuntimeJar =  Arrays.stream(Objects.requireNonNull(ballerinaRuntimeLib.toFile().listFiles()))
-                .filter(file -> file.getName().contains(BALLERINA_RUNTIME_JAR_NAME) && !file.getName().contains("api"))
-                .findFirst()
-                .orElseThrow(() -> new BLangCompilerException("ballerina runtime jar is not found"));
-
-        ZipFile zipFile = new ZipFile(ballerinaRuntimeJar);
-        Enumeration<? extends ZipEntry> entries = zipFile.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry jarEntry = entries.nextElement();
-
-            if (jarEntry == null) {
-                break;
-            }
-
-            if (jarEntry.getName().startsWith("META-INF") || !jarEntry.getName().endsWith(".class")) {
-                continue;
-            }
-
-            target.putNextEntry(jarEntry);
-
-            try (InputStream stream = zipFile.getInputStream(jarEntry)) {
-                int nRead;
-                byte[] data = new byte[1024];
-                while ((nRead = stream.read(data, 0, data.length)) != -1) {
-                    target.write(data, 0, nRead);
-                }
-                target.closeEntry();
-            }
-        }
     }
 
     private static URI getExecResourceURIFromThisJar() {

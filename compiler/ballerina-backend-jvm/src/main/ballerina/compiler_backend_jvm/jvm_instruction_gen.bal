@@ -93,6 +93,10 @@ type InstructionGenerator object {
             self.generateGreaterThanIns(binaryIns);
         }  else if (binaryIns.kind == bir:BINARY_GREATER_EQUAL) {
             self.generateGreaterEqualIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_REF_EQUAL) {
+            self.generateRefEqualIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_REF_NOT_EQUAL) {
+            self.generateRefNotEqualIns(binaryIns);
         } else {
             error err = error("JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind));
             panic err;
@@ -225,6 +229,72 @@ type InstructionGenerator object {
             self.mv.visitJumpInsn(IF_ICMPEQ, label1);
         } else {
             self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isEqual",
+                    io:sprintf("(L%s;L%s;)Z", OBJECT, OBJECT), false);
+            self.mv.visitJumpInsn(IFNE, label1);
+        }
+
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitJumpInsn(GOTO, label2);
+
+        self.mv.visitLabel(label1);
+        self.mv.visitInsn(ICONST_0);
+
+        self.mv.visitLabel(label2);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateRefEqualIns(bir:BinaryOp binaryIns) {
+        self.generateBinaryRhsAndLhsLoad(binaryIns);
+
+        jvm:Label label1 = new;
+        jvm:Label label2 = new;
+
+        bir:BType lhsOpType = binaryIns.rhsOp1.variableDcl.typeValue;
+        bir:BType rhsOpType = binaryIns.rhsOp2.variableDcl.typeValue;
+        if (lhsOpType is bir:BTypeInt|bir:BTypeByte && rhsOpType is bir:BTypeInt|bir:BTypeByte) {
+            self.mv.visitInsn(LCMP);
+            self.mv.visitJumpInsn(IFNE, label1);
+        } else if (lhsOpType is bir:BTypeFloat && rhsOpType is bir:BTypeFloat) {
+            self.mv.visitInsn(DCMPL);
+            self.mv.visitJumpInsn(IFNE, label1);
+        } else if (lhsOpType is bir:BTypeBoolean && rhsOpType is bir:BTypeBoolean) {
+            self.mv.visitJumpInsn(IF_ICMPNE, label1);
+        } else {
+            self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isReferenceEqual",
+                    io:sprintf("(L%s;L%s;)Z", OBJECT, OBJECT), false);
+            self.storeToVar(binaryIns.lhsOp.variableDcl);
+            return;
+        }
+
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitJumpInsn(GOTO, label2);
+
+        self.mv.visitLabel(label1);
+        self.mv.visitInsn(ICONST_0);
+
+        self.mv.visitLabel(label2);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateRefNotEqualIns(bir:BinaryOp binaryIns) {
+        self.generateBinaryRhsAndLhsLoad(binaryIns);
+
+        jvm:Label label1 = new;
+        jvm:Label label2 = new;
+
+        // It is assumed that both operands are of same type
+        bir:BType lhsOpType = binaryIns.rhsOp1.variableDcl.typeValue;
+        bir:BType rhsOpType = binaryIns.rhsOp2.variableDcl.typeValue;
+        if (lhsOpType is bir:BTypeInt|bir:BTypeByte && rhsOpType is bir:BTypeInt|bir:BTypeByte) {
+            self.mv.visitInsn(LCMP);
+            self.mv.visitJumpInsn(IFEQ, label1);
+        } else if (lhsOpType is bir:BTypeFloat && rhsOpType is bir:BTypeFloat) {
+            self.mv.visitInsn(DCMPL);
+            self.mv.visitJumpInsn(IFEQ, label1);
+        } else if (lhsOpType is bir:BTypeBoolean && rhsOpType is bir:BTypeBoolean) {
+            self.mv.visitJumpInsn(IF_ICMPEQ, label1);
+        } else {
+            self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isReferenceEqual",
                     io:sprintf("(L%s;L%s;)Z", OBJECT, OBJECT), false);
             self.mv.visitJumpInsn(IFNE, label1);
         }
