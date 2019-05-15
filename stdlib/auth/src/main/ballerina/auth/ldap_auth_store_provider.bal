@@ -107,29 +107,31 @@ public function LdapAuthStoreProvider.authenticate(string credential) returns bo
     string username;
     string password;
     (username, password) = check extractUsernameAndPassword(credential);
-    boolean isAuthenticated = doAuthenticate(username, password);
+    boolean isAuthenticated = doAuthenticate(self, username, password);
     if (isAuthenticated) {
         runtime:Principal principal = runtime:getInvocationContext().principal;
         principal.userId = self.ldapAuthStoreProviderConfig.domainName + ":" + username;
         // By default set userId as username.
         principal.username = username;
-        principal.scopes = getLdapScopes(username);
+        principal.scopes = getLdapScopes(self, username);
     }
     return isAuthenticated;
 }
 
 # Reads the scope(s) for the user with the given username.
 #
+# + ldapAuthStoreProvider - LdapAuthStoreProvider provider object
 # + username - Username
 # + return - Array of groups for the user denoted by the username
-function getLdapScopes(string username) returns string[] = external;
+function getLdapScopes(LdapAuthStoreProvider ldapAuthStoreProvider, string username) returns string[] = external;
 
 # Authenticate with username and password.
 #
+# + ldapAuthStoreProvider - LdapAuthStoreProvider provider object
 # + username - Username
 # + password - Password
 # + return - true if authentication is a success, else false
-function doAuthenticate(string username, string password) returns boolean = external;
+function doAuthenticate(LdapAuthStoreProvider ldapAuthStoreProvider, string username, string password) returns boolean = external;
 
 # Initailizes LDAP connection context.
 #
