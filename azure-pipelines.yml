@@ -1,17 +1,4 @@
 jobs:
-- job: macOS
-  pool:
-    vmImage: 'macOS 10.13'
-  timeoutInMinutes: 150
-  steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '8.12.0'
-  - script: |
-      sudo ulimit -n 65535
-      mvn -v
-      mvn clean install
-    displayName: 'Build Ballerina'
 - job: Linux
   pool:
     vmImage: 'Ubuntu 16.04'
@@ -27,7 +14,7 @@ jobs:
       export PATH=$(pwd)/apache-maven-3.5.4/bin:$PATH
       mvn -v
       mvn clean install
-    displayName: 'Build Ballerina'
+    displayName: 'Ballerina Linux Build'
 - job: Windows
   pool:
     vmImage: 'VS2017-Win2016'
@@ -38,5 +25,5 @@ jobs:
       versionSpec: '8.12.0'
   - script: |
       mvn -v
-      mvn clean install
-    displayName: 'Build Ballerina'
+      ./gradlew build jacocoTestReport --info --stacktrace -scan -Dorg.gradle.parallel=false -x :ballerina-h2:test -x :ballerina-task:test -x :ballerina-socket:test -x :ballerina-tools-integration-test:test -x :ballerina-unit-test:test -x :ballerina-integration-test:test -x :plugin-vscode:test
+    displayName: 'Ballerina Windows Build'
