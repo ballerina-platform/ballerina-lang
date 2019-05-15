@@ -448,10 +448,6 @@ public class TypeChecker {
 
     private static boolean checkObjectEquivalency(BType sourceType, BObjectType targetType,
                                                   List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            return false;
-        }
-
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(sourceType, targetType);
@@ -562,9 +558,11 @@ public class TypeChecker {
 
     private static AttachedFunction getMatchingInvokableType(AttachedFunction[] rhsFuncs, AttachedFunction lhsFunc,
                                                              List<TypePair> unresolvedTypes) {
-        return Arrays.stream(rhsFuncs).filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
+        return Arrays.stream(rhsFuncs)
+                .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
                 .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.type, lhsFunc.type, unresolvedTypes))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 
     private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target,

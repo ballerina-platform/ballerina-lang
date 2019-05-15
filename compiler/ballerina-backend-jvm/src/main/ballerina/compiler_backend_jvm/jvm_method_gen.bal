@@ -28,6 +28,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     int returnVarRefIndex = -1;
 
+    bir:VariableDcl stranVar = { typeValue: "string", // should be record
+                                 name: { value: "srand" },
+                                 kind: "ARG" };
+    _ = indexMap.getIndex(stranVar);
+
     // generate method desc
     string desc = getMethodDesc(func.typeValue.paramTypes, func.typeValue.retType);
     int access = ACC_PUBLIC;
@@ -55,7 +60,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
-        generateUserDefinedTypes(mv, module.typeDefs);
+        generateUserDefinedTypes(mv, module.typeDefs, indexMap);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
             mv.visitTypeInsn(NEW, typeOwnerClass);
@@ -77,11 +82,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         isVoidFunc = true;
         k = 0;
     }
-
-    bir:VariableDcl stranVar = { typeValue: "string", // should be record
-                                 name: { value: "srand" },
-                                 kind: "ARG" };
-    _ = indexMap.getIndex(stranVar);
 
     bir:VariableDcl?[] localVars = func.localVars;
     while (k < localVars.length()) {
