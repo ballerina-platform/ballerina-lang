@@ -113,7 +113,7 @@ public class Authenticate extends BlockingNativeCallableUnit {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("User: " + dn + " is authnticated: " + isAuthenticated);
+            LOG.debug("User: " + dn + " is authenticated: " + isAuthenticated);
         }
         return isAuthenticated;
     }
