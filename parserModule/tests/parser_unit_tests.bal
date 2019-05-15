@@ -16,63 +16,62 @@ function parseAst(string fileLocation) returns json {
 //function beforeFunc() {
 //
 //}
-////valid fucntion signature test
-//@test:Config
-//function testFunctionSigValid() {
-//	json actual = parseAst("parserModule/tests/resources/function/fn_signature.txt");
-//	json expected = fnSignatureValid();
-//	boolean comparison = actual == expected;
-//	test:assertTrue(comparison, msg = "AssertTrue failed");
-//	//test:assertEquals(actual,expected, msg = "function signature failed");
-//}
-//@test:Config
-//function testFunctionSigInvalid(){
-//	json actual = parseAst("parserModule/tests/resources/function/fn_signature_missing_identifier.txt");
-//	json expected = fnSigMissingIdentifier();
-//	boolean comparison = actual == expected;
-//	test:assertTrue(comparison, msg = "AssertTrue failed");
-//
-//	json actual2 = parseAst("parserModule/tests/resources/function/fn_signature_missing_lparen.txt");
-//	json expected2 = fnSignatureMissingLparen();
-//	boolean comparison2 = actual2 == expected2;
-//	test:assertTrue(comparison2, msg = "AssertTrue failed");
-//
-//	json actual3 = parseAst("parserModule/tests/resources/function/fn_signature_missing_rparen.txt");
-//	json expected3 = fnSignatureMissingRparen();
-//	boolean comparison3 = actual3 == expected3;
-//	test:assertTrue(comparison3, msg = "AssertTrue failed");
-//}
-//@test:Config
-//function testFunctionBodyValid(){
-//	json actual = parseAst("parserModule/tests/resources/function/fn_body.txt");
-//	json expected = fnBodyValid();
-//	boolean comparison = actual == expected;
-//	test:assertTrue(comparison, msg = "AssertTrue failed");
-//}
-//@test:Config
-//function testFunctionBodyInvalid(){
-//	json actual = parseAst("parserModule/tests/resources/function/fn_body_missing_lbrace.txt");
-//	json expected = fnBodyMissingLbrace();
-//	boolean comparison = actual == expected;
-//	test:assertTrue(comparison, msg = "AssertTrue failed");
-//
-//	json actual2 = parseAst("parserModule/tests/resources/function/fn_body_missing_rbrace.txt");
-//	json expected2 = fnBodyMissingRbrace();
-//	boolean comparison2 = actual2 == expected2;
-//	test:assertTrue(comparison2, msg = "AssertTrue failed");
-//}
-//@test:Config
-//function testFunctionInvalid(){
-//	json actual = parseAst("parserModule/tests/resources/function/fn_missing_signature_and_body.txt");
-//	json expected = fnMissingSigAndBody();
-//	boolean comparison = actual == expected;
-//	test:assertTrue(comparison, msg = "AssertTrue failed");
-//
-//	json actual2 = parseAst("parserModule/tests/resources/function/fn_incomplete_signature.txt");
-//	json expected2 = fnIncompleteSignature();
-//	boolean comparison2 = actual2 == expected2;
-//	test:assertTrue(comparison2, msg = "AssertTrue failed");
-//}
+
+@test:Config
+function testFunctionSigValid() {
+	json actual = parseAst("resources/function/fn_signature_valid.bal");
+	json expected = fnSignatureValid();
+	boolean comparison = actual == expected;
+	test:assertTrue(comparison, msg = "AssertTrue failed");
+}
+@test:Config
+function testFunctionSigInvalid(){
+	json actual = parseAst("resources/function/fn_signature_missing_identifier.bal");
+	json expected = fnSigMissingIdentifier();
+	boolean comparison = actual == expected;
+	test:assertTrue(comparison, msg = "AssertTrue failed");
+
+	json actual2 = parseAst("resources/function/fn_signature_missing_lparen.bal");
+	json expected2 = fnSignatureMissingLparen();
+	boolean comparison2 = actual2 == expected2;
+	test:assertTrue(comparison2, msg = "AssertTrue failed");
+
+	json actual3 = parseAst("resources/function/fn_signature_missing_rparen.bal");
+	json expected3 = fnSignatureMissingRparen();
+	boolean comparison3 = actual3 == expected3;
+	test:assertTrue(comparison3, msg = "AssertTrue failed");
+}
+@test:Config
+function testFunctionBodyValid(){
+	json actual = parseAst("resources/function/fn_body_valid.bal");
+	json expected = fnBodyValid();
+	boolean comparison = actual == expected;
+	test:assertTrue(comparison, msg = "AssertTrue failed");
+}
+@test:Config
+function testFunctionBodyInvalid(){
+	json actual = parseAst("resources/function/fn_body_missing_lbrace.bal");
+	json expected = fnBodyMissingLbrace();
+	boolean comparison = actual == expected;
+	test:assertTrue(comparison, msg = "AssertTrue failed");
+
+	json actual2 = parseAst("resources/function/fn_body_missing_rbrace.bal");
+	json expected2 = fnBodyMissingRbrace();
+	boolean comparison2 = actual2 == expected2;
+	test:assertTrue(comparison2, msg = "AssertTrue failed");
+}
+@test:Config
+function testFunctionInvalid(){
+	json actual = parseAst("resources/function/fn_missing_signature_and_body.bal");
+	json expected = fnMissingSigAndBody();
+	boolean comparison = actual == expected;
+	test:assertTrue(comparison, msg = "AssertTrue failed");
+
+	json actual2 = parseAst("resources/function/fn_incomplete_signature.bal");
+	json expected2 = fnIncompleteSignature();
+	boolean comparison2 = actual2 == expected2;
+	test:assertTrue(comparison2, msg = "AssertTrue failed");
+}
 @test:Config
 function testVarDefStInvalid(){
 	json actual = parseAst("resources/statements/variableDefinitionStatement/varDefSts_missing_binaryR&Semicolon.bal");
@@ -94,6 +93,14 @@ function testVarDefStInvalid(){
 	json expected5 = missingVarDefIdentifier();
 	boolean comparison5 = actual5 == expected5;
 	test:assertTrue(comparison5, msg = "AssertTrue failed");
+}
+@test:Config
+function testVarDefStValid(){
+	json actual = parseAst("resources/statements/variableDefinitionStatement/varDefSts_valid.bal");
+	json expected = validVarDefStatement();
+	boolean comparison = actual == expected;
+	test:assertTrue(comparison, msg = "AssertTrue failed");
+
 }
 @test:Config
 function testBinaryExprInvalid(){

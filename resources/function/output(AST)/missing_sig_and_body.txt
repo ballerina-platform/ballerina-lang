@@ -1,36 +1,35 @@
-Input:
 function
 
-Output:
+serialized json output:
 
 ERROR [sachini/parserModule] - Expected IDENTIFIER;found EOF
 
 {
-    nodeKind: "package",
-    tokenList: [{
-        tokenType: 9,
-        text: "EOF",
-        startPos: 8,
-        endPos: 8,
-        lineNumber: 1,
-        index: 2,
-        whiteSpace: null
-    }],
-    definitionList: [{
-        nodeKind: "errorNode",
-        errorFunction: {
-            nodeKind: "function",
-            tokenList: [{
-                tokenType: 15,
-                text: "function",
-                startPos: 1,
-                endPos: 8,
-                lineNumber: 1,
-                index: 1,
-                whiteSpace: null
-            }],
-            fnSignature: null,
-            blockNode: null
-        }
-    }]
+	"nodeKind": "package",
+	"tokenList": [{
+		"tokenType": 9,
+		"text": "EOF",
+		"startPos": 8,
+		"endPos": 8,
+		"lineNumber": 1,
+		"index": 2,
+		"whiteSpace": null
+	}],
+	"definitionList": [{
+		"nodeKind": "errorNode",
+		"errorFunction": {
+			"nodeKind": "function",
+			"tokenList": [{
+				"tokenType": 15,
+				"text": "function",
+				"startPos": 1,
+				"endPos": 8,
+				"lineNumber": 1,
+				"index": 1,
+				"whiteSpace": null
+			}],
+			"fnSignature": null,
+			"blockNode": null
+		}
+	}]
 }

@@ -1,40 +1,23 @@
-function foo ({
-}
+function foo (){
+
 
 serialized json output:
-
-ERROR [sachini/parserModule] - Expected RPAREN;found LBRACE
+ERROR [sachini/parserModule] - Expected RBRACE;found EOF
+ERROR [sachini/parserModule] - RBRACE inserted
 
 {
 	"nodeKind": "package",
 	"tokenList": [{
 		"tokenType": 9,
 		"text": "EOF",
-		"startPos": 1,
-		"endPos": 1,
-		"lineNumber": 2,
+		"startPos": 16,
+		"endPos": 16,
+		"lineNumber": 1,
 		"index": 6,
 		"whiteSpace": null
 	}],
 	"definitionList": [{
 		"nodeKind": "errorNode",
-		"tokenList": [{
-			"tokenType": 0,
-			"text": "{",
-			"startPos": 15,
-			"endPos": 15,
-			"lineNumber": 1,
-			"index": 4,
-			"whiteSpace": null
-		}, {
-			"tokenType": 1,
-			"text": "}",
-			"startPos": 1,
-			"endPos": 1,
-			"lineNumber": 2,
-			"index": 5,
-			"whiteSpace": "\n"
-		}],
 		"errorFunction": {
 			"nodeKind": "function",
 			"tokenList": [{
@@ -56,6 +39,14 @@ ERROR [sachini/parserModule] - Expected RPAREN;found LBRACE
 					"lineNumber": 1,
 					"index": 3,
 					"whiteSpace": " "
+				}, {
+					"tokenType": 3,
+					"text": ")",
+					"startPos": 15,
+					"endPos": 15,
+					"lineNumber": 1,
+					"index": 4,
+					"whiteSpace": null
 				}],
 				"functionIdentifier": {
 					"nodeKind": "identifier",
@@ -71,7 +62,27 @@ ERROR [sachini/parserModule] - Expected RPAREN;found LBRACE
 					"identifier": "foo"
 				}
 			},
-			"blockNode": null
+			"blockNode": {
+				"nodeKind": "blockNode",
+				"tokenList": [{
+					"tokenType": 0,
+					"text": "{",
+					"startPos": 16,
+					"endPos": 16,
+					"lineNumber": 1,
+					"index": 5,
+					"whiteSpace": null
+				}, {
+					"tokenType": 1,
+					"text": "}",
+					"startPos": -1,
+					"endPos": -1,
+					"lineNumber": 0,
+					"index": -1,
+					"whiteSpace": ""
+				}],
+				"statementList": []
+			}
 		}
 	}]
 }
