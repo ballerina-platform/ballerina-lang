@@ -31,7 +31,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -52,7 +54,7 @@ import javax.annotation.Nonnull;
 
 /**
  * Utility methods for Completion Tree Visiting.
- * 
+ *
  * @since 0.985.0
  */
 public class CompletionVisitorUtil {
@@ -62,14 +64,14 @@ public class CompletionVisitorUtil {
 
     /**
      * Check whether the cursor is located within the given node's block scope.
-     *
+     * <p>
      * Note: This method should only be used to check and terminate the visitor when the content within the block
-     *       is empty.
+     * is empty.
      *
-     * @param nodePosition      Position of the current node
-     * @param symbolEnv         Symbol Environment
-     * @param lsContext         Language Server Operation Context
-     * @param treeVisitor       Completion tree visitor instance
+     * @param nodePosition Position of the current node
+     * @param symbolEnv    Symbol Environment
+     * @param lsContext    Language Server Operation Context
+     * @param treeVisitor  Completion tree visitor instance
      * @return {@link Boolean}  Whether the cursor within the block scope
      */
     public static boolean isCursorWithinBlock(DiagnosticPos nodePosition, @Nonnull SymbolEnv symbolEnv,
@@ -92,15 +94,49 @@ public class CompletionVisitorUtil {
         return false;
     }
 
+    public static boolean cusrsorWithinServiceExpressionList(BLangService node, @Nonnull SymbolEnv symbolEnv,
+                                                             LSContext lsContext, TreeVisitor treeVisitor) {
+        Position cursorPos = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        int line = cursorPos.getLine();
+        int col = cursorPos.getCharacter();
+        List<BLangExpression> attachedExprs = node.attachedExprs;
+        if (attachedExprs.isEmpty()) {
+            return false;
+        }
+        /*
+        If the cursor within the attached expressions we return true
+         */
+        BLangExpression firstExpr = attachedExprs.get(0);
+        BLangExpression lastExpr = CommonUtil.getLastItem(attachedExprs);
+        DiagnosticPos firstExprPos = CommonUtil.toZeroBasedPosition(firstExpr.pos);
+        int fSLine = firstExprPos.sLine;
+        int fSCol = firstExprPos.sCol;
+        DiagnosticPos lastExprPos = CommonUtil.toZeroBasedPosition(lastExpr.pos);
+        int lSLine = lastExprPos.sLine;
+        int lECol = lastExprPos.eCol;
+
+        if (fSLine <= line && lSLine >= line && (fSCol <= col && lECol >= col)) {
+            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = new HashMap<>();
+            if (symbolEnv.scope != null) {
+                visibleSymbolEntries.putAll(treeVisitor.resolveAllVisibleSymbols(symbolEnv));
+            }
+            treeVisitor.populateSymbols(visibleSymbolEntries, symbolEnv);
+            treeVisitor.forceTerminateVisitor();
+            return true;
+        }
+        
+        return false;
+    }
+
     /**
      * Check whether the cursor resides within the given node type's parameter context.
      * Node name is used to identify the correct node
      *
-     * @param nodeName              Name of the node
-     * @param nodeType              Node type (Function, Resource, Action or Connector)
-     * @param env                   Symbol Environment
-     * @param lsContext             Language Server Operation Context
-     * @param treeVisitor           Completion tree visitor instance
+     * @param nodeName    Name of the node
+     * @param nodeType    Node type (Function, Resource, Action or Connector)
+     * @param env         Symbol Environment
+     * @param lsContext   Language Server Operation Context
+     * @param treeVisitor Completion tree visitor instance
      * @return {@link Boolean}      Whether the cursor is within the parameter context
      */
     public static boolean isWithinParameterContext(String nodeName, String nodeType, SymbolEnv env,
@@ -177,7 +213,7 @@ public class CompletionVisitorUtil {
                     int cursorLine = cursorPos.getLine();
                     int cursorCol = cursorPos.getCharacter();
 
-                    isWithinParams =  (cursorLine > openBLine && cursorLine < closeBLine)
+                    isWithinParams = (cursorLine > openBLine && cursorLine < closeBLine)
                             || (cursorLine == openBLine && cursorCol > openBCol && cursorLine < closeBLine)
                             || (cursorLine > openBLine && cursorCol < closeBCol && cursorLine == closeBLine)
                             || (cursorLine == openBLine && cursorLine == closeBLine && cursorCol >= openBCol
@@ -202,7 +238,7 @@ public class CompletionVisitorUtil {
     /**
      * Generate a variable Definition.
      *
-     * @param var                           BLang Variable
+     * @param var BLang Variable
      * @return {@link BLangSimpleVariableDef}     Generated BLang Variable Definition
      */
     public static BLangSimpleVariableDef createVarDef(BLangSimpleVariable var) {
@@ -215,8 +251,8 @@ public class CompletionVisitorUtil {
     /**
      * Generate a Block statement from a given set of statements.
      *
-     * @param statements                Statements to be populated
-     * @return {@link BLangBlockStmt}   Generated block statement  
+     * @param statements Statements to be populated
+     * @return {@link BLangBlockStmt}   Generated block statement
      */
     public static BLangBlockStmt generateCodeBlock(StatementNode... statements) {
         BLangBlockStmt block = new BLangBlockStmt();
@@ -228,10 +264,10 @@ public class CompletionVisitorUtil {
 
     /**
      * Check whether the cursor is at the resource identifier.
-     * 
-     * @param bLangResource     Resource to be consider
-     * @param context           Language Server Operation Context
-     * @param treeVisitor       Completion Tree Visitor instance
+     *
+     * @param bLangResource Resource to be consider
+     * @param context       Language Server Operation Context
+     * @param treeVisitor   Completion Tree Visitor instance
      * @return {@link Boolean}  Whether the cursor is at the resource identifier or not
      */
     public static boolean isCursorAtResourceIdentifier(BLangResource bLangResource, LSContext context,
@@ -247,7 +283,7 @@ public class CompletionVisitorUtil {
 
         return status;
     }
-    
+
     public static List<BLangNode> getObjectItemsOrdered(BLangObjectTypeNode objectTypeNode) {
         List<BLangNode> nodes = new ArrayList<>();
 
@@ -258,7 +294,7 @@ public class CompletionVisitorUtil {
         nodes.addAll(objectTypeNode.getFunctions().stream()
                 .map(function -> (BLangNode) function)
                 .collect(Collectors.toList()));
-        
+
         if (objectTypeNode.initFunction != null) {
             nodes.add(objectTypeNode.initFunction);
         }

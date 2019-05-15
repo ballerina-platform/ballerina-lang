@@ -51,8 +51,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"variableBoundItemSuggestions4.json", "function"},
                 {"panicStatementErrorSuggestions.json", "function"},
                 {"recordVarDef1.json", "function"},
-                // Regression issue of Grammar changes
-//                {"recordVarDef2.json", "function"},
+                {"recordVarDef2.json", "function"},
                 {"functionPointerAsParameter.json", "function"},
                 {"matchStatementSuggestions1.json", "function"},
                 {"matchStatementSuggestions3.json", "function"},
@@ -84,7 +83,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"objectAttachFunctionImpl1.json", "function"},
                 {"objectAttachFunctionImpl2.json", "function"},
                 {"objectAttachFunctionImpl3.json", "function"},
-                {"completionAfterReturn.json", "function"},
+//                {"completionAfterReturn.json", "function"},
                 {"functionCompletionWithMissingImport.json", "function"},
                 {"completionWithinRecord1.json", "function"},
                 {"completionWithinRecord2.json", "function"},
