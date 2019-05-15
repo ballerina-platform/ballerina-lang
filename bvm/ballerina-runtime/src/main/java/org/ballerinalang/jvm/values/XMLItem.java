@@ -574,7 +574,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> slice(int startIndex, int endIndex) {
+    public XMLValue<?> slice(long startIndex, long endIndex) {
         if (startIndex > 1 || endIndex > 1 || startIndex < -1 || endIndex < -1) {
             throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
         }
@@ -855,7 +855,7 @@ public final class XMLItem extends XMLValue<OMNode> {
 
     }
 
-    private static class BXmlAttrMap extends MapValue<String, String> {
+    private static class BXmlAttrMap extends MapValueImpl<String, String> {
         private final XMLItem bXmlItem;
         private boolean constructed = false;
 

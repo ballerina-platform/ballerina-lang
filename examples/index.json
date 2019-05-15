@@ -1006,6 +1006,18 @@
             {
                 "name": "Artemis Simple MULTICAST Producer",
                 "url": "artemis-multicast-producer"
+            },
+            {
+                "name": "Artemis Simple Blocking Transaction Consumer",
+                "url": "artemis-simple-transaction-consumer"
+            },
+            {
+                "name": "Artemis Simple Blocking Transaction Producer",
+                "url": "artemis-simple-transaction-producer"
+            },
+            {
+                "name": "Artemis Transaction Producer",
+                "url": "artemis-transaction-producer"
             }
         ]
     },

@@ -80,6 +80,11 @@ public type BirEmitter object {
             println();
             self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
             print("}");
+        } else if (typeValue is BRecordType) {
+            self.typeEmitter.emitRecordType(typeValue, "");
+            println();
+            self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
+            print("}");
         } else {
             self.typeEmitter.emitType(bTypeDef.typeValue);
         }
@@ -136,6 +141,20 @@ public type BirEmitter object {
             if (e is ErrorEntry) {
                 self.emitErrorEntry(e);
                 println();// empty line
+            }
+        }
+        if (bFunction.workerChannels.length() > 0) {
+            print("WORKER_CHANNELS: ");    
+        }
+
+        int channelsSize = bFunction.workerChannels.length();
+        foreach ChannelDetail ch in bFunction.workerChannels {
+            channelsSize -= 1;
+            print(ch.name.value);
+            if (channelsSize > 0) {
+                print(",");
+            } else {
+                println(";");
             }
         }
         println(tabs, "}");
@@ -226,6 +245,14 @@ type InstructionEmitter object {
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
             self.typeEmitter.emitType(ins.typeValue);
+            println(";");
+        } else if (ins is NewStream) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.typeEmitter.emitType(ins.typeValue);
+            print(", ");
+            self.opEmitter.emitOp(ins.nameOp);
             println(";");
         } else if (ins is NewTable) {
             print(tabs);
@@ -351,6 +378,26 @@ type TerminalEmitter object {
                 }
                 i = i + 1;
             }
+            println(";");
+        } else if (term is WorkerReceive) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            print(term.channelName.value);
+            println(";");
+        } else if (term is WorkerSend) {
+            print(tabs);
+            if (term.isSync) {
+                VarRef? ref = term.lhsOp;
+                if (ref is VarRef) {
+                    self.opEmitter.emitOp(ref);
+                    print(" = ");
+                }   
+            }
+            self.opEmitter.emitOp(term.dataOp);
+            print(" ", term.kind, " ");
+            print(term.channelName.value);
             println(";");
         } else if (term is AsyncCall) {
             print(tabs);

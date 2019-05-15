@@ -25,7 +25,7 @@ configurations {
 }
 
 dependencies {
-    baloCreat project(':lib-creator')
+//    baloCreat project(':lib-creator')
     annotationProcessor project(':ballerina-lang')
 }
 

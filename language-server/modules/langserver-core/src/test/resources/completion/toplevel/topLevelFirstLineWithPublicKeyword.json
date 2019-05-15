@@ -39,6 +39,20 @@
       "detail": "Keyword",
       "insertText": "listener ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "type ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "annotation",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "annotation\u003c${1:attachmentPoint}\u003e ${2:name};",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.builtin.tablelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.natives.annotations.Argument;
@@ -41,5 +43,9 @@ public class Close extends BlockingNativeCallableUnit {
         BTable table = (BTable) ctx.getRefArgument(0);
         table.close();
         ctx.setReturnValues();
+    }
+
+    public static void close(Strand strand, TableValue table) {
+        table.close();
     }
 }

@@ -19,6 +19,9 @@
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
@@ -53,6 +56,16 @@ public class Matches extends AbstractRegexFunction {
             context.setReturnValues(matches);
         } catch (PatternSyntaxException e) {
             context.setReturnValues(BuiltInUtils.createStringError(context, e.getMessage()));
+        }
+    }
+
+    public static Object matches(Strand strand, String value, String regex, String replaceWith) {
+        try {
+            Pattern pattern = validatePattern(regex);
+            Matcher matcher = pattern.matcher(value);
+            return matcher.matches();
+        } catch (PatternSyntaxException e) {
+            return BallerinaErrors.createError(BallerinaErrorReasons.STRING_OPERATION_ERROR, e.getMessage());
         }
     }
 }

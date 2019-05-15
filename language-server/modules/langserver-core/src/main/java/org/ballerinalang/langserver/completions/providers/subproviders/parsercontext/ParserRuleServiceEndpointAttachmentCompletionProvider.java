@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.completions.providers.subproviders.parserco
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 
@@ -29,9 +29,9 @@ import java.util.stream.Collectors;
 /**
  * Completion item provider for the service endpoint attachment context.
  */
-public class ParserRuleServiceEndpointAttachmentCompletionProvider extends AbstractSubCompletionProvider {
+public class ParserRuleServiceEndpointAttachmentCompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext context) {
+    public List<CompletionItem> getCompletions(LSContext context) {
         List<SymbolInfo> endpointSymbols = (context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BEndpointVarSymbol)
                 .collect(Collectors.toList());

@@ -39,10 +39,14 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.SESSION_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.SESSION_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         isPublic = true
 )
 public class Close implements NativeCallableUnit {
@@ -53,7 +57,9 @@ public class Close implements NativeCallableUnit {
             @SuppressWarnings(ArtemisConstants.UNCHECKED)
             BMap<String, BValue> sessionObj = (BMap<String, BValue>) context.getRefArgument(0);
             ClientSession session = (ClientSession) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_SESSION);
-            session.close();
+            if (!session.isClosed()) {
+                session.close();
+            }
         } catch (ActiveMQException e) {
             context.setReturnValues(ArtemisUtils.getError(context, "Error when closing the Session"));
         }

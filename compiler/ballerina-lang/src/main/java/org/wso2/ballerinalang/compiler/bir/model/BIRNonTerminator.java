@@ -621,4 +621,62 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             visitor.visit(this);
         }
     }
+
+    /**
+     * The new stream instruction.
+     * <p>
+     * e.g. {@code stream<Employee> employeeStream = new;}
+     *
+     * @since 0.995.0
+     */
+    public static class NewStream extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand nameOp;
+        public BType type;
+
+        public NewStream(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand nameOp) {
+            super(pos, InstructionKind.NEW_STREAM);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.nameOp = nameOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A ternary operator instruction
+     * <p>
+     * e.g., a == null ? b : c
+     *
+     * @since 0.995.0
+     */
+    public static class TernaryOp extends BIRNonTerminator implements BIRAssignInstruction {
+        public BIROperand lhsOp;
+        public BIROperand conditionOp;
+        public BIROperand thenOp;
+        public BIROperand elseOp;
+
+        public TernaryOp(DiagnosticPos pos, BIROperand lhsOp, BIROperand conditionOp, BIROperand thenOp,
+                BIROperand elseOp) {
+            super(pos, InstructionKind.TERNARY);
+            this.lhsOp = lhsOp;
+            this.conditionOp = conditionOp;
+            this.thenOp = thenOp;
+            this.elseOp = elseOp;
+        }
+
+        @Override
+        public BIROperand getLhsOperand() {
+            return lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

@@ -19,7 +19,7 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 
@@ -305,7 +305,7 @@ public class JSONGenerator {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
                 this.startObject();
-                for (Entry<String, RefValue> entry : ((MapValue<String, RefValue>) json).entrySet()) {
+                for (Entry<String, RefValue> entry : ((MapValueImpl<String, RefValue>) json).entrySet()) {
                     this.writeFieldName(entry.getKey());
                     serialize(entry.getValue());
                 }
