@@ -32,61 +32,65 @@ public type FollowedByProcessor object {
         self.rhsProcessor = ();
         self.partialStates = {};
         self.stateMachine = ();
+        self.lockField = 0;
     }
 
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         io:println("FollowedByProcessor:process:38 -> ", event, "|", processorAlias);
-        boolean promoted = false;
-        boolean promote = false;
-        boolean tmpPromote = false;
-        boolean toNext = false;
-        boolean tmpToNext = false;
-        // leftward traversal
-        AbstractPatternProcessor? lProcessor = self.lhsProcessor;
-        if (lProcessor is AbstractPatternProcessor) {
-            io:println("FollowedByProcessor:process:47 -> ", event, "|", processorAlias);
-            (tmpPromote, tmpToNext) = lProcessor.process(event, self.lhsAlias);
-            promote = promote || tmpPromote;
-            toNext = toNext || tmpToNext;
-            io:println("FollowedByProcessor:process:51 -> ", event, "|", processorAlias);
-        }
-        // rightward traversal
-        if ((!promote || toNext) && self.partialStates.length() > 0) {
-            toNext = false;
-            AbstractPatternProcessor? rProcessor = self.rhsProcessor;
-            if (rProcessor is AbstractPatternProcessor) {
-                // foreach partial state, copy event data and process in rhsProcessor.
-                foreach var (id, partialEvt) in self.partialStates {
-                    StreamEvent clone = partialEvt.copy();
-                    clone.addData(event.cloneData());
-                    // at the leaf nodes (operand processor), it'll take current events'
-                    // stream name into consideration. Therefore, we have to set that.
-                    clone.streamName = event.streamName;
-                    io:println("FollowedByProcessor:process:65 -> ", clone, "|", processorAlias);
-                    (tmpPromote, tmpToNext) = rProcessor.process(clone, self.rhsAlias);
-                    promote = promote || tmpPromote;
-                    toNext = toNext || tmpToNext;
-                    io:println("FollowedByProcessor:process:69 -> ", clone, "|", processorAlias);
+        lock {
+            self.lockField += 1;
+            boolean promoted = false;
+            boolean promote = false;
+            boolean tmpPromote = false;
+            boolean toNext = false;
+            boolean tmpToNext = false;
+            // leftward traversal
+            AbstractPatternProcessor? lProcessor = self.lhsProcessor;
+            if (lProcessor is AbstractPatternProcessor) {
+                io:println("FollowedByProcessor:process:47 -> ", event, "|", processorAlias);
+                (tmpPromote, tmpToNext) = lProcessor.process(event, self.lhsAlias);
+                promote = promote || tmpPromote;
+                toNext = toNext || tmpToNext;
+                io:println("FollowedByProcessor:process:51 -> ", event, "|", processorAlias);
+            }
+            // rightward traversal
+            if ((!promote || toNext) && self.partialStates.length() > 0) {
+                toNext = false;
+                AbstractPatternProcessor? rProcessor = self.rhsProcessor;
+                if (rProcessor is AbstractPatternProcessor) {
+                    // foreach partial state, copy event data and process in rhsProcessor.
+                    foreach var (id, partialEvt) in self.partialStates {
+                        StreamEvent clone = partialEvt.copy();
+                        clone.addData(event.cloneData());
+                        // at the leaf nodes (operand processor), it'll take current events'
+                        // stream name into consideration. Therefore, we have to set that.
+                        clone.streamName = event.streamName;
+                        io:println("FollowedByProcessor:process:65 -> ", clone, "|", processorAlias);
+                        (tmpPromote, tmpToNext) = rProcessor.process(clone, self.rhsAlias);
+                        promote = promote || tmpPromote;
+                        toNext = toNext || tmpToNext;
+                        io:println("FollowedByProcessor:process:69 -> ", clone, "|", processorAlias);
+                    }
                 }
             }
-        }
-        // upward traversal / promote
-        if (promote) {
-            AbstractOperatorProcessor? pProcessor = self.prevProcessor;
-            if (pProcessor is AbstractOperatorProcessor) {
-                self.stateEvents.resetToFront();
-                while (self.stateEvents.hasNext()) {
-                    StreamEvent s = getStreamEvent(self.stateEvents.next());
-                    self.stateEvents.removeCurrent();
-                    io:println("FollowedByProcessor:process:81 -> ", s, "|", processorAlias);
-                    pProcessor.promote(s, processorAlias);
-                    io:println("FollowedByProcessor:process:83 -> ", s, "|", processorAlias);
-                    promoted = true;
+            // upward traversal / promote
+            if (promote) {
+                AbstractOperatorProcessor? pProcessor = self.prevProcessor;
+                if (pProcessor is AbstractOperatorProcessor) {
+                    self.stateEvents.resetToFront();
+                    while (self.stateEvents.hasNext()) {
+                        StreamEvent s = getStreamEvent(self.stateEvents.next());
+                        self.stateEvents.removeCurrent();
+                        io:println("FollowedByProcessor:process:81 -> ", s, "|", processorAlias);
+                        pProcessor.promote(s, processorAlias);
+                        io:println("FollowedByProcessor:process:83 -> ", s, "|", processorAlias);
+                        promoted = true;
+                    }
                 }
             }
+            io:println("FollowedByProcessor:process:88 -> ", event, "|", processorAlias);
+            return (promoted, toNext);
         }
-        io:println("FollowedByProcessor:process:88 -> ", event, "|", processorAlias);
-        return (promoted, toNext);
     }
 
     public function setStateMachine(StateMachine stateMachine) {

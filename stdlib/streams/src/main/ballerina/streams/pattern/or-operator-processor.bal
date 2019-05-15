@@ -34,43 +34,47 @@ public type OrOperatorProcessor object {
         self.stateMachine = ();
         self.lhsEvicted = {};
         self.rhsEvicted = {};
+        self.lockField = 0;
     }
 
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         io:println("OrOperatorProcessor:process:36 -> ", event, "|", processorAlias);
-        boolean promote = false;
-        boolean promoted = false;
-        boolean toNext = false;
-        // leftward traversal
-        AbstractPatternProcessor? lProcessor = self.lhsProcessor;
-        if (lProcessor is AbstractPatternProcessor) {
-            io:println("OrOperatorProcessor:process:43 -> ", event, "|", processorAlias);
-            (promote, toNext) = lProcessor.process(event, self.lhsAlias);
-            io:println("OrOperatorProcessor:process:45 -> ", event, "|", processorAlias);
-        }
-        // rightward traversal
-        AbstractPatternProcessor? rProcessor = self.rhsProcessor;
-        if ((!promote || toNext) && rProcessor is AbstractPatternProcessor) {
-            io:println("OrOperatorProcessor:process:50 -> ", event, "|", processorAlias);
-            (promote, toNext) = rProcessor.process(event, self.rhsAlias);
-            io:println("OrOperatorProcessor:process:52 -> ", event, "|", processorAlias);
-        }
-        // upward traversal / promote
-        if (promote) {
-            AbstractOperatorProcessor? pProcessor = self.prevProcessor;
-            if (pProcessor is AbstractOperatorProcessor) {
-                self.stateEvents.resetToFront();
-                while (self.stateEvents.hasNext()) {
-                    StreamEvent s = getStreamEvent(self.stateEvents.next());
-                    self.stateEvents.removeCurrent();
-                    io:println("OrOperatorProcessor:process:62 -> ", s, "|", processorAlias);
-                    pProcessor.promote(s, processorAlias);
-                    io:println("OrOperatorProcessor:process:64 -> ", s, "|", processorAlias);
-                    promoted = true;
+        lock {
+            self.lockField += 1;
+            boolean promote = false;
+            boolean promoted = false;
+            boolean toNext = false;
+            // leftward traversal
+            AbstractPatternProcessor? lProcessor = self.lhsProcessor;
+            if (lProcessor is AbstractPatternProcessor) {
+                io:println("OrOperatorProcessor:process:43 -> ", event, "|", processorAlias);
+                (promote, toNext) = lProcessor.process(event, self.lhsAlias);
+                io:println("OrOperatorProcessor:process:45 -> ", event, "|", processorAlias);
+            }
+            // rightward traversal
+            AbstractPatternProcessor? rProcessor = self.rhsProcessor;
+            if ((!promote || toNext) && rProcessor is AbstractPatternProcessor) {
+                io:println("OrOperatorProcessor:process:50 -> ", event, "|", processorAlias);
+                (promote, toNext) = rProcessor.process(event, self.rhsAlias);
+                io:println("OrOperatorProcessor:process:52 -> ", event, "|", processorAlias);
+            }
+            // upward traversal / promote
+            if (promote) {
+                AbstractOperatorProcessor? pProcessor = self.prevProcessor;
+                if (pProcessor is AbstractOperatorProcessor) {
+                    self.stateEvents.resetToFront();
+                    while (self.stateEvents.hasNext()) {
+                        StreamEvent s = getStreamEvent(self.stateEvents.next());
+                        self.stateEvents.removeCurrent();
+                        io:println("OrOperatorProcessor:process:62 -> ", s, "|", processorAlias);
+                        pProcessor.promote(s, processorAlias);
+                        io:println("OrOperatorProcessor:process:64 -> ", s, "|", processorAlias);
+                        promoted = true;
+                    }
                 }
             }
+            return (promoted, toNext);
         }
-        return (promoted, toNext);
     }
 
     public function setStateMachine(StateMachine stateMachine) {

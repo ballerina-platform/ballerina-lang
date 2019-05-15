@@ -26,32 +26,35 @@ public type OperandProcessor object {
         self.alias = alias;
         self.onConditionFunc = onConditionFunc;
         self.stateMachine = ();
+        self.lockField = 0;
     }
 
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
-        boolean promote = false;
-        boolean promoted = false;
-        string streamName = event.getStreamName();
-
-        if (streamName == self.alias) {
-            (function (map<anydata> stateData) returns boolean)? condition = self.onConditionFunc;
-            if (condition is function (map<anydata> stateData) returns boolean) {
-                if (condition.call(event.data)) {
+        lock {
+            self.lockField += 1;
+            boolean promote = false;
+            boolean promoted = false;
+            string streamName = event.getStreamName();
+            if (streamName == self.alias) {
+                (function (map<anydata> stateData) returns boolean)? condition = self.onConditionFunc;
+                if (condition is function (map<anydata> stateData) returns boolean) {
+                    if (condition.call(event.data)) {
+                        promote = true;
+                    }
+                } else {
+                    // if the condition is not provided.
                     promote = true;
                 }
-            } else {
-                // if the condition is not provided.
-                promote = true;
-            }
-            if (promote) {
-                AbstractOperatorProcessor? pProcessor = self.prevProcessor;
-                if (pProcessor is AbstractOperatorProcessor) {
-                    pProcessor.promote(event, processorAlias);
-                    promoted = true;
+                if (promote) {
+                    AbstractOperatorProcessor? pProcessor = self.prevProcessor;
+                    if (pProcessor is AbstractOperatorProcessor) {
+                        pProcessor.promote(event, processorAlias);
+                        promoted = true;
+                    }
                 }
             }
+            return (promoted, false);
         }
-        return (promoted, false);
     }
 
     public function setStateMachine(StateMachine stateMachine) {

@@ -32,60 +32,64 @@ public type CompoundPatternProcessor object {
         self.fulfilledEvents = [];
         self.withinTimeMillis = withinTimeMillis;
         self.stateMachine = ();
+        self.lockField = 0;
     }
 
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         io:println("CompoundPatternProcessor:process:38 -> ", event, "|", processorAlias);
-        boolean promote = false;
-        boolean promoted = false;
-        boolean toNext = false;
-        // downward traversal
-        AbstractPatternProcessor? processor = self.processor;
-        if (processor is AbstractPatternProcessor) {
-            // processorAlias is not required when get promoted by
-            // its only imidiate descendent. Therefore passing ().
-            io:println("CompoundPatternProcessor:process:47 -> ", event, "|", processorAlias);
-            (promote, toNext) = processor.process(event, ());
-            io:println("CompoundPatternProcessor:process:49 -> ", event, "|", processorAlias);
-        }
-        // upward traversal
-        if (promote) {
-            int currentTime = time:currentTime().time;
-            int? withinTime = self.withinTimeMillis;
-            AbstractOperatorProcessor? pProcessor = self.prevProcessor;
-            if (pProcessor is AbstractOperatorProcessor) {
-                self.stateEvents.resetToFront();
-                while (self.stateEvents.hasNext()) {
-                    StreamEvent s = getStreamEvent(self.stateEvents.next());
-                    self.stateEvents.removeCurrent();
-                    if (withinTime is int && (currentTime - s.timestamp) > withinTime) {
-                        // state haven't fulfilled in within time, therefore evict.
-                        io:println("CompoundPatternProcessor:process:63 -> ", s, "|", processorAlias);
-                        pProcessor.evict(s, processorAlias);
-                    } else {
-                        io:println("CompoundPatternProcessor:process:66 -> ", s, "|", processorAlias);
-                        pProcessor.promote(s, processorAlias);
-                        io:println("CompoundPatternProcessor:process:68 -> ", s, "|", processorAlias);
-                        promoted = true;
+        lock {
+            self.lockField += 1;
+            boolean promote = false;
+            boolean promoted = false;
+            boolean toNext = false;
+            // downward traversal
+            AbstractPatternProcessor? processor = self.processor;
+            if (processor is AbstractPatternProcessor) {
+                // processorAlias is not required when get promoted by
+                // its only imidiate descendent. Therefore passing ().
+                io:println("CompoundPatternProcessor:process:47 -> ", event, "|", processorAlias);
+                (promote, toNext) = processor.process(event, ());
+                io:println("CompoundPatternProcessor:process:49 -> ", event, "|", processorAlias);
+            }
+            // upward traversal
+            if (promote) {
+                int currentTime = time:currentTime().time;
+                int? withinTime = self.withinTimeMillis;
+                AbstractOperatorProcessor? pProcessor = self.prevProcessor;
+                if (pProcessor is AbstractOperatorProcessor) {
+                    self.stateEvents.resetToFront();
+                    while (self.stateEvents.hasNext()) {
+                        StreamEvent s = getStreamEvent(self.stateEvents.next());
+                        self.stateEvents.removeCurrent();
+                        if (withinTime is int && (currentTime - s.timestamp) > withinTime) {
+                            // state haven't fulfilled in within time, therefore evict.
+                            io:println("CompoundPatternProcessor:process:63 -> ", s, "|", processorAlias);
+                            pProcessor.evict(s, processorAlias);
+                        } else {
+                            io:println("CompoundPatternProcessor:process:66 -> ", s, "|", processorAlias);
+                            pProcessor.promote(s, processorAlias);
+                            io:println("CompoundPatternProcessor:process:68 -> ", s, "|", processorAlias);
+                            promoted = true;
+                        }
                     }
-                }
-            } else {
-                // pProcessor is (). Meaning, this is the root of the
-                // pattern topology. So, emit events at the end of traversal.
-                self.stateEvents.resetToFront();
-                while (self.stateEvents.hasNext()) {
-                    StreamEvent s = getStreamEvent(self.stateEvents.next());
-                    self.stateEvents.removeCurrent();
-                    if (!(withinTime is int && (currentTime - s.timestamp) > withinTime)) {
-                        io:println("CompoundPatternProcessor:process:80 -> ", s, "|", processorAlias);
-                        self.emit(s);
-                        promoted = true;
+                } else {
+                    // pProcessor is (). Meaning, this is the root of the
+                    // pattern topology. So, emit events at the end of traversal.
+                    self.stateEvents.resetToFront();
+                    while (self.stateEvents.hasNext()) {
+                        StreamEvent s = getStreamEvent(self.stateEvents.next());
+                        self.stateEvents.removeCurrent();
+                        if (!(withinTime is int && (currentTime - s.timestamp) > withinTime)) {
+                            io:println("CompoundPatternProcessor:process:80 -> ", s, "|", processorAlias);
+                            self.emit(s);
+                            promoted = true;
+                        }
                     }
                 }
             }
+            io:println("CompoundPatternProcessor:process:87 -> ", event, "|", processorAlias);
+            return (promoted, toNext);
         }
-        io:println("CompoundPatternProcessor:process:87 -> ", event, "|", processorAlias);
-        return (promoted, toNext);
     }
 
     public function setStateMachine(StateMachine stateMachine) {

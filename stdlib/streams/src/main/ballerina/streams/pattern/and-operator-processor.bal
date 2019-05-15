@@ -34,84 +34,88 @@ public type AndOperatorProcessor object {
         self.lhsPartialStates = {};
         self.rhsPartialStates = {};
         self.stateMachine = ();
+        self.lockField = 0;
     }
 
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         io:println("AndOperatorProcessor:process:40 -> ", event, "|", processorAlias);
-        boolean promoted = false;
-        boolean promote = false;
-        boolean tmpPromote = false;
-        boolean toNext = false;
-        boolean tmpToNext = false;
-        // leftward traversal
-        AbstractPatternProcessor? lProcessor = self.lhsProcessor;
-        if (lProcessor is AbstractPatternProcessor) {
-            if (self.rhsPartialStates.length() > 0) {
-                // foreach rhs partial state, copy event data and process in lhsProcessor.
-                foreach var (id, partialEvt) in self.rhsPartialStates {
-                    StreamEvent clone = partialEvt.copy();
-                    clone.addData(event.cloneData());
-                    // at the leaf nodes (operand processor), it'll take current events'
-                    // stream name into consideration. Therefore, we have to set that.
-                    clone.streamName = event.streamName;
-                    io:println("AndOperatorProcessor:process:57 -> ", clone, "|", processorAlias);
-                    (tmpPromote, tmpToNext) = lProcessor.process(clone, self.lhsAlias);
-                    promote = promote || tmpPromote;
-                    toNext = toNext || tmpToNext;
-                    io:println("AndOperatorProcessor:process:61 -> ", clone, "|", processorAlias);
-                }
-            } else {
-                io:println("AndOperatorProcessor:process:64 -> ", event, "|", processorAlias);
-                (tmpPromote, tmpToNext) = lProcessor.process(event, self.lhsAlias);
-                promote = promote || tmpPromote;
-                toNext = toNext || tmpToNext;
-                io:println("AndOperatorProcessor:process:68 -> ", event, "|", processorAlias);
-            }
-        }
-        // if not already promoted or toNext, then do rightward traversal.
-        if (!promote || toNext) {
-            toNext = false;
-            AbstractPatternProcessor? rProcessor = self.rhsProcessor;
-            if (rProcessor is AbstractPatternProcessor) {
-                if (self.lhsPartialStates.length() > 0) {
-                    // foreach lhs partial state, copy event data and process in rhsProcessor.
-                    foreach var (id, partialEvt) in self.lhsPartialStates {
+        lock {
+            self.lockField += 1;
+            boolean promoted = false;
+            boolean promote = false;
+            boolean tmpPromote = false;
+            boolean toNext = false;
+            boolean tmpToNext = false;
+            // leftward traversal
+            AbstractPatternProcessor? lProcessor = self.lhsProcessor;
+            if (lProcessor is AbstractPatternProcessor) {
+                if (self.rhsPartialStates.length() > 0) {
+                    // foreach rhs partial state, copy event data and process in lhsProcessor.
+                    foreach var (id, partialEvt) in self.rhsPartialStates {
                         StreamEvent clone = partialEvt.copy();
                         clone.addData(event.cloneData());
                         // at the leaf nodes (operand processor), it'll take current events'
                         // stream name into consideration. Therefore, we have to set that.
                         clone.streamName = event.streamName;
-                        io:println("AndOperatorProcessor:process:84 -> ", clone, "|", processorAlias);
-                        (tmpPromote, tmpToNext) = rProcessor.process(clone, self.rhsAlias);
+                        io:println("AndOperatorProcessor:process:57 -> ", clone, "|", processorAlias);
+                        (tmpPromote, tmpToNext) = lProcessor.process(clone, self.lhsAlias);
                         promote = promote || tmpPromote;
                         toNext = toNext || tmpToNext;
-                        io:println("AndOperatorProcessor:process:88 -> ", clone, "|", processorAlias);
+                        io:println("AndOperatorProcessor:process:61 -> ", clone, "|", processorAlias);
                     }
                 } else {
-                    io:println("AndOperatorProcessor:process:91 -> ", event, "|", processorAlias);
-                    (tmpPromote, tmpToNext) = rProcessor.process(event, self.rhsAlias);
+                    io:println("AndOperatorProcessor:process:64 -> ", event, "|", processorAlias);
+                    (tmpPromote, tmpToNext) = lProcessor.process(event, self.lhsAlias);
                     promote = promote || tmpPromote;
                     toNext = toNext || tmpToNext;
-                    io:println("AndOperatorProcessor:process:95 -> ", event, "|", processorAlias);
+                    io:println("AndOperatorProcessor:process:68 -> ", event, "|", processorAlias);
                 }
             }
-        }
-        // upward traversal / promote
-        if (promote) {
-            AbstractOperatorProcessor? pProcessor = self.prevProcessor;
-            if (pProcessor is AbstractOperatorProcessor) {
-                self.stateEvents.resetToFront();
-                while (self.stateEvents.hasNext()) {
-                    StreamEvent s = getStreamEvent(self.stateEvents.next());
-                    self.stateEvents.removeCurrent();
-                    io:println("AndOperatorProcessor:process:107 -> ", s, "|", processorAlias);
-                    pProcessor.promote(s, processorAlias);
-                    io:println("AndOperatorProcessor:process:109 -> ", s, "|", processorAlias);
-                    promoted = true;
+            // if not already promoted or toNext, then do rightward traversal.
+            if (!promote || toNext) {
+                toNext = false;
+                AbstractPatternProcessor? rProcessor = self.rhsProcessor;
+                if (rProcessor is AbstractPatternProcessor) {
+                    if (self.lhsPartialStates.length() > 0) {
+                        // foreach lhs partial state, copy event data and process in rhsProcessor.
+                        foreach var (id, partialEvt) in self.lhsPartialStates {
+                            StreamEvent clone = partialEvt.copy();
+                            clone.addData(event.cloneData());
+                            // at the leaf nodes (operand processor), it'll take current events'
+                            // stream name into consideration. Therefore, we have to set that.
+                            clone.streamName = event.streamName;
+                            io:println("AndOperatorProcessor:process:84 -> ", clone, "|", processorAlias);
+                            (tmpPromote, tmpToNext) = rProcessor.process(clone, self.rhsAlias);
+                            promote = promote || tmpPromote;
+                            toNext = toNext || tmpToNext;
+                            io:println("AndOperatorProcessor:process:88 -> ", clone, "|", processorAlias);
+                        }
+                    } else {
+                        io:println("AndOperatorProcessor:process:91 -> ", event, "|", processorAlias);
+                        (tmpPromote, tmpToNext) = rProcessor.process(event, self.rhsAlias);
+                        promote = promote || tmpPromote;
+                        toNext = toNext || tmpToNext;
+                        io:println("AndOperatorProcessor:process:95 -> ", event, "|", processorAlias);
+                    }
                 }
             }
+            // upward traversal / promote
+            if (promote) {
+                AbstractOperatorProcessor? pProcessor = self.prevProcessor;
+                if (pProcessor is AbstractOperatorProcessor) {
+                    self.stateEvents.resetToFront();
+                    while (self.stateEvents.hasNext()) {
+                        StreamEvent s = getStreamEvent(self.stateEvents.next());
+                        self.stateEvents.removeCurrent();
+                        io:println("AndOperatorProcessor:process:107 -> ", s, "|", processorAlias);
+                        pProcessor.promote(s, processorAlias);
+                        io:println("AndOperatorProcessor:process:109 -> ", s, "|", processorAlias);
+                        promoted = true;
+                    }
+                }
+            }
+            return (promoted, toNext);
         }
-        return (promoted, toNext);
     }
 
     public function setStateMachine(StateMachine stateMachine) {

@@ -17,6 +17,7 @@
 public type AbstractPatternProcessor abstract object {
     public AbstractOperatorProcessor? prevProcessor;
     public StateMachine? stateMachine;
+    public int lockField;
     // processorAlias for the calling processor, for identification purposes (lhs, rhs)
     // (boolean indicating whether the event is promoted,
     // boolean indicating whether to continue to the next processor.
