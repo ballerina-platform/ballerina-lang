@@ -56,8 +56,10 @@ public class Close extends BlockingNativeCallableUnit {
         BMap<String, BValue> channelBObject = (BMap<String, BValue>) context.getRefArgument(0);
         Channel channel = RabbitMQUtils.getNativeObject(channelBObject,
                 RabbitMQConstants.CHANNEL_NATIVE_OBJECT, Channel.class, context);
+        BValue closeCode = context.getNullableRefArgument(1);
+        BValue closeMessage = context.getNullableRefArgument(2);
         try {
-            ChannelUtils.close(channel, context);
+            ChannelUtils.handleCloseChannel(channel, closeCode, closeMessage, context);
             channelBObject.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, null);
         } catch (BallerinaException exception) {
             LOGGER.error("I/O exception while closing the channel", exception);
