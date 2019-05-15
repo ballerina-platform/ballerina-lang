@@ -23,7 +23,9 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Root class of Ballerina intermediate representation-BIR.
@@ -53,6 +55,7 @@ public abstract class BIRNode {
         public List<BIRTypeDefinition> typeDefs;
         public List<BIRGlobalVariableDcl> globalVars;
         public List<BIRFunction> functions;
+        public List<BIRAnnotation> annotations;
 
         public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version,
                           Name sourceFileName) {
@@ -65,11 +68,16 @@ public abstract class BIRNode {
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();
             this.functions = new ArrayList<>();
+            this.annotations = new ArrayList<>();
         }
 
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+        
+        public Name getSourceFileName() {
+            return sourceFileName;
         }
     }
 
@@ -140,7 +148,7 @@ public abstract class BIRNode {
 
         @Override
         public void accept(BIRVisitor visitor) {
-//            visitor.visit(this);
+            visitor.visit(this);
         }
     }
 
@@ -216,6 +224,11 @@ public abstract class BIRNode {
         public List<BIRParameter> defaultParams;
 
         /**
+         * Type of the receiver. This is an optional field.
+         */
+        public BType receiverType;
+
+        /**
          * Rest parameter.
          */
         public BIRParameter restParam;
@@ -254,8 +267,13 @@ public abstract class BIRNode {
          */
         public ChannelDetails[] workerChannels;
 
-        public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type, Name workerName,
-                           int sendInsCount) {
+        /**
+         * Taint table for the function.
+         */
+        public TaintTable taintTable;
+
+        public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type, BType receiverType,
+                           Name workerName, int sendInsCount, TaintTable taintTable) {
             super(pos);
             this.name = name;
             this.visibility = visibility;
@@ -263,10 +281,12 @@ public abstract class BIRNode {
             this.localVars = new ArrayList<>();
             this.requiredParams = new ArrayList<>();
             this.defaultParams = new ArrayList<>();
+            this.receiverType = receiverType;
             this.basicBlocks = new ArrayList<>();
             this.errorTable = new ArrayList<>();
             this.workerName = workerName;
             this.workerChannels = new ChannelDetails[sendInsCount];
+            this.taintTable = taintTable;
         }
 
         @Override
@@ -386,6 +406,66 @@ public abstract class BIRNode {
         @Override
         public String toString() {
             return name;
+        }
+    }
+
+    /**
+     * Annotation definition node in BIR.
+     *
+     * @since 0.995.0
+     */
+    public static class BIRAnnotation extends BIRNode {
+        /**
+         * Name of the annotation definition.
+         */
+        public Name name;
+
+        /**
+         * Visibility of this annotation.
+         * 0 - package_private
+         * 1 - private
+         * 2 - public
+         */
+        public Visibility visibility;
+
+        /**
+         * Attach points, this is needed only in compiled symbol enter as it is.
+         */
+        public int attachPoints;
+
+        /**
+         * Type of the annotation body.
+         */
+        public BType annotationType;
+
+        public BIRAnnotation(DiagnosticPos pos, Name name, Visibility visibility,
+                             int attachPoints, BType annotationType) {
+            super(pos);
+            this.name = name;
+            this.visibility = visibility;
+            this.attachPoints = attachPoints;
+            this.annotationType = annotationType;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+    }
+
+    /**
+     * Taint table of the function.
+     *
+     * @since 0.995.0
+     */
+    public static class TaintTable {
+        public int columnCount;
+        public int rowCount;
+        public Map<Integer, List<Byte>> taintTable;
+
+        public TaintTable() {
+            this.taintTable = new LinkedHashMap<>();
         }
     }
 }

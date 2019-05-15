@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.providers.subproviders;
 
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -27,9 +28,9 @@ import java.util.List;
 /**
  * Completion item provider for BLangResource context.
  */
-public class ResourceCompletionProvider extends AbstractSubCompletionProvider {
+public class ResourceCompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext context) {
+    public List<CompletionItem> getCompletions(LSContext context) {
         List<CompletionItem> completionItems = new ArrayList<>();
         completionItems.add(Snippet.DEF_WORKER.get().build(context));
         return completionItems;

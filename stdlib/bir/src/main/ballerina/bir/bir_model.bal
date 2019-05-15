@@ -51,6 +51,7 @@ public type Function record {|
     BInvokableType typeValue = {};
     Visibility visibility = "PACKAGE_PRIVATE";
     ChannelDetail[] workerChannels;
+    BType? receiverType;
 |};
 
 public type BasicBlock record {|
@@ -87,9 +88,11 @@ public const BINARY_LESS_THAN = "LESS_THAN";
 public const BINARY_LESS_EQUAL = "LESS_EQUAL";
 public const BINARY_AND = "AND";
 public const BINARY_OR = "OR";
+public const BINARY_REF_EQUAL = "REF_EQUAL";
+public const BINARY_REF_NOT_EQUAL = "REF_NOT_EQUAL";
 
 public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|BINARY_MOD
-                                        |BINARY_EQUAL|BINARY_NOT_EQUAL
+                                        |BINARY_EQUAL|BINARY_NOT_EQUAL|BINARY_REF_EQUAL|BINARY_REF_NOT_EQUAL
                                         |BINARY_GREATER_THAN|BINARY_GREATER_EQUAL|BINARY_LESS_THAN|BINARY_LESS_EQUAL
                                         |BINARY_AND|BINARY_OR;
 
@@ -126,6 +129,7 @@ public const INS_KIND_NEW_STREAM = "NEW_STREAM";
 public const INS_KIND_TYPEOF = "TYPEOF";
 public const INS_KIND_NOT = "NOT";
 public const INS_KIND_NEW_TYPEDESC = "NEW_TYPEDESC";
+public const INS_KIND_TERNARY = "TERNARY";
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
                                 INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
@@ -136,7 +140,7 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
                                 INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
                                 INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_NEW_TABLE | INS_KIND_TYPEOF |
-                                INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM;
+                                INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM | INS_KIND_TERNARY ;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -271,6 +275,7 @@ public type BRecordType record {|
     boolean sealed;
     BType restFieldType;
     BRecordField?[] fields = [];
+    BAttachedFunction initFunction;
 |};
 
 public type BObjectType record {|
@@ -489,7 +494,7 @@ public type Wait record {|
     VarRef?[] exprList;
 |};
 
-public type WrkReceive record {|
+public type WorkerReceive record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     VarRef lhsOp;
@@ -498,12 +503,14 @@ public type WrkReceive record {|
     BasicBlock thenBB;
 |};
 
-public type WrkSend record {|
+public type WorkerSend record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     VarRef dataOp;
     Name channelName;
     boolean isSameStrand;
+    VarRef? lhsOp;
+    boolean isSync;
     BasicBlock thenBB;
 |};
 
@@ -630,4 +637,13 @@ public type NewTypeDesc record {|
     InstructionKind kind;
     VarRef lhsOp;
     BType typeValue;
+|};
+
+public type Ternary record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef conditionOp;
+    VarRef thenOp;
+    VarRef elseOp;
 |};

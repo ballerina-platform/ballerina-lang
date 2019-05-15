@@ -88,6 +88,16 @@
             <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
             <class name="org.ballerinalang.test.expressions.binaryoperations.BinaryExprTest" />
             <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
+            <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest">
+                <methods>
+                    <exclude name="testInMapLiteral" />
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.MultiplyOperationTest"/>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.OperatorPrecedenceTest"/>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.RefEqualAndNotEqualOperationsTest"/>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.SubtractOperationTest"/>
         </classes>
     </test>
 </suite>

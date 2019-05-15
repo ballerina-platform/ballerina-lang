@@ -68,6 +68,7 @@ public enum InstructionKind {
     NEW_TABLE((byte) 50),
     NEW_TYPEDESC((byte) 51),
     NEW_STREAM((byte) 52),
+    TERNARY((byte) 53),
 
     // Binary expression related instructions.
     ADD((byte) 61),
@@ -83,6 +84,8 @@ public enum InstructionKind {
     LESS_EQUAL((byte) 71),
     AND((byte) 72),
     OR((byte) 73),
+    REF_EQUAL((byte) 74),
+    REF_NOT_EQUAL((byte) 75),
 
     // Unary expression related instructions.
     TYPEOF((byte) 80),

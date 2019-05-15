@@ -278,6 +278,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                 }
             } else if (inst is bir:NewXMLPI) {
                 instGen.generateNewXMLProcIns(inst);
+            }  else if (inst is bir:Ternary) {
+                instGen.generateTernaryIns(inst);
             } else {
                 error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
@@ -316,10 +318,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             termGen.generateWaitIns(terminator, funcName);
         } else if (terminator is bir:FPCall) {
             termGen.genFPCallIns(terminator, funcName);
-        } else if (terminator is bir:WrkSend) {
-            termGen.genWrkSendIns(terminator, funcName);
-        } else if (terminator is bir:WrkReceive) {
-            termGen.genWrkReceiveIns(terminator, funcName);
+        } else if (terminator is bir:WorkerSend) {
+            termGen.genWorkerSendIns(terminator, funcName);
+        } else if (terminator is bir:WorkerReceive) {
+            termGen.genWorkerReceiveIns(terminator, funcName);
         } else {
             error err = error( "JVM generation is not supported for terminator instruction " +
                                         io:sprintf("%s", terminator));
@@ -552,7 +554,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitInsn(AASTORE);
 
     termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
-    mv.visitMaxs(0, 0);
+    mv.visitMaxs(200, 400);
     mv.visitEnd();
 }
 
@@ -694,8 +696,13 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
     }
 }
 
-function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType) returns string {
+function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, bir:BType? attachedType = ()) returns string {
     string desc = "(Lorg/ballerinalang/jvm/Strand;";
+
+    if (attachedType is bir:BType) {
+        desc = desc + getArgTypeSignature(attachedType);
+    }
+
     int i = 0;
     while (i < paramTypes.length()) {
         bir:BType paramType = getType(paramTypes[i]);
@@ -749,8 +756,7 @@ function getArgTypeSignature(bir:BType bType) returns string {
                 bType is bir:BFiniteType ||
                 bType is bir:BTypeAny) {
         return io:sprintf("L%s;", OBJECT);
-    } else if (bType is bir:BMapType ||
-                bType is bir:BRecordType) {
+    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
         return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BFutureType) {
         return io:sprintf("L%s;", FUTURE_VALUE);
@@ -860,7 +866,8 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
-    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "()V", false);
+    mv.visitInsn(ICONST_4);
+    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(I)V", false);
 
     if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
@@ -921,7 +928,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     // start the scheduler
     mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
-    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "execute", "()V", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "start", "()V", false);
 
     // At this point we are done executing all the functions including asyncs
     if (!isVoidFunction) {
@@ -1184,6 +1191,8 @@ function getFrameClassName(string pkgName, string funcName, bir:BType? attachedT
     string frameClassName = pkgName;
     if (attachedType is bir:BObjectType) {
         frameClassName += cleanupTypeName(attachedType.name.value) + "_";
+    } else if (attachedType is bir:BRecordType) {
+        frameClassName += cleanupTypeName(attachedType.name.value) + "_";
     }
 
     return frameClassName + cleanupFunctionName(funcName) + "Frame";
@@ -1194,7 +1203,7 @@ function cleanupTypeName(string name) returns string {
     return name.replace("$","_");
 }
 
-function cleanupFileName(string name) returns string {
+function cleanupBalExt(string name) returns string {
     return name.replace(BAL_EXTENSION, "");
 }
 

@@ -56,10 +56,11 @@ public const int INS_XML_LOAD = 46;
 public const int INS_XML_LOAD_ALL = 47;
 public const int INS_XML_ATTRIBUTE_LOAD = 48;
 public const int INS_XML_ATTRIBUTE_STORE = 49;
+
 public const int INS_NEW_TABLE = 50;
 public const int INS_NEW_TYPEDESC = 51;
 public const int INS_NEW_STREAM = 52;
-
+public const int INS_TERNARY = 53;
 
 // Binary expression related instructions.
 public const int INS_ADD = 61;
@@ -75,6 +76,8 @@ public const int INS_LESS_THAN = 70;
 public const int INS_LESS_EQUAL = 71;
 public const int INS_AND = 72;
 public const int INS_OR = 73;
+public const int INS_REF_EQUAL = 74;
+public const int INS_REF_NOT_EQUAL = 75;
 
 // Unary expression related instructions.
 public const int INS_TYPEOF = 80;
