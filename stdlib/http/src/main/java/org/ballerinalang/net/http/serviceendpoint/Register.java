@@ -24,21 +24,20 @@ import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
-import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketServerConnectorListener;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 
@@ -61,30 +60,26 @@ public class Register extends AbstractHttpNativeFunction {
 
     @Override
     public void execute(Context context) {
-//        Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-//        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-//
-//        HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
-//        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
-//
-//        ParamDetail param;
-//        if (service.getResources().length > 0 && (param = service.getResources()[0].getParamTypes().get(0)) != null) {
-//            String callerType = param.getVarType().toString();
-//            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
-//                httpServicesRegistry.registerService(service);
-//            } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
-//                WebSocketService webSocketService = new WebSocketService(service);
-//                webSocketServicesRegistry.registerService(webSocketService);
-//            }
-//        } else {
-//            httpServicesRegistry.registerService(service);
-//        }
-//        // TODO: 11/24/18 failure need to be validated in the compile time
-//
-//        if (!isConnectorStarted(serviceEndpoint)) {
-//            startServerConnector(serviceEndpoint, httpServicesRegistry, webSocketServicesRegistry);
-//        }
-//        context.setReturnValues();
+        Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
+        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+
+        HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
+        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
+
+        ParamDetail param;
+        if (service.getResources().length > 0 && (param = service.getResources()[0].getParamDetails().get(0)) != null) {
+            String callerType = param.getVarType().toString();
+            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
+                httpServicesRegistry.registerService(service);
+            } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
+                WebSocketService webSocketService = new WebSocketService(service);
+                webSocketServicesRegistry.registerService(webSocketService);
+            }
+        } else {
+            httpServicesRegistry.registerService(service);
+        }
+
+        context.setReturnValues();
     }
 
     public static void register(Strand strand, ObjectValue serviceEndpoint, ObjectValue service, MapValue annotationData) {
@@ -109,24 +104,5 @@ public class Register extends AbstractHttpNativeFunction {
         if (!isConnectorStarted(serviceEndpoint)) {
             startServerConnector(serviceEndpoint, httpServicesRegistry, webSocketServicesRegistry);
         }
-    }
-
-    private static void startServerConnector(ObjectValue serviceEndpoint, HTTPServicesRegistry httpServicesRegistry,
-                                      WebSocketServicesRegistry webSocketServicesRegistry) {
-        ServerConnector serverConnector = getServerConnector(serviceEndpoint);
-        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        serverConnectorFuture.setHttpConnectorListener(
-                new BallerinaHTTPConnectorListener(httpServicesRegistry, serviceEndpoint.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG)));
-        serverConnectorFuture.setWebSocketConnectorListener(new WebSocketServerConnectorListener(
-                webSocketServicesRegistry, serviceEndpoint.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG)));
-
-        serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
-        try {
-            serverConnectorFuture.sync();
-        } catch (Exception ex) {
-            throw new BallerinaException("failed to start server connector '" + serverConnector.getConnectorID()
-                    + "': " + ex.getMessage(), ex);
-        }
-        serviceEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, true);
     }
 }

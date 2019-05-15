@@ -32,6 +32,8 @@ public type ClassWriter object {
 
     public function visitEnd() = external;
 
+    public function visitSource(string fileName) = external;
+    
     public function toByteArray() returns byte[] = external;
 };
 
@@ -64,10 +66,13 @@ public type MethodVisitor object {
 
     public function visitLookupSwitchInsn(Label defaultLabel, int[] keys, Label[] labels) = external;
 
-    public function visitInvokeDynamicInsn(string className, string lambdaName, boolean isVoid) = external;
+    public function visitInvokeDynamicInsn(string className, string lambdaName, boolean isVoid,
+                                        int closureMapCount) = external;
     
     public function visitTryCatchBlock(Label startLabel, Label endLabel, Label handlerLabel,
                                         string exceptionType) = external;
+                                        
+    public function visitLineNumber(int line, Label label) = external;
 };
 
 

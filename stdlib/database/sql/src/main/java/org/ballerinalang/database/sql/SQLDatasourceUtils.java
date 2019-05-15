@@ -81,6 +81,7 @@ import java.util.StringJoiner;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAResource;
 
@@ -962,9 +963,10 @@ public class SQLDatasourceUtils {
         case Types.BIT:
         case Types.BOOLEAN:
             return TypeKind.BOOLEAN;
-        case Types.REAL:
         case Types.NUMERIC:
         case Types.DECIMAL:
+            return TypeKind.DECIMAL;
+        case Types.REAL:
         case Types.FLOAT:
         case Types.DOUBLE:
             return TypeKind.FLOAT;

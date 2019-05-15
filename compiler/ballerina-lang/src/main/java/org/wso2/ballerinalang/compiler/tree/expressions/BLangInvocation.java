@@ -97,7 +97,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
         } else if (pkgAlias != null && !pkgAlias.getValue().isEmpty()) {
             br.append(String.valueOf(pkgAlias)).append(":");
         }
-        br.append(String.valueOf(name));
+        br.append(name == null ? String.valueOf(symbol.name) : String.valueOf(name));
         br.append("(");
         if (argExprs.size() > 0) {
             String s = Arrays.toString(argExprs.toArray());

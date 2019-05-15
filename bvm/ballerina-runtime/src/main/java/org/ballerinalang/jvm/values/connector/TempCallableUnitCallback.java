@@ -17,36 +17,53 @@
  */
 package org.ballerinalang.jvm.values.connector;
 
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Temp callback implementation for non-blocking service tests.
+ * Temporary callback implementation to handle non-blocking function behaviour.
+ * TODO : Remove this calss once strand non-blocking support is provided.
+ *
+ * @since 0.995.0
  */
 public class TempCallableUnitCallback {
 
+    private static final Logger log = LoggerFactory.getLogger(TempCallableUnitCallback.class);
+    private final Strand strand;
     private volatile Semaphore executionWaitSem;
     private int timeOut = 120;
     private Object returnValue;
 
-    public TempCallableUnitCallback() {
+    public TempCallableUnitCallback(Strand strand) {
+        strand.yield = true;
+        this.strand = strand;
         executionWaitSem = new Semaphore(0);
     }
 
     public void notifySuccess() {
         this.executionWaitSem.release();
+        //TODO : Replace following with callback.notifySuccess() once strand non-blocking support is given
+        this.strand.resume();
     }
 
     public void notifyFailure(ErrorValue error) {
         this.returnValue = error;
         this.executionWaitSem.release();
+        //TODO : Replace following with callback.notifyFailure() once strand non-blocking support is given
+        strand.setReturnValues(returnValue);
+        this.strand.resume();
     }
 
     public void sync() {
         try {
-            executionWaitSem.tryAcquire(timeOut, TimeUnit.SECONDS);
+            if (!executionWaitSem.tryAcquire(timeOut, TimeUnit.SECONDS)) {
+                log.debug("Failed to acquire");
+            }
         } catch (InterruptedException e) {
             //ignore
         }
@@ -54,9 +71,7 @@ public class TempCallableUnitCallback {
 
     public void setReturnValues(Object returnValue) {
         this.returnValue = returnValue;
-    }
-
-    public Object getReturnValue() {
-        return returnValue;
+        //TODO : Replace following with callback.setReturnValues() once strand non-blocking support is given
+        strand.setReturnValues(returnValue);
     }
 }

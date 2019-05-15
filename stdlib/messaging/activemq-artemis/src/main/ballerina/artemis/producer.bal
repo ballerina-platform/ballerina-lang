@@ -17,17 +17,23 @@
 # Represents ActiveMQ Artemis Producer.
 public type Producer client object {
     private Session session;
-    private boolean anonymousSession = false;
 
-    public function __init(Session | URLConfiguration sesssionOrURLConfig, string addressName,
+    public function __init(Session | EndpointConfiguration sessionOrEndpointConfig, string addressName,
                            AddressConfiguration? addressConfig = (), int rate = -1) {
-        if (sesssionOrURLConfig is Session) {
-            self.session = sesssionOrURLConfig;
+        if (sessionOrEndpointConfig is Session) {
+            self.session = sessionOrEndpointConfig;
         } else {
-            Connection connection = new("tcp://" + sesssionOrURLConfig.host + ":" + sesssionOrURLConfig.port);
-            self.session = new(connection, config = { username: sesssionOrURLConfig["username"],
-                    password: sesssionOrURLConfig["password"] });
-            self.anonymousSession = true;
+            Connection connection;
+            var secureSocket = sessionOrEndpointConfig["secureSocket"];
+            if (secureSocket is SecureSocket) {
+                connection = new(parseUrl(sessionOrEndpointConfig), config = {secureSocket: secureSocket});
+            } else {
+                connection = new(parseUrl(sessionOrEndpointConfig));
+            }
+            self.session = new(connection, config = { username: sessionOrEndpointConfig["username"],
+                    password: sessionOrEndpointConfig["password"],
+                    autoCommitSends: false, autoCommitAcks:  false});
+            self.session.anonymousSession = true;
         }
         AddressConfiguration configuration = {
 
@@ -44,8 +50,7 @@ public type Producer client object {
     #
     # + data - the `Message` or data to send 
     # + return - `error` on failure
-    public remote function send(int | float | string | json | xml | byte | byte[] | map<string | int | float | byte
-| boolean | byte[]> | io:ReadableByteChannel | Message data) returns error? {
+    public remote function send(MessageContent | Message data) returns error? {
         return self.externSend(data is Message ? data : new(self.session, data));
     }
 

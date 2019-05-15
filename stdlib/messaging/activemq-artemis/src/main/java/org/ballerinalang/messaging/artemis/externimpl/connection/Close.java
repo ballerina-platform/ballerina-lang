@@ -37,10 +37,14 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.CONNECTION_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.CONNECTION_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         isPublic = true
 )
 public class Close extends BlockingNativeCallableUnit {
@@ -53,7 +57,11 @@ public class Close extends BlockingNativeCallableUnit {
                 ArtemisConstants.ARTEMIS_CONNECTION_POOL);
         ClientSessionFactory sessionFactory =
                 (ClientSessionFactory) connection.getNativeData(ArtemisConstants.ARTEMIS_SESSION_FACTORY);
-        connectionPool.close();
-        sessionFactory.close();
+        if (sessionFactory.isClosed()) {
+            sessionFactory.close();
+        }
+        if (!connectionPool.isClosed()) {
+            connectionPool.close();
+        }
     }
 }

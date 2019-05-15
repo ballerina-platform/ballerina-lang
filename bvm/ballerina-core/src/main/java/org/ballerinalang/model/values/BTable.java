@@ -22,6 +22,7 @@ import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
@@ -29,12 +30,15 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.TableUtils;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
 import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
@@ -264,23 +268,27 @@ public class BTable implements BRefType<Object>, BCollection {
         }
 
         try {
-            BType functionInputType = lambdaFunction.value().getParamTypes()[0];
+            BType functionInputType = ((BFunctionType) lambdaFunction.type).paramTypes[0];
             if (functionInputType != this.constraintType) {
                 throw new BallerinaException("incompatible types: function with record type:"
                         + functionInputType.getName() + " cannot be used to remove records from a table with type:"
                         + this.constraintType.getName());
             }
-            int deletedCount = 0;
-            while (this.hasNext()) {
 
+            FunctionInfo functionInfo = lambdaFunction.value();
+            int deletedCount = 0;
+            List<BValue> fnArgs = lambdaFunction.getClosureVars().stream()
+                    .map(BClosure::value).collect(Collectors.toList());
+            while (this.hasNext()) {
                 BMap<String, BValue> data = this.getNext();
-                BValue[] args = {data};
-                BValue[] returns = BVMExecutor.executeFunction(lambdaFunction.value().getPackageInfo()
-                        .getProgramFile(), lambdaFunction.value(), args);
+                fnArgs.add(data);
+                BValue[] returns = BVMExecutor.executeFunction(functionInfo.getPackageInfo().getProgramFile(),
+                                                               functionInfo, fnArgs.toArray(new BValue[0]));
                 if (((BBoolean) returns[0]).booleanValue()) {
                     ++deletedCount;
                     tableProvider.deleteData(tableName, data);
                 }
+                fnArgs.remove(fnArgs.size() - 1);
             }
             context.setReturnValues(new BInteger(deletedCount));
             reset();
@@ -299,6 +307,10 @@ public class BTable implements BRefType<Object>, BCollection {
 
     public Double getFloat(int columnIndex) {
         return iterator.getFloat(columnIndex);
+    }
+
+    public BigDecimal getDecimal(int columnIndex) {
+        return iterator.getDecimal(columnIndex);
     }
 
     public Boolean getBoolean(int columnIndex) {

@@ -224,8 +224,8 @@ public type TargetService record {|
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + followRedirects - Configurations associated with Redirection
 # + retryConfig - Configurations associated with Retry
+# + poolConfig - Configurations associated with request pooling
 # + proxy - Proxy server related options
-# + connectionThrottling - Configurations for connection throttling
 # + secureSocket - SSL/TLS related options
 # + cache - HTTP caching related configurations
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
@@ -244,7 +244,7 @@ public type ClientEndpointConfig record {|
     SecureSocket? secureSocket = ();
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth = ();
+    OutboundAuthConfig? auth = ();
 |};
 
 
@@ -322,11 +322,11 @@ public type ProxyConfig record {|
     string password = "";
 |};
 
-# The `AuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.
+# The `OutboundAuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.
 #
 # + scheme - Authentication scheme
 # + config - Configuration related to the selected authenticator.
-public type AuthConfig record {|
+public type OutboundAuthConfig record {|
     OutboundAuthScheme scheme;
     BasicAuthConfig|OAuth2AuthConfig|JwtAuthConfig config?;
 |};

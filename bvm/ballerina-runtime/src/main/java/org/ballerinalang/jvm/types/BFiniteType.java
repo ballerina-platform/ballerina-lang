@@ -37,6 +37,16 @@ public class BFiniteType extends BType {
         this.valueSpace = new LinkedHashSet<>();
     }
 
+    public BFiniteType() {
+        super(null, null, RefValue.class);
+        this.valueSpace = new LinkedHashSet<>();
+    }
+
+    public BFiniteType(Set<Object> values) {
+        super(null, null, RefValue.class);
+        this.valueSpace = values;
+    }
+
     @Override
     public <V extends Object> V getZeroValue() {
         return null;

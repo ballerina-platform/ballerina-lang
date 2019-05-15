@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,7 +42,8 @@ public class BRecordType extends BStructureType {
      * @param sealed flag indicating the sealed status
      */
     public BRecordType(String typeName, BPackage pkg, int flags, boolean sealed) {
-        super(typeName, pkg, flags, MapValue.class);
+        super(typeName, pkg, flags, MapValueImpl.class);
+        this.sealed = sealed;
     }
 
     /**
@@ -57,7 +58,7 @@ public class BRecordType extends BStructureType {
      */
     public BRecordType(String typeName, BPackage pkg, int flags, Map<String, BField> fields, BType restFieldType,
             boolean sealed) {
-        super(typeName, pkg, flags, MapValue.class, fields);
+        super(typeName, pkg, flags, MapValueImpl.class, fields);
         this.restFieldType = restFieldType;
         this.sealed = sealed;
     }
@@ -70,7 +71,7 @@ public class BRecordType extends BStructureType {
     @SuppressWarnings("unchecked")
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new MapValue<>(this);
+        return (V) new MapValueImpl<>(this);
     }
 
     @Override
@@ -79,7 +80,7 @@ public class BRecordType extends BStructureType {
     }
 
     public String toString() {
-        String name = (pkg == null || pkg.equals(".")) ? typeName : pkg + ":" + typeName;
+        String name = (pkg == null || pkg.getName().equals(".")) ? typeName : pkg + ":" + typeName;
         StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");
         for (Entry<String, BField> field : getFields().entrySet()) {
             sj.add(field.getKey() + " : " + field.getValue().type);

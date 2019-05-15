@@ -43,7 +43,7 @@ public interface ObjectValue extends RefValue {
 
     boolean getBooleanValue(String fieldName);
 
-    MapValue getMapValue(String fieldName);
+    MapValueImpl getMapValue(String fieldName);
 
     ObjectValue getObjectValue(String fieldName);
 

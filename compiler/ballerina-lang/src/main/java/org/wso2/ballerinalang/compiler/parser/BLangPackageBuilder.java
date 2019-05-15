@@ -399,14 +399,17 @@ public class BLangPackageBuilder {
     void addUnionType(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangType rhsTypeNode = (BLangType) this.typeNodeStack.pop();
         BLangType lhsTypeNode = (BLangType) this.typeNodeStack.pop();
+        addUnionType(lhsTypeNode, rhsTypeNode, pos, ws);
+    }
 
+    void addUnionType(BLangType lhsTypeNode, BLangType rhsTypeNode, DiagnosticPos pos, Set<Whitespace> ws) {
         BLangUnionTypeNode unionTypeNode;
         if (rhsTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
             unionTypeNode = (BLangUnionTypeNode) rhsTypeNode;
             unionTypeNode.memberTypeNodes.add(0, lhsTypeNode);
-            unionTypeNode.addWS(ws);
-            this.typeNodeStack.push(unionTypeNode);
-            return;
+        } else if (lhsTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
+            unionTypeNode = (BLangUnionTypeNode) lhsTypeNode;
+            unionTypeNode.memberTypeNodes.add(rhsTypeNode);
         } else {
             unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
             unionTypeNode.memberTypeNodes.add(lhsTypeNode);
@@ -430,16 +433,16 @@ public class BLangPackageBuilder {
     }
 
     void addRecordType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,
-                       boolean sealed, boolean hasRestField) {
+                       boolean hasRestField, boolean isExclusiveTypeDesc) {
         // If there is an explicitly defined rest field, take it.
         BLangType restFieldType = null;
-        if (hasRestField && !sealed) {
+        if (hasRestField) {
             restFieldType = (BLangType) this.typeNodeStack.pop();
         }
         // Create an anonymous record and add it to the list of records in the current package.
         BLangRecordTypeNode recordTypeNode = populateRecordTypeNode(pos, ws, isAnonymous);
         recordTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
-        recordTypeNode.sealed = sealed;
+        recordTypeNode.sealed = isExclusiveTypeDesc && !hasRestField;
         recordTypeNode.restFieldType = restFieldType;
 
         if (!isAnonymous) {
@@ -512,9 +515,16 @@ public class BLangPackageBuilder {
     }
 
     void markTypeNodeAsNullable(Set<Whitespace> ws) {
-        BLangType typeNode = (BLangType) this.typeNodeStack.peek();
+        BLangType typeNode = (BLangType) this.typeNodeStack.pop();
         typeNode.addWS(ws);
-        typeNode.nullable = true;
+
+        BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        nilTypeNode.pos = typeNode.pos;
+        nilTypeNode.typeKind = TypeKind.NIL;
+
+        addUnionType(typeNode, nilTypeNode, typeNode.pos, ws);
+
+        ((BLangUnionTypeNode) this.typeNodeStack.peek()).nullable = true;
     }
 
     void markTypeNodeAsGrouped(Set<Whitespace> ws) {
@@ -636,10 +646,12 @@ public class BLangPackageBuilder {
         this.varListStack.push(new ArrayList<>());
     }
 
-    void startFunctionDef(int annotCount) {
+    void startFunctionDef(int annotCount, boolean isLambda) {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
         attachAnnotations(functionNode, annotCount);
-        attachMarkdownDocumentations(functionNode);
+        if (!isLambda) {
+            attachMarkdownDocumentations(functionNode);
+        }
         this.invokableNodeStack.push(functionNode);
     }
 
@@ -911,7 +923,7 @@ public class BLangPackageBuilder {
 
     void startLambdaFunctionDef(PackageID pkgID) {
         // Passing zero for annotation count as Lambdas can't have annotations.
-        startFunctionDef(0);
+        startFunctionDef(0, true);
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.setName(createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         lambdaFunction.addFlag(Flag.LAMBDA);

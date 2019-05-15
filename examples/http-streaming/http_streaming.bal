@@ -107,6 +107,6 @@ function close(io:ReadableByteChannel|io:WritableByteChannel ch) {
     } channelResult = ch;
     var cr = channelResult.close();
     if (cr is error) {
-        log:printError("Error occured while closing the channel: ", err = cr);
+        log:printError("Error occurred while closing the channel: ", err = cr);
     }
 }

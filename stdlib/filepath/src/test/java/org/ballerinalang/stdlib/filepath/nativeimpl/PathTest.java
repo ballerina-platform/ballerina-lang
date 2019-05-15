@@ -30,11 +30,14 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,6 +53,8 @@ import static org.testng.Assert.assertTrue;
  * @since 0.995.0
  */
 public class PathTest {
+
+    private static final String TMPDIR_KEY = "java.io.tmpdir";
     private CompileResult fileOperationProgramFile;
     private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().contains("win");
     private static final Logger log = LoggerFactory.getLogger(PathTest.class);
@@ -338,6 +343,89 @@ public class PathTest {
             log.info("{ballerina/filepath}:relative(). Input: Base " + basePath + ", Target " + targetPath + " | " +
                     "Return: " + relative.stringValue());
             assertEquals(relative.stringValue(), expected);
+        }
+    }
+
+    @Test(description = "Test resolve path function for paths")
+    public void testResolvePath() throws IOException {
+        if (IS_WINDOWS) {
+            // Temporary disable running this test in windows, due to permission failure in symbolic link creation.
+            return;
+        }
+        Path symLinkPath = null;
+        try {
+            Path filePath = Paths.get("src", "test", "resources", "data-files", "test.txt");
+            symLinkPath = Paths.get(System.getProperty(TMPDIR_KEY), "test_link.txt");
+            Files.deleteIfExists(symLinkPath);
+            Files.createSymbolicLink(symLinkPath, filePath);
+
+            BValue[] args = {new BString(symLinkPath.toString())};
+            BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testResolvePath", args);
+            assertEquals(returns.length, 1);
+            assertTrue(returns[0] instanceof BString);
+            BString resolvePath = (BString) returns[0];
+
+            log.info("{ballerina/filepath}:resolve(). Return value: " + resolvePath.stringValue());
+            assertEquals(resolvePath.stringValue(), Files.readSymbolicLink(symLinkPath).toString());
+        } catch (IOException e) {
+            Assert.fail("Error while creating symbolic link", e);
+        } finally {
+            if (symLinkPath != null) {
+                Files.deleteIfExists(symLinkPath);
+            }
+        }
+    }
+
+    @Test(description = "Test resolve path function for not link path")
+    public void testResolveNotLinkPath() {
+        Path filePath = Paths.get("src", "test", "resources", "data-files", "test_nolink.txt");
+        BValue[] args = {new BString(filePath.toString())};
+
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testResolvePath", args);
+        assertEquals(returns.length, 1);
+        assertTrue(returns[0] instanceof BError);
+        BError resolveError = (BError) returns[0];
+        assertEquals(resolveError.getReason(), "{ballerina/filepath}NOT_LINK_ERROR");
+        log.info("Ballerina error: " + resolveError.getDetails().stringValue());
+    }
+
+    @Test(description = "Test resolve path function for non existence path")
+    public void testResolveNonExistencePath() {
+        Path filePath = Paths.get("src", "test", "resources", "data-files", "test_nonexist.txt");
+        BValue[] args = {new BString(filePath.toString())};
+
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testResolvePath", args);
+        assertEquals(returns.length, 1);
+        assertTrue(returns[0] instanceof BError);
+        BError resolveError = (BError) returns[0];
+        assertEquals(resolveError.getReason(), "{ballerina/filepath}IO_ERROR");
+        log.info("Ballerina error: " + resolveError.getDetails().stringValue());
+    }
+
+    @Test(description = "Test path matches", dataProvider = "match_test")
+    public void testPathMatch(String pattern, String path, String posixOutput, String windowsOutput) {
+        if (IS_WINDOWS) {
+            testPathMatch(pattern, path, windowsOutput);
+        } else {
+            testPathMatch(pattern, path, posixOutput);
+        }
+    }
+
+    private void testPathMatch(String pattern, String path, String expected) {
+        BValue[] args = {new BString(path), new BString(pattern)};
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testPathMatches", args);
+
+        if ("error".equals(expected)) {
+            assertTrue(returns[0] instanceof BError);
+            BError error = (BError) returns[0];
+            assertEquals(error.getReason(), "{ballerina/filepath}INVALID_PATTERN");
+            log.info("Ballerina error: " + error.getDetails().stringValue());
+        } else {
+            assertTrue(returns[0] instanceof BBoolean);
+            BBoolean matches = (BBoolean) returns[0];
+            log.info("{ballerina/filepath}:matches(). Input: " + path + " | Return: " + matches.booleanValue());
+            assertEquals(matches.booleanValue(), Boolean.parseBoolean(expected), "Path: " + path + " matches() with " +
+                    "pattern" + pattern);
         }
     }
 
@@ -647,6 +735,46 @@ public class PathTest {
                 {"C:\\Projects", "c:\\projects\\src", "../c:\\projects\\src", "src"},
                 {"C:\\Projects", "c:\\projects", "../c:\\projects", "."},
                 {"C:\\Projects\\a\\..", "c:\\projects", "../c:\\projects", "."},
+        };
+    }
+
+    @DataProvider(name = "match_test")
+    public Object[] getMatchesSet() {
+        return new Object[][] {
+                {"abc", "abc", "true", "true"},
+                {"*", "abc", "true", "true"},
+                {"*c", "abc", "true", "true"},
+                {"a*", "a", "true", "true"},
+                {"a*", "abc", "true", "true"},
+                {"a*", "ab/c", "false", "false"},
+                {"a*/b", "abc/b", "true", "true"},
+                {"a*/b", "a/c/b", "false", "false"},
+                {"A*B*C*D*E*/f", "AxBxCxDxE/f", "true", "true"},
+                {"a*b*c*d*e*/f", "axbxcxdxexxx/f", "true", "true"},
+                {"a*b*c*d*e*/f", "axbxcxdxe/xxx/f", "false", "false"},
+                {"a*b*c*d*e*/f", "axbxcxdxexxx/fff", "false", "false"},
+                {"a*b?c*x", "abxbbxdbxebxczzx", "true", "true"},
+                {"a*b?c*x", "abxbbxdbxebxczzy", "false", "false"},
+                {"ab[c]", "abc", "true", "true"},
+                {"ab[b-d]", "abc", "true", "true"},
+                {"ab[e-g]", "abc", "false", "false"},
+                {"[a-b-c]", "a", "error", "error"},
+                {"[", "a", "error", "error"},
+                {"a[", "a", "error", "error"},
+                {"[-]", "-", "true", "true"},
+                {"[x-]", "x", "true", "true"},
+                {"[]a]", "a", "error", "error"},
+                {"[\\-x]", "x", "true", "error"},
+                {"a?b", "a/b", "false", "false"},
+                {"a*b", "a/b", "false", "false"},
+                {"[\\-]", "-", "true", "error"},
+                {"[x\\-]", "x", "true", "error"},
+                {"[x\\-]", "-", "true", "error"},
+                {"[x\\-]", "z", "false", "error"},
+                {"[\\-x]", "x", "true", "error"},
+                {"[\\-x]", "z", "false", "error"},
+                {"[\\-x]", "-", "false", "error"},
+                {"[\\-x]", "a", "true", "error"}
         };
     }
 }

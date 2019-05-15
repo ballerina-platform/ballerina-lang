@@ -66,13 +66,7 @@ function name1() {
         married: false
     };
 
-    Person p3 = {
-        id: 1,
-        age: 26,
-        salary: 3000.50,
-        name: "jui",
-        married: false
-    };
+    Person p3 = {id: 1, age: 26, salary: 3000.50, name: "jui", married: false};
 
     table<Person> dt8 = table {
         {key id, key age, salary, name, married},

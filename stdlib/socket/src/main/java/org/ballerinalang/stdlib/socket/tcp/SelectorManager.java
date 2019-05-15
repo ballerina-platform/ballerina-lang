@@ -54,11 +54,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
+import static java.nio.channels.SelectionKey.OP_READ;
 import static org.ballerinalang.model.types.BTypes.typeByte;
 import static org.ballerinalang.model.types.BTypes.typeInt;
 import static org.ballerinalang.stdlib.socket.SocketConstants.DEFAULT_EXPECTED_READ_LENGTH;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
-import static java.nio.channels.SelectionKey.OP_READ;
 
 /**
  * This will manage the Selector instance and handle the accept, read and write operations.
@@ -235,7 +235,8 @@ public class SelectorManager {
             client.configureBlocking(false);
             // Creating a new SocketService instance with the newly accepted client.
             // We don't need the ServerSocketChannel in here since we have all the necessary resources.
-            SocketService clientSocketService = new SocketService(client, socketService.getResources());
+            SocketService clientSocketService = new SocketService(client, socketService.getResources(),
+                    socketService.getReadTimeout());
             // Registering the channel against the selector directly without going through the queue,
             // since we are in same thread.
             client.register(selector, OP_READ, clientSocketService);
@@ -307,6 +308,7 @@ public class SelectorManager {
         try {
             ByteBuffer buffer = createBuffer(callback, channel);
             final InetSocketAddress remoteAddress = (InetSocketAddress) channel.receive(buffer);
+            callback.resetTimeout();
             final int bufferPosition = buffer.position();
             callback.updateCurrentLength(bufferPosition);
             // Re-register for read ready events.
@@ -329,6 +331,7 @@ public class SelectorManager {
                     .getByteArrayFromByteBuffer(callback.getBuffer() == null ? buffer : callback.getBuffer());
             callback.getContext().setReturnValues(createUdpSocketReturnValue(callback, bytes, remoteAddress));
             callback.getCallback().notifySuccess();
+            callback.cancelTimeout();
         } catch (CancelledKeyException | ClosedChannelException e) {
             processError(callback, "Connection closed");
         } catch (IOException e) {
@@ -348,6 +351,7 @@ public class SelectorManager {
         try {
             ByteBuffer buffer = createBuffer(callback, socketChannel);
             int read = socketChannel.read(buffer);
+            callback.resetTimeout();
             if (read < 0) {
                 SelectorManager.getInstance().unRegisterChannel(socketChannel);
             } else {
@@ -371,6 +375,7 @@ public class SelectorManager {
                     .getByteArrayFromByteBuffer(callback.getBuffer() == null ? buffer : callback.getBuffer());
             callback.getContext().setReturnValues(createTcpSocketReturnValue(callback, bytes));
             callback.getCallback().notifySuccess();
+            callback.cancelTimeout();
         } catch (NotYetConnectedException e) {
             processError(callback, "Connection not yet connected");
         } catch (CancelledKeyException | ClosedChannelException e) {

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+    // Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,7 @@ public type ObjectGenerator object {
 
     private bir:Package module;
     private bir:BObjectType? currentObjectType = ();
+    private bir:BRecordType? currentRecordType = ();
 
     public function __init(bir:Package module) {
         self.module = module;
@@ -27,10 +28,15 @@ public type ObjectGenerator object {
         foreach var optionalTypeDef in typeDefs {
             bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
             bir:BType bType = typeDef.typeValue;
-            if (bType is bir:BObjectType) {
+            if (bType is bir:BObjectType && !bType.isAbstract) {
                 self.currentObjectType = bType;
-                string className = self.getObjectValueClassName(typeDef.name.value);
+                string className = self.getTypeValueClassName(typeDef.name.value);
                 byte[] bytes = self.createObjectValueClass(bType, className, typeDef);
+                jarEntries[className + ".class"] = bytes;
+            } else if (bType is bir:BRecordType) {
+                self.currentRecordType = bType;
+                string className = self.getTypeValueClassName(typeDef.name.value);
+                byte[] bytes = self.createRecordValueClass(bType, className, typeDef);
                 jarEntries[className + ".class"] = bytes;
             }
         }
@@ -38,13 +44,14 @@ public type ObjectGenerator object {
 
     // Private methods
 
-    private function getObjectValueClassName(string objTypeName) returns string {
-        return getPackageName(self.module.org.value, self.module.name.value) + cleanupTypeName(objTypeName);
+    private function getTypeValueClassName(string typeName) returns string {
+        return getPackageName(self.module.org.value, self.module.name.value) + cleanupTypeName(typeName);
     }
 
     private function createObjectValueClass(bir:BObjectType objectType, string className, bir:TypeDef typeDef) 
             returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+        cw.visitSource(typeDef.pos.sourceFileName);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), ABSTRACT_OBJECT_VALUE, [OBJECT_VALUE]);
 
         bir:BObjectField?[] fields = objectType.fields;
@@ -125,9 +132,10 @@ public type ObjectGenerator object {
             // load strand
             mv.visitVarInsn(ALOAD, 1);
 
-            bir:BType[] paramTypes = func.funcType.paramTypes;
+            bir:BType?[] paramTypes = func.funcType.paramTypes;
             int j = 0;
             foreach var paramType in paramTypes {
+                bir:BType pType = getType(paramType);
                 // load parameters
                 mv.visitVarInsn(ALOAD, 3);
 
@@ -135,7 +143,7 @@ public type ObjectGenerator object {
                 mv.visitLdcInsn(j);
                 mv.visitInsn(L2I);
                 mv.visitInsn(AALOAD);
-                addUnboxInsn(mv, paramType);
+                addUnboxInsn(mv, pType);
                 j += 1;
             }
 
@@ -237,6 +245,57 @@ public type ObjectGenerator object {
         }
     }
 
+    private function createRecordValueClass(bir:BRecordType recordType, string className, bir:TypeDef typeDef)
+            returns byte[] {
+        jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+        cw.visitSource(typeDef.pos.sourceFileName);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), MAP_VALUE_IMPL, [MAP_VALUE]);
+
+        bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
+        if (attachedFuncs is bir:Function?[]) {
+            self.createRecordMethods(cw, attachedFuncs);
+        }
+
+        self.createRecordConstructor(cw, className);
+        cw.visitEnd();
+        return cw.toByteArray();
+    }
+
+    private function createRecordMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs) {
+        foreach var func in attachedFuncs {
+            if (func is bir:Function) {
+                generateMethod(func, cw, self.module, attachedType = self.currentRecordType);
+            }
+        }
+    }
+
+    private function createRecordConstructor(jvm:ClassWriter cw, string className) {
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", BTYPE), (), ());
+        mv.visitCode();
+
+        // load super
+        mv.visitVarInsn(ALOAD, 0);
+        // load type
+        mv.visitVarInsn(ALOAD, 1);
+
+        // invoke super(type);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        mv.visitVarInsn(ALOAD, 0);
+
+        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
+        mv.visitInsn(DUP);
+        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Scheduler");
+        mv.visitInsn(DUP);
+        mv.visitInsn(ICONST_4);
+        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Scheduler", "<init>", "(I)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>",
+                            "(Lorg/ballerinalang/jvm/Scheduler;)V", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "__init_", "(Lorg/ballerinalang/jvm/Strand;)V", false);
+
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(5, 5);
+        mv.visitEnd();
+    }
 };
 
 function createLabelsforSwitch(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes,

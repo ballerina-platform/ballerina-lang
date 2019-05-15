@@ -33,6 +33,7 @@ import org.ballerinalang.net.jms.LoggingExceptionListener;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import java.util.UUID;
+
 import javax.jms.Connection;
 import javax.jms.JMSException;
 
@@ -41,7 +42,6 @@ import javax.jms.JMSException;
  *
  * @since 0.970
  */
-
 @BallerinaFunction(
         orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
         functionName = "createConnection",

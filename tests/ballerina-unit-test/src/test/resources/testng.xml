@@ -27,12 +27,13 @@ under the License.
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
 
-    <!-- Ballerina language Test Cases. -->
+    <!--Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <groups>
             <run>
                 <exclude name="HSQLDBNotSupported"/>
                 <exclude name="broken"/>
+                <exclude name="no-bvm-support"/>
             </run>
         </groups>
         <packages>
@@ -66,6 +67,7 @@ under the License.
             <package name="org.ballerinalang.test.serializer.json.*" />
             <package name="org.ballerinalang.test.dataflow.*" />
             <package name="org.ballerinalang.test.error.*" />
+            <package name="org.ballerinalang.test.imports.*" />
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->
@@ -79,41 +81,5 @@ under the License.
         <packages >
             <package name="org.ballerinalang.test.main.function.*"/>
         </packages>
-    </test>
-
-    <test name="jballerina-test" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <packages>
-            <package name="org.ballerinalang.test.jvm.*"/>
-            <package name="org.ballerinalang.test.types.integer"/>
-            <package name="org.ballerinalang.test.types.floattype"/>
-        </packages>
-
-        <classes>
-            <class name="org.ballerinalang.test.functions.FunctionSignatureTest" >
-                <methods>
-                    <exclude name="testOptionalArgsInNativeFunc" />
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.object.ObjectTest" >
-                <methods>
-                    <!-- fails due to functions without a body -->
-                    <exclude name="testAbstractClientObject" />
-                    <exclude name="testObjectWithAttachedFunction1" />
-                    <exclude name="testObjectWithMissingNativeImpl" />
-
-                    <!-- fails in getBIRModuleBinary -->
-                    <exclude name="testObjectAnyTypeFieldAsConstructorParam" />
-                    <exclude name="testObjectWithAttachedFunction" />
-                    <exclude name="testStructPrint" />
-
-                    <!-- fails because of missing lambda functions support -->
-                    <exclude name="testFunctionReferencesFromObjects" />
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.object.AnonymousObjectTest" />
-            <class name="org.ballerinalang.test.object.ObjectEquivalencyNegativeTest" />
-            <class name="org.ballerinalang.test.object.ObjectEquivalencyNegativeTest" />
-        </classes>
     </test>
 </suite>

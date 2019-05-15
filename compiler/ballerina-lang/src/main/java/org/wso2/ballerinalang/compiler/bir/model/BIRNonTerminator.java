@@ -17,8 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import org.ballerinalang.model.Name;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+
+import java.util.List;
 
 /**
  * A non-terminating instruction.
@@ -108,10 +112,12 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      */
     public static class UnaryOP extends BIRNonTerminator implements BIRAssignInstruction {
         public BIROperand lhsOp;
+        public BIROperand rhsOp;
 
-        public UnaryOP(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp) {
+        public UnaryOP(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, kind);
             this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
         }
 
         @Override
@@ -204,7 +210,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     /**
      * A new array instruction.
      * <p>
-     * e.g., map a = {}
+     * e.g., int[] a = {}
      *
      * @since 0.980.0
      */
@@ -349,6 +355,323 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             this.type = type;
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML element instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLElement extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand startTagOp;
+        public BIROperand endTagOp;
+        public BIROperand defaultNsURIOp;
+
+        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand endTagOp,
+                BIROperand defaultNsURIOp) {
+            super(pos, InstructionKind.NEW_XML_ELEMENT);
+            this.lhsOp = lhsOp;
+            this.startTagOp = startTagOp;
+            this.endTagOp = endTagOp;
+            this.defaultNsURIOp = defaultNsURIOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML QName instruction.
+     * <p>
+     * e.g.: {@code ns0:foo}
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLQName extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand localnameOp;
+        public BIROperand nsURIOp;
+        public BIROperand prefixOp;
+
+        public NewXMLQName(DiagnosticPos pos, BIROperand lhsOp, BIROperand localnameOp, BIROperand nsURIOp,
+                BIROperand prefixOp) {
+            super(pos, InstructionKind.NEW_XML_QNAME);
+            this.lhsOp = lhsOp;
+            this.localnameOp = localnameOp;
+            this.nsURIOp = nsURIOp;
+            this.prefixOp = prefixOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML QName from a string.
+     * <p>
+     * e.g.: {@code "{http://nsuri/}foo"}
+     * 
+     * @since 0.995.0
+     */
+    public static class NewStringXMLQName extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand stringQNameOP;
+
+        public NewStringXMLQName(DiagnosticPos pos, BIROperand lhsOp, BIROperand stringQName) {
+            super(pos, InstructionKind.NEW_STRING_XML_QNAME);
+            this.lhsOp = lhsOp;
+            this.stringQNameOP = stringQName;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML text instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLText extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand textOp;
+
+        public NewXMLText(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp) {
+            super(pos, InstructionKind.NEW_XML_TEXT);
+            this.lhsOp = lhsOp;
+            this.textOp = textOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML text instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLProcIns extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand dataOp;
+        public BIROperand targetOp;
+
+        public NewXMLProcIns(DiagnosticPos pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp) {
+            super(pos, InstructionKind.NEW_XML_PI);
+            this.lhsOp = lhsOp;
+            this.dataOp = dataOp;
+            this.targetOp = targetOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML comment instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLComment extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand textOp;
+
+        public NewXMLComment(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp) {
+            super(pos, InstructionKind.NEW_XML_COMMENT);
+            this.lhsOp = lhsOp;
+            this.textOp = textOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * XML access expression with two operands.
+     * e.g: {@code InstructionKind.XML_SEQ_STORE}, {@code InstructionKind.XML_LOAD_ALL}
+     *
+     * @since 0.995.0
+     */
+    public static class XMLAccess extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+
+        public XMLAccess(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, kind);
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A FP load instruction.
+     * <p>
+     * e.g., function (string, string) returns (string) anonFunction =
+     *             function (string x, string y) returns (string) {
+     *                 return x + y;
+     *             };
+     *
+     * @since 0.995.0
+     */
+    public static class FPLoad extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public Name funcName;
+        public PackageID pkgId;
+        public List<BIRVariableDcl> params;
+        public List<BIROperand> closureMaps;
+
+        public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp,
+                      List<BIRVariableDcl> params, List<BIROperand> closureMaps) {
+            super(pos, InstructionKind.FP_LOAD);
+            this.lhsOp = lhsOp;
+            this.funcName = funcName;
+            this.pkgId = pkgId;
+            this.params = params;
+            this.closureMaps = closureMaps;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * The new table instruction.
+     * <p>
+     * e.g. {@code table<Employee> tbEmployee = table {
+     *         { key id, name, salary },
+     *         [ { 1, "Mary",  300.5 },
+     *           { 2, "John",  200.5 },
+     *           { 3, "Jim", 330.5 }
+     *         ]
+     *      };}
+     *
+     * @since 0.995.0
+     */
+    public static class NewTable extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand columnsOp;
+        public BIROperand dataOp;
+        public BIROperand indexColOp;
+        public BIROperand keyColOp;
+        public BType type;
+
+        public NewTable(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand columnsOp,
+                        BIROperand dataOp, BIROperand indexColOp,
+                        BIROperand keyColOp) {
+            super(pos, InstructionKind.NEW_TABLE);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.columnsOp = columnsOp;
+            this.dataOp = dataOp;
+            this.indexColOp = indexColOp;
+            this.keyColOp = keyColOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A type cast expression.
+     * <p>
+     * e.g., int a = cast(int) b;
+     *
+     * @since 0.995.0
+     */
+    public static class NewTypeDesc extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BType type;
+
+        public NewTypeDesc(DiagnosticPos pos, BIROperand lhsOp, BType type) {
+            super(pos, InstructionKind.NEW_TYPEDESC);
+            this.lhsOp = lhsOp;
+            this.type = type;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * The new stream instruction.
+     * <p>
+     * e.g. {@code stream<Employee> employeeStream = new;}
+     *
+     * @since 0.995.0
+     */
+    public static class NewStream extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand nameOp;
+        public BType type;
+
+        public NewStream(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand nameOp) {
+            super(pos, InstructionKind.NEW_STREAM);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.nameOp = nameOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A ternary operator instruction
+     * <p>
+     * e.g., a == null ? b : c
+     *
+     * @since 0.995.0
+     */
+    public static class TernaryOp extends BIRNonTerminator implements BIRAssignInstruction {
+        public BIROperand lhsOp;
+        public BIROperand conditionOp;
+        public BIROperand thenOp;
+        public BIROperand elseOp;
+
+        public TernaryOp(DiagnosticPos pos, BIROperand lhsOp, BIROperand conditionOp, BIROperand thenOp,
+                BIROperand elseOp) {
+            super(pos, InstructionKind.TERNARY);
+            this.lhsOp = lhsOp;
+            this.conditionOp = conditionOp;
+            this.thenOp = thenOp;
+            this.elseOp = elseOp;
+        }
+
+        @Override
+        public BIROperand getLhsOperand() {
+            return lhsOp;
         }
 
         @Override

@@ -81,11 +81,12 @@ function nativeCall(Client sqlClient, @sensitive string sqlQuery, typedesc[]? re
 function nativeUpdate(Client sqlClient, @sensitive string sqlQuery, string[]? keyColumns = (),
                              Param... parameters) returns UpdateResult|error = external;
 
-function nativeBatchUpdate(Client sqlClient, @sensitive string sqlQuery, Param[]... parameters)
+function nativeBatchUpdate(Client sqlClient, @sensitive string sqlQuery, Param?[]... parameters)
     returns int[]|error = external;
 
 # An internal function used by clients to shutdown the connection pool.
 #
 # + sqlClient - The Client object which represents the connection pool.
+# + return - Possible error during closing
 public function close(Client sqlClient) returns error? = external;
 

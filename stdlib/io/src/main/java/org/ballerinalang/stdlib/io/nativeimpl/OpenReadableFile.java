@@ -19,6 +19,8 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -62,6 +64,7 @@ public class OpenReadableFile extends AbstractNativeChannel {
      * {@inheritDoc}
      */
     @Override
+    //TODO Remove after migration : implemented using bvm values/types
     public Channel inFlow(Context context) throws BallerinaException {
         String pathUrl = context.getStringArgument(PATH_FIELD_INDEX);
         Channel channel;
@@ -74,6 +77,26 @@ public class OpenReadableFile extends AbstractNativeChannel {
             throw new BallerinaException("Do not have access to read file: ", e);
         } catch (Throwable e) {
             throw new BallerinaException("failed to open file: " + e.getMessage(), e);
+        }
+        return channel;
+    }
+
+    public static ObjectValue openReadableFile(Strand strand, String pathUrl) {
+        return createChannel(inFlow(pathUrl));
+    }
+
+    private static Channel inFlow(String pathUrl) throws org.ballerinalang.jvm.util.exceptions.BallerinaException {
+        Channel channel;
+        try {
+            Path path = Paths.get(pathUrl);
+            FileChannel fileChannel = IOUtils.openFileChannelExtended(path, READ_ACCESS_MODE);
+            channel = new FileIOChannel(fileChannel);
+            channel.setReadable(true);
+        } catch (AccessDeniedException e) {
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("Do not have access to read file: ", e);
+        } catch (Throwable e) {
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("failed to open file: " + e.getMessage(),
+                                                                               e);
         }
         return channel;
     }

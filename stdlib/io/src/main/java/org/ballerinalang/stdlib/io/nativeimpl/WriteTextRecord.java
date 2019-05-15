@@ -19,6 +19,10 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
@@ -106,5 +110,39 @@ public class WriteTextRecord implements NativeCallableUnit {
     @Override
     public boolean isBlocking() {
         return false;
+    }
+
+    public static void write(Strand strand, ObjectValue channel, ArrayValue content) {
+        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
+        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+
+        DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(
+                IOConstants.TXT_RECORD_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(callback);
+        DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(delimitedRecordChannel, content,
+                                                                                   eventContext, true);
+        Register register = EventRegister.getFactory().register(recordWriteEvent, WriteTextRecord::writeTextResponse);
+        eventContext.setRegister(register);
+        register.submit();
+        //TODO : Remove callback once strand non-blocking support is given
+        callback.sync();
+    }
+
+    /**
+     * Callback response received after the bytes are written.
+     *
+     * @param result the response received.
+     * @return the result context.
+     */
+    private static EventResult writeTextResponse(EventResult<Integer, EventContext> result) {
+        EventContext eventContext = result.getContext();
+        //TODO : Remove callback once strand non-blocking support is given
+        TempCallableUnitCallback callback = eventContext.getTempCallback();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
+        }
+        callback.notifySuccess();
+        return result;
     }
 }

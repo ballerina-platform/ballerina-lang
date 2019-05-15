@@ -112,7 +112,7 @@
     {
       "label": "channel",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Channel",
       "sortText": "170",
       "insertText": "channel",
       "insertTextFormat": "Snippet"
@@ -120,7 +120,7 @@
     {
       "label": "xml",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Xml",
       "sortText": "170",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
@@ -142,7 +142,7 @@
     {
       "label": "TableConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "TableConfig represents properties used during table initialization.\n"
       },
@@ -153,7 +153,7 @@
     {
       "label": "byte",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Byte",
       "sortText": "170",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
@@ -189,7 +189,7 @@
     {
       "label": "stream",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Stream",
       "sortText": "170",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
@@ -197,7 +197,7 @@
     {
       "label": "AbstractListener",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "sortText": "170",
       "insertText": "AbstractListener",
       "insertTextFormat": "Snippet"
@@ -205,7 +205,7 @@
     {
       "label": "map",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Map",
       "sortText": "170",
       "insertText": "map",
       "insertTextFormat": "Snippet"
@@ -213,7 +213,7 @@
     {
       "label": "table",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Table",
       "sortText": "170",
       "insertText": "table",
       "insertTextFormat": "Snippet"
@@ -221,7 +221,7 @@
     {
       "label": "anydata",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Anydata",
       "sortText": "170",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
@@ -243,7 +243,7 @@
     {
       "label": "future",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Future",
       "sortText": "170",
       "insertText": "future",
       "insertTextFormat": "Snippet"
@@ -251,7 +251,7 @@
     {
       "label": "typedesc",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Typedesc",
       "sortText": "170",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
@@ -259,7 +259,7 @@
     {
       "label": "float",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Float",
       "sortText": "170",
       "insertText": "float",
       "insertTextFormat": "Snippet"
@@ -267,7 +267,7 @@
     {
       "label": "null",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Nil",
       "sortText": "170",
       "insertText": "null",
       "insertTextFormat": "Snippet"
@@ -275,7 +275,7 @@
     {
       "label": "decimal",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Decimal",
       "sortText": "170",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
@@ -283,7 +283,7 @@
     {
       "label": "string",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "String",
       "sortText": "170",
       "insertText": "string",
       "insertTextFormat": "Snippet"
@@ -291,7 +291,7 @@
     {
       "label": "error",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Error",
       "sortText": "170",
       "insertText": "error",
       "insertTextFormat": "Snippet"
@@ -299,7 +299,7 @@
     {
       "label": "json",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Json",
       "sortText": "170",
       "insertText": "json",
       "insertTextFormat": "Snippet"
@@ -307,7 +307,7 @@
     {
       "label": "any",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Any",
       "sortText": "170",
       "insertText": "any",
       "insertTextFormat": "Snippet"
@@ -315,7 +315,7 @@
     {
       "label": "int",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Int",
       "sortText": "170",
       "insertText": "int",
       "insertTextFormat": "Snippet"
@@ -323,7 +323,7 @@
     {
       "label": "boolean",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Boolean",
       "sortText": "170",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
@@ -331,7 +331,7 @@
     {
       "label": "service",
       "kind": "Keyword",
-      "detail": "BType",
+      "detail": "Service",
       "sortText": "170",
       "insertText": "service",
       "insertTextFormat": "Snippet"

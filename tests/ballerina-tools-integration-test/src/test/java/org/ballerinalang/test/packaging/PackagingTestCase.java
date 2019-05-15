@@ -22,7 +22,7 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.LogLeecher.LeecherType;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,13 +34,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-import static org.awaitility.Awaitility.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.given;
 
 /**
  * Testing pushing, pulling, searching a package from central and installing package to home repository.
@@ -52,16 +51,16 @@ public class PackagingTestCase extends BaseTest {
     private Path tempProjectDirectory;
     private String moduleName = "test";
     private String datePushed;
-    private String orgName = "integrationtests";
+    private String orgName = "bcintegrationtest";
     private Map<String, String> envVariables;
 
     @BeforeClass()
     public void setUp() throws IOException {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
-        createSettingToml();
-        moduleName = moduleName + PackagingTestUtils.randomModuleName(10);
-        envVariables = addEnvVariables(PackagingTestUtils.getEnvVariables());
+        moduleName = moduleName + TestUtils.randomModuleName(10);
+        TestUtils.createSettingToml(tempHomeDirectory);
+        envVariables = addEnvVariables(TestUtils.getEnvVariables());
     }
 
     @Test(description = "Test init a ballerina project to be pushed to central")
@@ -156,8 +155,8 @@ public class PackagingTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("pushAllPackageTest");
         Files.createDirectories(projectPath);
 
-        String firstPackage = "firstTestPkg" + PackagingTestUtils.randomModuleName(10);
-        String secondPackage = "secondTestPkg" + PackagingTestUtils.randomModuleName(10);
+        String firstPackage = "firstTestPkg" + TestUtils.randomModuleName(10);
+        String secondPackage = "secondTestPkg" + TestUtils.randomModuleName(10);
 
         String[] clientArgsForInit = {"-i"};
         String[] options = {"\n", orgName + "\n", "\n", "m\n", firstPackage + "\n", "m\n", secondPackage + "\n", "f\n"};
@@ -225,20 +224,9 @@ public class PackagingTestCase extends BaseTest {
         return envVariables;
     }
 
-    /**
-     * Create Settings.toml inside the home repository.
-     *
-     * @throws IOException i/o exception when writing to file
-     */
-    private void createSettingToml() throws IOException {
-        Path tomlFilePath = tempHomeDirectory.resolve("Settings.toml");
-        String content = "[central]\n accesstoken = \"0f647e67-857d-32e8-a679-bd3c1c3a7eb2\"";
-        Files.write(tomlFilePath, content.getBytes(), StandardOpenOption.CREATE);
-    }
-
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempHomeDirectory);
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+        TestUtils.deleteFiles(tempHomeDirectory);
+        TestUtils.deleteFiles(tempProjectDirectory);
     }
 }

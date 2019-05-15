@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 plugins {
     id 'base'
 }
@@ -32,8 +49,6 @@ configurations {
 }
 
 dependencies {
-    dist 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
-    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2'
     dist 'org.bytedeco:javacpp:1.4.2'
     dist 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
     dist 'com.fasterxml.jackson.core:jackson-core:2.8.6'
@@ -42,7 +57,6 @@ dependencies {
     dist 'org.ow2.asm:asm:6.2.1'
 
     dist project(':ballerina-cli-utils')
-    dist project(':ballerina-llvm')
     dist project(':ballerina-jvm')
     dist project(':ballerina-encoding')
     dist project(':ballerina-bir')
@@ -52,7 +66,6 @@ dependencies {
     dist project(':testerina:testerina-core')
     
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
-    dist project(':ballerina-backend-llvm')
     dist project(':ballerina-backend-jvm')
     dist project(':language-server:language-server-compiler')
     dist project(':ballerina-packerina')
@@ -229,7 +242,7 @@ task createApiDocsZip(type: Zip) {
     archiveName "ballerina-api-docs-${project.version}.zip"
 }
 
-task createZip(type: Zip) {
+task createZip(type: Zip, dependsOn: ':language-server:language-server-core:build') {
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
     with copyBaloSpec(basePath)
@@ -264,7 +277,7 @@ task updateBalHome(type: Copy) {
     into System.getenv('BAL_HOME')
 }
 
-task createDistribution(type: Copy) {
+task createDistribution(type: Copy, dependsOn: ':language-server:language-server-core:build') {
     def filePath = "$buildDir/extracted-distributions/${project.name}-${project.version}"
     file(filePath).mkdirs()
     with copyJarSpec("")
@@ -284,8 +297,6 @@ task createDistribution(type: Copy) {
 }
 
 build {
-    // To make sure language server zip is ready before building pack
-    dependsOn ':language-server:language-server-core:build'
     dependsOn createZip
     dependsOn createDistribution
     finalizedBy ':ballerina-tools-integration-test:test'

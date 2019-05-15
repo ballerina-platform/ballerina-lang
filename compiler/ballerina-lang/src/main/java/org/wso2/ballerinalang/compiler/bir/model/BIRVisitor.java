@@ -17,9 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
@@ -28,10 +30,19 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.IsLike;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewError;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TernaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.AsyncCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
@@ -64,6 +75,14 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRParameter birParameter) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRAnnotation birAnnotation) {
+        throw new AssertionError();
+    }
+
 
     // Terminating instructions
 
@@ -84,6 +103,10 @@ public abstract class BIRVisitor {
     }
 
     public void visit(BIRTerminator.Branch birBranch) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRTerminator.FPCall fpCall) {
         throw new AssertionError();
     }
 
@@ -122,6 +145,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNonTerminator.FPLoad fpLoad) {
+        throw new AssertionError();
+    }
+
     public void visit(BIRTerminator.Panic birPanic) {
         throw new AssertionError();
     }
@@ -142,7 +169,27 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRTerminator.Wait birWait) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRTerminator.WorkerReceive workerReceive) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRTerminator.WorkerSend workerSend) {
+        throw new AssertionError();
+    }
+
     public void visit(TypeTest birTypeTest) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewTable newTable) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewStream newStream) {
         throw new AssertionError();
     }
 
@@ -151,5 +198,39 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
-    
+    public void visit(NewXMLElement newXMLElement) {
+        throw new AssertionError();
+    }
+
+    public void visit(NewXMLQName newXMLQName) {
+        throw new AssertionError();
+    }
+
+    public void visit(NewXMLText newXMLText) {
+        throw new AssertionError();
+    }
+
+    public void visit(XMLAccess xmlAccess) {
+        throw new AssertionError();
+    }
+
+    public void visit(NewXMLComment newXMLComment) {
+        throw new AssertionError();
+    }
+
+    public void visit(NewXMLProcIns newXMLProcIns) {
+        throw new AssertionError();
+    }
+
+    public void visit(NewStringXMLQName newStringXMLQName) {
+        throw new AssertionError();
+    }
+
+    public void visit(NewTypeDesc newTypeDesc) {
+        throw new AssertionError();
+    }
+
+    public void visit(TernaryOp ternaryOp) {
+        throw new AssertionError();
+    }
 }

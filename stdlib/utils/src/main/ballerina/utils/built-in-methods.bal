@@ -67,8 +67,8 @@ function detail(error value) returns anydata = external;
 
 # Get a new Iterator
 #
-# + collection - Data collection
-# + iterator - Iterator for the given data
+# + data - Data collection
+# + return - Iterator for the given data
 function iterate(any data) returns any = external;
 
 # Get length of given value.
@@ -76,3 +76,9 @@ function iterate(any data) returns any = external;
 # + value - Value to get the length
 # + return - Length of the given value
 function length(anydata value) returns int = external;
+
+# Get the next value of an iterator.
+#
+# + iterator - Iterator
+# + return - Next value
+function next(any iterator) returns anydata|error = external;

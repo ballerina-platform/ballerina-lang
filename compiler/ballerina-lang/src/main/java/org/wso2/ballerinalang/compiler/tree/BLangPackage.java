@@ -73,6 +73,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public PackageID packageID;
     public BPackageSymbol symbol;
     public Set<Flag> flagSet;
+    public byte[] jarBinaryContent;
 
     // TODO Revisit these instance variables
     public BDiagnosticCollector diagCollector;

@@ -20,6 +20,12 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
@@ -74,6 +80,7 @@ public class GetTable implements NativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(GetTable.class);
     private static final String CSV_CHANNEL_DELIMITED_STRUCT_FIELD = "dc";
+    private static final String TYPE_DESC_VALUE = "TypedescValue";
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
@@ -178,4 +185,109 @@ public class GetTable implements NativeCallableUnit {
         return struct;
     }
 
+    public static void getTable(Strand strand, ObjectValue csvChannel, TypedescValue typedescValue) {
+        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
+        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+
+        try {
+            //TODO : Recheck the casting
+            final ObjectValue delimitedObj = (ObjectValue) csvChannel.get(CSV_CHANNEL_DELIMITED_STRUCT_FIELD);
+            DelimitedRecordChannel delimitedChannel = (DelimitedRecordChannel) delimitedObj
+                    .getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
+            EventContext eventContext = new EventContext(callback);
+            eventContext.getProperties().put(TYPE_DESC_VALUE, typedescValue);
+            DelimitedRecordReadAllEvent event = new DelimitedRecordReadAllEvent(delimitedChannel, eventContext);
+            Register register = EventRegister.getFactory().register(event, GetTable::getResponse);
+            eventContext.setRegister(register);
+            register.submit();
+            //TODO : Remove callback once strand non-blocking support is given
+            callback.sync();
+        } catch (Exception e) {
+            String msg = "Failed to process the delimited file: " + e.getMessage();
+            log.error(msg, e);
+            callback.setReturnValues(IOUtils.createError(msg));
+            callback.notifySuccess();
+        }
+    }
+
+    private static EventResult getResponse(EventResult<List, EventContext> result) {
+        TableValue table;
+        EventContext eventContext = result.getContext();
+        //TODO : Remove callback once strand non-blocking support is given
+        TempCallableUnitCallback callback = eventContext.getTempCallback();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
+        } else {
+            try {
+                List records = result.getResponse();
+                table = getbTable(eventContext, records);
+                callback.setReturnValues(table);
+            } catch (Throwable e) {
+                callback.setReturnValues(IOUtils.createError(e.getMessage()));
+            }
+        }
+        IOUtils.validateChannelState(eventContext);
+        callback.notifySuccess();
+        return result;
+    }
+
+    private static TableValue getbTable(EventContext eventContext, List records)
+            throws org.ballerinalang.jvm.util.exceptions.BallerinaException {
+        TypedescValue type = (TypedescValue) eventContext.getProperties().get(TYPE_DESC_VALUE);
+        TableValue table = new TableValue(new org.ballerinalang.jvm.types.BTableType(type.getType()), null, null, null);
+        org.ballerinalang.jvm.types.BStructureType structType =
+                (org.ballerinalang.jvm.types.BStructureType) type.getType();
+        for (Object obj : records) {
+            String[] fields = (String[]) obj;
+            final MapValueImpl<String, Object> struct = getStruct(fields, structType);
+            if (struct != null) {
+                table.addData(struct);
+            }
+        }
+        return table;
+    }
+
+    private static MapValueImpl<String, Object> getStruct(String[] fields,
+                                                          final org.ballerinalang.jvm.types.BStructureType structType) {
+        //TODO : Recheck following migration
+        Map<String, org.ballerinalang.jvm.types.BField> internalStructFields = structType.getFields();
+        int fieldLength = internalStructFields.size();
+        MapValueImpl<String, Object> struct = null;
+        if (fields.length > 0) {
+            if (internalStructFields.size() != fields.length) {
+                String msg = "Record row fields count and the give struct's fields count are mismatch";
+                throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(msg);
+            }
+            Iterator<Map.Entry<String, org.ballerinalang.jvm.types.BField>> itr =
+                    internalStructFields.entrySet().iterator();
+            struct = new MapValueImpl<>(structType);
+            for (int i = 0; i < fieldLength; i++) {
+                String value = fields[i];
+                final org.ballerinalang.jvm.types.BField internalStructField =
+                        itr.next().getValue(); // TODO: 11/15/18 double check this logic
+                final int type = internalStructField.getFieldType().getTag();
+                String fieldName = internalStructField.getFieldName();
+                switch (type) {
+                    case TypeTags.INT_TAG:
+                        struct.put(fieldName, Long.parseLong(value));
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        struct.put(fieldName, Double.parseDouble(value));
+                        break;
+                    case TypeTags.STRING_TAG:
+                        struct.put(fieldName, value);
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        struct.put(fieldName, (Boolean.parseBoolean(value)));
+                        break;
+                    default:
+                        throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(
+                                "Type casting support only for int, float, boolean and string. "
+                                        + "Invalid value for the struct field: " + value);
+                }
+            }
+        }
+        return struct;
+    }
 }

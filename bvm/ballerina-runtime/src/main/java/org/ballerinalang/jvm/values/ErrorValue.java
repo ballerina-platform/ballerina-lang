@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -79,5 +81,10 @@ public class ErrorValue extends RuntimeException implements RefValue {
             return ((RefValue) details).copy(new HashMap<>());
         }
         return details;
+    }
+
+    @Override
+    public void printStackTrace() {
+        ErrorHandlerUtils.printError("error: " + BallerinaErrors.getPrintableStackTrace(this));
     }
 }

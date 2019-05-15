@@ -444,8 +444,8 @@ function populateErrorsFromLastResponse (Response inResponse, error?[] failoverA
 # + chunking - The chunking behaviour of the request
 # + followRedirects - Redirect related options
 # + retryConfig - Retry related options
+# + poolConfig - Configurations associated with request pooling
 # + proxy - Proxy related options
-# + connectionThrottling - The configurations for controlling the number of connections allowed concurrently
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
 # + cache - The configurations for controlling the caching behaviour
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
@@ -466,7 +466,7 @@ public type FailoverClientEndpointConfiguration record {|
     TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth = ();
+    OutboundAuthConfig? auth = ();
     int[] failoverCodes = [501, 502, 503, 504];
     int intervalMillis = 0;
 |};

@@ -6,12 +6,13 @@ public function main() {
     (boolean, float) t = (true, 0.4);
     io:println("Simple variable : ", t);
 
-    // The same variable definition can be written using a tuple binding pattern with separate variables.
+    // The same variable definition can be written using a tuple binding pattern
+    // with separate variables.
     (boolean, float) (a1, a2) = (true, 0.4);
     io:println("Tuple variable : ", a1, " ", a2);
 
-    // The binding patterns are recursive in nature. Following examples shows how we can write complex recursive
-    // variable definitions.
+    // The binding patterns are recursive in nature. Following examples show
+    // how we can write complex recursive variable definitions.
     ((string, int), float) ((b1, b2), b3) = (("Ballerina", 4), 6.7);
     io:println("Tuple variable : ", b1, " ", b2, " ", b3);
 
@@ -27,7 +28,8 @@ public function main() {
     io:println("Tuple variable : ",
                     d1, " ", d2, " ", d3, " ", d4, " ", d5, " ", d6);
 
-    // Tuple type can also take `var` as the type label, which in that case, the type will be inferred from the right hand side.
+    // Tuple type can also take `var` as the type label. In that case the type
+    // will be inferred from the right hand side.
     var (e1, (e2, e3)) = ("Ballerina", (123, true));
     io:println("Tuple variable : ", e1, " ", e2, " ", e3);
 

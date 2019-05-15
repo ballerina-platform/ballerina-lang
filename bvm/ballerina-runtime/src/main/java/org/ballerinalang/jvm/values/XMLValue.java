@@ -43,7 +43,7 @@ import javax.xml.namespace.QName;
  * @param <T> Type of the underlying impl
  * @since 0.995.0
  */
-public abstract class XMLValue<T> implements RefValue {
+public abstract class XMLValue<T> implements RefValue, CollectionValue {
 
     BType type = BTypes.typeXML;
 
@@ -124,6 +124,16 @@ public abstract class XMLValue<T> implements RefValue {
     public abstract String getAttribute(String localName, String namespace, String prefix);
 
     /**
+     * Get the value of a single attribute as a string.
+     * 
+     * @param attributeName Qualified name of the attribute
+     * @return Value of the attribute
+     */
+    public String getAttribute(XMLQName attributeName) {
+        return getAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix());
+    }
+
+    /**
      * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
      * Otherwise a new attribute will be added.
      * 
@@ -135,14 +145,25 @@ public abstract class XMLValue<T> implements RefValue {
     public abstract void setAttribute(String localName, String namespace, String prefix, String value);
 
     /**
-     * Get attributes as a {@link MapValue}.
+     * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
+     * Otherwise a new attribute will be added.
      * 
-     * @return Attributes as a {@link MapValue}
+     * @param attributeName Qualified name of the attribute
+     * @param value Value of the attribute
+     */
+    public void setAttribute(XMLQName attributeName, String value) {
+        setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value);
+    }
+
+    /**
+     * Get attributes as a {@link MapValueImpl}.
+     * 
+     * @return Attributes as a {@link MapValueImpl}
      */
     public abstract MapValue<String, ?> getAttributesMap();
 
     /**
-     * Set the attributes of the XML{@link MapValue}.
+     * Set the attributes of the XML{@link MapValueImpl}.
      * 
      * @param attributes Attributes to be set.
      */
@@ -215,7 +236,7 @@ public abstract class XMLValue<T> implements RefValue {
      * @param endIndex To slice
      * @return sliced sequence
      */
-    public abstract XMLValue<?> slice(int startIndex, int endIndex);
+    public abstract XMLValue<?> slice(long startIndex, long endIndex);
 
     /**
      * Searches in children recursively for elements matching the name and returns a sequence containing them all.
