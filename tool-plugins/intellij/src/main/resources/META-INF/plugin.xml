@@ -28,7 +28,7 @@
 
     <extensionPoints>
     <extensionPoint qualifiedName="io.ballerina.html.panel.provider"
-                    interface="io.ballerina.plugins.idea.ui.preview.HtmlPanelProvider" />
+                    interface="io.ballerina.plugins.idea.webview.diagram.preview.HtmlPanelProvider" />
     </extensionPoints>
 
     <module-components>
@@ -59,7 +59,7 @@
 
         <lang.syntaxHighlighterFactory language="Ballerina"
                                        implementationClass="io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlighterFactory"/>
-        <fileEditorProvider implementation="io.ballerina.plugins.idea.ui.preview.BallerinaSplitEditorProvider"/>
+        <fileEditorProvider implementation="io.ballerina.plugins.idea.webview.diagram.preview.BallerinaSplitEditorProvider"/>
         <!--Add organization index-->
 
         <indexPatternBuilder implementation="io.ballerina.plugins.idea.BallerinaIndexPatternBuilder"/>
@@ -163,7 +163,7 @@
         <!--project-->
         <applicationService
                 serviceImplementation="io.ballerina.plugins.idea.project.BallerinaApplicationLibrariesService"/>
-        <applicationService serviceImplementation="io.ballerina.plugins.idea.ui.settings.MarkdownApplicationSettings"/>
+        <applicationService serviceImplementation="io.ballerina.plugins.idea.webview.diagram.settings.DiagramApplicationSettings"/>
         <projectService
                 serviceImplementation="io.ballerina.plugins.idea.project.BallerinaProjectLibrariesService"/>
         <projectConfigurable id="Ballerina" groupId="language"
@@ -186,27 +186,27 @@
     </extensions>
 
     <extensions defaultExtensionNs="io.ballerina">
-        <html.panel.provider implementation="io.ballerina.plugins.idea.ui.preview.javafx.JavaFxHtmlPanelProvider" />
+        <html.panel.provider implementation="io.ballerina.plugins.idea.webview.diagram.preview.javafx.JavaFxHtmlPanelProvider" />
     </extensions>
 
     <actions>
         <!-- Ballerina Plugin Actions -->
-        <group id="Markdown.Toolbar.Right" class="com.intellij.openapi.actionSystem.DefaultActionGroup"
+        <group id="Diagram.Toolbar.Right" class="com.intellij.openapi.actionSystem.DefaultActionGroup"
                text="Ballerina editor layout actions">
-            <action class="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorOnlyLayoutChangeAction"
-                    id="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorOnlyLayoutChangeAction"
+            <action class="io.ballerina.plugins.idea.webview.diagram.actions.editorLayout.EditorOnlyLayoutChangeAction"
+                    id="io.ballerina.plugins.idea.webview.diagram.actions.editorLayout.EditorOnlyLayoutChangeAction"
                     text="Show editor only"
                     description="Sets ballerina editor layout to show editor only"
                     icon="BallerinaIcons.Layout.EDITOR_ONLY">
             </action>
-            <action class="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorAndPreviewLayoutChangeAction"
-                    id="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorAndPreviewLayoutChangeAction"
+            <action class="io.ballerina.plugins.idea.webview.diagram.actions.editorLayout.EditorAndPreviewLayoutChangeAction"
+                    id="io.ballerina.plugins.idea.webview.diagram.actions.editorLayout.EditorAndPreviewLayoutChangeAction"
                     text="Show editor and preview"
                     description="Sets ballerina editor layout to show editor and preview in split"
                     icon="BallerinaIcons.Layout.EDITOR_PREVIEW">
             </action>
-            <action class="io.ballerina.plugins.idea.ui.actions.editorLayout.PreviewOnlyLayoutChangeAction"
-                    id="io.ballerina.plugins.idea.ui.actions.editorLayout.PreviewOnlyLayoutChangeAction"
+            <action class="io.ballerina.plugins.idea.webview.diagram.actions.editorLayout.PreviewOnlyLayoutChangeAction"
+                    id="io.ballerina.plugins.idea.webview.diagram.actions.editorLayout.PreviewOnlyLayoutChangeAction"
                     text="Show preview only"
                     description="Sets ballerina editor layout to show preview only"
                     icon="BallerinaIcons.Layout.PREVIEW_ONLY">

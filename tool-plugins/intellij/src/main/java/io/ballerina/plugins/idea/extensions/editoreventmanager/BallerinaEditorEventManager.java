@@ -36,7 +36,7 @@ import java.util.concurrent.TimeoutException;
 
 public class BallerinaEditorEventManager extends EditorEventManager {
 
-    private final int TIMEOUT_GET_AST = 2000;
+    private final int TIMEOUT_GET_AST_MS = 2000;
 
     public BallerinaEditorEventManager(Editor editor, DocumentListener documentListener,
             EditorMouseListener mouseListener, EditorMouseMotionListener mouseMotionListener,
@@ -51,7 +51,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         CompletableFuture<BallerinaASTResponse> future = ballerinaRequestManager.ast(astRequest);
         if (future != null) {
             try {
-                BallerinaASTResponse response = future.get(TIMEOUT_GET_AST, TimeUnit.MILLISECONDS);
+                BallerinaASTResponse response = future.get(TIMEOUT_GET_AST_MS, TimeUnit.MILLISECONDS);
                 JsonElement ast = response.getAst();
                 return ast != null ? ast.toString() : "";
             } catch (TimeoutException e) {
