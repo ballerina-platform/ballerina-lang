@@ -25,56 +25,56 @@ const string CONFIG_USER_SECTION = "b7a.users";
 public type ConfigAuthStoreProvider object {
 
     *AuthProvider;
+};
 
-    # Attempts to authenticate with credential.
-    #
-    # + credential - Credential
-    # + return - `true` if authentication is successful, otherwise `false` or `error` occurred while extracting credentials
-    public function authenticate(string credential) returns boolean|error {
-        if (credential == EMPTY_STRING) {
-            return false;
-        }
-        string username;
-        string password;
-        (username, password) = check extractUsernameAndPassword(credential);
-        string passwordFromConfig = readPassword(username);
-        boolean isAuthenticated = false;
-        // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
-        if (passwordFromConfig.hasPrefix(CONFIG_PREFIX)) {
-            if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA256)) {
-                isAuthenticated = encoding:encodeHex(crypto:hashSha256(password.toByteArray(DEFAULT_CHARSET)))
-                                    .equalsIgnoreCase(extractHash(passwordFromConfig));
-            } else if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA384)) {
-                isAuthenticated = encoding:encodeHex(crypto:hashSha384(password.toByteArray(DEFAULT_CHARSET)))
-                                    .equalsIgnoreCase(extractHash(passwordFromConfig));
-            } else if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA512)) {
-                isAuthenticated = encoding:encodeHex(crypto:hashSha512(password.toByteArray(DEFAULT_CHARSET)))
-                                    .equalsIgnoreCase(extractHash(passwordFromConfig));
-            } else {
-                isAuthenticated = password == passwordFromConfig;
-            }
+# Attempts to authenticate with credential.
+#
+# + credential - Credential
+# + return - `true` if authentication is successful, otherwise `false` or `error` occurred while extracting credentials
+public function ConfigAuthStoreProvider.authenticate(string credential) returns boolean|error {
+    if (credential == EMPTY_STRING) {
+        return false;
+    }
+    string username;
+    string password;
+    (username, password) = check extractUsernameAndPassword(credential);
+    string passwordFromConfig = readPassword(username);
+    boolean isAuthenticated = false;
+    // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
+    if (passwordFromConfig.hasPrefix(CONFIG_PREFIX)) {
+        if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA256)) {
+            isAuthenticated = encoding:encodeHex(crypto:hashSha256(password.toByteArray(DEFAULT_CHARSET)))
+                                .equalsIgnoreCase(extractHash(passwordFromConfig));
+        } else if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA384)) {
+            isAuthenticated = encoding:encodeHex(crypto:hashSha384(password.toByteArray(DEFAULT_CHARSET)))
+                                .equalsIgnoreCase(extractHash(passwordFromConfig));
+        } else if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA512)) {
+            isAuthenticated = encoding:encodeHex(crypto:hashSha512(password.toByteArray(DEFAULT_CHARSET)))
+                                .equalsIgnoreCase(extractHash(passwordFromConfig));
         } else {
             isAuthenticated = password == passwordFromConfig;
         }
-        if (isAuthenticated) {
-            runtime:Principal principal = runtime:getInvocationContext().principal;
-            principal.userId = username;
-            principal.username = username;
-            principal.scopes = self.getScopes(username);
-        }
-        return isAuthenticated;
+    } else {
+        isAuthenticated = password == passwordFromConfig;
     }
+    if (isAuthenticated) {
+        runtime:Principal principal = runtime:getInvocationContext().principal;
+        principal.userId = username;
+        principal.username = username;
+        principal.scopes = getScopes(username);
+    }
+    return isAuthenticated;
+}
 
-    # Reads the scope(s) for the user with the given username.
-    #
-    # + username - Username
-    # + return - Array of groups for the user denoted by the username
-    public function getScopes(string username) returns string[] {
-        // first read the user id from user->id mapping
-        // reads the groups for the user-id
-        return getArray(getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "scopes"));
-    }
-};
+# Reads the scope(s) for the user with the given username.
+#
+# + username - Username
+# + return - Array of groups for the user denoted by the username
+function getScopes(string username) returns string[] {
+    // first read the user id from user->id mapping
+    // reads the groups for the user-id
+    return getArray(getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "scopes"));
+}
 
 # Extract password hash from the configuration file.
 #

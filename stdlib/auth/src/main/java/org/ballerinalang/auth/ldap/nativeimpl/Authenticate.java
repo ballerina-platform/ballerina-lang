@@ -49,12 +49,11 @@ import javax.naming.ldap.LdapContext;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "auth",
-        functionName = "LdapAuthStoreProvider.doAuthenticate",
+        functionName = "doAuthenticate",
         args = {@Argument(name = "username", type = TypeKind.STRING),
                 @Argument(name = "password", type = TypeKind.STRING)
         },
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true)
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)})
 public class Authenticate extends BlockingNativeCallableUnit {
 
     private static final Log LOG = LogFactory.getLog(Authenticate.class);

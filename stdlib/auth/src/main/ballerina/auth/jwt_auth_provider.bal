@@ -19,74 +19,19 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
 
-# Represents a JWT Authenticator.
-#
-# + jwtAuthProviderConfig - JWT auth provider configurations
-public type JWTAuthProvider object {
-
-    *AuthProvider;
-
-    public JWTAuthProviderConfig jwtAuthProviderConfig;
-
-    # Provides authentication based on the provided jwt token.
-    #
-    # + jwtAuthProviderConfig - JWT authentication provider configurations
-    public function __init(JWTAuthProviderConfig jwtAuthProviderConfig) {
-        self.jwtAuthProviderConfig = jwtAuthProviderConfig;
-    }
-
-    # Authenticate with a jwt token.
-    #
-    # + jwtToken - Jwt token extracted from the authentication header
-    # + return - `true` if authentication is successful, othewise `false` or `error` occurred during jwt validation
-    public function authenticate(string jwtToken) returns boolean|error {
-        if (self.jwtAuthProviderConfig.jwtCache.hasKey(jwtToken)) {
-            var payload = authenticateFromCache(self.jwtAuthProviderConfig, jwtToken);
-            if (payload is JwtPayload) {
-                setAuthenticationContext(payload, jwtToken);
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        JWTValidatorConfig jwtValidatorConfig = { clockSkew: self.jwtAuthProviderConfig.clockSkew };
-        var issuer = self.jwtAuthProviderConfig["issuer"];
-        if (issuer is string) {
-            jwtValidatorConfig.issuer = issuer;
-        }
-        var audience = self.jwtAuthProviderConfig["audience"];
-        if (audience is string[]) {
-            jwtValidatorConfig.audience = audience;
-        }
-        var trustStore = self.jwtAuthProviderConfig["trustStore"];
-        if (trustStore is crypto:TrustStore) {
-            jwtValidatorConfig.trustStore = trustStore;
-        }
-        var certificateAlias = self.jwtAuthProviderConfig["certificateAlias"];
-        if (certificateAlias is string) {
-            jwtValidatorConfig.certificateAlias = certificateAlias;
-        }
-        var validateCertificateConfig = self.jwtAuthProviderConfig["validateCertificate"];
-        if (validateCertificateConfig is boolean) {
-            jwtValidatorConfig.validateCertificate = validateCertificateConfig;
-        }
-
-        var payload = validateJwt(jwtToken, jwtValidatorConfig);
-        if (payload is JwtPayload) {
-            setAuthenticationContext(payload, jwtToken);
-            addToAuthenticationCache(self.jwtAuthProviderConfig, jwtToken, payload.exp, payload);
-            return true;
-        } else {
-            return payload;
-        }
-    }
-};
-
 const string SCOPES = "scope";
 const string GROUPS = "groups";
 const string USERNAME = "name";
 const string AUTH_TYPE_JWT = "jwt";
+
+# Represents parsed and cached JWT.
+#
+# + jwtPayload - Parsed JWT payload
+# + expiryTime - Expiry time of the JWT
+public type CachedJwt record {|
+    JwtPayload jwtPayload;
+    int expiryTime;
+|};
 
 # Represents JWT validator configurations.
 #
@@ -107,14 +52,69 @@ public type JWTAuthProviderConfig record {|
     cache:Cache jwtCache = new;
 |};
 
-# Represents parsed and cached JWT.
+# Represents a JWT Authenticator.
 #
-# + jwtPayload - Parsed JWT payload
-# + expiryTime - Expiry time of the JWT
-public type CachedJwt record {|
-    JwtPayload jwtPayload;
-    int expiryTime;
-|};
+# + jwtAuthProviderConfig - JWT auth provider configurations
+public type JWTAuthProvider object {
+
+    *AuthProvider;
+
+    public JWTAuthProviderConfig jwtAuthProviderConfig;
+
+    # Provides authentication based on the provided jwt token.
+    #
+    # + jwtAuthProviderConfig - JWT authentication provider configurations
+    public function __init(JWTAuthProviderConfig jwtAuthProviderConfig) {
+        self.jwtAuthProviderConfig = jwtAuthProviderConfig;
+    }
+};
+
+# Authenticate with a jwt token.
+#
+# + credential - Jwt token extracted from the authentication header
+# + return - `true` if authentication is successful, othewise `false` or `error` occurred during jwt validation
+public function JWTAuthProvider.authenticate(string credential) returns boolean|error {
+    if (self.jwtAuthProviderConfig.jwtCache.hasKey(credential)) {
+        var payload = authenticateFromCache(self.jwtAuthProviderConfig, credential);
+        if (payload is JwtPayload) {
+            setAuthenticationContext(payload, credential);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    JWTValidatorConfig jwtValidatorConfig = { clockSkew: self.jwtAuthProviderConfig.clockSkew };
+    var issuer = self.jwtAuthProviderConfig["issuer"];
+    if (issuer is string) {
+        jwtValidatorConfig.issuer = issuer;
+    }
+    var audience = self.jwtAuthProviderConfig["audience"];
+    if (audience is string[]) {
+        jwtValidatorConfig.audience = audience;
+    }
+    var trustStore = self.jwtAuthProviderConfig["trustStore"];
+    if (trustStore is crypto:TrustStore) {
+        jwtValidatorConfig.trustStore = trustStore;
+    }
+    var certificateAlias = self.jwtAuthProviderConfig["certificateAlias"];
+    if (certificateAlias is string) {
+        jwtValidatorConfig.certificateAlias = certificateAlias;
+    }
+    var validateCertificateConfig = self.jwtAuthProviderConfig["validateCertificate"];
+    if (validateCertificateConfig is boolean) {
+        jwtValidatorConfig.validateCertificate = validateCertificateConfig;
+    }
+
+    var payload = validateJwt(credential, jwtValidatorConfig);
+    if (payload is JwtPayload) {
+        setAuthenticationContext(payload, credential);
+        addToAuthenticationCache(self.jwtAuthProviderConfig, credential, payload.exp, payload);
+        return true;
+    } else {
+        return payload;
+    }
+}
 
 function authenticateFromCache(JWTAuthProviderConfig jwtAuthProviderConfig, string jwtToken) returns JwtPayload? {
     var cachedJwt = trap <CachedJwt>jwtAuthProviderConfig.jwtCache.get(jwtToken);
