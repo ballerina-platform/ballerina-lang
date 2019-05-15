@@ -112,7 +112,7 @@ public class TypeGenTest {
     private byte[] serializeBType(BType type, ConstantPool cp) {
         ByteBuf buff = Unpooled.buffer();
         BIRTypeWriter birTypeWriter = new BIRTypeWriter(buff, cp);
-        type.accept(birTypeWriter);
+        birTypeWriter.visitType(type);
         return Arrays.copyOfRange(buff.nioBuffer().array(), 0, buff.nioBuffer().limit());
     }
 
