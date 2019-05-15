@@ -199,6 +199,22 @@ public class TypeChecker {
         return isEqual(lhsValue, rhsValue, new ArrayList<>());
     }
 
+    public static boolean ifgt(Comparable lhsValue, Comparable rhsValue) {
+        return lhsValue.compareTo(rhsValue) > 0;
+    }
+
+    public static boolean ifge(Comparable lhsValue, Comparable rhsValue) {
+        return lhsValue.compareTo(rhsValue) >= 0;
+    }
+
+    public static boolean iflt(Comparable lhsValue, Comparable rhsValue) {
+        return lhsValue.compareTo(rhsValue) < 0;
+    }
+
+    public static boolean ifle(Comparable lhsValue, Comparable rhsValue) {
+        return lhsValue.compareTo(rhsValue) <= 0;
+    }
+
     /**
      * Reference equality check for values. If both the values are simple basic types, returns the same
      * result as {@link #isEqual(Object, Object, List)}

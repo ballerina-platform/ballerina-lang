@@ -44,7 +44,9 @@ type InstructionGenerator object {
             self.mv.visitTypeInsn(NEW, DECIMAL_VALUE);
             self.mv.visitInsn(DUP);
             self.mv.visitLdcInsn(val);
-            self.mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", "(Ljava/lang/String;)V", false);
+            self.mv.visitFieldInsn(GETSTATIC, "java/math/MathContext", "DECIMAL128", "Ljava/math/MathContext");
+            self.mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>",
+                "(Ljava/lang/String;Ljava/math/MathContext;)V", false);
         } else if (bType is bir:BTypeBoolean) {
             any val = loadIns.value;
             self.mv.visitLdcInsn(val);
@@ -129,7 +131,21 @@ type InstructionGenerator object {
         jvm:Label label1 = new;
         jvm:Label label2 = new;
 
-        self.mv.visitInsn(LCMP);
+        bir:BType lhsOpType = binaryIns.rhsOp1.variableDcl.typeValue;
+        bir:BType rhsOpType = binaryIns.rhsOp2.variableDcl.typeValue;
+
+        if (lhsOpType is bir:BTypeInt|bir:BTypeByte && rhsOpType is bir:BTypeInt|bir:BTypeByte) {
+            self.mv.visitInsn(LCMP);
+        } else if (lhsOpType is bir:BTypeFloat && rhsOpType is bir:BTypeFloat) {
+            self.mv.visitInsn(DCMPL);
+        } else {
+            string compareFuncName = self.getCompareFuncName(opcode);
+            self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, compareFuncName,
+                io:sprintf("(L%s;L%s;)Z", COMPARABLE, COMPARABLE), false);
+            self.storeToVar(binaryIns.lhsOp.variableDcl);
+            return;
+        }
+
         self.mv.visitJumpInsn(opcode, label1);
 
         self.mv.visitInsn(ICONST_0);
@@ -140,6 +156,21 @@ type InstructionGenerator object {
 
         self.mv.visitLabel(label2);
         self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    private function getCompareFuncName(int opcode) returns string {
+        if (opcode == IFGT) {
+            return "ifgt";
+        } else if (opcode == IFGE) {
+            return "ifge";
+        } else if (opcode == IFLT) {
+            return "iflt";
+        } else if (opcode == IFLE) {
+            return "ifle";
+        } else {
+            error err = error(io:sprintf("Opcode: '%s' is not a comparison opcode.", opcode));
+            panic err;
+        }
     }
 
     function generateEqualIns(bir:BinaryOp binaryIns) {
@@ -546,8 +577,6 @@ type InstructionGenerator object {
                 valueDesc = "J";
             } else if (varRefType.eType is bir:BTypeString) {
                 valueDesc = io:sprintf("L%s;", STRING_VALUE);
-            } else if (varRefType.eType is bir:BTypeDecimal) {
-                valueDesc = io:sprintf("L%s;", DECIMAL_VALUE);
             } else if (varRefType.eType is bir:BTypeBoolean) {
                 valueDesc = "Z";
             } else if (varRefType.eType is bir:BTypeFloat) {

@@ -1048,7 +1048,8 @@ function castFromString(bir:BType targetType, jvm:MethodVisitor mv) {
     } else if (targetType is bir:BTypeBoolean) {
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", "(Ljava/lang/String;)Z", false);
     } else if (targetType is bir:BTypeDecimal) {
-        mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", "(Ljava/lang/String;)V", false);
+        mv.visitFieldInsn(GETSTATIC, "java/math/MathContext", "DECIMAL128", "Ljava/math/MathContext;");
+        mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", "(Ljava/lang/String;Ljava/math/MathContext;)V", false);
     } else if (targetType is bir:BArrayType) {
         mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
     } else if (targetType is bir:BMapType) {

@@ -248,7 +248,7 @@ public class BIRInstructionWriter extends BIRVisitor {
                 break;
             case TypeTags.STRING:
             case TypeTags.DECIMAL:
-                buf.writeInt(cp.addCPEntry(new StringCPEntry((String) birConstantLoad.value.toString())));
+                buf.writeInt(cp.addCPEntry(new StringCPEntry(birConstantLoad.value.toString())));
                 break;
             case TypeTags.FLOAT:
                 double value = birConstantLoad.value instanceof Double ? (double) birConstantLoad.value
