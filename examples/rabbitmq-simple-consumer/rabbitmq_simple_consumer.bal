@@ -6,7 +6,7 @@ rabbitmq:Connection connection = new({ host: "localhost", port: 5672 });
 
 listener rabbitmq:ChannelListener channelListener = new(connection);
 
-// Consumer service listens to the "MyQueue" queue.
+// The consumer service listens to the "MyQueue" queue.
 @rabbitmq:ServiceConfig {
     queueConfig: {
         queueName: "MyQueue"
