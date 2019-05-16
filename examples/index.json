@@ -972,11 +972,11 @@
         "category": "Working over the network",
         "samples": [
             {
-                "name": "ANYCAST consumer",
+                "name": "ANYCAST Consumer",
                 "url": "artemis-anycast-session-consumer"
             },
             {
-                "name": "ANYCAST producer",
+                "name": "ANYCAST Producer",
                 "url": "artemis-anycast-session-producer"
             },
             {
@@ -1020,23 +1020,23 @@
         "column": 3,
         "category": "Working over the network",
         "samples": [{
-                "name": "Secured Service With JWT",
+                "name": "Secured Service with JWT",
                 "url": "secured-service-with-jwt"
             },
             {
-                "name": "Secured Service With Basic Auth",
+                "name": "Secured Service with Basic Auth",
                 "url": "secured-service-with-basic-auth"
             },
             {
-                "name": "Secured Client With Basic Auth",
+                "name": "Secured Client with Basic Auth",
                 "url": "secured-client-with-basic-auth"
             },
             {
-                "name": "Secured Client With JWT Auth",
+                "name": "Secured Client with JWT Auth",
                 "url": "secured-client-with-jwt-auth"
             },
             {
-                "name": "Secured Client With OAuth2",
+                "name": "Secured Client with OAuth2",
                 "url": "secured-client-with-oauth2"
             }
         ]
