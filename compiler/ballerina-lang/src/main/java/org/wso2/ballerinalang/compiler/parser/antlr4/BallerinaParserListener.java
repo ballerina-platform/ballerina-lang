@@ -1890,6 +1890,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTypeTestExpression(BallerinaParser.TypeTestExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code annotAccessExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnnotAccessExpression(BallerinaParser.AnnotAccessExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code annotAccessExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnnotAccessExpression(BallerinaParser.AnnotAccessExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code bracedOrTupleExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree

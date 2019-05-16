@@ -738,6 +738,7 @@ expression
     |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
+    |   expression DOT AT nameReference                                     # annotAccessExpression
     ;
 
 constantExpression
