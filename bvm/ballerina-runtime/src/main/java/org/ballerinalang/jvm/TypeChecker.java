@@ -1138,7 +1138,7 @@ public class TypeChecker {
      * @since 0.995.0
      */
     private static class ValuePair {
-        List<Object> valueList = new ArrayList<>(2);
+        ArrayList<Object> valueList = new ArrayList<>(2);
 
         ValuePair(Object valueOne, Object valueTwo) {
             valueList.add(valueOne);
@@ -1151,8 +1151,20 @@ public class TypeChecker {
                 return false;
             }
 
-            return ((ValuePair) otherPair).valueList.containsAll(valueList) &&
-                    valueList.containsAll(((ValuePair) otherPair).valueList);
+            ArrayList otherList = ((ValuePair) otherPair).valueList;
+            ArrayList currentList = valueList;
+
+            if (otherList.size() != currentList.size()) {
+                return false;
+            }
+
+            for (int i = 0; i < otherList.size() ; i++) {
+                if (!otherList.get(i).equals(currentList.get(i))) {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

@@ -104,6 +104,7 @@
                     <exclude name="testError_2"/>
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.EqualAndNotEqualOperationsTest"/>
         </classes>
     </test>
 </suite>
