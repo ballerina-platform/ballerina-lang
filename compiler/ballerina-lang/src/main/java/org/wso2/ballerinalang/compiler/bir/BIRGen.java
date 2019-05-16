@@ -616,7 +616,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
 
-        this.env.enclBB.terminator = new BIRTerminator.Flush(flushExpr.pos, channels, lhsOp);
+        this.env.enclBB.terminator = new BIRTerminator.Flush(flushExpr.pos, channels, lhsOp, thenBB);
         this.env.enclFunc.basicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
     }

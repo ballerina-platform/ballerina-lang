@@ -406,7 +406,8 @@ public type FuncBodyParser object {
             TerminatorKind kind = TERMINATOR_FLUSH;
             ChannelDetail[] channels = getWorkerChannels(self.reader);
             VarRef lhsOp = self.parseVarRef();
-            Flush flushIns = {pos:pos, workerChannels:channels, kind:kind, lhsOp:lhsOp};
+            BasicBlock thenBB = self.parseBBRef();
+            Flush flushIns = {pos:pos, workerChannels:channels, kind:kind, lhsOp:lhsOp, thenBB:thenBB};
             return flushIns;
         } else if (kindTag == INS_FP_CALL) {
             TerminatorKind kind = TERMINATOR_FP_CALL;

@@ -137,4 +137,49 @@ public class WorkerTest {
         Assert.assertEquals(((BError) returns[0]).getReason(), "error3");
     }
 
+    @Test
+    public void simpleFlushTest() {
+
+        BValue[] returns = BRunUtil.invoke(result, "singleFlush");
+        Assert.assertEquals(returns[0].stringValue(), "w2w2w2w2w2w1w1w1w1w1");
+    }
+
+    @Test
+    public void flushReturnNilTest() {
+
+        BValue[] returns = BRunUtil.invoke(result, "flushReturn");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void flushAll() {
+
+        BValue[] returns = BRunUtil.invoke(result, "flushAll");
+        Assert.assertFalse(returns[0].stringValue().startsWith("w1"),
+                "Returned wrong value:" + returns[0].stringValue());
+    }
+
+    @Test
+    public void errorBeforeFlush() {
+
+        BValue[] returns = BRunUtil.invoke(result, "errorTest");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "error3");
+    }
+
+    @Test
+    public void flushInDefaultError() {
+
+        BValue[] returns = BRunUtil.invoke(result, "flushInDefaultError");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "err");
+    }
+
+    @Test
+    public void flushInDefault() {
+
+        BValue[] returns = BRunUtil.invoke(result, "flushInDefault");
+        Assert.assertEquals(returns[0].stringValue(), "25");
+    }
+
 }

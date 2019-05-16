@@ -313,3 +313,202 @@ function errorResult() returns error? {
     error? w1Result = wait w1;
     return w1Result;
 }
+
+string fappend = "";
+function singleFlush () returns string {
+
+    worker w1 {
+        int a = 10;
+        a -> w2;
+        error? result = flush w2;
+        int i = 0;
+        while(i < 5) {
+            i += 1;
+            fappend = fappend + "w1";
+        }
+    }
+
+    worker w2 {
+        int i = 0;
+        while(i < 5) {
+            i += 1;
+            fappend = fappend + "w2";
+        }
+        int b;
+        b = <- w1;
+    }
+
+    wait w1;
+    return fappend;
+}
+
+string fappend3 = "";
+function flushReturn() returns error? {
+    worker w1 returns error? {
+            int a = 10;
+            a -> w2;
+            a -> w2;
+            error? result = flush w2;
+            int i = 0;
+            while (i < 5) {
+                i += 1;
+                fappend3 = fappend3 + "w1";
+            }
+            return result;
+        }
+
+        worker w2 {
+            int i = 0;
+            while (i < 5) {
+                i += 1;
+                fappend3 = fappend3 + "w2";
+            }
+            int b;
+            b = <- w1;
+            b = <- w1;
+        }
+
+        var result = wait w1;
+        return result;
+}
+
+string fappend2 = "";
+function flushAll() returns string {
+    worker w1 {
+            int a = 10;
+
+            var sync = a ->> w2;
+            a -> w3;
+            a -> w2;
+            error? result = flush;
+            int i = 0;
+            while (i < 5) {
+                i += 1;
+                fappend2 = fappend2 + "w1";
+            }
+        }
+
+        worker w2 returns error?{
+            if(false){
+                 error err = error("err", { message: "err msg" });
+                 return err;
+            }
+            
+            int i = 0;
+            while (i < 5) {
+                i += 1;
+                fappend2 = fappend2 + "w2";
+            }
+            int b;
+            b = <- w1;
+            b = <- w1;
+            return;
+        }
+
+        worker w3 {
+            int i = 0;
+            while (i < 5) {
+                i += 1;
+                fappend2 = fappend2 + "w3";
+            }
+            int b;
+            b = <- w1;
+        }
+
+         wait w1;
+        return fappend2;
+}
+
+string fappend4 = "";
+function errorTest() returns error? {
+    worker w1 returns error?{
+            int a = 10;
+
+            var sync = a ->> w2;
+            a -> w3;
+            a -> w2;
+            error? result = flush;
+            int i = 0;
+            while (i < 5) {
+                i += 1;
+                fappend4 = fappend4 + "w1";
+            }
+            return result;
+        }
+
+        worker w2 returns error?{
+            if(false){
+                 error err = error("err", { message: "err msg" });
+                 return err;
+            }
+            int i = 0;
+            while (i < 5) {
+                i += 1;
+                fappend4 = fappend4 + "w2";
+            }
+            int b;
+            b = <- w1;
+            b = <- w1;
+            return;
+        }
+
+        worker w3 returns error|string{
+            int k;
+            int i = 0;
+            while (i < 5) {
+                i += 1;
+                fappend4 = fappend4 + "w3";
+                k = i;
+            }
+            if (k > 3) {
+                map<string> reason = { k1: "error3" };
+                map<string> details = { message: "msg3" };
+                    error er3 = error(reason.k1, details);
+                    return er3;
+                }
+
+            int b;
+            b = <- w1;
+            return "done";
+        }
+
+        error? result = wait w1;
+        return result;
+}
+
+
+
+function flushInDefaultError() returns error? {
+   worker w2 returns error? {
+     int a = 0;
+     int b = 15;
+     if (true) {
+       error err = error("err", { message: "err msg" });
+              return err;
+     }
+     a = <- default;
+     b = a + b;
+     b -> default;
+     return ;
+   }
+   int a = 10;
+    a -> w2;
+    error? result = flush;
+    error|int c = <- w2;
+    return result;
+}
+
+function flushInDefault() returns int {
+   worker w2 {
+     int a = 0;
+     int b = 15;
+     a = <- default;
+     b = a + b;
+     b -> default;
+   }
+   int a = 10;
+    a -> w2;
+    error? result = flush;
+    int c = <- w2;
+    return c;
+}

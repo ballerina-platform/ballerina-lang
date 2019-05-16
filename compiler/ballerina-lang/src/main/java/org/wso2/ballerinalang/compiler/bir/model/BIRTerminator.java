@@ -269,11 +269,13 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     public static class Flush extends BIRTerminator {
         public ChannelDetails[] channels;
         public BIROperand lhsOp;
+        public BIRBasicBlock thenBB;
 
-        public Flush(DiagnosticPos pos, ChannelDetails[] channels, BIROperand lhsOp) {
+        public Flush(DiagnosticPos pos, ChannelDetails[] channels, BIROperand lhsOp, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.FLUSH);
             this.channels = channels;
             this.lhsOp = lhsOp;
+            this.thenBB = thenBB;
         }
 
         @Override

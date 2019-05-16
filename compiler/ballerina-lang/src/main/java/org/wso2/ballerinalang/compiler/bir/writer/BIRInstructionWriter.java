@@ -133,6 +133,7 @@ public class BIRInstructionWriter extends BIRVisitor {
             buf.writeBoolean(detail.send);
         }
         entry.lhsOp.accept(this);
+        addCpAndWriteString(entry.thenBB.id.value);
     }
 
     public void visit(BIRTerminator.WorkerReceive entry) {

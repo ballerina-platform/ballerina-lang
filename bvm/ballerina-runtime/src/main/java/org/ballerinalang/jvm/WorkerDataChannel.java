@@ -145,7 +145,17 @@ public class WorkerDataChannel {
                     this.waitingSender = null;
                     this.syncSent = true;
                 } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
-                    // TODO: Fix later for flush
+                    this.flushSender.waitingStrand.flushDetail.flushLock.lock();
+                    this.flushSender.waitingStrand.flushDetail.flushedCount++;
+                    if (this.flushSender.waitingStrand.flushDetail.flushedCount
+                            == this.flushSender.waitingStrand.flushDetail.flushChannels.length) {
+                        if (this.flushSender.waitingStrand.blocked) {
+                            //will continue if this is a sync wait, will try to flush again if blocked on flush
+                            this.flushSender.waitingStrand.scheduler.unblockStrand(this.flushSender.waitingStrand);
+                        }
+                    }
+                    this.flushSender.waitingStrand.flushDetail.flushLock.unlock();
+                    this.flushSender = null;
                 }
                 return result.value;
             } else if (this.panic != null && this.senderCounter == this.receiverCounter + 1) {
@@ -181,7 +191,7 @@ public class WorkerDataChannel {
     }
 
     /**
-     * Method to set reciever errors.
+     * Method to set receiver errors.
      *
      * @param error to be set
      */
@@ -190,7 +200,11 @@ public class WorkerDataChannel {
         this.error = error;
         this.receiverCounter++;
         if (this.flushSender != null) {
-            // TODO: FIX for Flush
+            Strand flushStrand = this.flushSender.waitingStrand;
+            if (flushStrand.blocked) {
+                flushStrand.flushDetail.result = error;
+                flushStrand.scheduler.unblockStrand(flushStrand);
+            }
             this.flushSender = null;
         } else if (this.waitingSender != null) {
             Strand waiting = this.waitingSender.waitingStrand;
@@ -200,9 +214,30 @@ public class WorkerDataChannel {
         releaseChannelLock();
     }
 
-    @SuppressWarnings("rawtypes")
-    public synchronized WorkerResult tryTakeData() {
-        return this.channel.poll();
+    /**
+     * Method to flush channel.
+     *
+     * @param strand waiting for flush
+     * @return error or null
+     */
+    public ErrorValue flushChannel(Strand strand) {
+        acquireChannelLock();
+        try {
+            if (this.panic != null) {
+                // TODO: Handle panic
+            } else if (this.error != null) {
+                return this.error;
+            } else if (this.receiverCounter == this.senderCounter) {
+                strand.flushDetail.flushLock.lock();
+                strand.flushDetail.flushedCount++;
+                strand.flushDetail.flushLock.unlock();
+                return null;
+            }
+            this.flushSender = new WaitingSender(strand, this.senderCounter);
+            return null;
+        } finally {
+            releaseChannelLock();
+        }
     }
 
     /**

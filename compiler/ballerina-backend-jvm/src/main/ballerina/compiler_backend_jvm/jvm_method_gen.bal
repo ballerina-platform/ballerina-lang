@@ -322,6 +322,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             termGen.genWorkerSendIns(terminator, funcName);
         } else if (terminator is bir:WorkerReceive) {
             termGen.genWorkerReceiveIns(terminator, funcName);
+        } else if (terminator is bir:Flush) {
+            termGen.genFlushIns(terminator, funcName);
         } else {
             error err = error( "JVM generation is not supported for terminator instruction " +
                                         io:sprintf("%s", terminator));

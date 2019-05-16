@@ -500,6 +500,7 @@ public type Flush record {|
     TerminatorKind kind;
     VarRef lhsOp;
     ChannelDetail[] workerChannels;
+    BasicBlock thenBB;
 |};
 
 public type WorkerReceive record {|
