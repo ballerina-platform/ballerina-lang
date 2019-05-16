@@ -1131,7 +1131,7 @@ public class TypeChecker {
                 return false;
             }
 
-            for (int i = 0; i < otherList.size() ; i++) {
+            for (int i = 0; i < otherList.size(); i++) {
                 if (!otherList.get(i).equals(currentList.get(i))) {
                     return false;
                 }

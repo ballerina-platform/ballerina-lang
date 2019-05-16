@@ -562,7 +562,7 @@ public class BCompileUtil {
         byte[] compiledJar = JVMCodeGen.generateJarBinary(false, bLangPackage, context, packageName);
         JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
         String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                                                               packageName, MODULE_INIT_CLASS_NAME);
+                bLangPackage.packageID.name.value, MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
         String funcName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).initFunction);
         try {
