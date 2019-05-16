@@ -136,8 +136,8 @@
     {
       "label": "channel",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Channel",
+      "sortText": "110",
       "insertText": "channel",
       "insertTextFormat": "Snippet"
     },
@@ -156,7 +156,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _._  \n  \nnull  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
         }
       },
       "sortText": "120",
@@ -174,8 +174,8 @@
     {
       "label": "xml",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Xml",
+      "sortText": "110",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -186,7 +186,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _joinTable_  \n    The table which is joined with \u0027fromTable\u0027  \n  \n- _parameters_  \n    liternal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable"
+          "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _joinTable_  \n    The table which is joined with \u0027fromTable\u0027  \n  \n- _parameters_  \n    liternal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable\u003c$anonType$builtin$8\u003e"
         }
       },
       "sortText": "120",
@@ -196,19 +196,19 @@
     {
       "label": "TableConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "TableConfig represents properties used during table initialization.\n"
       },
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "TableConfig",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "byte",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Byte",
+      "sortText": "110",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
@@ -219,7 +219,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _parameters_  \n    literal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable"
+          "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _parameters_  \n    literal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable\u003c$anonType$builtin$10\u003e"
         }
       },
       "sortText": "120",
@@ -243,40 +243,40 @@
     {
       "label": "stream",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Stream",
+      "sortText": "110",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "AbstractListener",
       "kind": "Class",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Object",
+      "sortText": "110",
       "insertText": "AbstractListener",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "map",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Map",
+      "sortText": "110",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "table",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Table",
+      "sortText": "110",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "anydata",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Anydata",
+      "sortText": "110",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -289,26 +289,34 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "sampleService",
+      "kind": "Variable",
+      "detail": "sampleService$$service$1",
+      "sortText": "110",
+      "insertText": "sampleService",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "future",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Future",
+      "sortText": "110",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "typedesc",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Typedesc",
+      "sortText": "110",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "float",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Float",
+      "sortText": "110",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -319,7 +327,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _._  \n  \nnull  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint|error"
         }
       },
       "sortText": "120",
@@ -329,40 +337,40 @@
     {
       "label": "null",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Nil",
+      "sortText": "110",
       "insertText": "null",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "decimal",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Decimal",
+      "sortText": "110",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "string",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "String",
+      "sortText": "110",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "error",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Error",
+      "sortText": "110",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "json",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Json",
+      "sortText": "110",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -373,7 +381,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _._  \n  \nnull  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
         }
       },
       "sortText": "120",
@@ -391,32 +399,32 @@
     {
       "label": "any",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Any",
+      "sortText": "110",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "int",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Int",
+      "sortText": "110",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "boolean",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Boolean",
+      "sortText": "110",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "service",
       "kind": "Keyword",
-      "detail": "BType",
-      "sortText": "170",
+      "detail": "Service",
+      "sortText": "110",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -526,6 +534,29 @@
             }
           },
           "newText": "import ballerina/grpc;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/rabbitmq",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "rabbitmq",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 0
+            },
+            "end": {
+              "line": 4,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/rabbitmq;\n"
         }
       ]
     },
@@ -641,6 +672,29 @@
             }
           },
           "newText": "import ballerina/file;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/filepath",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "filepath",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 0
+            },
+            "end": {
+              "line": 4,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/filepath;\n"
         }
       ]
     },
@@ -965,15 +1019,6 @@
           "newText": "import ballerina/system;\n"
         }
       ]
-    },
-    {
-      "label": "ballerina/builtin",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "builtin",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
     },
     {
       "label": "ballerina/openapi",

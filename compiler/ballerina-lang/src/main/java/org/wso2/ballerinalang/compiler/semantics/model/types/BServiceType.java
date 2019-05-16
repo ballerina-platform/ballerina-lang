@@ -22,6 +22,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * {@code {@link BServiceType}} represents the type of a service in Ballerina.
@@ -31,7 +32,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 public class BServiceType extends BObjectType implements ServiceType {
 
     public BServiceType(BTypeSymbol tSymbol) {
-        super(tSymbol);
+        super(TypeTags.SERVICE, tSymbol);
     }
 
     public String getDesc() {
