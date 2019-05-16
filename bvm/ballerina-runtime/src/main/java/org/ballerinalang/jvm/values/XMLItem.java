@@ -38,7 +38,6 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
@@ -664,6 +663,29 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
+    public String stringValue() {
+        try {
+            switch (nodeType) {
+                case COMMENT:
+                    return COMMENT_START + ((OMComment) omNode).getValue() + COMMENT_END;
+                case TEXT:
+                    return getTextValue(omNode);
+                case PI:
+                    return PI_START + ((OMProcessingInstruction) omNode).getTarget() + " " +
+                            ((OMProcessingInstruction) omNode).getValue() + PI_END;
+                default:
+                    return this.omNode.toString();
+            }
+        } catch (Throwable t) {
+            handleXmlException("failed to get xml as string: ", t);
+        }
+        return STRING_NULL_VALUE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Object copy(Map<Object, Object> refs) {
         if (isFrozen()) {
             return this;
@@ -711,6 +733,14 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
 
         return this;
+    }
+
+    public int size() {
+        if (getNodeType() == XMLNodeType.TEXT) {
+            String textContent = ((OMText) this.omNode).getText();
+            return textContent.codePointCount(0, textContent.length());
+        }
+        return this.omNode == null ? 0 : 1;
     }
 
     /**
@@ -849,13 +879,9 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
     }
 
-    @Override
-    public void stamp(BType type) {
-        // TODO Auto-generated method stub
-
-    }
 
     private static class BXmlAttrMap extends MapValueImpl<String, String> {
+        
         private final XMLItem bXmlItem;
         private boolean constructed = false;
 

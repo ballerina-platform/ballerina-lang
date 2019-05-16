@@ -38,7 +38,6 @@ public class ModuleTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/jvm/module-test.bal");
-        BCompileUtil.compile(this, "test-src/jvm/", "test.math");
     }
 
     @Test(description = "Test module")

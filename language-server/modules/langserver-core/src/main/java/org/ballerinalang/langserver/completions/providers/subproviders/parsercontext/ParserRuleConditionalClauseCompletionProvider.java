@@ -21,7 +21,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
@@ -44,9 +44,9 @@ import java.util.stream.Collectors;
  * Item provider for the if clause.
  * @since 0.965.0
  */
-public class ParserRuleConditionalClauseCompletionProvider extends AbstractSubCompletionProvider {
+public class ParserRuleConditionalClauseCompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext context) {
+    public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         Either<List<CompletionItem>, List<SymbolInfo>> itemList;
         if (isInvocationOrInteractionOrFieldAccess(context)) {

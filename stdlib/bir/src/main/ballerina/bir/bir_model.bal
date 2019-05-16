@@ -88,9 +88,11 @@ public const BINARY_LESS_THAN = "LESS_THAN";
 public const BINARY_LESS_EQUAL = "LESS_EQUAL";
 public const BINARY_AND = "AND";
 public const BINARY_OR = "OR";
+public const BINARY_REF_EQUAL = "REF_EQUAL";
+public const BINARY_REF_NOT_EQUAL = "REF_NOT_EQUAL";
 
 public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|BINARY_MOD
-                                        |BINARY_EQUAL|BINARY_NOT_EQUAL
+                                        |BINARY_EQUAL|BINARY_NOT_EQUAL|BINARY_REF_EQUAL|BINARY_REF_NOT_EQUAL
                                         |BINARY_GREATER_THAN|BINARY_GREATER_EQUAL|BINARY_LESS_THAN|BINARY_LESS_EQUAL
                                         |BINARY_AND|BINARY_OR;
 
@@ -492,7 +494,7 @@ public type Wait record {|
     VarRef?[] exprList;
 |};
 
-public type WrkReceive record {|
+public type WorkerReceive record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     VarRef lhsOp;
@@ -501,12 +503,14 @@ public type WrkReceive record {|
     BasicBlock thenBB;
 |};
 
-public type WrkSend record {|
+public type WorkerSend record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     VarRef dataOp;
     Name channelName;
     boolean isSameStrand;
+    VarRef? lhsOp;
+    boolean isSync;
     BasicBlock thenBB;
 |};
 

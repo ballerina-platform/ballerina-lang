@@ -55,7 +55,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
-        generateUserDefinedTypes(mv, module.typeDefs);
+        generateUserDefinedTypes(mv, module.typeDefs, currentPackageName);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
             mv.visitTypeInsn(NEW, typeOwnerClass);
@@ -318,10 +318,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             termGen.generateWaitIns(terminator, funcName);
         } else if (terminator is bir:FPCall) {
             termGen.genFPCallIns(terminator, funcName);
-        } else if (terminator is bir:WrkSend) {
-            termGen.genWrkSendIns(terminator, funcName);
-        } else if (terminator is bir:WrkReceive) {
-            termGen.genWrkReceiveIns(terminator, funcName);
+        } else if (terminator is bir:WorkerSend) {
+            termGen.genWorkerSendIns(terminator, funcName);
+        } else if (terminator is bir:WorkerReceive) {
+            termGen.genWorkerReceiveIns(terminator, funcName);
         } else {
             error err = error( "JVM generation is not supported for terminator instruction " +
                                         io:sprintf("%s", terminator));
@@ -866,7 +866,8 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
-    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "()V", false);
+    mv.visitInsn(ICONST_4);
+    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(I)V", false);
 
     if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
@@ -927,7 +928,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     // start the scheduler
     mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
-    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "execute", "()V", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "start", "()V", false);
 
     // At this point we are done executing all the functions including asyncs
     if (!isVoidFunction) {
@@ -1085,13 +1086,10 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
             string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
-                                                                importedPkg.name.value);
-            mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
+                                                                MODULE_INIT_CLASS_NAME);
+            mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                    "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;", false);
-            mv.visitInsn(POP);
+                    "(Lorg/ballerinalang/jvm/Strand;)V", false);
         }
         generateInitFunctionInvocation(importedPkg, mv);
     }

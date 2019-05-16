@@ -132,6 +132,7 @@ task clearPathingJar(type: Delete) {
 
 task generateIndex(type: JavaExec) {
     dependsOn pathingJar
+    dependsOn createBalHome
     outputs.dir("$buildDir/lib/tools/lang-server/resources")
     outputs.cacheIf { true }
     systemProperty("ballerina.home", "$buildDir")
@@ -163,4 +164,9 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+}
+
+createJavadoc {
+    // TODO: remove following, it fails at org.eclipse currently
+    exclude "**"
 }
