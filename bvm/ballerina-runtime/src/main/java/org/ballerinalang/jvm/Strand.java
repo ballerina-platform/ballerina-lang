@@ -102,6 +102,8 @@ public class Strand {
 
     /**
      * Class to hold flush action related details.
+     *
+     * 0.995.0
      */
     public static class FlushDetail {
         public ChannelDetails[] flushChannels;

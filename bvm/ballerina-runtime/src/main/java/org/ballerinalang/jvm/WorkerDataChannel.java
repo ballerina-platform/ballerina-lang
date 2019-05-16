@@ -153,11 +153,11 @@ public class WorkerDataChannel {
                     this.flushSender.waitingStrand.flushDetail.flushLock.lock();
                     this.flushSender.waitingStrand.flushDetail.flushedCount++;
                     if (this.flushSender.waitingStrand.flushDetail.flushedCount
-                            == this.flushSender.waitingStrand.flushDetail.flushChannels.length) {
-                        if (this.flushSender.waitingStrand.blocked) {
+                            == this.flushSender.waitingStrand.flushDetail.flushChannels.length &&
+                            this.flushSender.waitingStrand.blocked) {
                             //will continue if this is a sync wait, will try to flush again if blocked on flush
                             this.flushSender.waitingStrand.scheduler.unblockStrand(this.flushSender.waitingStrand);
-                        }
+
                     }
                     this.flushSender.waitingStrand.flushDetail.flushLock.unlock();
                     this.flushSender = null;
