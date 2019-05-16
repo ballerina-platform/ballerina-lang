@@ -105,7 +105,7 @@ public class CreateConnection extends BlockingNativeCallableUnit {
             connection.addNativeData(ArtemisConstants.ARTEMIS_SESSION_FACTORY, factory);
 
         } catch (Exception e) { //catching Exception as it is thrown by the createSessionFactory method
-            ArtemisUtils.logAndSetError("Error occurred while starting connection.", context, e, logger);
+            ArtemisUtils.throwException("Error occurred while starting connection.", context, e, logger);
         }
     }
 }

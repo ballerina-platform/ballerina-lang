@@ -39,12 +39,19 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "getType",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.MESSAGE_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.MESSAGE_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         args = {
-                @Argument(name = "key", type = TypeKind.STRING)
+                @Argument(
+                        name = "key",
+                        type = TypeKind.STRING
+                )
         }
 )
 public class GetType extends BlockingNativeCallableUnit {

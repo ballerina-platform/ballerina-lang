@@ -19,11 +19,14 @@
 
 package org.ballerinalang.messaging.artemis;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.reader.BytesMessageUtil;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -55,9 +58,9 @@ public class ArtemisUtils {
      * @param exception the exception to be propagated
      * @param logger the logger to log errors
      */
-    public static void logAndSetError(String message, Context context, Exception exception, Logger logger) {
+    public static void throwException(String message, Context context, Exception exception, Logger logger) {
         logger.error(message, exception);
-        context.setError(getError(context, message));
+        throw new ArtemisConnectorException(message, exception, context);
     }
 
     /**
@@ -250,6 +253,13 @@ public class ArtemisUtils {
 
     public static boolean isAnonymousSession(BMap<String, BValue> sessionObj) {
         return ((BBoolean) sessionObj.get("anonymousSession")).booleanValue();
+    }
+
+    public static BValue getBArrayValue(ClientMessage message) {
+        ActiveMQBuffer msgBuffer = message.getBodyBuffer();
+        byte[] bytes = new byte[msgBuffer.readableBytes()];
+        BytesMessageUtil.bytesReadBytes(msgBuffer, bytes);
+        return new BValueArray(bytes);
     }
 
     private ArtemisUtils() {

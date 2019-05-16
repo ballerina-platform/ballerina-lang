@@ -55,14 +55,29 @@ import java.util.Map;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "createMessage",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.MESSAGE_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.MESSAGE_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         args = {
-                @Argument(name = "session", type = TypeKind.OBJECT, structType = ArtemisConstants.SESSION_OBJ),
-                @Argument(name = "data", type = TypeKind.UNION),
-                @Argument(name = "config", type = TypeKind.RECORD, structType = "ConnectionConfiguration")
+                @Argument(
+                        name = "session",
+                        type = TypeKind.OBJECT,
+                        structType = ArtemisConstants.SESSION_OBJ
+                ),
+                @Argument(
+                        name = "data",
+                        type = TypeKind.UNION
+                ),
+                @Argument(
+                        name = "config",
+                        type = TypeKind.RECORD,
+                        structType = "ConnectionConfiguration"
+                )
         }
 )
 public class CreateMessage extends BlockingNativeCallableUnit {
