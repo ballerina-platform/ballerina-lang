@@ -80,11 +80,7 @@ public class InitCommand implements BLauncherCmd {
         Path projectPath = Paths.get(System.getProperty(USER_DIR));
         try {
             // Check if it is a project
-            boolean isProject = Files.exists(projectPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME));
-            if (isProject) {
-                alreadyInitializedProject = true;
-                Files.exists(projectPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME));
-            }
+            alreadyInitializedProject = Files.exists(projectPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME));
             // If the current directory is not a project traverse and check down and up
             if (!alreadyInitializedProject) {
                 // Recursively traverse down
