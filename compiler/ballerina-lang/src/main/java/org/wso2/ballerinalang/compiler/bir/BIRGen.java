@@ -95,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
@@ -1427,6 +1428,24 @@ public class BIRGen extends BLangNodeVisitor {
         emit(binaryIns);
     }
 
+    @Override
+    public void visit(BLangConstRef constRef) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+        if (variableStore) {
+            throw new IllegalStateException("Constants cannot be updated");
+        }
+
+        BIRVariableDcl tempVarDcl =
+                new BIRVariableDcl(constRef.type, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand tempVarRef = new BIROperand(tempVarDcl);
+        BIROperand fromVarRef = new BIROperand(this.env.globalVarMap.get(constRef.symbol));
+        emit(new Move(constRef.pos, fromVarRef, tempVarRef));
+        this.env.targetOperand = tempVarRef;
+        this.varAssignment = variableStore;
+    }
+
     // private methods
 
     private void genIntermediateErrorEntries(BIRBasicBlock thenBB) {
@@ -1494,6 +1513,8 @@ public class BIRGen extends BLangNodeVisitor {
                 return InstructionKind.TYPEOF;
             case NOT:
                 return InstructionKind.NOT;
+            case SUB:
+                return InstructionKind.NEGATE;
             default:
                 throw new IllegalStateException("unsupported unary operator: " + opKind.value());
         }
