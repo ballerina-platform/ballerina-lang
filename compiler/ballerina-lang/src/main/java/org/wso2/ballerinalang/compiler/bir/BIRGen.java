@@ -559,6 +559,12 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
+        if (invocationExpr.symbol.kind == SymbolKind.CONSTRUCTOR) {
+            if (invocationExpr.symbol.type.tag == TypeTags.ERROR) {
+                createErrorConstructorInvocation(invocationExpr);
+                return;
+            }
+        }
         createCall(invocationExpr, false);
     }
 
@@ -570,12 +576,6 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangAttachedFunctionInvocation invocationExpr) {
-        if (invocationExpr.symbol.kind == SymbolKind.CONSTRUCTOR) {
-            if (invocationExpr.symbol.type.tag == TypeTags.ERROR) {
-                createErrorConstructorInvocation(invocationExpr);
-                return;
-            }
-        }
         createCall(invocationExpr, true);
     }
 
@@ -690,7 +690,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = thenBB;
     }
 
-    private void createErrorConstructorInvocation(BLangInvocation.BLangAttachedFunctionInvocation invocationExpr) {
+    private void createErrorConstructorInvocation(BLangInvocation invocationExpr) {
         // Create a temporary variable to store the error.
         BIRVariableDcl tempVarError = new BIRVariableDcl(invocationExpr.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
