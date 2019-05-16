@@ -128,7 +128,6 @@ public class WorkerDataChannel {
 
             // sync send done
             return null;
-
         } finally {
             this.syncSent = false;
             releaseChannelLock();

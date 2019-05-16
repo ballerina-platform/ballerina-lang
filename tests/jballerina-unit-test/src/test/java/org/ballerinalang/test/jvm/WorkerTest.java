@@ -132,7 +132,8 @@ public class WorkerTest {
         int i = 0;
         while (i < 100) {
             BValue[] returns = BRunUtil.invoke(result, "simpleSyncSend");
-            Assert.assertEquals(returns[0].stringValue(), "10", "Returned wrong value:" + returns[0].stringValue());
+            Assert.assertEquals(returns[0].stringValue(), "10", "Returned wrong value:" +
+                    returns[0].stringValue());
             i++;
         }
     }
@@ -142,8 +143,10 @@ public class WorkerTest {
         int i = 0;
         while (i < 100) {
             BValue[] returns = BRunUtil.invoke(result, "multipleSyncSend");
-            Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2"), "Returned wrong value:" + returns[0].stringValue());
-            Assert.assertFalse(returns[0].stringValue().startsWith("w11"), "Returned wrong value:" + returns[0].stringValue());
+            Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2"), "Returned wrong value:" +
+                    returns[0].stringValue());
+            Assert.assertFalse(returns[0].stringValue().startsWith("w11"), "Returned wrong value:" +
+                    returns[0].stringValue());
             i++;
         }
     }
@@ -163,8 +166,10 @@ public class WorkerTest {
         int i = 0;
         while (i < 100) {
             BValue[] returns = BRunUtil.invoke(result, "multiWorkerSend");
-            Assert.assertFalse(returns[0].stringValue().startsWith("w1"), "Returned wrong value:" + returns[0].stringValue());
-            Assert.assertFalse(returns[0].stringValue().startsWith("w11"), "Returned wrong value:" + returns[0].stringValue());
+            Assert.assertFalse(returns[0].stringValue().startsWith("w1"), "Returned wrong value:" +
+                    returns[0].stringValue());
+            Assert.assertFalse(returns[0].stringValue().startsWith("w11"), "Returned wrong value:" +
+                    returns[0].stringValue());
             i++;
         }
     }
