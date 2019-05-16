@@ -844,6 +844,10 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
     mv.visitTypeInsn(NEW, FINITE_TYPE);
     mv.visitInsn(DUP);
 
+    // Load type name
+    string name = finiteType.name.value;
+    mv.visitLdcInsn(name);
+
     mv.visitTypeInsn(NEW, LINKED_HASH_SET);
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, "<init>", "()V", false);
@@ -870,5 +874,5 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
     }
 
     // initialize the finite type using the value space
-    mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE, "<init>", io:sprintf("(L%s;)V", SET), false);
+    mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", STRING_VALUE, SET), false);
 }

@@ -321,6 +321,7 @@ public type BFutureType record {|
 |};
 
 public type BFiniteType record {|
+    Name name = {};
     (int | string | boolean | float | byte| ()) [] values;
 |};
 

@@ -126,6 +126,8 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BFiniteType bFiniteType) {
+        BTypeSymbol tsymbol = bFiniteType.tsymbol;
+        buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeInt(bFiniteType.valueSpace.size());
         for (BLangExpression valueLiteral : bFiniteType.valueSpace) {
             if (!(valueLiteral instanceof BLangLiteral)) {

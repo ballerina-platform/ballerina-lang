@@ -810,8 +810,9 @@ public class BIRPackageSymbolEnter {
                     // TODO fix
                     break;
                 case TypeTags.FINITE:
-                    BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, 0, Names.EMPTY,
-                            env.pkgSymbol.pkgID, null, env.pkgSymbol);
+                    String finiteTypeName = getUTF8CPEntryValue(inputStream);
+                    BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, 0,
+                            names.fromString(finiteTypeName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
                     symbol.scope = new Scope(symbol);
                     BFiniteType finiteType = new BFiniteType(symbol);
                     symbol.type = finiteType;

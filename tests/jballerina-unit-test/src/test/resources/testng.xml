@@ -98,6 +98,12 @@
             <class name="org.ballerinalang.test.expressions.binaryoperations.OperatorPrecedenceTest"/>
             <class name="org.ballerinalang.test.expressions.binaryoperations.RefEqualAndNotEqualOperationsTest"/>
             <class name="org.ballerinalang.test.expressions.binaryoperations.SubtractOperationTest"/>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.TypeTestExprTest">
+                <methods>
+                    <exclude name="testError_1"/>
+                    <exclude name="testError_2"/>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>
