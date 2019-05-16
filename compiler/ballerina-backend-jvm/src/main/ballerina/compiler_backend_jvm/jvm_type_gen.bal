@@ -42,8 +42,12 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[]
 #
 # + mv - method visitor
 # + typeDefs - array of type definitions
-public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs) {
+public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs, string pkgName) {
     string fieldName;
+    string typePkgName = ".";
+    if (pkgName != "") {
+        typePkgName = typePkgName;
+    }
 
     // Create the type
     foreach var optionalTypeDef in typeDefs {
@@ -51,11 +55,11 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
         fieldName = getTypeFieldName(typeDef.name.value);
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
-            createRecordType(mv, bType, typeDef.name.value);
+            createRecordType(mv, bType, typeDef.name.value, typePkgName);
         } else if (bType is bir:BObjectType) {
-            createObjectType(mv, bType, typeDef.name.value);
+            createObjectType(mv, bType, typeDef.name.value, typePkgName);
         } else if (bType is bir:BErrorType) {
-            createErrorType(mv, bType, typeDef.name.value);
+            createErrorType(mv, bType, typeDef.name.value, typePkgName);
         } else {
             // do not generate anything for other types (e.g.: finite type, unions, etc.)
             continue;
@@ -211,7 +215,7 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
 # + mv - method visitor
 # + recordType - record type
 # + name - name of the record
-function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, string name) {
+function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, string name, string pkgName) {
     // Create the record type
     mv.visitTypeInsn(NEW, RECORD_TYPE);
     mv.visitInsn(DUP);
@@ -221,7 +225,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, stri
 
     // Load package path
     // TODO: get it from the type
-    mv.visitLdcInsn("pkg");
+    mv.visitLdcInsn(pkgName);
 
     // Load flags
     mv.visitLdcInsn(0);
@@ -316,7 +320,7 @@ function addRecordRestField(jvm:MethodVisitor mv, bir:BType restFieldType) {
 # + mv - method visitor
 # + objectType - object type
 # + name - name of the object
-function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, string name) {
+function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, string name, string pkgName) {
     // Create the object type
     mv.visitTypeInsn(NEW, OBJECT_TYPE);
     mv.visitInsn(DUP);
@@ -325,8 +329,7 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, stri
     mv.visitLdcInsn(name);
 
     // Load package path
-    // TODO: get it from the type
-    mv.visitLdcInsn("pkg");
+    mv.visitLdcInsn(pkgName);
 
     // Load flags
     mv.visitLdcInsn(0);
@@ -474,7 +477,7 @@ function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunctio
 # + mv - method visitor
 # + errorType - error type
 # + name - name of the error
-function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string name) {
+function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string name, string pkgName) {
     // Create the error type
     mv.visitTypeInsn(NEW, ERROR_TYPE);
     mv.visitInsn(DUP);
@@ -483,8 +486,7 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
     mv.visitLdcInsn(name);
 
     // Load package path
-    // TODO: get it from the type
-    mv.visitLdcInsn("pkg");
+    mv.visitLdcInsn(pkgName);
     
     // Load reason and details type
     loadType(mv, errorType.reasonType);
@@ -527,6 +529,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         typeFieldName = "typeXML";
     } else if (bType is bir:BTypeDesc) {
         typeFieldName = "typeTypedesc";
+    }  else if (bType is bir:BServiceType) {
+        typeFieldName = "typeAnyService";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;

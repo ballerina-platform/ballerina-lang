@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -302,20 +304,142 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     @Override
+    public String stringValue() {
+        if (elementType != null) {
+            StringJoiner sj = new StringJoiner(", ", "[", "]");
+            if (elementType.getTag() == TypeTags.INT_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(Long.toString(intValues[i]));
+                }
+                return sj.toString();
+            } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(Boolean.toString(booleanValues[i]));
+                }
+                return sj.toString();
+            } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(Long.toString(Byte.toUnsignedLong(byteValues[i])));
+                }
+                return sj.toString();
+            } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(Double.toString(floatValues[i]));
+                }
+                return sj.toString();
+            } else if (elementType.getTag() == TypeTags.STRING_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add("\"" + stringValues[i] + "\"");
+                }
+                return sj.toString();
+            }
+        }
+
+        if (getElementType(arrayType).getTag() == TypeTags.JSON_TAG) {
+            return getJSONString();
+        }
+
+        StringJoiner sj;
+        if (arrayType != null && (arrayType.getTag() == TypeTags.TUPLE_TAG)) {
+            sj = new StringJoiner(", ", "(", ")");
+        } else {
+            sj = new StringJoiner(", ", "[", "]");
+        }
+
+        for (int i = 0; i < size; i++) {
+            if (refValues[i] != null) {
+                sj.add((refValues[i] instanceof String)
+                               ? ("\"" + refValues[i] + "\"") : ((RefValue) refValues[i]).stringValue());
+            } else {
+                sj.add("()");
+            }
+        }
+        return sj.toString();
+    }
+
+    @Override
     public BType getType() {
         return arrayType;
     }
 
     @Override
-    public void stamp(BType type) {
-    }
-
     public int size() {
         return size;
     }
-    
-    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
 
+    @Override
+    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
+        if (type.getTag() == TypeTags.TUPLE_TAG) {
+
+            if (elementType != null && isBasicType(elementType)) {
+                moveBasicTypeArrayToRefValueArray();
+            }
+            Object[] arrayValues = this.getValues();
+            for (int i = 0; i < this.size(); i++) {
+                if (arrayValues[i] instanceof RefValue) {
+                    BType memberType = ((BTupleType) type).getTupleTypes().get(i);
+                    if (memberType.getTag() == TypeTags.ANYDATA_TAG || memberType.getTag() == TypeTags.JSON_TAG) {
+                        memberType = TypeConverter.resolveMatchingTypeForUnion(arrayValues[i], memberType);
+                        ((BTupleType) type).getTupleTypes().set(i, memberType);
+                    }
+                    ((RefValue) arrayValues[i]).stamp(memberType, unresolvedValues);
+                }
+            }
+        } else if (type.getTag() == TypeTags.JSON_TAG) {
+
+            if (elementType != null && isBasicType(elementType) && !isBasicType(type)) {
+                moveBasicTypeArrayToRefValueArray();
+                this.arrayType = new BArrayType(type);
+                return;
+            }
+
+            Object[] arrayValues = this.getValues();
+            for (int i = 0; i < this.size(); i++) {
+                if (arrayValues[i] instanceof RefValue) {
+                    ((RefValue) arrayValues[i]).stamp(TypeConverter.resolveMatchingTypeForUnion(arrayValues[i], type),
+                                                      unresolvedValues);
+                }
+            }
+            type = new BArrayType(type);
+        } else if (type.getTag() == TypeTags.UNION_TAG) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (TypeChecker.checkIsLikeType(this, memberType, new ArrayList<>())) {
+                    this.stamp(memberType, unresolvedValues);
+                    type = memberType;
+                    break;
+                }
+            }
+        } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            type = TypeConverter.resolveMatchingTypeForUnion(this, type);
+            this.stamp(type, unresolvedValues);
+        } else {
+            BType arrayElementType = ((BArrayType) type).getElementType();
+
+            if (elementType != null && isBasicType(elementType)) {
+                if (isBasicType(arrayElementType)) {
+                    this.arrayType = type;
+                    return;
+                }
+
+                moveBasicTypeArrayToRefValueArray();
+                this.arrayType = type;
+                return;
+            }
+
+            if (isBasicType(arrayElementType) && !isBasicType(elementType)) {
+                moveRefValueArrayToBasicTypeArray(type, arrayElementType);
+                return;
+            }
+
+            Object[] arrayValues = this.getValues();
+            for (int i = 0; i < this.size(); i++) {
+                if (arrayValues[i] instanceof RefValue) {
+                    ((RefValue) arrayValues[i]).stamp(arrayElementType, unresolvedValues);
+                }
+            }
+        }
+
+        this.arrayType = type;
     }
 
     @Override
@@ -585,7 +709,93 @@ public class ArrayValue implements RefValue, CollectionValue {
             }
         }
     }
+    
+    private boolean isBasicType(BType type) {
+        return type == BTypes.typeString || type == BTypes.typeInt || type == BTypes.typeFloat ||
+                type == BTypes.typeBoolean || type == BTypes.typeByte;
+    }
 
+    private void moveBasicTypeArrayToRefValueArray() {
+        refValues = new Object[this.size];
+        if (elementType == BTypes.typeBoolean) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = booleanValues[i];
+            }
+            booleanValues = null;
+        }
+
+        if (elementType == BTypes.typeInt) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = intValues[i];
+            }
+            intValues = null;
+        }
+
+        if (elementType == BTypes.typeString) {
+            System.arraycopy(stringValues, 0, refValues, 0, this.size());
+            stringValues = null;
+        }
+
+        if (elementType == BTypes.typeFloat) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = floatValues[i];
+            }
+            floatValues = null;
+        }
+
+        if (elementType == BTypes.typeByte) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = (byteValues[i]);
+            }
+            byteValues = null;
+        }
+
+        elementType = null;
+    }
+
+    private void moveRefValueArrayToBasicTypeArray(BType type, BType arrayElementType) {
+        Object[] arrayValues = this.getValues();
+
+        if (arrayElementType.getTag() == TypeTags.INT_TAG) {
+            intValues = (long[]) newArrayInstance(Long.TYPE);
+            for (int i = 0; i < this.size(); i++) {
+                intValues[i] = ((long) arrayValues[i]);
+            }
+        }
+
+        if (arrayElementType.getTag() == TypeTags.FLOAT_TAG) {
+            floatValues = (double[]) newArrayInstance(Double.TYPE);
+            for (int i = 0; i < this.size(); i++) {
+                floatValues[i] = ((float) arrayValues[i]);
+            }
+        }
+
+        if (arrayElementType.getTag() == TypeTags.BOOLEAN_TAG) {
+            booleanValues = new boolean[this.size()];
+            for (int i = 0; i < this.size(); i++) {
+                booleanValues[i] = ((boolean) arrayValues[i]);
+            }
+        }
+
+        if (arrayElementType.getTag() == TypeTags.STRING_TAG) {
+            stringValues = (String[]) newArrayInstance(String.class);
+            for (int i = 0; i < this.size(); i++) {
+                stringValues[i] = (String) arrayValues[i];
+            }
+        }
+
+        if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
+            byteValues = (byte[]) newArrayInstance(Byte.TYPE);
+            for (int i = 0; i < this.size(); i++) {
+                byteValues[i] = (byte) arrayValues[i];
+            }
+        }
+
+        this.elementType = arrayElementType;
+        this.arrayType = type;
+        refValues = null;
+    }
+    
     @Override
     public IteratorValue getIterator() {
         return new ArrayIterator(this);
