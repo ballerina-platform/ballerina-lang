@@ -1077,10 +1077,12 @@ function getModuleInitFuncName(bir:Package module) returns string {
     string moduleName = module.name.value;
 
     string funcName;
-    if (!moduleName.equalsIgnoreCase(".")) {
-        funcName = moduleName + ":" + module.versionValue.value + ".<init>";
-    } else {
+    if (moduleName.equalsIgnoreCase(".")) {
         funcName = "..<init>";
+    } else if ("".equalsIgnoreCase(module.versionValue.value)) {
+        funcName = moduleName + ".<init>";
+    } else {
+        funcName = moduleName + ":" + module.versionValue.value + ".<init>";
     }
 
     if (!orgName.equalsIgnoreCase("$anon")) {

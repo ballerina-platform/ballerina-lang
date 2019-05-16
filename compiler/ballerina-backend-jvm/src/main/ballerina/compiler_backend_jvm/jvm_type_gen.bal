@@ -527,6 +527,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         typeFieldName = "typeXML";
     } else if (bType is bir:BTypeDesc) {
         typeFieldName = "typeTypedesc";
+    }  else if (bType is bir:BServiceType) {
+        typeFieldName = "typeAnyService";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
