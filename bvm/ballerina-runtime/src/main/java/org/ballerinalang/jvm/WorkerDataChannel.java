@@ -205,11 +205,13 @@ public class WorkerDataChannel {
         this.error = error;
         this.receiverCounter++;
         if (this.flushSender != null) {
+            this.flushSender.waitingStrand.flushDetail.flushLock.lock();
             Strand flushStrand = this.flushSender.waitingStrand;
             if (flushStrand.blocked) {
                 flushStrand.flushDetail.result = error;
                 flushStrand.scheduler.unblockStrand(flushStrand);
             }
+            this.flushSender.waitingStrand.flushDetail.flushLock.unlock();
             this.flushSender = null;
         } else if (this.waitingSender != null) {
             Strand waiting = this.waitingSender.waitingStrand;

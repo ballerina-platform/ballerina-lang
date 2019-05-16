@@ -339,7 +339,9 @@ function singleFlush () returns string {
     }
 
     wait w1;
-    return fappend;
+    string result = fappend;
+    fappend = "";
+    return result;
 }
 
 string fappend3 = "";
@@ -415,8 +417,10 @@ function flushAll() returns string {
             b = <- w1;
         }
 
-         wait w1;
-        return fappend2;
+        wait w1;
+        string result = fappend2;
+        fappend2 = "";
+        return result;
 }
 
 string fappend4 = "";

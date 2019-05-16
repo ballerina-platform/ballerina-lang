@@ -187,47 +187,65 @@ public class WorkerTest {
 
     @Test
     public void simpleFlushTest() {
-
-        BValue[] returns = BRunUtil.invoke(result, "singleFlush");
-        Assert.assertEquals(returns[0].stringValue(), "w2w2w2w2w2w1w1w1w1w1");
+        int i = 0;
+        while (i < 100) {
+            BValue[] returns = BRunUtil.invoke(result, "singleFlush");
+            Assert.assertEquals(returns[0].stringValue(), "w2w2w2w2w2w1w1w1w1w1");
+            i++;
+        }
     }
 
     @Test
     public void flushReturnNilTest() {
-
-        BValue[] returns = BRunUtil.invoke(result, "flushReturn");
-        Assert.assertNull(returns[0]);
+        int i = 0;
+        while (i < 100) {
+            BValue[] returns = BRunUtil.invoke(result, "flushReturn");
+            Assert.assertNull(returns[0]);
+            i++;
+        }
     }
 
     @Test
     public void flushAll() {
-
-        BValue[] returns = BRunUtil.invoke(result, "flushAll");
-        Assert.assertFalse(returns[0].stringValue().startsWith("w1"),
-                "Returned wrong value:" + returns[0].stringValue());
+        int i = 0;
+        while (i < 100) {
+            BValue[] returns = BRunUtil.invoke(result, "flushAll");
+            Assert.assertFalse(returns[0].stringValue().startsWith("w1"), "Returned wrong value:" +
+                    returns[0].stringValue());
+            i++;
+        }
     }
 
     @Test
     public void errorBeforeFlush() {
-
-        BValue[] returns = BRunUtil.invoke(result, "errorTest");
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "error3");
+        int i = 0;
+        while (i < 10) {
+            BValue[] returns = BRunUtil.invoke(result, "errorTest");
+            Assert.assertTrue(returns[0] instanceof BError);
+            Assert.assertEquals(((BError) returns[0]).getReason(), "error3");
+            i++;
+        }
     }
 
     @Test
     public void flushInDefaultError() {
-
-        BValue[] returns = BRunUtil.invoke(result, "flushInDefaultError");
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "err");
+        int i = 0;
+        while (i < 100) {
+            BValue[] returns = BRunUtil.invoke(result, "flushInDefaultError");
+            Assert.assertTrue(returns[0] instanceof BError);
+            Assert.assertEquals(((BError) returns[0]).getReason(), "err");
+            i++;
+        }
     }
 
     @Test
     public void flushInDefault() {
-
-        BValue[] returns = BRunUtil.invoke(result, "flushInDefault");
-        Assert.assertEquals(returns[0].stringValue(), "25");
+        int i = 0;
+        while (i < 100) {
+            BValue[] returns = BRunUtil.invoke(result, "flushInDefault");
+            Assert.assertEquals(returns[0].stringValue(), "25");
+            i++;
+        }
     }
 
 }
