@@ -115,8 +115,6 @@ public type TypeParser object {
             return self.parseRecordType();
         } else if (typeTag == self.TYPE_TAG_OBJECT){
             return self.parseObjectType();
-        } else if (typeTag == self.TYPE_TAG_SERVICE){
-            return TYPE_SERVICE;
         } else if (typeTag == self.TYPE_TAG_ERROR){
             return self.parseErrorType();
         } else if (typeTag == self.TYPE_TAG_FUTURE){
@@ -227,7 +225,9 @@ public type TypeParser object {
         return {name:{value:self.reader.readStringCpRef()}, typeValue:self.parseTypeInternal()};
     }
 
-    function parseObjectType() returns BObjectType {
+    function parseObjectType() returns BType {
+        // Below is a temp fix, need to fix this properly by using type tag
+        boolean isService = self.reader.readInt8() == 1;
         BObjectType obj = { name: { value: self.reader.readStringCpRef() },
             isAbstract: self.reader.readBoolean(),
             fields: [],
@@ -238,6 +238,10 @@ public type TypeParser object {
         obj.attachedFunctions = self.parseObjectAttachedFunctions();
         self.compositeStack[self.compositeStackI] = ();
         self.compositeStackI = self.compositeStackI - 1;
+        if (isService) {
+            BServiceType bServiceType = {oType: obj};
+            return bServiceType;
+        }
         return obj;
 
     }
