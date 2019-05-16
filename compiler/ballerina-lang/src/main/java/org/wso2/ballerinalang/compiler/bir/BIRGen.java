@@ -1044,8 +1044,10 @@ public class BIRGen extends BLangNodeVisitor {
         BSymbol varSymbol = astVarRefExpr.symbol;
 
         if (variableStore) {
-            BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(varSymbol));
-            emit(new Move(astVarRefExpr.pos, this.env.targetOperand, varRef));
+            if (astVarRefExpr.symbol.name != Names.IGNORE) {
+                BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(varSymbol));
+                emit(new Move(astVarRefExpr.pos, this.env.targetOperand, varRef));
+            }
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(varSymbol.type,
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
@@ -1076,8 +1078,11 @@ public class BIRGen extends BLangNodeVisitor {
         this.varAssignment = false;
 
         if (variableStore) {
-            BIROperand varRef = new BIROperand(this.env.globalVarMap.get(astPackageVarRefExpr.symbol));
-            emit(new Move(astPackageVarRefExpr.pos, this.env.targetOperand, varRef));
+            if (astPackageVarRefExpr.symbol.name != Names.IGNORE) {
+                BIROperand varRef = new BIROperand(this.env.globalVarMap.get(astPackageVarRefExpr.symbol));
+                emit(new Move(astPackageVarRefExpr.pos, this.env.targetOperand, varRef));
+            }
+
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(astPackageVarRefExpr.type,
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);

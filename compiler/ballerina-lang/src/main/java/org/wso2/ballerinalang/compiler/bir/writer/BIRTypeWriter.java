@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -60,7 +61,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -200,7 +203,12 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BServiceType bServiceType) {
-        // Nothing to do
+        //This is to say this is an object, this is a temporary fix object - 1, service - 0,
+        // ideal fix would be to use the type tag to
+        // differentiate. TODO fix later
+        buff.writeByte(1);
+
+        writeObjectAndServiceTypes(bServiceType);
     }
 
     @Override
@@ -249,10 +257,19 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BObjectType bObjectType) {
-        BObjectTypeSymbol tsymbol = (BObjectTypeSymbol) bObjectType.tsymbol;
+        //This is to say this is an object, this is a temporary fix object - 1, service - 0,
+        // ideal fix would be to use the type tag to
+        // differentiate. TODO fix later
+        buff.writeByte(0);
 
-        buff.writeInt(addStringCPEntry(tsymbol.name.value));
-        buff.writeBoolean((tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT); // Abstract object or not
+        writeObjectAndServiceTypes(bObjectType);
+    }
+
+    private void writeObjectAndServiceTypes(BObjectType bObjectType) {
+        BTypeSymbol tSymbol = bObjectType.tsymbol;
+
+        buff.writeInt(addStringCPEntry(tSymbol.name.value));
+        buff.writeBoolean((tSymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT); // Abstract object or not
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields) {
             buff.writeInt(addStringCPEntry(field.name.value));
@@ -260,8 +277,14 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeByte(getVisibility(field.symbol).value());
             visitType(field.type);
         }
-        buff.writeInt(tsymbol.attachedFuncs.size());
-        for (BAttachedFunction attachedFunc : tsymbol.attachedFuncs) {
+        List<BAttachedFunction> attachedFuncs;
+        if (tSymbol.kind == SymbolKind.OBJECT) {
+            attachedFuncs = ((BObjectTypeSymbol) tSymbol).attachedFuncs;
+        } else {
+            attachedFuncs = new ArrayList<>();
+        }
+        buff.writeInt(attachedFuncs.size());
+        for (BAttachedFunction attachedFunc : attachedFuncs) {
             buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
             buff.writeByte(getVisibility(attachedFunc.symbol).value());
             visitType(attachedFunc.type);
