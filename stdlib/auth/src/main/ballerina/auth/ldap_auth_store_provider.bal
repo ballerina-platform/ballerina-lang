@@ -94,29 +94,29 @@ public type LdapAuthStoreProvider object {
         self.instanceId = instanceId;
         initLdapConnectionContext(self, instanceId);
     }
-};
 
-# Authenticate with username and password.
-#
-# + credential - Credential value
-# + return - `true` if authentication is successful, otherwise `false` or `error` occurred while extracting credentials
-public function LdapAuthStoreProvider.authenticate(string credential) returns boolean|error {
-    if (credential == EMPTY_STRING) {
-        return false;
+    # Authenticate with username and password.
+    #
+    # + credential - Credential value
+    # + return - `true` if authentication is successful, otherwise `false` or `error` occurred while extracting credentials
+    public function authenticate(string credential) returns boolean|error {
+        if (credential == EMPTY_STRING) {
+            return false;
+        }
+        string username;
+        string password;
+        (username, password) = check extractUsernameAndPassword(credential);
+        boolean isAuthenticated = doAuthenticate(self, username, password);
+        if (isAuthenticated) {
+            runtime:Principal principal = runtime:getInvocationContext().principal;
+            principal.userId = self.ldapAuthStoreProviderConfig.domainName + ":" + username;
+            // By default set userId as username.
+            principal.username = username;
+            principal.scopes = getLdapScopes(self, username);
+        }
+        return isAuthenticated;
     }
-    string username;
-    string password;
-    (username, password) = check extractUsernameAndPassword(credential);
-    boolean isAuthenticated = doAuthenticate(self, username, password);
-    if (isAuthenticated) {
-        runtime:Principal principal = runtime:getInvocationContext().principal;
-        principal.userId = self.ldapAuthStoreProviderConfig.domainName + ":" + username;
-        // By default set userId as username.
-        principal.username = username;
-        principal.scopes = getLdapScopes(self, username);
-    }
-    return isAuthenticated;
-}
+};
 
 # Reads the scope(s) for the user with the given username.
 #
