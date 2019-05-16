@@ -89,7 +89,8 @@ public enum InstructionKind {
 
     // Unary expression related instructions.
     TYPEOF((byte) 80),
-    NOT((byte) 81);
+    NOT((byte) 81),
+    NEGATE((byte) 82);
 
     byte value;
 
