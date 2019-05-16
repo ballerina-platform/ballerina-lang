@@ -38,6 +38,11 @@ public class BObjectType extends BStructureType implements ObjectType {
         this.fields = new ArrayList<>();
     }
 
+    public BObjectType(int typeTag, BTypeSymbol tSymbol) {
+        super(typeTag, tSymbol);
+        this.fields = new ArrayList<>();
+    }
+
     public String getDesc() {
         return TypeDescriptor.SIG_STRUCT + getQualifiedTypeName() + ";";
     }
