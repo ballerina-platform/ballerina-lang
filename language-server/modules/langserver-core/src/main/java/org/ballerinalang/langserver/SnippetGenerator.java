@@ -333,6 +333,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Annotation Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getAnnotationKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.TYPE_TYPE, "annotation ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Record Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

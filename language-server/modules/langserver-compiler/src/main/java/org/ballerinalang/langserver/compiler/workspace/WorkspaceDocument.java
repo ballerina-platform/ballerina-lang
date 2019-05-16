@@ -37,11 +37,14 @@ public class WorkspaceDocument {
     private List<CodeLens> codeLenses;
     private Path path;
     private String content;
+    private String prunedContent;
+    private boolean usePrunedSource;
 
     public WorkspaceDocument(Path path, String content) {
         this.path = path;
         this.content = content;
         this.codeLenses = new ArrayList<>();
+        this.usePrunedSource = false;
     }
 
     public List<CodeLens> getCodeLenses() {
@@ -61,6 +64,17 @@ public class WorkspaceDocument {
     }
 
     public String getContent() {
+        /*
+        If the pruned source flag is true, return the pruned source. After single access, the pruned source will be 
+        stale, and hence set to null. If a certain operation need to use the pruned source, then the operation set the
+        pruned source within the operation as well as rhe flag
+         */
+        if (this.usePrunedSource) {
+            this.usePrunedSource = false;
+            String prunedSourceCopy = this.prunedContent;
+            this.prunedContent = null;
+            return prunedSourceCopy;
+        }
         return content;
     }
 
@@ -70,6 +84,11 @@ public class WorkspaceDocument {
 
     public void setContent(Range range, String content) {
         this.content = getRangeTextAppliedContent(range, content, this.content);
+    }
+
+    public void setPrunedContent(String prunedContent) {
+        this.prunedContent = prunedContent;
+        this.usePrunedSource = true;
     }
 
     private String getRangeTextAppliedContent(Range range, String newText, String oldText) {

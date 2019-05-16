@@ -84,6 +84,8 @@ public enum InstructionKind {
     LESS_EQUAL((byte) 71),
     AND((byte) 72),
     OR((byte) 73),
+    REF_EQUAL((byte) 74),
+    REF_NOT_EQUAL((byte) 75),
 
     // Unary expression related instructions.
     TYPEOF((byte) 80),

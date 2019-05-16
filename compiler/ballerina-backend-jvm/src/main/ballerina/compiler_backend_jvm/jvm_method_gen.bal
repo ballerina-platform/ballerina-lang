@@ -320,10 +320,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             termGen.generateWaitIns(terminator, funcName);
         } else if (terminator is bir:FPCall) {
             termGen.genFPCallIns(terminator, funcName);
-        } else if (terminator is bir:WrkSend) {
-            termGen.genWrkSendIns(terminator, funcName);
-        } else if (terminator is bir:WrkReceive) {
-            termGen.genWrkReceiveIns(terminator, funcName);
+        } else if (terminator is bir:WorkerSend) {
+            termGen.genWorkerSendIns(terminator, funcName);
+        } else if (terminator is bir:WorkerReceive) {
+            termGen.genWorkerReceiveIns(terminator, funcName);
         } else {
             error err = error( "JVM generation is not supported for terminator instruction " +
                                         io:sprintf("%s", terminator));
@@ -868,7 +868,8 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
-    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "()V", false);
+    mv.visitInsn(ICONST_4);
+    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(I)V", false);
 
     if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
@@ -929,7 +930,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     // start the scheduler
     mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
-    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "execute", "()V", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "start", "()V", false);
 
     // At this point we are done executing all the functions including asyncs
     if (!isVoidFunction) {
