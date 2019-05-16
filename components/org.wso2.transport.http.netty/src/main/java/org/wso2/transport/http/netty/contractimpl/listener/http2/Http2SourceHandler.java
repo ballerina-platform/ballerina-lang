@@ -127,6 +127,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
             HttpCarbonRequest requestCarbonMessage = setupCarbonRequest(httpRequest, this, STREAM_ID_ONE);
             requestCarbonMessage.addHttpContent(new DefaultLastHttpContent(upgradedRequest.content()));
+            requestCarbonMessage.setLastHttpContentArrived();
             notifyRequestListener(this, requestCarbonMessage, STREAM_ID_ONE);
         }
     }
