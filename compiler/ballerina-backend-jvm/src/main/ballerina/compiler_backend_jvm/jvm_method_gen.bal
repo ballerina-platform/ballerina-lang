@@ -1075,11 +1075,19 @@ function isModuleInitFunction(bir:Package module, bir:Function func) returns boo
 function getModuleInitFuncName(bir:Package module) returns string {
     string orgName = module.org.value;
     string moduleName = module.name.value;
-    if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        return orgName  + "/" + moduleName + ":" + module.versionValue.value + ".<init>";
+
+    string funcName;
+    if (!moduleName.equalsIgnoreCase(".")) {
+        funcName = moduleName + ":" + module.versionValue.value + ".<init>";
     } else {
-        return "..<init>";
+        funcName = "..<init>";
     }
+
+    if (!orgName.equalsIgnoreCase("$anon")) {
+        funcName = orgName  + "/" + funcName;
+    }
+
+    return funcName;
 }
 
 function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {

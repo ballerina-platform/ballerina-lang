@@ -195,17 +195,29 @@ function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) 
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
-    if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        return orgName + "/" + cleanupName(moduleName) + "/" + cleanupName(sourceFileName);
+    string className = cleanupName(sourceFileName);
+    if (!moduleName.equalsIgnoreCase(".")) {
+        className = cleanupName(moduleName) + "/" + className;
     }
-    return cleanupName(sourceFileName);
+
+    if (!orgName.equalsIgnoreCase("$anon")) {
+        className = orgName + "/" + className;
+    }
+
+    return className;
 }
 
 function getPackageName(string orgName, string moduleName) returns string {
-    if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        return orgName + "/" + cleanupName(moduleName) + "/";
+    string packageName = "";
+    if (!moduleName.equalsIgnoreCase(".")) {
+        packageName = cleanupName(moduleName) + "/";
     }
-    return "";
+
+    if (!orgName.equalsIgnoreCase("$anon")) {
+        packageName = orgName + "/" + packageName;
+    }
+
+    return packageName;
 }
 
 function splitPkgName(string key) returns (string, string) {
