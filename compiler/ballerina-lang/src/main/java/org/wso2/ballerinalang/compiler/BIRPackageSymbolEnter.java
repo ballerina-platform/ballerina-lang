@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -53,6 +54,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -98,7 +100,7 @@ public class BIRPackageSymbolEnter {
 
     private BIRPackageSymbolEnv env;
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
-    private boolean defineFuncsInPkg = true;
+    private BStructureTypeSymbol currentStructure = null;
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
@@ -233,11 +235,11 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineAttachedFunctions(DataInputStream dataInStream) throws IOException {
-        this.defineFuncsInPkg = false;
-        for (BStructureTypeSymbol ignored : this.structureTypes) {
+        for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
+            this.currentStructure = structureTypeSymbol;
             defineSymbols(dataInStream, rethrow(this::defineFunction));
         }
-        this.defineFuncsInPkg = true;
+        this.currentStructure = null;
     }
 
     private CPEntry[] readConstantPool(DataInputStream dataInStream) throws IOException {
@@ -321,6 +323,20 @@ public class BIRPackageSymbolEnter {
                 this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
+        if (this.currentStructure != null) {
+            BType attachedType = this.currentStructure.type;
+
+            // Update the symbol
+            invokableSymbol.owner = attachedType.tsymbol;
+            invokableSymbol.name =
+                    names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
+            if (attachedType.tag == TypeTags.OBJECT) {
+                scopeToDefine = ((BObjectTypeSymbol) attachedType.tsymbol).methodScope;
+            } else {
+                scopeToDefine = attachedType.tsymbol.scope;
+            }
+        }
+
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, dataInStream);
 //
@@ -332,9 +348,7 @@ public class BIRPackageSymbolEnter {
 
         dataInStream.skip(dataInStream.readLong()); // read and skip method body
 
-        if (this.defineFuncsInPkg) { //TODO find a better way?
-            scopeToDefine.define(invokableSymbol.name, invokableSymbol);
-        }
+        scopeToDefine.define(invokableSymbol.name, invokableSymbol);
     }
 
     private void skipPosition(DataInputStream dataInStream) throws IOException {
@@ -821,13 +835,20 @@ public class BIRPackageSymbolEnter {
                     }
                     return finiteType;
                 case TypeTags.OBJECT:
+                    boolean service = inputStream.readByte() == 1;
                     String objName = getUTF8CPEntryValue(inputStream);
                     int objFlags = (inputStream.readBoolean() ? Flags.ABSTRACT : 0) | Flags.PUBLIC;
                     BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(objFlags,
                             names.fromString(objName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
                     objectSymbol.scope = new Scope(objectSymbol);
                     objectSymbol.methodScope = new Scope(objectSymbol);
-                    BObjectType objectType = new BObjectType(objectSymbol);
+                    BObjectType objectType;
+                    // Below is a temporary fix, need to fix this properly by using the type tag
+                    if (service) {
+                        objectType = new BServiceType(objectSymbol);
+                    } else {
+                        objectType = new BObjectType(objectSymbol);
+                    }
                     objectSymbol.type = objectType;
                     compositeStack.push(objectType);
                     int fieldCount = inputStream.readInt();
@@ -851,7 +872,16 @@ public class BIRPackageSymbolEnter {
                                 names.fromString(funcName), env.pkgSymbol.pkgID, funcType,
                                 env.pkgSymbol, Symbols.isFlagOn(objFlags, Flags.NATIVE));
                         invokableSymbol.retType = funcType.retType;
-                        objectSymbol.methodScope.define(invokableSymbol.name, invokableSymbol);
+//                        objectSymbol.methodScope.define(invokableSymbol.name, invokableSymbol);
+
+                        BAttachedFunction attachedFunc =
+                                new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
+                        objectSymbol.attachedFuncs.add(attachedFunc);
+                        if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
+                                || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                            objectSymbol.initializerFunc = attachedFunc;
+                        }
+
 //                        setDocumentation(varSymbol, attrData); // TODO fix - rajith
                     }
                     Object poppedObjType = compositeStack.pop();
@@ -866,11 +896,11 @@ public class BIRPackageSymbolEnter {
                 case TYPE_TAG_SELF:
                     int index = inputStream.readInt();
                     return (BType) compositeStack.get(index);
-                case TypeTags.CHANNEL:
-                    // TODO fix
-                    break;
-                case TypeTags.SERVICE:
+                case SERVICE_TYPE_TAG:
                     return symTable.anyServiceType;
+//                case TypeTags.CHANNEL:
+
+//                case TypeTags.SERVICE:
 
             }
             return null;

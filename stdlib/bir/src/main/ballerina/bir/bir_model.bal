@@ -245,8 +245,9 @@ public type BTypeDesc TYPE_DESC;
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
 
-public const TYPE_SERVICE = "service";
-public type BServiceType TYPE_SERVICE;
+public type BServiceType record {|
+    BObjectType oType;
+|};
 
 public type BArrayType record {|
     ArrayState state;
