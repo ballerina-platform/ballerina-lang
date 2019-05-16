@@ -99,30 +99,36 @@ public class WorkerDataChannel {
                 this.channel.add(new WorkerResult(data, true));
                 this.senderCounter++;
                 this.waitingSender = new WaitingSender(strand, -1);
-            }
 
-            if (this.receiver != null) {
-                this.receiver.scheduler.unblockStrand(this.receiver);
-                this.receiver = null;
+                if (this.receiver != null) {
+                    // multiple checks are added to make sure this is
+                    this.receiver.scheduler.unblockStrand(this.receiver);
+                    this.receiver = null;
+                } else if (this.panic != null) {
+                    // TODO: Fix for receiver panics
+                } else if (this.error != null) {
+                    ErrorValue ret = this.error;
+                    this.error = null;
+                    return ret;
+                }
+
+                strand.blocked = true;
+                strand.yield = true;
                 return null;
             }
 
-            if (this.panic != null) {
+            if (this.panic != null && this.channel.peek() != null && this.channel.peek().isSync) {
                 // TODO: Fix for receiver panics
-            }
-
-            if (this.error != null) {
+            } else if (this.error != null && this.channel.peek() != null && this.channel.peek().isSync) {
+                // should make sure this error happened before sending the sync message
                 ErrorValue ret = this.error;
                 this.error = null;
                 return ret;
             }
 
-            // could not send the message, should yield. Will pick the ret value from getErrorValue()
-            if (!syncSent) {
-                strand.blocked = true;
-                strand.yield = true;
-            }
+            // sync send done
             return null;
+
         } finally {
             this.syncSent = false;
             releaseChannelLock();
