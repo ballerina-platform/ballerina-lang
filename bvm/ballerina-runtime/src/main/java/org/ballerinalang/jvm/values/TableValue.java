@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.DataIterator;
 import org.ballerinalang.jvm.TableProvider;
 import org.ballerinalang.jvm.TableUtils;
+import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
@@ -149,7 +150,7 @@ public class TableValue implements RefValue, CollectionValue {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
 
     }
 
@@ -362,7 +363,7 @@ public class TableValue implements RefValue, CollectionValue {
      *
      * @return number of rows of the table
      */
-    public long size() {
+    public int size() {
         if (tableName == null) {
             return 0;
         }
