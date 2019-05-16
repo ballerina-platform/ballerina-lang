@@ -15,11 +15,9 @@
  */
 package org.ballerinalang.langserver.util.references;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 /**
@@ -27,17 +25,13 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
  *
  * @since 0.993.0
  */
-public class ReferencesSubRuleParser {
+class ReferencesSubRuleParser {
     private ReferencesSubRuleParser() {
     }
 
-    public static void parserCompilationUnit(String content, LSContext context, Position position) {
-
+    static void parserCompilationUnit(String content, LSContext context, Position position) {
         // TODO: 1/23/19 Check what happens when the content is not a valid compilation unit and when there are errors
-        ANTLRInputStream inputStream = new ANTLRInputStream(content);
-        BallerinaLexer lexer = new BallerinaLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
-        BallerinaParser parser = new BallerinaParser(commonTokenStream);
+        BallerinaParser parser = CommonUtil.prepareParser(content, false);
         parser.setErrorHandler(new ReferenceFindTokenErrorStrategy(context, position));
 
         parser.compilationUnit();

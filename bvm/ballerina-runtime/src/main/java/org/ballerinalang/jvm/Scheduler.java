@@ -172,7 +172,7 @@ public class Scheduler {
             Throwable panic = null;
             try {
                 if (DEBUG) {
-                    DEBUG_LOG.add(item + " starting");
+                    DEBUG_LOG.add(item + " executing");
                 }
                 result = item.execute();
             } catch (Throwable e) {
@@ -274,19 +274,22 @@ public class Scheduler {
     }
 
     public void unblockStrand(Strand strand) {
-        synchronized (strand) {
-            SchedulerItem item = blockedOnUnknownList.remove(strand);
-            if (item != null) {
+        SchedulerItem item;
+        int i = 0;
+        // TODO: remove this busy waiting, use locking
+        while ((item = blockedOnUnknownList.remove(strand)) == null) {
+            i++;
+            if (i == 1000000) {
+                logger.warn("Possible infinite wait for receiver worker");
                 if (DEBUG) {
-                    DEBUG_LOG.add(item + " got unblocked due to send");
-                }
-                reschedule(item);
-            } else {
-                if (DEBUG) {
-                    DEBUG_LOG.add("send to a un-started receive");
+                    DEBUG_LOG.add("possible infinite wait for receiver " + strand.hashCode() + " to block");
                 }
             }
         }
+        if (DEBUG) {
+            DEBUG_LOG.add(item + " got unblocked due to send");
+        }
+        reschedule(item);
     }
 }
 
