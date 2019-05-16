@@ -57,7 +57,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
-        generateUserDefinedTypes(mv, module.typeDefs);
+        generateUserDefinedTypes(mv, module.typeDefs, currentPackageName);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
             mv.visitTypeInsn(NEW, typeOwnerClass);
@@ -1099,19 +1099,19 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
 
+            // skip the init function invocation is its already generated 
+            // by someother package
             if(isInitInvoked(initFuncName)) {
                 continue;
             }
-
-            io:println(initFuncName);
 
             string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
                                                                 MODULE_INIT_CLASS_NAME);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
                     "(Lorg/ballerinalang/jvm/Strand;)V", false);
+
             generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
-            io:println(generatedInitFuncs);
         }
         generateInitFunctionInvocation(importedPkg, mv);
     }

@@ -17,9 +17,11 @@
 */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,12 +65,17 @@ public final class XMLQName implements RefValue {
     }
 
     @Override
+    public String stringValue() {
+        return (uri == null || uri.isEmpty()) ? localName : '{' + uri + '}' + localName;
+    }
+
+    @Override
     public BType getType() {
         return BTypes.typeXMLAttributes;
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
     }
 
     @Override
