@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+string[] generatedInitFuncs = [];
+
 function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module, bir:BType? attachedType = ()) {
 
     // skip code generation, if this is an extern function
@@ -49,7 +51,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     jvm:MethodVisitor mv = cw.visitMethod(access, funcName, desc, (), ());
     InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
     ErrorHandlerGenerator errorGen = new(mv, indexMap);
-    
+
     mv.visitCode();
 
     if (isModuleInitFunction(module, func)) {
@@ -67,7 +69,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", VALUE_CREATOR), "addValueCreator",
                                     io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
         }
-
     }
 
     // generate method body
@@ -1093,18 +1094,27 @@ function getModuleInitFuncName(bir:Package module) returns string {
 }
 
 function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
-   foreach var mod in pkg.importModules {
-       bir:Package importedPkg = lookupModule(mod, currentBIRContext);
-       if (hasInitFunction(importedPkg)) {
-           string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
-           string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
-                                                            MODULE_INIT_CLASS_NAME);
-           mv.visitVarInsn(ALOAD, 0);
-           mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                   "(Lorg/ballerinalang/jvm/Strand;)V", false);
-       }
-       generateInitFunctionInvocation(importedPkg, mv);
-   }
+    foreach var mod in pkg.importModules {
+        bir:Package importedPkg = lookupModule(mod, currentBIRContext);
+        if (hasInitFunction(importedPkg)) {
+            string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
+
+            if(isInitInvoked(initFuncName)) {
+                continue;
+            }
+
+            io:println(initFuncName);
+
+            string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
+                                                                MODULE_INIT_CLASS_NAME);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                    "(Lorg/ballerinalang/jvm/Strand;)V", false);
+            generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
+            io:println(generatedInitFuncs);
+        }
+        generateInitFunctionInvocation(importedPkg, mv);
+    }
 }
 
 
@@ -1384,4 +1394,14 @@ function getMapValueDesc(int count) returns string{
     }
 
     return desc;
+}
+
+function isInitInvoked(string item) returns boolean {
+    foreach var listItem in generatedInitFuncs {
+        if (listItem.equalsIgnoreCase(item)) {
+            return true;
+        }
+    }
+
+    return false;
 }
