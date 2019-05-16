@@ -19,6 +19,7 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel.listener;
 
 import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -49,7 +50,6 @@ import java.util.concurrent.TimeoutException;
 public class Stop extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        // close the channel here
         BMap<String, BValue> channelListObject = (BMap<String, BValue>) context.getRefArgument(0);
         BMap<String, BValue> channelOb = (BMap<String, BValue>) channelListObject.get("chann");
         Channel channel = (Channel) channelOb.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
@@ -57,7 +57,9 @@ public class Stop extends BlockingNativeCallableUnit {
             throw new BallerinaException("ChannelListener not properly initialised");
         } else {
             try {
+                Connection connection = channel.getConnection();
                 channel.close();
+                connection.close();
             } catch (IOException | TimeoutException exception) {
                 RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CHANNEL_ERROR
                         + " " + exception.getMessage(), context, exception);

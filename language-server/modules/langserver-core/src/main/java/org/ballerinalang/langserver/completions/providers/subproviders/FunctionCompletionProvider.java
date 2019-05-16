@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.providers.subproviders;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -29,9 +30,9 @@ import java.util.List;
 /**
  * Completion Item provider for the BLangFunction context.
  */
-public class FunctionCompletionProvider extends AbstractSubCompletionProvider {
+public class FunctionCompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext context) {
+    public List<CompletionItem> getCompletions(LSContext context) {
         ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         if (parserRuleContext == null) {
             List<CompletionItem> completionItems = new ArrayList<>();

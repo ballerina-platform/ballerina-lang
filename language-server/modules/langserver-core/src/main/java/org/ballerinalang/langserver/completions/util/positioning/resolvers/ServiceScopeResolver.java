@@ -53,7 +53,7 @@ public class ServiceScopeResolver extends CursorPositionResolver {
         int nodeSCol = zeroBasedPo.sCol;
 
         if (line < nodeSLine
-                || (line == nodeSLine && col < nodeSCol)
+                || (line == nodeSLine && col <= nodeSCol)
                 || this.isWithinScopeAfterLastChildNode(node, treeVisitor, line, col)) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());

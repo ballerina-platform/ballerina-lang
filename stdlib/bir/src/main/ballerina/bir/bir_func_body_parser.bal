@@ -435,7 +435,7 @@ public type FuncBodyParser object {
             VarRef lhsOp = self.parseVarRef();
             boolean isSameStrand = self.reader.readBoolean();
             BasicBlock thenBB = self.parseBBRef();
-            WrkReceive receive = {pos:pos, kind:kind, channelName:{ value:dataChannel }, lhsOp:lhsOp,
+            WorkerReceive receive = {pos:pos, kind:kind, channelName:{ value:dataChannel }, lhsOp:lhsOp,
                 isSameStrand:isSameStrand, thenBB:thenBB};
             return receive;
         } else if (kindTag == INS_WK_SEND) {
@@ -443,9 +443,14 @@ public type FuncBodyParser object {
             string dataChannel = self.reader.readStringCpRef();
             VarRef dataOp = self.parseVarRef();
             boolean isSameStrand = self.reader.readBoolean();
+            boolean isSync = self.reader.readBoolean();
+            VarRef? lhsOp = ();
+            if (isSync) {
+                lhsOp = self.parseVarRef();
+            }
             BasicBlock thenBB = self.parseBBRef();
-            WrkSend send = {pos:pos, kind:kind, channelName:{ value:dataChannel }, dataOp:dataOp,
-                isSameStrand:isSameStrand, thenBB:thenBB};
+            WorkerSend send = {pos:pos, kind:kind, channelName:{ value:dataChannel }, dataOp:dataOp,
+                isSameStrand:isSameStrand, isSync:isSync, lhsOp:lhsOp, thenBB:thenBB};
             return send;
         }
         error err = error("term instruction kind " + kindTag + " not impl.");
