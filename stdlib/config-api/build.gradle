@@ -19,6 +19,7 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-builtin:0.992.0-m1'
     baloCreat project(':lib-creator-milestone')
 
 //    implementation project(':ballerina-lang')
@@ -28,7 +29,6 @@ dependencies {
 //    implementation project(':lib-creator')
 
     testCompile project(':ballerina-launcher')
-    testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-system')
     testCompile project(':ballerina-utils')
@@ -36,11 +36,20 @@ dependencies {
     testCompile 'org.testng:testng'
 
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-builtin', version: '0.992.0-m1', ext: 'zip',
+            classifier: 'ballerina-binary-repo'
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
 }
+
+task copyBuiltin(type: Copy) {
+    from zipTree("$buildDir/lib/ballerina-builtin-0.992.0-m1-ballerina-binary-repo.zip")
+    into "$buildDir/lib/"
+}
+
+copyBuiltin.dependsOn createBalHome
+createBalo.dependsOn copyBuiltin
 
 description = 'Ballerina - Config API'
 
