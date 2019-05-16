@@ -136,21 +136,17 @@ function AuthzHandler.cacheAuthzResult(string authzCacheKey, boolean authorized)
 #
 # + resourceScopes - Scopes of resource
 # + userScopes - Scopes of the user
-# + return - true if resourceScopes is a subset of userScopes, else false
+# + return - true if one of the resourceScopes can be found at userScopes, else false
 function matchScopes(string[] resourceScopes, string[] userScopes) returns boolean {
     foreach var resourceScope in resourceScopes {
         boolean matched = false;
         foreach var userScope in userScopes {
             if (resourceScope == userScope) {
-                matched = true;
-                break;
+                return true;
             }
         }
-        if (!matched) {
-            return false;
-        }
     }
-    return true;
+    return false;
 }
 
 function AuthzHandler.canHandle(Request req) returns boolean|error {
