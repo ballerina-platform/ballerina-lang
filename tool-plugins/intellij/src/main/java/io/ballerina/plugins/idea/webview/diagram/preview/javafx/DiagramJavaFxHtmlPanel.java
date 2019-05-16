@@ -21,6 +21,7 @@ import io.ballerina.plugins.idea.webview.diagram.settings.DiagramApplicationSett
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
+import javafx.scene.input.KeyCode;
 import javafx.scene.text.FontSmoothingType;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -55,11 +56,19 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
         subscribeForGrayscaleSetting();
     }
 
+    @Override
     protected void registerListeners(@NotNull WebEngine engine) {
         engine.getLoadWorker().stateProperty().addListener(myBridgeSettingListener);
         engine.getLoadWorker().stateProperty().addListener(myScrollPreservingListener);
-        //Used for debugging purposes.
-        engine.setOnAlert(event -> System.out.println(event.getData()));
+
+        // Triggers firebug console when pressing "SHIFT + I".
+        if (myWebView != null) {
+            myWebView.setOnKeyPressed(event -> {
+                if (event.isShiftDown() && event.getCode() == KeyCode.I) {
+                    engine.executeScript("enableFireBug()");
+                }
+            });
+        }
     }
 
     private void subscribeForGrayscaleSetting() {
@@ -74,8 +83,7 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
                 });
             }
         };
-        settingsConnection
-                .subscribe(DiagramApplicationSettings.SettingsChangedListener.TOPIC, settingsChangedListener);
+        settingsConnection.subscribe(DiagramApplicationSettings.SettingsChangedListener.TOPIC, settingsChangedListener);
     }
 
     private static void updateFontSmoothingType(@NotNull WebView view, boolean isGrayscale) {

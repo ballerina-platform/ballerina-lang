@@ -15,16 +15,15 @@ import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.ballerina.plugins.idea.extensions.editoreventmanager.BallerinaEditorEventManager;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.wso2.lsp4intellij.editor.EditorEventManager;
 import org.wso2.lsp4intellij.editor.EditorEventManagerBase;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -47,6 +46,7 @@ public class BallerinaDiagramUtils {
     private static final String STYLES_TEMPLATE_NAME = "styles";
     private static final String SCRIPT_TEMPLATE_NAME = "loaded-script";
     private static final String LANG_CLIENT_TEMPLATE_NAME = "lang-client";
+    private static final String FIREBUG_TEMPLATE_NAME = "firebug";
     private static final String BODY_TEMPLATE = "<div id=\"warning\"></div>\n"
             + "<div class=\"ballerina-editor design-view-container\" id=\"diagram\"></div>\n";
     private static final String DISABLE_EDITING_CSS =
@@ -103,11 +103,11 @@ public class BallerinaDiagramUtils {
             if (myPanel == null) {
                 return "";
             }
-            //Reads required styles contents from the plugin jar.
-            String composerJsContent = getFileContent(RESOURCE_COMPOSER);
-            String codePointsJsContent = getFileContent(RESOURCE_CODEPOINTS);
-            String themeCssConent = getFileContent(RESOURCE_THEME);
-            String fontCssContent = getFileContent(RESOURCE_FONT);
+            // Reads required styles and scripts (js/css) from the plugin jar.
+            final String composerJsContent = getFileContent(RESOURCE_COMPOSER);
+            final String codePointsJsContent = getFileContent(RESOURCE_CODEPOINTS);
+            final String themeCssConent = getFileContent(RESOURCE_THEME);
+            final String fontCssContent = getFileContent(RESOURCE_FONT);
 
             myPanel.setCSS(themeCssConent);
             myPanel.setCSS(fontCssContent);
@@ -118,8 +118,9 @@ public class BallerinaDiagramUtils {
             Template webviewTemplate = handlebars.compile(WEBVIEW_TEMPLATE_NAME);
             Template scriptTemplate = handlebars.compile(SCRIPT_TEMPLATE_NAME);
             Template langClientTemplate = handlebars.compile(LANG_CLIENT_TEMPLATE_NAME);
+            Template fireBugTemplate = handlebars.compile(FIREBUG_TEMPLATE_NAME);
 
-            // Injects ast response to the mocked language client.
+            // Injects ast response to the mocked language client template.
             langClientContents.put("ast", ast);
             Context langClientContext = Context.newBuilder(langClientContents).resolver(MapValueResolver.INSTANCE)
                     .build();
@@ -140,6 +141,7 @@ public class BallerinaDiagramUtils {
             webviewContents.put("codePoints", codePointsJsContent);
             webviewContents.put("composer", composerJsContent);
             webviewContents.put("loadedScript", scriptTemplate.apply(scriptContext));
+            webviewContents.put("fireBug", handlebars.compile(FIREBUG_TEMPLATE_NAME).text());
             //Todo - remove when the editing support is added.
             webviewContents.put("disableEdit", DISABLE_EDITING_CSS);
             Context webviewContext = Context.newBuilder(webviewContents).resolver(MapValueResolver.INSTANCE).build();
@@ -157,16 +159,7 @@ public class BallerinaDiagramUtils {
         if (res.getProtocol().equals("jar")) {
             try {
                 InputStream input = BallerinaDiagramUtils.class.getResourceAsStream(resource);
-                file = File.createTempFile("tempfile", ".tmp");
-                OutputStream out = new FileOutputStream(file);
-                int read;
-                byte[] bytes = new byte[1024];
-
-                while ((read = input.read(bytes)) != -1) {
-                    out.write(bytes, 0, read);
-                }
-                out.close();
-                file.deleteOnExit();
+                return IOUtils.toString(input, StandardCharsets.UTF_8);
             } catch (IOException e) {
                 LOG.warn("Error occurred when reading the file at " + resource, e);
                 throw e;
@@ -174,13 +167,11 @@ public class BallerinaDiagramUtils {
         } else {
             //this will probably work in your IDE, but not from a JAR.
             file = new File(res.getFile());
-        }
-
-        if (!file.exists()) {
-            throw new RuntimeException("Error: File " + file + " not found!");
-        } else {
-            return FileUtils.readFileToString(file, "UTF-8");
+            if (!file.exists()) {
+                throw new RuntimeException("Error: File " + file + " not found!");
+            } else {
+                return FileUtils.readFileToString(file, "UTF-8");
+            }
         }
     }
 }
-
