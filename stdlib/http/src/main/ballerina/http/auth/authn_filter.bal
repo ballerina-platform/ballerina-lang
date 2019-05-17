@@ -22,9 +22,9 @@ import ballerina/reflect;
 # + authnHandlers - Array of authentication handlers
 public type AuthnFilter object {
 
-    public AuthnHandler[] authnHandlers;
+    public AuthnHandler[]|AuthnHandler[][] authnHandlers;
 
-    public function __init(AuthnHandler[] authnHandlers) {
+    public function __init(AuthnHandler[]|AuthnHandler[][] authnHandlers) {
         self.authnHandlers = authnHandlers;
     }
 
@@ -37,7 +37,7 @@ public type AuthnFilter object {
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         boolean|error authenticated;
         var authnHandlers = getAuthnHandlers(context);
-        if (authnHandlers is AuthnHandler[]) {
+        if (authnHandlers is AuthnHandler[]|AuthnHandler[][]) {
             authenticated = handleAuthnRequest(authnHandlers, request);
         } else {
             if (authnHandlers) {
@@ -54,7 +54,30 @@ public type AuthnFilter object {
     }
 };
 
-function handleAuthnRequest(AuthnHandler[] authnHandlers, Request request) returns boolean|error {
+function handleAuthnRequest(AuthnHandler[]|AuthnHandler[][] authnHandlers, Request request) returns boolean|error {
+    if (authnHandlers is AuthnHandler[]) {
+        return checkForAuthnHandlers(authnHandlers, request);
+    } else {
+        (boolean|error?)[] responseArray = [];
+        int count = 0;
+        foreach AuthnHandler[] authnHandler in authnHandlers {
+            responseArray[count] = checkForAuthnHandlers(authnHandler, request);
+            count += 1;
+        }
+
+        boolean authenticated = true;
+        foreach boolean|error? item in responseArray {
+            if (item is boolean) {
+                authenticated = authenticated && item;
+            } else if (item is error) {
+                return item;
+            }
+        }
+        return authenticated;
+    }
+}
+
+function checkForAuthnHandlers(AuthnHandler[] authnHandlers, Request request) returns boolean|error {
     error? err = ();
     foreach AuthnHandler authnHandler in authnHandlers {
         boolean canHandleResponse = authnHandler.canHandle(request);
@@ -72,7 +95,6 @@ function handleAuthnRequest(AuthnHandler[] authnHandlers, Request request) retur
             }
         }
     }
-
     if (err is error) {
         return err;
     }

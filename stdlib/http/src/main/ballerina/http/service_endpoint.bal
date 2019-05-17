@@ -76,18 +76,29 @@ public function Listener.init(ServiceEndpointConfiguration c) {
     self.config = c;
     var auth = self.config["auth"];
     if (auth is ListenerAuth) {
-        if (auth.authnHandlers.length() > 0) {
-            var secureSocket = self.config.secureSocket;
-            if (secureSocket is ServiceSecureSocket) {
-                addAuthFiltersForSecureListener(self.config);
-            } else {
-                error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
-                panic err;
+        var authnHandlers = auth.authnHandlers;
+        if (authnHandlers is AuthnHandler[]) {
+            if (authnHandlers.length() > 0) {
+                initListener(self.config);
+            }
+        } else {
+            if (authnHandlers[0].length() > 0) {
+                initListener(self.config);
             }
         }
     }
     var err = self.initEndpoint();
     if (err is error) {
+        panic err;
+    }
+}
+
+function initListener(ServiceEndpointConfiguration config) {
+    var secureSocket = config.secureSocket;
+    if (secureSocket is ServiceSecureSocket) {
+        addAuthFiltersForSecureListener(config);
+    } else {
+        error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
         panic err;
     }
 }
@@ -156,13 +167,13 @@ public type ServiceEndpointConfiguration record {|
 
 # Authentication configurations for the listener.
 #
-# + authnHandlers - Array of authentication handlers
-# + scopes - Array of scopes
+# + authnHandlers - Array of authentication handlers or Array of array of authentication handlers
+# + scopes - Array of scopes or Array of array of scopes
 # + positiveAuthzCache - Caching configurations for positive authorizations
 # + negativeAuthzCache - Caching configurations for negative authorizations
 public type ListenerAuth record {|
-    AuthnHandler[] authnHandlers;
-    string[] scopes?;
+    AuthnHandler[]|AuthnHandler[][] authnHandlers;
+    string[]|string[][] scopes?;
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
 |};
@@ -239,7 +250,7 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
 
     var auth = config["auth"];
     if (auth is ListenerAuth) {
-        AuthnHandler[] authnHandlers = auth.authnHandlers;
+        AuthnHandler[]|AuthnHandler[][] authnHandlers = auth.authnHandlers;
         AuthnFilter authnFilter = new(authnHandlers);
         authFilters[0] = authnFilter;
 

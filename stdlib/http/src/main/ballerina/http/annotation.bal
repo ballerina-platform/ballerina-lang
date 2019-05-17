@@ -134,12 +134,12 @@ public type WebSocketUpgradeConfig record {|
 # Configures the authentication scheme for a service or a resource.
 #
 # + enabled - Specifies whether authentication is enabled
-# + authnHandlers - Array of authentication handlers
-# + scopes - Array of scopes
+# + authnHandlers - Array of authentication handlers or Array of array of authentication handlers
+# + scopes - Array of scopes or Array of array of scopes
 public type ServiceResourceAuth record {|
     boolean enabled = true;
-    AuthnHandler[] authnHandlers?;
-    string[] scopes?;
+    AuthnHandler[]|AuthnHandler[][] authnHandlers?;
+    string[]|string[][] scopes?;
 |};
 
 # The annotation which is used to configure an HTTP resource.
