@@ -256,7 +256,7 @@ type TerminatorGenerator object {
         self.mv.visitVarInsn(ALOAD, localVarOffset);
 
         // load the function name as the second argument
-        self.mv.visitLdcInsn(callIns.name.value);
+        self.mv.visitLdcInsn(cleanupObjectTypeName(callIns.name.value));
 
         // create an Object[] for the rest params
         int argsCount = callIns.args.length() - 1;
@@ -685,33 +685,43 @@ type TerminatorGenerator object {
 };
 
 function loadChannelDetails(jvm:MethodVisitor mv, bir:ChannelDetail[] channels) {
-        mv.visitIntInsn(BIPUSH, channels.length());
-        mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
-        int index = 0;
-        foreach bir:ChannelDetail ch in channels {
-            // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
-            mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, index);
-            index += 1;
+    mv.visitIntInsn(BIPUSH, channels.length());
+    mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
+    int index = 0;
+    foreach bir:ChannelDetail ch in channels {
+        // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
+        mv.visitInsn(DUP);
+        mv.visitIntInsn(BIPUSH, index);
+        index += 1;
 
-            mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn(ch.name.value);
-            
-            if (ch.onSameStrand) {
-                mv.visitInsn(ICONST_1);
-            } else {
-                mv.visitInsn(ICONST_0);
-            }
+        mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(ch.name.value);
 
-            if (ch.isSend) {
-                mv.visitInsn(ICONST_1);
-            } else {
-                mv.visitInsn(ICONST_0);
-            }
-
-            mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", io:sprintf("(L%s;ZZ)V", STRING_VALUE), 
-                false);
-            mv.visitInsn(AASTORE);
+        if (ch.onSameStrand) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
         }
+
+        if (ch.isSend) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
+
+        mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", io:sprintf("(L%s;ZZ)V", STRING_VALUE),
+            false);
+        mv.visitInsn(AASTORE);
     }
+}
+
+
+function cleanupObjectTypeName(string typeName) returns string {
+    int index = typeName.lastIndexOf(".");
+    if (index > 0) {
+        return typeName.substring(index + 1, typeName.length());
+    } else {
+        return typeName;
+    }
+}

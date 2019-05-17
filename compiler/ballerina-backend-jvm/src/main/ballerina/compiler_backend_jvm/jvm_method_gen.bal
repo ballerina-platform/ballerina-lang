@@ -69,7 +69,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitInsn(DUP);
             mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
             mv.visitVarInsn(ASTORE, 1);
-            mv.visitLdcInsn(currentPackageName);
+            mv.visitLdcInsn(cleanupPackageName(currentPackageName));
             mv.visitVarInsn(ALOAD, 1);
             mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", VALUE_CREATOR), "addValueCreator",
                                     io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
@@ -1399,4 +1399,13 @@ function isInitInvoked(string item) returns boolean {
     }
 
     return false;
+}
+
+function getFunctions(bir:Function?[]? functions) returns bir:Function?[] {
+    if (functions is bir:Function?[]) {
+        return functions;
+    } else {
+        error err = error(io:sprintf("Invalid functions: %s", functions));
+        panic err;
+    }
 }
