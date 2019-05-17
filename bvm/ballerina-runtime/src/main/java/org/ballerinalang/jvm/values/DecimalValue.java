@@ -366,7 +366,8 @@ public class DecimalValue implements Comparable<DecimalValue> {
             case ZERO:
             case OTHER:
                 if (divisor.valueKind == DecimalValueKind.OTHER) {
-                    return new DecimalValue(this.decimalValue().remainder(divisor.decimalValue(), MathContext.DECIMAL128));
+                    return new DecimalValue(this.decimalValue().remainder(divisor.decimalValue(),
+                                                                          MathContext.DECIMAL128));
                 }
                 if (divisor.valueKind == DecimalValueKind.ZERO || divisor.valueKind == DecimalValueKind.NOT_A_NUMBER) {
                     return NaN;

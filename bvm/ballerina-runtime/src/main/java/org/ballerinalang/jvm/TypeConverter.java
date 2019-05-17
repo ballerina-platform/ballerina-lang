@@ -30,7 +30,6 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 
-import java.math.BigDecimal;
 import java.util.function.Supplier;
 
 import static org.ballerinalang.jvm.TypeChecker.checkIsLikeType;
