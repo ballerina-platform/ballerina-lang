@@ -46,7 +46,7 @@ public class NonBlockingCallback {
     public void notifySuccess() {
         this.executionWaitSem.release();
         //TODO : Replace following with callback.notifySuccess() once strand non-blocking support is given
-        this.strand.resume();
+        this.strand.scheduler.unblockStrand(strand);
     }
 
     public void notifyFailure(ErrorValue error) {
