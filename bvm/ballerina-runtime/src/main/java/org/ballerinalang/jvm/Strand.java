@@ -20,6 +20,8 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -36,7 +38,7 @@ public class Strand {
     public int resumeIndex;
     public Future future;
     public boolean blocked;
-    public Strand blockedOn;
+    public List<Strand> blockedOn;
     public Scheduler scheduler;
     public Strand parent = null;
     public WDChannels wdChannels;
@@ -45,12 +47,14 @@ public class Strand {
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
         this.wdChannels = new WDChannels();
+        this.blockedOn = new ArrayList<>();
     }
 
     public Strand(Scheduler scheduler, Strand parent) {
         this.scheduler = scheduler;
         this.parent = parent;
         this.wdChannels = new WDChannels();
+        this.blockedOn = new ArrayList<>();
     }
 
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {

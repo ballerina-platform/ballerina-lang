@@ -449,6 +449,7 @@ type TerminatorGenerator object {
 
         // strand.blockedOn = future.strand
         self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitFieldInsn(GETFIELD, STRAND, "blockedOn", io:sprintf("L%s;", LIST));
         if (futureVal is bir:VarRef) {
             bir:VariableDcl? varDecl = futureVal.variableDcl;
             if (varDecl is bir:VariableDcl) {
@@ -457,7 +458,8 @@ type TerminatorGenerator object {
             }  
         }
         self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
-        self.mv.visitFieldInsn(PUTFIELD, STRAND, "blockedOn", io:sprintf("L%s;", STRAND));
+        self.mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z",OBJECT), true);
+        self.mv.visitInsn(POP);
 
         // strand.yield = true
         self.mv.visitVarInsn(ALOAD, 0);

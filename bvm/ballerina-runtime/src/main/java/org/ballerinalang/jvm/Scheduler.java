@@ -182,32 +182,33 @@ public class Scheduler {
 
             switch (item.getState()) {
                 case BLOCKED:
-                    Strand blockedOn = item.blockedOn();
-                    if (blockedOn != null) {
-                        synchronized (blockedOn) {
-                            blockedList.compute(blockedOn, (sameAsBlockedOn, blocked) -> {
-                                if (blocked == COMPLETED) {
-                                    if (DEBUG) {
-                                        DEBUG_LOG.add(item + " blocked on completed " + blockedOn.hashCode());
-                                    }
-                                    reschedule(item);
-                                } else {
-                                    if (blocked == null) {
-                                        blocked = new ArrayList<>();
-                                    }
-                                    if (DEBUG) {
-                                        DEBUG_LOG.add(item + " blocked on " + blockedOn.hashCode());
-                                    }
-                                    blocked.add(item);
-                                }
-                                return blocked;
-                            });
-                        }
-                    } else {
+                    if (item.blockedOn().isEmpty()) {
                         if (DEBUG) {
                             DEBUG_LOG.add(item + " blocked");
                         }
                         blockedOnUnknownList.put(item.future.strand, item);
+                    } else {
+                        item.blockedOn().forEach(blockedOn -> {
+                            synchronized (blockedOn) {
+                                blockedList.compute(blockedOn, (sameAsBlockedOn, blocked) -> {
+                                    if (blocked == COMPLETED) {
+                                        if (DEBUG) {
+                                            DEBUG_LOG.add(item + " blocked on completed " + blockedOn.hashCode());
+                                        }
+                                        reschedule(item);
+                                    } else {
+                                        if (blocked == null) {
+                                            blocked = new ArrayList<>();
+                                        }
+                                        if (DEBUG) {
+                                            DEBUG_LOG.add(item + " blocked on " + blockedOn.hashCode());
+                                        }
+                                        blocked.add(item);
+                                    }
+                                    return blocked;
+                                });
+                            }
+                        });
                     }
                     break;
                 case YIELD:
@@ -262,8 +263,12 @@ public class Scheduler {
     }
 
     private void reschedule(SchedulerItem item) {
-        item.setState(RUNNABLE);
-        runnableList.add(item);
+        synchronized (item) {
+            if (item.getState() == BLOCKED) {
+                item.setState(RUNNABLE);
+                runnableList.add(item);
+            }
+        }
     }
 
     private FutureValue createFuture(Strand parent) {
@@ -290,6 +295,15 @@ public class Scheduler {
             DEBUG_LOG.add(item + " got unblocked due to send");
         }
         reschedule(item);
+    }
+
+    public void release(Strand blockedOn, Strand strand) {
+        synchronized (blockedOn) {
+            blockedList.computeIfPresent(blockedOn, (sameAsBlockedOn, blocked) -> {
+                blocked.removeIf(item -> item.future.strand == strand);
+                return blocked;
+            });
+        }
     }
 }
 
@@ -351,14 +365,14 @@ class SchedulerItem {
         }
     }
 
-    public Strand blockedOn() {
+    public List<Strand> blockedOn() {
         return this.future.strand.blockedOn;
     }
 
     public void setState(int state) {
         if (state == RUNNABLE) {
             this.future.strand.yield = false;
-            this.future.strand.blockedOn = null;
+            this.future.strand.blockedOn.clear();
             this.future.strand.blocked = false;
         }
     }
