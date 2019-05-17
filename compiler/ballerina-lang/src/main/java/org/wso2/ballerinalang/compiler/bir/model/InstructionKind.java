@@ -33,6 +33,7 @@ public enum InstructionKind {
     FP_CALL((byte) 7),
     WK_RECEIVE((byte) 8),
     WK_SEND((byte) 9),
+    FLUSH((byte) 10),
 
     // Non-terminating instructions
     MOVE((byte) 20),
