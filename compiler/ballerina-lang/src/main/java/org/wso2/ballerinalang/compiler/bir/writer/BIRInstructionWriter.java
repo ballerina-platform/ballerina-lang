@@ -158,6 +158,16 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(entry.thenBB.id.value);
     }
 
+    public void visit(BIRTerminator.WaitAll waitAll) {
+        writePosition(waitAll.pos);
+        buf.writeByte((waitAll.kind.getValue()));
+        waitAll.lhsOp.accept(this);
+        buf.writeInt(waitAll.keys.size());
+        waitAll.keys.forEach(key -> buf.writeInt(addStringCPEntry(key)));
+        waitAll.valueExprs.forEach(val -> val.accept(this));
+        addCpAndWriteString(waitAll.thenBB.id.value);
+    }
+
     // Non-terminating instructions
 
     public void visit(BIRNonTerminator.Move birMove) {

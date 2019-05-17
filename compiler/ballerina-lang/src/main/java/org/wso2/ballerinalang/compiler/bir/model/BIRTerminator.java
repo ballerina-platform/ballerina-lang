@@ -343,4 +343,32 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
             visitor.visit(this);
         }
     }
+
+    /**
+     * A worker send instruction.
+     * <p>
+     * e.g., record {id:w1,id2:w2} res = wait {w1, w2};
+     *
+     * @since 0.995.0
+     */
+    public static class WaitAll extends BIRTerminator {
+        public BIROperand lhsOp;
+        public List<String> keys;
+        public List<BIROperand> valueExprs;
+        public BIRBasicBlock thenBB;
+
+        public WaitAll(DiagnosticPos pos, BIROperand lhsOp, List<String> keys, List<BIROperand> valueExprs,
+                       BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.WAIT_ALL);
+            this.lhsOp = lhsOp;
+            this.keys = keys;
+            this.valueExprs = valueExprs;
+            this.thenBB = thenBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

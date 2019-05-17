@@ -151,6 +151,7 @@ public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
 public const TERMINATOR_PANIC = "PANIC";
 public const TERMINATOR_WAIT = "WAIT";
+public const TERMINATOR_WAIT_ALL = "WAIT_ALL";
 public const TERMINATOR_FP_CALL = "FP_CALL";
 public const TERMINATOR_WK_RECEIVE = "WK_RECEIVE";
 public const TERMINATOR_WK_SEND = "WK_SEND";
@@ -158,7 +159,7 @@ public const TERMINATOR_FLUSH = "FLUSH";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
                                 |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL|TERMINATOR_WK_RECEIVE
-                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH;
+                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH|TERMINATOR_WAIT_ALL;
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -659,4 +660,13 @@ public type Ternary record {|
     VarRef conditionOp;
     VarRef thenOp;
     VarRef elseOp;
+|};
+
+public type WaitAll record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    VarRef lhsOp;
+    VarRef?[] futures;
+    string[] keys;
+    BasicBlock thenBB;
 |};

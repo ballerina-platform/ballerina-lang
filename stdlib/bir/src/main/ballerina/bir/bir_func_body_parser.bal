@@ -408,6 +408,25 @@ public type FuncBodyParser object {
             VarRef lhsOp = self.parseVarRef();
             Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp};
             return waitIns;
+        } else if (kindTag == INS_WAIT_ALL) {
+            TerminatorKind kind = TERMINATOR_WAIT_ALL;
+            var lhsOp = self.parseVarRef();
+            int length = self.reader.readInt32();
+            string[] keys = [];
+            int futureIndex = 0;
+            while (futureIndex < length) {
+                keys[futureIndex] = self.reader.readStringCpRef();
+                futureIndex += 1;
+            }
+            futureIndex = 0;
+            VarRef?[] futures = [];
+            while (futureIndex < length) {
+                futures[futureIndex] = self.parseVarRef();
+                futureIndex += 1;
+            }
+            BasicBlock thenBB = self.parseBBRef();
+            WaitAll waitAll = {pos:pos, kind:kind, keys:keys, futures:futures, lhsOp:lhsOp, thenBB:thenBB};
+            return waitAll;
         } else if (kindTag == INS_FLUSH) {
             TerminatorKind kind = TERMINATOR_FLUSH;
             ChannelDetail[] channels = getWorkerChannels(self.reader);
