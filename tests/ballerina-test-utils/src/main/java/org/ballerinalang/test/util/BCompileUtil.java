@@ -530,9 +530,8 @@ public class BCompileUtil {
 
 
     static boolean jBallerinaTestsEnabled() {
-//        String value = System.getProperty(ENABLE_JBALLERINA_TESTS);
-//        return value != null && Boolean.valueOf(value);
-        return true;
+        String value = System.getProperty(ENABLE_JBALLERINA_TESTS);
+        return value != null && Boolean.valueOf(value);
     }
 
     private static CompileResult compileOnJBallerina(String sourceRoot, String packageName,

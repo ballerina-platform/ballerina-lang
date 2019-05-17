@@ -142,7 +142,7 @@
             <class name="org.ballerinalang.test.types.decimaltype.BDecimalValueTest">
                 <!--Unary + and - is not supported yet-->
                 <methods>
-                    <exclude name="testHexComplexExpression" />
+                    <exclude name="testDecimalNegation" />
                     <exclude name="testPositivelySignedLiteralAssignment" />
                 </methods>
             </class>
