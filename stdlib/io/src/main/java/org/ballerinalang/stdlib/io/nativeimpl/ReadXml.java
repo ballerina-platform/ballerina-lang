@@ -23,8 +23,6 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
@@ -78,21 +76,14 @@ public class ReadXml implements NativeCallableUnit {
         return false;
     }
 
-    public static void readXml(Strand strand, ObjectValue channel) {
-        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+    public static Object readXml(Strand strand, ObjectValue channel) {
 
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
-        CharacterChannelReader reader = new CharacterChannelReader(charChannel, new EventContext(callback));
-        final XMLValue xml;
+        CharacterChannelReader reader = new CharacterChannelReader(charChannel, new EventContext());
         try {
-            xml = XMLFactory.parse(reader);
+            return XMLFactory.parse(reader);
         } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
-            callback.setReturnValues(IOUtils.createError(e.getMessage()));
-            callback.notifySuccess();
-            return;
+            return IOUtils.createError(e.getMessage());
         }
-        callback.setReturnValues(xml);
-        callback.notifySuccess();
     }
 }

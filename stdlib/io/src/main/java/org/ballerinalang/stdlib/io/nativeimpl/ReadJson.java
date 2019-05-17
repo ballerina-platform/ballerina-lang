@@ -23,7 +23,6 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JsonParser;
@@ -77,21 +76,14 @@ public class ReadJson implements NativeCallableUnit {
         return false;
     }
 
-    public static void readJson(Strand strand, ObjectValue channel) {
-        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+    public static Object readJson(Strand strand, ObjectValue channel) {
 
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
-        CharacterChannelReader reader = new CharacterChannelReader(charChannel, new EventContext(callback));
-        final Object json;
+        CharacterChannelReader reader = new CharacterChannelReader(charChannel, new EventContext());
         try {
-            json = JSONParser.parse(reader);
+            return JSONParser.parse(reader);
         } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
-            callback.setReturnValues(IOUtils.createError(e.getMessage()));
-            callback.notifySuccess();
-            return;
+            return IOUtils.createError(e.getMessage());
         }
-        callback.setReturnValues(json);
-        callback.notifySuccess();
     }
 }

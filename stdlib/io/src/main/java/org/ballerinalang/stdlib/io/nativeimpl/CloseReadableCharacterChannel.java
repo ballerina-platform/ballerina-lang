@@ -21,7 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
@@ -96,9 +96,9 @@ public class CloseReadableCharacterChannel implements NativeCallableUnit {
         return false;
     }
 
-    public static void close(Strand strand, ObjectValue channel) {
-        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+    public static Object close(Strand strand, ObjectValue channel) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
         EventContext eventContext = new EventContext(callback);
@@ -109,12 +109,13 @@ public class CloseReadableCharacterChannel implements NativeCallableUnit {
         register.submit();
         //TODO : Remove callback once strand non-blocking support is given
         callback.sync();
+        return callback.getReturnValue();
     }
 
     private static EventResult closeChannel(EventResult<Boolean, EventContext> result) {
         EventContext eventContext = result.getContext();
         //TODO : Remove callback once strand non-blocking support is given
-        TempCallableUnitCallback callback = eventContext.getTempCallback();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
             callback.setReturnValues(IOUtils.createError(error.getMessage()));
