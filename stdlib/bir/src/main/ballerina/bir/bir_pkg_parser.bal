@@ -38,9 +38,9 @@ public type PackageParser object {
     }
 
     function skipAnnotations() {
-        var numFuncs = self.reader.readInt32();
+        var numAnnotations = self.reader.readInt32();
         int i = 0;
-        while (i < numFuncs) {
+        while (i < numAnnotations) {
             self.skipAnnotation();
             i += 1;
         }
@@ -104,7 +104,7 @@ public type PackageParser object {
         }
         BasicBlock?[] basicBlocks = self.getBasicBlocks(bodyParser);
         ErrorEntry?[] errorEntries = self.getErrorEntries(bodyParser);
-        ChannelDetail[] workerChannels = self.getWorkerChannels(bodyParser);
+        ChannelDetail[] workerChannels = getWorkerChannels(self.reader);
 
         return {
             pos: pos,
@@ -188,20 +188,6 @@ public type PackageParser object {
         return errorEntries;
     }
 
-    function getWorkerChannels(FuncBodyParser bodyParser) returns ChannelDetail[] {
-        ChannelDetail[] channelDetails = [];
-        var count = self.reader.readInt32();
-        int i = 0;
-        while (i < count) {
-            string name = self.reader.readStringCpRef();
-            boolean onSameStrand = self.reader.readBoolean();
-            boolean isSend = self.reader.readBoolean();
-            channelDetails[i] = { name: { value:name }, onSameStrand:onSameStrand, isSend:isSend };
-            i += 1;
-        }
-        return channelDetails;
-    }
-
     function parseImportMods() returns ImportModule[] {
         int numImportMods = self.reader.readInt32();
         ImportModule[] importModules = [];
@@ -232,7 +218,7 @@ public type PackageParser object {
         foreach var typeDef in typeDefs {
             TypeDef tDef = getTypeDef(typeDef);
             BType typeValue = tDef.typeValue;
-            if (typeValue is BObjectType || typeValue is BRecordType) {
+            if (typeValue is BObjectType || typeValue is BRecordType || typeValue is BServiceType) {
                 tDef.attachedFuncs = self.parseFunctions(typeDefs);
             }
         }
@@ -336,3 +322,16 @@ public function parseDiagnosticPos(BirChannelReader reader) returns DiagnosticPo
     return { sLine:sLine, eLine:eLine, sCol:sCol, eCol:eCol, sourceFileName:sourceFileName };
 }
 
+function getWorkerChannels(BirChannelReader reader) returns ChannelDetail[] {
+        ChannelDetail[] channelDetails = [];
+        var count = reader.readInt32();
+        int i = 0;
+        while (i < count) {
+            string name = reader.readStringCpRef();
+            boolean onSameStrand = reader.readBoolean();
+            boolean isSend = reader.readBoolean();
+            channelDetails[i] = { name: { value:name }, onSameStrand:onSameStrand, isSend:isSend };
+            i += 1;
+        }
+        return channelDetails;
+    }

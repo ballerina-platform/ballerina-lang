@@ -123,6 +123,19 @@ public class BIRInstructionWriter extends BIRVisitor {
         waitEntry.lhsOp.accept(this);
     }
 
+    public void visit(BIRTerminator.Flush entry) {
+        writePosition(entry.pos);
+        buf.writeByte(entry.kind.getValue());
+        buf.writeInt(entry.channels.length);
+        for (BIRNode.ChannelDetails detail : entry.channels) {
+            addCpAndWriteString(detail.name);
+            buf.writeBoolean(detail.channelInSameStrand);
+            buf.writeBoolean(detail.send);
+        }
+        entry.lhsOp.accept(this);
+        addCpAndWriteString(entry.thenBB.id.value);
+    }
+
     public void visit(BIRTerminator.WorkerReceive entry) {
         writePosition(entry.pos);
         buf.writeByte((entry.kind.getValue()));
