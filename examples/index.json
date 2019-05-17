@@ -949,7 +949,7 @@
         "column": 3,
         "category": "Working over the network",
         "samples": [{
-            "name": "Basic Publisher Subscriber",
+            "name": "Basic Publisher and Subscriber",
             "url": "nats-basic-client"
         }]
     },
