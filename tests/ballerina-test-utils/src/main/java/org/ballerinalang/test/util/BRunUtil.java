@@ -20,6 +20,7 @@ package org.ballerinalang.test.util;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
@@ -39,6 +40,7 @@ import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
@@ -329,7 +331,11 @@ public class BRunUtil {
                 } catch (InvocationTargetException e) {
                     Throwable t = e.getTargetException();
                     if (t instanceof BLangRuntimeException) {
-                        throw (BLangRuntimeException) t;
+                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                    }
+                    if (t instanceof ErrorValue) {
+                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException("error: " + BallerinaErrors
+                                .getPrintableStackTrace((ErrorValue) t));
                     }
                     throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
                 }
@@ -605,7 +611,12 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
                 org.ballerinalang.jvm.types.BArrayType arrayType = (org.ballerinalang.jvm.types.BArrayType) type;
                 ArrayValue array = (ArrayValue) value;
-                BValueArray bvmArray = new BValueArray(getBVMType(arrayType.getElementType()));
+                BValueArray bvmArray;
+                if (arrayType.getElementType().getTag() == org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG) {
+                    bvmArray = new BValueArray(getBVMType(arrayType));
+                } else {
+                    bvmArray = new BValueArray(getBVMType(arrayType.getElementType()));
+                }
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.getElementType().getTag()) {
                         case TypeTags.INT_TAG:
@@ -757,6 +768,8 @@ public class BRunUtil {
                 return new BTypeDesc(typedescType.getName(), typedescType.getPackagePath());
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 return BTypes.typeNull;
+            case org.ballerinalang.jvm.types.TypeTags.FINITE_TYPE_TAG:
+                return new BFiniteType(jvmType.getName(), jvmType.getPackagePath());
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }
