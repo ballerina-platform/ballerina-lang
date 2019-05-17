@@ -487,6 +487,8 @@ type TypeEmitter object {
             self.emitFutureType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
             print("()");
+        } else if (typeVal is BFiniteType) {
+            print(typeVal.name.value);
         } else if (typeVal is BErrorType) {
             self.emitErrorType(typeVal, tabs);
         }
