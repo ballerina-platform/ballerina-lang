@@ -130,6 +130,7 @@ public const INS_KIND_TYPEOF = "TYPEOF";
 public const INS_KIND_NOT = "NOT";
 public const INS_KIND_NEW_TYPEDESC = "NEW_TYPEDESC";
 public const INS_KIND_TERNARY = "TERNARY";
+public const INS_KIND_NEGATE = "NEGATE";
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
                                 INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
@@ -140,7 +141,8 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
                                 INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
                                 INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_NEW_TABLE | INS_KIND_TYPEOF |
-                                INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM | INS_KIND_TERNARY ;
+                                INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM | INS_KIND_TERNARY |
+                                INS_KIND_NEGATE;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -152,10 +154,11 @@ public const TERMINATOR_WAIT = "WAIT";
 public const TERMINATOR_FP_CALL = "FP_CALL";
 public const TERMINATOR_WK_RECEIVE = "WK_RECEIVE";
 public const TERMINATOR_WK_SEND = "WK_SEND";
+public const TERMINATOR_FLUSH = "FLUSH";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
                                 |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL|TERMINATOR_WK_RECEIVE
-                                |TERMINATOR_WK_SEND;
+                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH;
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -243,8 +246,9 @@ public type BTypeDesc TYPE_DESC;
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
 
-public const TYPE_SERVICE = "service";
-public type BServiceType TYPE_SERVICE;
+public type BServiceType record {|
+    BObjectType oType;
+|};
 
 public type BArrayType record {|
     ArrayState state;
@@ -321,6 +325,7 @@ public type BFutureType record {|
 |};
 
 public type BFiniteType record {|
+    Name name = {};
     (int | string | boolean | float | byte| ()) [] values;
 |};
 
@@ -492,6 +497,14 @@ public type Wait record {|
     TerminatorKind kind;
     VarRef lhsOp;
     VarRef?[] exprList;
+|};
+
+public type Flush record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    VarRef lhsOp;
+    ChannelDetail[] workerChannels;
+    BasicBlock thenBB;
 |};
 
 public type WorkerReceive record {|

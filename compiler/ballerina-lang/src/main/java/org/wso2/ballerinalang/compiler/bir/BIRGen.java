@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -95,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
@@ -107,6 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -634,6 +637,30 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = thenBB;
     }
 
+    public void visit(BLangWorkerFlushExpr flushExpr) {
+        BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+
+        //create channelDetails array
+        BIRNode.ChannelDetails[] channels = new BIRNode.ChannelDetails[flushExpr.workerIdentifierList.size()];
+        int i = 0;
+        for (BLangIdentifier workerIdentifier: flushExpr.workerIdentifierList) {
+            String channelName = this.env.enclFunc.workerName.value + "->" + workerIdentifier.value;
+            boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
+            channels[i] = new BIRNode.ChannelDetails(channelName, isOnSameStrand, true);
+            i++;
+        }
+
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(flushExpr.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand lhsOp = new BIROperand(tempVarDcl);
+        this.env.targetOperand = lhsOp;
+
+        this.env.enclBB.terminator = new BIRTerminator.Flush(flushExpr.pos, channels, lhsOp, thenBB);
+        this.env.enclFunc.basicBlocks.add(thenBB);
+        this.env.enclBB = thenBB;
+    }
+
     private void createWait(BLangWaitExpr waitExpr) {
 
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
@@ -1043,8 +1070,10 @@ public class BIRGen extends BLangNodeVisitor {
         BSymbol varSymbol = astVarRefExpr.symbol;
 
         if (variableStore) {
-            BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(varSymbol));
-            emit(new Move(astVarRefExpr.pos, this.env.targetOperand, varRef));
+            if (astVarRefExpr.symbol.name != Names.IGNORE) {
+                BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(varSymbol));
+                emit(new Move(astVarRefExpr.pos, this.env.targetOperand, varRef));
+            }
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(varSymbol.type,
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
@@ -1075,8 +1104,11 @@ public class BIRGen extends BLangNodeVisitor {
         this.varAssignment = false;
 
         if (variableStore) {
-            BIROperand varRef = new BIROperand(this.env.globalVarMap.get(astPackageVarRefExpr.symbol));
-            emit(new Move(astPackageVarRefExpr.pos, this.env.targetOperand, varRef));
+            if (astPackageVarRefExpr.symbol.name != Names.IGNORE) {
+                BIROperand varRef = new BIROperand(this.env.globalVarMap.get(astPackageVarRefExpr.symbol));
+                emit(new Move(astPackageVarRefExpr.pos, this.env.targetOperand, varRef));
+            }
+
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(astPackageVarRefExpr.type,
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
@@ -1427,6 +1459,24 @@ public class BIRGen extends BLangNodeVisitor {
         emit(binaryIns);
     }
 
+    @Override
+    public void visit(BLangConstRef constRef) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+        if (variableStore) {
+            throw new IllegalStateException("Constants cannot be updated");
+        }
+
+        BIRVariableDcl tempVarDcl =
+                new BIRVariableDcl(constRef.type, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand tempVarRef = new BIROperand(tempVarDcl);
+        BIROperand fromVarRef = new BIROperand(this.env.globalVarMap.get(constRef.symbol));
+        emit(new Move(constRef.pos, fromVarRef, tempVarRef));
+        this.env.targetOperand = tempVarRef;
+        this.varAssignment = variableStore;
+    }
+
     // private methods
 
     private void genIntermediateErrorEntries(BIRBasicBlock thenBB) {
@@ -1494,6 +1544,8 @@ public class BIRGen extends BLangNodeVisitor {
                 return InstructionKind.TYPEOF;
             case NOT:
                 return InstructionKind.NOT;
+            case SUB:
+                return InstructionKind.NEGATE;
             default:
                 throw new IllegalStateException("unsupported unary operator: " + opKind.value());
         }
