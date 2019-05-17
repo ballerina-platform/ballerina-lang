@@ -38,9 +38,9 @@ public type PackageParser object {
     }
 
     function skipAnnotations() {
-        var numFuncs = self.reader.readInt32();
+        var numAnnotations = self.reader.readInt32();
         int i = 0;
-        while (i < numFuncs) {
+        while (i < numAnnotations) {
             self.skipAnnotation();
             i += 1;
         }
@@ -86,6 +86,9 @@ public type PackageParser object {
         if (hasReceiverType) {
             receiverType = self.typeParser.parseType();
         }
+
+        int taintLength = self.reader.readInt64();
+        _ = self.reader.readByteArray(untaint taintLength); // read and ignore taint table
 
         _ = self.reader.readInt64(); // read and ignore function body length
         var argsCount = self.reader.readInt32();
@@ -229,7 +232,7 @@ public type PackageParser object {
         foreach var typeDef in typeDefs {
             TypeDef tDef = getTypeDef(typeDef);
             BType typeValue = tDef.typeValue;
-            if (typeValue is BObjectType || typeValue is BRecordType) {
+            if (typeValue is BObjectType || typeValue is BRecordType || typeValue is BServiceType) {
                 tDef.attachedFuncs = self.parseFunctions(typeDefs);
             }
         }

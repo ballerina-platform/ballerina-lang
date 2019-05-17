@@ -917,6 +917,22 @@ type InstructionGenerator object {
         self.storeToVar(unaryOp.lhsOp.variableDcl);
     }
 
+    function generateNegateIns(bir:UnaryOp unaryOp) {
+        self.loadVar(unaryOp.rhsOp.variableDcl);
+
+        bir:BType btype = unaryOp.rhsOp.variableDcl.typeValue;
+        if (btype is bir:BTypeInt || btype is bir:BTypeByte) {
+            self.mv.visitInsn(LNEG);
+        } else if (btype is bir:BTypeFloat) {
+            self.mv.visitInsn(FNEG);
+        } else {
+            error err = error(io:sprintf("Negation is not supported for type: %s", btype));
+            panic err;
+        }
+
+        self.storeToVar(unaryOp.lhsOp.variableDcl);
+    }
+
     function generateNewTypedescIns(bir:NewTypeDesc newTypeDesc) {
         self.mv.visitTypeInsn(NEW, TYPEDESC_VALUE);
         self.mv.visitInsn(DUP);

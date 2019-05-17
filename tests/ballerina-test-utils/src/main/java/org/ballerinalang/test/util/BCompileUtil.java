@@ -530,8 +530,9 @@ public class BCompileUtil {
 
 
     static boolean jBallerinaTestsEnabled() {
-        String value = System.getProperty(ENABLE_JBALLERINA_TESTS);
-        return value != null && Boolean.valueOf(value);
+//        String value = System.getProperty(ENABLE_JBALLERINA_TESTS);
+//        return value != null && Boolean.valueOf(value);
+        return true;
     }
 
     private static CompileResult compileOnJBallerina(String sourceRoot, String packageName,
@@ -562,7 +563,7 @@ public class BCompileUtil {
         byte[] compiledJar = JVMCodeGen.generateJarBinary(false, bLangPackage, context, packageName);
         JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
         String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                                                               packageName, MODULE_INIT_CLASS_NAME);
+                bLangPackage.packageID.name.value, MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
         String funcName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).initFunction);
         try {

@@ -320,6 +320,12 @@ public type FuncBodyParser object {
             Ternary ternary = {pos:pos, kind:kind, lhsOp:lhsOp, conditionOp:conditionOp, thenOp:thenOp, 
                                elseOp:elseOp};
             return ternary;
+        } else if (kindTag == INS_NEGATE) {
+            kind = INS_KIND_NOT;
+            var rhsOp = self.parseVarRef();
+            var lhsOp = self.parseVarRef();
+            UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return typeofNode;
         } else {
             return self.parseBinaryOpInstruction(kindTag, pos);
         }

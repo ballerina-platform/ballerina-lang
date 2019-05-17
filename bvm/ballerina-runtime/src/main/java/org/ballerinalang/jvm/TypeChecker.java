@@ -35,7 +35,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -70,67 +69,31 @@ public class TypeChecker {
             return sourceVal;
         }
 
-        throw getTypeCastError(sourceVal, targetType);
+        throw BallerinaErrors.createTypeCastError(sourceVal, targetType);
     }
 
     public static long anyToInt(Object sourceVal) {
-        if (sourceVal instanceof Long) {
-            return (Long) sourceVal;
-        } else if (sourceVal instanceof Double) {
-            return ((Double) sourceVal).longValue();
-        } else if (sourceVal instanceof DecimalValue) {
-            return ((DecimalValue) sourceVal).intValue();
-        } else {
-            throw getTypeCastError(sourceVal, BTypes.typeInt);
-        }
+        return TypeConverter.anyToInt(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeInt));
     }
 
     public static double anyToFloat(Object sourceVal) {
-        if (sourceVal instanceof Long) {
-            return ((Long) sourceVal).doubleValue();
-        } else if (sourceVal instanceof Double) {
-            return (Double) sourceVal;
-        } else if (sourceVal instanceof DecimalValue) {
-            return ((DecimalValue) sourceVal).floatValue();
-        } else {
-            throw getTypeCastError(sourceVal, BTypes.typeFloat);
-        }
+        return TypeConverter.anyToFloat(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
+                                                                                           BTypes.typeFloat));
     }
 
     public static boolean anyToBoolean(Object sourceVal) {
-        if (sourceVal instanceof Boolean) {
-            return (Boolean) sourceVal;
-        } else if (sourceVal instanceof DecimalValue) {
-            return ((DecimalValue) sourceVal).booleanValue();
-        }
-
-        throw getTypeCastError(sourceVal, BTypes.typeBoolean);
+        return TypeConverter.anyToBoolean(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
+                                                                                             BTypes.typeBoolean));
     }
 
     public static long anyToByte(Object sourceVal) {
-        if (sourceVal instanceof Byte) {
-            return (Byte) sourceVal;
-        } else if (sourceVal instanceof Long) {
-            return (Long) sourceVal;
-        } else if (sourceVal instanceof Double) {
-            return ((Double) sourceVal).longValue();
-        } else if (sourceVal instanceof DecimalValue) {
-            return ((DecimalValue) sourceVal).byteValue();
-        }
-
-        throw getTypeCastError(sourceVal, BTypes.typeByte);
+        return TypeConverter.anyToByte(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
+                                                                                            BTypes.typeByte));
     }
 
     public static DecimalValue anyToDecimal(Object sourceVal) {
-        if (sourceVal instanceof DecimalValue) {
-            return (DecimalValue) sourceVal;
-        } else if (sourceVal instanceof Long) {
-            return DecimalValue.valueOf((long) sourceVal);
-        } else if (sourceVal instanceof Double) {
-            return DecimalValue.valueOf((double) sourceVal);
-        }
-
-        throw getTypeCastError(sourceVal, BTypes.typeDecimal);
+        return  TypeConverter.anyToDecimal(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
+                                                                                             BTypes.typeDecimal));
     }
 
     /**
@@ -681,7 +644,7 @@ public class TypeChecker {
         return false;
     }
 
-    private static boolean checkIsLikeType(Object sourceValue, BType targetType, List<TypeValuePair> unresolvedValues) {
+    public static boolean checkIsLikeType(Object sourceValue, BType targetType, List<TypeValuePair> unresolvedValues) {
         BType sourceType = getType(sourceValue);
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
@@ -920,11 +883,6 @@ public class TypeChecker {
             }
         }
         return false;
-    }
-
-    private static BLangRuntimeException getTypeCastError(Object sourceVal, BType targetType) {
-        return new BLangRuntimeException("incompatible types: '" + getType(sourceVal) +
-                                                 "' cannot be cast to '" + targetType + "'");
     }
 
     private static boolean isAnydata(BType type) {
