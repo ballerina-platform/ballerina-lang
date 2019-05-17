@@ -116,6 +116,17 @@ public class Writer {
                     .map(type1 -> getTypeLabel(type1, options))
                     .collect(Collectors.joining(", "))
                     + "<span>)</span>";
+        } else if (type.isLambda) {
+            label = "<code> <span>function(</span>" + type.paramTypes.stream()
+                    .map(type1 -> getTypeLabel(type1, options))
+                    .collect(Collectors.joining(", "))
+                    + "<span>) </span>";
+            if (type.returnType != null) {
+                label += "<span>returns (</span>" + getTypeLabel(type.returnType, options) + "<span>)</span>";
+            } else {
+                label += "<span>() </span>";
+            }
+            label += " </code>";
         } else {
             label = getHtmlLink(type, root);
         }

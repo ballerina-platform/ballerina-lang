@@ -92,6 +92,11 @@ body .ui.grid .content-wrapper {
   position: fixed;
   font-size: 16px;
 }
+body .ui.grid .content-wrapper pre.ballerina-snippet {
+  background-color: #f5f7f8;
+  padding: 20px;
+  overflow-x: auto;
+}
 body .ui.grid .content-wrapper .main-wrapper {
   width: 800px;
   margin: 0px 30px;

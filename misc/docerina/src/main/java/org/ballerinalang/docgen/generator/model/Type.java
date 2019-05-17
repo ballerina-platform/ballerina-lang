@@ -56,7 +56,13 @@ public class Type {
     public boolean isArrayType;
     public boolean isNullable;
     public boolean isTuple;
+    public boolean isLambda;
     public List<Type> memberTypes = new ArrayList<>();
+    public List<Type> paramTypes = new ArrayList<>();
+    public Type returnType;
+
+    private Type() {
+    }
 
     public Type(BType type) {
         this.name = type.tsymbol.name != null ? type.tsymbol.name.value : null;
@@ -113,7 +119,12 @@ public class Type {
 
     public static Type fromTypeNode(BLangType type) {
         if (type instanceof BLangFunctionTypeNode){
-            return new Type("lambda", "TODO");
+            Type lambda = new Type();
+            lambda.isLambda = true;
+            lambda.paramTypes = ((BLangFunctionTypeNode) type).params.stream().map((p) ->Type.fromTypeNode(p.typeNode))
+                    .collect(Collectors.toList());
+            lambda.returnType = Type.fromTypeNode(((BLangFunctionTypeNode) type).returnTypeNode);
+            return lambda;
         }
         if (type.nullable && type.type instanceof BUnionType) {
             BUnionType unionType = (BUnionType) type.type;
