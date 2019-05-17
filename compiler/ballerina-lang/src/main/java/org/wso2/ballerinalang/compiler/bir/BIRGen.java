@@ -1200,6 +1200,14 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.trapBB = this.env.enclBB;
         }
         trapExpr.expr.accept(this);
+        // When trapExpr.expr is a invocation returning nil, there is no target operand, hence set it up.
+        if (this.env.targetOperand == null) {
+            BUnionType errorOrNil = BUnionType.create(symTable.errSymbol, symTable.errorType, symTable.nilType);
+            BIRVariableDcl tempVarDcl = new BIRVariableDcl(errorOrNil, this.env.nextLocalVarId(names),
+                    VarScope.FUNCTION, VarKind.TEMP);
+            this.env.enclFunc.localVars.add(tempVarDcl);
+            this.env.targetOperand = new BIROperand(tempVarDcl);
+        }
         if (this.env.trapBB.terminator != null) {
             // Once trap expression is visited,  we need to back track all basic blocks which is covered by the trap 
             // and add error entry for each and every basic block.

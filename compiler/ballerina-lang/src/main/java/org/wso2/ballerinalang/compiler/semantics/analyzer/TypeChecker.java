@@ -2517,7 +2517,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (types.isAssignable(targetErrorType.reasonType, symTable.stringType)
                     && types.isAssignable(targetErrorType.detailType, symTable.pureTypeConstrainedMap)) {
                     setErrorReasonParam(iExpr, namedArgStartPos, ctorType);
-                    setErrorDetailsParams(iExpr);
+                    setErrorDetailArgsToNamedArgsList(iExpr);
                     resultType = expType;
                     iExpr.symbol = ctorSymbol;
                     return;
@@ -2546,12 +2546,16 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 } else {
                     BMapType targetErrorDetailMap = (BMapType) ctorType.detailType;
-                    for(int i = namedArgStartPos; i < iExpr.argExprs.size(); i++) {
-                        checkExpr(iExpr.argExprs.get(i), env, targetErrorDetailMap.constraint);
+                    List<BLangNamedArgsExpression> errorDetails = getErrorDetails(iExpr, namedArgStartPos);
+                    if (errorDetails == null) {
+                        return;
+                    }
+                    for (BLangNamedArgsExpression errorDetailArg : errorDetails) {
+                        checkExpr(errorDetailArg, env, targetErrorDetailMap.constraint);
                     }
                 }
                 setErrorReasonParam(iExpr, namedArgStartPos, ctorType);
-                setErrorDetailsParams(iExpr);
+                setErrorDetailArgsToNamedArgsList(iExpr);
 
                 resultType = expType;
                 iExpr.symbol = ctorSymbol;
@@ -2563,13 +2567,17 @@ public class TypeChecker extends BLangNodeVisitor {
         return;
     }
 
-    private void setErrorDetailsParams(BLangInvocation iExpr) {
+    private void setErrorDetailArgsToNamedArgsList(BLangInvocation iExpr) {
         List<BLangExpression> namedArgPositions = new ArrayList<>(iExpr.argExprs.size());
         for (int i = 0; i < iExpr.argExprs.size(); i++) {
             BLangExpression argExpr = iExpr.argExprs.get(i);
+            checkExpr(argExpr, env, symTable.pureType);
             if (argExpr.getKind() == NodeKind.NAMED_ARGS_EXPR) {
                 iExpr.namedArgs.add(argExpr);
                 namedArgPositions.add(argExpr);
+            } else {
+                dlog.error(argExpr.pos, DiagnosticCode.ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG);
+                resultType = symTable.semanticError;
             }
         }
 

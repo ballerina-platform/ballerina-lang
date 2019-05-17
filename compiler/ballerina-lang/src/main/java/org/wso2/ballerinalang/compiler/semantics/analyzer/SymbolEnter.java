@@ -604,9 +604,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
 
         // constructors are only defined for named types.
-        if (typeDefinition.name.pos != null) {
-            defineConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
-        }
+        defineConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
     }
 
     private void defineConstructorSymbol(DiagnosticPos pos, BTypeSymbol typeDefSymbol) {

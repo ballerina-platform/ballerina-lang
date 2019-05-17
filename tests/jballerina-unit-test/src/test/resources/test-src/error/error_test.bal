@@ -1,4 +1,4 @@
-import ballerina/runtime;
+//import ballerina/runtime;
 
 function errorConstructReasonTest() returns (error, error, error, string, any, string) {
     error er1 = error("error1");
@@ -13,15 +13,15 @@ function errorConstructReasonTest() returns (error, error, error, string, any, s
 }
 
 function errorConstructDetailTest() returns (error, error, error, any, any, any) {
-    error er1 = error("error1", { message: "msg1" });
+    error er1 = error("error1", message = "msg1");
 
     string s = "error2";
     map<anydata> m2 = { message: "msg2" };
-    error er2 = error(s, m2);
+    error er2 = error(s, message = m2.message);
 
     map<string> reason = { k1: "error3" };
     map<string> details = { message: "msg3" };
-    error er3 = error(reason.k1, details);
+    error er3 = error(reason.k1, message = details.message);
 
     return (er1, er2, er3, er1.detail(), er2.detail(), er3.detail());
 }
@@ -33,7 +33,7 @@ function errorPanicTest(int i) returns string {
 
 function errorPanicCallee(int i) returns string {
     if (i > 10) {
-        error err = error("largeNumber", { message: "large number" });
+        error err = error("largeNumber", message = "large number");
         panic err;
     }
     return "done";
@@ -53,25 +53,25 @@ type TrxErrorData record {|
 |};
 
 public function testCustomErrorDetails() returns error {
-    TrxError err = error("trxErr", { data: "test" });
+    TrxError err = error("trxErr", data = "test");
     return err;
 }
 
 public function testCustomErrorDetails2() returns string {
-    TrxError err = error("trxErr", { data: "test" });
+    TrxError err = error("trxErr", data = "test");
     TrxErrorData errorData = err.detail();
     return errorData.data;
 }
 
 public function testErrorWithErrorConstructor() returns string {
-    error<string, TrxErrorData> err = error("trxErr", { data: "test" });
+    error<string, TrxErrorData> err = error("trxErr", data = "test");
     TrxErrorData errorData = err.detail();
     return errorData.data;
 }
 
-function getCallStackTest() returns runtime:CallStackElement[] {
-    return runtime:getCallStack();
-}
+//function getCallStackTest() returns runtime:CallStackElement[] {
+//    return runtime:getCallStack();
+//}
 
 function testConsecutiveTraps() returns (string, string) {
     error? e1 = trap generatePanic();
@@ -119,7 +119,7 @@ function panicWithReasonOnly() {
 }
 
 function panicWithReasonAndDetailMap() {
-    panic error("Error2", { msg: "Something Went Wrong" });
+    panic error("Error2", msg = "Something Went Wrong");
 }
 
 type DetailRec record {
@@ -128,16 +128,14 @@ type DetailRec record {
 };
 
 function panicWithReasonAndDetailRecord() {
-    DetailRec detail = { message: "Something Went Wrong", statusCode: 1 };
-    panic error("Error3", detail);
+    panic error("Error3", message = "Something Went Wrong", statusCode = 1);
 }
 
 function testGenericErrorWithDetailRecord() returns boolean {
     string reason = "error reason 1";
     string detailMessage = "Something Went Wrong";
     int detailStatusCode = 123;
-    DetailRec detail = { message: detailMessage, statusCode: detailStatusCode };
-    error e = error(reason, detail);
+    error e = error(reason, message = detailMessage, statusCode = detailStatusCode);
     string errReason = e.reason();
     map<anydata|error> errDetail = e.detail();
     return errReason == reason && <string> errDetail.message == detailMessage &&
@@ -163,50 +161,32 @@ function testErrorConstrWithLiteralForUserDefinedReasonType() returns error {
 }
 
 function testErrorConstrWithConstForConstReason() returns error {
-    UserDefErrorTwo e = error(ERROR_REASON_ONE, { message: "error detail message" });
+    UserDefErrorTwo e = error(ERROR_REASON_ONE, message = "error detail message");
     return e;
 }
 
 function testErrorConstrWithConstLiteralForConstReason() returns error {
-    UserDefErrorTwo e = error("reason one", { message: "error detail message" });
+    UserDefErrorTwo e = error("reason one", message = "error detail message");
     return e;
 }
 
-type MyError error<string, map<MyError>>;
-
-function testCustomErrorWithMappingOfSelf() returns boolean {
-    MyError e1 = error(ERROR_REASON_ONE, {});
-    MyError e2 = error(ERROR_REASON_TWO, { err: e1 });
-
-    boolean errOneInitSuccesful = e1.reason() == ERROR_REASON_ONE && e1.detail().length() == 0;
-    boolean errTwoInitSuccesful = e2.reason() == ERROR_REASON_TWO && e2.detail().length() == 1 &&
-                e2.detail().err.reason() == ERROR_REASON_ONE && e2.detail().err.detail().length() == 0;
-    return errOneInitSuccesful && errTwoInitSuccesful;
-}
+//type MyError error<string, map<MyError>>;
+//
+//function testCustomErrorWithMappingOfSelf() returns boolean {
+//    MyError e1 = error(ERROR_REASON_ONE);
+//    MyError e2 = error(ERROR_REASON_TWO, err = e1);
+//
+//    boolean errOneInitSuccesful = e1.reason() == ERROR_REASON_ONE && e1.detail().length() == 0;
+//    boolean errTwoInitSuccesful = e2.reason() == ERROR_REASON_TWO && e2.detail().length() == 1 &&
+//                e2.detail().err.reason() == ERROR_REASON_ONE && e2.detail().err.detail().length() == 0;
+//    return errOneInitSuccesful && errTwoInitSuccesful;
+//}
 
 function testUnspecifiedErrorDetailFrozenness() returns boolean {
     error e1 = error("reason 1");
     map<anydata|error> m1 = e1.detail();
     error? err = trap addValueToMap(m1, "k", 1);
     return err is error && err.reason() == "{ballerina}InvalidUpdate";
-}
-
-function testErrorDetailCloneAndFreeze() returns boolean {
-    map<anydata|error> m = { one: 1 };
-    error e1 = error("reason 1", m);
-    map<anydata|error> m1 = e1.detail();
-    boolean cloneSuccessful = m !== m1 && m == m1;
-    error? err1 = trap addValueToMap(m1, "k", 1);
-
-    MyError e2 = error(ERROR_REASON_ONE, {});
-    map<MyError> m2 = { err: e2 };
-    MyError e3 = error(ERROR_REASON_TWO, m2);
-    map<MyError> m3 = e3.detail();
-    cloneSuccessful = m2 !== m3 && m2 == m3;
-    error? err2 = trap addValueToMap(m3, "k", e2);
-
-    return err1 is error && err1.reason() == "{ballerina}InvalidUpdate" &&
-            err2 is error && err2.reason() == "{ballerina}InvalidUpdate" && cloneSuccessful;
 }
 
 function addValueToMap(map<anydata|error> m, string key, anydata|error value) {

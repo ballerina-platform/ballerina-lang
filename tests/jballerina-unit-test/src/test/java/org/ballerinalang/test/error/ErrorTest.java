@@ -149,12 +149,12 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "test");
     }
 
-    @Test
-    public void testGetCallStack() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getCallStackTest");
-        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
-                "moduleName:\"ballerina/runtime\", fileName:\"<native>\", lineNumber:0}");
-    }
+//    @Test
+//    public void testGetCallStack() {
+//        BValue[] returns = BRunUtil.invoke(compileResult, "getCallStackTest");
+//        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
+//                "moduleName:\"ballerina/runtime\", fileName:\"<native>\", lineNumber:0}");
+//    }
 
     @Test
     public void testConsecutiveTraps() {
@@ -199,23 +199,16 @@ public class ErrorTest {
                             "error detail message");
     }
 
-    @Test
-    public void testCustomErrorWithMappingOfSelf() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorWithMappingOfSelf");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
+//    @Test
+//    public void testCustomErrorWithMappingOfSelf() {
+//        BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorWithMappingOfSelf");
+//        Assert.assertTrue(returns[0] instanceof BBoolean);
+//        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+//    }
 
     @Test
     public void testUnspecifiedErrorDetailFrozenness() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testUnspecifiedErrorDetailFrozenness");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testErrorDetailCloneAndFreeze() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorDetailCloneAndFreeze");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
