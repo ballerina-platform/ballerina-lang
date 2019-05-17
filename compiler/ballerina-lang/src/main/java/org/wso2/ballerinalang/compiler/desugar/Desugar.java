@@ -92,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -3105,6 +3106,24 @@ public class Desugar extends BLangNodeVisitor {
         }
         typeTestExpr.expr = rewriteExpr(expr);
         result = typeTestExpr;
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        BLangBinaryExpr binaryExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        binaryExpr.pos = annotAccessExpr.pos;
+        binaryExpr.opKind = OperatorKind.ANNOT_ACCESS;
+        binaryExpr.lhsExpr = annotAccessExpr.expr;
+        binaryExpr.rhsExpr = ASTBuilderUtil.createLiteral(annotAccessExpr.pkgAlias.pos, symTable.stringType,
+                                                          annotAccessExpr.pkgAlias.value + ":" +
+                                                                  annotAccessExpr.annotationName.value);
+        binaryExpr.type = annotAccessExpr.type;
+        binaryExpr.opSymbol = new BOperatorSymbol(names.fromString(OperatorKind.ANNOT_ACCESS.value()), null,
+                                                  new BInvokableType(Lists.of(binaryExpr.lhsExpr.type,
+                                                                              binaryExpr.rhsExpr.type),
+                                                                     annotAccessExpr.type, null), null,
+                                                  InstructionCodes.ANNOT_ACCESS);
+        result = rewriteExpr(binaryExpr);
     }
 
     @Override

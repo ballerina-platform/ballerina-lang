@@ -496,6 +496,8 @@ public type FuncBodyParser object {
             kind = BINARY_REF_EQUAL;
         } else if (kindTag == INS_REF_NOT_EQUAL){
             kind = BINARY_REF_NOT_EQUAL;
+        } else if (kindTag == INS_ANNOT_ACCESS){
+            kind = BINARY_ANNOT_ACCESS;
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
             panic err;

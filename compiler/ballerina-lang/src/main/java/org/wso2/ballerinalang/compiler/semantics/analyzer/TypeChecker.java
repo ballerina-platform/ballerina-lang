@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -73,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -2430,6 +2432,26 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(typeTestExpr.expr, env);
 
         resultType = types.checkType(typeTestExpr, symTable.booleanType, expType);
+    }
+
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        checkExpr(annotAccessExpr.expr, this.env, symTable.typeDesc);
+
+        BType actualType = symTable.semanticError;
+        BSymbol symbol =
+                this.symResolver.resolveAnnotation(annotAccessExpr.pos, env,
+                                                   names.fromString(annotAccessExpr.pkgAlias.getValue()),
+                                                   names.fromString (annotAccessExpr.annotationName.getValue()));
+        if (symbol == this.symTable.notFoundSymbol) {
+            this.dlog.error(annotAccessExpr.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
+                            annotAccessExpr.annotationName.getValue());
+        } else {
+            BType annotType = ((BAnnotationSymbol) symbol).attachedType == null ? symTable.trueType :
+                    ((BAnnotationSymbol) symbol).attachedType.type;
+            actualType = BUnionType.create(null, annotType, symTable.nilType);
+        }
+
+        this.resultType = this.types.checkType(annotAccessExpr, actualType, this.expType);
     }
 
     // Private methods

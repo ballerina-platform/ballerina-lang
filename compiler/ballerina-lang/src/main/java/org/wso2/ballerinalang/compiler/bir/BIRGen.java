@@ -376,9 +376,8 @@ public class BIRGen extends BLangNodeVisitor {
         BAnnotationSymbol annSymbol = (BAnnotationSymbol) astAnnotation.symbol;
 
         Visibility visibility = getVisibility(astAnnotation.symbol);
-        //TODO is it good to send nill type? fix
         BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, visibility, annSymbol.attachPoints,
-                annSymbol.attachedType == null ? symTable.noType : annSymbol.attachedType.type);
+                annSymbol.attachedType == null ? symTable.trueType : annSymbol.attachedType.type);
 
         this.env.enclPkg.annotations.add(birAnn);
     }
@@ -1473,6 +1472,8 @@ public class BIRGen extends BLangNodeVisitor {
                 return InstructionKind.REF_EQUAL;
             case REF_NOT_EQUAL:
                 return InstructionKind.REF_NOT_EQUAL;
+            case ANNOT_ACCESS:
+                return InstructionKind.ANNOT_ACCESS;
             default:
                 throw new IllegalStateException("unsupported binary operation: " + opKind.value());
         }

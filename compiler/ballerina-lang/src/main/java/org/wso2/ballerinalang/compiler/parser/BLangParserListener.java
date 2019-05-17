@@ -2281,6 +2281,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitAnnotAccessExpression(BallerinaParser.AnnotAccessExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.createAnnotAccessNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitTupleLiteral(BallerinaParser.TupleLiteralContext ctx) {
         if (isInErrorState) {
             return;

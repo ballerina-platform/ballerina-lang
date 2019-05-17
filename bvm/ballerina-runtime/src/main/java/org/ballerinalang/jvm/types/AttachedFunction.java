@@ -53,8 +53,8 @@ public class AttachedFunction extends BFunctionType {
         this.type.addAnnotation(key, annotation);
     }
 
-    public MapValueImpl getAnnotation(String pkgPath, String name) {
-        return this.type.getAnnotation(pkgPath, name);
+    public Object getAnnotation(String key) {
+        return this.type.getAnnotation(key);
     }
 
     @Override

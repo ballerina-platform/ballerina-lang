@@ -89,6 +89,8 @@ type InstructionGenerator object {
             self.generateRefEqualIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_REF_NOT_EQUAL) {
             self.generateRefNotEqualIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_ANNOT_ACCESS) {
+            self.generateAnnotAccessIns(binaryIns);
         } else {
             error err = error("JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind));
             panic err;
@@ -269,6 +271,18 @@ type InstructionGenerator object {
         self.mv.visitInsn(ICONST_0);
 
         self.mv.visitLabel(label2);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateAnnotAccessIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        addBoxInsn(self.mv, binaryIns.rhsOp1.variableDcl.typeValue);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "getAnnotValue",
+            io:sprintf("(L%s;L%s;)L%s;", TYPEDESC_VALUE, STRING_VALUE, OBJECT), false);
+
+        bir:BType targetType = binaryIns.lhsOp.variableDcl.typeValue;
+        addUnboxInsn(self.mv, targetType);
         self.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 

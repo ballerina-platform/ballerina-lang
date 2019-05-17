@@ -112,6 +112,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -3640,6 +3641,17 @@ public class BLangPackageBuilder {
         typeTestExpr.pos = pos;
         typeTestExpr.addWS(ws);
         addExpressionNode(typeTestExpr);
+    }
+
+    void createAnnotAccessNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangAnnotAccessExpr annotAccessExpr = (BLangAnnotAccessExpr) TreeBuilder.createAnnotAccessExpressionNode();
+        annotAccessExpr.pos = pos;
+        annotAccessExpr.addWS(ws);
+        annotAccessExpr.expr = (BLangVariableReference) exprNodeStack.pop();
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        annotAccessExpr.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        annotAccessExpr.annotationName = (BLangIdentifier) nameReference.name;
+        addExpressionNode(annotAccessExpr);
     }
 
     void handleWait(DiagnosticPos currentPos, Set<Whitespace> ws) {

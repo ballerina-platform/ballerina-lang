@@ -26,7 +26,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
  */
 public abstract class AnnotatableType extends BType {
 
-    protected MapValueImpl<String, MapValueImpl> annotations = new MapValueImpl<>();
+    protected MapValueImpl<String, Object> annotations = new MapValueImpl<>();
 
     AnnotatableType(String typeName, String pkgPath, Class<?> valueClass) {
         super(typeName, pkgPath, valueClass);
@@ -34,12 +34,11 @@ public abstract class AnnotatableType extends BType {
 
     public abstract String getAnnotationKey();
 
-    public void addAnnotation(String key, MapValueImpl annotation) {
+    public void addAnnotation(String key, Object annotation) {
         this.annotations.put(key, annotation);
     }
 
-    public MapValueImpl getAnnotation(String pkgPath, String name) {
-        String key = pkgPath + ":" + name;
+    public Object getAnnotation(String key) {
         return this.annotations.get(key);
     }
 }
