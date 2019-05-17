@@ -171,3 +171,14 @@ jacocoTestReport {
         xml.enabled true
     }
 }
+
+task createJavadoc(type: Javadoc) {
+    source = sourceSets.main.java
+    classpath = sourceSets.main.compileClasspath
+    failOnError true
+    options.addStringOption('Xwerror', '-quiet')
+}
+
+check {
+    dependsOn createJavadoc
+}

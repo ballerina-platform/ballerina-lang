@@ -42,7 +42,7 @@ public class ConstantAccessTest {
 
     @Test(description = "Test accessing constant from other packages")
     public void testAccessingConstantFromOtherPkg() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "main:0.0.0", "accessConstantFromOtherPkg");
+        BValue[] returns = BRunUtil.invoke(compileResult, "accessConstantFromOtherPkg");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 342342.234);
@@ -50,21 +50,21 @@ public class ConstantAccessTest {
 
     @Test(description = "Test accessing public constant from other packages")
     public void accessPublicConstantFromOtherPackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "main:0.0.0", "accessPublicConstantFromOtherPackage");
+        BValue[] returns = BRunUtil.invoke(compileResult, "accessPublicConstantFromOtherPackage");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
 
     @Test(description = "Test accessing public constant type from other packages")
     public void accessPublicConstantTypeFromOtherPackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "main:0.0.0", "accessPublicConstantTypeFromOtherPackage");
+        BValue[] returns = BRunUtil.invoke(compileResult, "accessPublicConstantTypeFromOtherPackage");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "A");
     }
 
     @Test(description = "Test assigning constant from other package to global variable")
     public void testAssigningConstFromOtherPkgToGlobalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "main:0.0.0", "assignConstFromOtherPkgToGlobalVar");
+        BValue[] returns = BRunUtil.invoke(compileResult, "assignConstFromOtherPkgToGlobalVar");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 342342.234);
@@ -72,7 +72,7 @@ public class ConstantAccessTest {
 
     @Test(description = "Test negative constant values")
     public void testNegativeConstantValues() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "main:0.0.0", "getNegativeConstants");
+        BValue[] returns = BRunUtil.invoke(compileResult, "getNegativeConstants");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
@@ -86,7 +86,7 @@ public class ConstantAccessTest {
 
     @Test(description = "Test assigning float to int in constants")
     public void floatIntConversion() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "main:0.0.0", "floatIntConversion");
+        BValue[] returns = BRunUtil.invoke(compileResult, "floatIntConversion");
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
@@ -100,7 +100,7 @@ public class ConstantAccessTest {
 
     @Test
     public void testTypeAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "main:0.0.0", "testTypeAssignment");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTypeAssignment");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "A");
     }

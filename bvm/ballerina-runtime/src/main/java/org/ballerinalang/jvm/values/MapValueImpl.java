@@ -19,12 +19,22 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.TypeConverter;
+import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -32,6 +42,7 @@ import org.ballerinalang.jvm.values.freeze.Status;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -275,30 +286,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public String toString() {
-        readLock.lock();
-        StringJoiner sj = new StringJoiner(", ", "{", "}");
-        try {
-            if (type.getTag() == TypeTags.JSON_TAG) {
-                return getJSONString();
-            }
-
-            String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
-            for (Iterator<Map.Entry<K, V>> i = super.entrySet().iterator(); i.hasNext();) {
-                String key;
-                Map.Entry<K, V> e = i.next();
-                key = keySeparator + e.getKey() + keySeparator;
-                Object value = e.getValue();
-                sj.add(key + ":" + getStringValue(value));
-            }
-            return sj.toString();
-        } finally {
-            readLock.unlock();
-        }
-    }
-
-    @Override
-    public void stamp(BType type) {
-
+        return stringValue();
     }
 
     @SuppressWarnings("unchecked")
@@ -328,8 +316,102 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
+    public String stringValue() {
+        readLock.lock();
+        StringJoiner sj = new StringJoiner(", ", "{", "}");
+        try {
+            switch (type.getTag()) {
+                case TypeTags.OBJECT_TYPE_TAG:
+                    for (Map.Entry<String, BField> field : ((BStructureType) this.type).getFields().entrySet()) {
+                        if (!Flags.isFlagOn(field.getValue().flags, Flags.PUBLIC)) {
+                            continue;
+                        }
+                        String fieldName = field.getKey();
+                        V fieldVal = get((K) fieldName);
+                        sj.add(fieldName + ":" + getStringValue(fieldVal));
+                    }
+                    break;
+                case TypeTags.JSON_TAG:
+                    return getJSONString();
+                case TypeTags.MAP_TAG:
+                    // Map<json> is json.
+                    if (((BMapType) type).getConstrainedType().getTag() == TypeTags.JSON_TAG) {
+                        return getJSONString();
+                    }
+                    // Fallthrough
+                default:
+                    String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
+                    for (Map.Entry<K, V> kvEntry : this.entrySet()) {
+                        String key;
+                        key = keySeparator + kvEntry.getKey() + keySeparator;
+                        V value = kvEntry.getValue();
+                        sj.add(key + ":" + getStringValue(value));
+                    }
+                    break;
+            }
+            return sj.toString();
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    @Override
     public BType getType() {
         return type;
+    }
+
+    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
+        TypeValuePair typeValuePair = new TypeValuePair(this, type);
+        if (unresolvedValues.contains(typeValuePair)) {
+            throw new BallerinaException(BallerinaErrorReasons.CYCLIC_VALUE_REFERENCE_ERROR,
+                                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE,
+                                                                              this.type));
+        }
+        unresolvedValues.add(typeValuePair);
+        if (type.getTag() == TypeTags.JSON_TAG) {
+            type = TypeConverter.resolveMatchingTypeForUnion(this, type);
+            this.stamp(type, unresolvedValues);
+        } else if (type.getTag() == TypeTags.MAP_TAG) {
+            for (Object value : this.values()) {
+                if (value instanceof RefValue) {
+                    ((RefValue) value).stamp(((BMapType) type).getConstrainedType(), unresolvedValues);
+                }
+            }
+        } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            Map<String, BType> targetTypeField = new HashMap<>();
+            BType restFieldType = ((BRecordType) type).restFieldType;
+
+            for (BField field : ((BStructureType) type).getFields().values()) {
+                targetTypeField.put(field.getFieldName(), field.getFieldType());
+            }
+
+            for (Map.Entry valueEntry : this.entrySet()) {
+                String fieldName = valueEntry.getKey().toString();
+                Object value = valueEntry.getValue();
+                if (value instanceof RefValue) {
+                    BType bType = targetTypeField.getOrDefault(fieldName, restFieldType);
+                    ((RefValue) value).stamp(bType, unresolvedValues);
+                }
+            }
+        } else if (type.getTag() == TypeTags.UNION_TAG) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (TypeChecker.checkIsLikeType(this, memberType)) {
+                    this.stamp(memberType, unresolvedValues);
+                    if (memberType.getTag() == TypeTags.ANYDATA_TAG) {
+                        type = TypeConverter.resolveMatchingTypeForUnion(this, memberType);
+                    } else {
+                        type = memberType;
+                    }
+                    break;
+                }
+            }
+        } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            type = TypeConverter.resolveMatchingTypeForUnion(this, type);
+            this.stamp(type, unresolvedValues);
+        }
+
+        this.type = type;
+        unresolvedValues.remove(typeValuePair);
     }
 
     /**
