@@ -91,14 +91,14 @@ public class GetPromisedResponse extends AbstractHTTPAction {
 
         @Override
         public void onPushResponse(int promisedId, HttpCarbonMessage httpCarbonMessage) {
-//            dataContext.notifyInboundResponseStatus(
-//                    HttpUtil.createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
+            dataContext.notifyInboundResponseStatus(
+                    HttpUtil.createResponseStruct(httpCarbonMessage), null);
         }
 
         @Override
         public void onError(Throwable throwable) {
             ErrorValue httpConnectorError = HttpUtil.getError(throwable);
-//            dataContext.notifyInboundResponseStatus(null, httpConnectorError);
+            dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }
 }

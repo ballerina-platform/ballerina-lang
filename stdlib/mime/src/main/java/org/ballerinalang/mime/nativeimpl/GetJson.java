@@ -84,7 +84,7 @@ public class GetJson extends AbstractGetPayloadHandler {
 
     public static void getJson(Strand strand, ObjectValue entityObj) {
         //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
 
         try {
             RefValue result;
@@ -98,18 +98,18 @@ public class GetJson extends AbstractGetPayloadHandler {
                     String payload = MimeUtil.getMessageAsString(dataSource);
                     result = (RefValue) JSONParser.parse(payload);
                 }
-                setReturnValuesAndNotify(strand, callback, result);
+                setReturnValuesAndNotify(callback, result);
                 return;
             }
 
             if (isStreamingRequired(entityObj)) {
                 result = (RefValue) EntityBodyHandler.constructJsonDataSource(entityObj);
-                updateDataSourceAndNotify(strand, callback, entityObj, result);
+                updateDataSourceAndNotify(callback, entityObj, result);
             } else {
-                constructNonBlockingDataSource(strand, callback, entityObj, SourceType.JSON);
+                constructNonBlockingDataSource(callback, entityObj, SourceType.JSON);
             }
         } catch (Exception ex) {
-            createErrorAndNotify(strand, callback,
+            createErrorAndNotify(callback,
                                  "Error occurred while extracting json data from entity: " + ex.getMessage());
         }
     }

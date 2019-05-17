@@ -54,7 +54,7 @@ public class SetBodyParts extends BlockingNativeCallableUnit {
 //        context.setReturnValues();
     }
 
-    public void setBodyParts(Strand strand, ObjectValue entityObj, ArrayValue bodyParts, String contentType) {
+    public static void setBodyParts(Strand strand, ObjectValue entityObj, ArrayValue bodyParts, String contentType) {
         entityObj.addNativeData(BODY_PARTS, bodyParts);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType);
     }

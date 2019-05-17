@@ -29,8 +29,6 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -40,7 +38,6 @@ import java.nio.charset.Charset;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
@@ -101,7 +98,7 @@ public class GetByteArray extends AbstractGetPayloadHandler {
 
     public static void getByteArray(Strand strand, ObjectValue entityObj) {
         //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
 
         try {
             ArrayValue result = null;
@@ -122,19 +119,19 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                         }
                     }
                 }
-                setReturnValuesAndNotify(strand, callback, result != null ? result : new BValueArray(new byte[0]));
+                setReturnValuesAndNotify(callback, result != null ? result : new BValueArray(new byte[0]));
                 return;
             }
 
             Object transportMessage = entityObj.getNativeData(TRANSPORT_MESSAGE);
             if (isStreamingRequired(entityObj) || transportMessage == null) {
                 result = EntityBodyHandler.constructBlobDataSource(entityObj);
-                updateDataSourceAndNotify(strand, callback, entityObj, result);
+                updateDataSourceAndNotify(callback, entityObj, result);
             } else {
-                constructNonBlockingDataSource(strand, callback, entityObj, SourceType.BLOB);
+                constructNonBlockingDataSource(callback, entityObj, SourceType.BLOB);
             }
         } catch (Exception ex) {
-            createErrorAndNotify(strand, callback,
+            createErrorAndNotify(callback,
                                  "Error occurred while extracting blob data from entity : " + ex.getMessage());
         }
     }

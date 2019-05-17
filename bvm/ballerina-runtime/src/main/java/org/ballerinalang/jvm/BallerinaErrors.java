@@ -19,6 +19,7 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.util.Arrays;
@@ -40,7 +41,7 @@ public class BallerinaErrors {
         return new ErrorValue(reason, detailMap);
     }
 
-    public static ErrorValue createError(String reason, MapValueImpl detailMap) {
+    public static ErrorValue createError(String reason, MapValue detailMap) {
         return new ErrorValue(reason, detailMap);
     }
 

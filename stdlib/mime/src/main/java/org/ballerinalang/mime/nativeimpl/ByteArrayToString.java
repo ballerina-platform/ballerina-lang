@@ -58,11 +58,11 @@ public class ByteArrayToString extends BlockingNativeCallableUnit {
 //        }
     }
 
-    public String byteArrayToString(Strand strand, ArrayValue arr, String encoding) {
+    public static String byteArrayToString(Strand strand, ArrayValue arr, String encoding) {
         try {
             return new String(arr.getBytes(), encoding);
         } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException("Unsupported Encoding of Blob", e);
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("Unsupported Encoding of Blob", e);
         }
     }
 }

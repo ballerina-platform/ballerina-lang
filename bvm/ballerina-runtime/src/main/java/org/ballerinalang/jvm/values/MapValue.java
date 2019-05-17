@@ -43,7 +43,13 @@ public interface MapValue<K, V> extends RefValue, CollectionValue, Map<K, V> {
 
     ArrayValue getArrayValue(String key);
 
+    long getDefaultableIntValue(String key);
+
     V getOrThrow(Object key);
 
     K[] getKeys();
+
+    void addNativeData(String key, Object data);
+
+    Object getNativeData(String key);
 }

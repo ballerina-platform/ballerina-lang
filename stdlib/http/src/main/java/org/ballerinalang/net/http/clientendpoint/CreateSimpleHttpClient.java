@@ -68,7 +68,7 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
     @SuppressWarnings("unchecked")
     public static ObjectValue createSimpleHttpClient(Strand strand, String urlString,
                                                      MapValue<String, Object> clientEndpointConfig,
-                                                     MapValue<String, Integer> globalPoolConfig) {
+                                                     MapValue<String, Long> globalPoolConfig) {
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         String scheme;
         URL url;
@@ -90,7 +90,7 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
 
         populateSenderConfigurations(senderConfiguration, clientEndpointConfig);
         ConnectionManager poolManager;
-        MapValue<String, Integer> userDefinedPoolConfig = (MapValue<String, Integer>) clientEndpointConfig.get(
+        MapValue<String, Long> userDefinedPoolConfig = (MapValue<String, Long>) clientEndpointConfig.get(
                 HttpConstants.USER_DEFINED_POOL_CONFIG);
 
         if (userDefinedPoolConfig == null) {

@@ -52,7 +52,7 @@ public class SetJson extends BlockingNativeCallableUnit {
 //        context.setReturnValues();
     }
 
-    public void setJson(Strand strand, ObjectValue entityObj, Object jsonContent, String contentType) {
+    public static void setJson(Strand strand, ObjectValue entityObj, Object jsonContent, String contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, jsonContent);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType);
     }

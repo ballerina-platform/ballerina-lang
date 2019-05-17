@@ -69,7 +69,7 @@ public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {
 //        }
     }
 
-    public Object getBodyPartsAsChannel(Strand strand, ObjectValue entityObj) {
+    public static Object getBodyPartsAsChannel(Strand strand, ObjectValue entityObj) {
         try {
             String contentType = getContentTypeWithParameters(entityObj);
             if (isMultipart(contentType)) {

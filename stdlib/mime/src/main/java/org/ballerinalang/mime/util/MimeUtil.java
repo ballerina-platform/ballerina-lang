@@ -403,7 +403,7 @@ public class MimeUtil {
      * @param textValue Represent a text value
      * @return a String surrounded by quotes
      */
-    private static String stripQuotes(String textValue) {
+    public static String stripQuotes(String textValue) {
         if (textValue.startsWith(DOUBLE_QUOTE)) {
             textValue = textValue.substring(1);
         }

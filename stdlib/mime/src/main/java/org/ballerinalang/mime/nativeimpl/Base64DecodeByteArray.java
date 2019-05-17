@@ -47,7 +47,7 @@ public class Base64DecodeByteArray extends BlockingNativeCallableUnit {
 //        decodeBlob(byteArray, false);
     }
 
-    public void base64DecodeByteArray(Strand strand, ArrayValue byteArray) {
-//        decodeBlob(byteArray.getBytes(), false);
+    public static ArrayValue base64DecodeByteArray(Strand strand, ArrayValue byteArray) {
+        return decodeBlob(byteArray.getBytes(), false);
     }
 }

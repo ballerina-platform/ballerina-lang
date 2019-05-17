@@ -78,22 +78,19 @@ public class Close implements NativeCallableUnit {
     public static void externClose(Strand strand, ObjectValue wsConnection, int statusCode, String reason,
                                    int timeoutInSecs) {
         //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
         try {
-            strand.block();
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             CountDownLatch countDownLatch = new CountDownLatch(1);
             ChannelFuture closeFuture =
                     initiateConnectionClosure(strand, callback, statusCode, reason, connectionInfo, countDownLatch);
-            waitForTimeout(strand, callback, timeoutInSecs, countDownLatch);
+            waitForTimeout(callback, timeoutInSecs, countDownLatch);
             closeFuture.channel().close().addListener(future -> {
                 WebSocketUtil.setListenerOpenField(connectionInfo);
                 callback.notifySuccess();
             });
         } catch (Exception e) {
-            strand.setReturnValues(HttpUtil.getError(e.getMessage()));
-            strand.resume();
             //TODO remove this call back
             callback.setReturnValues(HttpUtil.getError(e.getMessage()));
             callback.notifySuccess();
@@ -128,7 +125,7 @@ public class Close implements NativeCallableUnit {
         });
     }
 
-    private static void waitForTimeout(Strand strand, TempCallableUnitCallback callback, int timeoutInSecs,
+    private static void waitForTimeout(TempCallableUnitCallback callback, int timeoutInSecs,
                                        CountDownLatch latch) {
         try {
             if (timeoutInSecs < 0) {
@@ -139,13 +136,11 @@ public class Close implements NativeCallableUnit {
                     String errMsg = String.format(
                             "Could not receive a WebSocket close frame from remote endpoint within %d seconds",
                             timeoutInSecs);
-                    strand.setReturnValues(HttpUtil.getError(errMsg));
                     //TODO remove this call back
                     callback.setReturnValues(HttpUtil.getError(errMsg));
                 }
             }
         } catch (InterruptedException err) {
-            strand.setReturnValues(HttpUtil.getError("Connection interrupted while closing the connection"));
             //TODO remove this call back
             callback.setReturnValues(HttpUtil.getError("Connection interrupted while closing the connection"));
             Thread.currentThread().interrupt();

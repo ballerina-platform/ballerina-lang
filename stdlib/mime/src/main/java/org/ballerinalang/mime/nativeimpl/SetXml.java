@@ -53,7 +53,7 @@ public class SetXml extends BlockingNativeCallableUnit {
 //        context.setReturnValues();
     }
 
-    public void setXml(Strand strand, ObjectValue entityObj, XMLValue xmlContent, String contentType) {
+    public static void setXml(Strand strand, ObjectValue entityObj, XMLValue xmlContent, String contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, xmlContent);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType);
     }

@@ -67,28 +67,22 @@ public class Ready implements NativeCallableUnit {
 
     public static void ready(Strand strand, ObjectValue wsConnection) {
         //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
         try {
-            strand.block();
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             boolean isReady = ((BBoolean) wsConnection.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
                     .booleanValue();
             if (!isReady) {
                 WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnection);
-                strand.setReturnValues(null);
                 //TODO remove this call back
                 callback.setReturnValues(null);
             } else {
-                strand.setReturnValues(HttpUtil.getError("Already started reading frames"));
                 //TODO remove this call back
                 callback.setReturnValues(HttpUtil.getError("Already started reading frames"));
             }
-            strand.resume();
             callback.notifySuccess();
         } catch (Exception e) {
-            strand.setReturnValues(HttpUtil.getError(e.getMessage()));
-            strand.resume();
             //TODO remove this call back
             callback.setReturnValues(HttpUtil.getError(e.getMessage()));
             callback.notifySuccess();

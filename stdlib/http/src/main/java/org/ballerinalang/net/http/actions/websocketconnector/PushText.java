@@ -65,16 +65,13 @@ public class PushText implements NativeCallableUnit {
 
     public static void externPushText(Strand strand, ObjectValue wsConnection, String text, boolean finalFrame) {
         //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
         try {
-            strand.block();
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);
-            WebSocketUtil.handleWebSocketCallback(strand, callback, future);
+            WebSocketUtil.handleWebSocketCallback(callback, future);
         } catch (Exception e) {
-            strand.setReturnValues(HttpUtil.getError(e.getMessage()));
-            strand.resume();
             //TODO remove this call back
             callback.setReturnValues(HttpUtil.getError(e.getMessage()));
             callback.notifySuccess();

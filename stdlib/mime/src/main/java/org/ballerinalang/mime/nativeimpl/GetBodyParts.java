@@ -85,7 +85,7 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
 //        }
     }
 
-    public Object getBodyParts(Strand strand, ObjectValue entityObj) {
+    public static Object getBodyParts(Strand strand, ObjectValue entityObj) {
         ArrayValue partsArray;
         try {
             String baseType = HeaderUtil.getBaseType(entityObj);

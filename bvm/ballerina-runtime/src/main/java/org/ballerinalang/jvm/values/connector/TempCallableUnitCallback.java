@@ -27,41 +27,50 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Temporary callback implementation to handle non-blocking function behaviour.
- * TODO : Remove this calss once strand non-blocking support is provided.
+ * TODO : Remove this class once strand non-blocking support is provided.
  *
  * @since 0.995.0
  */
 public class TempCallableUnitCallback {
 
     private static final Logger log = LoggerFactory.getLogger(TempCallableUnitCallback.class);
-    private final Strand strand;
+    private Strand strand = null;
     private volatile Semaphore executionWaitSem;
-    private int timeOut = 120;
     private Object returnValue;
 
     public TempCallableUnitCallback(Strand strand) {
+        // Thread is not blocked(released to the pool) but the ballerina execution is blocked until the
+        // returnValues are retrieved.
         strand.yield = true;
         this.strand = strand;
+        executionWaitSem = new Semaphore(0);
+    }
+
+    public TempCallableUnitCallback() {
         executionWaitSem = new Semaphore(0);
     }
 
     public void notifySuccess() {
         this.executionWaitSem.release();
         //TODO : Replace following with callback.notifySuccess() once strand non-blocking support is given
-        this.strand.resume();
+        if (this.strand != null) {
+            this.strand.resume();
+        }
     }
 
     public void notifyFailure(ErrorValue error) {
         this.returnValue = error;
         this.executionWaitSem.release();
         //TODO : Replace following with callback.notifyFailure() once strand non-blocking support is given
-        strand.setReturnValues(returnValue);
-        this.strand.resume();
+        if (this.strand != null) {
+            this.strand.setReturnValues(returnValue);
+            this.strand.resume();
+        }
     }
 
     public void sync() {
         try {
-            if (!executionWaitSem.tryAcquire(timeOut, TimeUnit.SECONDS)) {
+            if (!executionWaitSem.tryAcquire(120, TimeUnit.SECONDS)) {
                 log.debug("Failed to acquire");
             }
         } catch (InterruptedException e) {
@@ -72,6 +81,8 @@ public class TempCallableUnitCallback {
     public void setReturnValues(Object returnValue) {
         this.returnValue = returnValue;
         //TODO : Replace following with callback.setReturnValues() once strand non-blocking support is given
-        strand.setReturnValues(returnValue);
+        if (this.strand != null) {
+            this.strand.setReturnValues(returnValue);
+        }
     }
 }

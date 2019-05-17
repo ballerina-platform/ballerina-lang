@@ -474,9 +474,9 @@ public class MimeUtilityFunctionTest {
     public void testContentDispositionForFormData() {
         BMap<String, BValue> bodyPart = Util.getEntityStruct(compileResult);
         BMap<String, BValue> contentDispositionStruct = Util.getContentDispositionStruct(compileResult);
-        MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
+        Util.setContentDisposition(contentDispositionStruct, bodyPart,
                 "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
-        String contentDispositionValue = MimeUtil.getContentDisposition(bodyPart);
+        String contentDispositionValue = Util.getContentDisposition(bodyPart);
         Assert.assertEquals(contentDispositionValue, "form-data;name=\"filepart\";filename=\"file-01.txt\"");
     }
 
@@ -484,9 +484,9 @@ public class MimeUtilityFunctionTest {
     public void testFileNameWithoutQuotes() {
         BMap<String, BValue> bodyPart = Util.getEntityStruct(compileResult);
         BMap<String, BValue> contentDispositionStruct = Util.getContentDispositionStruct(compileResult);
-        MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
+        Util.setContentDisposition(contentDispositionStruct, bodyPart,
                 "form-data; name=filepart; filename=file-01.txt");
-        String contentDispositionValue = MimeUtil.getContentDisposition(bodyPart);
+        String contentDispositionValue = Util.getContentDisposition(bodyPart);
         Assert.assertEquals(contentDispositionValue, "form-data;name=\"filepart\";filename=\"file-01.txt\"");
     }
 
@@ -494,9 +494,9 @@ public class MimeUtilityFunctionTest {
     public void testContentDispositionWithoutParams() {
         BMap<String, BValue> bodyPart = Util.getEntityStruct(compileResult);
         BMap<String, BValue> contentDispositionStruct = Util.getContentDispositionStruct(compileResult);
-        MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
+        Util.setContentDisposition(contentDispositionStruct, bodyPart,
                 "form-data");
-        String contentDispositionValue = MimeUtil.getContentDisposition(bodyPart);
+        String contentDispositionValue = Util.getContentDisposition(bodyPart);
         Assert.assertEquals(contentDispositionValue, "form-data");
     }
 

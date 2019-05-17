@@ -158,7 +158,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                                                WebSocketClientConnectorConfig clientConnectorConfig) {
         clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina.
         clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
-        MapValue<String, Object> headerValues = clientEndpointConfig.getMapValue(
+        MapValue<String, Object> headerValues = (MapValue<String, Object>) clientEndpointConfig.getMapValue(
                 WebSocketConstants.CLIENT_CUSTOM_HEADERS_CONFIG);
         if (headerValues != null) {
             clientConnectorConfig.addHeaders(getCustomHeaders(headerValues));

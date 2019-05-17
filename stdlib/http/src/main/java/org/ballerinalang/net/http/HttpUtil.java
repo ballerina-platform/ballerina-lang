@@ -30,6 +30,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONGenerator;
@@ -52,6 +53,8 @@ import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.caching.RequestCacheControlObj;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
 import org.ballerinalang.net.http.session.Session;
@@ -326,12 +329,12 @@ public class HttpUtil {
         HttpUtil.setChunkingHeader(httpService.getChunkingConfig(), outboundResponseMsg);
     }
 
-    public static ObjectValue createSessionStruct(Context context, Session session) {
-        ObjectValue sessionObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                                   HttpConstants.SESSION);
+    public static BMap<String, BValue> createSessionStruct(Context context, Session session) {
+        BMap<String, BValue> sessionStruct = ConnectorUtils
+                .createAndGetStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.SESSION);
         //Add session to the struct as a native data
-        sessionObj.addNativeData(HttpConstants.HTTP_SESSION, session);
-        return sessionObj;
+        sessionStruct.addNativeData(HttpConstants.HTTP_SESSION, session);
+        return sessionStruct;
     }
 
     public static String getSessionID(String cookieHeader) {
@@ -445,7 +448,7 @@ public class HttpUtil {
         return errorMsg;
     }
 
-    private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
+    public static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
         Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
         if (carbonStatusCode == null) {
             //log only the internal server errors
@@ -499,7 +502,6 @@ public class HttpUtil {
 
     private static MapValue<String, Object> createHTTPErrorRecord() {
         return BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_RECORD);
-//        return BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_RECORD);
     }
 
     /**
@@ -514,6 +516,16 @@ public class HttpUtil {
         } else {
             return getError(throwable.getMessage());
         }
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
+    public static HttpCarbonMessage getCarbonMsg(BMap<String, BValue> struct, HttpCarbonMessage defaultMsg) {
+        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) struct.getNativeData(TRANSPORT_MESSAGE);
+        if (httpCarbonMessage != null) {
+            return httpCarbonMessage;
+        }
+        addCarbonMsg(struct, defaultMsg);
+        return defaultMsg;
     }
 
     public static HttpCarbonMessage getCarbonMsg(ObjectValue struct, HttpCarbonMessage defaultMsg) {
@@ -572,6 +584,11 @@ public class HttpUtil {
             path = HttpConstants.DEFAULT_BASE_PATH;
         }
         return new Http2PushPromise(method, path);
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
+    public static void addCarbonMsg(BMap<String, BValue> struct, HttpCarbonMessage httpCarbonMessage) {
+        struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
     public static void addCarbonMsg(ObjectValue struct, HttpCarbonMessage httpCarbonMessage) {

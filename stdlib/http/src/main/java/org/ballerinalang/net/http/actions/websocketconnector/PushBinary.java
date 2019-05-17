@@ -68,17 +68,14 @@ public class PushBinary implements NativeCallableUnit {
 
     public static void pushBinary(Strand strand, ObjectValue wsConnection, byte[] binaryData, boolean finalFrame) {
         //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
         try {
-            strand.block();
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture webSocketChannelFuture =
                     connectionInfo.getWebSocketConnection().pushBinary(ByteBuffer.wrap(binaryData), finalFrame);
-            WebSocketUtil.handleWebSocketCallback(strand, callback, webSocketChannelFuture);
+            WebSocketUtil.handleWebSocketCallback(callback, webSocketChannelFuture);
         } catch (Exception e) {
-            strand.setReturnValues(HttpUtil.getError(e.getMessage()));
-            strand.resume();
             //TODO remove this call back
             callback.setReturnValues(HttpUtil.getError(e.getMessage()));
             callback.notifySuccess();

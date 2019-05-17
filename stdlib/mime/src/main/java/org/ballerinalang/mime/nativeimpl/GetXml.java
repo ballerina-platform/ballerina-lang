@@ -28,17 +28,11 @@ import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
  * Get the entity body in xml form.
@@ -87,7 +81,7 @@ public class GetXml extends AbstractGetPayloadHandler {
 
     public static void getXml(Strand strand, ObjectValue entityObj) {
         //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
 
         try {
             XMLValue result;
@@ -100,18 +94,18 @@ public class GetXml extends AbstractGetPayloadHandler {
                     String payload = MimeUtil.getMessageAsString(dataSource);
                     result = XMLFactory.parse(payload);
                 }
-                setReturnValuesAndNotify(strand, callback, result);
+                setReturnValuesAndNotify(callback, result);
                 return;
             }
 
             if (isStreamingRequired(entityObj)) {
                 result = EntityBodyHandler.constructXmlDataSource(entityObj);
-                updateDataSourceAndNotify(strand, callback, entityObj, result);
+                updateDataSourceAndNotify(callback, entityObj, result);
             } else {
-                constructNonBlockingDataSource(strand, callback, entityObj, SourceType.XML);
+                constructNonBlockingDataSource(callback, entityObj, SourceType.XML);
             }
         } catch (Exception ex) {
-            createErrorAndNotify(strand, callback,
+            createErrorAndNotify(callback,
                                  "Error occurred while extracting xml data from entity : " + ex.getMessage());
         }
     }

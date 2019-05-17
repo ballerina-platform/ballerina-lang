@@ -22,9 +22,6 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
@@ -62,7 +59,7 @@ public class HasPromise extends AbstractHTTPAction {
 
     public static void hasPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
         //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
 
         ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
@@ -70,26 +67,21 @@ public class HasPromise extends AbstractHTTPAction {
         }
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.hasPushPromise(responseHandle).
-                setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(strand, callback));
+                setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(callback));
         //TODO This is temporary fix to handle non blocking call
         callback.sync();
     }
 
     private static class PromiseAvailabilityCheckListener implements HttpClientConnectorListener {
 
-        private Strand strand;
-        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
         private TempCallableUnitCallback callback;
 
-        PromiseAvailabilityCheckListener(Strand strand, TempCallableUnitCallback callback) {
-            this.strand = strand;
+        PromiseAvailabilityCheckListener(TempCallableUnitCallback callback) {
             this.callback = callback;
         }
 
         @Override
         public void onPushPromiseAvailability(boolean isPromiseAvailable) {
-            strand.setReturnValues(isPromiseAvailable);
-            strand.resume();
             //TODO remove this call back
             callback.setReturnValues(isPromiseAvailable);
             callback.notifySuccess();

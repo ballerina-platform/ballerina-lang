@@ -53,7 +53,7 @@ public class SetByteArray extends BlockingNativeCallableUnit {
 //        context.setReturnValues();
     }
 
-    public void setByteArray(Strand strand, ObjectValue entityObj, ArrayValue payload, String contentType) {
+    public static void setByteArray(Strand strand, ObjectValue entityObj, ArrayValue payload, String contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, payload);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType);
     }

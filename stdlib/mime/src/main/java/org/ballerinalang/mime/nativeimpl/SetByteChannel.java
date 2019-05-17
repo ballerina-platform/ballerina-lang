@@ -61,7 +61,8 @@ public class SetByteChannel extends BlockingNativeCallableUnit {
 //        context.setReturnValues();
     }
 
-    public void setByteChannel(Strand strand, ObjectValue entityObj, ObjectValue byteChannel, String contentType) {
+    public static void setByteChannel(Strand strand, ObjectValue entityObj, ObjectValue byteChannel,
+                                      String contentType) {
         entityObj.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME));
         Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
         if (dataSource != null) { //Clear message data source when the user set a byte channel to entity

@@ -92,13 +92,13 @@ public class GetResponse extends AbstractHTTPAction {
 
         @Override
         public void onMessage(HttpCarbonMessage httpCarbonMessage) {
-//            dataContext.notifyInboundResponseStatus(
-//                    HttpUtil.createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
+            dataContext.notifyInboundResponseStatus(
+                    HttpUtil.createResponseStruct(httpCarbonMessage), null);
         }
 
         public void onError(Throwable throwable) {
             ErrorValue httpConnectorError = HttpUtil.getError(throwable);
-//            dataContext.notifyInboundResponseStatus(null, httpConnectorError);
+            dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }
 }

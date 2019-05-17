@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;

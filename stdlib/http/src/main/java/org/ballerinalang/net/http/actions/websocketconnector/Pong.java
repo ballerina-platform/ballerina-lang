@@ -63,16 +63,13 @@ public class Pong implements NativeCallableUnit {
 
     public static void pong(Strand strand, ObjectValue wsConnection, byte[] binaryData) {
         //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
         try {
-            strand.block();
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData));
-            WebSocketUtil.handleWebSocketCallback(strand, callback, future);
+            WebSocketUtil.handleWebSocketCallback(callback, future);
         } catch (Exception e) {
-            strand.setReturnValues(HttpUtil.getError(e.getMessage()));
-            strand.resume();
             //TODO remove this call back
             callback.setReturnValues(HttpUtil.getError(e.getMessage()));
             callback.notifySuccess();

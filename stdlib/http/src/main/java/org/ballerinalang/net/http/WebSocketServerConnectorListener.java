@@ -18,12 +18,12 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -85,8 +85,9 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
 //            Executor.submit(balResource, new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService),
 //                            null, observerContext, signatureParams);
             //TODO this is temp fix till we get the service.start() API
-            Executor.submit(wsService.getBalService(), balResource.getName(), , signatureParams);
-
+            Executor.submit(wsService.getBalService(), balResource.getName(),
+                            new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService), null,
+                            signatureParams);
         } else {
             WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker, null);
         }

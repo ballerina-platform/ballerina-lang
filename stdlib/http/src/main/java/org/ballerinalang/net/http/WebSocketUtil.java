@@ -20,14 +20,17 @@ package org.ballerinalang.net.http;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.connector.Executor;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
@@ -121,30 +124,29 @@ public class WebSocketUtil {
         ObjectValue webSocketConnector =
                 (ObjectValue) webSocketEndpoint.get(WebSocketConstants.LISTENER_CONNECTOR_FIELD);
 
-        //TODO Remove after new API
-//        CallableUnitCallback onOpenCallableUnitCallback = new CallableUnitCallback() {
-//            @Override
-//            public void notifySuccess() {
-//                boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
-//                        .booleanValue();
-//                if (!isReady) {
-//                    readFirstFrame(webSocketConnection, webSocketConnector);
-//                }
-//            }
-//
-//            @Override
-//            public void notifyFailure(ErrorValue error) {
-//                boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
-//                        .booleanValue();
-//                if (!isReady) {
-//                    readFirstFrame(webSocketConnection, webSocketConnector);
-//                }
-//                ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-//                closeDuringUnexpectedCondition(webSocketConnection);
-//            }
-//        };
+        CallableUnitCallback onOpenCallableUnitCallback = new CallableUnitCallback() {
+            @Override
+            public void notifySuccess() {
+                boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
+                        .booleanValue();
+                if (!isReady) {
+                    readFirstFrame(webSocketConnection, webSocketConnector);
+                }
+            }
+
+            @Override
+            public void notifyFailure(ErrorValue error) {
+                boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
+                        .booleanValue();
+                if (!isReady) {
+                    readFirstFrame(webSocketConnection, webSocketConnector);
+                }
+                ErrorHandlerUtils.printError("error: " + BallerinaErrors.getPrintableStackTrace(error));
+                closeDuringUnexpectedCondition(webSocketConnection);
+            }
+        };
         //TODO this is temp fix till we get the service.start() API
-        Executor.submit(wsService.getBalService(), onOpenResource.getName(), , bValues);
+        Executor.submit(wsService.getBalService(), onOpenResource.getName(), onOpenCallableUnitCallback, null, bValues);
     }
 
     public static void populateEndpoint(WebSocketConnection webSocketConnection, ObjectValue webSocketEndpoint) {
@@ -157,20 +159,18 @@ public class WebSocketUtil {
                               new BBoolean(webSocketConnection.isOpen()));
     }
 
-    public static void handleWebSocketCallback(Strand strand, TempCallableUnitCallback callback, ChannelFuture webSocketChannelFuture) {
+    public static void handleWebSocketCallback(TempCallableUnitCallback callback,
+                                               ChannelFuture webSocketChannelFuture) {
         webSocketChannelFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                strand.setReturnValues(HttpUtil.getError(cause));
                 //TODO Temp fix to get return values. Remove
                 callback.setReturnValues(HttpUtil.getError(cause));
 
             } else {
-                strand.setReturnValues(null);
                 //TODO Temp fix to get return values. Remove
                 callback.setReturnValues(null);
             }
-            strand.resume();
             //TODO remove this call back
             callback.notifySuccess();
         });

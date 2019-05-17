@@ -30,6 +30,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.slf4j.Logger;
@@ -133,8 +134,8 @@ public class MultipartDataSource implements RefValue {
         if (MimeUtil.isNestedPartsAvailable(childPart)) {
             childBoundaryString = MimeUtil.getNewMultipartDelimiter();
             ObjectValue mediaType = (ObjectValue) childPart.get(MEDIA_TYPE_FIELD);
-            MapValue paramMap = (mediaType.get(PARAMETER_MAP_FIELD) != null) ?
-                    (MapValue) mediaType.get(PARAMETER_MAP_FIELD) : new MapValue<>();
+            MapValueImpl paramMap = (mediaType.get(PARAMETER_MAP_FIELD) != null) ?
+                    (MapValueImpl) mediaType.get(PARAMETER_MAP_FIELD) : new MapValueImpl<>();
             paramMap.put(BOUNDARY, childBoundaryString);
             mediaType.set(PARAMETER_MAP_FIELD, paramMap);
         }

@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.stdlib.utils.TestEntityUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -76,7 +77,7 @@ public class PushPromiseNativeFunctionTest {
         String headerName = "header1";
         String headerValue = "value1";
         http2PushPromise.addHeader(headerName, headerValue);
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        TestEntityUtils.populatePushPromiseStruct(promise, http2PushPromise);
 
         BString key = new BString(headerName);
         BValue[] inputArg = {promise, key};
@@ -98,7 +99,7 @@ public class PushPromiseNativeFunctionTest {
         String headerValue2 = "value2";
         http2PushPromise.addHeader(headerName, headerValue1);
         http2PushPromise.addHeader(headerName, headerValue2);
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        TestEntityUtils.populatePushPromiseStruct(promise, http2PushPromise);
 
         BString key = new BString(headerName);
         BValue[] inputArg = {promise, key};
@@ -119,7 +120,7 @@ public class PushPromiseNativeFunctionTest {
         String headerName = "header1";
         String headerValue = "value1";
         http2PushPromise.addHeader(headerName, headerValue);
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        TestEntityUtils.populatePushPromiseStruct(promise, http2PushPromise);
 
         BString key = new BString(headerName);
         BValue[] inputArg = {promise, key};
@@ -145,7 +146,7 @@ public class PushPromiseNativeFunctionTest {
         String header2Name = "header2";
         String header2Value = "value2";
         http2PushPromise.addHeader(header2Name, header2Value);
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        TestEntityUtils.populatePushPromiseStruct(promise, http2PushPromise);
 
         BValue[] inputArg = {promise};
         BValue[] returnVal = BRunUtil.invoke(result, "testRemoveAllHeaders", inputArg);
@@ -168,7 +169,7 @@ public class PushPromiseNativeFunctionTest {
         String headerName = "header1";
         String headerValue = "value1";
         http2PushPromise.addHeader(headerName, headerValue);
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        TestEntityUtils.populatePushPromiseStruct(promise, http2PushPromise);
 
         String targetHeaderValue = "value2";
         BString key = new BString(headerName);
@@ -193,7 +194,7 @@ public class PushPromiseNativeFunctionTest {
         String headerName = "header1";
         String headerValue = "value1";
         http2PushPromise.addHeader(headerName, headerValue);
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        TestEntityUtils.populatePushPromiseStruct(promise, http2PushPromise);
 
         BString key = new BString(headerName);
         BValue[] inputArg = {promise, key};
@@ -214,7 +215,7 @@ public class PushPromiseNativeFunctionTest {
         String headerName2 = "header2";
         http2PushPromise.addHeader(headerName1, "value1");
         http2PushPromise.addHeader(headerName2, "value2");
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        TestEntityUtils.populatePushPromiseStruct(promise, http2PushPromise);
 
         BValue[] inputArg = {promise};
         BValue[] returnVal = BRunUtil.invoke(result, "testGetHeaderNames", inputArg);

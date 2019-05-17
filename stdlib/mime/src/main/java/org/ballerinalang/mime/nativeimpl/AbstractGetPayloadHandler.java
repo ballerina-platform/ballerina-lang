@@ -18,8 +18,6 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -27,9 +25,6 @@ import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.wso2.transport.http.netty.message.FullHttpMessageListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -57,8 +52,8 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         return false;
     }
 
-    static void constructNonBlockingDataSource(Strand strand, TempCallableUnitCallback callback, ObjectValue entity,
-                                        SourceType sourceType) {
+    static void constructNonBlockingDataSource(TempCallableUnitCallback callback, ObjectValue entity,
+                                               SourceType sourceType) {
         HttpCarbonMessage inboundMessage = extractTransportMessageFromEntity(entity);
         inboundMessage.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
             @Override
@@ -80,37 +75,36 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
                         dataSource = constructBlobDataSource(inputStream);
                         break;
                 }
-                updateDataSourceAndNotify(strand, callback, entity, dataSource);
+                updateDataSourceAndNotify(callback, entity, dataSource);
             }
 
             @Override
             public void onError(Exception ex) {
-                createErrorAndNotify(strand, callback,
+                createErrorAndNotify(callback,
                                      "Error occurred while extracting content from message : " + ex.getMessage());
             }
         });
+        //TODO : Remove callback once strand non-blocking support is given
         callback.sync();
     }
 
-    static void setReturnValuesAndNotify(Strand strand, TempCallableUnitCallback callback, Object result) {
-        strand.setReturnValues(result);
-        strand.resume();
+    static void setReturnValuesAndNotify(TempCallableUnitCallback callback, Object result) {
         //TODO remove this call back
         callback.setReturnValues(result);
         callback.notifySuccess();
     }
 
-    static void createErrorAndNotify(Strand strand, TempCallableUnitCallback callback, String errMsg) {
+    static void createErrorAndNotify(TempCallableUnitCallback callback, String errMsg) {
         ErrorValue error = MimeUtil.createError(errMsg);
-        setReturnValuesAndNotify(strand, callback, error);
+        setReturnValuesAndNotify(callback, error);
     }
 
-    static void updateDataSourceAndNotify(Strand strand, TempCallableUnitCallback callback, ObjectValue entityObj,
-                                   Object result) {
+    static void updateDataSourceAndNotify(TempCallableUnitCallback callback, ObjectValue entityObj,
+                                          Object result) {
         EntityBodyHandler.addMessageDataSource(entityObj, result);
         //Set byte channel to null, once the message data source has been constructed
         entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);
-        setReturnValuesAndNotify(strand, callback, result);
+        setReturnValuesAndNotify(callback, result);
     }
 
     private static HttpCarbonMessage extractTransportMessageFromEntity(ObjectValue entityObj) {

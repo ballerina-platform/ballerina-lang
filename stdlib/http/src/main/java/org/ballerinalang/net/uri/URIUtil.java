@@ -20,6 +20,7 @@ package org.ballerinalang.net.uri;
 
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -33,7 +34,7 @@ import java.util.Map;
  */
 public class URIUtil {
 
-    public static final String URI_PATH_DELIMITER = "/";
+    private static final String URI_PATH_DELIMITER = "/";
 
     public static String[] getPathSegments(String path) {
         if (path.startsWith(URI_PATH_DELIMITER)) {
@@ -67,8 +68,9 @@ public class URIUtil {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static MapValue<String, Object> getMatrixParamsMap(String path, HttpCarbonMessage carbonMessage) {
-        MapValue<String, Object> matrixParamsBMap = new MapValue<>();
+        MapValue<String, Object> matrixParamsBMap = new MapValueImpl<>();
         Map<String, Map<String, String>> pathToMatrixParamMap =
                 (Map<String, Map<String, String>>) carbonMessage.getProperty(HttpConstants.MATRIX_PARAMS);
         Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);

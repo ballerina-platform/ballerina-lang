@@ -73,7 +73,8 @@ public class Services {
         try {
             resource = HttpDispatcher.findResource(httpServicesRegistry, request);
         } catch (BallerinaException ex) {
-            HttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
+            //TODO fix following with bvm values
+//            HttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
         }
         if (resource == null) {
             return callback.getResponseMsg();
@@ -85,10 +86,11 @@ public class Services {
             Object srcHandler = request.getProperty(HttpConstants.SRC_HANDLER);
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, BLangConnectorSPIUtil
-                .toStruct((BMap<String, BValue>) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG)));
-        callback.setRequestStruct(signatureParams[0]);
-        Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
+        //TODO fix following with bvm values
+//        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, BLangConnectorSPIUtil
+//                .toStruct((BMap<String, BValue>) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG)));
+//        callback.setRequestStruct(signatureParams[0]);
+//        Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
         callback.sync();
 
         HttpCarbonMessage originalMsg = callback.getResponseMsg();

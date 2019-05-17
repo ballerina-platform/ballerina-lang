@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -68,12 +69,12 @@ public class GetQueryParams extends BlockingNativeCallableUnit {
 //        }
     }
 
-    public static MapValue<String, String> getQueryParams(Strand strand, ObjectValue requestObj) {
+    public static MapValueImpl<String, String> getQueryParams(Strand strand, ObjectValue requestObj) {
         try {
             HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) requestObj
                     .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
             BMapType mapType = new BMapType(BTypes.typeString);
-            MapValue<String, String> params = new MapValue<>(mapType);
+            MapValueImpl<String, String> params = new MapValueImpl<>(mapType);
             if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
                 String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
                 URIUtil.populateQueryParamMap(queryString, params);
