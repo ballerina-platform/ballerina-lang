@@ -138,17 +138,10 @@
             <class name="org.ballerinalang.test.types.decimaltype.BDecimalValueNegativeTest"/>
             <class name="org.ballerinalang.test.types.decimaltype.BDecimalBFloatComparisonTest"/>
             <class name="org.ballerinalang.test.types.decimaltype.BDecimalTypeConversionTest"/>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalUsageTest">
-                <!--We can remove excludes once 'length()' is supported-->
-                <methods>
-                    <exclude name="testDecimalMap"/>
-                    <exclude name="testDecimalArray"/>
-                </methods>
-            </class>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalUsageTest"/>
             <class name="org.ballerinalang.test.types.decimaltype.BDecimalValueTest">
                 <!--Unary + and - is not supported yet-->
                 <methods>
-                    <exclude name="testDecimalNegation" />
                     <exclude name="testHexComplexExpression" />
                     <exclude name="testPositivelySignedLiteralAssignment" />
                 </methods>

@@ -29,7 +29,7 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
         generateCheckCastToString(mv, sourceType);
         return;
     } else if (targetType is bir:BTypeDecimal) {
-        generateCheckCastToDecimal(mv, targetType);
+        generateCheckCastToDecimal(mv, sourceType);
         return;
     } else if (targetType is bir:BTypeBoolean) {
         generateCheckCastToBoolean(mv, sourceType);
