@@ -23,6 +23,7 @@ public const int INS_WAIT = 6;
 public const int INS_FP_CALL = 7;
 public const int INS_WK_RECEIVE = 8;
 public const int INS_WK_SEND = 9;
+public const int INS_FLUSH = 10;
 
 // Non-terminating instructions
 public const int INS_MOVE = 20;
