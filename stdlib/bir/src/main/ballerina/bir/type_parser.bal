@@ -320,9 +320,9 @@ public type TypeParser object {
     }
 
     function parseFiniteType() returns BFiniteType {
+        BFiniteType finiteType = {name: { value: self.reader.readStringCpRef()}, values:[]};
         int size = self.reader.readInt32();
         int c = 0;
-        BFiniteType finiteType = {values:[]};
         while c < size {
             BType valueType = self.parseTypeInternal();
             finiteType.values[c] = self.getValue(valueType);
