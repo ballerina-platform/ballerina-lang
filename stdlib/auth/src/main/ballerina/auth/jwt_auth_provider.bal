@@ -49,7 +49,7 @@ public type JWTAuthProviderConfig record {|
     crypto:TrustStore trustStore?;
     string certificateAlias?;
     boolean validateCertificate?;
-    cache:Cache jwtCache = new;
+    cache:Cache jwtCache = new(capacity = 1000);
 |};
 
 # Represents a JWT Authenticator.
