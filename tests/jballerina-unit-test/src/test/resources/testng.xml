@@ -98,6 +98,31 @@
             <class name="org.ballerinalang.test.expressions.binaryoperations.OperatorPrecedenceTest"/>
             <class name="org.ballerinalang.test.expressions.binaryoperations.RefEqualAndNotEqualOperationsTest"/>
             <class name="org.ballerinalang.test.expressions.binaryoperations.SubtractOperationTest"/>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalNaNInfinityTest">
+                <!--We can remove excludes once 'isNaN' and 'isFinite' are supported-->
+                <methods>
+                    <exclude name="testIsFinite"/>
+                    <exclude name="testIsNaN"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalValueNegativeTest"/>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalBFloatComparisonTest"/>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalTypeConversionTest"/>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalUsageTest">
+                <!--We can remove excludes once 'length()' is supported-->
+                <methods>
+                    <exclude name="testDecimalMap"/>
+                    <exclude name="testDecimalArray"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalValueTest">
+                <!--Unary + and - is not supported yet-->
+                <methods>
+                    <exclude name="testDecimalNegation" />
+                    <exclude name="testHexComplexExpression" />
+                    <exclude name="testPositivelySignedLiteralAssignment" />
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>
