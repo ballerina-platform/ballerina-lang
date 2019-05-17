@@ -66,6 +66,18 @@ public class Strand {
         }
     }
 
+    public void block() {
+
+    }
+
+    public void setReturnValues(Object returnValue) {
+
+    }
+
+    public void resume() {
+
+    }
+
     public ErrorValue handleFlush(ChannelDetails[] channels) {
         if (flushDetail == null) {
             this.flushDetail = new FlushDetail(channels);
