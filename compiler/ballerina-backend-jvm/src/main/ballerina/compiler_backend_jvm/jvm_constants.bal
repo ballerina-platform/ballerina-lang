@@ -233,8 +233,11 @@ const string TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
 const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
 const string STRAND = "org/ballerinalang/jvm/Strand";
+
+const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string FUNCTION = "java/util/function/Function";
 const string CONSUMER = "java/util/function/Consumer";
+
 const string STRING_BUILDER = "java/lang/StringBuilder";
 const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
 const string XML_FACTORY = "org/ballerinalang/jvm/XMLFactory";

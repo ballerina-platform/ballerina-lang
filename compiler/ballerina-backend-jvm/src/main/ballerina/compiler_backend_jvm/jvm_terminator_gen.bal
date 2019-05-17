@@ -396,7 +396,7 @@ type TerminatorGenerator object {
             returnType = futureType.returnType;
         }
         boolean isVoid = returnType is bir:BTypeNil;
-        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid, 0);
+        createFunctionPointer(self.mv, methodClass, lambdaName, isVoid, 0);
         lambdas[lambdaName] = (callIns, methodClass);
         self.lambdaIndex += 1;
         
@@ -540,9 +540,9 @@ type TerminatorGenerator object {
             self.mv.visitVarInsn(ALOAD, fpIndex);
             self.submitToScheduler(fpCall.lhsOp);           
         } else if (fpCall.lhsOp is ()) {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, CONSUMER, "accept", io:sprintf("(L%s;)V", OBJECT), true);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "accept", io:sprintf("(L%s;)V", OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "apply", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
             // store reult
             int lhsIndex = self.getJVMIndexOfVarRef(getVariableDcl(fpCall.lhsOp.variableDcl));
             bir:BType? lhsType = fpCall.lhsOp.typeValue;
@@ -640,11 +640,11 @@ type TerminatorGenerator object {
         // load strand
         self.mv.visitVarInsn(ALOAD, 0);
         if (isVoid) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
-                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, CONSUMER, STRAND, FUTURE_VALUE), false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleConsumer", 
+                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
-                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION, STRAND, FUTURE_VALUE), false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction", 
+                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
         }
 
         // store return

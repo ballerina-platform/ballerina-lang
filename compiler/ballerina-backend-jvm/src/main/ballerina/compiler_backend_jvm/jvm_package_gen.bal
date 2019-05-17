@@ -29,6 +29,8 @@ map<string> globalVarClassNames = {};
 
 map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
 
+string currentClass = "";
+
 function lookupFullQualifiedClassName(string key) returns string {
     if (birFunctionMap.hasKey(key)) {
         BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
@@ -90,6 +92,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     generateFrameClasses(module, pkgEntries);
     foreach var (moduleClass, v) in jvmClassMap {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+        currentClass = moduleClass;
         if (moduleClass == typeOwnerClass) {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
             generateDefaultConstructor(cw, VALUE_CREATOR);
@@ -144,6 +147,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     }
     foreach var (moduleClass, v) in jvmClassMap {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+        currentClass = moduleClass;
         if (moduleClass == typeOwnerClass) {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
             generateDefaultConstructor(cw, VALUE_CREATOR);
@@ -201,7 +205,7 @@ function getModuleLevelClassName(string orgName, string moduleName, string sourc
     }
 
     if (!orgName.equalsIgnoreCase("$anon")) {
-        className = orgName + "/" + className;
+        className = cleanupName(orgName) + "/" + className;
     }
 
     return className;
@@ -214,7 +218,7 @@ function getPackageName(string orgName, string moduleName) returns string {
     }
 
     if (!orgName.equalsIgnoreCase("$anon")) {
-        packageName = orgName + "/" + packageName;
+        packageName = cleanupName(orgName) + "/" + packageName;
     }
 
     return packageName;

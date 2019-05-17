@@ -130,7 +130,11 @@
             <class name="org.ballerinalang.test.expressions.binaryoperations.SubtractOperationTest"/>
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
             <class name="org.ballerinalang.test.types.constant.MapConstantTest" />
-            <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" />
+            <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
+                <methods>
+                    <exclude name="testFunctionPointerNative"/>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

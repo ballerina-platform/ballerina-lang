@@ -215,11 +215,7 @@ function getTargetClass(bir:BType sourceType, bir:BType targetType) returns stri
     } else if (targetType is bir:BTypeDesc) {
         targetTypeClass = TYPEDESC_VALUE;
     } else if (targetType is bir:BInvokableType) {
-        if (targetType["retType"] is ()) {
-            targetTypeClass = CONSUMER;
-        } else {
-            targetTypeClass = FUNCTION;
-        }
+        targetTypeClass = FUNCTION_POINTER;
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to '%s'", sourceType, targetType));
         panic err;
