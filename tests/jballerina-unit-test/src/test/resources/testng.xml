@@ -117,7 +117,7 @@
             <class name="org.ballerinalang.test.expressions.stamp.TupleTypeStampInbuiltFunctionTest"/>
             <class name="org.ballerinalang.test.expressions.stamp.UnionTypeStampInbuiltFunctionTest"/>
             <class name="org.ballerinalang.test.expressions.stamp.XMLStampInbuiltFunctionTest"/>
-
+       
             <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest">
                 <methods>
                     <exclude name="testInMapLiteral" />
@@ -128,6 +128,13 @@
             <class name="org.ballerinalang.test.expressions.binaryoperations.OperatorPrecedenceTest"/>
             <class name="org.ballerinalang.test.expressions.binaryoperations.RefEqualAndNotEqualOperationsTest"/>
             <class name="org.ballerinalang.test.expressions.binaryoperations.SubtractOperationTest"/>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.TypeTestExprTest">
+                <methods>
+                    <exclude name="testError_1"/>
+                    <exclude name="testError_2"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.EqualAndNotEqualOperationsTest"/>
             <class name="org.ballerinalang.test.types.decimaltype.BDecimalNaNInfinityTest">
                 <!--We can remove excludes once 'isNaN' and 'isFinite' are supported-->
                 <methods>

@@ -410,6 +410,13 @@ public type FuncBodyParser object {
             VarRef lhsOp = self.parseVarRef();
             Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp};
             return waitIns;
+        } else if (kindTag == INS_FLUSH) {
+            TerminatorKind kind = TERMINATOR_FLUSH;
+            ChannelDetail[] channels = getWorkerChannels(self.reader);
+            VarRef lhsOp = self.parseVarRef();
+            BasicBlock thenBB = self.parseBBRef();
+            Flush flushIns = {pos:pos, workerChannels:channels, kind:kind, lhsOp:lhsOp, thenBB:thenBB};
+            return flushIns;
         } else if (kindTag == INS_FP_CALL) {
             TerminatorKind kind = TERMINATOR_FP_CALL;
             VarRef fp = self.parseVarRef();

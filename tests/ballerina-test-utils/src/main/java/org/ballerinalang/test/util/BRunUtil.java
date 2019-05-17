@@ -42,6 +42,7 @@ import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
@@ -782,6 +783,8 @@ public class BRunUtil {
                 return new BTypeDesc(typedescType.getName(), typedescType.getPackagePath());
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 return BTypes.typeNull;
+            case org.ballerinalang.jvm.types.TypeTags.FINITE_TYPE_TAG:
+                return new BFiniteType(jvmType.getName(), jvmType.getPackagePath());
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }

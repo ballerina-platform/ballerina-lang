@@ -656,6 +656,19 @@ type TerminatorGenerator object {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + ins.thenBB.id.value);
         self.mv.visitJumpInsn(GOTO, gotoLabel);   
     }
+
+    function genFlushIns(bir:Flush ins, string funcName) {
+        self.mv.visitVarInsn(ALOAD, 0);
+        loadChannelDetails(self.mv, ins.workerChannels);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleFlush", 
+                io:sprintf("([L%s;)L%s;", CHANNEL_DETAILS, ERROR_VALUE), false);
+        
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+        generateVarStore(self.mv, ins.lhsOp.variableDcl, currentPackageName, 
+                self.getJVMIndexOfVarRef(ins.lhsOp.variableDcl));
+        
+        self.genYieldCheck(ins.thenBB, funcName);
+    }
         
     function submitToScheduler(bir:VarRef? lhsOp) {
         bir:BType? futureType = lhsOp.typeValue;

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -389,9 +390,21 @@ public class TypeChecker {
         }
 
         BArrayType sourceArrayType = (BArrayType) sourceType;
-        if (sourceArrayType.getState() != targetType.getState() || sourceArrayType.getSize() != targetType.getSize()) {
-            return false;
+
+        switch (sourceArrayType.getState()) {
+            case UNSEALED:
+                if (targetType.getState() != ArrayState.UNSEALED) {
+                    return false;
+                }
+                break;
+            case CLOSED_SEALED:
+                if (targetType.getState() == ArrayState.CLOSED_SEALED &&
+                        sourceArrayType.getSize() != targetType.getSize()) {
+                    return false;
+                }
+                break;
         }
+
         return checkIsType(sourceArrayType.getElementType(), targetType.getElementType(), unresolvedTypes);
     }
 
@@ -448,10 +461,6 @@ public class TypeChecker {
 
     private static boolean checkObjectEquivalency(BType sourceType, BObjectType targetType,
                                                   List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            return false;
-        }
-
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(sourceType, targetType);
@@ -562,9 +571,11 @@ public class TypeChecker {
 
     private static AttachedFunction getMatchingInvokableType(AttachedFunction[] rhsFuncs, AttachedFunction lhsFunc,
                                                              List<TypePair> unresolvedTypes) {
-        return Arrays.stream(rhsFuncs).filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
+        return Arrays.stream(rhsFuncs)
+                .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
                 .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.type, lhsFunc.type, unresolvedTypes))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 
     private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target,
@@ -1122,7 +1133,7 @@ public class TypeChecker {
      * @since 0.995.0
      */
     private static class ValuePair {
-        List<Object> valueList = new ArrayList<>(2);
+        ArrayList<Object> valueList = new ArrayList<>(2);
 
         ValuePair(Object valueOne, Object valueTwo) {
             valueList.add(valueOne);
@@ -1135,8 +1146,20 @@ public class TypeChecker {
                 return false;
             }
 
-            return ((ValuePair) otherPair).valueList.containsAll(valueList) &&
-                    valueList.containsAll(((ValuePair) otherPair).valueList);
+            ArrayList otherList = ((ValuePair) otherPair).valueList;
+            ArrayList currentList = valueList;
+
+            if (otherList.size() != currentList.size()) {
+                return false;
+            }
+
+            for (int i = 0; i < otherList.size(); i++) {
+                if (!otherList.get(i).equals(currentList.get(i))) {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

@@ -30,6 +30,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     int returnVarRefIndex = -1;
 
+    bir:VariableDcl stranVar = { typeValue: "string", // should be record
+                                 name: { value: "srand" },
+                                 kind: "ARG" };
+    _ = indexMap.getIndex(stranVar);
+
     // generate method desc
     string desc = getMethodDesc(func.typeValue.paramTypes, func.typeValue.retType);
     int access = ACC_PUBLIC;
@@ -57,7 +62,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
-        generateUserDefinedTypes(mv, module.typeDefs, currentPackageName);
+        generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
             mv.visitTypeInsn(NEW, typeOwnerClass);
@@ -78,11 +83,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         isVoidFunc = true;
         k = 0;
     }
-
-    bir:VariableDcl stranVar = { typeValue: "string", // should be record
-                                 name: { value: "srand" },
-                                 kind: "ARG" };
-    _ = indexMap.getIndex(stranVar);
 
     bir:VariableDcl?[] localVars = func.localVars;
     while (k < localVars.length()) {
@@ -325,6 +325,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             termGen.genWorkerSendIns(terminator, funcName);
         } else if (terminator is bir:WorkerReceive) {
             termGen.genWorkerReceiveIns(terminator, funcName);
+        } else if (terminator is bir:Flush) {
+            termGen.genFlushIns(terminator, funcName);
         } else {
             error err = error( "JVM generation is not supported for terminator instruction " +
                                         io:sprintf("%s", terminator));
