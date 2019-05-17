@@ -44,9 +44,7 @@ type InstructionGenerator object {
             self.mv.visitTypeInsn(NEW, DECIMAL_VALUE);
             self.mv.visitInsn(DUP);
             self.mv.visitLdcInsn(val);
-            self.mv.visitFieldInsn(GETSTATIC, "java/math/MathContext", "DECIMAL128", "Ljava/math/MathContext");
-            self.mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>",
-                "(Ljava/lang/String;Ljava/math/MathContext;)V", false);
+            self.mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", io:sprintf("(L%s;)V", STRING_VALUE), false);
         } else if (bType is bir:BTypeBoolean) {
             any val = loadIns.value;
             self.mv.visitLdcInsn(val);

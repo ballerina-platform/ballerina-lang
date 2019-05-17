@@ -20,6 +20,7 @@ package org.ballerinalang.test.util;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
+import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
@@ -27,6 +28,7 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -77,7 +79,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -298,7 +299,7 @@ public class BRunUtil {
                     typeClazz = String.class;
                     break;
                 case TypeTags.DECIMAL_TAG:
-                    typeClazz = BigDecimal.class;
+                    typeClazz = DecimalValue.class;
                     break;
                 case TypeTags.FLOAT_TAG:
                     typeClazz = double.class;
@@ -382,7 +383,8 @@ public class BRunUtil {
             case TypeTags.FLOAT_TAG:
                 return ((BFloat) value).floatValue();
             case TypeTags.DECIMAL_TAG:
-                return ((BDecimal) value).value();
+                BDecimal decimal = (BDecimal) value;
+                return new DecimalValue(decimal.stringValue(), DecimalValueKind.valueOf(decimal.valueKind.name()));
             case TypeTags.ARRAY_TAG:
                 org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
@@ -603,7 +605,9 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
                 return new BString((String) value);
             case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
-                return new BDecimal((BigDecimal) value);
+                DecimalValue decimalValue = (DecimalValue) value;
+                return new BDecimal(decimalValue.value().toString(),
+                        org.ballerinalang.model.util.DecimalValueKind.valueOf(decimalValue.valueKind.name()));
             case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:
                 ArrayValue jvmTuple = ((ArrayValue) value);
                 BRefType<?>[] tupleValues = new BRefType<?>[jvmTuple.size()];

@@ -37,6 +37,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
@@ -77,6 +78,8 @@ public class TypeChecker {
             return (Long) sourceVal;
         } else if (sourceVal instanceof Double) {
             return ((Double) sourceVal).longValue();
+        } else if (sourceVal instanceof DecimalValue) {
+            return ((DecimalValue) sourceVal).intValue();
         } else {
             throw getTypeCastError(sourceVal, BTypes.typeInt);
         }
@@ -87,6 +90,8 @@ public class TypeChecker {
             return ((Long) sourceVal).doubleValue();
         } else if (sourceVal instanceof Double) {
             return (Double) sourceVal;
+        } else if (sourceVal instanceof DecimalValue) {
+            return ((DecimalValue) sourceVal).floatValue();
         } else {
             throw getTypeCastError(sourceVal, BTypes.typeFloat);
         }
@@ -95,6 +100,8 @@ public class TypeChecker {
     public static boolean anyToBoolean(Object sourceVal) {
         if (sourceVal instanceof Boolean) {
             return (Boolean) sourceVal;
+        } else if (sourceVal instanceof DecimalValue) {
+            return ((DecimalValue) sourceVal).booleanValue();
         }
 
         throw getTypeCastError(sourceVal, BTypes.typeBoolean);
@@ -107,9 +114,23 @@ public class TypeChecker {
             return (Long) sourceVal;
         } else if (sourceVal instanceof Double) {
             return ((Double) sourceVal).longValue();
+        } else if (sourceVal instanceof DecimalValue) {
+            return ((DecimalValue) sourceVal).byteValue();
         }
 
         throw getTypeCastError(sourceVal, BTypes.typeByte);
+    }
+
+    public static DecimalValue anyToDecimal(Object sourceVal) {
+        if (sourceVal instanceof DecimalValue) {
+            return (DecimalValue) sourceVal;
+        } else if (sourceVal instanceof Long) {
+            return DecimalValue.valueOf((long) sourceVal);
+        } else if (sourceVal instanceof Double) {
+            return DecimalValue.valueOf((double) sourceVal);
+        }
+
+        throw getTypeCastError(sourceVal, BTypes.typeDecimal);
     }
 
     /**
@@ -175,7 +196,7 @@ public class TypeChecker {
             return BTypes.typeInt;
         } else if (value instanceof Double) {
             return BTypes.typeFloat;
-        } else if (value instanceof BigDecimal) {
+        } else if (value instanceof DecimalValue) {
             return BTypes.typeDecimal;
         } else if (value instanceof String) {
             return BTypes.typeString;

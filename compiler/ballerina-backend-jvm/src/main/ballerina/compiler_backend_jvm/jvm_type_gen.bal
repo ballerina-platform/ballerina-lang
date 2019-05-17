@@ -793,6 +793,8 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", TABLE_VALUE);
     } else if (bType is bir:BStreamType) {
         return io:sprintf("L%s;", STREAM_VALUE);
+    } else if (bType is bir:BTypeDecimal) {
+        return io:sprintf("L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BObjectType) {
         return io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BTypeAny ||
