@@ -53,6 +53,11 @@ public type PackageParser object {
         _ = self.typeParser.parseType();
     }
 
+    function skipConstants() {
+        int constLength = self.reader.readInt64();
+        _ = self.reader.readByteArray(untaint constLength);
+    }
+
     function parseFunctions(TypeDef?[] typeDefs) returns Function?[] {
         var numFuncs = self.reader.readInt32();
         Function?[] funcs = [];
@@ -155,6 +160,8 @@ public type PackageParser object {
         Function?[] funcs = self.parseFunctions(typeDefs);
 
         self.skipAnnotations();
+
+        self.skipConstants();
 
         return { importModules : importModules,
                     typeDefs : typeDefs, 
