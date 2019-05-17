@@ -94,7 +94,7 @@ public class OpenWritableFile extends AbstractNativeChannel {
         return channel;
     }
 
-    public static ObjectValue openReadableFile(Strand strand, String pathUrl, boolean accessMode) {
+    public static ObjectValue openWritableFile(Strand strand, String pathUrl, boolean accessMode) {
         return createChannel(inFlow(pathUrl, accessMode));
     }
 

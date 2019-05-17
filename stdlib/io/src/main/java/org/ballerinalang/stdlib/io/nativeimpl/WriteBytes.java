@@ -23,7 +23,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
@@ -123,9 +123,9 @@ public class WriteBytes implements NativeCallableUnit {
         return false;
     }
 
-    public static void write(Strand strand, ObjectValue channel, ArrayValue content, long offset) {
-        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+    public static Object write(Strand strand, ObjectValue channel, ArrayValue content, long offset) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         EventContext eventContext = new EventContext(callback);
@@ -136,6 +136,7 @@ public class WriteBytes implements NativeCallableUnit {
         register.submit();
         //TODO : Remove callback once strand non-blocking support is given
         callback.sync();
+        return callback.getReturnValue();
     }
 
     /**
@@ -147,7 +148,7 @@ public class WriteBytes implements NativeCallableUnit {
     private static EventResult writeByteResponse(EventResult<Integer, EventContext> result) {
         EventContext eventContext = result.getContext();
         //TODO : Remove callback once strand non-blocking support is given
-        TempCallableUnitCallback callback = eventContext.getTempCallback();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
             callback.setReturnValues(IOUtils.createError(error.getMessage()));

@@ -26,20 +26,18 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Temporary callback implementation to handle non-blocking function behaviour.
- * TODO : Remove this calss once strand non-blocking support is provided.
+ * The callback implementation to handle non-blocking function behaviour.
  *
  * @since 0.995.0
  */
-public class TempCallableUnitCallback {
+public class NonBlockingCallback {
 
-    private static final Logger log = LoggerFactory.getLogger(TempCallableUnitCallback.class);
+    private static final Logger log = LoggerFactory.getLogger(NonBlockingCallback.class);
     private final Strand strand;
     private volatile Semaphore executionWaitSem;
-    private int timeOut = 120;
-    private Object returnValue;
+    private Object returnValue = null;
 
-    public TempCallableUnitCallback(Strand strand) {
+    public NonBlockingCallback(Strand strand) {
         strand.yield = true;
         this.strand = strand;
         executionWaitSem = new Semaphore(0);
@@ -55,13 +53,13 @@ public class TempCallableUnitCallback {
         this.returnValue = error;
         this.executionWaitSem.release();
         //TODO : Replace following with callback.notifyFailure() once strand non-blocking support is given
-        strand.setReturnValues(returnValue);
+        strand.setReturnValues(getReturnValue());
         this.strand.resume();
     }
 
     public void sync() {
         try {
-            if (!executionWaitSem.tryAcquire(timeOut, TimeUnit.SECONDS)) {
+            if (!executionWaitSem.tryAcquire(120, TimeUnit.SECONDS)) {
                 log.debug("Failed to acquire");
             }
         } catch (InterruptedException e) {
@@ -73,5 +71,9 @@ public class TempCallableUnitCallback {
         this.returnValue = returnValue;
         //TODO : Replace following with callback.setReturnValues() once strand non-blocking support is given
         strand.setReturnValues(returnValue);
+    }
+
+    public Object getReturnValue() {
+        return returnValue;
     }
 }

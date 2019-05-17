@@ -23,7 +23,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
@@ -137,9 +137,9 @@ public class ReadBytes implements NativeCallableUnit {
         return false;
     }
 
-    public static void read(Strand strand, ObjectValue channel, long nBytes) {
-        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+    public static Object read(Strand strand, ObjectValue channel, long nBytes) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         int arraySize = nBytes <= 0 ? IOConstants.CHANNEL_BUFFER_SIZE : (int) nBytes;
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
@@ -151,6 +151,7 @@ public class ReadBytes implements NativeCallableUnit {
         register.submit();
         //TODO : Remove callback once strand non-blocking support is given
         callback.sync();
+        return callback.getReturnValue();
     }
 
     /**
@@ -164,7 +165,7 @@ public class ReadBytes implements NativeCallableUnit {
         EventContext eventContext = result.getContext();
         Throwable error = eventContext.getError();
         //TODO : Remove callback once strand non-blocking support is given
-        TempCallableUnitCallback callback = eventContext.getTempCallback();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         byte[] content = (byte[]) eventContext.getProperties().get(ReadBytesEvent.CONTENT_PROPERTY);
         if (null != error) {
             callback.setReturnValues(IOUtils.createError(error.getMessage()));
