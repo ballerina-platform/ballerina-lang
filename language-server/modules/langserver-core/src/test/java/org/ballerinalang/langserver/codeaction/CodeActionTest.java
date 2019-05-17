@@ -151,49 +151,6 @@ public class CodeActionTest {
         Assert.assertTrue(codeActionFound, "Cannot find expected Code Action for: " + title);
     }
 
-    @Test(dataProvider = "codeaction-quickfixes-data-provider")
-    public void testCodeActionWithQuickFixes(String config, String source) throws IOException {
-        String configJsonPath = "codeaction" + File.separator + config;
-        Path sourcePath = sourcesPath.resolve("source").resolve(source);
-        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
-
-        LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
-        BallerinaFile ballerinaFile = lsCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
-        List<Diagnostic> lsDiagnostics = new ArrayList<>();
-        ballerinaFile.getDiagnostics().ifPresent(diagnostics -> lsDiagnostics.addAll(getLSDiagnostics(diagnostics)));
-        CodeActionContext context = new CodeActionContext(lsDiagnostics);
-        JsonArray cases = configJsonObject.getAsJsonArray("cases");
-        for (JsonElement caseElement : cases) {
-            JsonObject caseObject = caseElement.getAsJsonObject();
-            Position pos = new Position(caseObject.get("line").getAsInt(), caseObject.get("character").getAsInt());
-            Range range = new Range(pos, pos);
-            String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, context);
-
-            JsonObject expected = caseObject.get("expected").getAsJsonObject();
-            String title = expected.get("title").toString();
-
-            boolean codeActionFound = false;
-            JsonObject responseJson = this.getResponseJson(res);
-            for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
-                JsonElement right = jsonElement.getAsJsonObject().get("right");
-
-                JsonObject edit = right.getAsJsonObject().get("edit").getAsJsonObject().get("documentChanges")
-                        .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray().get(0)
-                        .getAsJsonObject();
-                if (right.getAsJsonObject().get("title").toString().equals(title) && edit.equals(
-                        expected.get("edit"))) {
-                    codeActionFound = true;
-                    break;
-                }
-            }
-            String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
-            Assert.assertTrue(codeActionFound,
-                              "Cannot find expected Code Action for: " + title + ", cursor at " + cursorStr);
-        }
-        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
-    }
-
     @Test(dataProvider = "codeaction-testgen-data-provider")
     public void testCodeActionWithTestGen(String config, Path source) throws IOException {
         String configJsonPath = "codeaction" + File.separator + config;
@@ -281,7 +238,8 @@ public class CodeActionTest {
         return new Object[][]{
                 {"fixReturnType1.json", "fixReturnType.bal"},
                 {"fixReturnType2.json", "fixReturnType.bal"},
-                {"fixReturnType3.json", "fixReturnType.bal"}
+                {"fixReturnType3.json", "fixReturnType.bal"},
+                {"markUntaintedCodeAction.json", "taintedVariable.bal"}
         };
     }
 
@@ -307,14 +265,6 @@ public class CodeActionTest {
                 {"variableAssignmentRequiredCodeAction.json", "createVariable.bal"},
                 {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"packagePull.json", "packagePull.bal"},
-        };
-    }
-
-    @DataProvider(name = "codeaction-quickfixes-data-provider")
-    public Object[][] codeActionQuickFixesDataProvider() {
-        log.info("Test textDocument/codeAction QuickFixes");
-        return new Object[][]{
-                {"markUntaintedCodeAction.json", "taintedVariable.bal"}
         };
     }
 
