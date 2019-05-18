@@ -609,7 +609,7 @@ type TypeEmitter object {
 
 type PositionEmitter object {
     function emitPosition(DiagnosticPos pos) {
-        if (pos.sLine != -1) {
+        if (pos.sLine != 2147483648) {
             self.appendPos(pos.sLine);
             print("-");
             self.appendPos(pos.eLine);
