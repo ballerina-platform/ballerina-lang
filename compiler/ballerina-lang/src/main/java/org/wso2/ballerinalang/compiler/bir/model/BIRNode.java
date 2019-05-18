@@ -516,6 +516,10 @@ public abstract class BIRNode {
         public ConstValue() {
             this.constantValueMap = new HashMap<>();
         }
+
+        public Map<Name, ConstValue> getConstantValueMap() {
+            return constantValueMap;
+        }
     }
 
     /**
