@@ -256,7 +256,7 @@ type TerminatorGenerator object {
         self.mv.visitVarInsn(ALOAD, localVarOffset);
 
         // load the function name as the second argument
-        self.mv.visitLdcInsn(callIns.name.value);
+        self.mv.visitLdcInsn(cleanupObjectTypeName(callIns.name.value));
 
         // create an Object[] for the rest params
         int argsCount = callIns.args.length() - 1;
@@ -577,7 +577,7 @@ type TerminatorGenerator object {
         self.genYieldCheck(fpCall.thenBB, funcName);   
     }
 
-    function genWrkSendIns(bir:WrkSend ins, string funcName) {
+    function genWorkerSendIns(bir:WorkerSend ins, string funcName) {
         self.mv.visitVarInsn(ALOAD, 0);
         if (!ins.isSameStrand) {
             self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));
@@ -587,13 +587,34 @@ type TerminatorGenerator object {
         self.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", io:sprintf("(L%s;)L%s;", 
             STRING_VALUE, WORKER_DATA_CHANNEL), false);
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
-        generateVarLoad(self.mv, ins.dataOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(ins.dataOp.variableDcl));
+        generateVarLoad(self.mv, ins.dataOp.variableDcl, currentPackageName, 
+            self.getJVMIndexOfVarRef(ins.dataOp.variableDcl));
         addBoxInsn(self.mv, ins.dataOp.typeValue);
         self.mv.visitVarInsn(ALOAD, 0);
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "sendData", io:sprintf("(L%s;L%s;)V", OBJECT, STRAND), false); 
+        if (!ins.isSync) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "sendData", io:sprintf("(L%s;L%s;)V", OBJECT, 
+                STRAND), false);
+        } else {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "syncSendData", io:sprintf("(L%s;L%s;)L%s;", 
+                OBJECT, STRAND, OBJECT), false);
+            bir:VarRef? lhsOp = ins.lhsOp;
+            if (lhsOp is bir:VarRef) {
+                generateVarStore(self.mv, lhsOp.variableDcl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(lhsOp.variableDcl));
+            }
+
+            self.mv.visitVarInsn(ALOAD, 0);
+            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
+            jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
+            self.mv.visitJumpInsn(IFNE, yieldLabel);
+
+            // goto thenBB
+            jvm:Label gotoLabel = self.labelGen.getLabel(funcName + ins.thenBB.id.value);
+            self.mv.visitJumpInsn(GOTO, gotoLabel);            
+        }   
     }
 
-    function genWrkReceiveIns(bir:WrkReceive ins, string funcName) {
+    function genWorkerReceiveIns(bir:WorkerReceive ins, string funcName) {
         self.mv.visitVarInsn(ALOAD, 0);
         if (!ins.isSameStrand) {
             self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));
@@ -606,27 +627,38 @@ type TerminatorGenerator object {
         self.mv.visitVarInsn(ALOAD, 0);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "tryTakeData", io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
         
-        // a dummy var to temporaly store worker result
         bir:VariableDcl tempVar = { typeValue: "any",
                                  name: { value: "wrkMsg" },
                                  kind: "ARG" };
         int wrkResultIndex = self.getJVMIndexOfVarRef(tempVar);
         self.mv.visitVarInsn(ASTORE, wrkResultIndex);
-        
-        jvm:Label l5 = self.labelGen.getLabel("l55");
-        self.mv.visitLabel(l5);
-        self.mv.visitVarInsn(ALOAD, wrkResultIndex);
-        jvm:Label l6 = self.labelGen.getLabel("l66");
-        self.mv.visitJumpInsn(IFNULL, l6);
-        jvm:Label l7 = self.labelGen.getLabel("l77");
-        self.mv.visitLabel(l7);
+
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
+        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
+        self.mv.visitJumpInsn(IFNE, yieldLabel);
+
         self.mv.visitVarInsn(ALOAD, wrkResultIndex);
         addUnboxInsn(self.mv, ins.lhsOp.typeValue);
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         bir:VariableDcl? lhsVar = ins.lhsOp.variableDcl;
         generateVarStore(self.mv, ins.lhsOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(ins.lhsOp.variableDcl));
 
-        self.mv.visitLabel(l6);
+        // goto thenBB
+        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + ins.thenBB.id.value);
+        self.mv.visitJumpInsn(GOTO, gotoLabel);   
+    }
+
+    function genFlushIns(bir:Flush ins, string funcName) {
+        self.mv.visitVarInsn(ALOAD, 0);
+        loadChannelDetails(self.mv, ins.workerChannels);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleFlush", 
+                io:sprintf("([L%s;)L%s;", CHANNEL_DETAILS, ERROR_VALUE), false);
+        
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+        generateVarStore(self.mv, ins.lhsOp.variableDcl, currentPackageName, 
+                self.getJVMIndexOfVarRef(ins.lhsOp.variableDcl));
+        
         self.genYieldCheck(ins.thenBB, funcName);
     }
         
@@ -671,33 +703,43 @@ type TerminatorGenerator object {
 };
 
 function loadChannelDetails(jvm:MethodVisitor mv, bir:ChannelDetail[] channels) {
-        mv.visitIntInsn(BIPUSH, channels.length());
-        mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
-        int index = 0;
-        foreach bir:ChannelDetail ch in channels {
-            // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
-            mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, index);
-            index += 1;
+    mv.visitIntInsn(BIPUSH, channels.length());
+    mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
+    int index = 0;
+    foreach bir:ChannelDetail ch in channels {
+        // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
+        mv.visitInsn(DUP);
+        mv.visitIntInsn(BIPUSH, index);
+        index += 1;
 
-            mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn(ch.name.value);
-            
-            if (ch.onSameStrand) {
-                mv.visitInsn(ICONST_1);
-            } else {
-                mv.visitInsn(ICONST_0);
-            }
+        mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(ch.name.value);
 
-            if (ch.isSend) {
-                mv.visitInsn(ICONST_1);
-            } else {
-                mv.visitInsn(ICONST_0);
-            }
-
-            mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", io:sprintf("(L%s;ZZ)V", STRING_VALUE), 
-                false);
-            mv.visitInsn(AASTORE);
+        if (ch.onSameStrand) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
         }
+
+        if (ch.isSend) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
+
+        mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", io:sprintf("(L%s;ZZ)V", STRING_VALUE),
+            false);
+        mv.visitInsn(AASTORE);
     }
+}
+
+
+function cleanupObjectTypeName(string typeName) returns string {
+    int index = typeName.lastIndexOf(".");
+    if (index > 0) {
+        return typeName.substring(index + 1, typeName.length());
+    } else {
+        return typeName;
+    }
+}

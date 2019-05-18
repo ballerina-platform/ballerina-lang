@@ -122,9 +122,16 @@ public class BFileUtil {
      * @return Qualified class name
      */
     static String getQualifiedClassName(String orgName, String packageName, String className) {
-        if (!Names.ANON_ORG.value.equals(orgName) && !Names.DEFAULT_PACKAGE.value.equals(packageName)) {
-            return orgName + "." + packageName.replace('.', '_') + "." + className.replace('.', '_');
+        className = className.replace('.', '_');
+
+        if (!Names.DEFAULT_PACKAGE.value.equals(packageName)) {
+            className = packageName.replace('.', '_') + "." + className;
         }
+
+        if (!Names.ANON_ORG.value.equals(orgName)) {
+            className = orgName.replace('.', '_') + "." +  className;
+        }
+
         return className;
     }
 }

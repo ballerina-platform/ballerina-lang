@@ -40,6 +40,7 @@ public class WorkerDataChannel {
     private ErrorValue panic;
     private int senderCounter;
     private int receiverCounter;
+    private boolean syncSent = false;
 
     private Lock channelLock;
 
@@ -83,6 +84,55 @@ public class WorkerDataChannel {
             releaseChannelLock();
         }
     }
+
+    /**
+     * Put data for sync send.
+     * @param data - data to be sent over the channel
+     * @param strand - sending strand, that will be paused
+     * @return error if receiver already in error state, else null
+     */
+    public Object syncSendData(Object data, Strand strand) {
+        try {
+            acquireChannelLock();
+            if (!syncSent) {
+                // this is a new message, not a reschedule
+                this.channel.add(new WorkerResult(data, true));
+                this.senderCounter++;
+                this.waitingSender = new WaitingSender(strand, -1);
+
+                if (this.receiver != null) {
+                    // multiple checks are added to make sure this is
+                    this.receiver.scheduler.unblockStrand(this.receiver);
+                    this.receiver = null;
+                } else if (this.panic != null) {
+                    // TODO: Fix for receiver panics
+                } else if (this.error != null) {
+                    ErrorValue ret = this.error;
+                    this.error = null;
+                    return ret;
+                }
+
+                strand.blocked = true;
+                strand.yield = true;
+                return null;
+            }
+
+            if (this.panic != null && this.channel.peek() != null && this.channel.peek().isSync) {
+                // TODO: Fix for receiver panics
+            } else if (this.error != null && this.channel.peek() != null && this.channel.peek().isSync) {
+                // should make sure this error happened before sending the sync message
+                ErrorValue ret = this.error;
+                this.error = null;
+                return ret;
+            }
+
+            // sync send done
+            return null;
+        } finally {
+            this.syncSent = false;
+            releaseChannelLock();
+        }
+    }
     
     @SuppressWarnings("rawtypes")
     public Object tryTakeData(Strand strand) {
@@ -94,9 +144,23 @@ public class WorkerDataChannel {
                 this.channel.remove();
 
                 if (result.isSync) {
-                    // TODO: Fix later for sync send
+                    // sync sender will pick the this.error as result, which is null
+                    Strand waiting  = this.waitingSender.waitingStrand;
+                    waiting.scheduler.unblockStrand(waiting);
+                    this.waitingSender = null;
+                    this.syncSent = true;
                 } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
-                    // TODO: Fix later for flush
+                    this.flushSender.waitingStrand.flushDetail.flushLock.lock();
+                    this.flushSender.waitingStrand.flushDetail.flushedCount++;
+                    if (this.flushSender.waitingStrand.flushDetail.flushedCount
+                            == this.flushSender.waitingStrand.flushDetail.flushChannels.length &&
+                            this.flushSender.waitingStrand.blocked) {
+                            //will continue if this is a sync wait, will try to flush again if blocked on flush
+                            this.flushSender.waitingStrand.scheduler.unblockStrand(this.flushSender.waitingStrand);
+
+                    }
+                    this.flushSender.waitingStrand.flushDetail.flushLock.unlock();
+                    this.flushSender = null;
                 }
                 return result.value;
             } else if (this.panic != null && this.senderCounter == this.receiverCounter + 1) {
@@ -132,7 +196,7 @@ public class WorkerDataChannel {
     }
 
     /**
-     * Method to set reciever errors.
+     * Method to set receiver errors.
      *
      * @param error to be set
      */
@@ -141,18 +205,46 @@ public class WorkerDataChannel {
         this.error = error;
         this.receiverCounter++;
         if (this.flushSender != null) {
-            // TODO: FIX for Flush
+            this.flushSender.waitingStrand.flushDetail.flushLock.lock();
+            Strand flushStrand = this.flushSender.waitingStrand;
+            if (flushStrand.blocked) {
+                flushStrand.flushDetail.result = error;
+                flushStrand.scheduler.unblockStrand(flushStrand);
+            }
+            this.flushSender.waitingStrand.flushDetail.flushLock.unlock();
             this.flushSender = null;
         } else if (this.waitingSender != null) {
-            // TODO: FIX for sync send
+            Strand waiting = this.waitingSender.waitingStrand;
+            waiting.scheduler.unblockStrand(waiting);
             this.waitingSender = null;
         }
         releaseChannelLock();
     }
 
-    @SuppressWarnings("rawtypes")
-    public synchronized WorkerResult tryTakeData() {
-        return this.channel.poll();
+    /**
+     * Method to flush channel.
+     *
+     * @param strand waiting for flush
+     * @return error or null
+     */
+    public ErrorValue flushChannel(Strand strand) {
+        acquireChannelLock();
+        try {
+            if (this.panic != null) {
+                // TODO: Handle panic
+            } else if (this.error != null) {
+                return this.error;
+            } else if (this.receiverCounter == this.senderCounter) {
+                strand.flushDetail.flushLock.lock();
+                strand.flushDetail.flushedCount++;
+                strand.flushDetail.flushLock.unlock();
+                return null;
+            }
+            this.flushSender = new WaitingSender(strand, this.senderCounter);
+            return null;
+        } finally {
+            releaseChannelLock();
+        }
     }
 
     /**
@@ -186,12 +278,10 @@ public class WorkerDataChannel {
     public static class WaitingSender {
 
         public Strand waitingStrand;
-        public int returnReg;
         public int flushCount;
 
-        public WaitingSender(Strand strand, int reg, int flushCount) {
+        public WaitingSender(Strand strand, int flushCount) {
             this.waitingStrand = strand;
-            this.returnReg = reg;
             this.flushCount = flushCount;
         }
     }

@@ -33,6 +33,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Publishes messages to exchanges.
  *
@@ -56,12 +58,12 @@ public class BasicPublish extends BlockingNativeCallableUnit {
         BMap<String, BValue> channelObject = (BMap<String, BValue>) context.getRefArgument(0);
         Channel channel = RabbitMQUtils.getNativeObject(channelObject, RabbitMQConstants.CHANNEL_NATIVE_OBJECT,
                 Channel.class, context);
-        String message = context.getStringArgument(0);
-        String routingKey = context.getStringArgument(1);
-        // Handle other message types
-        String exchange = context.getStringArgument(2);
+        BValue msgContent = context.getRefArgument(1);
+        String routingKey = context.getStringArgument(0);
+        String exchange = context.getStringArgument(1);
         try {
-            ChannelUtils.basicPublish(channel, routingKey, message, exchange);
+            ChannelUtils.basicPublish(channel, routingKey, msgContent.stringValue().getBytes(StandardCharsets.UTF_8),
+                    exchange);
         } catch (BallerinaException exception) {
             LOGGER.error("I/O exception while publishing a message", exception);
             RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);

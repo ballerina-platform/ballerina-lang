@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -49,5 +50,13 @@ public class ReadlnAny extends BlockingNativeCallableUnit {
         Scanner sc = new Scanner(System.in, Charset.defaultCharset().displayName());
         String input = sc.nextLine();
         ctx.setReturnValues(new BString(input));
+    }
+
+    public static String readln(Strand strand, Object result) {
+        if (result != null) {
+            System.out.print(result.toString());
+        }
+        Scanner sc = new Scanner(System.in, Charset.defaultCharset().displayName());
+        return sc.nextLine();
     }
 }

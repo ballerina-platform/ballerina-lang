@@ -318,6 +318,12 @@ public type FuncBodyParser object {
             Ternary ternary = {pos:pos, kind:kind, lhsOp:lhsOp, conditionOp:conditionOp, thenOp:thenOp, 
                                elseOp:elseOp};
             return ternary;
+        } else if (kindTag == INS_NEGATE) {
+            kind = INS_KIND_NOT;
+            var rhsOp = self.parseVarRef();
+            var lhsOp = self.parseVarRef();
+            UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return typeofNode;
         } else {
             return self.parseBinaryOpInstruction(kindTag, pos);
         }
@@ -402,6 +408,13 @@ public type FuncBodyParser object {
             VarRef lhsOp = self.parseVarRef();
             Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp};
             return waitIns;
+        } else if (kindTag == INS_FLUSH) {
+            TerminatorKind kind = TERMINATOR_FLUSH;
+            ChannelDetail[] channels = getWorkerChannels(self.reader);
+            VarRef lhsOp = self.parseVarRef();
+            BasicBlock thenBB = self.parseBBRef();
+            Flush flushIns = {pos:pos, workerChannels:channels, kind:kind, lhsOp:lhsOp, thenBB:thenBB};
+            return flushIns;
         } else if (kindTag == INS_FP_CALL) {
             TerminatorKind kind = TERMINATOR_FP_CALL;
             VarRef fp = self.parseVarRef();
@@ -429,7 +442,7 @@ public type FuncBodyParser object {
             VarRef lhsOp = self.parseVarRef();
             boolean isSameStrand = self.reader.readBoolean();
             BasicBlock thenBB = self.parseBBRef();
-            WrkReceive receive = {pos:pos, kind:kind, channelName:{ value:dataChannel }, lhsOp:lhsOp,
+            WorkerReceive receive = {pos:pos, kind:kind, channelName:{ value:dataChannel }, lhsOp:lhsOp,
                 isSameStrand:isSameStrand, thenBB:thenBB};
             return receive;
         } else if (kindTag == INS_WK_SEND) {
@@ -437,9 +450,14 @@ public type FuncBodyParser object {
             string dataChannel = self.reader.readStringCpRef();
             VarRef dataOp = self.parseVarRef();
             boolean isSameStrand = self.reader.readBoolean();
+            boolean isSync = self.reader.readBoolean();
+            VarRef? lhsOp = ();
+            if (isSync) {
+                lhsOp = self.parseVarRef();
+            }
             BasicBlock thenBB = self.parseBBRef();
-            WrkSend send = {pos:pos, kind:kind, channelName:{ value:dataChannel }, dataOp:dataOp,
-                isSameStrand:isSameStrand, thenBB:thenBB};
+            WorkerSend send = {pos:pos, kind:kind, channelName:{ value:dataChannel }, dataOp:dataOp,
+                isSameStrand:isSameStrand, isSync:isSync, lhsOp:lhsOp, thenBB:thenBB};
             return send;
         }
         error err = error("term instruction kind " + kindTag + " not impl.");
