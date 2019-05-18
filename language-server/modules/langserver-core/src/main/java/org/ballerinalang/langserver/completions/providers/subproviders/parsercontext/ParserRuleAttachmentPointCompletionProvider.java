@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
 
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -29,9 +29,9 @@ import java.util.List;
 /**
  * annotation body context resolver for the completion items.
  */
-public class ParserRuleAttachmentPointCompletionProvider extends AbstractSubCompletionProvider {
+public class ParserRuleAttachmentPointCompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext completionContext) {
+    public List<CompletionItem> getCompletions(LSContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         completionItems.add(populateCompletionItem(ItemResolverConstants.ANNOTATION, ItemResolverConstants.KEYWORD_TYPE,
                 ItemResolverConstants.ANNOTATION));

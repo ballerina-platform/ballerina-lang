@@ -109,6 +109,24 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             NewMap newMap = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType};
             return newMap;
+        } else if (kindTag == INS_NEW_STREAM) {
+            var bType = self.typeParser.parseType();
+            kind = INS_KIND_NEW_STREAM;
+            var lhsOp = self.parseVarRef();
+            var nameOp = self.parseVarRef();
+            NewStream newStream = { pos: pos, kind: kind, lhsOp: lhsOp, nameOp: nameOp, typeValue: bType };
+            return newStream;
+        } else if (kindTag == INS_NEW_TABLE) {
+            var bType = self.typeParser.parseType();
+            kind = INS_KIND_NEW_TABLE;
+            var lhsOp = self.parseVarRef();
+            var columnsOp = self.parseVarRef();
+            var dataOp = self.parseVarRef();
+            var indexColOp = self.parseVarRef();
+            var keyColOp = self.parseVarRef();
+            NewTable newTable = { pos: pos, kind: kind, lhsOp: lhsOp, columnsOp: columnsOp, dataOp: dataOp, indexColOp:
+            indexColOp, keyColOp: keyColOp, typeValue: bType };
+            return newTable;
         } else if (kindTag == INS_NEW_INST) {
             var defIndex = self.reader.readInt32();
             kind = INS_KIND_NEW_INST;
@@ -254,6 +272,15 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             var pkgId = self.reader.readModuleIDCpRef();
             var name = self.reader.readStringCpRef();
+
+            var mapCount = self.reader.readInt32();
+            VarRef?[] maps = [];
+            int j = 0;
+            while (j < mapCount) {
+                maps[j] = self.parseVarRef();
+                j += 1;
+            }
+
             VariableDcl?[] params = [];
             var numVars = self.reader.readInt32();
             int i = 0;
@@ -262,8 +289,41 @@ public type FuncBodyParser object {
                 params[i] = dcl;
                 i += 1;
             }
-            FPLoad fpLoad = {pos:pos, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params};
+            FPLoad fpLoad = {pos:pos, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params, closureMaps:maps};
             return fpLoad;
+        } else if (kindTag == INS_TYPEOF) {
+            kind = INS_KIND_TYPEOF;
+            var rhsOp = self.parseVarRef();
+            var lhsOp = self.parseVarRef();
+            UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return typeofNode;
+        } else if (kindTag == INS_NOT) {
+            kind = INS_KIND_NOT;
+            var rhsOp = self.parseVarRef();
+            var lhsOp = self.parseVarRef();
+            UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return typeofNode;
+        } else if (kindTag == INS_NEW_TYPEDESC) {
+            kind = INS_KIND_NEW_TYPEDESC;
+            var lhsOp = self.parseVarRef();
+            var bType = self.typeParser.parseType();
+            NewTypeDesc newTypeDesc = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType};
+            return newTypeDesc;
+        }  else if (kindTag == INS_TERNARY) {
+            kind = INS_KIND_TERNARY;
+            var lhsOp = self.parseVarRef();
+            var conditionOp = self.parseVarRef();
+            var thenOp = self.parseVarRef();
+            var elseOp = self.parseVarRef();
+            Ternary ternary = {pos:pos, kind:kind, lhsOp:lhsOp, conditionOp:conditionOp, thenOp:thenOp, 
+                               elseOp:elseOp};
+            return ternary;
+        } else if (kindTag == INS_NEGATE) {
+            kind = INS_KIND_NOT;
+            var rhsOp = self.parseVarRef();
+            var lhsOp = self.parseVarRef();
+            UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return typeofNode;
         } else {
             return self.parseBinaryOpInstruction(kindTag, pos);
         }
@@ -348,6 +408,13 @@ public type FuncBodyParser object {
             VarRef lhsOp = self.parseVarRef();
             Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp};
             return waitIns;
+        } else if (kindTag == INS_FLUSH) {
+            TerminatorKind kind = TERMINATOR_FLUSH;
+            ChannelDetail[] channels = getWorkerChannels(self.reader);
+            VarRef lhsOp = self.parseVarRef();
+            BasicBlock thenBB = self.parseBBRef();
+            Flush flushIns = {pos:pos, workerChannels:channels, kind:kind, lhsOp:lhsOp, thenBB:thenBB};
+            return flushIns;
         } else if (kindTag == INS_FP_CALL) {
             TerminatorKind kind = TERMINATOR_FP_CALL;
             VarRef fp = self.parseVarRef();
@@ -365,12 +432,35 @@ public type FuncBodyParser object {
             if (hasLhs){
                 lhsOp = self.parseVarRef();
             }
-
+            var isAsync = self.reader.readBoolean();
             BasicBlock thenBB = self.parseBBRef();
-            FPCall fpCall = {pos:pos, kind:kind, fp:fp, lhsOp:lhsOp, args:args, thenBB:thenBB};
+            FPCall fpCall = {pos:pos, kind:kind, fp:fp, lhsOp:lhsOp, args:args, thenBB:thenBB, isAsync:isAsync};
             return fpCall;
+        } else if (kindTag == INS_WK_RECEIVE) {
+            TerminatorKind kind = TERMINATOR_WK_RECEIVE;
+            string dataChannel = self.reader.readStringCpRef();
+            VarRef lhsOp = self.parseVarRef();
+            boolean isSameStrand = self.reader.readBoolean();
+            BasicBlock thenBB = self.parseBBRef();
+            WorkerReceive receive = {pos:pos, kind:kind, channelName:{ value:dataChannel }, lhsOp:lhsOp,
+                isSameStrand:isSameStrand, thenBB:thenBB};
+            return receive;
+        } else if (kindTag == INS_WK_SEND) {
+            TerminatorKind kind = TERMINATOR_WK_SEND;
+            string dataChannel = self.reader.readStringCpRef();
+            VarRef dataOp = self.parseVarRef();
+            boolean isSameStrand = self.reader.readBoolean();
+            boolean isSync = self.reader.readBoolean();
+            VarRef? lhsOp = ();
+            if (isSync) {
+                lhsOp = self.parseVarRef();
+            }
+            BasicBlock thenBB = self.parseBBRef();
+            WorkerSend send = {pos:pos, kind:kind, channelName:{ value:dataChannel }, dataOp:dataOp,
+                isSameStrand:isSameStrand, isSync:isSync, lhsOp:lhsOp, thenBB:thenBB};
+            return send;
         }
-        error err = error("term instrucion kind " + kindTag + " not impl.");
+        error err = error("term instruction kind " + kindTag + " not impl.");
         panic err;
     }
 
@@ -397,6 +487,8 @@ public type FuncBodyParser object {
             kind = BINARY_MUL;
         } else if (kindTag == INS_DIV){
             kind = BINARY_DIV;
+        } else if (kindTag == INS_MOD){
+            kind = BINARY_MOD;
         } else if (kindTag == INS_EQUAL){
             kind = BINARY_EQUAL;
         } else if (kindTag == INS_NOT_EQUAL){
@@ -413,6 +505,10 @@ public type FuncBodyParser object {
             kind = BINARY_AND;
         } else if (kindTag == INS_OR){
             kind = BINARY_OR;
+        } else if (kindTag == INS_REF_EQUAL){
+            kind = BINARY_REF_EQUAL;
+        } else if (kindTag == INS_REF_NOT_EQUAL){
+            kind = BINARY_REF_NOT_EQUAL;
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
             panic err;

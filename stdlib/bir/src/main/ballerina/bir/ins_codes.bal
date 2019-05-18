@@ -21,6 +21,9 @@ public const int INS_RETURN = 4;
 public const int INS_ASYNC_CALL = 5;
 public const int INS_WAIT = 6;
 public const int INS_FP_CALL = 7;
+public const int INS_WK_RECEIVE = 8;
+public const int INS_WK_SEND = 9;
+public const int INS_FLUSH = 10;
 
 // Non-terminating instructions
 public const int INS_MOVE = 20;
@@ -55,17 +58,29 @@ public const int INS_XML_LOAD_ALL = 47;
 public const int INS_XML_ATTRIBUTE_LOAD = 48;
 public const int INS_XML_ATTRIBUTE_STORE = 49;
 
+public const int INS_NEW_TABLE = 50;
+public const int INS_NEW_TYPEDESC = 51;
+public const int INS_NEW_STREAM = 52;
+public const int INS_TERNARY = 53;
+
 // Binary expression related instructions.
-public const int INS_ADD = 50;
-public const int INS_SUB = 51;
-public const int INS_MUL = 52;
-public const int INS_DIV = 53;
-public const int INS_MOD = 54;
-public const int INS_EQUAL = 55;
-public const int INS_NOT_EQUAL = 56;
-public const int INS_GREATER_THAN = 57;
-public const int INS_GREATER_EQUAL = 58;
-public const int INS_LESS_THAN = 59;
-public const int INS_LESS_EQUAL = 60;
-public const int INS_AND = 61;
-public const int INS_OR = 62;
+public const int INS_ADD = 61;
+public const int INS_SUB = 62;
+public const int INS_MUL = 63;
+public const int INS_DIV = 64;
+public const int INS_MOD = 65;
+public const int INS_EQUAL = 66;
+public const int INS_NOT_EQUAL = 67;
+public const int INS_GREATER_THAN = 68;
+public const int INS_GREATER_EQUAL = 69;
+public const int INS_LESS_THAN = 70;
+public const int INS_LESS_EQUAL = 71;
+public const int INS_AND = 72;
+public const int INS_OR = 73;
+public const int INS_REF_EQUAL = 74;
+public const int INS_REF_NOT_EQUAL = 75;
+
+// Unary expression related instructions.
+public const int INS_TYPEOF = 80;
+public const int INS_NOT = 81;
+public const int INS_NEGATE = 82;

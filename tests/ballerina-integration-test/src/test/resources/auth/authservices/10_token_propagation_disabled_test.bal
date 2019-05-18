@@ -14,16 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
 // token propagation is set to false by default
-http:AuthProvider basicAuthProvider10 = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+auth:ConfigAuthStoreProvider basicAuthProvider10 = new;
+http:BasicAuthnHandler basicAuthnHandler10 = new(basicAuthProvider10);
 
-listener http:Listener listener10_1 = new(9190, config = {
-    authProviders: [basicAuthProvider10],
+listener http:Listener listener10_1 = new(9101, config = {
+    auth: {
+        authnHandlers: [basicAuthnHandler10]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -33,10 +34,10 @@ listener http:Listener listener10_1 = new(9190, config = {
 });
 
 // client will not propagate JWT
-http:Client nyseEP = new("https://localhost:9195");
+http:Client nyseEP = new("https://localhost:9102");
 
 @http:ServiceConfig { basePath: "/passthrough" }
-service passthroughService on listener10_1 {
+service passthroughService10 on listener10_1 {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -56,21 +57,22 @@ service passthroughService on listener10_1 {
     }
 }
 
-http:AuthProvider jwtAuthProvider10 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "ballerina",
-        audience: ["ballerina"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
+auth:JWTAuthProvider jwtAuthProvider10 = new({
+    issuer: "ballerina",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
     }
-};
+});
 
-listener http:Listener listener10_2 = new(9195, config = {
-    authProviders: [jwtAuthProvider10],
+http:JwtAuthnHandler jwtAuthnHandler10 = new(jwtAuthProvider10);
+
+listener http:Listener listener10_2 = new(9102, config = {
+    auth: {
+        authnHandlers: [jwtAuthnHandler10]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -80,7 +82,7 @@ listener http:Listener listener10_2 = new(9195, config = {
 });
 
 @http:ServiceConfig { basePath: "/nyseStock" }
-service nyseStockQuote on listener10_2 {
+service nyseStockQuote10 on listener10_2 {
 
     @http:ResourceConfig {
         methods: ["GET"],

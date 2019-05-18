@@ -31,7 +31,9 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.JVM_TARGET;
 
 /**
  * This class represents the "ballerina build" command.
@@ -105,7 +107,7 @@ public class BuildCommand implements BLauncherCmd {
         } else if (argList == null || argList.size() == 0) {
             // ballerina build
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests, experimentalFlag,
-                    siddhiRuntimeFlag);
+                    siddhiRuntimeFlag, jvmTarget, dumpBIR);
         } else {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
@@ -189,13 +191,16 @@ public class BuildCommand implements BLauncherCmd {
             // "ballerina.conf" in the source root path is taken.
             LauncherUtils.loadConfigurations(sourceRootPath, configFilePath);
 
-            if (jvmTarget) {
-                BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-                        offline, lockEnabled, skiptests, experimentalFlag, dumpBIR);
-            } else {
-                BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-                        offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag);
-            }
+//            if (jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET))) {
+//                BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
+//                        offline, lockEnabled, skiptests, experimentalFlag, dumpBIR);
+//            } else {
+//                BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
+//                        offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag);
+//            }
+            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
+                    offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag,
+                    jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET)), dumpBIR);
         }
         Runtime.getRuntime().exit(0);
     }

@@ -32,7 +32,6 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.StartNonDaemonThread
  *
  * @since 0.995
  */
-
 @BallerinaFunction(
         orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
         functionName = "start",

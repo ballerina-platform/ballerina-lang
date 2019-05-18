@@ -19,18 +19,16 @@
 package org.ballerinalang.test.messaging.artemis;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.TestUtils;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static org.ballerinalang.test.messaging.artemis.ArtemisTestUtils.testSend;
 
 /**
  * Includes tests for a simple consumer and producer.
@@ -48,20 +46,16 @@ public class SimpleConsumerTest extends ArtemisTestCommons {
 
     @Test(description = "Tests the sending of a string message to a queue")
     public void testSimpleSend() {
-        String errorLog = "received: Hello World";
+        String log = "received: Hello World";
         String functionName = "testSimpleSend";
-        testSend(result, errorLog, functionName);
-
+        testSend(result, log, functionName, serverInstance);
     }
 
-    private void testSend(CompileResult result, String expectedErrorLog, String functionName) {
-        LogLeecher logLeecher = new LogLeecher(expectedErrorLog);
-        serverInstance.addLogLeecher(logLeecher);
-        BRunUtil.invoke(result, functionName);
-        try {
-            logLeecher.waitForText(TIMEOUT_IN_SECS * 1000);
-        } catch (BallerinaTestException e) {
-            Assert.fail();
-        }
+    @Test(description = "Tests the sending of a string message to a queue over ssl")
+    public void testSimpleSslSend() {
+        String log = "received: Sending over ssl";
+        String functionName = "testSimpleSslSend";
+        testSend(result, log, functionName, serverInstance);
+
     }
 }

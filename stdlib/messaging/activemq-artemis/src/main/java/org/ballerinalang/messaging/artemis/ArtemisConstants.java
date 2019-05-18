@@ -45,6 +45,8 @@ public class ArtemisConstants {
     public static final String ARTEMIS_MESSAGE = "artemis-message";
     public static final String ARTEMIS_PRODUCER = "artemis-producer";
     public static final String ARTEMIS_CONSUMER = "artemis-consumer";
+    public static final String ARTEMIS_TRANSACTION_CONTEXT = "artemis-transaction-context";
+    public static final String ARTEMIS_AUTO_ACK = "autoAck";
 
     // The object types
     public static final String MESSAGE_OBJ = "Message";
@@ -52,6 +54,7 @@ public class ArtemisConstants {
     public static final String SESSION_OBJ = "Session";
     public static final String PRODUCER_OBJ = "Producer";
     public static final String LISTENER_OBJ = "Listener";
+    public static final String CONSUMER_OBJ = "Consumer";
     static final String MESSAGE_OBJ_FULL_NAME = PROTOCOL_PACKAGE_ARTEMIS + ":" + MESSAGE_OBJ;
 
     // Warning suppression
@@ -85,6 +88,7 @@ public class ArtemisConstants {
     public static final String EXCLUSIVE = "exclusive";
     public static final String LAST_VALUE = "lastValue";
     static final String SERVICE_CONFIG = "ServiceConfig";
+    public static final String ADDRESS_NAME = "addressName";
 
     // Field names for Message
     public static final String MESSAGE_TYPE = "messageType";
@@ -94,6 +98,7 @@ public class ArtemisConstants {
 
     // Field names for Producer
     public static final String RATE = "rate";
+    public static final String SESSION = "session";
 
     // Common field names
     public static final String DURABLE = "durable";
@@ -104,6 +109,8 @@ public class ArtemisConstants {
     // Field name for Session
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
+    public static final String AUTO_COMMIT_SENDS = "autoCommitSends";
+    public static final String AUTO_COMMIT_ACKS = "autoCommitAcks";
 
     private ArtemisConstants() {
 

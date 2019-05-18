@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/h2;
 import ballerina/http;
 import ballerina/io;
@@ -25,13 +26,13 @@ const string WEBSUB_PERSISTENCE_TOPIC_ONE = "http://one.persistence.topic.com";
 const string WEBSUB_PERSISTENCE_TOPIC_TWO = "http://two.persistence.topic.com";
 const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
 
-http:AuthProvider basicAuthProvider = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+auth:ConfigAuthStoreProvider basicAuthProvider = new;
+http:BasicAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 
 http:ServiceEndpointConfiguration hubListenerConfig = {
-    authProviders: [basicAuthProvider],
+    auth: {
+        authnHandlers: [basicAuthnHandler]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

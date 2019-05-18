@@ -2,11 +2,11 @@
   "range": {
     "start": {
       "line": 3,
-      "character": 4
+      "character": 3
     },
     "end": {
       "line": 3,
-      "character": 4
+      "character": 3
     }
   },
   "expected": {
@@ -19,7 +19,7 @@
       },
       {
         "argumentK":"node.column",
-        "argumentV":"4"
+        "argumentV":"3"
       }
     ]
   }

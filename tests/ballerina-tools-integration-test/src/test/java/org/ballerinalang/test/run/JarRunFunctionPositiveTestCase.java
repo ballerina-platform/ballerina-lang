@@ -55,7 +55,7 @@ public class JarRunFunctionPositiveTestCase extends BaseTest {
         balClient.runMain("build", clientArgs, null, new String[0], new LogLeecher[0], tempProjectDir.toString());
     }
 
-    @Test
+    @Test(enabled = false)
     public void runJar() throws BallerinaTestException {
         String output = balClient.runMainAndReadStdOut("run", new String[] { new File(jarPath).getAbsolutePath() },
                                                        tempProjectDir.toString());

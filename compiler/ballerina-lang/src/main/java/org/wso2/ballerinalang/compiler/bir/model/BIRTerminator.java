@@ -147,17 +147,20 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public BIROperand lhsOp;
         public List<BIROperand> args;
         public BIRBasicBlock thenBB;
+        public boolean isAsync;
 
         public FPCall(DiagnosticPos pos,
                       InstructionKind kind,
                       BIROperand fp,
                       List<BIROperand> args,
                       BIROperand lhsOp,
+                      boolean isAsync,
                       BIRBasicBlock thenBB) {
             super(pos, kind);
             this.fp = fp;
             this.lhsOp = lhsOp;
             this.args = args;
+            this.isAsync = isAsync;
             this.thenBB = thenBB;
         }
 
@@ -248,6 +251,91 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
             super(pos, InstructionKind.WAIT);
             this.exprList = exprList;
             this.lhsOp = lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A flush instruction.
+     * <p>
+     * e.g., %5 = flush w1,w2;
+     *
+     * @since 0.995.0
+     */
+    public static class Flush extends BIRTerminator {
+        public ChannelDetails[] channels;
+        public BIROperand lhsOp;
+        public BIRBasicBlock thenBB;
+
+        public Flush(DiagnosticPos pos, ChannelDetails[] channels, BIROperand lhsOp, BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.FLUSH);
+            this.channels = channels;
+            this.lhsOp = lhsOp;
+            this.thenBB = thenBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A worker receive instruction.
+     * <p>
+     * e.g., WRK_RECEIVE w1;
+     *
+     * @since 0.995.0
+     */
+    public static class WorkerReceive extends BIRTerminator {
+        public Name workerName;
+        public BIROperand lhsOp;
+        public BIRBasicBlock thenBB;
+        public boolean isSameStrand;
+
+        public WorkerReceive(DiagnosticPos pos, Name workerName, BIROperand lhsOp,
+                             boolean isSameStrand, BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.WK_RECEIVE);
+            this.workerName = workerName;
+            this.lhsOp = lhsOp;
+            this.thenBB = thenBB;
+            this.isSameStrand = isSameStrand;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A worker send instruction.
+     * <p>
+     * e.g., %5 WRK_SEND w1;
+     *
+     * @since 0.995.0
+     */
+    public static class WorkerSend extends BIRTerminator {
+        public Name channel;
+        public BIROperand data;
+        public BIRBasicBlock thenBB;
+        public boolean isSameStrand;
+        public boolean isSync;
+        public BIROperand lhsOp;
+
+        public WorkerSend(DiagnosticPos pos, Name workerName, BIROperand data, boolean isSameStrand, boolean isSync,
+                          BIROperand lhsOp, BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.WK_SEND);
+            this.channel = workerName;
+            this.data = data;
+            this.thenBB = thenBB;
+            this.lhsOp = lhsOp;
+            this.isSameStrand = isSameStrand;
+            this.isSync = isSync;
         }
 
         @Override

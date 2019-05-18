@@ -80,6 +80,11 @@ public type BirEmitter object {
             println();
             self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
             print("}");
+        } else if (typeValue is BRecordType) {
+            self.typeEmitter.emitRecordType(typeValue, "");
+            println();
+            self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
+            print("}");
         } else {
             self.typeEmitter.emitType(bTypeDef.typeValue);
         }
@@ -136,6 +141,20 @@ public type BirEmitter object {
             if (e is ErrorEntry) {
                 self.emitErrorEntry(e);
                 println();// empty line
+            }
+        }
+        if (bFunction.workerChannels.length() > 0) {
+            print("WORKER_CHANNELS: ");    
+        }
+
+        int channelsSize = bFunction.workerChannels.length();
+        foreach ChannelDetail ch in bFunction.workerChannels {
+            channelsSize -= 1;
+            print(ch.name.value);
+            if (channelsSize > 0) {
+                print(",");
+            } else {
+                println(";");
             }
         }
         println(tabs, "}");
@@ -197,6 +216,12 @@ type InstructionEmitter object {
             print(" ");
             self.opEmitter.emitOp(ins.rhsOp2);
             println(";");
+        }  else if (ins is UnaryOp) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.opEmitter.emitOp(ins.rhsOp);
+            println(";");
         } else if (ins is Move) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
@@ -220,6 +245,28 @@ type InstructionEmitter object {
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
             self.typeEmitter.emitType(ins.typeValue);
+            println(";");
+        } else if (ins is NewStream) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.typeEmitter.emitType(ins.typeValue);
+            print(", ");
+            self.opEmitter.emitOp(ins.nameOp);
+            println(";");
+        } else if (ins is NewTable) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.typeEmitter.emitType(ins.typeValue);
+            print(", ");
+            self.opEmitter.emitOp(ins.columnsOp);
+            print(", ");
+            self.opEmitter.emitOp(ins.dataOp);
+            print(", ");
+            self.opEmitter.emitOp(ins.indexColOp);
+            print(", ");
+            self.opEmitter.emitOp(ins.keyColOp);
             println(";");
         } else if (ins is NewInstance) {
             print(tabs);
@@ -253,9 +300,25 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ");
-            print(" ", ins.kind, " ");
-            print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "()");
-            println(";");
+            print(ins.kind, " ");
+            print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "(");
+
+            foreach var v in ins.closureMaps {
+                if (v is VarRef) {
+                    self.opEmitter.emitOp(v);
+                    print(",");
+                }
+            }
+            int i = 0;
+            foreach var v in ins.params {
+                if (i != 0) {
+                    print (",");
+                }
+                VariableDcl varDecl = getVariableDcl(v);
+                self.typeEmitter.emitType(varDecl.typeValue);
+                i += 1;
+            }
+            println(");");
         }
     }
 };
@@ -316,6 +379,40 @@ type TerminalEmitter object {
                 i = i + 1;
             }
             println(";");
+        } else if (term is Flush) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            int i = 0;
+            foreach var detail in term.workerChannels {
+                if (i != 0) {
+                    print(",");
+                }
+                print(detail.name);
+                i += 1;
+            }
+            println(";");
+        } else if (term is WorkerReceive) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            print(term.channelName.value);
+            println(";");
+        } else if (term is WorkerSend) {
+            print(tabs);
+            if (term.isSync) {
+                VarRef? ref = term.lhsOp;
+                if (ref is VarRef) {
+                    self.opEmitter.emitOp(ref);
+                    print(" = ");
+                }   
+            }
+            self.opEmitter.emitOp(term.dataOp);
+            print(" ", term.kind, " ");
+            print(term.channelName.value);
+            println(";");
         } else if (term is AsyncCall) {
             print(tabs);
             VarRef? lhsOp = term.lhsOp;
@@ -323,7 +420,7 @@ type TerminalEmitter object {
                 self.opEmitter.emitOp(lhsOp);
                 print(" = ");
             }
-            print(" START ");
+            print("START ");
             print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
             int i = 0;
             foreach var arg in term.args {
@@ -342,6 +439,9 @@ type TerminalEmitter object {
             if (lhsOp is VarRef) {
                 self.opEmitter.emitOp(lhsOp);
                 print(" = ");
+            }
+            if (term.isAsync) {
+                print("START ");
             }
             print(term.kind, " ");
             self.opEmitter.emitOp(term.fp);
@@ -395,10 +495,14 @@ type TypeEmitter object {
             self.emitTupleType(typeVal, tabs);
         } else if (typeVal is BMapType) {
             self.emitMapType(typeVal, tabs);
+        } else if (typeVal is BTableType) {
+            self.emitTableType(typeVal, tabs);
         } else if (typeVal is BFutureType) {
             self.emitFutureType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
             print("()");
+        } else if (typeVal is BFiniteType) {
+            print(typeVal.name.value);
         } else if (typeVal is BErrorType) {
             self.emitErrorType(typeVal, tabs);
         }
@@ -479,6 +583,12 @@ type TypeEmitter object {
     function emitMapType(BMapType bMapType, string tabs) {
         print(tabs, "map<");
         self.emitType(bMapType.constraint);
+        print(">");
+    }
+
+    function emitTableType(BTableType bTableType, string tabs) {
+        print(tabs, "table<");
+        self.emitType(bTableType.tConstraint);
         print(">");
     }
 

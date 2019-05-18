@@ -512,26 +512,6 @@
                 "url": "taint-checking"
             },
             {
-                "name": "Secured Service With JWT",
-                "url": "secured-service-with-jwt"
-            },
-            {
-                "name": "Secured Service With Basic Auth",
-                "url": "secured-service-with-basic-auth"
-            },
-            {
-                "name": "Secured Client With Basic Auth",
-                "url": "secured-client-with-basic-auth"
-            },
-            {
-                "name": "Secured Client With JWT Auth",
-                "url": "secured-client-with-jwt-auth"
-            },
-            {
-                "name": "Secured Client With OAuth2",
-                "url": "secured-client-with-oauth2"
-            },
-            {
                 "name": "Cryptographic Operations",
                 "url": "crypto"
             }
@@ -706,7 +686,7 @@
         "column": 1,
         "category": "Working over the network",
         "samples": [{
-                "name": "WebSocket Basic Example",
+                "name": "Basic Server Functionalities",
                 "url": "websocket-basic-sample"
             },
             {
@@ -714,11 +694,11 @@
                 "url": "http-to-websocket-upgrade"
             },
             {
-                "name": "WebSocket Proxy Server",
+                "name": "Proxy Server",
                 "url": "websocket-proxy-server"
             },
             {
-                "name": "WebSocket Chat Application",
+                "name": "Chat Application",
                 "url": "websocket-chat-application"
             }
         ]
@@ -772,19 +752,19 @@
         "column": 1,
         "category": "Working over the network",
         "samples": [{
-                "name": "WebSub Internal Hub Sample",
+                "name": "Internal Hub Sample",
                 "url": "websub-internal-hub-sample"
             },
             {
-                "name": "WebSub Remote Hub Sample",
+                "name": "Remote Hub Sample",
                 "url": "websub-remote-hub-sample"
             },
             {
-                "name": "WebSub Hub Client Sample",
+                "name": "Hub Client Sample",
                 "url": "websub-hub-client-sample"
             },
             {
-                "name": "WebSub Service Integration Sample",
+                "name": "Service Integration Sample",
                 "url": "websub-service-integration-sample"
             }
         ]
@@ -903,23 +883,23 @@
         "column": 3,
         "category": "Working over the network",
         "samples": [{
-                "name": "Simple Queue Receiver",
+                "name": "Basic Queue Receiver",
                 "url": "jms-simple-queue-message-receiver"
             },
             {
-                "name": "Simple Queue Producer",
+                "name": "Basic Queue Producer",
                 "url": "jms-simple-queue-message-producer"
             },
             {
-                "name": "Simple Topic Subscriber",
+                "name": "Basic Topic Subscriber",
                 "url": "jms-simple-topic-message-subscriber"
             },
             {
-                "name": "Simple Topic Producer",
+                "name": "Basic Topic Producer",
                 "url": "jms-simple-topic-message-producer"
             },
             {
-                "name": "Simple Durable Topic Subscriber",
+                "name": "Basic Durable Topic Subscriber",
                 "url": "jms-simple-durable-topic-message-subscriber"
             },
             {
@@ -969,7 +949,7 @@
         "column": 3,
         "category": "Working over the network",
         "samples": [{
-            "name": "NATS Basic Example",
+            "name": "Basic Publisher and Subscriber",
             "url": "nats-basic-client"
         }]
     },
@@ -978,11 +958,11 @@
         "column": 3,
         "category": "Working over the network",
         "samples": [{
-            "name": "RabbitMQ Simple Producer",
+            "name": "Basic Producer",
             "url": "rabbitmq-simple-producer"
         },
           {
-            "name": "RabbitMQ Simple Consumer",
+            "name": "Basic Consumer",
             "url": "rabbitmq-simple-consumer"
           }]
     },
@@ -992,20 +972,32 @@
         "category": "Working over the network",
         "samples": [
             {
-                "name": "Artemis ANYCAST consumer",
+                "name": "ANYCAST Consumer",
                 "url": "artemis-anycast-session-consumer"
             },
             {
-                "name": "Artemis ANYCAST producer",
+                "name": "ANYCAST Producer",
                 "url": "artemis-anycast-session-producer"
             },
             {
-                "name": "Artemis Simple MULTICAST Consumer",
+                "name": "Basic MULTICAST Consumer",
                 "url": "artemis-multicast-consumer"
             },
             {
-                "name": "Artemis Simple MULTICAST Producer",
+                "name": "Basic MULTICAST Producer",
                 "url": "artemis-multicast-producer"
+            },
+            {
+                "name": "Basic Blocking Transaction Consumer",
+                "url": "artemis-simple-transaction-consumer"
+            },
+            {
+                "name": "Basic Blocking Transaction Producer",
+                "url": "artemis-simple-transaction-producer"
+            },
+            {
+                "name": "Transaction Producer",
+                "url": "artemis-transaction-producer"
             }
         ]
     },
@@ -1014,12 +1006,38 @@
         "column": 3,
         "category": "Working over the network",
         "samples": [{
-                "name": "TCP Socket Basic Example",
+                "name": "Basic TCP Socket",
                 "url": "tcp-socket-listener-client"
             },
             {
-                "name": "UDP Client Socket Basic Example",
+                "name": "Basic UDP Client Socket",
                 "url": "udp-socket-client"
+            }
+        ]
+    },
+    {
+        "title": "Access Control",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "Secured Service with JWT",
+                "url": "secured-service-with-jwt"
+            },
+            {
+                "name": "Secured Service with Basic Auth",
+                "url": "secured-service-with-basic-auth"
+            },
+            {
+                "name": "Secured Client with Basic Auth",
+                "url": "secured-client-with-basic-auth"
+            },
+            {
+                "name": "Secured Client with JWT Auth",
+                "url": "secured-client-with-jwt-auth"
+            },
+            {
+                "name": "Secured Client with OAuth2",
+                "url": "secured-client-with-oauth2"
             }
         ]
     },
@@ -1044,7 +1062,7 @@
                 "url": "temporal-aggregations-and-windows"
             },
             {
-                "name": "Join Mutiple Streams",
+                "name": "Join Multiple Streams",
                 "url": "join-multiple-streams"
             },
             {

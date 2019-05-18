@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.model.tree.NodeKind;
@@ -47,11 +48,11 @@ import java.util.Set;
 /**
  * Completion Item provider for the Match Expression.
  */
-public class BLangMatchExpressionProvider extends AbstractSubCompletionProvider {
+public class BLangMatchExpressionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext completionContext) {
+    public List<CompletionItem> getCompletions(LSContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
+        BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SCOPE_NODE_KEY);
         BType bType = null;
         
         if (!symbolEnvNode.getKind().equals(NodeKind.MATCH_EXPRESSION)) {

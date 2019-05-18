@@ -27,8 +27,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +48,6 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 @Test(timeOut = 120000)
 public class ServerSocketTest {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);
     private static final int SERVER1_PORT = 59152;
     private static final int SERVER2_PORT = 59153;
     private static final int SERVER3_PORT = 59154;
