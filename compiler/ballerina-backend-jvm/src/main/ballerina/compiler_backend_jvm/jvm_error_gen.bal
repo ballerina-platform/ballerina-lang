@@ -35,16 +35,6 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(startLabel);
     }
 
-    function generateCatchInsForMain(jvm:Label endLabel, jvm:Label handlerLabel) {
-        self.mv.visitLabel(endLabel);
-        jvm:Label jumpLabel = new;
-        self.mv.visitJumpInsn(GOTO, jumpLabel);
-        self.mv.visitLabel(handlerLabel);
-        self.mv.visitMethodInsn(INVOKESTATIC, BALLERINA_ERRORS, PRINT_STACKTRACE_ON_MAIN_METHOD_ERROR,
-            io:sprintf("(L%s;)V", ERROR_VALUE), false);
-        self.mv.visitLabel(jumpLabel);
-    }
-
     function generateTryInsForTrap(bir:ErrorEntry currentEE, jvm:Label endLabel, jvm:Label handlerLabel,
                                    jvm:Label jumpLabel) {
         jvm:Label startLabel = new;

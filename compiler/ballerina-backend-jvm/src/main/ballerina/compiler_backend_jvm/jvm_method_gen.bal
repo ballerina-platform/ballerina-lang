@@ -857,10 +857,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     BalToJVMIndexMap indexMap = new;
     ErrorHandlerGenerator errorGen = new(mv, indexMap);
-    jvm:Label endLabel = new;
-    jvm:Label handlerLabel = new;
-    errorGen.generateTryIns(endLabel, handlerLabel);
-
+    
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
 
     boolean isVoidFunction = userMainFunc.typeValue.retType is bir:BTypeNil;
@@ -873,8 +870,10 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     mv.visitInsn(DUP);
     mv.visitInsn(ICONST_4);
     mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(I)V", false);
+    mv.visitVarInsn(ASTORE, 1);
 
     if (hasInitFunction(pkg)) {
+        mv.visitVarInsn(ALOAD, 1);
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
         mv.visitInsn(DUP);
         mv.visitIntInsn(BIPUSH, 1);
@@ -888,9 +887,20 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         mv.visitInsn(ACONST_NULL);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
             io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, CONSUMER, STRAND, FUTURE_VALUE), false);
-        mv.visitInsn(POP);
+        mv.visitVarInsn(ASTORE, 2);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "start", "()V", false);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/values/FutureValue", "panic", "Ljava/lang/Throwable;");
+        jvm:Label l3 = new;
+        mv.visitJumpInsn(IFNULL, l3);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/values/FutureValue", "panic", "Ljava/lang/Throwable;");
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Throwable", "printStackTrace", "()V", false);
+        mv.visitInsn(RETURN);
+        mv.visitLabel(l3);
     }
-    
+    mv.visitVarInsn(ALOAD, 1);
     string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
     bir:BType?[] paramTypes = userMainFunc.typeValue.paramTypes;
 
@@ -924,7 +934,8 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
             io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION, STRAND, FUTURE_VALUE), false);
         mv.visitInsn(DUP);
     }
-
+    mv.visitVarInsn(ASTORE, 3);
+    mv.visitVarInsn(ALOAD, 3);
     mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
     mv.visitInsn(DUP);
     mv.visitIntInsn(BIPUSH, 100);
@@ -932,8 +943,18 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
 
     // start the scheduler
-    mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
+    mv.visitVarInsn(ALOAD, 1);
     mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "start", "()V", false);
+    mv.visitVarInsn(ALOAD, 3);
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/values/FutureValue", "panic", "Ljava/lang/Throwable;");
+    jvm:Label l4 = new;
+    mv.visitJumpInsn(IFNULL, l4);
+    mv.visitVarInsn(ALOAD, 3);
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/values/FutureValue", "panic", "Ljava/lang/Throwable;");
+    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Throwable", "printStackTrace", "()V", false);
+    mv.visitInsn(RETURN);
+    mv.visitLabel(l4);
+  
 
     // At this point we are done executing all the functions including asyncs
     if (!isVoidFunction) {
@@ -951,10 +972,9 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         }
     }
 
-    errorGen.generateCatchInsForMain(endLabel, handlerLabel);
 
     mv.visitInsn(RETURN);
-    mv.visitMaxs(paramTypes.length() + 5, 10);
+    mv.visitMaxs(0, 0);
     mv.visitEnd();
 }
 
