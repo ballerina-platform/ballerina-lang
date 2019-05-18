@@ -41,6 +41,7 @@ public class Strand {
     public Strand parent = null;
     public WDChannels wdChannels;
     public FlushDetail flushDetail;
+    public boolean blockedOnExtern;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
