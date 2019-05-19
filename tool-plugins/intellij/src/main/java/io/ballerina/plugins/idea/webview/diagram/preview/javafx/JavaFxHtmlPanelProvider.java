@@ -13,10 +13,13 @@
 // limitations under the License.
 package io.ballerina.plugins.idea.webview.diagram.preview.javafx;
 
-import io.ballerina.plugins.idea.webview.diagram.preview.HtmlPanelProvider;
 import io.ballerina.plugins.idea.webview.diagram.preview.DiagramHtmlPanel;
+import io.ballerina.plugins.idea.webview.diagram.preview.HtmlPanelProvider;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * JavaFx based diagram panel provider implementation.
+ */
 public class JavaFxHtmlPanelProvider extends HtmlPanelProvider {
 
     @NotNull

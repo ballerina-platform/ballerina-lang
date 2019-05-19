@@ -16,8 +16,8 @@
 
 package io.ballerina.plugins.idea.preloading;
 
-import org.apache.commons.compress.utils.IOUtils;
 import com.intellij.openapi.diagnostic.Logger;
+import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

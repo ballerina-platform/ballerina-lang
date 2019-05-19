@@ -12,13 +12,24 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.*;
 
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+/**
+ * Tool bar implementation of the ballerina diagram editor.
+ */
 public class SplitEditorToolbar extends JPanel implements Disposable {
     private static final String RIGHT_TOOLBAR_GROUP_ID = "Diagram.Toolbar.Right";
 
@@ -45,7 +56,7 @@ public class SplitEditorToolbar extends JPanel implements Disposable {
         }
     };
 
-    public SplitEditorToolbar(@NotNull final JComponent targetComponentForActions) {
+    SplitEditorToolbar(@NotNull final JComponent targetComponentForActions) {
         super(new GridBagLayout());
 
         myToolbar = createToolbarFromGroupId(RIGHT_TOOLBAR_GROUP_ID);
@@ -65,7 +76,7 @@ public class SplitEditorToolbar extends JPanel implements Disposable {
         addComponentListener(myAdjustToGutterListener);
     }
 
-    public void addGutterToTrack(@NotNull EditorGutterComponentEx gutterComponentEx) {
+    void addGutterToTrack(@NotNull EditorGutterComponentEx gutterComponentEx) {
         myGutters.add(gutterComponentEx);
 
         gutterComponentEx.addComponentListener(myAdjustToGutterListener);
@@ -128,7 +139,7 @@ public class SplitEditorToolbar extends JPanel implements Disposable {
 
         private int mySpacing;
 
-        public MySpacingPanel(int height) {
+        MySpacingPanel(int height) {
             myHeight = height;
             mySpacing = 0;
             setOpaque(false);

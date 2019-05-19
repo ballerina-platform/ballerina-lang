@@ -34,9 +34,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * Editor event manager extension for Ballerina language.
+ */
 public class BallerinaEditorEventManager extends EditorEventManager {
 
-    private final int TIMEOUT_GET_AST_MS = 2000;
+    private final int getAstTimeout = 2000;
 
     public BallerinaEditorEventManager(Editor editor, DocumentListener documentListener,
             EditorMouseListener mouseListener, EditorMouseMotionListener mouseMotionListener,
@@ -51,7 +54,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         CompletableFuture<BallerinaASTResponse> future = ballerinaRequestManager.ast(astRequest);
         if (future != null) {
             try {
-                BallerinaASTResponse response = future.get(TIMEOUT_GET_AST_MS, TimeUnit.MILLISECONDS);
+                BallerinaASTResponse response = future.get(getAstTimeout, TimeUnit.MILLISECONDS);
                 JsonElement ast = response.getAst();
                 return ast != null ? ast.toString() : "";
             } catch (TimeoutException e) {

@@ -21,11 +21,13 @@ import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import io.ballerina.plugins.idea.webview.diagram.split.SplitFileEditor;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Split Editor Provider.
+ */
 public abstract class SplitTextEditorProvider implements AsyncFileEditorProvider, DumbAware {
 
     private static final String FIRST_EDITOR = "first_editor";

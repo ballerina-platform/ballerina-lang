@@ -34,7 +34,7 @@ import java.util.Objects;
 
 import static org.wso2.lsp4intellij.utils.FileUtils.editorToURIString;
 
-public class BallerinaDiagramUtils {
+class BallerinaDiagramUtils {
     private static final Logger LOG = Logger.getInstance(BallerinaDiagramUtils.class);
 
     private static final String TEMPLATES_CLASSPATH = "/fileTemplates/diagram";

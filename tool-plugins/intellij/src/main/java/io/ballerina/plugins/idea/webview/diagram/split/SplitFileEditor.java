@@ -20,13 +20,21 @@ import io.ballerina.plugins.idea.webview.diagram.settings.DiagramApplicationSett
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.*;
 
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
+/**
+ * Split file editor.
+ *
+ * @param <E1> Document editor
+ * @param <E2> Diagram editor
+ */
 public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEditor> extends UserDataHolderBase
         implements FileEditor {
     public static final Key<SplitFileEditor> PARENT_SPLIT_KEY = Key.create("parentSplit");
@@ -40,11 +48,10 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
     @NotNull
     private final JComponent myComponent;
     @NotNull
-    private SplitEditorLayout mySplitEditorLayout = DiagramApplicationSettings.getInstance()
-            .getDiagramPreviewSettings().getSplitEditorLayout();
-    @NotNull
     private final MyListenersMultimap myListenersGenerator = new MyListenersMultimap();
-
+    @NotNull
+    private SplitEditorLayout mySplitEditorLayout = DiagramApplicationSettings.getInstance().getDiagramPreviewSettings()
+            .getSplitEditorLayout();
     private SplitEditorToolbar myToolbarWrapper;
 
     public SplitFileEditor(@NotNull E1 mainEditor, @NotNull E2 secondEditor) {
@@ -60,19 +67,21 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
             mySecondEditor.putUserData(PARENT_SPLIT_KEY, this);
         }
 
-        DiagramApplicationSettings.SettingsChangedListener settingsChangedListener = new DiagramApplicationSettings.SettingsChangedListener() {
-            @Override
-            public void beforeSettingsChanged(@NotNull DiagramApplicationSettings newSettings) {
-                SplitEditorLayout oldSplitEditorLayout = DiagramApplicationSettings.getInstance()
-                        .getDiagramPreviewSettings().getSplitEditorLayout();
+        DiagramApplicationSettings.SettingsChangedListener settingsChangedListener =
+                new DiagramApplicationSettings.SettingsChangedListener() {
+                    @Override
+                    public void beforeSettingsChanged(@NotNull DiagramApplicationSettings newSettings) {
+                        SplitEditorLayout oldSplitEditorLayout = DiagramApplicationSettings.getInstance()
+                                .getDiagramPreviewSettings().getSplitEditorLayout();
 
-                ApplicationManager.getApplication().invokeLater(() -> {
-                    if (oldSplitEditorLayout == mySplitEditorLayout) {
-                        triggerLayoutChange(newSettings.getDiagramPreviewSettings().getSplitEditorLayout(), false);
+                        ApplicationManager.getApplication().invokeLater(() -> {
+                            if (oldSplitEditorLayout == mySplitEditorLayout) {
+                                triggerLayoutChange(newSettings.getDiagramPreviewSettings()
+                                        .getSplitEditorLayout(), false);
+                            }
+                        });
                     }
-                });
-            }
-        };
+                };
 
         ApplicationManager.getApplication().getMessageBus().connect(this)
                 .subscribe(DiagramApplicationSettings.SettingsChangedListener.TOPIC, settingsChangedListener);
@@ -105,8 +114,8 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
 
     public void triggerLayoutChange() {
         final int oldValue = mySplitEditorLayout.ordinal();
-        final int N = SplitEditorLayout.values().length;
-        final int newValue = (oldValue + N - 1) % N;
+        final int n = SplitEditorLayout.values().length;
+        final int newValue = (oldValue + n - 1) % n;
 
         triggerLayoutChange(SplitEditorLayout.values()[newValue], true);
     }
@@ -130,8 +139,9 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
         myToolbarWrapper.refresh();
         myComponent.repaint();
 
-        if (!requestFocus)
+        if (!requestFocus) {
             return;
+        }
 
         final JComponent focusComponent = getPreferredFocusedComponent();
         if (focusComponent != null) {
@@ -163,10 +173,12 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
     @Nullable
     @Override
     public JComponent getPreferredFocusedComponent() {
-        if (mySplitEditorLayout.showFirst)
+        if (mySplitEditorLayout.showFirst) {
             return myMainEditor.getPreferredFocusedComponent();
-        if (mySplitEditorLayout.showSecond)
+        }
+        if (mySplitEditorLayout.showSecond) {
             return mySecondEditor.getPreferredFocusedComponent();
+        }
         return null;
     }
 
@@ -258,6 +270,38 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
         Disposer.dispose(mySecondEditor);
     }
 
+    /**
+     * Split editor view types.
+     */
+    public enum SplitEditorLayout {
+        FIRST(true, false, "Show editor only"),
+        SECOND(false, true, "Show preview only"),
+        SPLIT(true, true, "Show editor and preview");
+
+        public final boolean showFirst;
+        public final boolean showSecond;
+        public final String presentationName;
+
+        SplitEditorLayout(boolean showFirst, boolean showSecond, String presentationName) {
+            this.showFirst = showFirst;
+            this.showSecond = showSecond;
+            this.presentationName = presentationName;
+        }
+
+        public String presentationName() {
+            //noinspection ConstantConditions
+            return StringUtil.capitalize(StringUtil.substringAfter(presentationName, "Show "));
+        }
+
+        @Override
+        public String toString() {
+            return presentationName;
+        }
+    }
+
+    /**
+     * File editor state implementation.
+     */
     public static class MyFileEditorState implements FileEditorState {
         @Nullable
         private final String mySplitLayout;
@@ -266,8 +310,8 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
         @Nullable
         private final FileEditorState mySecondState;
 
-        public MyFileEditorState(@Nullable String splitLayout, @Nullable FileEditorState firstState,
-                @Nullable FileEditorState secondState) {
+        MyFileEditorState(@Nullable String splitLayout, @Nullable FileEditorState firstState,
+                          @Nullable FileEditorState secondState) {
             mySplitLayout = splitLayout;
             myFirstState = firstState;
             mySecondState = secondState;
@@ -279,12 +323,12 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
         }
 
         @Nullable
-        public FileEditorState getFirstState() {
+        FileEditorState getFirstState() {
             return myFirstState;
         }
 
         @Nullable
-        public FileEditorState getSecondState() {
+        FileEditorState getSecondState() {
             return mySecondState;
         }
 
@@ -312,11 +356,14 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
         }
     }
 
+    /**
+     * File editor listener map.
+     */
     private class MyListenersMultimap {
         private final Map<PropertyChangeListener, Pair<Integer, DoublingEventListenerDelegate>> myMap = new HashMap<>();
 
         @NotNull
-        public DoublingEventListenerDelegate addListenerAndGetDelegate(@NotNull PropertyChangeListener listener) {
+        DoublingEventListenerDelegate addListenerAndGetDelegate(@NotNull PropertyChangeListener listener) {
             if (!myMap.containsKey(listener)) {
                 myMap.put(listener, Pair.create(1, new DoublingEventListenerDelegate(listener)));
             } else {
@@ -328,7 +375,7 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
         }
 
         @Nullable
-        public DoublingEventListenerDelegate removeListenerAndGetDelegate(@NotNull PropertyChangeListener listener) {
+        DoublingEventListenerDelegate removeListenerAndGetDelegate(@NotNull PropertyChangeListener listener) {
             final Pair<Integer, DoublingEventListenerDelegate> oldPair = myMap.get(listener);
             if (oldPair == null) {
                 return null;
@@ -340,31 +387,6 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
                 myMap.put(listener, Pair.create(oldPair.getFirst() - 1, oldPair.getSecond()));
             }
             return oldPair.getSecond();
-        }
-    }
-
-    public enum SplitEditorLayout {
-        FIRST(true, false, "Show editor only"), SECOND(false, true, "Show preview only"), SPLIT(true, true,
-                "Show editor and preview");
-
-        public final boolean showFirst;
-        public final boolean showSecond;
-        public final String presentationName;
-
-        SplitEditorLayout(boolean showFirst, boolean showSecond, String presentationName) {
-            this.showFirst = showFirst;
-            this.showSecond = showSecond;
-            this.presentationName = presentationName;
-        }
-
-        public String getPresentationText() {
-            //noinspection ConstantConditions
-            return StringUtil.capitalize(StringUtil.substringAfter(presentationName, "Show "));
-        }
-
-        @Override
-        public String toString() {
-            return presentationName;
         }
     }
 }

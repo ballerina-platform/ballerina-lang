@@ -6,16 +6,19 @@ import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider;
 import io.ballerina.plugins.idea.webview.diagram.split.SplitTextEditorProvider;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Split view provider foe ballerina diagram viewer.
+ */
 public class BallerinaSplitEditorProvider extends SplitTextEditorProvider {
-  public BallerinaSplitEditorProvider() {
-    super(new PsiAwareTextEditorProvider(), new BallerinaDiagramEditorProvider());
-  }
-
-  @Override
-  protected FileEditor createSplitEditor(@NotNull final FileEditor firstEditor, @NotNull FileEditor secondEditor) {
-    if (!(firstEditor instanceof TextEditor) || !(secondEditor instanceof BallerinaDiagramEditor)) {
-      throw new IllegalArgumentException("Main editor should be TextEditor");
+    public BallerinaSplitEditorProvider() {
+        super(new PsiAwareTextEditorProvider(), new BallerinaDiagramEditorProvider());
     }
-    return new BallerinaSplitEditor(((TextEditor)firstEditor), ((BallerinaDiagramEditor)secondEditor));
-  }
+
+    @Override
+    protected FileEditor createSplitEditor(@NotNull final FileEditor firstEditor, @NotNull FileEditor secondEditor) {
+        if (!(firstEditor instanceof TextEditor) || !(secondEditor instanceof BallerinaDiagramEditor)) {
+            throw new IllegalArgumentException("Main editor should be TextEditor");
+        }
+        return new BallerinaSplitEditor(((TextEditor) firstEditor), ((BallerinaDiagramEditor) secondEditor));
+    }
 }

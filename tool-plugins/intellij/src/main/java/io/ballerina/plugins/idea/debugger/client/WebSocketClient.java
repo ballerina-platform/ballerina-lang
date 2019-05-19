@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea.debugger.client;
 
+import com.intellij.openapi.diagnostic.Logger;
 import io.ballerina.plugins.idea.debugger.Callback;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -35,7 +36,6 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketCl
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import com.intellij.openapi.diagnostic.Logger;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -105,27 +105,22 @@ public class WebSocketClient {
             // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
             // If you change it to V00, ping is not supported and remember to change
             // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
-            handler = new WebSocketClientHandler(WebSocketClientHandshakerFactory.newHandshaker(uri,
-                    WebSocketVersion.V13, null, true, httpHeaders), callback);
+            handler = new WebSocketClientHandler(
+                    WebSocketClientHandshakerFactory.newHandshaker(uri, WebSocketVersion.V13, null, true, httpHeaders),
+                    callback);
 
             Bootstrap b = new Bootstrap();
-            b.group(group)
-                    .channel(NioSocketChannel.class)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) {
-                            ChannelPipeline p = ch.pipeline();
-                            if (sslCtx != null) {
-                                p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
-                            }
-                            p.addLast(
-                                    new HttpClientCodec(),
-                                    new HttpObjectAggregator(8192),
-                                    WebSocketClientCompressionHandler.INSTANCE,
-                                    handler
-                            );
-                        }
-                    });
+            b.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>() {
+                @Override
+                protected void initChannel(SocketChannel ch) {
+                    ChannelPipeline p = ch.pipeline();
+                    if (sslCtx != null) {
+                        p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
+                    }
+                    p.addLast(new HttpClientCodec(), new HttpObjectAggregator(8192),
+                            WebSocketClientCompressionHandler.INSTANCE, handler);
+                }
+            });
 
             channel = b.connect(uri.getHost(), port).sync().channel();
             isDone = handler.handshakeFuture().sync().isSuccess();

@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea.debugger.client;
 
+import com.intellij.openapi.diagnostic.Logger;
 import io.ballerina.plugins.idea.debugger.Callback;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -28,8 +29,6 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
-import com.intellij.openapi.diagnostic.Logger;
-
 
 /**
  * WebSocket client handler which handles communication with the debug server.
@@ -81,8 +80,9 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
         if (msg instanceof FullHttpResponse) {
             FullHttpResponse response = (FullHttpResponse) msg;
-            throw new IllegalStateException("Unexpected FullHttpResponse (getStatus=" + response.status() +
-                    ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
+            throw new IllegalStateException(
+                    "Unexpected FullHttpResponse (getStatus=" + response.status() + ", content=" + response.content()
+                            .toString(CharsetUtil.UTF_8) + ')');
         }
 
         WebSocketFrame frame = (WebSocketFrame) msg;

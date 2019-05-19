@@ -12,6 +12,9 @@ import io.ballerina.plugins.idea.BallerinaFileType;
 import io.ballerina.plugins.idea.BallerinaLanguage;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Ballerina diagram editor provider implementation.
+ */
 public class BallerinaDiagramEditorProvider extends WeighedFileEditorProvider {
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile file) {

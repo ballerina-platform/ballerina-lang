@@ -19,6 +19,9 @@ import org.wso2.lsp4intellij.editor.EditorEventManager;
 import org.wso2.lsp4intellij.editor.listeners.EditorMouseMotionListenerImpl;
 import org.wso2.lsp4intellij.extensions.LSPExtensionManager;
 
+/**
+ * Contains extended LSP components which serves  ballerina language server related specific capabilities.
+ */
 public class BallerinaLSPExtensionManager implements LSPExtensionManager {
 
     @Override

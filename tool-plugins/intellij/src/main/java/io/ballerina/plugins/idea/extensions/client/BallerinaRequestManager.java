@@ -27,6 +27,9 @@ import org.wso2.lsp4intellij.client.languageserver.wrapper.LanguageServerWrapper
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Request manager extension for Ballerina language.
+ */
 public class BallerinaRequestManager extends DefaultRequestManager {
 
     BallerinaDocumentService ballerinaDocumentService;

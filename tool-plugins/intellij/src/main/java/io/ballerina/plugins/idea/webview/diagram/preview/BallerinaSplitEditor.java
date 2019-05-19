@@ -10,17 +10,22 @@ import io.ballerina.plugins.idea.webview.diagram.settings.DiagramApplicationSett
 import io.ballerina.plugins.idea.webview.diagram.split.SplitFileEditor;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Split editor implementation for ballerina diagram editor.
+ */
 public class BallerinaSplitEditor extends SplitFileEditor<TextEditor, BallerinaDiagramEditor> implements TextEditor {
-    private boolean myAutoScrollPreview = DiagramApplicationSettings.getInstance().getDiagramPreviewSettings().isAutoScrollPreview();
+    private boolean myAutoScrollPreview = DiagramApplicationSettings.getInstance().getDiagramPreviewSettings()
+            .isAutoScrollPreview();
 
-    public BallerinaSplitEditor(@NotNull TextEditor mainEditor, @NotNull BallerinaDiagramEditor secondEditor) {
+    BallerinaSplitEditor(@NotNull TextEditor mainEditor, @NotNull BallerinaDiagramEditor secondEditor) {
         super(mainEditor, secondEditor);
 
         DiagramApplicationSettings.SettingsChangedListener settingsChangedListener =
                 new DiagramApplicationSettings.SettingsChangedListener() {
                     @Override
                     public void beforeSettingsChanged(@NotNull DiagramApplicationSettings newSettings) {
-                        boolean oldAutoScrollPreview = DiagramApplicationSettings.getInstance().getDiagramPreviewSettings().isAutoScrollPreview();
+                        boolean oldAutoScrollPreview = DiagramApplicationSettings.getInstance().
+                                getDiagramPreviewSettings().isAutoScrollPreview();
 
                         ApplicationManager.getApplication().invokeLater(() -> {
                             if (oldAutoScrollPreview == myAutoScrollPreview) {
@@ -62,19 +67,14 @@ public class BallerinaSplitEditor extends SplitFileEditor<TextEditor, BallerinaD
         return myAutoScrollPreview;
     }
 
-    public void setAutoScrollPreview(boolean autoScrollPreview) {
+    private void setAutoScrollPreview(boolean autoScrollPreview) {
         myAutoScrollPreview = autoScrollPreview;
     }
 
     private class MyCaretListener implements CaretListener {
         @Override
-        public void caretPositionChanged(CaretEvent e) {
-            if (!isAutoScrollPreview()) return;
-
-            final Editor editor = e.getEditor();
-            if (editor.getCaretModel().getCaretCount() != 1) {
-                return;
-            }
+        public void caretPositionChanged(@NotNull CaretEvent e) {
+            // Todo
         }
     }
 }

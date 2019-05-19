@@ -15,90 +15,99 @@ import org.jetbrains.annotations.Nullable;
 import static io.ballerina.plugins.idea.webview.diagram.settings.DiagramCssSettings.DARCULA;
 import static io.ballerina.plugins.idea.webview.diagram.settings.DiagramCssSettings.DEFAULT;
 
-@State(
-  name = "DiagramApplicationSettings",
-  storages = @Storage("diagram.xml")
-)
-public class DiagramApplicationSettings implements PersistentStateComponent<DiagramApplicationSettings.State>,
-                                                    DiagramCssSettings.Holder,
-                                                    DiagramPreviewSettings.Holder {
+/**
+ * Application level settings holder for ballerina diagram viewer.
+ */
+@State(name = "DiagramApplicationSettings",
+       storages = @Storage("diagram.xml"))
+public class DiagramApplicationSettings
+        implements PersistentStateComponent<DiagramApplicationSettings.State>, DiagramCssSettings.Holder,
+        DiagramPreviewSettings.Holder {
 
-  private final State myState = new State();
+    private final State myState = new State();
 
-  public DiagramApplicationSettings() {
-    final DiagramLAFListener lafListener = new DiagramLAFListener();
-    LafManager.getInstance().addLafManagerListener(lafListener);
+    public DiagramApplicationSettings() {
+        final DiagramLAFListener lafListener = new DiagramLAFListener();
+        LafManager.getInstance().addLafManagerListener(lafListener);
 
-    // Todo - Reuse if possible
-    // Let's init proper CSS scheme
-    // ApplicationManager.getApplication().invokeLater(() -> lafListener.updateCssSettingsForced(UIUtil.isUnderDarcula
-    // ()));
-  }
-
-  @NotNull
-  public static DiagramApplicationSettings getInstance() {
-    return ServiceManager.getService(DiagramApplicationSettings.class);
-  }
-
-  @Nullable
-  @Override
-  public State getState() {
-    return myState;
-  }
-
-  @Override
-  public void loadState(@NotNull State state) {
-    XmlSerializerUtil.copyBean(state, myState);
-  }
-
-  @Override
-  public void setDiagramCssSettings(@NotNull DiagramCssSettings settings) {
-    ApplicationManager.getApplication().getMessageBus().syncPublisher(SettingsChangedListener.TOPIC).beforeSettingsChanged(this);
-    myState.myCssSettings = settings;
-  }
-
-  @NotNull
-  @Override
-  public DiagramCssSettings getDiagramCssSettings() {
-    if (DARCULA.getStylesheetUri().equals(myState.myCssSettings.getStylesheetUri())
-        || DEFAULT.getStylesheetUri().equals(myState.myCssSettings.getStylesheetUri())) {
-      return new DiagramCssSettings(false,
-                                     "",
-                                     myState.myCssSettings.isTextEnabled(),
-                                     myState.myCssSettings.getStylesheetText());
+        // Todo - Reuse if possible
+        // Let's init proper CSS scheme
+        // ApplicationManager.getApplication().invokeLater(()->lafListener.updateCssSettingsForced(UIUtil.isUnderDarcula
+        // ()));
     }
 
-    return myState.myCssSettings;
-  }
-
-  @Override
-  public void setDiagramPreviewSettings(@NotNull DiagramPreviewSettings settings) {
-    ApplicationManager.getApplication().getMessageBus().syncPublisher(SettingsChangedListener.TOPIC).beforeSettingsChanged(this);
-    myState.myPreviewSettings = settings;
-  }
-
-  @NotNull
-  @Override
-  public DiagramPreviewSettings getDiagramPreviewSettings() {
-    return myState.myPreviewSettings;
-  }
-
-
-  public static class State {
-    @Property(surroundWithTag = false)
     @NotNull
-    private DiagramCssSettings myCssSettings = DiagramCssSettings.DEFAULT;
+    public static DiagramApplicationSettings getInstance() {
+        return ServiceManager.getService(DiagramApplicationSettings.class);
+    }
 
-    @Property(surroundWithTag = false)
+    @Nullable
+    @Override
+    public State getState() {
+        return myState;
+    }
+
+    @Override
+    public void loadState(@NotNull State state) {
+        XmlSerializerUtil.copyBean(state, myState);
+    }
+
+    @Override
+    public void setDiagramCssSettings(@NotNull DiagramCssSettings settings) {
+        ApplicationManager.getApplication().getMessageBus().syncPublisher(SettingsChangedListener.TOPIC)
+                .beforeSettingsChanged(this);
+        myState.myCssSettings = settings;
+    }
+
     @NotNull
-    private DiagramPreviewSettings myPreviewSettings = DiagramPreviewSettings.DEFAULT;
-  }
+    @Override
+    public DiagramCssSettings getDiagramCssSettings() {
+        if (DARCULA.getStylesheetUri().equals(myState.myCssSettings.getStylesheetUri()) || DEFAULT.getStylesheetUri()
+                .equals(myState.myCssSettings.getStylesheetUri())) {
+            return new DiagramCssSettings(false, "", myState.myCssSettings.isTextEnabled(),
+                    myState.myCssSettings.getStylesheetText());
+        }
 
-  public interface SettingsChangedListener {
-    Topic<SettingsChangedListener> TOPIC = Topic.create("DiagramApplicationSettingsChanged", SettingsChangedListener.class);
+        return myState.myCssSettings;
+    }
 
-    default void beforeSettingsChanged(@NotNull DiagramApplicationSettings settings) { }
+    @Override
+    public void setDiagramPreviewSettings(@NotNull DiagramPreviewSettings settings) {
+        ApplicationManager.getApplication().getMessageBus().syncPublisher(SettingsChangedListener.TOPIC)
+                .beforeSettingsChanged(this);
+        myState.myPreviewSettings = settings;
+    }
 
-    default void settingsChanged(@NotNull DiagramApplicationSettings settings) { }
-  }
+    @NotNull
+    @Override
+    public DiagramPreviewSettings getDiagramPreviewSettings() {
+        return myState.myPreviewSettings;
+    }
+
+    /**
+     * Persistent state.
+     */
+    public static class State {
+        @Property(surroundWithTag = false)
+        @NotNull
+        private DiagramCssSettings myCssSettings = DiagramCssSettings.DEFAULT;
+
+        @Property(surroundWithTag = false)
+        @NotNull
+        private DiagramPreviewSettings myPreviewSettings = DiagramPreviewSettings.DEFAULT;
+    }
+
+    /**
+     *  Settings Changed Listener for ballerina diagram application settings.
+     */
+    public interface SettingsChangedListener {
+        Topic<SettingsChangedListener> TOPIC = Topic
+                .create("DiagramApplicationSettingsChanged", SettingsChangedListener.class);
+
+        default void beforeSettingsChanged(@NotNull DiagramApplicationSettings settings) {
+        }
+
+        default void settingsChanged(@NotNull DiagramApplicationSettings settings) {
+        }
+    }
 }

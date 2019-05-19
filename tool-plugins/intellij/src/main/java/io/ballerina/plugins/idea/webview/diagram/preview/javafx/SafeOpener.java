@@ -23,104 +23,88 @@ import java.util.Set;
 import static com.intellij.ide.impl.ProjectUtil.focusProjectWindow;
 
 class SafeOpener {
-  private static final Logger LOG = Logger.getInstance(SafeOpener.class);
+    private static final Logger LOG = Logger.getInstance(SafeOpener.class);
 
-  private static final Set<String> SCHEMES = ContainerUtil.newTroveSet(
-    "http",
-    "https"
-  );
+    private static final Set<String> SCHEMES = ContainerUtil.newTroveSet("http", "https");
 
-  private static final Set<String> SAFE_LOCAL_EXTENSIONS = ContainerUtil.newTroveSet(
-    "md",
-    "png",
-    "gif",
-    "jpg",
-    "jpeg",
-    "bmp",
-    "svg",
-    "html"
-  );
+    private static final Set<String> SAFE_LOCAL_EXTENSIONS = ContainerUtil
+            .newTroveSet("md", "png", "gif", "jpg", "jpeg", "bmp", "svg", "html");
 
-  private SafeOpener() {
-  }
-
-  static void openLink(@NotNull String link) {
-    final URI uri;
-    try {
-      if (!BrowserUtil.isAbsoluteURL(link)) {
-        uri = new URI("http://" + link);
-      }
-      else {
-        uri = new URI(link);
-      }
-    }
-    catch (URISyntaxException e) {
-      LOG.info(e);
-      return;
+    private SafeOpener() {
     }
 
-    if (tryOpenInEditor(uri)) {
-      return;
-    }
-    if (!isHttpScheme(uri.getScheme()) || isLocalHost(uri.getHost()) && !isSafeExtension(uri.getPath())) {
-      LOG.warn("Bad URL", new InaccessibleURLOpenedException(link));
-      return;
-    }
+    static void openLink(@NotNull String link) {
+        final URI uri;
+        try {
+            if (!BrowserUtil.isAbsoluteURL(link)) {
+                uri = new URI("http://" + link);
+            } else {
+                uri = new URI(link);
+            }
+        } catch (URISyntaxException e) {
+            LOG.info(e);
+            return;
+        }
 
-    BrowserUtil.browse(uri);
-  }
+        if (tryOpenInEditor(uri)) {
+            return;
+        }
+        if (!isHttpScheme(uri.getScheme()) || isLocalHost(uri.getHost()) && !isSafeExtension(uri.getPath())) {
+            LOG.warn("Bad URL", new InaccessibleURLOpenedException(link));
+            return;
+        }
 
-  private static boolean tryOpenInEditor(@NotNull URI uri) {
-    if (!"file".equals(uri.getScheme())) {
-      return false;
-    }
-
-    Pair<Project, VirtualFile> result = ReadAction.compute(() -> {
-      final VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(uri.toString());
-      if (virtualFile == null) {
-        return null;
-      }
-      Project project = ProjectUtil.guessProjectForContentFile(virtualFile);
-      if (project != null) {
-        return Pair.create(project, virtualFile);
-      }
-      else {
-        return null;
-      }
-    });
-
-    if (result != null) {
-      ApplicationManager.getApplication().invokeLater(() -> {
-        PsiNavigationSupport.getInstance().createNavigatable(result.first, result.second, -1).navigate(true);
-        focusProjectWindow(result.first, true);
-      });
+        BrowserUtil.browse(uri);
     }
 
-    return result != null;
-  }
+    private static boolean tryOpenInEditor(@NotNull URI uri) {
+        if (!"file".equals(uri.getScheme())) {
+            return false;
+        }
 
-  private static boolean isHttpScheme(@Nullable String scheme) {
-    return scheme != null && SCHEMES.contains(scheme.toLowerCase(Locale.US));
-  }
+        Pair<Project, VirtualFile> result = ReadAction.compute(() -> {
+            final VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(uri.toString());
+            if (virtualFile == null) {
+                return null;
+            }
+            Project project = ProjectUtil.guessProjectForContentFile(virtualFile);
+            if (project != null) {
+                return Pair.create(project, virtualFile);
+            } else {
+                return null;
+            }
+        });
 
-  private static boolean isLocalHost(@Nullable String hostName) {
-    return hostName == null
-           || hostName.startsWith("127.")
-           || hostName.endsWith(":1")
-           || NettyKt.isLocalHost(hostName, false, false);
-  }
+        if (result != null) {
+            ApplicationManager.getApplication().invokeLater(() -> {
+                PsiNavigationSupport.getInstance().createNavigatable(result.first, result.second, -1).navigate(true);
+                focusProjectWindow(result.first, true);
+            });
+        }
 
-  private static boolean isSafeExtension(@Nullable String path) {
-    if (path == null) {
-      return false;
+        return result != null;
     }
-    final int i = path.lastIndexOf('.');
-    return i != -1 && SAFE_LOCAL_EXTENSIONS.contains(path.substring(i + 1).toLowerCase(Locale.US));
-  }
 
-  private static class InaccessibleURLOpenedException extends IllegalArgumentException {
-    public InaccessibleURLOpenedException(String link) {
-      super(link);
+    private static boolean isHttpScheme(@Nullable String scheme) {
+        return scheme != null && SCHEMES.contains(scheme.toLowerCase(Locale.US));
     }
-  }
+
+    private static boolean isLocalHost(@Nullable String hostName) {
+        return hostName == null || hostName.startsWith("127.") || hostName.endsWith(":1") || NettyKt
+                .isLocalHost(hostName, false, false);
+    }
+
+    private static boolean isSafeExtension(@Nullable String path) {
+        if (path == null) {
+            return false;
+        }
+        final int i = path.lastIndexOf('.');
+        return i != -1 && SAFE_LOCAL_EXTENSIONS.contains(path.substring(i + 1).toLowerCase(Locale.US));
+    }
+
+    private static class InaccessibleURLOpenedException extends IllegalArgumentException {
+        InaccessibleURLOpenedException(String link) {
+            super(link);
+        }
+    }
 }

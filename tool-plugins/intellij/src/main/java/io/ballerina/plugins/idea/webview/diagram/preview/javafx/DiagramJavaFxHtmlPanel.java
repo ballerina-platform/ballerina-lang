@@ -14,7 +14,6 @@ import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.javafx.JavaFxHtmlPanel;
-import com.intellij.util.ArrayUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import io.ballerina.plugins.idea.webview.diagram.preview.DiagramHtmlPanel;
 import io.ballerina.plugins.idea.webview.diagram.settings.DiagramApplicationSettings;
@@ -29,14 +28,17 @@ import netscape.javascript.JSObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
+import java.awt.Point;
 import java.util.Objects;
-import javax.swing.*;
 
+import javax.swing.JFrame;
+
+
+/**
+ *  JavaFx based diagram panel implementation.
+ */
 public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHtmlPanel {
 
-    @NotNull
-    private String[] myCssUris = ArrayUtil.EMPTY_STRING_ARRAY;
     @NotNull
     private String myCSP = "";
     @NotNull
@@ -46,7 +48,7 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
     @NotNull
     private final BridgeSettingListener myBridgeSettingListener = new BridgeSettingListener();
 
-    public DiagramJavaFxHtmlPanel() {
+    DiagramJavaFxHtmlPanel() {
         super();
         runInPlatformWhenAvailable(() -> {
             if (myWebView != null) {
@@ -73,16 +75,17 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
 
     private void subscribeForGrayscaleSetting() {
         MessageBusConnection settingsConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
-        DiagramApplicationSettings.SettingsChangedListener settingsChangedListener = new DiagramApplicationSettings.SettingsChangedListener() {
-            @Override
-            public void beforeSettingsChanged(@NotNull final DiagramApplicationSettings settings) {
-                runInPlatformWhenAvailable(() -> {
-                    if (myWebView != null) {
-                        updateFontSmoothingType(myWebView, true);
+        DiagramApplicationSettings.SettingsChangedListener settingsChangedListener =
+                new DiagramApplicationSettings.SettingsChangedListener() {
+                    @Override
+                    public void beforeSettingsChanged(@NotNull final DiagramApplicationSettings settings) {
+                        runInPlatformWhenAvailable(() -> {
+                            if (myWebView != null) {
+                                updateFontSmoothingType(myWebView, true);
+                            }
+                        });
                     }
-                });
-            }
-        };
+                };
         settingsConnection.subscribe(DiagramApplicationSettings.SettingsChangedListener.TOPIC, settingsChangedListener);
     }
 
@@ -123,6 +126,9 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
         });
     }
 
+    /**
+     * JavaPanelBridge.
+     */
     @SuppressWarnings("unused")
     public static class JavaPanelBridge {
         static final JavaPanelBridge INSTANCE = new JavaPanelBridge();
@@ -147,9 +153,9 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
 
         private static void openLocalFile(@NotNull VirtualFile targetFile, @Nullable String anchor) {
             Project project = ProjectUtil.guessProjectForFile(targetFile);
-            if (project == null)
+            if (project == null) {
                 return;
-
+            }
             if (anchor == null) {
                 FileEditorManager.getInstance(project).openFile(targetFile, true);
                 return;
@@ -157,8 +163,9 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
 
             final JFrame frame = WindowManager.getInstance().getFrame(project);
             final Point mousePosition = Objects.requireNonNull(frame).getMousePosition();
-            if (mousePosition == null)
+            if (mousePosition == null) {
                 return;
+            }
             RelativePoint point = new RelativePoint(frame, mousePosition);
         }
 
