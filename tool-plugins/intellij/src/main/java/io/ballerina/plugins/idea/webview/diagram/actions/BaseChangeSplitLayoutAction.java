@@ -1,10 +1,9 @@
-package io.ballerina.plugins.idea.webview.diagram.actions.editorLayout;
+package io.ballerina.plugins.idea.webview.diagram.actions;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Toggleable;
 import com.intellij.openapi.project.DumbAware;
-import io.ballerina.plugins.idea.webview.diagram.actions.ToolbarActionUtil;
 import io.ballerina.plugins.idea.webview.diagram.split.SplitFileEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

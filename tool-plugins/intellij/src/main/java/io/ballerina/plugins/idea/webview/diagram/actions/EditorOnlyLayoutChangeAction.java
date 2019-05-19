@@ -1,4 +1,4 @@
-package io.ballerina.plugins.idea.webview.diagram.actions.editorLayout;
+package io.ballerina.plugins.idea.webview.diagram.actions;
 
 import io.ballerina.plugins.idea.webview.diagram.split.SplitFileEditor;
 
