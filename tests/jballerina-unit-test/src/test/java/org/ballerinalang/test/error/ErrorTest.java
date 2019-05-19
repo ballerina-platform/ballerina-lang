@@ -33,6 +33,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * Test cases for Error.
  *
@@ -109,10 +111,11 @@ public class ErrorTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: largeNumber {\"message\":\"large number\"}\n" +
-                "\tat errorPanicCallee(error_test.bal:36)\n" +
-                "\t   errorPanicTest(error_test.bal:30)";
-        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+        String s = ((InvocationTargetException) expectedException.getCause()).getTargetException().toString();
+        Assert.assertEquals(s, "largeNumber {\"message\":\"large number\"}" );
+        StackTraceElement[] stackTrace = ((InvocationTargetException) expectedException.getCause()).getTargetException().getStackTrace();
+        Assert.assertEquals(stackTrace[0].toString(), "error_test.errorPanicCallee(error_test.bal:36)");
+        Assert.assertEquals(stackTrace[1].toString(), "error_test.errorPanicTest(error_test.bal:30)");
     }
 
     @Test
@@ -161,6 +164,14 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConsecutiveTraps");
         Assert.assertEquals(returns[0].stringValue(), "Error");
         Assert.assertEquals(returns[1].stringValue(), "Error");
+    }
+
+    public static void main(String[] args) {
+        try {
+            throw new RuntimeException("a");
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Test
@@ -231,8 +242,8 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, 6,
                                   "invalid error reason type 'boolean', expected a subtype of 'string'", 47, 11);
         BAssertUtil.validateError(negativeCompileResult, 7, "self referenced variable 'e3'", 53, 22);
-        BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 42);
-        BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 41);
+        BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 41);
+        BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 40);
     }
 
     @DataProvider(name = "userDefTypeAsReasonTests")

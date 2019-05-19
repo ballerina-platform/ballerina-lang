@@ -1201,25 +1201,75 @@ public class BIRGen extends BLangNodeVisitor {
         }
         trapExpr.expr.accept(this);
         // When trapExpr.expr is a invocation returning nil, there is no target operand, hence set it up.
+        BIROperand errorTargetOperand = getTrappedErrorTargetOperand();
         if (this.env.targetOperand == null) {
-            BUnionType errorOrNil = BUnionType.create(symTable.errSymbol, symTable.errorType, symTable.nilType);
-            BIRVariableDcl tempVarDcl = new BIRVariableDcl(errorOrNil, this.env.nextLocalVarId(names),
-                    VarScope.FUNCTION, VarKind.TEMP);
-            this.env.enclFunc.localVars.add(tempVarDcl);
-            this.env.targetOperand = new BIROperand(tempVarDcl);
+            this.env.targetOperand = errorTargetOperand;
         }
         if (this.env.trapBB.terminator != null) {
-            // Once trap expression is visited,  we need to back track all basic blocks which is covered by the trap 
+            // Once trap expression is visited,  we need to back track all basic blocks which is covered by the trap
             // and add error entry for each and every basic block.
-            genIntermediateErrorEntries(this.env.trapBB);
+            genIntermediateErrorEntries(this.env.trapBB, errorTargetOperand);
         } else {
             // Create new block for instructions after trap.
-            this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(this.env.trapBB, this.env.targetOperand));
+            this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(this.env.trapBB, errorTargetOperand));
             this.env.trapBB = new BIRBasicBlock(this.env.nextBBId(names));
             env.enclFunc.basicBlocks.add(this.env.trapBB);
             this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, this.env.trapBB);
             this.env.enclBB = this.env.trapBB;
         }
+
+        // Create a BB for instructions after trap expr.
+        BIRBasicBlock afterTrapBB = new BIRBasicBlock(this.env.nextBBId(names));
+        this.env.enclFunc.basicBlocks.add(afterTrapBB);
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, afterTrapBB);
+        this.env.enclBB = afterTrapBB;
+
+
+        BIRVariableDcl nilConstVar = new BIRVariableDcl(symTable.nilType,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(nilConstVar);
+        BIROperand nilConstOp = new BIROperand(nilConstVar);
+        emit(new BIRNonTerminator.ConstantLoad(trapExpr.pos, null, symTable.nilType, nilConstOp));
+
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.booleanType,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand lhsOp = new BIROperand(tempVarDcl);
+
+        BinaryOp binaryIns = new BinaryOp(trapExpr.pos, getBinaryInstructionKind(OperatorKind.EQUAL),
+                symTable.booleanType, lhsOp, errorTargetOperand, nilConstOp);
+        emit(binaryIns);
+
+        BIRBasicBlock errorHandleBB = new BIRBasicBlock(this.env.nextBBId(names));
+        this.env.enclFunc.basicBlocks.add(errorHandleBB);
+        errorHandleBB.instructions.add(
+                new BIRNonTerminator.Move(trapExpr.pos, errorTargetOperand, this.env.targetOperand));
+
+        // Create a BB for instructions after trap expr.
+        BIRBasicBlock noErrorBB = new BIRBasicBlock(this.env.nextBBId(names));
+        this.env.enclFunc.basicBlocks.add(noErrorBB);
+        //this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, noErrorBB);
+        //this.env.enclBB = noErrorBB;
+        errorHandleBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, noErrorBB);
+
+
+
+        BIRTerminator.Branch branchIns = new BIRTerminator.Branch(trapExpr.pos, lhsOp, noErrorBB, errorHandleBB);
+        this.env.enclBB.terminator = branchIns;
+
+        // now check error target operand, if it's null no panic.
+        // if it's not null trapped expr panicked.
+
+        //this.env.enclBB = thenBB;
+        this.env.enclBB = noErrorBB;
+    }
+
+    private BIROperand getTrappedErrorTargetOperand() {
+        BUnionType errorOrNil = BUnionType.create(symTable.errSymbol, symTable.errorType, symTable.nilType);
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(errorOrNil, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        return new BIROperand(tempVarDcl);
     }
 
     @Override
@@ -1496,11 +1546,11 @@ public class BIRGen extends BLangNodeVisitor {
 
     // private methods
 
-    private void genIntermediateErrorEntries(BIRBasicBlock thenBB) {
+    private void genIntermediateErrorEntries(BIRBasicBlock thenBB, BIROperand errTargetOperand) {
         if (thenBB != this.env.enclBB) {
-            this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(thenBB, this.env.targetOperand));
+            this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(thenBB, errTargetOperand));
             this.env.trapBB = ((BIRTerminator.Call) thenBB.terminator).thenBB;
-            genIntermediateErrorEntries(this.env.trapBB);
+            genIntermediateErrorEntries(this.env.trapBB, errTargetOperand);
         }
     }
 
