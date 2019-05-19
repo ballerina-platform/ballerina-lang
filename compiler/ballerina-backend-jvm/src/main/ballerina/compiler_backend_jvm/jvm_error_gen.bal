@@ -57,6 +57,18 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(jumpLabel);
     }
 
+    function printStackTraceFromFutureValue(jvm:MethodVisitor mv, int futureVar) {
+        mv.visitVarInsn(ALOAD, futureVar);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
+        jvm:Label labelIf = new;
+        mv.visitJumpInsn(IFNULL, labelIf);
+        mv.visitVarInsn(ALOAD, futureVar);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
+        mv.visitMethodInsn(INVOKEVIRTUAL, THROWABLE, PRINT_STACK_TRACE_METHOD, "()V", false);
+        mv.visitInsn(RETURN);
+        mv.visitLabel(labelIf);
+    }
+
     function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {
         return self.indexMap.getIndex(varDcl);
     }

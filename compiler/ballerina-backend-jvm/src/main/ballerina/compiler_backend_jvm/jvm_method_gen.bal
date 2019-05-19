@@ -889,16 +889,8 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
             io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, CONSUMER, STRAND, FUTURE_VALUE), false);
         mv.visitVarInsn(ASTORE, 2);
         mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "start", "()V", false);
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/values/FutureValue", "panic", "Ljava/lang/Throwable;");
-        jvm:Label l3 = new;
-        mv.visitJumpInsn(IFNULL, l3);
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/values/FutureValue", "panic", "Ljava/lang/Throwable;");
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Throwable", "printStackTrace", "()V", false);
-        mv.visitInsn(RETURN);
-        mv.visitLabel(l3);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
+        errorGen.printStackTraceFromFutureValue(mv, 2);
     }
     mv.visitVarInsn(ALOAD, 1);
     string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
@@ -944,18 +936,9 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     // start the scheduler
     mv.visitVarInsn(ALOAD, 1);
-    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "start", "()V", false);
-    mv.visitVarInsn(ALOAD, 3);
-    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/values/FutureValue", "panic", "Ljava/lang/Throwable;");
-    jvm:Label l4 = new;
-    mv.visitJumpInsn(IFNULL, l4);
-    mv.visitVarInsn(ALOAD, 3);
-    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/values/FutureValue", "panic", "Ljava/lang/Throwable;");
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Throwable", "printStackTrace", "()V", false);
-    mv.visitInsn(RETURN);
-    mv.visitLabel(l4);
-  
-
+    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
+    errorGen.printStackTraceFromFutureValue(mv, 3);
+    
     // At this point we are done executing all the functions including asyncs
     if (!isVoidFunction) {
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
