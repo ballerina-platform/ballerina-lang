@@ -786,7 +786,7 @@ function cleanupObjectTypeName(string typeName) returns string {
 }
 
 function isExternFunctionCall(bir:Call callIns) returns boolean {
-    string methodName = cleanupName(callIns.name.value);
+    string methodName = callIns.name.value;
     string orgName = callIns.pkgID.org;
     string moduleName = callIns.pkgID.name;
     string key = getPackageName(orgName, moduleName) + methodName;
