@@ -1303,7 +1303,7 @@ function generateDefaultConstructor(jvm:ClassWriter cw, string ownerClass) {
 }
 
 function generateDiagnosticPos(bir:DiagnosticPos pos, jvm:MethodVisitor mv) {
-    if (pos.sLine != -1) {
+    if (pos.sLine != 2147483648) {
         jvm:Label label = new;
         mv.visitLabel(label);
         mv.visitLineNumber(pos.sLine, label);
