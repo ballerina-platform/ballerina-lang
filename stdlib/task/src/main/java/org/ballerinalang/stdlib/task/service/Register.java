@@ -21,6 +21,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -79,5 +82,25 @@ public class Register extends BlockingNativeCallableUnit {
 
         Task task = (Task) taskStruct.getNativeData(NATIVE_DATA_TASK_OBJECT);
         task.addService(serviceWithParameters);
+    }
+
+    public static Object register(Strand strand, ObjectValue taskListener, ObjectValue service,
+                                  MapValue<String, Object> config) {
+        Object attachments = config.get(PARAMETER_ATTACHMENT);
+        ServiceWithParameters serviceWithParameters;
+        if (Objects.nonNull(attachments)) {
+            serviceWithParameters = new ServiceWithParameters(service, attachments);
+        } else {
+            serviceWithParameters = new ServiceWithParameters(service);
+        }
+
+        /* TODO: Validate service at runtime, as compiler plugin not available.
+         *       When compiler plugin is available, remove this.
+         */
+        validateService(service);
+
+        Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
+        task.addService(serviceWithParameters);
+        return null;
     }
 }
