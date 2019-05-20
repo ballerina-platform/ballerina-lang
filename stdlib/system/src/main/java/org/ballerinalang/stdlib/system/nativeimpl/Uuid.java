@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -44,5 +45,9 @@ public class Uuid extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String randomString = UUID.randomUUID().toString();
         context.setReturnValues(new BString(randomString));
+    }
+
+    public static String uuid(Strand strand) {
+        return UUID.randomUUID().toString();
     }
 }
