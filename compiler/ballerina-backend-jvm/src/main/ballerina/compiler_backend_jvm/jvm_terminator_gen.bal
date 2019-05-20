@@ -139,7 +139,7 @@ type TerminatorGenerator object {
         string moduleName = callIns.pkgID.name;
 
         // check for native blocking call
-        if (isExternFunctionCall(callIns)) {
+        if (isExternStaticFunctionCall(callIns)) {
             jvm:Label blockedOnExternLabel = new;
             jvm:Label notBlockedOnExternLabel = new;
 
@@ -785,7 +785,11 @@ function cleanupObjectTypeName(string typeName) returns string {
     }
 }
 
-function isExternFunctionCall(bir:Call callIns) returns boolean {
+function isExternStaticFunctionCall(bir:Call callIns) returns boolean {
+    if (callIns.isVirtual) {
+        return false;
+    }
+
     string methodName = callIns.name.value;
     string orgName = callIns.pkgID.org;
     string moduleName = callIns.pkgID.name;
