@@ -140,7 +140,8 @@ public type ObjectGenerator object {
             int jvmMethodInvokeInsn = INVOKEVIRTUAL;
 
             if (isExternFunc(func)) {
-                string lookupKey = getPackageName(self.module.org.value, self.module.name.value) + objTypeName + "." + methodName;
+                string lookupKey = getPackageName(self.module.org.value, self.module.name.value) + objTypeName + "." +
+                                                    methodName;
                 methodSig = lookupJavaMethodDescription(lookupKey);
                 className = lookupFullQualifiedClassName(lookupKey);
                 jvmMethodInvokeInsn = INVOKESTATIC;

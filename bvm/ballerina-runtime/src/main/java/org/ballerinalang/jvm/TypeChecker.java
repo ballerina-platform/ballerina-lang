@@ -150,7 +150,7 @@ public class TypeChecker {
     public static BType getType(Object value) {
         if (value == null) {
             return BTypes.typeNull;
-        } else if (value instanceof Long) {
+        } else if (value instanceof Long || value instanceof Integer) {
             return BTypes.typeInt;
         } else if (value instanceof Double) {
             return BTypes.typeFloat;

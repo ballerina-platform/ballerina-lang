@@ -39,6 +39,8 @@ public class NonBlockingCallback {
 
     public NonBlockingCallback(Strand strand) {
         strand.yield = true;
+        strand.blocked = true;
+        strand.blockedOnExtern = true;
         this.strand = strand;
         executionWaitSem = new Semaphore(0);
     }
