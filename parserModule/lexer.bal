@@ -102,15 +102,15 @@ public type Lexer object {
                 if (isEnter(currChar)) {
                     self.position = 0;
                     self.lineNum += 1;
-                    self.wpStack.push(currChar);
-					//self.wpStack.push("newLine ");
+                    //self.wpStack.push(currChar);
+					self.wpStack.push("newLine ");
                 } else if(isTab(currChar)){
 					self.position = self.position + 3;
-					self.wpStack.push(currChar);
-					//self.wpStack.push("tab ");
+					//self.wpStack.push(currChar);
+					self.wpStack.push("tab ");
                 }else{
-					self.wpStack.push(currChar);
-					//self.wpStack.push("space ");
+					//self.wpStack.push(currChar);
+					self.wpStack.push("space ");
 				}
                 continue;
             }
@@ -444,8 +444,8 @@ public type Lexer object {
 		string space2= "";
 		if(self.wpStack.top != 0){
 			while(self.wpStack.top > 0){
-				space2 = self.wpStack.pop();
-				//space2 = self.wpStack.pop() + space2;
+				//space2 = self.wpStack.pop();
+				space2 = self.wpStack.pop() + space2;
 			}
 			return space2;
 		}

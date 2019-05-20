@@ -135,8 +135,8 @@ type RecordLiteralNode record {
 type RecordKeyValueNode record {
     *Node;
     RecordKeyNode recordKeyNode;
-    OperatorKind operatorKind;
-    ExpressionNode recordValueExpression;
+    OperatorKind? operatorKind;
+    ExpressionNode? recordValueExpression;
 
 };
 //Identifier |   expression
