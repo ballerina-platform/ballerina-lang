@@ -51,4 +51,26 @@ public class BallerinaValues {
         ValueCreator valueCreator = ValueCreator.getValueCreator(pkgName);
         return valueCreator.createObjectValue(objectTypeName);
     }
+
+    /**
+     * Method to populate a runtime record value with given field values.
+     *
+     * @param record which needs to get populated
+     * @param values field values of the record.
+     * @return value of the record.
+     */
+    public static MapValue<String, Object> populateRecordFields(MapValue<String, Object> record, Object... values) {
+        int valCount = 0;
+        for (String key : record.getKeys()) {
+            Object value;
+            if (values.length > valCount) {
+                value = values[valCount];
+            } else {
+                value = null;
+            }
+            record.put(key, value);
+            valCount++;
+        }
+        return record;
+    }
 }
