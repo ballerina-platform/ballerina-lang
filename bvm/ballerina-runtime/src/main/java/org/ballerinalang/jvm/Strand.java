@@ -20,6 +20,7 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
@@ -42,6 +43,7 @@ public class Strand {
     public Strand parent = null;
     public WDChannels wdChannels;
     public FlushDetail flushDetail;
+    public boolean blockedOnExtern;
     private Map<String, Object> globalProps;
 
     public Strand(Scheduler scheduler) {
@@ -79,7 +81,7 @@ public class Strand {
     }
 
     public void setReturnValues(Object returnValue) {
-
+        this.future = CompletableFuture.completedFuture(returnValue);
     }
 
     public void resume() {
