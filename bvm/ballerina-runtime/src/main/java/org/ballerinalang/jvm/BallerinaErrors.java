@@ -52,6 +52,10 @@ public class BallerinaErrors {
         return new ErrorValue(reason, detailMap);
     }
 
+    public static ErrorValue createError(String reason, MapValueImpl detailMap) {
+        return new ErrorValue(reason, detailMap);
+    }
+
     public static ErrorValue createConversionError(Object inputValue, BType targetType) {
         return createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
                              org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper

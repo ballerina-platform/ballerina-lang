@@ -24,24 +24,43 @@ configurations {
 }
 
 dependencies {
-    ballerinaTools project(path: ':ballerina-tools', configuration: 'zip')
+    ballerinaTools project(path: ':ballerina-tools', configuration: 'unzipped')
 }
 
-task unzipToolsZip(type: Copy){
-    from file(configurations.ballerinaTools.asPath)
-    into "${buildDir}/ballerina-tools"
+task unzipToolsZip(){
+    doFirst {
+        copy {
+            from file(configurations.ballerinaTools.asPath)
+            into "$buildDir/extracted-distributions/ballerina-tools-${project.version}"
+        }
+    }
 }
 
-task npmBuild(type: Exec) {
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine 'cmd', '/c', 'npm', 'run', 'build'
-    } else {
-        commandLine 'npm', 'run', 'build'
+npmBuild {
+    dependsOn unzipToolsZip
+    doFirst {
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', 'npm', 'run', 'build'
+        } else {
+            commandLine 'npm', 'run', 'build'
+        }
+    }
+}
+
+task test(type: Exec) {
+    onlyIf {
+        !assemble.state.upToDate
+    }
+    doFirst {
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', 'npm', 'run', 'test'
+        } else {
+            commandLine 'npm', 'run', 'test'
+        }
     }
 }
 
 build {
-    dependsOn unzipToolsZip
     dependsOn npmBuild
 }
 
