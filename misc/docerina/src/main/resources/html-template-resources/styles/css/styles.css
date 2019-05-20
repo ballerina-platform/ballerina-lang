@@ -97,6 +97,9 @@ body .ui.grid .content-wrapper pre.ballerina-snippet {
   padding: 20px;
   overflow-x: auto;
 }
+body .ui.grid .content-wrapper pre.ballerina-snippet code.language-ballerina {
+  background: none;
+}
 body .ui.grid .content-wrapper .main-wrapper {
   width: 800px;
   margin: 0px 30px;
