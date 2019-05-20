@@ -139,8 +139,31 @@ class SizingVisitor implements Visitor {
 
         // Size endpoints
         if (this.endpointHolder) {
+            const endpoints = this.endpointHolder.filter((ep) => (!ep.caller));
+
+            if (node.VisibleEndpoints) {
+                node.VisibleEndpoints.forEach((ep) => {
+                    // Find of one of the visible endpoints is actually a parameter to the function
+                    if (node.allParams) {
+                        node.allParams.forEach((p, i) => {
+                            let variableName = "";
+                            if (ASTKindChecker.isVariable(p)) {
+                                variableName = p.name.value;
+                            } else if (ASTKindChecker.isVariable(p.variable)) {
+                                variableName = p.variable.name.value;
+                            }
+
+                            if (variableName === ep.name) {
+                                // ep is a parameter to the function which is an endpoint
+                                endpoints.push(ep);
+                            }
+                        });
+                    }
+                });
+            }
+
             this.endpointHolder.forEach((endpoint: VisibleEndpoint) => {
-                if (!endpoint.caller && endpoint.viewState.visible) {
+                if (endpoint.viewState.visible) {
                     endpoint.viewState.bBox.w = config.lifeLine.width;
                     endpoint.viewState.bBox.h = client.bBox.h;
                     this.endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
@@ -386,7 +409,7 @@ class SizingVisitor implements Visitor {
                 }
             }
 
-            if (endpoint && !endpoint.caller) {
+            if (endpoint) {
                 viewState.endpoint = endpoint.viewState;
                 viewState.isAction = true;
                 viewState.bBox.h = config.statement.actionHeight;
@@ -440,6 +463,7 @@ class SizingVisitor implements Visitor {
         let visibleEndpoints = [];
         if (expandedFn.VisibleEndpoints) {
             visibleEndpoints = expandedFn.VisibleEndpoints.filter((ep) => !ep.caller && ep.viewState.visible);
+
             visibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
                 endpoint.viewState.bBox.w = config.lifeLine.width;
                 expandedFnWidth += (endpoint.viewState.bBox.w + config.lifeLine.gutter.h);
