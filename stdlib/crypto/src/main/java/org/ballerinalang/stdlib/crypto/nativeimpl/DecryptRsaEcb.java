@@ -20,6 +20,9 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -56,5 +59,19 @@ public class DecryptRsaEcb extends BlockingNativeCallableUnit {
         }
         CryptoUtils.rsaEncryptDecrypt(context, CryptoUtils.CipherMode.DECRYPT, Constants.ECB, padding, key, input, null,
                 -1);
+    }
+
+    public static Object decryptRsaEcb(Strand strand, Object padding, ArrayValue inputValue, MapValue<?, ?> keyMap) {
+        byte[] input = inputValue.getBytes();
+        Key key;
+        if (keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY) != null) {
+            key = (PrivateKey) keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);
+        } else if (keyMap.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY) != null) {
+            key = (PublicKey) keyMap.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
+        } else {
+            return CryptoUtils.createCryptoError("invalid uninitialized key");
+        }
+        return CryptoUtils.rsaEncryptDecrypt(CryptoUtils.CipherMode.DECRYPT, Constants.ECB, padding.toString(), key,
+                                             input, null, -1);
     }
 }
