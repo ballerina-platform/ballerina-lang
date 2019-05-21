@@ -77,7 +77,7 @@ public function Listener.init(ServiceEndpointConfiguration c) {
     var auth = self.config["auth"];
     if (auth is ListenerAuth) {
         var authnHandlers = auth.authnHandlers;
-        if (authnHandlers is AuthnHandler[]) {
+        if (authnHandlers is AuthnHandler?[]) {
             if (authnHandlers.length() > 0) {
                 initListener(self.config);
             }
@@ -172,7 +172,7 @@ public type ServiceEndpointConfiguration record {|
 # + positiveAuthzCache - Caching configurations for positive authorizations
 # + negativeAuthzCache - Caching configurations for negative authorizations
 public type ListenerAuth record {|
-    AuthnHandler[]|AuthnHandler[][] authnHandlers;
+    (AuthnHandler?)[]|(AuthnHandler?)[][] authnHandlers;
     string[]|string[][] scopes?;
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
@@ -250,7 +250,7 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
 
     var auth = config["auth"];
     if (auth is ListenerAuth) {
-        AuthnHandler[]|AuthnHandler[][] authnHandlers = auth.authnHandlers;
+        AuthnHandler?[]|AuthnHandler?[][] authnHandlers = auth.authnHandlers;
         AuthnFilter authnFilter = new(authnHandlers);
         authFilters[0] = authnFilter;
 
