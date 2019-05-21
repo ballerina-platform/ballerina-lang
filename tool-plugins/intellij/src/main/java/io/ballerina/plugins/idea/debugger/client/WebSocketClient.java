@@ -67,6 +67,7 @@ public class WebSocketClient {
      * @return true if the handshake is done properly.
      * @throws URISyntaxException   throws if there is an error in the URI syntax.
      * @throws InterruptedException throws if the connecting the server is interrupted.
+     * @throws SSLException throws if any SSL error is occurred.
      */
     public boolean handshake(Callback callback) throws InterruptedException, URISyntaxException, SSLException {
         boolean isDone;
@@ -153,7 +154,7 @@ public class WebSocketClient {
     /**
      * Shutdown the WebSocket Client.
      */
-    public void shutDown() throws InterruptedException {
+    public void shutDown() {
         group.shutdownGracefully();
     }
 }

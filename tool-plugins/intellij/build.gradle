@@ -16,8 +16,8 @@
  */
 
 plugins {
-    id "org.jetbrains.intellij" version "0.3.7"
-    id "de.undercouch.download" version "3.2.0"
+    id "org.jetbrains.intellij" version "0.4.8"
+    id "de.undercouch.download" version "3.4.3"
     id "org.sonarqube" version "2.6"
 }
 
@@ -123,12 +123,19 @@ checkstyle {
         include '**/*.java'
     }
     checkstyleTest {
-        source =  fileTree("src/test/java")
+        source = fileTree("src/test/java")
     }
 }
 
+createJavadoc {
+    source = fileTree("src/main/java")
+    failOnError false
+    options.addStringOption('-quiet')
+    exclude 'src/main/gen/**'
+}
+
 spotbugsMain {
-    it.effort "low"
+    it.effort "min"
     it.reportLevel "low"
     it.reports {
         xml.enabled false
@@ -138,8 +145,8 @@ spotbugsMain {
     if(excludeFile.exists()) {
         it.excludeFilter = excludeFile
     }
+    ignoreFailures = true
 }
 
-
-//runIde.dependsOn check
-//buildPlugin.dependsOn check
+runIde.dependsOn check
+buildPlugin.dependsOn check

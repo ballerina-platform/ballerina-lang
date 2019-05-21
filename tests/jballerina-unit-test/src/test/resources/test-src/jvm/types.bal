@@ -677,3 +677,13 @@ public function testSelfReferencingRecord() returns Foo {
     Foo f2 = {a:2, f:f1};
     return f2;
 }
+
+function testDecimalWithoutArgs() returns decimal {
+   decimal b = 7;
+   return b;
+}
+
+function testDecimalWithArgs(decimal a) returns decimal {
+   decimal b = 5 + a;
+   return b;
+}
