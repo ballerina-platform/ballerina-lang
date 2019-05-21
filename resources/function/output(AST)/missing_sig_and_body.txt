@@ -2,7 +2,7 @@ function
 
 serialized json output:
 
-ERROR [sachini/parserModule] - Expected IDENTIFIER;found EOF
+ERROR [sachini/parserModule] - 1:8: expected IDENTIFIER; found 'EOF'
 
 {
 	"nodeKind": "package",

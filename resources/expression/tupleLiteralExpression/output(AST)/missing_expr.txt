@@ -3,7 +3,8 @@ int a = (b,);
 }
 
 serialized json output:
-ERROR [sachini/parserModule] - <missing expression>
+ERROR [sachini/parserModule] - 2:11 : missing expression prior to the comma
+
 
 {
 	"nodeKind": "package",

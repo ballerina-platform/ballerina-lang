@@ -3,7 +3,8 @@ int a = b + c);
 }
 
 serialized json output;
-ERROR [sachini/parserModule] - <missing token>
+ ERROR [sachini/parserModule] - 0:-1 : invalid operator token
+ ERROR [sachini/parserModule] - LPAREN inserted
 
 {
 	"nodeKind": "package",

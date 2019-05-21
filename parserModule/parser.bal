@@ -74,7 +74,7 @@ type Parser object {
 		} else {
 			//string capturedErr = tokenNames[self.LAToken(1)];
 			//log:printError("Expected " + tokenNames[mToken] + ";found " + capturedErr);
-			log:printError(self.LookaheadToken(1).lineNumber + ":" + self.LookaheadToken(1).startPos +": expected " + tokenNames[mToken] + ";found " + self.LookaheadToken(1).text);
+			log:printError(self.LookaheadToken(1).lineNumber + ":" + self.LookaheadToken(1).startPos +": expected " + tokenNames[mToken] + "; found '" + self.LookaheadToken(1).text + "'");
 
 			Token panicToken = self.panicRecovery(mToken, rule);
 			return panicToken;
@@ -393,7 +393,7 @@ type Parser object {
 		while (self.oprStack.peek() != -1) {
 			Token operator = self.oprStack.pop();
 			if(operator.tokenType == LPAREN){
-				log:printError(operator.lineNumber + ":" + operator.startPos +" : invalid tuple literal, missing right parenthesis");
+				log:printError(operator.lineNumber + ":" + operator.startPos +" : invalid tuple literal, missing ')'");
 				self.invalidOccurence = true;
 				OperatorKind opKind = self.matchOperatorType(operator);
 			ExpressionNode expr2 = self.expStack.pop();
@@ -602,7 +602,12 @@ type Parser object {
 				while (self.oprStack.peek() != LPAREN) {
 					Token operator = self.oprStack.pop();
 					if(operator.tokenType == PARSER_ERROR_TOKEN){
+
+					//considering only possible option to return parser error token would be a missing lparen
 					log:printError(operator.lineNumber + ":" + operator.startPos +" : invalid operator token");
+					Token insertlParen = self.insertToken(LPAREN);
+					insertlParen.text = "(";
+					self.oprStack.push(insertlParen);
 					self.invalidOccurence = true;
 					break;
 					}else if(operator.tokenType == COMMA){

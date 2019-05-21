@@ -2,8 +2,10 @@ function foo (){
 
 
 serialized json output:
-ERROR [sachini/parserModule] - Expected RBRACE;found EOF
+
+ERROR [sachini/parserModule] - 1:16: expected RBRACE; found 'EOF'
 ERROR [sachini/parserModule] - RBRACE inserted
+
 
 {
 	"nodeKind": "package",

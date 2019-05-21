@@ -3,7 +3,7 @@ int a = (b + c;
 }
 
 serialized json output:
-ERROR [sachini/parserModule] - <Missing RPAREN>
+ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
 
 
 {

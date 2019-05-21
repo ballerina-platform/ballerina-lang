@@ -2,7 +2,8 @@ function foo
 
 serialized json output:
 
-ERROR [sachini/parserModule] - Expected LPAREN;found EOF
+ERROR [sachini/parserModule] - 1:12: expected LPAREN; found 'EOF'
+
 
 {
 	"nodeKind": "package",

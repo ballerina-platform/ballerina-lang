@@ -3,7 +3,9 @@ int a = b d;
 }
 
 serialized json output:
-ERROR [sachini/parserModule] - unexpected Token: IDENTIFIER
+
+ ERROR [sachini/parserModule] - 2:11: invalid token 'd'
+
 
 
 {

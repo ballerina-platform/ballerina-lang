@@ -3,9 +3,10 @@ int a =
 }
 
 serialized json output:
-ERROR [sachini/parserModule] - No Expression found
-ERROR [sachini/parserModule] - Expected SEMICOLON;found RBRACE
+ERROR [sachini/parserModule] - 2:7 : no valid expression found in variable definition statement.
+ERROR [sachini/parserModule] - 3:1: expected SEMICOLON; found '}'
 ERROR [sachini/parserModule] - SEMICOLON inserted
+
 
 {
 	"nodeKind": "package",

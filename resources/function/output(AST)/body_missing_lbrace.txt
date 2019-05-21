@@ -2,7 +2,7 @@ function foo ()}
 
 serialized json output:
 
-ERROR [sachini/parserModule] - Expected LBRACE;found RBRACE
+ERROR [sachini/parserModule] - 1:16: expected LBRACE; found '}'
 ERROR [sachini/parserModule] - LBRACE inserted
 
 

@@ -3,7 +3,7 @@ int a = /b;
 }
 
 serialized json output:
-ERROR [sachini/parserModule] - unexpected Token: DIV
+ERROR [sachini/parserModule] - 2:9: invalid token '/'
 
 {
 	"nodeKind": "package",

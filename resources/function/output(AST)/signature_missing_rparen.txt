@@ -3,7 +3,8 @@ function foo ({
 
 serialized json output:
 
-ERROR [sachini/parserModule] - Expected RPAREN;found LBRACE
+ERROR [sachini/parserModule] - 1:15: expected RPAREN; found '{'
+
 
 {
 	"nodeKind": "package",

@@ -2,7 +2,9 @@ function foo ){
 }
 
 serialized json output:
-ERROR [sachini/parserModule] - Expected LPAREN;found RPAREN
+
+ERROR [sachini/parserModule] - 1:14: expected LPAREN; found ')'
+
 
 {
 	"nodeKind": "package",

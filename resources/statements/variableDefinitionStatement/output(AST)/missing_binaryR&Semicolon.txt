@@ -3,9 +3,10 @@ int a = x +
 }
 
 serialized json output:
-ERROR [sachini/parserModule] - binary right expression not found
-ERROR [sachini/parserModule] - Expected SEMICOLON;found RBRACE
-ERROR [sachini/parserModule] - SEMICOLON inserted
+
+ERROR [sachini/parserModule] - 2:11 : invalid binary expression, binary RHS expression not found
+ERROR [sachini/parserModule] - 3:1: expected SEMICOLON; found '}'
+[sachini/parserModule] - SEMICOLON inserted
 
 
 {

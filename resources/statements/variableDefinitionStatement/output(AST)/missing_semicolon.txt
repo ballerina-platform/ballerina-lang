@@ -3,8 +3,10 @@ int a = 2
 }
 
 serialized json output:
-ERROR [sachini/parserModule] - Expected SEMICOLON;found RBRACE
+
+ERROR [sachini/parserModule] - 3:1: expected SEMICOLON; found '}'
 ERROR [sachini/parserModule] - SEMICOLON inserted
+
 
 
 {

@@ -4,7 +4,7 @@ int a = b + ;
 
 serialized json output:
 
-ERROR [sachini/parserModule] - binary right expression not found
+ERROR [sachini/parserModule] - 2:11 : invalid binary expression, binary RHS expression not found
 
 {
 	"nodeKind": "package",

@@ -12,10 +12,6 @@ function parseAst(string fileLocation) returns json {
 		}
 	}
 }
-//@test:BeforeSuite
-//function beforeFunc() {
-//
-//}
 
 @test:Config
 function testFunctionSigValid() {

@@ -3,7 +3,7 @@ function (){
 
 serialized json output:
 
-ERROR [sachini/parserModule] - Expected IDENTIFIER;found LPAREN
+ ERROR [sachini/parserModule] - 1:10: expected IDENTIFIER; found '('
 
 {
 	"nodeKind": "package",
