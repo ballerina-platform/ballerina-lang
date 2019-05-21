@@ -38,6 +38,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
@@ -45,7 +46,6 @@ import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -90,6 +90,11 @@ public class TypeChecker {
     public static long anyToByte(Object sourceVal) {
         return TypeConverter.anyToByte(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
                                                                                             BTypes.typeByte));
+    }
+
+    public static DecimalValue anyToDecimal(Object sourceVal) {
+        return  TypeConverter.anyToDecimal(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
+                                                                                             BTypes.typeDecimal));
     }
 
     /**
@@ -151,11 +156,11 @@ public class TypeChecker {
     public static BType getType(Object value) {
         if (value == null) {
             return BTypes.typeNull;
-        } else if (value instanceof Long) {
+        } else if (value instanceof Long || value instanceof Integer) {
             return BTypes.typeInt;
         } else if (value instanceof Double) {
             return BTypes.typeFloat;
-        } else if (value instanceof BigDecimal) {
+        } else if (value instanceof DecimalValue) {
             return BTypes.typeDecimal;
         } else if (value instanceof String) {
             return BTypes.typeString;
@@ -177,6 +182,22 @@ public class TypeChecker {
      */
     public static boolean isEqual(Object lhsValue, Object rhsValue) {
         return isEqual(lhsValue, rhsValue, new ArrayList<>());
+    }
+
+    public static boolean ifgt(Comparable lhsValue, Comparable rhsValue) {
+        return lhsValue.compareTo(rhsValue) > 0;
+    }
+
+    public static boolean ifge(Comparable lhsValue, Comparable rhsValue) {
+        return lhsValue.compareTo(rhsValue) >= 0;
+    }
+
+    public static boolean iflt(Comparable lhsValue, Comparable rhsValue) {
+        return lhsValue.compareTo(rhsValue) < 0;
+    }
+
+    public static boolean ifle(Comparable lhsValue, Comparable rhsValue) {
+        return lhsValue.compareTo(rhsValue) <= 0;
     }
 
     /**
@@ -889,7 +910,7 @@ public class TypeChecker {
         }
         return false;
     }
-    
+
     private static boolean isAnydata(BType type) {
         return isAnydata(type, new HashSet<>());
     }

@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.encoding.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
@@ -58,6 +60,15 @@ public class DecodeBase64Url extends BlockingNativeCallableUnit {
         } catch (IllegalArgumentException e) {
             context.setReturnValues(EncodingUtil.createEncodingError(context, "input is not a valid Base64 URL " +
                     "encoded value"));
+        }
+    }
+
+    public static Object decodeBase64Url(Strand strand, String input) {
+        try {
+            byte[] output = Base64.getUrlDecoder().decode(input);
+            return new ArrayValue(output);
+        } catch (IllegalArgumentException e) {
+            return EncodingUtil.createEncodingError("input is not a valid Base64 URL encoded value");
         }
     }
 }

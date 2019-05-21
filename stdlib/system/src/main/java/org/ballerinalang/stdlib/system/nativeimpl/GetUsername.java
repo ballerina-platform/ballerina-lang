@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -42,5 +43,9 @@ public class GetUsername extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         context.setReturnValues(SystemUtils.getSystemProperty(PROPERTY_NAME));
+    }
+
+    public static String getUsername(Strand strand) {
+        return SystemUtils.getProperty(PROPERTY_NAME);
     }
 }

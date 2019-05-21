@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.math.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
@@ -44,5 +45,9 @@ public class FloorMod extends BlockingNativeCallableUnit {
         long a = ctx.getIntArgument(0);
         long b = ctx.getIntArgument(1);
         ctx.setReturnValues(new BInteger(Math.floorMod(a, b)));
+    }
+
+    public static long floorMod(Strand strand, long a, long b) {
+        return Math.floorMod(a, b);
     }
 }

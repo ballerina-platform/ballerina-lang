@@ -18,6 +18,8 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,5 +47,11 @@ public class AddDuration extends AbstractTimeFunction {
         long milliSeconds = context.getIntArgument(6);
         context.setReturnValues(
                 addDuration(context, timeStruct, years, months, dates, hours, minutes, seconds, milliSeconds));
+    }
+
+    public static MapValue<?, ?> addDuration(Strand strand, MapValue<String, Object> timeRecord, long years,
+                                             long months, long dates, long hours, long minutes, long seconds,
+                                             long milliSeconds) {
+        return addDuration(timeRecord, years, months, dates, hours, minutes, seconds, milliSeconds);
     }
 }

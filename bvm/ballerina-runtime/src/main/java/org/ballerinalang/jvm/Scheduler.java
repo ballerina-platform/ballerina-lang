@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,6 +83,14 @@ public class Scheduler {
 
     public Scheduler(int numThreads) {
         this.numThreads = numThreads;
+    }
+
+    public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent) {
+        return schedule(params, fp.getFunction(), parent);
+    }
+
+    public FutureValue scheduleConsumer(Object[] params, FPValue<?, ?> fp, Strand parent) {
+        return schedule(params, fp.getConsumer(), parent);
     }
 
     /**

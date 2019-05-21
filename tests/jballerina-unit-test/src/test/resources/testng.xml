@@ -136,9 +136,32 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.expressions.binaryoperations.EqualAndNotEqualOperationsTest"/>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalNaNInfinityTest">
+                <!--We can remove excludes once 'isNaN' and 'isFinite' are supported-->
+                <methods>
+                    <exclude name="testIsFinite"/>
+                    <exclude name="testIsNaN"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalValueNegativeTest"/>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalBFloatComparisonTest"/>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalTypeConversionTest"/>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalUsageTest"/>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalValueTest">
+                <!--Unary + and - is not supported yet-->
+                <methods>
+                    <exclude name="testDecimalNegation" />
+                    <exclude name="testPositivelySignedLiteralAssignment" />
+                </methods>
+            </class>
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
             <class name="org.ballerinalang.test.types.constant.MapConstantTest" />
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
+            <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
+                <methods>
+                    <exclude name="testFunctionPointerNative"/>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>
