@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Configuration base for main files which will save/load configuration settings.
  *
- * @param <T>
+ * @param <T> BallerinaRunningState.
  */
 public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunningState> extends
         BallerinaRunConfigurationBase<T> {
