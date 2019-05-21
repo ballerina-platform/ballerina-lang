@@ -1,3 +1,3 @@
 function foo(){
-int a = (b,c);
+	int a  = 2 + (3*5);
 }
