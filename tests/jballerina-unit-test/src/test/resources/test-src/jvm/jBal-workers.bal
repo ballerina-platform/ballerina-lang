@@ -65,7 +65,7 @@ public function receiveWithCheck() returns error|int {
     worker w1 returns boolean|error{
       int i = 2;
       if(true){
-           error err = error("err", { message: "err msg" });
+           error err = error("err", message = "err msg");
            return err;
       }
       i -> w2;
@@ -159,7 +159,7 @@ function multipleSyncSend() returns string{
             i += 1;
         }
         if (false) {
-            error err = error("err", { message: "err msg" });
+            error err = error("err", message = "err msg");
             return err;
         }
         b = <- w1;
@@ -195,7 +195,7 @@ function returnNil() returns any|error {
 
    worker w2 returns error? {
     if (false) {
-        error err = error("err", { message: "err msg" });
+        error err = error("err", message = "err msg");
         return err;
     }
     int b = 15;
@@ -236,12 +236,12 @@ function multiWorkerSend() returns string{
 
     worker w2 returns error? {
          if (false) {
-            error err = error("err", { message: "err msg" });
+            error err = error("err", message: "err msg");
             return err;
          }
 
         if (false) {
-            error err = error("err", { message: "err msg" });
+            error err = error("err", message: "err msg");
             return err;
         }
         int b = 15;
@@ -291,7 +291,7 @@ function errorResult() returns error? {
     worker w1 returns error? {
         int a = 10;
         if (false) {
-            error err = error("err", { message: "err msg" });
+            error err = error("err", message = "err msg");
             return err;
         }
         var result = a ->> w2;
@@ -301,7 +301,7 @@ function errorResult() returns error? {
 
     worker w2 returns error? {
         if (true) {
-            error err = error("error3", { message: "err msg" });
+            error err = error("error3", message = "err msg");
             return err;
         }
         var b = 15;
@@ -392,7 +392,7 @@ function flushAll() returns string {
 
         worker w2 returns error?{
             if(false){
-                 error err = error("err", { message: "err msg" });
+                 error err = error("err", message = "err msg");
                  return err;
             }
             
@@ -442,7 +442,7 @@ function errorTest() returns error? {
 
         worker w2 returns error?{
             if(false){
-                 error err = error("err", { message: "err msg" });
+                 error err = error("err", message = "err msg");
                  return err;
             }
             int i = 0;
@@ -466,10 +466,9 @@ function errorTest() returns error? {
             }
             if (k > 3) {
                 map<string> reason = { k1: "error3" };
-                map<string> details = { message: "msg3" };
-                    error er3 = error(reason.k1, details);
-                    return er3;
-                }
+                error er3 = error(reason.k1, message = "msg3");
+                return er3;
+            }
 
             int b;
             b = <- w1;
@@ -487,7 +486,7 @@ function flushInDefaultError() returns error? {
      int a = 0;
      int b = 15;
      if (true) {
-       error err = error("err", { message: "err msg" });
+       error err = error("err", message = "err msg");
               return err;
      }
      a = <- default;

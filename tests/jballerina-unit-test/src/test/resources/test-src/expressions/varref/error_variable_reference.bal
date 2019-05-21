@@ -24,8 +24,8 @@ const ERROR2 = "Some Error Two";
 
 function testBasicErrorVariableWithMapDetails() returns (string, string, string, string, map<string>, string?,
                                                             string?, string?, map<any>, any, any, any) {
-    SMS err1 = error("Error One", { message: "Msg One", detail: "Detail Msg" });
-    SMA err2 = error("Error Two", { message: "Msg Two", fatal: true });
+    SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
+    SMA err2 = error("Error Two", message = "Msg Two", fatal = true );
 
     string reason11;
     map<string> detail11;
@@ -35,7 +35,7 @@ function testBasicErrorVariableWithMapDetails() returns (string, string, string,
     string? extra12;
 
     error (reason11, detail11) = err1;
-    error (reason12, { message: message12, detail: detail12, extra: extra12 }) = err1;
+    error (reason12, message = message12, detail = detail12, extra = extra12) = err1;
 
     string reason21;
     map<any> detail21;
@@ -53,8 +53,8 @@ function testBasicErrorVariableWithMapDetails() returns (string, string, string,
 
 function testBasicErrorVariableWithConstAndMap() returns (string, string, string, string, map<string>, string?, string?,
                                                              string?, map<any>, any, any, any) {
-    CMS err3 = error(ERROR1, { message: "Msg Three", detail: "Detail Msg" });
-    CMA err4 = error(ERROR2, { message: "Msg Four", fatal: true });
+    CMS err3 = error(ERROR1, message = "Msg Three", detail = "Detail Msg");
+    CMA err4 = error(ERROR2, message = "Msg Four", fatal = true);
 
     string reason31;
     map<string> detail31;
@@ -88,8 +88,8 @@ type Foo record {
 type FooError error <string, Foo>;
 
 function testBasicErrorVariableWithRecordDetails() returns (string, string, string, boolean, Foo) {
-    FooError err1 = error("Error One", { message: "Something Wrong", fatal: true });
-    FooError err2 = error("Error One", { message: "Something Wrong", fatal: true });
+    FooError err1 = error("Error One", message = "Something Wrong", fatal = true);
+    FooError err2 = error("Error One", message = "Something Wrong", fatal = true);
 
     string res1;
     Foo rec;
@@ -105,8 +105,8 @@ function testBasicErrorVariableWithRecordDetails() returns (string, string, stri
 
 function testErrorInTuple() returns (int, string, string, anydata|error, boolean) {
     Foo f = { message: "fooMsg", fatal: true };
-    (int, string, error, (error, Foo)) t1 = (12, "Bal", error("Err", { message: "Something Wrong" }),
-                                                            (error("Err2", { message: "Something Wrong2" }), f));
+    (int, string, error, (error, Foo)) t1 = (12, "Bal", error("Err", message = "Something Wrong"),
+                                                            (error("Err2", message = "Something Wrong2"), f));
 
     int intVar;
     string stringVar;
@@ -153,7 +153,7 @@ type Bar record {
 };
 
 function testErrorInRecordWithDestructure() returns (int, string, anydata|error) {
-    Bar b = { x: 1000, e: error("Err3", { message: "Something Wrong3" }) };
+    Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
 
     int x;
     string reason;
@@ -164,7 +164,7 @@ function testErrorInRecordWithDestructure() returns (int, string, anydata|error)
 }
 
 function testErrorInRecordWithDestructure2() returns (int, string, anydata|error, anydata|error) {
-    Bar b = { x: 1000, e: error("Err3", { message: "Something Wrong3" }) };
+    Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
 
     int x;
     string reason;
@@ -177,30 +177,30 @@ function testErrorInRecordWithDestructure2() returns (int, string, anydata|error
 }
 
 function testBasicErrorVariableWithFieldBasedRef() returns map<any> {
-    FooError err1 = error("Error One", { message: "Something Wrong", fatal: true });
+    FooError err1 = error("Error One", message = "Something Wrong", fatal = true);
 
     map<any> results = {};
 
     error (results.res1, results.rec) = err1;
-    error (results.res2, { message: results.message, fatal: results.fatal }) = err1;
+    error (results.res2, message = results.message, fatal = results.fatal) = err1;
 
     return results;
 }
 
 function testBasicErrorVariableWithIndexBasedRef() returns map<any> {
-    FooError err1 = error("Error One", { message: "Something Wrong", fatal: true });
+    FooError err1 = error("Error One", message = "Something Wrong", fatal = true);
 
     map<any> results = {};
 
     error (results["res1"], results["rec"]) = err1;
-    error (results["res2"], { message: results["message"], fatal: results["fatal"] }) = err1;
+    error (results["res2"], message = results["message"], fatal = results["fatal"]) = err1;
 
     return results;
 }
 
 function testErrorWithUnionConstrainedDetailMap() returns (string, string, map<string|boolean>,
                                                               string|boolean?, string|boolean?) {
-    error <string, map<string|boolean>> errorOne = error("Error Msg", { message: "Failed", fatal: false });
+    error <string, map<string|boolean>> errorOne = error("Error Msg", message = "Failed", fatal = false);
 
     string reasonString;
     string reasonString2;
@@ -220,7 +220,7 @@ function testErrorWithUnionConstrainedDetailMap() returns (string, string, map<s
 }
 
 function testErrorWithRestParam() returns map<string> {
-    error<string, map<string>> errWithMap = error("Error", { message: "Fatal", fatal: "true" });
+    error<string, map<string>> errWithMap = error("Error", message = "Fatal", fatal = "true");
 
     string reason;
     string? message;
@@ -232,7 +232,7 @@ function testErrorWithRestParam() returns map<string> {
 }
 
 function testErrorWithUnderscore() returns (string, map<string>) {
-    error<string, map<string>> errWithMap = error("Error", { message: "Fatal", fatal: "true" });
+    error<string, map<string>> errWithMap = error("Error", message = "Fatal", fatal = "true");
 
     string reason;
     map<string> detail;
@@ -244,7 +244,7 @@ function testErrorWithUnderscore() returns (string, map<string>) {
 }
 
 function testDetailMapConstrainedToJSON() returns (json, json) {
-    error<string, map<json>> err1 = error("ErrorReason", { message: "broken", fatal: true });
+    error<string, map<json>> err1 = error("ErrorReason", message = "broken", fatal = true);
 
     string reason2;
     json message;

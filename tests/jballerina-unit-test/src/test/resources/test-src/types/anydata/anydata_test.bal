@@ -861,8 +861,8 @@ function testTypeCheckingOnAny() returns anydata {
 type MyError error<string, map<error>>;
 
 error e1 = error("err reason");
-error e2 = error("err reason 2", { str: "string value", err: e1 });
-MyError e3 = error("err reason 3", { e1: e1, e2: e2 });
+error e2 = error("err reason 2", str = "string value", err = e1);
+MyError e3 = error("err reason 3", e1 = e1, e2 = e2);
 
 function testArraysWithErrorsAsAnydata() returns boolean {
     error?[] a1 = [e1, e2];

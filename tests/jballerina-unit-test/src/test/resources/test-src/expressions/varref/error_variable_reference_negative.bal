@@ -18,8 +18,8 @@ type SMS error <string, map<string>>;
 type SMA error <string, map<anydata>>;
 
 function testBasicErrorVariableWithMapDetails() {
-    SMS err1 = error("Error One", { message: "Msg One", detail: "Detail Msg" });
-    SMA err2 = error("Error Two", { message: "Msg Two", fatal: true });
+    SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
+    SMA err2 = error("Error Two", message = "Msg Two", fatal = true);
 
     boolean reason11; // expected 'boolean', found 'string'
     map<int> detail11; // expected 'map<int>', found 'map<string>'

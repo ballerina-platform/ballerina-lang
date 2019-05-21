@@ -16,9 +16,9 @@
 import ballerina/io;
 
 function testArrayWithErrors() returns (string, string, string) {
-    error<string, map<string|boolean>> err1 = error("Error One", { message: "msgOne", fatal: true });
-    error<string, map<string|boolean>> err2 = error("Error Two", { message: "msgTwo", fatal: false });
-    error<string, map<string|boolean>> err3 = error("Error Three", { message: "msgThree", fatal: true });
+    error<string, map<string|boolean>> err1 = error("Error One", message = "msgOne", fatal = true);
+    error<string, map<string|boolean>> err2 = error("Error Two", message = "msgTwo", fatal = false);
+    error<string, map<string|boolean>> err3 = error("Error Three", message = "msgThree", fatal = true);
     error<string, map<string|boolean>>[3] errorArray = [err1, err2, err3];
 
     string result1 = "";
@@ -53,9 +53,9 @@ function testArrayWithErrors() returns (string, string, string) {
 
 
 function testMapWithErrors() returns (string, string, string) {
-    error<string, map<string|boolean>> err1 = error("Error One", { message: "msgOne", fatal: true });
-    error<string, map<string|boolean>> err2 = error("Error Two", { message: "msgTwo", fatal: false });
-    error<string, map<string|boolean>> err3 = error("Error Three", { message: "msgThree", fatal: true });
+    error<string, map<string|boolean>> err1 = error("Error One", message = "msgOne", fatal = true);
+    error<string, map<string|boolean>> err2 = error("Error Two", message = "msgTwo", fatal = false);
+    error<string, map<string|boolean>> err3 = error("Error Three", message = "msgThree", fatal = true);
     map<error<string, map<string|boolean>>> errMap = { a: err1, b: err2, c: err3 };
 
     string result1 = "";
