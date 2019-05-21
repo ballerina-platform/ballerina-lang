@@ -48,7 +48,7 @@ public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
 
     private static final Logger ballerinaRootLogger = LoggerFactory.getLogger(BLogManager.BALLERINA_ROOT_LOGGER_NAME);
 
-    protected Logger getLogger(String pkg) {
+    protected static Logger getLogger(String pkg) {
         if (".".equals(pkg) || pkg == null) {
             return ballerinaRootLogger;
         } else {
@@ -64,6 +64,7 @@ public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
      * @param logLevel log level
      * @param consumer log message consumer
      */
+    //TODO Remove after migration : implemented using bvm values/types
     protected void logMessage(Context ctx, BLogLevel logLevel, BiConsumer<String, String> consumer) {
         // Create a new log message supplier
         Supplier<String> logMessage = new Supplier<String>() {
@@ -92,11 +93,45 @@ public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
     }
 
     /**
+     * Execute logging provided message.
+     *
+     * @param logLevel log level
+     * @param consumer log message consumer
+     */
+    protected static void logMessage(Object message, BLogLevel logLevel, BiConsumer<String, String> consumer) {
+        // Create a new log message supplier
+        Supplier<String> logMessage = new Supplier<String>() {
+            private String msg = null;
+
+            @Override
+            public String get() {
+                // We should invoke the lambda only once, thus caching return value
+                if (msg == null) {
+                    Object arg = message;
+                    // If it is a lambda; invoke it to get the log message
+                    arg = (arg instanceof BFunctionPointer) ? invokeFunctionPointer((BFunctionPointer) arg)[0] : arg;
+                    msg = arg.toString();
+                }
+                return msg;
+            }
+        };
+        // Logging message
+        String pkg = getPackagePath(ctx);
+        boolean logEnabled = LOG_MANAGER.getPackageLogLevel(pkg).value() <= logLevel.value();
+        if (logEnabled) {
+            consumer.accept(pkg, logMessage.get());
+        }
+        ObserveUtils.logMessageToActiveSpan(ctx, logLevel.name(), logMessage, logLevel == BLogLevel.ERROR);
+        ctx.setReturnValues();
+    }
+
+    /**
      * Invokes a callable function pointer.
      *
      * @param functionPointer function pointer
      * @return return values
      */
+    //TODO Remove after migration : implemented using bvm values/types
     protected BValue[] invokeFunction(BFunctionPointer functionPointer) {
         List<BValue> lambdaFunctionArgs = new ArrayList<>();
         for (BClosure closure : functionPointer.getClosureVars()) {
@@ -106,7 +141,38 @@ public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
                 functionPointer.value(), lambdaFunctionArgs.toArray(new BValue[0]));
     }
 
+    /**
+     * Invokes a callable function pointer.
+     *
+     * @param functionPointer function pointer
+     * @return return values
+     */
+    protected static Object[] invokeFunctionPointer(BFunctionPointer functionPointer) {
+//        List<BValue> lambdaFunctionArgs = new ArrayList<>();
+//        for (BClosure closure : functionPointer.getClosureVars()) {
+//            lambdaFunctionArgs.add(closure.value());
+//        }
+//        return BVMExecutor.executeFunction(functionPointer.value().getPackageInfo().getProgramFile(),
+//                functionPointer.value(), lambdaFunctionArgs.toArray(new BValue[0]));
+        return null;
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
     //TODO merge below and above methods(below one new bvm)
+    protected String getPackagePath(Context ctx) {
+        // TODO add API method a suitable way to get package path or does this simply returns "ballerina/log"?
+        Strand strand = ctx.getStrand();
+        String pkgPath;
+        if (strand.fp > 0) {
+            pkgPath = strand.peekFrame(1).callableUnitInfo.getPackageInfo().getPkgPath();
+            pkgPath = pkgPath.split(":")[0];
+        } else {
+            pkgPath = strand.peekFrame(0).callableUnitInfo.getPackageInfo().getPkgPath();
+        }
+        return pkgPath;
+    }
+
+    //TODO fix this method with jvm values
     protected String getPackagePath(Context ctx) {
         // TODO add API method a suitable way to get package path or does this simply returns "ballerina/log"?
         Strand strand = ctx.getStrand();
