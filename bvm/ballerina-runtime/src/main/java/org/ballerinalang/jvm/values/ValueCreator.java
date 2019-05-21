@@ -34,7 +34,8 @@ public abstract class ValueCreator {
 
     public static void addValueCreator(String key, ValueCreator valueCreater) {
         if (runtimeValueCreators.containsKey(key)) {
-            throw new BallerinaException("Value creator object already available");
+            // silently fail
+            return;
         }
 
         runtimeValueCreators.put(key, valueCreater);

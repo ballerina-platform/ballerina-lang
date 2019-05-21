@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+string[] generatedInitFuncs = [];
+
 function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module, bir:BType? attachedType = ()) {
 
     // skip code generation, if this is an extern function
@@ -27,6 +29,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     string funcName = cleanupFunctionName(untaint func.name.value);
 
     int returnVarRefIndex = -1;
+
+    bir:VariableDcl stranVar = { typeValue: "string", // should be record
+                                 name: { value: "srand" },
+                                 kind: "ARG" };
+    _ = indexMap.getIndex(stranVar);
 
     // generate method desc
     string desc = getMethodDesc(func.typeValue.paramTypes, func.typeValue.retType);
@@ -49,25 +56,24 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     jvm:MethodVisitor mv = cw.visitMethod(access, funcName, desc, (), ());
     InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
     ErrorHandlerGenerator errorGen = new(mv, indexMap);
-    
+
     mv.visitCode();
 
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
-        generateUserDefinedTypes(mv, module.typeDefs);
+        generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
             mv.visitTypeInsn(NEW, typeOwnerClass);
             mv.visitInsn(DUP);
             mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
             mv.visitVarInsn(ASTORE, 1);
-            mv.visitLdcInsn(currentPackageName);
+            mv.visitLdcInsn(cleanupPackageName(currentPackageName));
             mv.visitVarInsn(ALOAD, 1);
             mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", VALUE_CREATOR), "addValueCreator",
                                     io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
         }
-
     }
 
     // generate method body
@@ -77,11 +83,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         isVoidFunc = true;
         k = 0;
     }
-
-    bir:VariableDcl stranVar = { typeValue: "string", // should be record
-                                 name: { value: "srand" },
-                                 kind: "ARG" };
-    _ = indexMap.getIndex(stranVar);
 
     bir:VariableDcl?[] localVars = func.localVars;
     while (k < localVars.length()) {
@@ -209,6 +210,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     instGen.generateTypeofIns(inst);
                 } else if (inst.kind == bir:INS_KIND_NOT) {
                     instGen.generateNotIns(inst);
+                } else if (inst.kind == bir:INS_KIND_NEGATE) {
+                    instGen.generateNegateIns(inst);
                 } else {
                     error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                     panic err;
@@ -322,6 +325,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             termGen.genWorkerSendIns(terminator, funcName);
         } else if (terminator is bir:WorkerReceive) {
             termGen.genWorkerReceiveIns(terminator, funcName);
+        } else if (terminator is bir:Flush) {
+            termGen.genFlushIns(terminator, funcName);
         } else {
             error err = error( "JVM generation is not supported for terminator instruction " +
                                         io:sprintf("%s", terminator));
@@ -367,6 +372,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BTypeString) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", STRING_VALUE));
+            mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BTypeDecimal) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", DECIMAL_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeBoolean) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "Z");
@@ -461,6 +470,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", STRING_VALUE));
+        } else if (bType is bir:BTypeDecimal) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", DECIMAL_VALUE));
         } else if (bType is bir:BTypeBoolean) {
             mv.visitVarInsn(ILOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "Z");
@@ -678,6 +691,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BObjectType ||
+                bType is bir:BTypeDecimal ||
                 bType is bir:BUnionType ||
                 bType is bir:BRecordType ||
                 bType is bir:BTupleType ||
@@ -742,6 +756,8 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return "D";
     } else if (bType is bir:BTypeString) {
         return io:sprintf("L%s;", STRING_VALUE);
+    } else if (bType is bir:BTypeDecimal) {
+        return io:sprintf("L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         return "Z";
     } else if (bType is bir:BTypeNil) {
@@ -791,6 +807,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return ")D";
     } else if (bType is bir:BTypeString) {
         return io:sprintf(")L%s;", STRING_VALUE);
+    } else if (bType is bir:BTypeDecimal) {
+        return io:sprintf(")L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         return ")Z";
     } else if (bType is bir:BTypeNil) {
@@ -1035,6 +1053,8 @@ function castFromString(bir:BType targetType, jvm:MethodVisitor mv) {
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "parseDouble", "(Ljava/lang/String;)D", false);
     } else if (targetType is bir:BTypeBoolean) {
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", "(Ljava/lang/String;)Z", false);
+    } else if (targetType is bir:BTypeDecimal) {
+        mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", io:sprintf("(L%s;)V", STRING_VALUE), false);
     } else if (targetType is bir:BArrayType) {
         mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
     } else if (targetType is bir:BMapType) {
@@ -1073,11 +1093,21 @@ function isModuleInitFunction(bir:Package module, bir:Function func) returns boo
 function getModuleInitFuncName(bir:Package module) returns string {
     string orgName = module.org.value;
     string moduleName = module.name.value;
-    if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        return orgName  + "/" + moduleName + ":" + module.versionValue.value + ".<init>";
+
+    string funcName;
+    if (moduleName.equalsIgnoreCase(".")) {
+        funcName = "..<init>";
+    } else if ("".equalsIgnoreCase(module.versionValue.value)) {
+        funcName = moduleName + ".<init>";
     } else {
-        return "..<init>";
+        funcName = moduleName + ":" + module.versionValue.value + ".<init>";
     }
+
+    if (!orgName.equalsIgnoreCase("$anon")) {
+        funcName = orgName  + "/" + funcName;
+    }
+
+    return funcName;
 }
 
 function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
@@ -1085,18 +1115,25 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
         bir:Package importedPkg = lookupModule(mod, currentBIRContext);
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
+
+            // skip the init function invocation is its already generated 
+            // by someother package
+            if(isInitInvoked(initFuncName)) {
+                continue;
+            }
+
             string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
-                                                                importedPkg.name.value);
-            mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
+                                                                MODULE_INIT_CLASS_NAME);
+            mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                    "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;", false);
-            mv.visitInsn(POP);
+                    "(Lorg/ballerinalang/jvm/Strand;)V", false);
+
+            generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
         }
         generateInitFunctionInvocation(importedPkg, mv);
     }
 }
+
 
 function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {
     // load BValue array
@@ -1215,6 +1252,8 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
         typeSig = "D";
     } else if (bType is bir:BTypeString) {
         typeSig = io:sprintf("L%s;", STRING_VALUE);
+    } else if (bType is bir:BTypeDecimal) {
+        typeSig = io:sprintf("L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         typeSig = "Z";
     } else if (bType is bir:BTypeNil) {
@@ -1374,4 +1413,23 @@ function getMapValueDesc(int count) returns string{
     }
 
     return desc;
+}
+
+function isInitInvoked(string item) returns boolean {
+    foreach var listItem in generatedInitFuncs {
+        if (listItem.equalsIgnoreCase(item)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function getFunctions(bir:Function?[]? functions) returns bir:Function?[] {
+    if (functions is bir:Function?[]) {
+        return functions;
+    } else {
+        error err = error(io:sprintf("Invalid functions: %s", functions));
+        panic err;
+    }
 }

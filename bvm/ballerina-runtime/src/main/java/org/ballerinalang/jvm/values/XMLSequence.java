@@ -21,8 +21,8 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
@@ -415,6 +415,24 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
+    public String stringValue() {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < sequence.size(); i++) {
+                sb.append(((RefValue) sequence.getRefValue(i)).stringValue());
+            }
+            return sb.toString();
+        } catch (Throwable t) {
+            handleXmlException("failed to get xml as string: ", t);
+        }
+        return BLangConstants.STRING_NULL_VALUE;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Object copy(Map<Object, Object> refs) {
         if (isFrozen()) {
             return this;
@@ -443,8 +461,19 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     /**
      * {@inheritDoc}
      */
-    public int length() {
-        return this.sequence.size;
+    @Override
+    public int size() {
+        int size = 0;
+        for (int i = 0; i < this.sequence.size; i++) {
+            RefValue refValue = (RefValue) sequence.getRefValue(i);
+            if ((refValue.getType().getTag() == TypeTags.XML_TAG)) {
+                XMLValue xmlItem = (XMLValue) refValue;
+                size += xmlItem.size();
+            } else {
+                size += 1;
+            }
+        }
+        return size;
     }
 
     /**
@@ -496,11 +525,6 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             this.freezeStatus = freezeStatus;
             Arrays.stream(sequence.refValues).forEach(val -> ((RefValue) val).attemptFreeze(freezeStatus));
         }
-    }
-
-    @Override
-    public void stamp(BType type) {
-        // TODO
     }
 
     @Override

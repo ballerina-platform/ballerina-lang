@@ -123,6 +123,19 @@ public class BIRInstructionWriter extends BIRVisitor {
         waitEntry.lhsOp.accept(this);
     }
 
+    public void visit(BIRTerminator.Flush entry) {
+        writePosition(entry.pos);
+        buf.writeByte(entry.kind.getValue());
+        buf.writeInt(entry.channels.length);
+        for (BIRNode.ChannelDetails detail : entry.channels) {
+            addCpAndWriteString(detail.name);
+            buf.writeBoolean(detail.channelInSameStrand);
+            buf.writeBoolean(detail.send);
+        }
+        entry.lhsOp.accept(this);
+        addCpAndWriteString(entry.thenBB.id.value);
+    }
+
     public void visit(BIRTerminator.WorkerReceive entry) {
         writePosition(entry.pos);
         buf.writeByte((entry.kind.getValue()));
@@ -251,7 +264,8 @@ public class BIRInstructionWriter extends BIRVisitor {
                 buf.writeBoolean((Boolean) birConstantLoad.value);
                 break;
             case TypeTags.STRING:
-                buf.writeInt(cp.addCPEntry(new StringCPEntry((String) birConstantLoad.value)));
+            case TypeTags.DECIMAL:
+                buf.writeInt(cp.addCPEntry(new StringCPEntry(birConstantLoad.value.toString())));
                 break;
             case TypeTags.FLOAT:
                 double value = birConstantLoad.value instanceof Double ? (double) birConstantLoad.value

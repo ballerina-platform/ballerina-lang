@@ -33,6 +33,7 @@ public enum InstructionKind {
     FP_CALL((byte) 7),
     WK_RECEIVE((byte) 8),
     WK_SEND((byte) 9),
+    FLUSH((byte) 10),
 
     // Non-terminating instructions
     MOVE((byte) 20),
@@ -89,7 +90,8 @@ public enum InstructionKind {
 
     // Unary expression related instructions.
     TYPEOF((byte) 80),
-    NOT((byte) 81);
+    NOT((byte) 81),
+    NEGATE((byte) 82);
 
     byte value;
 

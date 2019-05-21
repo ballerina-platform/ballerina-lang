@@ -106,33 +106,35 @@ public type LdapAuthStoreProvider object {
         string username;
         string password;
         (username, password) = check extractUsernameAndPassword(credential);
-        boolean isAuthenticated = self.doAuthenticate(username, password);
+        boolean isAuthenticated = doAuthenticate(self, username, password);
         if (isAuthenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;
             principal.userId = self.ldapAuthStoreProviderConfig.domainName + ":" + username;
             // By default set userId as username.
             principal.username = username;
-            principal.scopes = self.getScopes(username);
+            principal.scopes = getLdapScopes(self, username);
         }
         return isAuthenticated;
     }
-
-    # Reads the scope(s) for the user with the given username.
-    #
-    # + username - Username
-    # + return - Array of groups for the user denoted by the username
-    public function getScopes(string username) returns string[] = external;
-
-    # Authenticate with username and password.
-    #
-    # + username - Username
-    # + password - Password
-    # + return - true if authentication is a success, else false
-    public function doAuthenticate(string username, string password) returns boolean = external;
 };
+
+# Reads the scope(s) for the user with the given username.
+#
+# + ldapAuthStoreProvider - LdapAuthStoreProvider provider object
+# + username - Username
+# + return - Array of groups for the user denoted by the username
+function getLdapScopes(LdapAuthStoreProvider ldapAuthStoreProvider, string username) returns string[] = external;
+
+# Authenticate with username and password.
+#
+# + ldapAuthStoreProvider - LdapAuthStoreProvider provider object
+# + username - Username
+# + password - Password
+# + return - true if authentication is a success, else false
+function doAuthenticate(LdapAuthStoreProvider ldapAuthStoreProvider, string username, string password) returns boolean = external;
 
 # Initailizes LDAP connection context.
 #
 # + ldapAuthStoreProvider - LdapAuthStoreProvider provider object
 # + instanceId - Unique id generated to identify an endpoint
-public function initLdapConnectionContext(LdapAuthStoreProvider ldapAuthStoreProvider, string instanceId) = external;
+function initLdapConnectionContext(LdapAuthStoreProvider ldapAuthStoreProvider, string instanceId) = external;
