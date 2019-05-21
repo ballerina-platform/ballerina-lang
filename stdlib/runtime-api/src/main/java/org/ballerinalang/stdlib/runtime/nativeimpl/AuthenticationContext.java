@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -31,11 +32,17 @@ public class AuthenticationContext {
 
     public static final String AUTH_SCHEME_KEY = "scheme";
     public static final String AUTH_TOKEN_KEY = "authToken";
+    private MapValue<String, Object> authenticationContextRecord;
 
     private BMap<String, BValue> authenticationContextStruct;
 
+    //TODO Remove after migration : implemented using bvm values/types
     public AuthenticationContext(BMap<String, BValue> authContextStruct) {
         this.authenticationContextStruct = authContextStruct;
+    }
+
+    public AuthenticationContext(MapValue<String, Object> authContextRecord) {
+        this.authenticationContextRecord = authContextRecord;
     }
 
     public String getScheme() {

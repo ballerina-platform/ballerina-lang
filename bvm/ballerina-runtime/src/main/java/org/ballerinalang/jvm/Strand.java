@@ -20,6 +20,7 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
@@ -43,6 +44,7 @@ public class Strand {
     public WDChannels wdChannels;
     public FlushDetail flushDetail;
     public boolean blockedOnExtern;
+    private Map<String, Object> globalProps;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
@@ -112,6 +114,14 @@ public class Strand {
             dataChannel = this.parent.wdChannels.getWorkerDataChannel(channel.name);
         }
         return dataChannel;
+    }
+
+    public Object getProperty(String key) {
+        return this.globalProps.get(key);
+    }
+
+    public void setProperty(String key, Object value) {
+        this.globalProps.put(key, value);
     }
 
     /**

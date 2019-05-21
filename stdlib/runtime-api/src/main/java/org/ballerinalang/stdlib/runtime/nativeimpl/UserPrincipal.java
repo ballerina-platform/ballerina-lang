@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -36,11 +37,17 @@ public class UserPrincipal {
     public static final String USER_NAME_STRING_FIELD_KEY = "username";
     public static final String CLAIMS_REF_FIELD_KEY = "claims";
     public static final String SCOPES_REF_FIELD_KEY = "scopes";
+    private MapValue<String, Object> authContextRecord;
 
     private BMap<String, BValue> authContextStruct;
 
+    //TODO Remove after migration : implemented using bvm values/types
     public UserPrincipal(BMap<String, BValue> authContextStruct) {
         this.authContextStruct = authContextStruct;
+    }
+
+    public UserPrincipal(MapValue<String, Object> authContextRecord) {
+        this.authContextRecord = authContextRecord;
     }
 
     public String getUserId() {
