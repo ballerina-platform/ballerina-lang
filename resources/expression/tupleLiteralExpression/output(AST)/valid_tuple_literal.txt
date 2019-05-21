@@ -121,7 +121,7 @@ serialized json output:
 				},
 				"expression": {
 					"nodeKind": "tupleLiteralNode",
-					"tokenList": [null, null, {
+					"tokenList": [{
 						"tokenType": 3,
 						"text": ")",
 						"startPos": 21,

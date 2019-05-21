@@ -3,7 +3,7 @@ int a = (,);
 }
 
 serialized json output:
-ERROR [sachini/parserModule] - unexpected Token: COMMA
+ERROR [sachini/parserModule] - 2:10: invalid token ','
 
 {
 	"nodeKind": "package",
@@ -132,7 +132,7 @@ ERROR [sachini/parserModule] - unexpected Token: COMMA
 						"varIdentifier": "a"
 					},
 					"expression": {
-						"nodeKind": "tupleLiteralNode",
+						"nodeKind": "emptyTupleLiteralNode",
 						"tokenList": [{
 							"tokenType": 3,
 							"text": ")",
@@ -149,8 +149,7 @@ ERROR [sachini/parserModule] - unexpected Token: COMMA
 							"lineNumber": 2,
 							"index": 9,
 							"whiteSpace": " "
-						}],
-						"tupleExprList": [null]
+						}]
 					}
 				}
 			}]

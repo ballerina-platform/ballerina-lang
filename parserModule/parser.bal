@@ -91,7 +91,6 @@ type Parser object {
 	function deleteToken() returns Token{
 		Token invalidToken = self.parserBuffer.consumeToken();
 		log:printError(invalidToken.lineNumber + ":" + invalidToken.startPos +": invalid token '" + invalidToken.text + "'");
-		//log:printError("unexpected Token: " + tokenNames[invalidToken.tokenType]);
 		self.errTokens[self.errCount] = invalidToken;
 		self.errCount += 1;
 		self.invalidOccurence = true;
@@ -667,6 +666,11 @@ type Parser object {
 
 				//ExpressionNode parenExpr = self.expStack.topExpr();
 				ExpressionNode parenExpr = self.expStack.pop();
+				if(parenExpr == null){
+					EmptyTupleLiteralNode emptyTuple = {nodeKind:EMPTY_TUPLE_LITERAL_NODE, tokenList:commaList };
+					SimpleLiteral smLiteral = emptyTuple;
+					self.expStack.push(smLiteral);
+				}else{
 					tupleList[self.tupleListPos] = parenExpr;
 					self.tupleListPos += 1;
 					//reversing the array
@@ -680,6 +684,8 @@ type Parser object {
 
 					TupleLiteralNode tupleLNode = {nodeKind: TUPLE_LITERAL_NODE , tokenList: commaList,tupleExprList:tupleList };
 					self.expStack.push(tupleLNode);
+				}
+
 				self.commaCount = 0;
 				self.expOperand = false;
 				self.priorOperator = false;
