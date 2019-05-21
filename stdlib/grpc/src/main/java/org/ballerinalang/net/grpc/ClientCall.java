@@ -75,8 +75,8 @@ public final class ClientCall {
         String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
         outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
-        outboundMessage.setProperty(Constants.HTTP_METHOD, GrpcConstants.HTTP_METHOD);
-        outboundMessage.setProperty(Constants.HTTP_VERSION, "2.0");
+        outboundMessage.setProperty("HTTP_METHOD", GrpcConstants.HTTP_METHOD);
+        outboundMessage.setProperty("HTTP_VERSION", "2.0");
         outboundMessage.setHeader(CONTENT_TYPE_KEY, GrpcConstants.CONTENT_TYPE_GRPC);
         outboundMessage.setHeader(TE_KEY, GrpcConstants.TE_TRAILERS);
     }

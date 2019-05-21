@@ -503,7 +503,7 @@ public class HttpUtil {
         HttpHeaders httpHeaders = response.getHeaders();
         httpHeaders.set(HttpHeaderNames.CONTENT_TYPE, org.wso2.transport.http.netty.contract.Constants.TEXT_PLAIN);
 
-        response.setProperty(org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE, statusCode);
+        response.setHttpStatusCode(statusCode);
     }
 
     /**

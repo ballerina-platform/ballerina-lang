@@ -108,8 +108,7 @@ public class InboundMessage {
      * @return HTTP method of the request.
      */
     public String getHttpMethod() {
-        return (String) httpCarbonMessage
-                .getProperty(org.wso2.transport.http.netty.contract.Constants.HTTP_METHOD);
+        return (String) httpCarbonMessage.getHttpMethod();
     }
 
     /**
