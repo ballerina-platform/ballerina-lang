@@ -31,7 +31,7 @@ import org.ballerinalang.model.values.BValue;
 public class InvocationContext {
 
     public static final String INVOCATION_ID_KEY = "id";
-    private static MapValue<String, Object> invocationContextRecord;
+    private MapValue<String, Object> invocationContextRecord;
     private BMap<String, BValue> invocationContextStruct;
     private UserPrincipal userPrincipal;
     private AuthenticationContext authenticationContext;
