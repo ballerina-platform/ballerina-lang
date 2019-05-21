@@ -17,7 +17,6 @@ function errorConstructDetailTest() returns (error, error, error, any, any, any)
 
     string s = "error2";
     map<anydata> m2 = { message: "msg2" };
-    anydata msg2 = m2.message;
     error er2 = error(s, message = m2.message);
 
     map<string> reason = { k1: "error3" };

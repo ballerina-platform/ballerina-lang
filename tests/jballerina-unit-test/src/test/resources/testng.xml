@@ -156,6 +156,14 @@
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
             <class name="org.ballerinalang.test.types.constant.MapConstantTest" />
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
+            <class name="org.ballerinalang.test.error.ErrorTest" >
+                <methods>
+                    <!-- un-identified error -->
+                    <exclude name="testOneLinePanic" />
+                    <!-- JBallerina ErrorValue and BallerinaException are not unified yet-->
+                    <exclude name="testUnspecifiedErrorDetailFrozenness" />
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

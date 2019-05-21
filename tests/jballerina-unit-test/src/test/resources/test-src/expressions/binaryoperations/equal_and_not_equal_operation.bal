@@ -110,7 +110,7 @@ type MyError error<string, ErrorDetail>;
 function testErrorEqualityPositive() returns boolean {
     error e1 = error("reason 1");
     error e2 = error("reason 1");
-    MyError e3 = error("reason 1", {});
+    MyError e3 = error("reason 1");
 
     error e4 = error("reason 1", message = "error message", intVal = 5);
     MyError e5 = error("reason 1", message = "error message", intVal = 5);

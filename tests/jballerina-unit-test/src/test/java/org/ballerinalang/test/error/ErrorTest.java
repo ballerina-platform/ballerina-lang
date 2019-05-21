@@ -34,8 +34,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.lang.reflect.InvocationTargetException;
-
 /**
  * Test cases for Error.
  *
@@ -43,7 +41,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class ErrorTest {
 
-    private CompileResult compileResult;
+    private CompileResult errorTestResult;
     private CompileResult negativeCompileResult;
 
     private static final String ERROR1 = "error1";
@@ -54,13 +52,13 @@ public class ErrorTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/error/error_test.bal");
+        errorTestResult = BCompileUtil.compile("test-src/error/error_test.bal");
         negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
     }
 
     @Test
     public void errorConstructReasonTest() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "errorConstructReasonTest");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorConstructReasonTest");
 
         Assert.assertTrue(returns[0] instanceof BError);
         Assert.assertEquals(((BError) returns[0]).getReason(), ERROR1);
@@ -78,7 +76,7 @@ public class ErrorTest {
 
     @Test
     public void errorConstructDetailTest() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "errorConstructDetailTest");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorConstructDetailTest");
         String detail1 = "{\"message\":\"msg1\"}";
         String detail2 = "{\"message\":\"msg2\"}";
         String detail3 = "{\"message\":\"msg3\"}";
@@ -100,14 +98,14 @@ public class ErrorTest {
     public void errorPanicTest() {
         // Case without panic
         BValue[] args = new BValue[] { new BInteger(10) };
-        BValue[] returns = BRunUtil.invoke(compileResult, "errorPanicTest", args);
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorPanicTest", args);
         Assert.assertEquals(returns[0].stringValue(), "done");
 
         // Now panic
         args = new BValue[] { new BInteger(15) };
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(compileResult, "errorPanicTest", args);
+            BRunUtil.invoke(errorTestResult, "errorPanicTest", args);
         } catch (Exception e) {
             expectedException = e;
         }
@@ -116,27 +114,27 @@ public class ErrorTest {
 
         Assert.assertEquals(message,
                 "error: largeNumber {\"message\":\"large number\"}\n\t" +
-                        "at errorPanicCallee(error_test.bal:36)\n\t" +
-                        "   errorPanicTest(error_test.bal:30)");
+                        "at errorPanicCallee(error_test.bal:37)\n\t" +
+                        "   errorPanicTest(error_test.bal:31)");
     }
 
     @Test
     public void errorTrapTest() {
         // Case without panic
         BValue[] args = new BValue[] { new BInteger(10) };
-        BValue[] returns = BRunUtil.invoke(compileResult, "errorTrapTest", args);
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
         Assert.assertEquals(returns[0].stringValue(), "done");
 
         // Now panic
         args = new BValue[] { new BInteger(15) };
-        returns = BRunUtil.invoke(compileResult, "errorTrapTest", args);
+        returns = BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
         String result = "largeNumber {\"message\":\"large number\"}";
         Assert.assertEquals(returns[0].stringValue(), result.trim());
     }
 
     @Test
     public void customErrorDetailsTest() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorDetails");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails");
         Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", cause:(), data:\"test\"}");
         Assert.assertEquals(((BError) returns[0]).getDetails().getType().getTag(), TypeTags.RECORD_TYPE_TAG);
         Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "TrxErrorData");
@@ -144,26 +142,26 @@ public class ErrorTest {
 
     @Test
     public void testCustomErrorDetails2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorDetails2");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails2");
         Assert.assertEquals(returns[0].stringValue(), "test");
     }
 
     @Test
     public void testErrorWithErrorConstructor() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorWithErrorConstructor");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testErrorWithErrorConstructor");
         Assert.assertEquals(returns[0].stringValue(), "test");
     }
 
 //    @Test
 //    public void testGetCallStack() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "getCallStackTest");
+//        BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
 //        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
 //                "moduleName:\"ballerina/runtime\", fileName:\"<native>\", lineNumber:0}");
 //    }
 
     @Test
     public void testConsecutiveTraps() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConsecutiveTraps");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testConsecutiveTraps");
         Assert.assertEquals(returns[0].stringValue(), "Error");
         Assert.assertEquals(returns[1].stringValue(), "Error");
     }
@@ -178,7 +176,7 @@ public class ErrorTest {
 
     @Test
     public void testOneLinePanic() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testOneLinePanic");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testOneLinePanic");
         Assert.assertTrue(returns[0] instanceof BValueArray);
         BValueArray array = (BValueArray) returns[0];
         Assert.assertEquals(array.getString(0), "Error1");
@@ -191,21 +189,21 @@ public class ErrorTest {
 
     @Test
     public void testGenericErrorWithDetailRecord() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGenericErrorWithDetailRecord");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testGenericErrorWithDetailRecord");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(dataProvider = "userDefTypeAsReasonTests")
     public void testErrorWithUserDefinedReasonType(String testFunction) {
-        BValue[] returns = BRunUtil.invoke(compileResult, testFunction);
+        BValue[] returns = BRunUtil.invoke(errorTestResult, testFunction);
         Assert.assertTrue(returns[0] instanceof BError);
         Assert.assertEquals(((BError) returns[0]).getReason(), CONST_ERROR_REASON);
     }
 
     @Test(dataProvider = "constAsReasonTests")
     public void testErrorWithConstantAsReason(String testFunction) {
-        BValue[] returns = BRunUtil.invoke(compileResult, testFunction);
+        BValue[] returns = BRunUtil.invoke(errorTestResult, testFunction);
         Assert.assertTrue(returns[0] instanceof BError);
         Assert.assertEquals(((BError) returns[0]).getReason(), CONST_ERROR_REASON);
         Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
@@ -214,14 +212,14 @@ public class ErrorTest {
 
 //    @Test
 //    public void testCustomErrorWithMappingOfSelf() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorWithMappingOfSelf");
+//        BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorWithMappingOfSelf");
 //        Assert.assertTrue(returns[0] instanceof BBoolean);
 //        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
 //    }
 
     @Test
     public void testUnspecifiedErrorDetailFrozenness() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUnspecifiedErrorDetailFrozenness");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testUnspecifiedErrorDetailFrozenness");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }

@@ -236,12 +236,12 @@ function multiWorkerSend() returns string{
 
     worker w2 returns error? {
          if (false) {
-            error err = error("err", message: "err msg");
+            error err = error("err", message = "err msg");
             return err;
          }
 
         if (false) {
-            error err = error("err", message: "err msg");
+            error err = error("err", message = "err msg");
             return err;
         }
         int b = 15;
