@@ -1549,7 +1549,22 @@ public class BIRGen extends BLangNodeVisitor {
     private void genIntermediateErrorEntries(BIRBasicBlock thenBB, BIROperand errTargetOperand) {
         if (thenBB != this.env.enclBB) {
             this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(thenBB, errTargetOperand));
-            this.env.trapBB = ((BIRTerminator.Call) thenBB.terminator).thenBB;
+            if (thenBB.terminator.kind == InstructionKind.CALL
+                || thenBB.terminator.kind == InstructionKind.ASYNC_CALL) {
+                this.env.trapBB = ((BIRTerminator.Call) thenBB.terminator).thenBB;
+            } else if (thenBB.terminator.kind == InstructionKind.FP_CALL) {
+                this.env.trapBB = ((BIRTerminator.FPCall) thenBB.terminator).thenBB;
+            } else if (thenBB.terminator.kind == InstructionKind.GOTO) {
+                this.env.trapBB = ((BIRTerminator.GOTO) thenBB.terminator).targetBB;
+            } else if (thenBB.terminator.kind == InstructionKind.FLUSH) {
+                this.env.trapBB = ((BIRTerminator.Flush) thenBB.terminator).thenBB;
+            } else if (thenBB.terminator.kind == InstructionKind.WK_RECEIVE) {
+                this.env.trapBB = ((BIRTerminator.WorkerReceive) thenBB.terminator).thenBB;
+            } else if (thenBB.terminator.kind == InstructionKind.WK_SEND) {
+                this.env.trapBB = ((BIRTerminator.WorkerSend) thenBB.terminator).thenBB;
+            } else {
+                return;
+            }
             genIntermediateErrorEntries(this.env.trapBB, errTargetOperand);
         }
     }

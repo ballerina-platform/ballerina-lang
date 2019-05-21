@@ -28,6 +28,7 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -111,11 +112,12 @@ public class ErrorTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String s = ((InvocationTargetException) expectedException.getCause()).getTargetException().toString();
-        Assert.assertEquals(s, "largeNumber {\"message\":\"large number\"}" );
-        StackTraceElement[] stackTrace = ((InvocationTargetException) expectedException.getCause()).getTargetException().getStackTrace();
-        Assert.assertEquals(stackTrace[0].toString(), "error_test.errorPanicCallee(error_test.bal:36)");
-        Assert.assertEquals(stackTrace[1].toString(), "error_test.errorPanicTest(error_test.bal:30)");
+        String message = ((BLangRuntimeException) expectedException).getMessage();
+
+        Assert.assertEquals(message,
+                "error: largeNumber {\"message\":\"large number\"}\n\t" +
+                        "at errorPanicCallee(error_test.bal:36)\n\t" +
+                        "   errorPanicTest(error_test.bal:30)");
     }
 
     @Test
