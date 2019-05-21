@@ -113,6 +113,8 @@
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
             <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
             <class name="org.ballerinalang.test.auth.AuthnWithCustomHandlersTest"/>
+            <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnConfigPatternTest"/>
         </classes>
     </test>
 
