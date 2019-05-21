@@ -21,6 +21,8 @@ public function serialize(BType bType) returns string {
         return "()";
     } else if (bType is BTypeInt){
         return "int";
+    } else if (bType is BTypeDecimal){
+        return "decimal";
     } else if (bType is BTypeByte){
         return "byte";
     } else if (bType is BTypeBoolean){

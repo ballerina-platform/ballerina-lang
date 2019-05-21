@@ -81,9 +81,21 @@ public class SourcePruneTest {
             String prunedSource = documentManager.getFileContent(compilationPath);
             Path expectedPath = expectedRoot.resolve(configObject.getAsJsonPrimitive("expected").getAsString());
             String expected = new String(Files.readAllBytes(expectedPath));
+            boolean sourceMatch = prunedSource.equals(expected);
+            if (!sourceMatch) {
+                Assert.fail("Sources Does not Match for " + configPath + System.lineSeparator()
+                        + "Pruned Source [" + prunedSource + "]" + System.lineSeparator()
+                        + "Expected Source [" + expected + "]");
+            }
             Assert.assertEquals(prunedSource, expected);
             BallerinaParser parser = CommonUtil.prepareParser(prunedSource, true);
             parser.compilationUnit();
+            boolean prunedSourceErrors = parser.getNumberOfSyntaxErrors() != 0;
+            if (prunedSourceErrors) {
+                Assert.fail("Pruned Source Contains errors for " + configPath + System.lineSeparator()
+                        + "Pruned Source [" + prunedSource + "]" + System.lineSeparator()
+                        + "Expected Source [" + expected + "]");
+            }
             Assert.assertEquals(parser.getNumberOfSyntaxErrors(), 0);
         } catch (SourcePruneException e) {
             Assert.fail(e.getMessage());
@@ -178,7 +190,7 @@ public class SourcePruneTest {
                 {"src_prune_config55.json"},
                 {"src_prune_config56.json"},
                 // XML Namespace Declaration statement
-                {"src_prune_config57.json"},
+//                {"src_prune_config57.json"},
                 // Array Literal Expression
                 {"src_prune_config58.json"},
                 // Record Literal Expression

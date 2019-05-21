@@ -260,6 +260,31 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     }
 
     /**
+     * A flush instruction.
+     * <p>
+     * e.g., %5 = flush w1,w2;
+     *
+     * @since 0.995.0
+     */
+    public static class Flush extends BIRTerminator {
+        public ChannelDetails[] channels;
+        public BIROperand lhsOp;
+        public BIRBasicBlock thenBB;
+
+        public Flush(DiagnosticPos pos, ChannelDetails[] channels, BIROperand lhsOp, BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.FLUSH);
+            this.channels = channels;
+            this.lhsOp = lhsOp;
+            this.thenBB = thenBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * A worker receive instruction.
      * <p>
      * e.g., WRK_RECEIVE w1;

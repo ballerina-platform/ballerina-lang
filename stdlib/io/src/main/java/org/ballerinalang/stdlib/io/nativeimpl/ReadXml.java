@@ -20,6 +20,9 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
@@ -71,5 +74,16 @@ public class ReadXml implements NativeCallableUnit {
     @Override
     public boolean isBlocking() {
         return false;
+    }
+
+    public static Object readXml(Strand strand, ObjectValue channel) {
+
+        CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
+        CharacterChannelReader reader = new CharacterChannelReader(charChannel, new EventContext());
+        try {
+            return XMLFactory.parse(reader);
+        } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
+            return IOUtils.createError(e.getMessage());
+        }
     }
 }

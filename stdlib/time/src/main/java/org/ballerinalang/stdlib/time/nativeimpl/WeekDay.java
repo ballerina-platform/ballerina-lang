@@ -18,6 +18,8 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -38,5 +40,9 @@ public class WeekDay extends AbstractTimeFunction {
     public void execute(Context context) {
         BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
         context.setReturnValues(new BString(getWeekDay(timeStruct)));
+    }
+
+    public static String getWeekday(Strand strand, MapValue<String, Object> timeRecord) {
+        return getWeekDay(timeRecord);
     }
 }
