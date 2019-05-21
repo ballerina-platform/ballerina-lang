@@ -410,13 +410,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     io:sprintf("L%s;", FUTURE_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BInvokableType) {
-            if (bType.retType is bir:BTypeNil) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
-                    io:sprintf("L%s;", CONSUMER));
-            } else {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
-                    io:sprintf("L%s;", FUNCTION));
-            }
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
+                    io:sprintf("L%s;", FUNCTION_POINTER));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeDesc) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
@@ -514,13 +509,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     io:sprintf("L%s;", OBJECT_VALUE));
         } else if (bType is bir:BInvokableType) {
             mv.visitVarInsn(ALOAD, index);
-            if (bType.retType is bir:BTypeNil) {
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), 
-                    io:sprintf("L%s;", CONSUMER));
-            } else {
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), 
-                    io:sprintf("L%s;", FUNCTION));
-            }
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), 
+                    io:sprintf("L%s;", FUNCTION_POINTER));
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
@@ -781,11 +771,7 @@ function getArgTypeSignature(bir:BType bType) returns string {
     } else if (bType is bir:BStreamType) {
         return io:sprintf("L%s;", STREAM_VALUE);
     } else if (bType is bir:BInvokableType) {
-        if (bType.retType is bir:BTypeNil) {
-            return io:sprintf("L%s;", CONSUMER);
-        } else {
-            return io:sprintf("L%s;", FUNCTION);
-        }
+        return io:sprintf("L%s;", FUNCTION_POINTER);
     } else if (bType is bir:BTypeDesc) {
         return io:sprintf("L%s;", TYPEDESC_VALUE);
     } else if (bType is bir:BObjectType) {
@@ -838,11 +824,7 @@ function generateReturnType(bir:BType? bType) returns string {
     } else if (bType is bir:BObjectType) {
         return io:sprintf(")L%s;", OBJECT_VALUE);
     } else if (bType is bir:BInvokableType) {
-        if (bType.retType is bir:BTypeNil) {
-            return io:sprintf(")L%s;", CONSUMER);
-        } else {
-            return io:sprintf(")L%s;", FUNCTION);
-        }
+        return io:sprintf(")L%s;", FUNCTION_POINTER);
     } else if (bType is bir:BXMLType) {
         return io:sprintf(")L%s;", XML_VALUE);
     } else {
@@ -861,6 +843,18 @@ function getMainFunc(bir:Function?[] funcs) returns bir:Function? {
     }
 
     return userMainFunc;
+}
+
+function createFunctionPointer(jvm:MethodVisitor mv, string class, string lambdaName, boolean isVoid, int closureMapCount) {
+    mv.visitTypeInsn(NEW, FUNCTION_POINTER);
+    mv.visitInsn(DUP);
+    mv.visitInvokeDynamicInsn(class, lambdaName, isVoid, closureMapCount);
+
+    // load null here for type, since these are fp's created for internal usages. 
+    mv.visitInsn(ACONST_NULL);
+
+    mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
+                        io:sprintf("(L%s;L%s;)V", CONSUMER, BTYPE), false);
 }
 
 function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg,  string mainClass,
@@ -895,12 +889,14 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
         // schedule the init method
         string lambdaName = io:sprintf("$lambda$%s$", initFuncName);
-        mv.visitInvokeDynamicInsn(initClass, lambdaName, true, 0);
+
+        // create FP value
+        createFunctionPointer(mv, initClass, lambdaName, true, 0);
 
         // no parent strand
         mv.visitInsn(ACONST_NULL);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
-            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, CONSUMER, STRAND, FUTURE_VALUE), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleConsumer",
+            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
         mv.visitInsn(POP);
     }
     
@@ -924,17 +920,17 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     // invoke the user's main method
     string lambdaName = "$lambda$main$";
-    mv.visitInvokeDynamicInsn(initClass, lambdaName, isVoidFunction, 0);
+    createFunctionPointer(mv, initClass, lambdaName, isVoidFunction, 0);
 
     // no parent strand
     mv.visitInsn(ACONST_NULL);
     //submit to the scheduler
     if (isVoidFunction) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
-            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, CONSUMER, STRAND, FUTURE_VALUE), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleConsumer",
+            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
     } else {
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
-            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION, STRAND, FUTURE_VALUE), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
+            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
         mv.visitInsn(DUP);
     }
 
@@ -1204,6 +1200,7 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visitSource(currentFunc.pos.sourceFileName);
+    currentClass = frameClassName;
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, (), OBJECT, ());
     generateDefaultConstructor(cw, OBJECT);
 
@@ -1286,11 +1283,7 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
                 bType is bir:BFiniteType) {
         typeSig = io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BInvokableType) {
-        if (bType.retType is bir:BTypeNil) {
-            typeSig = io:sprintf("L%s;", CONSUMER);
-        } else {
-            typeSig = io:sprintf("L%s;", FUNCTION);
-        }
+        typeSig = io:sprintf("L%s;", FUNCTION_POINTER);
     } else {
         error err = error( "JVM generation is not supported for type " +
                                     io:sprintf("%s", bType));
