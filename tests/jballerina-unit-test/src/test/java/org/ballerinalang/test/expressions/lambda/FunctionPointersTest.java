@@ -186,7 +186,7 @@ public class FunctionPointersTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "" +
-            ".*cannot find key 'getName'.*")
+            ".*cannot find key 'getName'.*", enabled = false)
     public void testStructFPNullReference() {
         BRunUtil.invoke(structProgram, "test2");
     }
