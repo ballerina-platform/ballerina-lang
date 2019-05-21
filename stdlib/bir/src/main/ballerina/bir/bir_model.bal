@@ -226,6 +226,9 @@ public type BTypeNil TYPE_NIL;
 public const TYPE_INT = "int";
 public type BTypeInt TYPE_INT;
 
+public const TYPE_DECIMAL = "decimal";
+public type BTypeDecimal TYPE_DECIMAL;
+
 public const TYPE_FLOAT = "float";
 public type BTypeFloat TYPE_FLOAT;
 
@@ -333,7 +336,7 @@ public type BFiniteType record {|
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
                   BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType |
-                  BFiniteType | BTableType | BStreamType;
+                  BFiniteType | BTableType | BStreamType | BTypeDecimal;
 
 public type ModuleID record {|
     string org = "";

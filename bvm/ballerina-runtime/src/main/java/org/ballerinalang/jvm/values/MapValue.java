@@ -50,4 +50,8 @@ public interface MapValue<K, V> extends RefValue, CollectionValue, Map<K, V> {
     default int size() {
         return -1;
     }
+
+    void addNativeData(String key, Object data);
+
+    Object getNativeData(String key);
 }

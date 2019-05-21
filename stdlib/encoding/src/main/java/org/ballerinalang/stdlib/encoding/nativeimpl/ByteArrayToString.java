@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.encoding.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueArray;
@@ -55,6 +57,14 @@ public class ByteArrayToString extends BlockingNativeCallableUnit {
             context.setReturnValues(new BString(value));
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("unsupported encoding: " + encoding , e);
+        }
+    }
+
+    public static String byteArrayToString(Strand strand, ArrayValue bytes, String encoding) {
+        try {
+            return new String(bytes.getBytes(), encoding);
+        } catch (UnsupportedEncodingException e) {
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("unsupported encoding: " + encoding , e);
         }
     }
 }
