@@ -21,6 +21,9 @@ package org.ballerinalang.stdlib.config;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -90,6 +93,37 @@ public class GetConfig extends BlockingNativeCallableUnit {
             }
         });
 
+        return map;
+    }
+
+    public static Object get(Strand strand, String configKey, Object type) {
+
+        // TODO: Add a try-catch
+        switch (type.toString()) {
+            case "STRING":
+                return configRegistry.getAsString(configKey);
+            case "INT":
+                return configRegistry.getAsInt(configKey);
+            case "FLOAT":
+                return configRegistry.getAsFloat(configKey);
+            case "BOOLEAN":
+                return configRegistry.getAsBoolean(configKey);
+            case "MAP":
+                return buildMapValue(configRegistry.getAsMap(configKey));
+            default:
+                throw new IllegalStateException("invalid value type: " + type.toString());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static MapValue buildMapValue(Map<String, Object> section) {
+        MapValue map = new MapValueImpl<String, Object>();
+
+        section.forEach((key, val) -> {
+            if (val instanceof String || val instanceof Long || val instanceof Double || val instanceof Boolean) {
+                map.put(key, val);
+            }
+        });
         return map;
     }
 }

@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 
@@ -50,6 +51,9 @@ public class TypeConverter {
             case TypeTags.INT_TAG:
                 return anyToInt(inputValue, () ->
                         BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeInt));
+            case TypeTags.DECIMAL_TAG:
+                return anyToDecimal(inputValue, () ->
+                        BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeDecimal));
             case TypeTags.FLOAT_TAG:
                 return anyToFloat(inputValue, () ->
                         BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeFloat));
@@ -86,6 +90,11 @@ public class TypeConverter {
             return ((Integer) sourceVal).longValue();
         } else if (sourceVal instanceof Boolean) {
             return (Boolean) sourceVal ? 0 : 1;
+        } else if (sourceVal instanceof DecimalValue) {
+            if (!isFloatWithinIntRange(((DecimalValue) sourceVal).floatValue())) {
+                throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
+            }
+            return ((DecimalValue) sourceVal).intValue();
         }
         throw errorFunc.get();
     }
@@ -99,6 +108,11 @@ public class TypeConverter {
             return (double) sourceVal;
         } else if (sourceVal instanceof Boolean) {
             return (Boolean) sourceVal ? 0 : 1;
+        } else if (sourceVal instanceof DecimalValue) {
+            if (!isFloatWithinIntRange(((DecimalValue) sourceVal).floatValue())) {
+                throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeFloat);
+            }
+            return ((DecimalValue) sourceVal).floatValue();
         }
         throw errorFunc.get();
     }
@@ -112,6 +126,8 @@ public class TypeConverter {
             return (Byte) sourceVal != 0;
         } else if (sourceVal instanceof Boolean) {
             return (boolean) sourceVal;
+        } else if (sourceVal instanceof DecimalValue) {
+            return ((DecimalValue) sourceVal).booleanValue();
         }
         throw errorFunc.get();
     }
@@ -123,7 +139,6 @@ public class TypeConverter {
             }
             return (long) sourceVal;
         } else if (sourceVal instanceof Double) {
-
             Double value = (Double) sourceVal;
             if (Double.isNaN(value) || Double.isInfinite(value)) {
                 throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
@@ -138,6 +153,11 @@ public class TypeConverter {
             return (long) sourceVal;
         } else if (sourceVal instanceof Boolean) {
             return ((Boolean) sourceVal ? 0 : 1);
+        } else if (sourceVal instanceof DecimalValue) {
+            if (!isByteLiteral(((DecimalValue) sourceVal).intValue())) {
+                throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
+            }
+            return ((DecimalValue) sourceVal).intValue();
         }
         throw errorFunc.get();
     }
@@ -151,8 +171,26 @@ public class TypeConverter {
             return Long.toString((Byte) sourceVal);
         } else if (sourceVal instanceof Boolean) {
             return Boolean.toString((Boolean) sourceVal);
+        } else if (sourceVal instanceof DecimalValue) {
+            return ((DecimalValue) sourceVal).stringValue();
         }
         throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeString);
+    }
+
+    static DecimalValue anyToDecimal(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Long) {
+            return DecimalValue.valueOf((Long) sourceVal);
+        } else if (sourceVal instanceof Double) {
+            return DecimalValue.valueOf((Double) sourceVal);
+        } else if (sourceVal instanceof Byte) {
+            return DecimalValue.valueOf((Byte) sourceVal);
+        } else if (sourceVal instanceof Boolean) {
+            return (boolean) sourceVal ? DecimalValue.valueOf(1) : DecimalValue.valueOf(0);
+        } else if (sourceVal instanceof String) {
+            return new DecimalValue((String) sourceVal);
+        }
+
+        throw errorFunc.get();
     }
 
     private static boolean isByteLiteral(long longValue) {

@@ -28,6 +28,9 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
     } else if (targetType is bir:BTypeString) {
         generateCheckCastToString(mv, sourceType);
         return;
+    } else if (targetType is bir:BTypeDecimal) {
+        generateCheckCastToDecimal(mv, sourceType);
+        return;
     } else if (targetType is bir:BTypeBoolean) {
         generateCheckCastToBoolean(mv, sourceType);
         return;
@@ -79,6 +82,7 @@ function generateCheckCastToInt(jvm:MethodVisitor mv, bir:BType sourceType) {
     } else if (sourceType is bir:BTypeAny ||
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType ||
+            sourceType is bir:BTypeDecimal ||
             sourceType is bir:BJSONType ||
             sourceType is bir:BFiniteType) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", io:sprintf("(L%s;)J", OBJECT), false);
@@ -96,11 +100,32 @@ function generateCheckCastToFloat(jvm:MethodVisitor mv, bir:BType sourceType) {
     } else if (sourceType is bir:BTypeAny ||
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType ||
+            sourceType is bir:BTypeDecimal ||
             sourceType is bir:BJSONType ||
             sourceType is bir:BFiniteType) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", io:sprintf("(L%s;)D", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'float'", sourceType));
+        panic err;
+    }
+}
+
+function generateCheckCastToDecimal(jvm:MethodVisitor mv, bir:BType sourceType) {
+    if (sourceType is bir:BTypeDecimal) {
+        // do nothing
+    } else if (sourceType is bir:BTypeAny ||
+            sourceType is bir:BTypeAnyData ||
+            sourceType is bir:BUnionType ||
+            sourceType is bir:BJSONType ||
+            sourceType is bir:BFiniteType) {
+        checkCast(mv, bir:TYPE_DECIMAL);
+        mv.visitTypeInsn(CHECKCAST, DECIMAL_VALUE);
+    } else if (sourceType is bir:BTypeInt) {
+        mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", io:sprintf("(J)L%s;", DECIMAL_VALUE), false);
+    } else if (sourceType is bir:BTypeFloat) {
+        mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", io:sprintf("(D)L%s;", DECIMAL_VALUE), false);
+    } else {
+        error err = error(io:sprintf("Casting is not supported from '%s' to 'decimal'", sourceType));
         panic err;
     }
 }
@@ -121,6 +146,9 @@ function generateCheckCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "toString", io:sprintf("(D)L%s;", STRING_VALUE), false);
     } else if (sourceType is bir:BTypeBoolean) {
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "toString", io:sprintf("(Z)L%s;", STRING_VALUE), false);
+    } else if (sourceType is bir:BTypeDecimal) {
+        mv.visitMethodInsn(INVOKESTATIC, STRING_VALUE, "valueOf", io:sprintf("(L%s;)L%s;", OBJECT, STRING_VALUE),
+            false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'string'", sourceType));
         panic err;
@@ -256,6 +284,9 @@ function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targ
     } else if (targetType is bir:BTypeByte) {
         generateCastToByte(mv, sourceType);
         return;
+    } else if (targetType is bir:BTypeDecimal) {
+        generateCastToDecimal(mv, sourceType);
+        return;
     } else if (targetType is bir:BTypeNil) {
         // do nothing
         return;
@@ -323,6 +354,24 @@ function generateCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
         mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'string'", sourceType));
+        panic err;
+    }
+}
+
+function generateCastToDecimal(jvm:MethodVisitor mv, bir:BType sourceType) {
+    if (sourceType is bir:BTypeDecimal) {
+        // do nothing
+    } else if (sourceType is bir:BTypeInt) {
+        mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", io:sprintf("(J)L%s;", DECIMAL_VALUE), false);
+    } else if (sourceType is bir:BTypeFloat) {
+        mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", io:sprintf("(D)L%s;", DECIMAL_VALUE), false);
+    } else if (sourceType is bir:BTypeAny ||
+        sourceType is bir:BTypeAnyData ||
+        sourceType is bir:BUnionType ||
+        sourceType is bir:BJSONType) {
+        mv.visitTypeInsn(CHECKCAST, DECIMAL_VALUE);
+    } else {
+        error err = error(io:sprintf("Casting is not supported from '%s' to 'decimal'", sourceType));
         panic err;
     }
 }

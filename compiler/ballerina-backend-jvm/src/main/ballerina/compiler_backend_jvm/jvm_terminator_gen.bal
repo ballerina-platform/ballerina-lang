@@ -60,6 +60,7 @@ type TerminatorGenerator object {
                 bType is bir:BStreamType ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BObjectType ||
+                bType is bir:BTypeDecimal ||
                 bType is bir:BRecordType ||
                 bType is bir:BTupleType ||
                 bType is bir:BJSONType ||
@@ -139,7 +140,7 @@ type TerminatorGenerator object {
         string moduleName = callIns.pkgID.name;
 
         // check for native blocking call
-        if (isExternFunctionCall(callIns)) {
+        if (isExternStaticFunctionCall(callIns)) {
             jvm:Label blockedOnExternLabel = new;
             jvm:Label notBlockedOnExternLabel = new;
 
@@ -220,6 +221,7 @@ type TerminatorGenerator object {
                         bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
                         bType is bir:BObjectType ||
+                        bType is bir:BTypeDecimal ||
                         bType is bir:BUnionType ||
                         bType is bir:BRecordType ||
                         bType is bir:BTupleType ||
@@ -341,6 +343,8 @@ type TerminatorGenerator object {
             self.mv.visitVarInsn(LLOAD, argIndex);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitVarInsn(DLOAD, argIndex);
+        } else if (bType is bir:BTypeDecimal) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
         } else if (bType is bir:BTypeBoolean) {
             self.mv.visitVarInsn(ILOAD, argIndex);
         } else if (bType is bir:BTypeDesc) {
@@ -394,6 +398,8 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(LLOAD, argIndex);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DLOAD, argIndex);
+            } else if (bType is bir:BTypeDecimal) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
             } else if (bType is bir:BTypeByte) {
@@ -540,6 +546,8 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(LLOAD, argIndex);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DLOAD, argIndex);
+            } else if (bType is bir:BTypeDecimal) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
             } else if (bType is bir:BTypeByte) {
@@ -694,10 +702,10 @@ type TerminatorGenerator object {
         // load strand
         self.mv.visitVarInsn(ALOAD, 0);
         if (isVoid) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleConsumer", 
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleConsumer",
                 io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction", 
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
                 io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
         }
 
@@ -767,7 +775,11 @@ function cleanupObjectTypeName(string typeName) returns string {
     }
 }
 
-function isExternFunctionCall(bir:Call callIns) returns boolean {
+function isExternStaticFunctionCall(bir:Call callIns) returns boolean {
+    if (callIns.isVirtual) {
+        return false;
+    }
+
     string methodName = callIns.name.value;
     string orgName = callIns.pkgID.org;
     string moduleName = callIns.pkgID.name;

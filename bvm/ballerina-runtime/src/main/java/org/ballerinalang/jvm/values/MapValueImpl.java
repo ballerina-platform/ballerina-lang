@@ -75,6 +75,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
+    private final HashMap<String, Object> nativeData = new HashMap<>();
 
     public MapValueImpl(BType type) {
         super();
@@ -500,5 +501,24 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         public boolean hasNext() {
             return iterator.hasNext();
         }
+    }
+
+    /**
+     * Add native data to the MapValue.
+     *
+     * @param key key to identify native value.
+     * @param data value to be added.
+     */
+    public void addNativeData(String key, Object data) {
+        nativeData.put(key, data);
+    }
+
+    /**
+     * Get native data.
+     * @param key key to identify native value.
+     * @return value for the given key.
+     */
+    public Object getNativeData(String key) {
+        return nativeData.get(key);
     }
 }
