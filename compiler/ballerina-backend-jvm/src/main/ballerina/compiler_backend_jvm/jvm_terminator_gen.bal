@@ -60,6 +60,7 @@ type TerminatorGenerator object {
                 bType is bir:BStreamType ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BObjectType ||
+                bType is bir:BTypeDecimal ||
                 bType is bir:BRecordType ||
                 bType is bir:BTupleType ||
                 bType is bir:BJSONType ||
@@ -138,10 +139,65 @@ type TerminatorGenerator object {
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
 
-        // invoke the function
-        self.genCall(callIns, orgName, moduleName, localVarOffset);
+        // check for native blocking call
+        if (isExternStaticFunctionCall(callIns)) {
+            jvm:Label blockedOnExternLabel = new;
+            jvm:Label notBlockedOnExternLabel = new;
 
-        // store return
+            self.mv.visitVarInsn(ALOAD, localVarOffset);
+            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+            self.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
+
+            if (callIns.lhsOp.variableDcl is bir:VariableDcl) {
+                self.mv.visitVarInsn(ALOAD, localVarOffset);
+                self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "future",
+                                        "Ljava/util/concurrent/Future;");
+                self.mv.visitMethodInsn(INVOKEINTERFACE, "java/util/concurrent/Future", "get", "()Ljava/lang/Object;",
+                                            true);
+                addUnboxInsn(self.mv, callIns.lhsOp.typeValue);
+
+                // store return
+                self.storeReturnFromCallIns(callIns);
+            }
+
+            self.mv.visitVarInsn(ALOAD, localVarOffset);
+            self.mv.visitInsn(ICONST_0);
+            self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+
+            self.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
+
+            self.mv.visitLabel(blockedOnExternLabel);
+            // invoke the function
+            self.genCall(callIns, orgName, moduleName, localVarOffset);
+
+            // store return
+            self.storeReturnFromCallIns(callIns);
+
+            self.mv.visitLabel(notBlockedOnExternLabel);
+        } else {
+            // invoke the function
+            self.genCall(callIns, orgName, moduleName, localVarOffset);
+
+            // store return
+            self.storeReturnFromCallIns(callIns);
+        }
+
+        // handle trapped function calls.
+        if (isInTryBlock &&  currentEE is bir:ErrorEntry) {
+            self.errorGen.generateCatchInsForTrap(currentEE, endLabel, handlerLabel, jumpLabel);
+        }
+
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
+        self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
+        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
+        self.mv.visitJumpInsn(IFNE, yieldLabel);
+
+        // goto thenBB
+        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + callIns.thenBB.id.value);
+        self.mv.visitJumpInsn(GOTO, gotoLabel);
+    }
+
+    private function storeReturnFromCallIns(bir:Call callIns) {
         bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp.variableDcl;
 
         if (lhsOpVarDcl is bir:VariableDcl) {
@@ -165,8 +221,9 @@ type TerminatorGenerator object {
                         bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
                         bType is bir:BObjectType ||
+                        bType is bir:BTypeDecimal ||
                         bType is bir:BUnionType ||
-                        bType is bir:BRecordType || 
+                        bType is bir:BRecordType ||
                         bType is bir:BTupleType ||
                         bType is bir:BFutureType ||
                         bType is bir:BJSONType ||
@@ -181,20 +238,6 @@ type TerminatorGenerator object {
                 panic err;
             }
         }
-        
-        // handle trapped function calls.
-        if (isInTryBlock &&  currentEE is bir:ErrorEntry) {
-            self.errorGen.generateCatchInsForTrap(currentEE, endLabel, handlerLabel, jumpLabel);
-        }
-
-        self.mv.visitVarInsn(ALOAD, localVarOffset);
-        self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
-        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
-        self.mv.visitJumpInsn(IFNE, yieldLabel);
-
-        // goto thenBB
-        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + callIns.thenBB.id.value);
-        self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
     private function genCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
@@ -256,7 +299,7 @@ type TerminatorGenerator object {
         self.mv.visitVarInsn(ALOAD, localVarOffset);
 
         // load the function name as the second argument
-        self.mv.visitLdcInsn(callIns.name.value);
+        self.mv.visitLdcInsn(cleanupObjectTypeName(callIns.name.value));
 
         // create an Object[] for the rest params
         int argsCount = callIns.args.length() - 1;
@@ -301,6 +344,8 @@ type TerminatorGenerator object {
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitVarInsn(DLOAD, argIndex);
         } else if (bType is bir:BTypeString) {
+            self.mv.visitVarInsn(ALOAD, argIndex);
+        } else if (bType is bir:BTypeDecimal) {
             self.mv.visitVarInsn(ALOAD, argIndex);
         } else if (bType is bir:BTypeBoolean) {
             self.mv.visitVarInsn(ILOAD, argIndex);
@@ -364,6 +409,8 @@ type TerminatorGenerator object {
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DLOAD, argIndex);
             } else if (bType is bir:BTypeString) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BTypeDecimal) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
@@ -516,6 +563,8 @@ type TerminatorGenerator object {
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DLOAD, argIndex);
             } else if (bType is bir:BTypeString) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BTypeDecimal) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
@@ -703,33 +752,61 @@ type TerminatorGenerator object {
 };
 
 function loadChannelDetails(jvm:MethodVisitor mv, bir:ChannelDetail[] channels) {
-        mv.visitIntInsn(BIPUSH, channels.length());
-        mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
-        int index = 0;
-        foreach bir:ChannelDetail ch in channels {
-            // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
-            mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, index);
-            index += 1;
+    mv.visitIntInsn(BIPUSH, channels.length());
+    mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
+    int index = 0;
+    foreach bir:ChannelDetail ch in channels {
+        // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
+        mv.visitInsn(DUP);
+        mv.visitIntInsn(BIPUSH, index);
+        index += 1;
 
-            mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn(ch.name.value);
-            
-            if (ch.onSameStrand) {
-                mv.visitInsn(ICONST_1);
-            } else {
-                mv.visitInsn(ICONST_0);
-            }
+        mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(ch.name.value);
 
-            if (ch.isSend) {
-                mv.visitInsn(ICONST_1);
-            } else {
-                mv.visitInsn(ICONST_0);
-            }
-
-            mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", io:sprintf("(L%s;ZZ)V", STRING_VALUE), 
-                false);
-            mv.visitInsn(AASTORE);
+        if (ch.onSameStrand) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
         }
+
+        if (ch.isSend) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
+
+        mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", io:sprintf("(L%s;ZZ)V", STRING_VALUE),
+            false);
+        mv.visitInsn(AASTORE);
     }
+}
+
+
+function cleanupObjectTypeName(string typeName) returns string {
+    int index = typeName.lastIndexOf(".");
+    if (index > 0) {
+        return typeName.substring(index + 1, typeName.length());
+    } else {
+        return typeName;
+    }
+}
+
+function isExternStaticFunctionCall(bir:Call callIns) returns boolean {
+    if (callIns.isVirtual) {
+        return false;
+    }
+
+    string methodName = callIns.name.value;
+    string orgName = callIns.pkgID.org;
+    string moduleName = callIns.pkgID.name;
+    string key = getPackageName(orgName, moduleName) + methodName;
+
+    if (birFunctionMap.hasKey(key)) {
+        BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
+        return isExternFunc(functionWrapper.func);
+    }
+
+    return false;
+}

@@ -307,6 +307,53 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             birFunctionMap[pkgName + functionName] = functionWrapper;
         }
     }
+
+    // link typedef - object attached native functions
+    bir:TypeDef?[] typeDefs = module.typeDefs;
+
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        bir:BType bType = typeDef.typeValue;
+
+        if (bType is bir:BObjectType && !bType.isAbstract) {
+            bir:Function?[] attachedFuncs = getFunctions(typeDef.attachedFuncs);
+            foreach var func in attachedFuncs {
+
+                // link the bir function for lookup
+                bir:Function currentFunc = getFunction(func);
+                string functionName = currentFunc.name.value;
+                string lookupKey = bType.name.value + "." + functionName;
+
+                if (!isExternFunc(currentFunc)) {
+                    continue;
+                }
+
+                var result = jvm:lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
+                if (result is string) {
+                    bir:BInvokableType functionTypeDesc = currentFunc.typeValue;
+                    bir:BType? attachedType = bType;
+                    string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
+                                                                attachedType = attachedType);
+
+                    BIRFunctionWrapper functionWrapper = {
+                        orgName : orgName,
+                        moduleName : moduleName,
+                        versionValue : versionValue,
+                        func : currentFunc,
+                        fullQualifiedClassName : result,
+                        jvmMethodDescription : jvmMethodDescription
+                    };
+
+                    birFunctionMap[pkgName + lookupKey] = functionWrapper;
+                } else {
+                    error err = error("cannot find full qualified class name for extern function : " + pkgName +
+                                        lookupKey);
+                    panic err;
+                }
+            }
+        }
+    }
+
     return jvmClassMap;
 }
 

@@ -18,6 +18,8 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -46,5 +48,9 @@ public class Base64Encode extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(0);
         Utils.encodeByteChannel(context, channel, false);
+    }
+
+    public static Object base64Encode(Strand strand, ObjectValue channel) {
+        return Utils.encodeByteChannel(channel, false);
     }
 }

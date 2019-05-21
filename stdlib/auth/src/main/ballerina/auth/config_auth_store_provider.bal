@@ -60,21 +60,21 @@ public type ConfigAuthStoreProvider object {
             runtime:Principal principal = runtime:getInvocationContext().principal;
             principal.userId = username;
             principal.username = username;
-            principal.scopes = self.getScopes(username);
+            principal.scopes = getScopes(username);
         }
         return isAuthenticated;
     }
-
-    # Reads the scope(s) for the user with the given username.
-    #
-    # + username - Username
-    # + return - Array of groups for the user denoted by the username
-    public function getScopes(string username) returns string[] {
-        // first read the user id from user->id mapping
-        // reads the groups for the user-id
-        return getArray(getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "scopes"));
-    }
 };
+
+# Reads the scope(s) for the user with the given username.
+#
+# + username - Username
+# + return - Array of groups for the user denoted by the username
+function getScopes(string username) returns string[] {
+    // first read the user id from user->id mapping
+    // reads the groups for the user-id
+    return getArray(getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "scopes"));
+}
 
 # Extract password hash from the configuration file.
 #

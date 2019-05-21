@@ -29,41 +29,41 @@ public type JwtAuthnHandler object {
     public function __init(auth:AuthProvider authProvider) {
         self.authProvider = authProvider;
     }
-};
 
-# Checks if the request can be authenticated with JWT
-#
-# + req - `Request` instance
-# + return - `true` if can be authenticated, else `false`
-public function JwtAuthnHandler.canHandle(Request req) returns boolean {
-    if (req.hasHeader(AUTH_HEADER)) {
-        string headerValue = extractAuthorizationHeaderValue(req);
-        if (headerValue.hasPrefix(AUTH_SCHEME_BEARER)) {
-            string[] authHeaderComponents = headerValue.split(" ");
-            if (authHeaderComponents.length() == 2) {
-                string[] jwtComponents = authHeaderComponents[1].split("\\.");
-                if (jwtComponents.length() == 3) {
-                    return true;
+    # Checks if the request can be authenticated with JWT
+    #
+    # + req - `Request` instance
+    # + return - `true` if can be authenticated, else `false`
+    public function canHandle(Request req) returns boolean {
+        if (req.hasHeader(AUTH_HEADER)) {
+            string headerValue = extractAuthorizationHeaderValue(req);
+            if (headerValue.hasPrefix(AUTH_SCHEME_BEARER)) {
+                string[] authHeaderComponents = headerValue.split(" ");
+                if (authHeaderComponents.length() == 2) {
+                    string[] jwtComponents = authHeaderComponents[1].split("\\.");
+                    if (jwtComponents.length() == 3) {
+                        return true;
+                    }
                 }
             }
         }
+        return false;
     }
-    return false;
-}
 
-# Authenticates the incoming request using JWT authentication
-#
-# + req - `Request` instance
-# + return - `true` if authenticated successfully, else `false`, or `error` in case of errors
-public function JwtAuthnHandler.handle(Request req) returns boolean|error {
-    string jwtToken = extractJWTToken(req);
-    var authenticated = self.authProvider.authenticate(jwtToken);
-    if (authenticated is boolean) {
-        return authenticated;
-    } else {
-        return prepareError("Error while validating JWT token");
+    # Authenticates the incoming request using JWT authentication
+    #
+    # + req - `Request` instance
+    # + return - `true` if authenticated successfully, else `false`, or `error` in case of errors
+    public function handle(Request req) returns boolean|error {
+        string jwtToken = extractJWTToken(req);
+        var authenticated = self.authProvider.authenticate(jwtToken);
+        if (authenticated is boolean) {
+            return authenticated;
+        } else {
+            return prepareError("Error while validating JWT token");
+        }
     }
-}
+};
 
 function extractJWTToken(Request req) returns string {
     string authHeader = req.getHeader(AUTH_HEADER);

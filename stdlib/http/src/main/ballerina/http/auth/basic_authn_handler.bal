@@ -31,26 +31,26 @@ public type BasicAuthnHandler object {
     public function __init(auth:AuthProvider authProvider) {
         self.authProvider = authProvider;
     }
-};
 
-# Checks if the provided request can be authenticated with basic auth.
-#
-# + req - Request object
-# + return - `true` if it is possible authenticate with basic auth, else `false`, or `error` in case of errors
-public function BasicAuthnHandler.handle(Request req) returns boolean|error {
-    string basicAuthHeader = extractAuthorizationHeaderValue(req);
-    string credential = basicAuthHeader.substring(5, basicAuthHeader.length()).trim();
-    return self.authProvider.authenticate(credential);
-}
-
-# Intercept requests for authentication.
-#
-# + req - Request object
-# + return - `true` if authentication is a success, else `false`
-public function BasicAuthnHandler.canHandle(Request req) returns boolean {
-    if (req.hasHeader(AUTH_HEADER)) {
-        string basicAuthHeader = extractAuthorizationHeaderValue(req);
-        return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
+    # Intercept requests for authentication.
+    #
+    # + req - Request object
+    # + return - `true` if authentication is a success, else `false`
+    public function canHandle(Request req) returns boolean {
+        if (req.hasHeader(AUTH_HEADER)) {
+            string basicAuthHeader = extractAuthorizationHeaderValue(req);
+            return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
+        }
+        return false;
     }
-    return false;
-}
+
+    # Checks if the provided request can be authenticated with basic auth.
+    #
+    # + req - Request object
+    # + return - `true` if it is possible authenticate with basic auth, else `false`, or `error` in case of errors
+    public function handle(Request req) returns boolean|error {
+        string basicAuthHeader = extractAuthorizationHeaderValue(req);
+        string credential = basicAuthHeader.substring(5, basicAuthHeader.length()).trim();
+        return self.authProvider.authenticate(credential);
+    }
+};
