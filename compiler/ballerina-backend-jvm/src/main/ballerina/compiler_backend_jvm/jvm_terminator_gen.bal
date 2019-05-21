@@ -343,8 +343,6 @@ type TerminatorGenerator object {
             self.mv.visitVarInsn(LLOAD, argIndex);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitVarInsn(DLOAD, argIndex);
-        } else if (bType is bir:BTypeString) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
         } else if (bType is bir:BTypeDecimal) {
             self.mv.visitVarInsn(ALOAD, argIndex);
         } else if (bType is bir:BTypeBoolean) {
@@ -400,8 +398,6 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(LLOAD, argIndex);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DLOAD, argIndex);
-            } else if (bType is bir:BTypeString) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeDecimal) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeBoolean) {
@@ -550,8 +546,6 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(LLOAD, argIndex);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DLOAD, argIndex);
-            } else if (bType is bir:BTypeString) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeDecimal) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeBoolean) {
