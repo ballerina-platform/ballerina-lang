@@ -130,14 +130,6 @@ public class Strand {
         return dataChannel;
     }
 
-    public Object getProperty(String key) {
-        return this.globalProps.get(key);
-    }
-
-    public void setProperty(String key, Object value) {
-        this.globalProps.put(key, value);
-    }
-
     /**
      * Class to hold flush action related details.
      *
