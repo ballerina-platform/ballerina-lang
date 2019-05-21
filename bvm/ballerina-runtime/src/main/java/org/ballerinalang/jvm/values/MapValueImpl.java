@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
@@ -141,8 +142,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         readLock.lock();
         try {
             if (!containsKey(key)) {
-                throw new BallerinaException(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
-                        "cannot find key '" + key + "'");
+                throw BallerinaErrors.createError(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR, "cannot find key '" +
+                        key + "'");
             }
             return super.get(key);
         } finally {

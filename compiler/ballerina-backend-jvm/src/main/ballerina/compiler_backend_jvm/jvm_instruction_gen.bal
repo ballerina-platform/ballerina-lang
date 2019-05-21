@@ -510,7 +510,7 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
                     io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
+            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "getOrThrow",
                     io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
         }
 
