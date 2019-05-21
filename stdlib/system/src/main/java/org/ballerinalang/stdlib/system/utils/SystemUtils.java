@@ -40,4 +40,20 @@ public class SystemUtils {
         }
         return new BString(value);
     }
+
+    /**
+     * Returns the system property which corresponds to the given key.
+     *
+     * @param key system property key
+     * @return system property as a {@link String} or {@code BTypes.typeString.getZeroValue()} if the property does not
+     * exist.
+     */
+    //TODO rename method to getSystemProperty once bvm value implemetation is removed
+    public static String getProperty(String key) {
+        String value = System.getProperty(key);
+        if (value == null) {
+            return org.ballerinalang.jvm.types.BTypes.typeString.getZeroValue();
+        }
+        return value;
+    }
 }

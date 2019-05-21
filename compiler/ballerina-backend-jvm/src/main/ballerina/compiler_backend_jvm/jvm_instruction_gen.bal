@@ -976,8 +976,10 @@ function addBoxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
     }
 }
 
-function addUnboxInsn(jvm:MethodVisitor mv, bir:BType bType) {
-    generateCast(mv, "any", bType);
+function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
+    if (bType is bir:BType) {
+        generateCast(mv, "any", bType);
+    }
 }
 
 function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string currentPackageName, int valueIndex) {

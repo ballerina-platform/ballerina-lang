@@ -86,6 +86,8 @@ public class TypeConverter {
             return Math.round((Double) sourceVal);
         } else if (sourceVal instanceof Byte) {
             return (long) sourceVal;
+        } else if (sourceVal instanceof Integer) {
+            return ((Integer) sourceVal).longValue();
         } else if (sourceVal instanceof Boolean) {
             return (Boolean) sourceVal ? 0 : 1;
         } else if (sourceVal instanceof DecimalValue) {

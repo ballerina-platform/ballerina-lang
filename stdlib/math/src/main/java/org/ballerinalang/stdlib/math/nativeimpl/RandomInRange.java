@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.math.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
@@ -47,5 +48,9 @@ public class RandomInRange extends BlockingNativeCallableUnit {
         long end = ctx.getIntArgument(1);
         long random = ThreadLocalRandom.current().nextLong(start, end);
         ctx.setReturnValues(new BInteger(random));
+    }
+
+    public static long randomInRange(Strand strand, long start, long end) {
+        return ThreadLocalRandom.current().nextLong(start, end);
     }
 }
