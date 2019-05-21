@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.config;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
@@ -46,5 +47,9 @@ public class Contains extends BlockingNativeCallableUnit {
         String configKey = context.getStringArgument(0);
         boolean containsKey = ConfigRegistry.getInstance().contains(configKey);
         context.setReturnValues(new BBoolean(containsKey));
+    }
+
+    public static boolean contains(Strand strand, String configKey) {
+        return ConfigRegistry.getInstance().contains(configKey);
     }
 }

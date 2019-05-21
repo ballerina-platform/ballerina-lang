@@ -29,7 +29,7 @@ public type DummyObject abstract object <fold text='{...}'>{
 #
 # + fieldOne - This is the description for `DummyRecord`'s field `fieldOne`.
 # + fieldTwo - This is the description for `DummyRecord`'s field `fieldTwo`.</fold>
-public type DummyRecord record <fold text='{...}'>{
+public type DummyRecord record {
     string fieldOne;
     int fieldTwo;
-}</fold>;
+};

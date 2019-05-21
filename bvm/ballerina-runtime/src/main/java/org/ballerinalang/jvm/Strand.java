@@ -57,6 +57,12 @@ public class Strand {
         this.wdChannels = new WDChannels();
     }
 
+    public Strand(Scheduler scheduler, Map<String, Object> properties) {
+        this.scheduler = scheduler;
+        this.globalProps = properties;
+        this.wdChannels = new WDChannels();
+    }
+
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {
         for (int i = 0; i < channels.length; i++) {
             ChannelDetails channelDetails = channels[i];
@@ -80,6 +86,14 @@ public class Strand {
 
     public void resume() {
 
+    }
+
+    public Object getProperty(String key) {
+        return this.globalProps.get(key);
+    }
+
+    public void setProperty(String key, Object value) {
+        this.globalProps.put(key, value);
     }
 
     public ErrorValue handleFlush(ChannelDetails[] channels) {
