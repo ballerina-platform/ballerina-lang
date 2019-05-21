@@ -428,7 +428,7 @@ public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|error {
     if (result is byte[]|error) {
         return result;
     } else {
-        error encodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding byte[]"});
+        error encodeErr = error(MIME_ERROR_CODE, message = "Error occurred while encoding byte[]");
         return encodeErr;
     }
 }
@@ -443,7 +443,7 @@ public function base64EncodeString(string valueToBeEncoded, string charset = "ut
     if (result is string|error) {
         return result;
     } else {
-        error encodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding string"});
+        error encodeErr = error(MIME_ERROR_CODE, message = "Error occurred while encoding string");
         return encodeErr;
     }
 }
@@ -457,7 +457,7 @@ public function base64EncodeByteChannel(io:ReadableByteChannel valueToBeEncoded)
     if (result is io:ReadableByteChannel|error) {
         return result;
     } else {
-        error customErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding ReadableByteChannel content"});
+        error customErr = error(MIME_ERROR_CODE, message = "Error occurred while encoding ReadableByteChannel content");
         return customErr;
     }
 }
@@ -471,7 +471,7 @@ public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|error {
     if (result is byte[]|error) {
         return result;
     } else {
-        error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding byte[]"});
+        error decodeErr = error(MIME_ERROR_CODE, message = "Error occurred while decoding byte[]");
         return decodeErr;
     }
 }
@@ -486,7 +486,7 @@ public function base64DecodeString(string valueToBeDecoded, string charset = "ut
     if (result is string|error) {
         return result;
     } else {
-        error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding string"});
+        error decodeErr = error(MIME_ERROR_CODE, message = "Error occurred while decoding string");
         return decodeErr;
     }
 }
@@ -500,7 +500,7 @@ public function base64DecodeByteChannel(io:ReadableByteChannel valueToBeDecoded)
     if (result is io:ReadableByteChannel|error) {
         return result;
     } else {
-        error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding ReadableByteChannel content"});
+        error decodeErr = error(MIME_ERROR_CODE, message = "Error occurred while decoding ReadableByteChannel content");
         return decodeErr;
     }
 }
