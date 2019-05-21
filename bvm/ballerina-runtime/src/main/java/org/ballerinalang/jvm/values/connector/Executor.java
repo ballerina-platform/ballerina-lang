@@ -20,7 +20,11 @@ package org.ballerinalang.jvm.values.connector;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+
+import java.util.Map;
+import java.util.concurrent.Executors;
 
 /**
  * {@code Executor} Is the entry point from server connector side to ballerina side. After doing the dispatching and
@@ -29,6 +33,20 @@ import org.ballerinalang.jvm.values.ObjectValue;
  * @since 0.995.0
  */
 public class Executor {
+
+    public static void submit(ObjectValue service, String resourceName, CallableUnitCallback callback,
+                              Map<String, Object> properties, Object... bValues) {
+        //TODO this is temp fix till we get the service.start() API
+        Executors.newSingleThreadExecutor().submit(() -> {
+            //TODO check the scheduler thread count
+            Object returnValues = service.call(new Strand(new Scheduler(4), properties), resourceName, bValues);
+            if (returnValues instanceof ErrorValue) {
+                callback.notifyFailure((ErrorValue) returnValues);
+            } else {
+                callback.notifySuccess();
+            }
+        });
+    }
 
     /**
      * Execution API to execute just a function.

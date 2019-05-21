@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.encoding.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueArray;
@@ -50,5 +52,10 @@ public class EncodeBase64Url extends BlockingNativeCallableUnit {
         BValueArray input = (BValueArray) context.getRefArgument(0);
         byte[] encodedValue = Base64.getUrlEncoder().encode(input.getBytes());
         context.setReturnValues(new BString(new String(encodedValue, StandardCharsets.ISO_8859_1)));
+    }
+
+    public static String encodeBase64Url(Strand strand, ArrayValue input) {
+        byte[] encodedValue = Base64.getUrlEncoder().encode(input.getBytes());
+        return new String(encodedValue, StandardCharsets.ISO_8859_1);
     }
 }

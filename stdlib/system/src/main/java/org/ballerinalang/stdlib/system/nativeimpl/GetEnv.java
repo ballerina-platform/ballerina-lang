@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
@@ -49,5 +50,13 @@ public class GetEnv extends BlockingNativeCallableUnit {
             return;
         }
         context.setReturnValues(new BString(value));
+    }
+
+    public static String getEnv(Strand strand, String str) {
+        String value = System.getenv(str);
+        if (value == null) {
+            return org.ballerinalang.jvm.types.BTypes.typeString.getZeroValue();
+        }
+        return value;
     }
 }

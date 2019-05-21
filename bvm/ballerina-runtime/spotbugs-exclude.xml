@@ -32,6 +32,6 @@
         <Package name="org.ballerinalang.jvm.commons"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.jvm.values.connector" />
+        <Package name="org.ballerinalang.jvm.values.connector"/>
     </Match>
 </FindBugsFilter>

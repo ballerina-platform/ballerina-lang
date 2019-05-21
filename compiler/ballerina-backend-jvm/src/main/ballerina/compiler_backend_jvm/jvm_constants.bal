@@ -218,6 +218,7 @@ const string STRING_VALUE = "java/lang/String";
 const string LONG_VALUE = "java/lang/Long";
 const string BOOLEAN_VALUE = "java/lang/Boolean";
 const string DOUBLE_VALUE = "java/lang/Double";
+const string DECIMAL_VALUE = "org/ballerinalang/jvm/values/DecimalValue";
 const string BYTE_VALUE = "java/lang/Byte";
 const string XML_VALUE = "org/ballerinalang/jvm/values/XMLValue";
 const string XML_QNAME = "org/ballerinalang/jvm/values/XMLQName";
@@ -233,9 +234,13 @@ const string TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
 const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
 const string STRAND = "org/ballerinalang/jvm/Strand";
+
+const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string FUNCTION = "java/util/function/Function";
 const string CONSUMER = "java/util/function/Consumer";
+
 const string STRING_BUILDER = "java/lang/StringBuilder";
+const string COMPARABLE = "java/lang/Comparable";
 const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
 const string XML_FACTORY = "org/ballerinalang/jvm/XMLFactory";
 const string SET = "java/util/Set";

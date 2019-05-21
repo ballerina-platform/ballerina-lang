@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.math.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,5 +40,9 @@ public class Random extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         ctx.setReturnValues(new BFloat(Math.random()));
+    }
+
+    public static double random(Strand strand) {
+        return Math.random();
     }
 }
