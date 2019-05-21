@@ -129,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
@@ -151,6 +152,9 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
@@ -645,7 +649,7 @@ public class BIRGen extends BLangNodeVisitor {
         //create channelDetails array
         BIRNode.ChannelDetails[] channels = new BIRNode.ChannelDetails[flushExpr.workerIdentifierList.size()];
         int i = 0;
-        for (BLangIdentifier workerIdentifier: flushExpr.workerIdentifierList) {
+        for (BLangIdentifier workerIdentifier : flushExpr.workerIdentifierList) {
             String channelName = this.env.enclFunc.workerName.value + "->" + workerIdentifier.value;
             boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
             channels[i] = new BIRNode.ChannelDetails(channelName, isOnSameStrand, true);
@@ -1489,6 +1493,24 @@ public class BIRGen extends BLangNodeVisitor {
         generateFPVarRef(structFpVarRef, (BInvokableSymbol) structFpVarRef.symbol);
     }
 
+
+    public void visit(BLangLock lockNode) {
+        BIRBasicBlock lockedBB = new BIRBasicBlock(this.env.nextBBId(names));
+        this.env.enclFunc.basicBlocks.add(lockedBB);
+
+        Supplier<TreeSet<BIRGlobalVariableDcl>> supplier = () -> new TreeSet<>(Comparator.comparing(v -> v.name.value));
+        Set<BIRGlobalVariableDcl> lockedOn = lockNode.lockVariables.stream()
+                                                                   .map(e -> this.env.globalVarMap.get(e))
+                                                                   .collect(Collectors.toCollection(supplier));
+        this.env.enclBB.terminator = new BIRTerminator.Lock(null, lockedOn, lockedBB);
+        this.env.enclBB = lockedBB;
+        lockNode.body.accept(this);
+
+        BIRBasicBlock unlockedBB = new BIRBasicBlock(this.env.nextBBId(names));
+        this.env.enclBB.terminator = new BIRTerminator.Unlock(null, lockedOn, unlockedBB);
+        this.env.enclFunc.basicBlocks.add(unlockedBB);
+        this.env.enclBB = unlockedBB;
+    }
 
     // private methods
 

@@ -161,6 +161,11 @@
                     <exclude name="testFunctionPointerNative"/>
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.lock.LocksInMainTest">
+                <methods>
+                    <include name="simpleLock"/>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

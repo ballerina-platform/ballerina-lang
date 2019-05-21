@@ -237,4 +237,12 @@ public abstract class BIRVisitor {
     public void visit(TernaryOp ternaryOp) {
         throw new AssertionError();
     }
+
+    public void visit(BIRTerminator.Lock lock) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRTerminator.Unlock unlock) {
+        throw new AssertionError();
+    }
 }
