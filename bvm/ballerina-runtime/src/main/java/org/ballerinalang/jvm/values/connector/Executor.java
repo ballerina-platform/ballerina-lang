@@ -34,12 +34,22 @@ import java.util.concurrent.Executors;
  */
 public class Executor {
 
+    /**
+     * This method will execute Ballerina resource in non-blocking manner. It will use Ballerina worker-pool for the
+     * execution and will return the connector thread immediately.
+     *
+     * @param service      to be executed.
+     * @param resourceName to be executed.
+     * @param callback     to be executed when execution completes.
+     * @param properties   to be passed to context.
+     * @param args         required for the resource.
+     */
     public static void submit(ObjectValue service, String resourceName, CallableUnitCallback callback,
-                              Map<String, Object> properties, Object... bValues) {
+                              Map<String, Object> properties, Object... args) {
         //TODO this is temp fix till we get the service.start() API
         Executors.newSingleThreadExecutor().submit(() -> {
             //TODO check the scheduler thread count
-            Object returnValues = service.call(new Strand(new Scheduler(4), properties), resourceName, bValues);
+            Object returnValues = service.call(new Strand(new Scheduler(4), properties), resourceName, args);
             if (returnValues instanceof ErrorValue) {
                 callback.notifyFailure((ErrorValue) returnValues);
             } else {
