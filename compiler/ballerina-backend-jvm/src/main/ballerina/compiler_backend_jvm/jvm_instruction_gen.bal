@@ -753,8 +753,7 @@ type InstructionGenerator object {
         self.mv.visitInsn(DUP);
 
         string lambdaName = inst.name.value + "$lambda$";
-        // string methodClass = lookupFullQualifiedClassName(self.currentPackageName + inst.name.value);
-        string methodClass = currentClass;
+        string methodClass = lookupFullQualifiedClassName(self.currentPackageName + inst.name.value);
 
         bir:BType returnType = inst.lhsOp.typeValue;
         boolean isVoid = false;
@@ -770,7 +769,7 @@ type InstructionGenerator object {
             }
         }
 
-        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid, inst.closureMaps.length());
+        self.mv.visitInvokeDynamicInsn(currentClass, lambdaName, isVoid, inst.closureMaps.length());
         loadType(self.mv, returnType);
         if (isVoid) {
             self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",

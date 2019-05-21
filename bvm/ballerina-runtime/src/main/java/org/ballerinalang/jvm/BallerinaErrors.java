@@ -65,13 +65,13 @@ public class BallerinaErrors {
     }
 
     static ErrorValue createTypeCastError(Object sourceVal, BType targetType) {
-        throw new ErrorValue(BallerinaErrorReasons.TYPE_CAST_ERROR,
+        throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
                              BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,
                                                                   TypeChecker.getType(sourceVal), targetType));
     }
 
     static ErrorValue createNumericConversionError(Object inputValue, BType targetType) {
-        throw new ErrorValue(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+        throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                              BLangExceptionHelper.getErrorMessage(
                                      RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                      TypeChecker.getType(inputValue), inputValue, targetType));
