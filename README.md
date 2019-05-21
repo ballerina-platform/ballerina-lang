@@ -1,4 +1,4 @@
-##Ballerina-lang-parser
+## Ballerina-lang-parser
 
 The parser is implemented following the LL(K) recursive Descent parsing pattern. This pattern analyses the syntactic structure using k>1 lookahead tokens.
 
@@ -49,16 +49,16 @@ TupleLiteral
 
 #### Testing the parser
 
-1 . Navigate to the <PROJECT_ROOT_DIRECTORY>/inputFile.txt and add the source code that is needed to be tested.
+1. Navigate to the <PROJECT_ROOT_DIRECTORY>/inputFile.txt and add the source code that is needed to be tested.
 
-Sample source code:
-```ballerina
-function foo(){
-	int a  = 2 + (3*5);
-}
-```
+	Sample source code:
+	```ballerina
+	function foo(){
+		int a  = 2 + (3*5);
+	}
+	```
 
-2 . Run the `ballerina run parserModule` command from the <PROJECT_ROOT_DIRECTORY>
+2. Run the `ballerina run parserModule` command from the <PROJECT_ROOT_DIRECTORY>
 
 The built AST will be printed as a Record.
 
@@ -279,14 +279,14 @@ To execute the Unit tests, run the following command from the <PROJECT_ROOT_DIRE
  
  serialized JSON outputs for the unit tests can be found below.
  
-1 . [function rule](resources/function/output(AST)).
+1. [function rule](resources/function/output(AST)).
 
-2 . [variable definition statement rule](resources/statements/variableDefinitionStatement/output(AST)).
+2. [variable definition statement rule](resources/statements/variableDefinitionStatement/output(AST)).
 
-3 . [binary expression rule](resources/expression/binaryExpression/output(AST)).
+3. [binary expression rule](resources/expression/binaryExpression/output(AST)).
 
-4 . [tuple literal expression rule](resources/expression/tupleLiteralExpression/output(AST)).
+4. [tuple literal expression rule](resources/expression/tupleLiteralExpression/output(AST)).
 
-5 . [unary expression rule](resources/expression/unaryExpression/output(AST)). 
+5. [unary expression rule](resources/expression/unaryExpression/output(AST)). 
  
  
