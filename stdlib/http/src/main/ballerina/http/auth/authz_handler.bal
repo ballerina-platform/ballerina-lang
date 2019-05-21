@@ -153,7 +153,6 @@ function checkForScopeMatch(string[]|string[][] resourceScopes, string[] userSco
 # + return - true if one of the resourceScopes can be found at userScopes, else false
 function matchScopes(string[] resourceScopes, string[] userScopes) returns boolean {
     foreach var resourceScope in resourceScopes {
-        boolean matched = false;
         foreach var userScope in userScopes {
             if (resourceScope == userScope) {
                 return true;
