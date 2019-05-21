@@ -483,15 +483,43 @@ type TerminatorGenerator object {
                     self.getJVMIndexOfVarRef(waitInst.lhsOp.variableDcl));
     }
 
+    function genWaitAllIns(bir:WaitAll waitAll, string funcName) {
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitTypeInsn(NEW, "java/util/HashMap");
+        self.mv.visitInsn(DUP);
+        self.mv.visitMethodInsn(INVOKESPECIAL, "java/util/HashMap", "<init>", "()V", false);
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+        int i = 0;
+        while (i < waitAll.keys.length()) {
+            self.mv.visitInsn(DUP);
+            self.mv.visitLdcInsn(waitAll.keys[i]);
+            bir:VarRef? futureRef = waitAll.futures[i];
+            if (futureRef is bir:VarRef) {
+                generateVarLoad(self.mv, futureRef.variableDcl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(futureRef.variableDcl));
+            }
+            self.mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "put", io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
+            self.mv.visitInsn(POP);
+            i += 1;
+        }
+
+        self.mv.visitInsn(ICONST_1);
+        generateVarLoad(self.mv, waitAll.lhsOp.variableDcl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(waitAll.lhsOp.variableDcl));
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleWaitMultiple", io:sprintf("(L%s;ZL%s;)V", MAP, MAP_VALUE), false);
+        self.genYieldCheck(waitAll.thenBB, funcName);
+    }
+
     function genFPCallIns(bir:FPCall fpCall, string funcName) {
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         if (fpCall.isAsync) {
             // Load the scheduler from strand
             self.mv.visitVarInsn(ALOAD, 0);
             self.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));    
         } else {
             // load function ref, going to directly call the fp
-            int fpIndex = self.getJVMIndexOfVarRef(getVariableDcl(fpCall.fp.variableDcl));
-            self.mv.visitVarInsn(ALOAD, fpIndex);
+            generateVarLoad(self.mv, fpCall.fp.variableDcl, currentPackageName, 
+                self.getJVMIndexOfVarRef(fpCall.fp.variableDcl));
         }
         
         // create an object array of args
@@ -556,8 +584,8 @@ type TerminatorGenerator object {
         // if async, we submit this to sceduler (worker scenario)
         if (fpCall.isAsync) {
             // load function ref now
-            int fpIndex = self.getJVMIndexOfVarRef(getVariableDcl(fpCall.fp.variableDcl));
-            self.mv.visitVarInsn(ALOAD, fpIndex);
+            generateVarLoad(self.mv, fpCall.fp.variableDcl, currentPackageName, 
+                self.getJVMIndexOfVarRef(fpCall.fp.variableDcl));
             self.submitToScheduler(fpCall.lhsOp);           
         } else if (fpCall.lhsOp is ()) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, CONSUMER, "accept", io:sprintf("(L%s;)V", OBJECT), true);
@@ -569,7 +597,7 @@ type TerminatorGenerator object {
             if (lhsType is bir:BType) {
                 addUnboxInsn(self.mv, lhsType);
             }
-            string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+
             bir:VariableDcl? lhsVar = fpCall.lhsOp.variableDcl;
             if (lhsVar is bir:VariableDcl) {
                 generateVarStore(self.mv, lhsVar, currentPackageName, lhsIndex);

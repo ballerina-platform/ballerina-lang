@@ -137,6 +137,15 @@
             <class name="org.ballerinalang.test.expressions.binaryoperations.EqualAndNotEqualOperationsTest"/>
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
             <class name="org.ballerinalang.test.types.constant.MapConstantTest" />
+            <class name="org.ballerinalang.test.worker.WaitForAllActionsTest">
+                <methods>
+                    <exclude name="waitTest13"/>
+                    <exclude name="waitTest14"/>
+                    <exclude name="waitTest15"/>
+                    <exclude name="waitTest16"/>
+                    <exclude name="waitTest17"/>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

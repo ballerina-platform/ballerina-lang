@@ -319,6 +319,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             errorGen.genPanic(terminator);
         } else if (terminator is bir:Wait) {
             termGen.generateWaitIns(terminator, funcName);
+        } else if (terminator is bir:WaitAll) {
+            termGen.genWaitAllIns(terminator, funcName);
         } else if (terminator is bir:FPCall) {
             termGen.genFPCallIns(terminator, funcName);
         } else if (terminator is bir:WorkerSend) {

@@ -97,6 +97,9 @@ public class Scheduler {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         totalStrands.incrementAndGet();
+        if (DEBUG) {
+            DEBUG_LOG.add(item + " scheduled");
+        }
         runnableList.add(item);
         return future;
     }
@@ -114,6 +117,9 @@ public class Scheduler {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         totalStrands.incrementAndGet();
+        if (DEBUG) {
+            DEBUG_LOG.add(item + " scheduled");
+        }
         runnableList.add(item);
         return future;
     }
@@ -218,9 +224,11 @@ public class Scheduler {
                     }
                     break;
                 case RUNNABLE:
-                    item.future.result = result;
-                    item.future.isDone = true;
-                    item.future.panic = panic;
+                    synchronized (item.future) {
+                        item.future.result = result;
+                        item.future.isDone = true;
+                        item.future.panic = panic;
+                    }
 
                     Strand justCompleted = item.future.strand;
                     List<SchedulerItem> blockedOnJustCompleted;

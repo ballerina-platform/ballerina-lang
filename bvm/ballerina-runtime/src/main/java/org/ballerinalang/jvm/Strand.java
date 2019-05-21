@@ -19,9 +19,12 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -92,6 +95,22 @@ public class Strand {
         this.yield = true;
         this.blocked = true;
         return null;
+    }
+
+    public void handleWaitMultiple(Map<String, FutureValue> keyValues, boolean waitAll, MapValue target) {
+        this.blockedOn.clear();
+        keyValues.entrySet().forEach(entry -> {
+            synchronized (entry.getValue()) {
+                if (entry.getValue().isDone) {
+                    System.out.println(entry.getValue().result);
+                    target.put(entry.getKey(), entry.getValue().result);
+                } else {
+                    this.yield = true;
+                    this.blocked = true;
+                    this.blockedOn.add(entry.getValue().strand);
+                }
+            }
+        });
     }
 
     private WorkerDataChannel getWorkerDataChannel(ChannelDetails channel) {

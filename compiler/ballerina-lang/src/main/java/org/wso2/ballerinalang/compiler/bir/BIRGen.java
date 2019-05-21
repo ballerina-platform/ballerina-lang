@@ -1506,9 +1506,14 @@ public class BIRGen extends BLangNodeVisitor {
     // private methods
 
     private void genIntermediateErrorEntries(BIRBasicBlock thenBB) {
-        if (thenBB != this.env.enclBB) {
+        if (thenBB != this.env.enclBB ) {
             this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(thenBB, this.env.targetOperand));
-            this.env.trapBB = ((BIRTerminator.Call) thenBB.terminator).thenBB;
+            // TODO:temp solution to avoid class casts
+            if (thenBB.terminator instanceof BIRTerminator.WaitAll){
+                this.env.trapBB = ((BIRTerminator.WaitAll) thenBB.terminator).thenBB;
+            } else {
+                this.env.trapBB = ((BIRTerminator.Call) thenBB.terminator).thenBB;
+            }
             genIntermediateErrorEntries(this.env.trapBB);
         }
     }
