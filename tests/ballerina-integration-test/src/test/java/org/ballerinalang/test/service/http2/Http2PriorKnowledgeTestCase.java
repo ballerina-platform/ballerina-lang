@@ -25,6 +25,9 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 
+/**
+ * Test case for HTTP/2 prior knowledge.
+ */
 @Test(groups = "http2-test")
 public class Http2PriorKnowledgeTestCase extends Http2BaseTest {
 
