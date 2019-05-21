@@ -21,7 +21,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
@@ -108,7 +110,6 @@ public class TimeUtils {
 
     public static MapValue<String, Object> getTimeZoneRecord() {
         return BallerinaValues.createRecordValue(TIME_PACKAGE_PATH, STRUCT_TYPE_TIMEZONE);
-
     }
 
     //TODO Remove after migration : implemented using bvm values/types
@@ -124,9 +125,14 @@ public class TimeUtils {
         return BallerinaValues.createRecordValue(TIME_PACKAGE_PATH, STRUCT_TYPE_TIME);
     }
 
+    //TODO Remove after migration : implemented using bvm values/types
     public static BError getTimeError(Context context, String message) {
-        BMap<String, BValue> sqlClientErrorDetailRecord = BLangConnectorSPIUtil
+        BMap<String, BValue> timeErrorDetailRecord = BLangConnectorSPIUtil
                 .createBStruct(context, TIME_PACKAGE_PATH, TIME_ERROR_RECORD, message);
-        return BLangVMErrors.createError(context, true, BTypes.typeError, TIME_ERROR_CODE, sqlClientErrorDetailRecord);
+        return BLangVMErrors.createError(context, true, BTypes.typeError, TIME_ERROR_CODE, timeErrorDetailRecord);
+    }
+
+    public static ErrorValue getTimeError(String message) {
+        return BallerinaErrors.createError(TIME_ERROR_CODE, message);
     }
 }

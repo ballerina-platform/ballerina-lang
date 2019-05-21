@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -39,6 +40,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -752,5 +754,18 @@ public class TypesTest {
         Assert.assertEquals(fields.get("name").getFieldType(), BTypes.typeString);
         Assert.assertEquals(fields.get("physics").getFieldType(), BTypes.typeInt);
         Assert.assertEquals(fields.get("chemistry").getFieldType(), BTypes.typeInt);
+    }
+
+    @Test
+    public void testDecimalWithoutArgs() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testDecimalWithoutArgs", new BValue[] {});
+        Assert.assertEquals(((BDecimal) result[0]).intValue(), 7);
+    }
+
+    @Test
+    public void testDecimalWithArgs() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testDecimalWithArgs",
+                                          new BValue[] {new BDecimal(BigDecimal.valueOf(5))});
+        Assert.assertEquals(((BDecimal) result[0]).intValue(), 10);
     }
 }
