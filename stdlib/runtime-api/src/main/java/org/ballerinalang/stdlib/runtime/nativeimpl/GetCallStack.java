@@ -20,6 +20,9 @@ package org.ballerinalang.stdlib.runtime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -39,5 +42,9 @@ public class GetCallStack extends BlockingNativeCallableUnit {
         final BValueArray bRefValueArray = BLangVMErrors.generateCallStack(context.getProgramFile(),
                 context.getStrand());
         context.setReturnValues(bRefValueArray);
+    }
+
+    public static ArrayValue getCallStack(Strand strand) {
+        return BallerinaErrors.generateCallStack();
     }
 }
