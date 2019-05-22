@@ -155,10 +155,12 @@ public const TERMINATOR_FP_CALL = "FP_CALL";
 public const TERMINATOR_WK_RECEIVE = "WK_RECEIVE";
 public const TERMINATOR_WK_SEND = "WK_SEND";
 public const TERMINATOR_FLUSH = "FLUSH";
+public const TERMINATOR_LOCK = "LOCK";
+public const TERMINATOR_UNLOCK = "UNLOCK";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
                                 |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL|TERMINATOR_WK_RECEIVE
-                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH;
+                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH|TERMINATOR_LOCK|TERMINATOR_UNLOCK;
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -563,6 +565,20 @@ public type GOTO record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     BasicBlock targetBB;
+|};
+
+public type Lock record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    string[] globleVars;
+    BasicBlock lockBB;
+|};
+
+public type Unlock record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    string[] globleVars;
+    BasicBlock unlockBB;
 |};
 
 public type Return record {|
