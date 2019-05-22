@@ -18,6 +18,9 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -32,53 +35,99 @@ import java.util.Map;
  */
 public class UserPrincipal {
 
-    public static final String USER_ID_STRING_FIELD_KEY = "userId";
-    public static final String USER_NAME_STRING_FIELD_KEY = "username";
-    public static final String CLAIMS_REF_FIELD_KEY = "claims";
-    public static final String SCOPES_REF_FIELD_KEY = "scopes";
+    private static final String USER_ID_STRING_FIELD_KEY = "userId";
+    private static final String USER_NAME_STRING_FIELD_KEY = "username";
+    private static final String CLAIMS_REF_FIELD_KEY = "claims";
+    private static final String SCOPES_REF_FIELD_KEY = "scopes";
+    private MapValue<String, Object> authContextRecord = null;
+    private BMap<String, BValue> authContextStruct = null;
 
-    private BMap<String, BValue> authContextStruct;
-
+    //TODO Remove after migration : implemented using bvm values/types
     public UserPrincipal(BMap<String, BValue> authContextStruct) {
         this.authContextStruct = authContextStruct;
     }
 
+    public UserPrincipal(MapValue<String, Object> authContextRecord) {
+        this.authContextRecord = authContextRecord;
+    }
+
     public String getUserId() {
-        return authContextStruct.get(USER_ID_STRING_FIELD_KEY).stringValue();
+        //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
+        if (authContextStruct != null) {
+            return authContextStruct.get(USER_ID_STRING_FIELD_KEY).stringValue();
+        }
+        return authContextRecord.get(USER_ID_STRING_FIELD_KEY).toString();
     }
 
     public void setUserId(String userId) {
-        authContextStruct.put(USER_ID_STRING_FIELD_KEY, new BString(userId));
+        //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
+        if (authContextStruct != null) {
+            authContextStruct.put(USER_ID_STRING_FIELD_KEY, new BString(userId));
+        } else {
+            authContextRecord.put(USER_ID_STRING_FIELD_KEY, userId);
+        }
     }
 
     public String getUsername() {
-        return authContextStruct.get(USER_NAME_STRING_FIELD_KEY).stringValue();
+        //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
+        if (authContextStruct != null) {
+            return authContextStruct.get(USER_NAME_STRING_FIELD_KEY).stringValue();
+        }
+        return authContextRecord.get(USER_NAME_STRING_FIELD_KEY).toString();
     }
 
     public void setUsername(String username) {
-        authContextStruct.put(USER_NAME_STRING_FIELD_KEY, new BString(username));
+        //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
+        if (authContextStruct != null) {
+            authContextStruct.put(USER_NAME_STRING_FIELD_KEY, new BString(username));
+        } else {
+            authContextRecord.put(USER_NAME_STRING_FIELD_KEY, username);
+        }
     }
 
     public Map<String, String> getClaims() {
-        return getMapField(authContextStruct.get(CLAIMS_REF_FIELD_KEY));
+        //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
+        if (authContextStruct != null) {
+            return getMapField(authContextStruct.get(CLAIMS_REF_FIELD_KEY));
+        }
+        return getMapField(authContextRecord.get(CLAIMS_REF_FIELD_KEY));
     }
 
     public void setClaims(Map<String, String> claims) {
-        BMap<String, BString> bMap = new BMap<>();
-        if (claims != null) {
-            claims.forEach((key, value) -> bMap.put(key, new BString(value)));
+        //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
+        if (authContextStruct != null) {
+            BMap<String, BString> bMap = new BMap<>();
+            if (claims != null) {
+                claims.forEach((key, value) -> bMap.put(key, new BString(value)));
+            }
+            authContextStruct.put(CLAIMS_REF_FIELD_KEY, bMap);
+        } else {
+            MapValue<String, String> mapValue = new MapValueImpl<>();
+            if (claims != null) {
+                claims.forEach(mapValue::put);
+            }
+            authContextRecord.put(CLAIMS_REF_FIELD_KEY, mapValue);
         }
-        authContextStruct.put(CLAIMS_REF_FIELD_KEY, bMap);
     }
 
     public String[] getScopes() {
-        return getStringArrayField(authContextStruct.get(SCOPES_REF_FIELD_KEY));
+        //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
+        if (authContextStruct != null) {
+            return getStringArrayField(authContextStruct.get(SCOPES_REF_FIELD_KEY));
+        }
+        return getStringArrayField(authContextRecord.get(SCOPES_REF_FIELD_KEY));
     }
 
     public void setScopes(String[] scopes) {
-        authContextStruct.put(SCOPES_REF_FIELD_KEY, new BValueArray(scopes));
+        //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
+        if (authContextStruct != null) {
+            authContextStruct.put(SCOPES_REF_FIELD_KEY, new BValueArray(scopes));
+        } else {
+            authContextRecord.put(SCOPES_REF_FIELD_KEY, new ArrayValue(scopes));
+        }
     }
 
+    //TODO Remove after migration : implemented using bvm values/types
     public static String[] getStringArrayField(BValue bValue) {
         if (bValue != null && bValue instanceof BValueArray) {
             BValueArray bArray = (BValueArray) bValue;
@@ -87,10 +136,27 @@ public class UserPrincipal {
         return new String[0];
     }
 
+    private static String[] getStringArrayField(Object value) {
+        if (value != null && value instanceof ArrayValue) {
+            ArrayValue bArray = (ArrayValue) value;
+            return bArray.getStringArray();
+        }
+        return new String[0];
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
     public static Map<String, String> getMapField(BValue bValue) {
         if (bValue != null && bValue instanceof BMap) {
             BMap bMap = (BMap) bValue;
             return bMap.getMap();
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static MapValue<String, String> getMapField(Object value) {
+        if (value != null && value instanceof MapValue) {
+            return (MapValue) value;
         }
         return null;
     }
