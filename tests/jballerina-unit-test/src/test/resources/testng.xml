@@ -166,6 +166,20 @@
             </class>
             <class name="org.ballerinalang.test.worker.BasicForkTest"/>
             <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
+            <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest">
+                <methods>
+                    <!--need to enable after fixing panic scenarios and executing init before main-->
+                    <exclude name="waitTest12"/>
+                    <exclude name="waitTest13"/>
+                    <exclude name="waitTest20"/>
+                    <exclude name="waitTest21"/>
+                    <exclude name="waitTest22"/>
+                    <exclude name="waitTest24"/>
+                    <exclude name="waitTest2"/>
+                    <exclude name="waitTest15"/>
+                    <exclude name="waitTest16"/>
+                </methods>
+            </class>
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
         </classes>
     </test>
