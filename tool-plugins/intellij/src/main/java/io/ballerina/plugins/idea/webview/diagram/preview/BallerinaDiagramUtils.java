@@ -54,6 +54,10 @@ class BallerinaDiagramUtils {
                     + "display: none;\n" + "}";
     private static final String BODY_CSS_CLASS = "diagram";
 
+    private static HashMap<String, String> webviewContents;
+    private static Template webviewTemplate;
+    private static boolean staticContentLoaded = false;
+
     public static String md5(String buffer, @NonNls String key) {
         MessageDigest md5 = null;
         try {
@@ -103,49 +107,70 @@ class BallerinaDiagramUtils {
             if (myPanel == null) {
                 return "";
             }
-            // Reads required styles and scripts (js/css) from the plugin jar.
-            final String composerJsContent = getFileContent(RESOURCE_COMPOSER);
-            final String codePointsJsContent = getFileContent(RESOURCE_CODEPOINTS);
-            final String themeCssConent = getFileContent(RESOURCE_THEME);
-            final String fontCssContent = getFileContent(RESOURCE_FONT);
 
-            myPanel.setCSS(themeCssConent);
-            myPanel.setCSS(fontCssContent);
             Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(TEMPLATES_CLASSPATH));
-            HashMap<String, String> webviewContents = new HashMap<>();
-            HashMap<String, String> scriptContents = new HashMap<>();
-            HashMap<String, String> langClientContents = new HashMap<>();
-            Template webviewTemplate = handlebars.compile(WEBVIEW_TEMPLATE_NAME);
             Template scriptTemplate = handlebars.compile(SCRIPT_TEMPLATE_NAME);
             Template langClientTemplate = handlebars.compile(LANG_CLIENT_TEMPLATE_NAME);
-            Template fireBugTemplate = handlebars.compile(FIREBUG_TEMPLATE_NAME);
 
             // Injects ast response to the mocked language client template.
+            HashMap<String, String> langClientContents = new HashMap<>();
             langClientContents.put("ast", ast);
             Context langClientContext = Context.newBuilder(langClientContents).resolver(MapValueResolver.INSTANCE)
                     .build();
 
             // Constructs the script to be run when loaded.
+            HashMap<String, String> scriptContents = new HashMap<>();
             scriptContents.put("docUri", uri);
             scriptContents.put("windowWidth", Integer.toString(myPanel.getComponent().getWidth()));
             scriptContents.put("windowHeight", Integer.toString(myPanel.getComponent().getHeight()));
             scriptContents.put("getLangClient", langClientTemplate.apply(langClientContext));
             Context scriptContext = Context.newBuilder(scriptContents).resolver(MapValueResolver.INSTANCE).build();
 
-            // Constructs the final webview HTML template.
-            webviewContents.put("body", BODY_TEMPLATE);
-            webviewContents.put("bodyCssClass", BODY_CSS_CLASS);
-            webviewContents.put("themeCss", themeCssConent);
-            webviewContents.put("fontCss", fontCssContent);
-            webviewContents.put("styles", handlebars.compile(STYLES_TEMPLATE_NAME).text());
-            webviewContents.put("codePoints", codePointsJsContent);
-            webviewContents.put("composer", composerJsContent);
-            webviewContents.put("loadedScript", scriptTemplate.apply(scriptContext));
-            webviewContents.put("fireBug", handlebars.compile(FIREBUG_TEMPLATE_NAME).text());
-            //Todo - remove when the editing support is added.
-            webviewContents.put("disableEdit", DISABLE_EDITING_CSS);
+            return getUpdatedWebviewContent(scriptTemplate.apply(scriptContext));
+        } catch (IOException | RuntimeException e) {
+            LOG.warn("Error occurred when constructing webview content: ", e);
+            return "";
+        }
+    }
+
+    private static String getUpdatedWebviewContent(String scriptContent) {
+        try {
+            Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(TEMPLATES_CLASSPATH));
+
+            // Prevents loading the static contents in each diagram update request.
+            if (!staticContentLoaded) {
+                // Reads required styles and scripts (js/css) from the plugin jar.
+                final String composerJsContent = getFileContent(RESOURCE_COMPOSER);
+                final String codePointsJsContent = getFileContent(RESOURCE_CODEPOINTS);
+                final String themeCssConent = getFileContent(RESOURCE_THEME);
+                final String fontCssContent = getFileContent(RESOURCE_FONT);
+
+                webviewContents = new HashMap<>();
+                webviewTemplate = handlebars.compile(WEBVIEW_TEMPLATE_NAME);
+                // Constructs the final webview HTML template.
+                webviewContents.put("body", BODY_TEMPLATE);
+                webviewContents.put("bodyCssClass", BODY_CSS_CLASS);
+                webviewContents.put("themeCss", themeCssConent);
+                webviewContents.put("fontCss", fontCssContent);
+                webviewContents.put("styles", handlebars.compile(STYLES_TEMPLATE_NAME).text());
+                webviewContents.put("codePoints", codePointsJsContent);
+                webviewContents.put("composer", composerJsContent);
+                webviewContents.put("fireBug", handlebars.compile(FIREBUG_TEMPLATE_NAME).text());
+                //Todo - remove when the editing support is added.
+                webviewContents.put("disableEdit", DISABLE_EDITING_CSS);
+
+                staticContentLoaded = true;
+            }
+
+            if (webviewContents.get("loadedScript") != null) {
+                webviewContents.replace("loadedScript", scriptContent);
+            } else {
+                webviewContents.put("loadedScript", scriptContent);
+            }
+
             Context webviewContext = Context.newBuilder(webviewContents).resolver(MapValueResolver.INSTANCE).build();
             return webviewTemplate.apply(webviewContext);
+
 
         } catch (IOException | RuntimeException e) {
             LOG.warn("Error occurred when constructing webview content: ", e);

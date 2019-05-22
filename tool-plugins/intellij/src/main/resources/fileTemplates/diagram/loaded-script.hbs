@@ -25,13 +25,13 @@ function loadedScript() {
     function drawError(message) {
         document.getElementById("diagram").innerHTML = `
                 <div id="errors">
-                    <span>{{{message}}}</span>
+                    <span>message</span>
                 </div>
                 `;
     }
     function showWarning(message) {
         document.getElementById("warning").innerHTML = `
-            <p><span class="fw fw-warning"></span> {{{message}}}</p>
+            <p><span class="fw fw-warning"></span>message</p>
         `;
     }
     drawDiagram();
