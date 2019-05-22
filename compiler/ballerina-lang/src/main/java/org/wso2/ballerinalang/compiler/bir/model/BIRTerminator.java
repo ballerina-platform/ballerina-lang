@@ -347,7 +347,7 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     }
 
     /**
-     * A worker send instruction.
+     * A wait all instruction.
      * <p>
      * e.g., record {id:w1,id2:w2} res = wait {w1, w2};
      *
