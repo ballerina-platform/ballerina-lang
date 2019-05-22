@@ -115,7 +115,7 @@ public class FunctionPointersTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), valueToAssert);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testGlobalFP() {
         BValue[] returns;
         // testing function pointer.
@@ -126,7 +126,7 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns[0].stringValue(), "test1");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testGlobalFPAsLambda() {
         BValue[] returns;
         // lambda.
@@ -186,7 +186,7 @@ public class FunctionPointersTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "" +
-            ".*cannot find key 'getName'.*", enabled = false)
+            ".*cannot find key 'getName'.*")
     public void testStructFPNullReference() {
         BRunUtil.invoke(structProgram, "test2");
     }
@@ -210,7 +210,7 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns[0].stringValue(), "1500526800000");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFunctionPointerNullCheck() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/function-pointer-null-check.bal");
         BValue[] returns = BRunUtil.invoke(result, "checkFunctionPointerNullEqual");
@@ -258,7 +258,7 @@ public class FunctionPointersTest {
         BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_2");
     }
 
-    @Test(description = "Test assigning a function pointer to any and casting it back", enabled = false)
+    @Test(description = "Test assigning a function pointer to any and casting it back")
     public void testAnyToFunctionPointer() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/fp2any.bal");
         BValue[] args = new BValue[0];
