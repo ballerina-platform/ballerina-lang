@@ -37,6 +37,33 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
+    function genLockTerm(bir:Lock lockIns, string funcName) {
+        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
+
+        foreach var globleVar in lockIns.globleVars {
+            var varClassName = lookupGlobalVarClassName(globleVar);
+            var lockName = computeLockNameFromString(globleVar);
+            self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, "Ljava/lang/Object;");
+            self.mv.visitInsn(MONITORENTER);
+        }
+
+        self.mv.visitJumpInsn(GOTO, gotoLabel);
+    }
+
+    function genUnlockTerm(bir:Unlock unlockIns, string funcName) {
+        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
+
+        // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
+        foreach var globleVar in unlockIns.globleVars {
+            var varClassName = lookupGlobalVarClassName(globleVar);
+            var lockName = computeLockNameFromString(globleVar);
+            self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, "Ljava/lang/Object;");
+            self.mv.visitInsn(MONITOREXIT);
+        }
+
+        self.mv.visitJumpInsn(GOTO, gotoLabel);
+    }
+
     function genReturnTerm(bir:Return returnIns, int returnVarRefIndex, bir:Function func) {
         bir:BType bType = func.typeValue.retType;
         if (bType is bir:BTypeNil) {

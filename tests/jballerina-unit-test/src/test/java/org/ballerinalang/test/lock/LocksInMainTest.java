@@ -56,6 +56,15 @@ public class LocksInMainTest {
 
     }
 
+    @Test(description = "Tests lock within in workers")
+    public void simpleLock() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/lock/simple-lock.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "simpleLock");
+        assertEquals(returns.length, 1);
+        assertSame(returns[0].getClass(), BString.class);
+        assertEquals(returns[0].stringValue(), "main in critical after w1 is out");
+    }
+
     @Test(description = "Tests lock within lock in workers")
     public void testLockWithinLockInWorkers() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
