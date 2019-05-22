@@ -37,7 +37,7 @@ public class Http2PriorKnowledgeTestCase extends Http2BaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
-        Assert.assertEquals("Connection and upgrade headers are not present--Prior knowledge is enabled", responseData,
+        Assert.assertEquals(responseData, "Connection and upgrade headers are not present--Prior knowledge is enabled",
                             "HTTP/2 prior knowledge enabled scenario failed");
     }
 
@@ -47,7 +47,7 @@ public class Http2PriorKnowledgeTestCase extends Http2BaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
-        Assert.assertEquals("HTTP2-Settings,upgrade--h2c--Prior knowledge is disabled", responseData,
+        Assert.assertEquals(responseData, "HTTP2-Settings,upgrade--h2c--Prior knowledge is disabled",
                             "HTTP/2 prior knowledge disabled scenario failed");
     }
 }

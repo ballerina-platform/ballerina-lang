@@ -19,14 +19,6 @@ import ballerina/http;
 listener http:Listener ep1 = new(9097, config = { httpVersion: "2.0" });
 listener http:Listener ep2 = new(9098, config = { httpVersion: "2.0" });
 
-http:Client h2WithPriorKnowledge = new("http://localhost:9098", config = { httpVersion: "2.0", http2Settings: {
-        http2PriorKnowledge: true
-    } });
-
-http:Client h2WithoutPriorKnowledge = new("http://localhost:9098", config = { httpVersion: "2.0", http2Settings: {
-        http2PriorKnowledge: false
-    } });
-
 @http:ServiceConfig {
     basePath: "/priorKnowledge"
 }
@@ -37,6 +29,9 @@ service priorKnowledgeTest on ep1 {
         path: "/on"
     }
     resource function priorOn(http:Caller caller, http:Request req) {
+        http:Client h2WithPriorKnowledge = new("http://localhost:9098", config = { httpVersion: "2.0", http2Settings: {
+                http2PriorKnowledge: true }, poolConfig: {} });
+
         var response = h2WithPriorKnowledge->post("/backend", "Prior knowledge is enabled");
         if (response is http:Response) {
             checkpanic caller->respond(untaint response);
@@ -50,6 +45,9 @@ service priorKnowledgeTest on ep1 {
         path: "/off"
     }
     resource function priorOff(http:Caller caller, http:Request req) {
+        http:Client h2WithoutPriorKnowledge = new("http://localhost:9098", config = { httpVersion: "2.0", http2Settings: {
+                http2PriorKnowledge: false }, poolConfig: {} });
+
         var response = h2WithoutPriorKnowledge->post("/backend", "Prior knowledge is disabled");
         if (response is http:Response) {
             checkpanic caller->respond(untaint response);
