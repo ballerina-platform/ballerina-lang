@@ -703,13 +703,13 @@ public class TypesTest {
         Assert.assertEquals(returns[3].stringValue(), "february");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testWait() {
         BValue[] result = BRunUtil.invoke(compileResult, "waitTest");
         Assert.assertEquals(result[0].stringValue(), "wait");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testWaitOnSame() {
         BValue[] result = BRunUtil.invoke(compileResult, "waitOnSame");
         Assert.assertEquals(result[0].stringValue(), "wait1");
