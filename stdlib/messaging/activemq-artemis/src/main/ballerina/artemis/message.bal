@@ -96,6 +96,7 @@ public type Message client object {
     #
     # + return - the `MessageConfiguration` of this message
     public function getConfig() returns MessageConfiguration {
+        self.configuration.freeze();
         return self.configuration;
     }
 };
