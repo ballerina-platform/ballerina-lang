@@ -27,6 +27,12 @@ import java.util.Map;
 
 /**
  * Test cases for authentication config pattern test scenarios.
+ * The followings are the config patterns used for authentication handlers:
+ * Pattern 1 - authnHandlers: [jwtAuthnHandler19_1]
+ * Pattern 2 - authnHandlers: [jwtAuthnHandler19_1, jwtAuthnHandler19_2]
+ * Pattern 3 - authnHandlers: [[jwtAuthnHandler19_1]]
+ * Pattern 4 - authnHandlers: [[jwtAuthnHandler19_1], [jwtAuthnHandler19_3]]
+ * Pattern 5 - authnHandlers: [[jwtAuthnHandler19_1, jwtAuthnHandler19_2], [jwtAuthnHandler19_3, jwtAuthnHandler19_4]]
  */
 @Test(groups = "auth-test")
 public class AuthnConfigPatternTest extends AuthBaseTest {

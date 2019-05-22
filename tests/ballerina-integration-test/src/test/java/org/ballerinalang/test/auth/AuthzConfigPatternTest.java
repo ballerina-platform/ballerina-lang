@@ -27,6 +27,12 @@ import java.util.Map;
 
 /**
  * Test cases for authorization config pattern test scenarios.
+ * The followings are the config patterns used for authorization scopes:
+ * Pattern 1 - scopes: ["scope1"]
+ * Pattern 2 - scopes: ["scope1", "scope2"]
+ * Pattern 3 - scopes: [["scope1"]]
+ * Pattern 4 - scopes: [["scope1"], ["scope3"]]
+ * Pattern 5 - scopes: [["scope1", "scope2"], ["scope3", "scope4"]]
  */
 @Test(groups = "auth-test")
 public class AuthzConfigPatternTest extends AuthBaseTest {
