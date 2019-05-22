@@ -34,7 +34,9 @@ public enum InstructionKind {
     WK_RECEIVE((byte) 8),
     WK_SEND((byte) 9),
     FLUSH((byte) 10),
-    WAIT_ALL((byte) 11),
+    LOCK((byte) 11),
+    UNLOCK((byte) 12),
+    WAIT_ALL((byte) 13),
 
     // Non-terminating instructions
     MOVE((byte) 20),

@@ -304,7 +304,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
         // process terminator
         generateDiagnosticPos(terminator.pos, mv);
-        if (terminator is bir:GOTO) {
+        if (terminator is bir:Lock) {
+            termGen.genLockTerm(terminator, funcName);
+        } else if (terminator is bir:Unlock) {
+            termGen.genUnlockTerm(terminator, funcName);
+        } else if (terminator is bir:GOTO) {
             termGen.genGoToTerm(terminator, funcName);
         } else if (terminator is bir:Call) {
             termGen.genCallTerm(terminator, funcName, isTrapped, currentEE, endLabel, handlerLabel, jumpLabel,

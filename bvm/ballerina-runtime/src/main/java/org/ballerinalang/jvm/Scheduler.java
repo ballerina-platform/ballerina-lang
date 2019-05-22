@@ -107,7 +107,7 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(function, params, future);
         totalStrands.incrementAndGet();
         if (DEBUG) {
-            DEBUG_LOG.add(item + " scheduled");
+            debugLog(item + " scheduled");
         }
         runnableList.add(item);
         return future;
@@ -127,7 +127,7 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         totalStrands.incrementAndGet();
         if (DEBUG) {
-            DEBUG_LOG.add(item + " scheduled");
+            debugLog(item + " scheduled");
         }
         runnableList.add(item);
         return future;
@@ -187,7 +187,7 @@ public class Scheduler {
             Throwable panic = null;
             try {
                 if (DEBUG) {
-                    DEBUG_LOG.add(item + " executing");
+                    debugLog(item + " executing");
                 }
                 result = item.execute();
             } catch (Throwable e) {
@@ -199,7 +199,7 @@ public class Scheduler {
                 case BLOCKED:
                     if (item.blockedOn().isEmpty()) {
                         if (DEBUG) {
-                            DEBUG_LOG.add(item + " blocked");
+                            debugLog(item + " blocked");
                         }
                         blockedOnUnknownList.put(item.future.strand, item);
                     } else {
@@ -208,7 +208,7 @@ public class Scheduler {
                                 blockedList.compute(blockedOn, (sameAsBlockedOn, blocked) -> {
                                     if (blocked == COMPLETED) {
                                         if (DEBUG) {
-                                            DEBUG_LOG.add(item + " blocked on completed " + blockedOn.hashCode());
+                                            debugLog(item + " blocked and freed on " + blockedOn.hashCode());
                                         }
                                         reschedule(item);
                                     } else {
@@ -216,7 +216,7 @@ public class Scheduler {
                                             blocked = new ArrayList<>();
                                         }
                                         if (DEBUG) {
-                                            DEBUG_LOG.add(item + " blocked on " + blockedOn.hashCode());
+                                            debugLog(item + " blocked on wait for " + blockedOn.hashCode());
                                         }
                                         blocked.add(item);
                                     }
@@ -229,7 +229,7 @@ public class Scheduler {
                 case YIELD:
                     reschedule(item);
                     if (DEBUG) {
-                        DEBUG_LOG.add(item + " yielded");
+                        debugLog(item + " yielded");
                     }
                     break;
                 case RUNNABLE:
@@ -242,7 +242,7 @@ public class Scheduler {
                     Strand justCompleted = item.future.strand;
                     List<SchedulerItem> blockedOnJustCompleted;
                     if (DEBUG) {
-                        DEBUG_LOG.add(item + " complected");
+                        debugLog(item + " complected");
                     }
                     synchronized (justCompleted) {
                         blockedOnJustCompleted = blockedList.put(justCompleted, COMPLETED);
@@ -253,7 +253,7 @@ public class Scheduler {
                     if (blockedOnJustCompleted != null) {
                         for (SchedulerItem blockedItem : blockedOnJustCompleted) {
                             if (DEBUG) {
-                                DEBUG_LOG.add(blockedItem + " freed by completion of " + item);
+                                debugLog(blockedItem + " freed by completion of " + item);
                             }
                             reschedule(blockedItem);
                         }
@@ -265,7 +265,7 @@ public class Scheduler {
                         assert runnableList.size() == 0;
 
                         if (DEBUG) {
-                            DEBUG_LOG.add("all work completed");
+                            debugLog("all work completed");
                         }
 
                         for (int i = 0; i < numThreads; i++) {
@@ -276,6 +276,15 @@ public class Scheduler {
                 default:
                     assert false : "illegal strand state during execute " + item.getState();
             }
+        }
+    }
+
+    private synchronized void debugLog(String msg) {
+        try {
+            Thread.sleep(100);
+            DEBUG_LOG.add(msg);
+            Thread.sleep(100);
+        } catch (InterruptedException ignored) {
         }
     }
 
@@ -304,12 +313,12 @@ public class Scheduler {
             if (i == 1000000) {
                 logger.warn("Possible infinite wait for receiver worker");
                 if (DEBUG) {
-                    DEBUG_LOG.add("possible infinite wait for receiver " + strand.hashCode() + " to block");
+                    debugLog("possible infinite wait for receiver " + strand.hashCode() + " to block");
                 }
             }
         }
         if (DEBUG) {
-            DEBUG_LOG.add(item + " got unblocked due to send");
+            debugLog(item + " got unblocked due to send");
         }
         reschedule(item);
     }
