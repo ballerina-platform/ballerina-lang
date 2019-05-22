@@ -63,7 +63,8 @@ public type AuthzFilter object {
     }
 };
 
-function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterContext context, string[]|string[][] scopes) returns boolean|error {
+function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterContext context,
+        string[]|string[][] scopes) returns boolean|error {
     boolean|error authorized = true;
     if (scopes is string[]) {
         if (scopes.length() > 0) {

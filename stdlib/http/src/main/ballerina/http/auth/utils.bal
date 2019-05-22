@@ -177,7 +177,8 @@ function getServiceResourceAuthConfig(FilterContext context) returns (ServiceRes
 # + annotationName - Annotation name
 # + annData - Array of annotationData instances
 # + return - `ServiceResourceAuth` instance if its defined, else nil
-function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData) returns ServiceResourceAuth? {
+function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData)
+        returns ServiceResourceAuth? {
     if (annData.length() == 0) {
         return ();
     }
