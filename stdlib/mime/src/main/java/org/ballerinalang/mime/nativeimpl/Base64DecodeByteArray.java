@@ -21,6 +21,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -43,8 +44,8 @@ public class Base64DecodeByteArray extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-//        byte[] byteArray = ((BValueArray) context.getRefArgument(0)).getBytes();
-//        decodeBlob(byteArray, false);
+        byte[] byteArray = ((BValueArray) context.getRefArgument(0)).getBytes();
+        decodeBlob(byteArray, false);
     }
 
     public static ArrayValue base64DecodeByteArray(Strand strand, ArrayValue byteArray) {

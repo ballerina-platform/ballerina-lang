@@ -24,11 +24,15 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
  * Given a ContentDisposition object, get the string equivalent value that can be used with HTTP header.
@@ -46,25 +50,25 @@ import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
 public class ToString extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-//        BMap<String, BValue> contentDispositionStruct =
-//                (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//        StringBuilder dispositionBuilder = new StringBuilder();
-//        if (contentDispositionStruct != null) {
-//            String disposition = contentDispositionStruct.get(DISPOSITION_FIELD).stringValue();
-//            if (disposition != null && !disposition.isEmpty()) {
-//                dispositionBuilder.append(disposition);
-//                dispositionBuilder = MimeUtil.convertDispositionObjectToString(dispositionBuilder,
-//                        contentDispositionStruct);
-//            }
-//        }
-//        context.setReturnValues(new BString(dispositionBuilder.toString()));
+        BMap<String, BValue> contentDispositionStruct =
+                (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        StringBuilder dispositionBuilder = new StringBuilder();
+        if (contentDispositionStruct != null) {
+            String disposition = contentDispositionStruct.get(DISPOSITION_FIELD).stringValue();
+            if (disposition != null && !disposition.isEmpty()) {
+                dispositionBuilder.append(disposition);
+                dispositionBuilder = MimeUtil.convertDispositionObjectToString(dispositionBuilder,
+                        contentDispositionStruct);
+            }
+        }
+        context.setReturnValues(new BString(dispositionBuilder.toString()));
     }
 
     public static String toString(Strand strand, ObjectValue contentDispositionObj) {
         StringBuilder dispositionBuilder = new StringBuilder();
         if (contentDispositionObj != null) {
-            String disposition = contentDispositionObj.get(DISPOSITION_FIELD).toString();
-            if (disposition != null && !disposition.isEmpty()) {
+            String disposition = String.valueOf(contentDispositionObj.get(DISPOSITION_FIELD));
+            if (!disposition.isEmpty()) {
                 dispositionBuilder.append(disposition);
                 dispositionBuilder = MimeUtil.convertDispositionObjectToString(dispositionBuilder,
                         contentDispositionObj);

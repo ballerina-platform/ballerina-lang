@@ -53,28 +53,28 @@ public class GetHeader extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-//        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//        String headerName = context.getStringArgument(FIRST_PARAMETER_INDEX);
-//        if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
-//            throw new BallerinaException("Http Header does not exist!");
-//        }
-//        HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
-//        if (httpHeaders != null && httpHeaders.get(headerName) != null && !httpHeaders.get(headerName).isEmpty()) {
-//            context.setReturnValues(new BString(httpHeaders.get(headerName)));
-//        } else {
-//            throw new BallerinaException("Http Header does not exist!");
-//        }
+        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        String headerName = context.getStringArgument(FIRST_PARAMETER_INDEX);
+        if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
+            throw new BallerinaException("Http Header does not exist!");
+        }
+        HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        if (httpHeaders != null && httpHeaders.get(headerName) != null && !httpHeaders.get(headerName).isEmpty()) {
+            context.setReturnValues(new BString(httpHeaders.get(headerName)));
+        } else {
+            throw new BallerinaException("Http Header does not exist!");
+        }
     }
 
     public static String getHeader(Strand strand, ObjectValue entityObj, String headerName) {
         if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
-            throw new BallerinaException("Http Header does not exist!");
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("Http Header does not exist!");
         }
         HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
         if (httpHeaders != null && httpHeaders.get(headerName) != null && !httpHeaders.get(headerName).isEmpty()) {
             return httpHeaders.get(headerName);
         } else {
-            throw new BallerinaException("Http Header does not exist!");
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("Http Header does not exist!");
         }
     }
 }

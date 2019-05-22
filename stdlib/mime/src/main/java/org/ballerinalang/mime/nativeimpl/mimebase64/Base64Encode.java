@@ -43,13 +43,12 @@ public class Base64Encode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-//        BValue input = context.getRefArgument(0);
-//        String charset = context.getStringArgument(0);
-//        Utils.encode(context, input, charset, true);
+        BValue input = context.getRefArgument(0);
+        String charset = context.getStringArgument(0);
+        Utils.encode(context, input, charset, true);
     }
 
-    public static void base64Encode(Strand strand, Object contentToBeDecoded, String charset) {
-        //TODO uncomment once IO module is migrated
-//        Utils.encode(contentToBeDecoded, charset, true);
+    public static Object base64Encode(Strand strand, Object contentToBeDecoded, String charset) {
+        return Utils.encode(contentToBeDecoded, charset, true);
     }
 }

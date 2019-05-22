@@ -21,11 +21,12 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.commons.TypeValuePair;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,10 +53,10 @@ import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
  *
  * @since 0.963.0
  */
-public class MultipartDataSource implements RefValue {
-    private static final Logger log = LoggerFactory.getLogger(MultipartDataSource.class);
+public class MultipartBDataSource implements BValue {
+    private static final Logger log = LoggerFactory.getLogger(MultipartBDataSource.class);
 
-    private ObjectValue parentEntity;
+    private BMap<String, BValue> parentEntity;
     private String boundaryString;
     private OutputStream outputStream;
     private static final String DASH_BOUNDARY = "--";
@@ -65,7 +66,7 @@ public class MultipartDataSource implements RefValue {
     private static final char COLON = ':';
     private static final char SPACE = ' ';
 
-    public MultipartDataSource(ObjectValue entityStruct, String boundaryString) {
+    public MultipartBDataSource(BMap<String, BValue> entityStruct, String boundaryString) {
         this.parentEntity = entityStruct;
         this.boundaryString = boundaryString;
     }
@@ -84,17 +85,17 @@ public class MultipartDataSource implements RefValue {
      * @param parentBodyPart       Represent parent body part
      */
     private void serializeBodyPart(OutputStream outputStream, String parentBoundaryString,
-                                   ObjectValue parentBodyPart) {
+                                   BMap<String, BValue> parentBodyPart) {
         final Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, Charset.defaultCharset()));
-        ArrayValue childParts = parentBodyPart.getNativeData(BODY_PARTS) != null ?
-                (ArrayValue) parentBodyPart.getNativeData(BODY_PARTS) : null;
+        BValueArray childParts = parentBodyPart.getNativeData(BODY_PARTS) != null ?
+                (BValueArray) parentBodyPart.getNativeData(BODY_PARTS) : null;
         try {
             if (childParts == null) {
                 return;
             }
             boolean firstPart = true;
             for (int i = 0; i < childParts.size(); i++) {
-                ObjectValue childPart = (ObjectValue) childParts.getRefValue(i);
+                BMap<String, BValue> childPart = (BMap<String, BValue>) childParts.getRefValue(i);
                 // Write leading boundary string
                 if (firstPart) {
                     firstPart = false;
@@ -121,21 +122,20 @@ public class MultipartDataSource implements RefValue {
      * @param childPart Represent a child part
      * @throws IOException When an error occurs while writing child part headers
      */
-    @SuppressWarnings("unchecked")
-    private void checkForNestedParts(Writer writer, ObjectValue childPart) throws IOException {
+    private void checkForNestedParts(Writer writer, BMap<String, BValue> childPart) throws IOException {
         String childBoundaryString = null;
         if (MimeUtil.isNestedPartsAvailable(childPart)) {
             childBoundaryString = MimeUtil.getNewMultipartDelimiter();
-            ObjectValue mediaType = (ObjectValue) childPart.get(MEDIA_TYPE_FIELD);
-            MapValueImpl paramMap = (mediaType.get(PARAMETER_MAP_FIELD) != null) ?
-                    (MapValueImpl) mediaType.get(PARAMETER_MAP_FIELD) : new MapValueImpl<>();
-            paramMap.put(BOUNDARY, childBoundaryString);
-            mediaType.set(PARAMETER_MAP_FIELD, paramMap);
+            BMap<String, BValue> mediaType = (BMap<String, BValue>) childPart.get(MEDIA_TYPE_FIELD);
+            BMap<String, BValue> paramMap = (mediaType.get(PARAMETER_MAP_FIELD) != null) ?
+                    (BMap<String, BValue>) mediaType.get(PARAMETER_MAP_FIELD) : new BMap<>();
+            paramMap.put(BOUNDARY, new BString(childBoundaryString));
+            mediaType.put(PARAMETER_MAP_FIELD, paramMap);
         }
         writeBodyPartHeaders(writer, childPart);
         //Serialize nested parts
         if (childBoundaryString != null) {
-            ArrayValue nestedParts = (ArrayValue) childPart.getNativeData(BODY_PARTS);
+            BValueArray nestedParts = (BValueArray) childPart.getNativeData(BODY_PARTS);
             if (nestedParts != null && nestedParts.size() > 0) {
                 serializeBodyPart(this.outputStream, childBoundaryString, childPart);
             }
@@ -149,7 +149,7 @@ public class MultipartDataSource implements RefValue {
      * @param bodyPart Represent ballerina body part
      * @throws IOException When an error occurs while writing body part headers
      */
-    private void writeBodyPartHeaders(Writer writer, ObjectValue bodyPart) throws IOException {
+    private void writeBodyPartHeaders(Writer writer, BMap<String, BValue> bodyPart) throws IOException {
         HttpHeaders httpHeaders;
         if (bodyPart.getNativeData(ENTITY_HEADERS) != null) {
             httpHeaders = (HttpHeaders) bodyPart.getNativeData(ENTITY_HEADERS);
@@ -164,9 +164,9 @@ public class MultipartDataSource implements RefValue {
             httpHeaders.set(HttpHeaderNames.CONTENT_DISPOSITION.toString(), contentDisposition);
         }
         
-        Object contentId = bodyPart.get(CONTENT_ID_FIELD);
-        if (contentId != null && !contentId.toString().isEmpty()) {
-            httpHeaders.set(CONTENT_ID, contentId.toString());
+        BValue contentId = bodyPart.get(CONTENT_ID_FIELD);
+        if (contentId != null && !contentId.stringValue().isEmpty()) {
+            httpHeaders.set(CONTENT_ID, contentId.stringValue());
         }
         Iterator<Map.Entry<String, String>> iterator = httpHeaders.iteratorAsString();
         while (iterator.hasNext()) {
@@ -203,31 +203,32 @@ public class MultipartDataSource implements RefValue {
      * @param bodyPart     Represent a ballerina body part
      * @throws IOException When an error occurs while writing body content
      */
-    private void writeBodyContent(OutputStream outputStream, ObjectValue bodyPart) throws IOException {
-        Object messageDataSource = EntityBodyHandler.getMessageDataSource(bodyPart);
+    private void writeBodyContent(OutputStream outputStream, BMap<String, BValue> bodyPart) throws IOException {
+        BValue messageDataSource = EntityBodyHandler.getMessageDataSource(bodyPart);
         if (messageDataSource != null) {
-            ((RefValue) messageDataSource).serialize(outputStream);
+            messageDataSource.serialize(outputStream);
         } else {
             EntityBodyHandler.writeByteChannelToOutputStream(bodyPart, outputStream);
         }
     }
 
+    @Override
     public String stringValue() {
         return null;
     }
 
     @Override
-    public org.ballerinalang.jvm.types.BType getType() {
+    public BType getType() {
         return null;
     }
 
     @Override
-    public void stamp(org.ballerinalang.jvm.types.BType type, List<TypeValuePair> unresolvedValues) {
-
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
+        
     }
 
     @Override
-    public Object copy(Map<Object, Object> refs) {
+    public BValue copy(Map<BValue, BValue> refs) {
         return null;
     }
 }
