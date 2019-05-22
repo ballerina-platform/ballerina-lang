@@ -37,7 +37,6 @@ public class BallerinaErrors {
 
     public static final String ERROR_PRINT_PREFIX = "error: ";
 
-
     public static ErrorValue createError(String reason) {
         return new ErrorValue(reason, new MapValueImpl<>());
     }

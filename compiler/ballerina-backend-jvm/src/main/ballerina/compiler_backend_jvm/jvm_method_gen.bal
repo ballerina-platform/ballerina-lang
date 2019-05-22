@@ -870,7 +870,6 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     BalToJVMIndexMap indexMap = new;
     ErrorHandlerGenerator errorGen = new(mv, indexMap);
-    
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
 
     boolean isVoidFunction = userMainFunc.typeValue.retType is bir:BTypeNil;
@@ -883,12 +882,10 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     mv.visitInsn(DUP);
     mv.visitInsn(ICONST_4);
     mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(I)V", false);
-    mv.visitVarInsn(ASTORE, 1);
 
     if (hasInitFunction(pkg)) {
-        mv.visitVarInsn(ALOAD, 1);
-        string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
         mv.visitInsn(DUP);
+        string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
         mv.visitIntInsn(BIPUSH, 1);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
@@ -898,14 +895,12 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
         // no parent strand
         mv.visitInsn(ACONST_NULL);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_METHOD,
             io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, CONSUMER, STRAND, FUTURE_VALUE), false);
-        mv.visitVarInsn(ASTORE, 2);
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
-        errorGen.printStackTraceFromFutureValue(mv, 2);
+        errorGen.printStackTraceFromFutureValue(mv);
+        mv.visitInsn(POP);
     }
-    mv.visitVarInsn(ALOAD, 1);
+  
     string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
     bir:BType?[] paramTypes = userMainFunc.typeValue.paramTypes;
 
@@ -932,28 +927,17 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     mv.visitInsn(ACONST_NULL);
     //submit to the scheduler
     if (isVoidFunction) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_METHOD,
             io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, CONSUMER, STRAND, FUTURE_VALUE), false);
     } else {
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule",
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_METHOD,
             io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION, STRAND, FUTURE_VALUE), false);
-        mv.visitInsn(DUP);
     }
-    mv.visitVarInsn(ASTORE, 3);
-    mv.visitVarInsn(ALOAD, 3);
-    mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
     mv.visitInsn(DUP);
-    mv.visitIntInsn(BIPUSH, 100);
-    mv.visitTypeInsn(ANEWARRAY, OBJECT);
-    mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
-
-    // start the scheduler
-    mv.visitVarInsn(ALOAD, 1);
-    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
-    errorGen.printStackTraceFromFutureValue(mv, 3);
-    
+    errorGen.printStackTraceFromFutureValue(mv);
     // At this point we are done executing all the functions including asyncs
     if (!isVoidFunction) {
+        mv.visitInsn(POP);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
         bir:BType returnType = userMainFunc.typeValue.retType;
         addUnboxInsn(mv, returnType);
@@ -966,9 +950,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         } else {
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
         }
-    }
-
-
+    } 
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
