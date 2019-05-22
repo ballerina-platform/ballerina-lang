@@ -58,22 +58,17 @@ function handleAuthnRequest(AuthnHandler?[]|AuthnHandler?[][] authnHandlers, Req
     if (authnHandlers is AuthnHandler?[]) {
         return checkForAuthnHandlers(authnHandlers, request);
     } else {
-        (boolean|error?)[] responseArray = [];
-        int count = 0;
         foreach AuthnHandler?[] authnHandler in authnHandlers {
-            responseArray[count] = checkForAuthnHandlers(authnHandler, request);
-            count += 1;
-        }
-
-        boolean authenticated = true;
-        foreach boolean|error? item in responseArray {
-            if (item is boolean) {
-                authenticated = authenticated && item;
-            } else if (item is error) {
-                return item;
+            var response = checkForAuthnHandlers(authnHandler, request);
+            if (response is boolean) {
+                if (!response) {
+                    return response;
+                }
+            } else {
+                return response;
             }
         }
-        return authenticated;
+        return true;
     }
 }
 
@@ -86,9 +81,9 @@ function checkForAuthnHandlers(AuthnHandler?[] authnHandlers, Request request) r
                 var handleResponse = authnHandler.handle(request);
                 if (handleResponse is boolean) {
                     if (handleResponse) {
-                        // If one of the authenticators from the chain could successfully authenticate the user, it is not
-                        // required to look through other providers. The authenticator chain is using "OR" combination of
-                        // provider results.
+                        // If one of the authenticators from the chain could successfully authenticate the user,
+                        // it is not required to look through other providers. The authenticator chain is using "OR"
+                        // combination of provider results.
                         return true;
                     }
                 } else {
