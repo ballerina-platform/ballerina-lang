@@ -34,7 +34,7 @@ import java.math.MathContext;
  *
  * @since 0.995.0
  */
-public class DecimalValue implements Comparable<DecimalValue> {
+public class DecimalValue {
 
     private static final DecimalValue POSITIVE_INF =
             new DecimalValue("9.999999999999999999999999999999999E6144", DecimalValueKind.POSITIVE_INFINITY);
@@ -414,11 +414,6 @@ public class DecimalValue implements Comparable<DecimalValue> {
 
     public String toString() {
         return this.stringValue();
-    }
-
-    @Override
-    public int compareTo(DecimalValue o) {
-        return this.value.compareTo(o.value());
     }
 
     public static DecimalValue valueOf(long value) {

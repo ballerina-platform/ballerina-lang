@@ -135,13 +135,7 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.expressions.binaryoperations.EqualAndNotEqualOperationsTest"/>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalNaNInfinityTest">
-                <!--We can remove excludes once 'isNaN' and 'isFinite' are supported-->
-                <methods>
-                    <exclude name="testIsFinite"/>
-                    <exclude name="testIsNaN"/>
-                </methods>
-            </class>
+            <class name="org.ballerinalang.test.types.decimaltype.BDecimalNaNInfinityTest"/>
             <class name="org.ballerinalang.test.types.decimaltype.BDecimalValueNegativeTest"/>
             <class name="org.ballerinalang.test.types.decimaltype.BDecimalBFloatComparisonTest"/>
             <class name="org.ballerinalang.test.types.decimaltype.BDecimalTypeConversionTest"/>
