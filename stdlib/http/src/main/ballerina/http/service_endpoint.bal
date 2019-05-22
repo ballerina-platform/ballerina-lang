@@ -167,8 +167,12 @@ public type ServiceEndpointConfiguration record {|
 
 # Authentication configurations for the listener.
 #
-# + authnHandlers - Array of authentication handlers or Array of array of authentication handlers
-# + scopes - Array of scopes or Array of array of scopes
+# + authnHandlers - Array of authentication handlers or Array of arrays of authentication handlers. Array is used to
+# say at least one of the authenticaion handlers should successfully authenticated. Array of arrays is used to say
+# at least one authentication handler from the sub arrays should successfully authenticated.
+# + scopes - Array of scopes or Array of arrays of scopes. Array is used to say at least one of the scopes should
+# successfully authorized. Array of arrays is used to say at least one scope from the sub arrays should successfully
+# authorized.
 # + positiveAuthzCache - Caching configurations for positive authorizations
 # + negativeAuthzCache - Caching configurations for negative authorizations
 public type ListenerAuth record {|

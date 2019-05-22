@@ -45,7 +45,7 @@ public type AuthzHandler object {
     # + serviceName - `Service` name
     # + resourceName - `Resource` name
     # + method - HTTP method name
-    # + scopes - Array of scopes or Array of array of scopes
+    # + scopes - Array of scopes or Array of arrays of scopes
     # + return - true if authorization check is a success, else false
     function handle(string username, string serviceName, string resourceName, string method, string[]|string[][] scopes) returns boolean;
 
