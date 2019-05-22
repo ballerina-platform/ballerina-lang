@@ -17,12 +17,14 @@ package io.ballerina.plugins.idea.extensions.editoreventmanager;
 
 import com.google.gson.JsonElement;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.event.EditorMouseListener;
 import com.intellij.openapi.editor.event.EditorMouseMotionListener;
 import io.ballerina.plugins.idea.extensions.client.BallerinaRequestManager;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTRequest;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
+import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
 import org.wso2.lsp4intellij.client.languageserver.ServerOptions;
 import org.wso2.lsp4intellij.client.languageserver.requestmanager.RequestManager;
@@ -68,5 +70,19 @@ public class BallerinaEditorEventManager extends EditorEventManager {
             }
         }
         return "";
+    }
+
+    @Override
+    public void documentChanged(DocumentEvent event) {
+        if (editor.isDisposed()) {
+            return;
+        }
+        if (event.getDocument() == editor.getDocument()) {
+            DidChangeTextDocumentParams changeParams = getChangesParams();
+            changeParams.getContentChanges().get(0).setText(editor.getDocument().getText());
+            this.getRequestManager().didChange(changeParams);
+        } else {
+            LOG.error("Wrong document for the EditorEventManager");
+        }
     }
 }
