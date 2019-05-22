@@ -89,9 +89,9 @@ public class Register extends BlockingNativeCallableUnit {
         Object attachments = config.get(PARAMETER_ATTACHMENT);
         ServiceWithParameters serviceWithParameters;
         if (Objects.nonNull(attachments)) {
-            serviceWithParameters = new ServiceWithParameters(service, attachments);
+            serviceWithParameters = new ServiceWithParameters(strand, service, attachments);
         } else {
-            serviceWithParameters = new ServiceWithParameters(service);
+            serviceWithParameters = new ServiceWithParameters(strand, service);
         }
 
         /* TODO: Validate service at runtime, as compiler plugin not available.

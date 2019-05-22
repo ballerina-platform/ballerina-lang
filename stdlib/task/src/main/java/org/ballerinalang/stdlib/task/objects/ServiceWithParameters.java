@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.task.objects;
 
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.values.BValue;
 
@@ -28,6 +29,7 @@ import org.ballerinalang.model.values.BValue;
  * @since 0.995.0
  */
 public class ServiceWithParameters {
+    private Strand strand = null;
     private ObjectValue serviceObj = null;
     private Object attachmentObj = null;
     private Service service = null;
@@ -45,12 +47,14 @@ public class ServiceWithParameters {
         this.attachment = null;
     }
 
-    public ServiceWithParameters(ObjectValue serviceObj, Object attachmentObj) {
+    public ServiceWithParameters(Strand strand, ObjectValue serviceObj, Object attachmentObj) {
+        this.strand = strand;
         this.serviceObj = serviceObj;
         this.attachmentObj = attachmentObj;
     }
 
-    public ServiceWithParameters(ObjectValue serviceObj) {
+    public ServiceWithParameters(Strand strand, ObjectValue serviceObj) {
+        this.strand = strand;
         this.serviceObj = serviceObj;
         this.attachmentObj = null;
     }
@@ -69,5 +73,9 @@ public class ServiceWithParameters {
 
     public Object getAttachmentObj() {
         return this.attachmentObj;
+    }
+
+    public Strand getStrand() {
+        return strand;
     }
 }

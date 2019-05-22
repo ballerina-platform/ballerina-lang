@@ -63,7 +63,8 @@ public class TaskExecutor {
         AttachedFunction onTriggerFunction = resourceFunctionHolder.getOnTriggerResource();
 
         List<Object> onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceWithParameters);
-        Executor.executeFunction(serviceWithParameters.getServiceObj(), onTriggerFunction, onTriggerFunctionArgs);
+        Executor.executeFunction(serviceWithParameters.getStrand(), serviceWithParameters.getServiceObj(),
+                                 onTriggerFunction, onTriggerFunctionArgs);
     }
 
     private static List<Object> getParameterList(AttachedFunction function,

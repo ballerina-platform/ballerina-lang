@@ -61,20 +61,21 @@ public class Executor {
     /**
      * Execution API to execute just a function.
      *
+     * @param strand   current strand
      * @param service  to be executed
      * @param resource to be executed
      * @param args     to be passed to invokable unit
      * @return results
      */
-    public static Object executeFunction(ObjectValue service, AttachedFunction resource, Object... args) {
+    public static Object executeFunction(Strand strand, ObjectValue service, AttachedFunction resource,
+                                         Object... args) {
         int requiredArgNo = resource.getParameterType().length;
         int providedArgNo = args.length;
         if (requiredArgNo != providedArgNo) {
             throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
                                                providedArgNo + ".");
         }
-        //TODO check the need of existing strand here
-        return service.call(new Strand(new Scheduler(4)), resource.getName(), args);
+        return service.call(new Strand(strand.scheduler), resource.getName(), args);
     }
 
     private Executor() {
