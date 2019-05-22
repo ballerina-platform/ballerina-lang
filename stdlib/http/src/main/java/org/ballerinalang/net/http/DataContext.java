@@ -23,7 +23,7 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
@@ -36,16 +36,8 @@ public class DataContext {
     private final Strand strand;
     private final ObjectValue clientObj;
     private final ObjectValue requestObj;
-    private final TempCallableUnitCallback callback;
-//    public Context context;
-//    public CallableUnitCallback callback;
+    private final NonBlockingCallback callback;
     private HttpCarbonMessage correlatedMessage;
-
-//    public DataContext(Context context, CallableUnitCallback callback, HttpCarbonMessage correlatedMessage) {
-//        this.context = context;
-//        this.callback = callback;
-//        this.correlatedMessage = correlatedMessage;
-//    }
 
     public DataContext(Strand strand, ObjectValue clientObj, ObjectValue requestObj,
                        HttpCarbonMessage outboundRequestMsg) {
@@ -56,55 +48,37 @@ public class DataContext {
         this.callback = null;
     }
 
-    public DataContext(Strand strand, Boolean blocking, TempCallableUnitCallback callback, ObjectValue clientObj, ObjectValue requestObj,
+    public DataContext(Strand strand, NonBlockingCallback callback, ObjectValue clientObj,
+                       ObjectValue requestObj,
                        HttpCarbonMessage outboundRequestMsg) {
         this.strand = strand;
-        //TODO : TempCallableUnitCallback is used to handle non blocking call
+        //TODO : NonBlockingCallback is used to handle non blocking call
         this.callback = callback;
         this.clientObj = clientObj;
         this.requestObj = requestObj;
         this.correlatedMessage = outboundRequestMsg;
-        if (!blocking) {
-            // Thread is not blocked(released to the pool) but the ballerina execution is blocked until the
-            // returnValue is retrieved.
-            strand.block();
-        }
     }
 
     public void notifyInboundResponseStatus(ObjectValue inboundResponse, ErrorValue httpConnectorError) {
         //Make the request associate with this response consumable again so that it can be reused.
         if (inboundResponse != null) {
-            strand.setReturnValues(inboundResponse);
-            //TODO remove this call back
             getCallback().setReturnValues(inboundResponse);
         } else if (httpConnectorError != null) {
-            strand.setReturnValues(httpConnectorError);
-            //TODO remove this call back
             getCallback().setReturnValues(httpConnectorError);
         } else {
             MapValue<String, Object> err = BallerinaValues.createRecordValue(PACKAGE_BALLERINA_BUILTIN,
                                                                              STRUCT_GENERIC_ERROR);
-            strand.setReturnValues(err);
-            //TODO remove this call back
             getCallback().setReturnValues(err);
         }
-        strand.resume();
-        //TODO remove this call back
         getCallback().notifySuccess();
     }
 
     public void notifyOutboundResponseStatus(ErrorValue httpConnectorError) {
         if (httpConnectorError == null) {
-            strand.setReturnValues(null);
-            //TODO remove this call back
             getCallback().setReturnValues(null);
         } else {
-            strand.setReturnValues(httpConnectorError);
-            //TODO remove this call back
             getCallback().setReturnValues(httpConnectorError);
         }
-        strand.resume();
-        //TODO remove this call back
         getCallback().notifySuccess();
     }
 
@@ -124,7 +98,7 @@ public class DataContext {
         return strand;
     }
 
-    public TempCallableUnitCallback getCallback() {
+    public NonBlockingCallback getCallback() {
         return callback;
     }
 }

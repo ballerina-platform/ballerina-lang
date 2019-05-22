@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -80,8 +80,8 @@ public class GetXml extends AbstractGetPayloadHandler {
     }
 
     public static void getXml(Strand strand, ObjectValue entityObj) {
-        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         try {
             XMLValue result;

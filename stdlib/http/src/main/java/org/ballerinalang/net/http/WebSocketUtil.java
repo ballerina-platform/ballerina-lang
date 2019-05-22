@@ -31,7 +31,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.net.http.actions.httpclient.AbstractHTTPAction;
@@ -69,7 +69,7 @@ public class WebSocketUtil {
 
     public static void handleHandshake(WebSocketService wsService, WebSocketConnectionManager connectionManager,
                                        HttpHeaders headers, WebSocketHandshaker webSocketHandshaker,
-                                       TempCallableUnitCallback callback) {
+                                       NonBlockingCallback callback) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
         int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
         int maxFrameSize = wsService.getMaxFrameSize();
@@ -159,7 +159,7 @@ public class WebSocketUtil {
                               new BBoolean(webSocketConnection.isOpen()));
     }
 
-    public static void handleWebSocketCallback(TempCallableUnitCallback callback,
+    public static void handleWebSocketCallback(NonBlockingCallback callback,
                                                ChannelFuture webSocketChannelFuture) {
         webSocketChannelFuture.addListener(future -> {
             Throwable cause = future.cause();

@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -85,11 +85,11 @@ public class PushPromisedResponse extends ConnectionAction {
 
     public static void pushPromisedResponse(Strand strand, ObjectValue connectionObj, ObjectValue pushPromiseObj,
                                      ObjectValue outboundResponseObj) {
-        //TODO : TempCallableUnitCallback is used to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+        //TODO : NonBlockingCallback is used to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
-        DataContext dataContext = new DataContext(strand, false, callback, null, null, inboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, callback, null, null, inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);

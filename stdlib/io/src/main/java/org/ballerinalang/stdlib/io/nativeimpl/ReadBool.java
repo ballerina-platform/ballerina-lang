@@ -98,7 +98,7 @@ public class ReadBool implements NativeCallableUnit {
     }
 
     public static Object readBool(Strand strand, ObjectValue dataChannelObj) {
-        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);

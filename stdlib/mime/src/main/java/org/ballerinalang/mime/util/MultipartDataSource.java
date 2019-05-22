@@ -21,15 +21,9 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-//import org.ballerinalang.bre.bvm.BVM;
-//import org.ballerinalang.model.types.BType;
-//import org.ballerinalang.model.values.BMap;
-//import org.ballerinalang.model.values.BString;
-//import org.ballerinalang.model.values.BValue;
-//import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.RefValue;
@@ -53,6 +47,13 @@ import static org.ballerinalang.mime.util.MimeConstants.CONTENT_ID_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
+
+//import org.ballerinalang.bre.bvm.BVM;
+//import org.ballerinalang.model.types.BType;
+//import org.ballerinalang.model.values.BMap;
+//import org.ballerinalang.model.values.BString;
+//import org.ballerinalang.model.values.BValue;
+//import org.ballerinalang.model.values.BValueArray;
 
 /**
  * Act as multipart encoder.
@@ -229,7 +230,7 @@ public class MultipartDataSource implements RefValue {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
 
     }
 

@@ -18,10 +18,9 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.NativeCallableUnit;
@@ -52,7 +51,7 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         return false;
     }
 
-    static void constructNonBlockingDataSource(TempCallableUnitCallback callback, ObjectValue entity,
+    static void constructNonBlockingDataSource(NonBlockingCallback callback, ObjectValue entity,
                                                SourceType sourceType) {
         HttpCarbonMessage inboundMessage = extractTransportMessageFromEntity(entity);
         inboundMessage.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
@@ -88,18 +87,18 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         callback.sync();
     }
 
-    static void setReturnValuesAndNotify(TempCallableUnitCallback callback, Object result) {
+    static void setReturnValuesAndNotify(NonBlockingCallback callback, Object result) {
         //TODO remove this call back
         callback.setReturnValues(result);
         callback.notifySuccess();
     }
 
-    static void createErrorAndNotify(TempCallableUnitCallback callback, String errMsg) {
+    static void createErrorAndNotify(NonBlockingCallback callback, String errMsg) {
         ErrorValue error = MimeUtil.createError(errMsg);
         setReturnValuesAndNotify(callback, error);
     }
 
-    static void updateDataSourceAndNotify(TempCallableUnitCallback callback, ObjectValue entityObj,
+    static void updateDataSourceAndNotify(NonBlockingCallback callback, ObjectValue entityObj,
                                           Object result) {
         EntityBodyHandler.addMessageDataSource(entityObj, result);
         //Set byte channel to null, once the message data source has been constructed

@@ -23,7 +23,7 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -85,8 +85,8 @@ public class AcceptWebSocketUpgrade implements NativeCallableUnit {
     }
 
     public static void execute(Strand strand, ObjectValue connectionObj, MapValue<String, String> headers) {
-        //TODO : TempCallableUnitCallback is used to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+        //TODO : NonBlockingCallback is used to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         WebSocketHandshaker webSocketHandshaker =
                 (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);

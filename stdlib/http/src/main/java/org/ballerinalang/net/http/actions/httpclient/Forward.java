@@ -23,7 +23,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -53,12 +53,12 @@ public class Forward extends AbstractHTTPAction {
     }
 
     public static void nativeForward(Strand strand, ObjectValue clientObj, String url, MapValue config, String path, ObjectValue requestObj) {
-        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback();
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         String serviceUri = clientObj.get(CLIENT_ENDPOINT_SERVICE_URI).toString();
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(serviceUri, path, requestObj);
-        DataContext dataContext = new DataContext(strand, false, callback, clientObj, requestObj, outboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, callback, clientObj, requestObj, outboundRequestMsg);
         // Execute the operation
         executeNonBlockingAction(dataContext, false);
     }

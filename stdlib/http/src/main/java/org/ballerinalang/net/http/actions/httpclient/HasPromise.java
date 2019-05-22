@@ -20,7 +20,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -58,8 +58,8 @@ public class HasPromise extends AbstractHTTPAction {
     }
 
     public static void hasPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
-        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
@@ -74,9 +74,9 @@ public class HasPromise extends AbstractHTTPAction {
 
     private static class PromiseAvailabilityCheckListener implements HttpClientConnectorListener {
 
-        private TempCallableUnitCallback callback;
+        private NonBlockingCallback callback;
 
-        PromiseAvailabilityCheckListener(TempCallableUnitCallback callback) {
+        PromiseAvailabilityCheckListener(NonBlockingCallback callback) {
             this.callback = callback;
         }
 
