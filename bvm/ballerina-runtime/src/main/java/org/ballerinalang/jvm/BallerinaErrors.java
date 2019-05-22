@@ -22,9 +22,15 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG;
 import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
@@ -37,8 +43,9 @@ import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 public class BallerinaErrors {
     
     public static final String ERROR_MESSAGE_FIELD = "message";
-
     public static final String NULL_REF_EXCEPTION = "NullReferenceException";
+    public static final String CALL_STACK_ELEMENT = "CallStackElement";
+
 
     public static ErrorValue createError(String reason) {
         return new ErrorValue(reason, new MapValueImpl<>());
@@ -65,13 +72,13 @@ public class BallerinaErrors {
     }
 
     static ErrorValue createTypeCastError(Object sourceVal, BType targetType) {
-        throw new ErrorValue(BallerinaErrorReasons.TYPE_CAST_ERROR,
+        throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
                              BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,
                                                                   TypeChecker.getType(sourceVal), targetType));
     }
 
     static ErrorValue createNumericConversionError(Object inputValue, BType targetType) {
-        throw new ErrorValue(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+        throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                              BLangExceptionHelper.getErrorMessage(
                                      RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                      TypeChecker.getType(inputValue), inputValue, targetType));
@@ -147,5 +154,31 @@ public class BallerinaErrors {
 
     public static void printStackTraceOnMainMethodError(ErrorValue errorValue) {
         ErrorHandlerUtils.printError("error: " + getPrintableStackTrace(errorValue));
+    }
+
+    public static ArrayValue generateCallStack() {
+        List<MapValue<String, Object>> sfList = new ArrayList<>();
+        for (StackTraceElement frame : Thread.currentThread().getStackTrace()) {
+            MapValue<String, Object> sf = getStackFrame(frame);
+            if (sf != null) {
+                sfList.add(0, sf);
+            }
+        }
+        BType recordType = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT).getType();
+        ArrayValue callStack = new ArrayValue(recordType);
+        for (int i = 0; i < sfList.size(); i++) {
+            callStack.add(i, sfList.get(i));
+        }
+        return callStack;
+    }
+
+    private static MapValue<String, Object> getStackFrame(StackTraceElement stackTraceElement) {
+        Object[] values = new Object[4];
+        values[0] = stackTraceElement.getMethodName();
+        values[1] = stackTraceElement.getClassName();
+        values[2] = stackTraceElement.getFileName();
+        values[3] = stackTraceElement.getLineNumber();
+        return BallerinaValues.populateRecordFields(
+                BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT), values);
     }
 }

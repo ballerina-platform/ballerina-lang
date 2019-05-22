@@ -304,7 +304,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
         // process terminator
         generateDiagnosticPos(terminator.pos, mv);
-        if (terminator is bir:GOTO) {
+        if (terminator is bir:Lock) {
+            termGen.genLockTerm(terminator, funcName);
+        } else if (terminator is bir:Unlock) {
+            termGen.genUnlockTerm(terminator, funcName);
+        } else if (terminator is bir:GOTO) {
             termGen.genGoToTerm(terminator, funcName);
         } else if (terminator is bir:Call) {
             termGen.genCallTerm(terminator, funcName, isTrapped, currentEE, endLabel, handlerLabel, jumpLabel,
@@ -853,8 +857,13 @@ function createFunctionPointer(jvm:MethodVisitor mv, string class, string lambda
     // load null here for type, since these are fp's created for internal usages. 
     mv.visitInsn(ACONST_NULL);
 
-    mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                        io:sprintf("(L%s;L%s;)V", CONSUMER, BTYPE), false);
+    if (isVoid) {
+        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
+                            io:sprintf("(L%s;L%s;)V", CONSUMER, BTYPE), false);
+    } else {
+        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
+                            io:sprintf("(L%s;L%s;)V", FUNCTION, BTYPE), false);
+    }
 }
 
 function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg,  string mainClass,
