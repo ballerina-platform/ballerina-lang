@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
@@ -40,10 +41,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
+import static org.ballerinalang.net.http.HttpConstants.HTTP2_PRIOR_KNOWLEDGE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpUtil.getConnectionManager;
 import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0_VERSION;
 
 /**
  * Initialization of client endpoint.
@@ -87,6 +90,14 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
             senderConfiguration.setHttpTraceLogEnabled(true);
         }
         senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
+
+        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
+        if (HTTP_2_0_VERSION.equals(httpVersion)) {
+            MapValue<String, Object> http2Settings = (MapValue<String, Object>) clientEndpointConfig.
+                    get(HttpConstants.HTTP2_SETTINGS);
+            boolean http2PriorKnowledge = ((BBoolean) http2Settings.get(HTTP2_PRIOR_KNOWLEDGE)).booleanValue();
+            senderConfiguration.setForceHttp2(http2PriorKnowledge);
+        }
 
         populateSenderConfigurations(senderConfiguration, clientEndpointConfig);
         ConnectionManager poolManager;
