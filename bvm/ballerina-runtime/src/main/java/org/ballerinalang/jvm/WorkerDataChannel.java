@@ -37,7 +37,7 @@ public class WorkerDataChannel {
     private WaitingSender waitingSender;
     private WaitingSender flushSender;
     private ErrorValue error;
-    private ErrorValue panic;
+    private Throwable panic;
     private int senderCounter;
     private int receiverCounter;
     private boolean syncSent = false;
@@ -105,7 +105,9 @@ public class WorkerDataChannel {
                     this.receiver.scheduler.unblockStrand(this.receiver);
                     this.receiver = null;
                 } else if (this.panic != null) {
-                    // TODO: Fix for receiver panics
+                    Throwable panic = this.panic;
+                    this.panic = null;
+                    throw new RuntimeException(panic);
                 } else if (this.error != null) {
                     ErrorValue ret = this.error;
                     this.error = null;
@@ -231,7 +233,7 @@ public class WorkerDataChannel {
         acquireChannelLock();
         try {
             if (this.panic != null) {
-                // TODO: Handle panic
+                throw new RuntimeException(this.panic);
             } else if (this.error != null) {
                 return this.error;
             } else if (this.receiverCounter == this.senderCounter) {
@@ -245,6 +247,50 @@ public class WorkerDataChannel {
         } finally {
             releaseChannelLock();
         }
+    }
+
+    /**
+     * Method to set sender panics.
+     *
+     * @param panic to be set
+     */
+    public void setSendPanic(Throwable panic) {
+        try {
+            acquireChannelLock();
+            this.panic  = panic;
+            this.senderCounter++;
+            if (this.receiver != null) {
+                this.receiver.scheduler.unblockStrand(this.receiver);
+                this.receiver = null;
+            }
+        } finally {
+            releaseChannelLock();
+        }
+    }
+
+    /**
+     * Method to set receiver panics.
+     *
+     * @param panic to be set
+     */
+    public void setReceiverPanic(Throwable panic) {
+        acquireChannelLock();
+        this.panic  = panic;
+        this.receiverCounter++;
+        if (this.flushSender != null) {
+            this.flushSender.waitingStrand.flushDetail.flushLock.lock();
+            Strand flushStrand = this.flushSender.waitingStrand;
+            if (flushStrand.blocked) {
+                flushStrand.scheduler.unblockStrand(flushStrand);
+            }
+            this.flushSender.waitingStrand.flushDetail.flushLock.unlock();
+            this.flushSender = null;
+        } else if (this.waitingSender != null) {
+            Strand waiting = this.waitingSender.waitingStrand;
+            waiting.scheduler.unblockStrand(waiting);
+            this.waitingSender = null;
+        }
+        releaseChannelLock();
     }
 
     /**

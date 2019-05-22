@@ -48,6 +48,7 @@ public class Strand {
     public WDChannels wdChannels;
     public FlushDetail flushDetail;
     public boolean blockedOnExtern;
+    public ChannelDetails[] channelDetails;
     private Map<String, Object> globalProps;
 
     public Strand(Scheduler scheduler) {
@@ -82,16 +83,8 @@ public class Strand {
         }
     }
 
-    public void block() {
-
-    }
-
     public void setReturnValues(Object returnValue) {
         this.future = CompletableFuture.completedFuture(returnValue);
-    }
-
-    public void resume() {
-
     }
 
     public Object getProperty(String key) {
