@@ -46,11 +46,9 @@ public class BTypes {
                                                                    new BPackage(null, null));
     public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, new BPackage(null, null));
     // public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
-    public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null, null), typeString, typeMap);
     public static BType typeAnyService = new BServiceType(TypeConstants.SERVICE, new BPackage(null, null));
     public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null, null), typeString,
                                                         typeMap);
-    // public static BType typeAnyService = new BServiceType(null, TypeConstants.SERVICE, null, 0);
     public static BType typePureType = new BUnionType(new ArrayList<>(Arrays.asList(typeAnydata, typeError)));
 
     private BTypes() {
