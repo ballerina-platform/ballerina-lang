@@ -20,8 +20,6 @@ package org.ballerinalang.jvm.types;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.StringJoiner;
 
 /**
  * {@code BRecordType} represents a user defined record type in Ballerina.
@@ -77,15 +75,6 @@ public class BRecordType extends BStructureType {
     @Override
     public int getTag() {
         return TypeTags.RECORD_TYPE_TAG;
-    }
-
-    public String toString() {
-        String name = (pkg == null || pkg.getName().equals(".")) ? typeName : pkg + ":" + typeName;
-        StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");
-        for (Entry<String, BField> field : getFields().entrySet()) {
-            sj.add(field.getKey() + " : " + field.getValue().type);
-        }
-        return sj.toString();
     }
 
     @Override

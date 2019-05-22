@@ -23,7 +23,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
@@ -97,9 +97,9 @@ public class ReadBool implements NativeCallableUnit {
         return false;
     }
 
-    public static void readBool(Strand strand, ObjectValue dataChannelObj) {
+    public static Object readBool(Strand strand, ObjectValue dataChannelObj) {
         //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         EventContext eventContext = new EventContext(callback);
@@ -109,6 +109,7 @@ public class ReadBool implements NativeCallableUnit {
         register.submit();
         //TODO : Remove callback once strand non-blocking support is given
         callback.sync();
+        return callback.getReturnValue();
     }
 
     /**
@@ -121,7 +122,7 @@ public class ReadBool implements NativeCallableUnit {
         EventContext eventContext = result.getContext();
         Throwable error = eventContext.getError();
         //TODO : Remove callback once strand non-blocking support is given
-        TempCallableUnitCallback callback = eventContext.getTempCallback();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         if (null != error) {
             callback.setReturnValues(IOUtils.createError(error.getMessage()));
         } else {

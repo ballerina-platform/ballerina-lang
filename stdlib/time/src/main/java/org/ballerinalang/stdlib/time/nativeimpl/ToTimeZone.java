@@ -18,6 +18,8 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,6 +45,14 @@ public class ToTimeZone extends AbstractTimeFunction {
             context.setReturnValues(changeTimezone(context, timeStruct, zoneId));
         } catch (BallerinaException e) {
             context.setReturnValues(TimeUtils.getTimeError(context, e.getMessage()));
+        }
+    }
+
+    public static Object toTimeZone(Strand strand, MapValue<String, Object> timeRecord, String zoneId) {
+        try {
+            return changeTimezone(timeRecord, zoneId);
+        } catch (BallerinaException e) {
+            return TimeUtils.getTimeError(e.getMessage());
         }
     }
 }

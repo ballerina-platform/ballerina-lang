@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
@@ -78,9 +78,9 @@ public class WriteJson implements NativeCallableUnit {
         return false;
     }
 
-    public static void writeJson(Strand strand, ObjectValue characterChannelObj, Object content) {
-        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+    public static Object writeJson(Strand strand, ObjectValue characterChannelObj, Object content) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj.getNativeData(
@@ -94,5 +94,6 @@ public class WriteJson implements NativeCallableUnit {
         } finally {
             callback.notifySuccess();
         }
+        return callback.getReturnValue();
     }
 }

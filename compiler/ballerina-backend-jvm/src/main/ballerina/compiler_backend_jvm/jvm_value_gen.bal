@@ -52,6 +52,7 @@ public type ObjectGenerator object {
             returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.sourceFileName);
+        currentClass = className;
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), ABSTRACT_OBJECT_VALUE, [OBJECT_VALUE]);
 
         bir:BObjectField?[] fields = objectType.fields;
@@ -63,7 +64,7 @@ public type ObjectGenerator object {
         }
 
         self.createObjectInit(cw);
-        self.createCallMethod(cw, objectType.attachedFunctions, className);
+        self.createCallMethod(cw, attachedFuncs, className, objectType.name.value);
         self.createGetMethod(cw, fields, className);
         self.createSetMethod(cw, fields, className);
         cw.visitEnd();
@@ -103,7 +104,11 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createCallMethod(jvm:ClassWriter cw, bir:BAttachedFunction?[] funcs, string className) {
+    private function createCallMethod(jvm:ClassWriter cw, bir:Function?[]? functions, string objClassName,
+                                        string objTypeName) {
+
+        bir:Function?[] funcs = getFunctions(functions);
+
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "call",
                 io:sprintf("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT), (), ());
         mv.visitCode();
@@ -119,20 +124,69 @@ public type ObjectGenerator object {
         jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, funcNameRegIndex, funcs, labels,
                 defaultCaseLabel);
 
+        string className = objClassName;
+
         // case body
         int i = 0;
         foreach var optionalFunc in funcs {
-            bir:BAttachedFunction func = self.getFunction(optionalFunc);
+            bir:Function func = getFunction(optionalFunc);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
 
-            // load self
-            mv.visitVarInsn(ALOAD, 0);
+            string methodName = getName(func);
+            bir:BType?[] paramTypes = func.typeValue.paramTypes;
+            bir:BType? retType = func.typeValue["retType"];
 
-            // load strand
-            mv.visitVarInsn(ALOAD, 1);
+            string methodSig = "";
+            int jvmMethodInvokeInsn = INVOKEVIRTUAL;
 
-            bir:BType?[] paramTypes = func.funcType.paramTypes;
+            jvm:Label blockedOnExternLabel = new;
+            jvm:Label notBlockedOnExternLabel = new;
+
+            if (isExternFunc(func)) {
+                mv.visitVarInsn(ALOAD, 1);
+                mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+                mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
+
+                if (!(retType is () || retType is bir:BTypeNil)) {
+                    mv.visitVarInsn(ALOAD, 1);
+                    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "future",
+                                            "Ljava/util/concurrent/Future;");
+                    mv.visitMethodInsn(INVOKEINTERFACE, "java/util/concurrent/Future", "get", "()Ljava/lang/Object;",
+                                                true);
+                    addUnboxInsn(mv, retType);
+                }
+
+                mv.visitVarInsn(ALOAD, 1);
+                mv.visitInsn(ICONST_0);
+                mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+
+                mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
+
+                mv.visitLabel(blockedOnExternLabel);
+
+                string lookupKey = getPackageName(self.module.org.value, self.module.name.value) + objTypeName + "." +
+                                                    methodName;
+                methodSig = lookupJavaMethodDescription(lookupKey);
+                className = lookupFullQualifiedClassName(lookupKey);
+                jvmMethodInvokeInsn = INVOKESTATIC;
+
+                // load strand
+                mv.visitVarInsn(ALOAD, 1);
+
+                // load self
+                mv.visitVarInsn(ALOAD, 0);
+            } else {
+                // use index access, since retType can be nil.
+                methodSig = getMethodDesc(paramTypes, retType);
+
+                // load self
+                mv.visitVarInsn(ALOAD, 0);
+
+                // load strand
+                mv.visitVarInsn(ALOAD, 1);
+            }
+
             int j = 0;
             foreach var paramType in paramTypes {
                 bir:BType pType = getType(paramType);
@@ -147,16 +201,15 @@ public type ObjectGenerator object {
                 j += 1;
             }
 
-            // use index access, since retType can be nil.
-            bir:BType? retType = func.funcType["retType"];
-            string methodSig = getMethodDesc(paramTypes, retType);
-            mv.visitMethodInsn(INVOKEVIRTUAL, className, getName(func), methodSig, false);
+            mv.visitMethodInsn(jvmMethodInvokeInsn, className, getName(func), methodSig, false);
 
             if (retType is () || retType is bir:BTypeNil) {
                 mv.visitInsn(ACONST_NULL);
             } else {
                 addBoxInsn(mv, retType);
             }
+
+            mv.visitLabel(notBlockedOnExternLabel);
 
             mv.visitInsn(ARETURN);
             i += 1;
@@ -249,6 +302,7 @@ public type ObjectGenerator object {
             returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.sourceFileName);
+        currentClass = className;
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), MAP_VALUE_IMPL, [MAP_VALUE]);
 
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;

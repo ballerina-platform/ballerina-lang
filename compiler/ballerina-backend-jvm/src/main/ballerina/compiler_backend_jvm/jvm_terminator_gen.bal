@@ -60,6 +60,7 @@ type TerminatorGenerator object {
                 bType is bir:BStreamType ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BObjectType ||
+                bType is bir:BTypeDecimal ||
                 bType is bir:BRecordType ||
                 bType is bir:BTupleType ||
                 bType is bir:BJSONType ||
@@ -138,10 +139,65 @@ type TerminatorGenerator object {
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
 
-        // invoke the function
-        self.genCall(callIns, orgName, moduleName, localVarOffset);
+        // check for native blocking call
+        if (isExternStaticFunctionCall(callIns)) {
+            jvm:Label blockedOnExternLabel = new;
+            jvm:Label notBlockedOnExternLabel = new;
 
-        // store return
+            self.mv.visitVarInsn(ALOAD, localVarOffset);
+            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+            self.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
+
+            if (callIns.lhsOp.variableDcl is bir:VariableDcl) {
+                self.mv.visitVarInsn(ALOAD, localVarOffset);
+                self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "future",
+                                        "Ljava/util/concurrent/Future;");
+                self.mv.visitMethodInsn(INVOKEINTERFACE, "java/util/concurrent/Future", "get", "()Ljava/lang/Object;",
+                                            true);
+                addUnboxInsn(self.mv, callIns.lhsOp.typeValue);
+
+                // store return
+                self.storeReturnFromCallIns(callIns);
+            }
+
+            self.mv.visitVarInsn(ALOAD, localVarOffset);
+            self.mv.visitInsn(ICONST_0);
+            self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+
+            self.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
+
+            self.mv.visitLabel(blockedOnExternLabel);
+            // invoke the function
+            self.genCall(callIns, orgName, moduleName, localVarOffset);
+
+            // store return
+            self.storeReturnFromCallIns(callIns);
+
+            self.mv.visitLabel(notBlockedOnExternLabel);
+        } else {
+            // invoke the function
+            self.genCall(callIns, orgName, moduleName, localVarOffset);
+
+            // store return
+            self.storeReturnFromCallIns(callIns);
+        }
+
+        // handle trapped function calls.
+        if (isInTryBlock &&  currentEE is bir:ErrorEntry) {
+            self.errorGen.generateCatchInsForTrap(currentEE, endLabel, handlerLabel, jumpLabel);
+        }
+
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
+        self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
+        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
+        self.mv.visitJumpInsn(IFNE, yieldLabel);
+
+        // goto thenBB
+        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + callIns.thenBB.id.value);
+        self.mv.visitJumpInsn(GOTO, gotoLabel);
+    }
+
+    private function storeReturnFromCallIns(bir:Call callIns) {
         bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp.variableDcl;
 
         if (lhsOpVarDcl is bir:VariableDcl) {
@@ -165,8 +221,9 @@ type TerminatorGenerator object {
                         bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
                         bType is bir:BObjectType ||
+                        bType is bir:BTypeDecimal ||
                         bType is bir:BUnionType ||
-                        bType is bir:BRecordType || 
+                        bType is bir:BRecordType ||
                         bType is bir:BTupleType ||
                         bType is bir:BFutureType ||
                         bType is bir:BJSONType ||
@@ -181,20 +238,6 @@ type TerminatorGenerator object {
                 panic err;
             }
         }
-        
-        // handle trapped function calls.
-        if (isInTryBlock &&  currentEE is bir:ErrorEntry) {
-            self.errorGen.generateCatchInsForTrap(currentEE, endLabel, handlerLabel, jumpLabel);
-        }
-
-        self.mv.visitVarInsn(ALOAD, localVarOffset);
-        self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
-        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
-        self.mv.visitJumpInsn(IFNE, yieldLabel);
-
-        // goto thenBB
-        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + callIns.thenBB.id.value);
-        self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
     private function genCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
@@ -256,7 +299,7 @@ type TerminatorGenerator object {
         self.mv.visitVarInsn(ALOAD, localVarOffset);
 
         // load the function name as the second argument
-        self.mv.visitLdcInsn(callIns.name.value);
+        self.mv.visitLdcInsn(cleanupObjectTypeName(callIns.name.value));
 
         // create an Object[] for the rest params
         int argsCount = callIns.args.length() - 1;
@@ -300,39 +343,31 @@ type TerminatorGenerator object {
             self.mv.visitVarInsn(LLOAD, argIndex);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitVarInsn(DLOAD, argIndex);
-        } else if (bType is bir:BTypeString) {
+        } else if (bType is bir:BTypeDecimal) {
             self.mv.visitVarInsn(ALOAD, argIndex);
         } else if (bType is bir:BTypeBoolean) {
             self.mv.visitVarInsn(ILOAD, argIndex);
-        } else if (bType is bir:BArrayType ||
-                    bType is bir:BTupleType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BRecordType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BMapType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BTableType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BStreamType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BObjectType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BFutureType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
         } else if (bType is bir:BTypeDesc) {
             self.mv.visitVarInsn(ALOAD, argIndex);
             self.mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
-        } else if (bType is bir:BErrorType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BInvokableType) {
-            self.mv.visitVarInsn(ALOAD, argIndex);
-        } else if (bType is bir:BTypeAny ||
+        } else if (bType is bir:BTypeString ||
+                    bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BTypeNil ||
                     bType is bir:BUnionType ||
+                    bType is bir:BErrorType ||
+                    bType is bir:BObjectType ||
+                    bType is bir:BStreamType ||
+                    bType is bir:BTableType ||
+                    bType is bir:BMapType ||
+                    bType is bir:BRecordType ||
+                    bType is bir:BArrayType ||
+                    bType is bir:BTupleType ||
+                    bType is bir:BFutureType ||
                     bType is bir:BJSONType ||
                     bType is bir:BXMLType ||
-                    bType is bir:BFiniteType) {
+                    bType is bir:BFiniteType ||
+                    bType is bir:BInvokableType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
         } else {
             error err = error( "JVM generation is not supported for type " + io:sprintf("%s", argRef.typeValue));
@@ -363,35 +398,31 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(LLOAD, argIndex);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DLOAD, argIndex);
-            } else if (bType is bir:BTypeString) {
+            } else if (bType is bir:BTypeDecimal) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
             } else if (bType is bir:BTypeByte) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
-            } else if (bType is bir:BArrayType ||
-                        bType is bir:BTupleType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BRecordType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BMapType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BTableType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BStreamType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BObjectType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BErrorType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BTypeAny ||
+            } else if (bType is bir:BTypeString ||
+                        bType is bir:BTypeAny ||
                         bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
                         bType is bir:BUnionType ||
+                        bType is bir:BErrorType ||
+                        bType is bir:BObjectType ||
+                        bType is bir:BStreamType ||
+                        bType is bir:BTableType ||
+                        bType is bir:BMapType ||
+                        bType is bir:BRecordType ||
+                        bType is bir:BArrayType ||
+                        bType is bir:BTupleType ||
+                        bType is bir:BFutureType ||
                         bType is bir:BJSONType ||
                         bType is bir:BXMLType ||
-                        bType is bir:BInvokableType ||
-                        bType is bir:BFiniteType) {
+                        bType is bir:BFiniteType ||
+                        bType is bir:BTypeDesc ||
+                        bType is bir:BInvokableType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
@@ -412,7 +443,7 @@ type TerminatorGenerator object {
             returnType = futureType.returnType;
         }
         boolean isVoid = returnType is bir:BTypeNil;
-        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid, 0);
+        createFunctionPointer(self.mv, methodClass, lambdaName, isVoid, 0);
         lambdas[lambdaName] = (callIns, methodClass);
         self.lambdaIndex += 1;
         
@@ -515,31 +546,31 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(LLOAD, argIndex);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DLOAD, argIndex);
-            } else if (bType is bir:BTypeString) {
+            } else if (bType is bir:BTypeDecimal) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
             } else if (bType is bir:BTypeByte) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
-            } else if (bType is bir:BArrayType ||
-                        bType is bir:BTupleType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BRecordType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BMapType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BTableType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BStreamType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BObjectType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BErrorType) {
-                self.mv.visitVarInsn(ALOAD, argIndex);
-            } else if (bType is bir:BTypeAny ||
+            } else if (bType is bir:BTypeString ||
+                        bType is bir:BTypeAny ||
                         bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
-                        bType is bir:BUnionType) {
+                        bType is bir:BUnionType ||
+                        bType is bir:BErrorType ||
+                        bType is bir:BObjectType ||
+                        bType is bir:BStreamType ||
+                        bType is bir:BTableType ||
+                        bType is bir:BMapType ||
+                        bType is bir:BRecordType ||
+                        bType is bir:BArrayType ||
+                        bType is bir:BTupleType ||
+                        bType is bir:BFutureType ||
+                        bType is bir:BJSONType ||
+                        bType is bir:BXMLType ||
+                        bType is bir:BFiniteType ||
+                        bType is bir:BTypeDesc ||
+                        bType is bir:BInvokableType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
@@ -558,9 +589,9 @@ type TerminatorGenerator object {
             self.mv.visitVarInsn(ALOAD, fpIndex);
             self.submitToScheduler(fpCall.lhsOp);           
         } else if (fpCall.lhsOp is ()) {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, CONSUMER, "accept", io:sprintf("(L%s;)V", OBJECT), true);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "accept", io:sprintf("(L%s;)V", OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "apply", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
             // store reult
             int lhsIndex = self.getJVMIndexOfVarRef(getVariableDcl(fpCall.lhsOp.variableDcl));
             bir:BType? lhsType = fpCall.lhsOp.typeValue;
@@ -577,7 +608,7 @@ type TerminatorGenerator object {
         self.genYieldCheck(fpCall.thenBB, funcName);   
     }
 
-    function genWrkSendIns(bir:WrkSend ins, string funcName) {
+    function genWorkerSendIns(bir:WorkerSend ins, string funcName) {
         self.mv.visitVarInsn(ALOAD, 0);
         if (!ins.isSameStrand) {
             self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));
@@ -587,13 +618,34 @@ type TerminatorGenerator object {
         self.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", io:sprintf("(L%s;)L%s;", 
             STRING_VALUE, WORKER_DATA_CHANNEL), false);
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
-        generateVarLoad(self.mv, ins.dataOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(ins.dataOp.variableDcl));
+        generateVarLoad(self.mv, ins.dataOp.variableDcl, currentPackageName, 
+            self.getJVMIndexOfVarRef(ins.dataOp.variableDcl));
         addBoxInsn(self.mv, ins.dataOp.typeValue);
         self.mv.visitVarInsn(ALOAD, 0);
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "sendData", io:sprintf("(L%s;L%s;)V", OBJECT, STRAND), false); 
+        if (!ins.isSync) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "sendData", io:sprintf("(L%s;L%s;)V", OBJECT, 
+                STRAND), false);
+        } else {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "syncSendData", io:sprintf("(L%s;L%s;)L%s;", 
+                OBJECT, STRAND, OBJECT), false);
+            bir:VarRef? lhsOp = ins.lhsOp;
+            if (lhsOp is bir:VarRef) {
+                generateVarStore(self.mv, lhsOp.variableDcl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(lhsOp.variableDcl));
+            }
+
+            self.mv.visitVarInsn(ALOAD, 0);
+            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
+            jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
+            self.mv.visitJumpInsn(IFNE, yieldLabel);
+
+            // goto thenBB
+            jvm:Label gotoLabel = self.labelGen.getLabel(funcName + ins.thenBB.id.value);
+            self.mv.visitJumpInsn(GOTO, gotoLabel);            
+        }   
     }
 
-    function genWrkReceiveIns(bir:WrkReceive ins, string funcName) {
+    function genWorkerReceiveIns(bir:WorkerReceive ins, string funcName) {
         self.mv.visitVarInsn(ALOAD, 0);
         if (!ins.isSameStrand) {
             self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));
@@ -606,27 +658,38 @@ type TerminatorGenerator object {
         self.mv.visitVarInsn(ALOAD, 0);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "tryTakeData", io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
         
-        // a dummy var to temporaly store worker result
         bir:VariableDcl tempVar = { typeValue: "any",
                                  name: { value: "wrkMsg" },
                                  kind: "ARG" };
         int wrkResultIndex = self.getJVMIndexOfVarRef(tempVar);
         self.mv.visitVarInsn(ASTORE, wrkResultIndex);
-        
-        jvm:Label l5 = self.labelGen.getLabel("l55");
-        self.mv.visitLabel(l5);
-        self.mv.visitVarInsn(ALOAD, wrkResultIndex);
-        jvm:Label l6 = self.labelGen.getLabel("l66");
-        self.mv.visitJumpInsn(IFNULL, l6);
-        jvm:Label l7 = self.labelGen.getLabel("l77");
-        self.mv.visitLabel(l7);
+
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
+        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
+        self.mv.visitJumpInsn(IFNE, yieldLabel);
+
         self.mv.visitVarInsn(ALOAD, wrkResultIndex);
         addUnboxInsn(self.mv, ins.lhsOp.typeValue);
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         bir:VariableDcl? lhsVar = ins.lhsOp.variableDcl;
         generateVarStore(self.mv, ins.lhsOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(ins.lhsOp.variableDcl));
 
-        self.mv.visitLabel(l6);
+        // goto thenBB
+        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + ins.thenBB.id.value);
+        self.mv.visitJumpInsn(GOTO, gotoLabel);   
+    }
+
+    function genFlushIns(bir:Flush ins, string funcName) {
+        self.mv.visitVarInsn(ALOAD, 0);
+        loadChannelDetails(self.mv, ins.workerChannels);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleFlush", 
+                io:sprintf("([L%s;)L%s;", CHANNEL_DETAILS, ERROR_VALUE), false);
+        
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+        generateVarStore(self.mv, ins.lhsOp.variableDcl, currentPackageName, 
+                self.getJVMIndexOfVarRef(ins.lhsOp.variableDcl));
+        
         self.genYieldCheck(ins.thenBB, funcName);
     }
         
@@ -639,11 +702,11 @@ type TerminatorGenerator object {
         // load strand
         self.mv.visitVarInsn(ALOAD, 0);
         if (isVoid) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
-                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, CONSUMER, STRAND, FUTURE_VALUE), false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleConsumer",
+                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
-                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION, STRAND, FUTURE_VALUE), false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
+                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
         }
 
         // store return
@@ -671,33 +734,61 @@ type TerminatorGenerator object {
 };
 
 function loadChannelDetails(jvm:MethodVisitor mv, bir:ChannelDetail[] channels) {
-        mv.visitIntInsn(BIPUSH, channels.length());
-        mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
-        int index = 0;
-        foreach bir:ChannelDetail ch in channels {
-            // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
-            mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, index);
-            index += 1;
+    mv.visitIntInsn(BIPUSH, channels.length());
+    mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
+    int index = 0;
+    foreach bir:ChannelDetail ch in channels {
+        // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
+        mv.visitInsn(DUP);
+        mv.visitIntInsn(BIPUSH, index);
+        index += 1;
 
-            mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn(ch.name.value);
-            
-            if (ch.onSameStrand) {
-                mv.visitInsn(ICONST_1);
-            } else {
-                mv.visitInsn(ICONST_0);
-            }
+        mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(ch.name.value);
 
-            if (ch.isSend) {
-                mv.visitInsn(ICONST_1);
-            } else {
-                mv.visitInsn(ICONST_0);
-            }
-
-            mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", io:sprintf("(L%s;ZZ)V", STRING_VALUE), 
-                false);
-            mv.visitInsn(AASTORE);
+        if (ch.onSameStrand) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
         }
+
+        if (ch.isSend) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
+
+        mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", io:sprintf("(L%s;ZZ)V", STRING_VALUE),
+            false);
+        mv.visitInsn(AASTORE);
     }
+}
+
+
+function cleanupObjectTypeName(string typeName) returns string {
+    int index = typeName.lastIndexOf(".");
+    if (index > 0) {
+        return typeName.substring(index + 1, typeName.length());
+    } else {
+        return typeName;
+    }
+}
+
+function isExternStaticFunctionCall(bir:Call callIns) returns boolean {
+    if (callIns.isVirtual) {
+        return false;
+    }
+
+    string methodName = callIns.name.value;
+    string orgName = callIns.pkgID.org;
+    string moduleName = callIns.pkgID.name;
+    string key = getPackageName(orgName, moduleName) + methodName;
+
+    if (birFunctionMap.hasKey(key)) {
+        BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
+        return isExternFunc(functionWrapper.func);
+    }
+
+    return false;
+}

@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.io.events;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class EventContext {
      * Callback which will be triggered upon completion.
      */
     private CallableUnitCallback callback;
-    private TempCallableUnitCallback tempCallback;
+    private NonBlockingCallback nonBlockingCallback;
     /**
      * Represents any error which will be thrown.
      */
@@ -64,8 +64,8 @@ public class EventContext {
         this.callback = callback;
     }
 
-    public EventContext(TempCallableUnitCallback callback) {
-        this.tempCallback = callback;
+    public EventContext(NonBlockingCallback callback) {
+        this.nonBlockingCallback = callback;
     }
 
     public void setRegister(Register register) {
@@ -76,8 +76,8 @@ public class EventContext {
         return callback;
     }
 
-    public TempCallableUnitCallback getTempCallback() {
-        return tempCallback;
+    public NonBlockingCallback getNonBlockingCallback() {
+        return nonBlockingCallback;
     }
 
     public Register getRegister() {

@@ -21,6 +21,8 @@ package org.ballerinalang.stdlib.file.utils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
@@ -50,5 +52,9 @@ public class FileUtils {
         BMap<String, BValue> errorRecord = BLangConnectorSPIUtil.createBStruct(context, FILE_PACKAGE, FILE_ERROR);
         errorRecord.put("message", new BString(errMsg));
         return BLangVMErrors.createError(context, true, BTypes.typeError, FILE_ERROR_CODE, errorRecord);
+    }
+
+    public static ErrorValue createError(String errMsg) {
+        return BallerinaErrors.createError(FILE_ERROR_CODE, errMsg);
     }
 }

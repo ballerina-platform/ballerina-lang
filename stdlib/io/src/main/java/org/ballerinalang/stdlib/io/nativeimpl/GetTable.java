@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.connector.TempCallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
@@ -185,9 +185,9 @@ public class GetTable implements NativeCallableUnit {
         return struct;
     }
 
-    public static void getTable(Strand strand, ObjectValue csvChannel, TypedescValue typedescValue) {
-        //TODO : TempCallableUnitCallback is temporary fix to handle non blocking call
-        TempCallableUnitCallback callback = new TempCallableUnitCallback(strand);
+    public static Object getTable(Strand strand, ObjectValue csvChannel, TypedescValue typedescValue) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         try {
             //TODO : Recheck the casting
@@ -208,13 +208,14 @@ public class GetTable implements NativeCallableUnit {
             callback.setReturnValues(IOUtils.createError(msg));
             callback.notifySuccess();
         }
+        return callback.getReturnValue();
     }
 
     private static EventResult getResponse(EventResult<List, EventContext> result) {
         TableValue table;
         EventContext eventContext = result.getContext();
         //TODO : Remove callback once strand non-blocking support is given
-        TempCallableUnitCallback callback = eventContext.getTempCallback();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
             callback.setReturnValues(IOUtils.createError(error.getMessage()));

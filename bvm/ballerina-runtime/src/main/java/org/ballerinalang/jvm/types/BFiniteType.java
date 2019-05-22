@@ -32,18 +32,13 @@ public class BFiniteType extends BType {
 
     public Set<Object> valueSpace;
 
-    public BFiniteType(String typeName, BPackage pkg) {
-        super(typeName, pkg, RefValue.class);
+    public BFiniteType(String typeName) {
+        super(typeName, null, RefValue.class);
         this.valueSpace = new LinkedHashSet<>();
     }
 
-    public BFiniteType() {
-        super(null, null, RefValue.class);
-        this.valueSpace = new LinkedHashSet<>();
-    }
-
-    public BFiniteType(Set<Object> values) {
-        super(null, null, RefValue.class);
+    public BFiniteType(String typeName, Set<Object> values) {
+        super(typeName, null, RefValue.class);
         this.valueSpace = values;
     }
 

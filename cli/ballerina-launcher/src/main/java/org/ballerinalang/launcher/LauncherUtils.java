@@ -120,7 +120,7 @@ public class LauncherUtils {
 
         if (srcPathStr.endsWith(BLANG_COMPILED_JAR_EXT)) {
             runJar(sourcePath, args);
-            return;
+            Runtime.getRuntime().exit(0);
         }
         runBal(sourceRootPath, sourcePath, args, offline, siddhiRuntimeFlag, experimentalFlag, srcPathStr, fullPath);
     }

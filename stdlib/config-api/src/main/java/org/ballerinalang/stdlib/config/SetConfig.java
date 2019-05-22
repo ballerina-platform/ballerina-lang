@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.config;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
@@ -64,5 +65,9 @@ public class SetConfig extends BlockingNativeCallableUnit {
         }
 
         context.setReturnValues();
+    }
+
+    public static void setConfig(Strand strand, String configKey, Object configValue) {
+        CONFIG_REGISTRY.addConfiguration(configKey, configValue);
     }
 }

@@ -70,6 +70,10 @@ public class BObjectType extends BStructureType {
         this.attachedFunctions = attachedFunctions;
     }
 
+    public void setInitializer(AttachedFunction initializer) {
+        this.initializer = initializer;
+    }
+
     public String toString() {
         String name = (pkg == null || pkg.equals(".")) ? typeName : pkg + ":" + typeName;
         StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");

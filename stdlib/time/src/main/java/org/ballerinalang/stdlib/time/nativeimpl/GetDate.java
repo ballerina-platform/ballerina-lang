@@ -18,6 +18,9 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
@@ -41,6 +44,10 @@ public class GetDate extends AbstractTimeFunction {
 
     private static final BTupleType getDateTupleType = new BTupleType(
             Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt));
+    private static final org.ballerinalang.jvm.types.BTupleType getDateTupleJvmType = new org.ballerinalang.jvm.types
+            .BTupleType(Arrays.asList(org.ballerinalang.jvm.types.BTypes.typeInt,
+                                      org.ballerinalang.jvm.types.BTypes.typeInt,
+                                      org.ballerinalang.jvm.types.BTypes.typeInt));
 
     @Override
     public void execute(Context context) {
@@ -50,5 +57,13 @@ public class GetDate extends AbstractTimeFunction {
         date.add(1, new BInteger(getMonth(timeStruct)));
         date.add(2, new BInteger(getDay(timeStruct)));
         context.setReturnValues(date);
+    }
+
+    public static ArrayValue getDate(Strand strand, MapValue<String, Object> timeRecord) {
+        ArrayValue date = new ArrayValue(getDateTupleJvmType);
+        date.add(0, getYear(timeRecord));
+        date.add(1, getMonth(timeRecord));
+        date.add(2, getDay(timeRecord));
+        return date;
     }
 }
