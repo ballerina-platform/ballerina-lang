@@ -563,8 +563,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     Range changesRange = changeEvent.getRange();
                     documentManager.updateFileRange(compilationPath, changesRange, changeEvent.getText());
                 }
-                // Update code lenses only if in incremental synchronization mode (if the range of changes is null,
-                // client requests full synchronization).
+                // Update code lenses only if in incremental synchronization mode (if the language client is using
+                // incremental synchronization, range of content changes should not be null).
                 // Todo - Revisit after adding codelens support for full sync mode.
                 if (changes.get(changes.size() - 1).getRange() != null) {
                     List<CodeLens> lenses = documentManager.getCodeLenses(compilationPath);
