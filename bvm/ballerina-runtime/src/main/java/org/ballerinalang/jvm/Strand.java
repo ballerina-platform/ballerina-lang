@@ -29,7 +29,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.jws.Oneway;
 
 /**
  * Strand base class used with jvm code generation for functions.
@@ -49,6 +48,7 @@ public class Strand {
     public WDChannels wdChannels;
     public FlushDetail flushDetail;
     public boolean blockedOnExtern;
+    private Map<String, Object> globalProps;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
@@ -61,6 +61,12 @@ public class Strand {
         this.parent = parent;
         this.wdChannels = new WDChannels();
         this.blockedOn = new ArrayList<>();
+    }
+
+    public Strand(Scheduler scheduler, Map<String, Object> properties) {
+        this.scheduler = scheduler;
+        this.globalProps = properties;
+        this.wdChannels = new WDChannels();
     }
 
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {
@@ -86,6 +92,14 @@ public class Strand {
 
     public void resume() {
 
+    }
+
+    public Object getProperty(String key) {
+        return this.globalProps.get(key);
+    }
+
+    public void setProperty(String key, Object value) {
+        this.globalProps.put(key, value);
     }
 
     public ErrorValue handleFlush(ChannelDetails[] channels) {

@@ -842,6 +842,8 @@ function getTypeDesc(bir:BType bType) returns string {
                bType is bir:BJSONType ||
                bType is bir:BXMLType) {
         return io:sprintf("L%s;", OBJECT);
+    } else if (bType is bir:BInvokableType) {
+        return io:sprintf("L%s;", FUNCTION_POINTER);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;

@@ -181,6 +181,11 @@
                 </methods>
             </class>
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
+            <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
+                <methods>
+                    <exclude name="testFunctionPointerNative"/>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

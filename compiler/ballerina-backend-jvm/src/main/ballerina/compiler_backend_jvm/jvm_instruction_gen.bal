@@ -561,7 +561,7 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
                     io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
+            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "getOrThrow",
                     io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
         }
 
@@ -749,8 +749,12 @@ type InstructionGenerator object {
     }
 
     function generateFPLoadIns(bir:FPLoad inst) {
+        self.mv.visitTypeInsn(NEW, FUNCTION_POINTER);
+        self.mv.visitInsn(DUP);
+
         string lambdaName = inst.name.value + "$lambda$";
         string methodClass = lookupFullQualifiedClassName(self.currentPackageName + inst.name.value);
+
         bir:BType returnType = inst.lhsOp.typeValue;
         boolean isVoid = false;
         if (returnType is bir:BInvokableType) {
@@ -764,9 +768,18 @@ type InstructionGenerator object {
                 self.loadVar(v.variableDcl);
             }
         }
-        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName, isVoid, inst.closureMaps.length());
-        generateVarStore(self.mv, inst.lhsOp.variableDcl, self.currentPackageName, 
-            self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
+
+        self.mv.visitInvokeDynamicInsn(currentClass, lambdaName, isVoid, inst.closureMaps.length());
+        loadType(self.mv, returnType);
+        if (isVoid) {
+            self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
+                                    io:sprintf("(L%s;L%s;)V", CONSUMER, BTYPE), false);
+        } else {
+            self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
+                                    io:sprintf("(L%s;L%s;)V", FUNCTION, BTYPE), false);
+        }
+
+        self.storeToVar(inst.lhsOp.variableDcl);
         lambdas[lambdaName] = (inst, methodClass);
     }
 
