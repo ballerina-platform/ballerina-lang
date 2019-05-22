@@ -679,7 +679,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
 
-        this.env.enclBB.terminator = new BIRTerminator.Wait(waitExpr.pos, exprList, lhsOp);
+        this.env.enclBB.terminator = new BIRTerminator.Wait(waitExpr.pos, exprList, lhsOp, thenBB);
 
         this.env.enclFunc.basicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
@@ -1509,8 +1509,10 @@ public class BIRGen extends BLangNodeVisitor {
         if (thenBB != this.env.enclBB ) {
             this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(thenBB, this.env.targetOperand));
             // TODO:temp solution to avoid class casts
-            if (thenBB.terminator instanceof BIRTerminator.WaitAll){
+            if (thenBB.terminator instanceof BIRTerminator.WaitAll) {
                 this.env.trapBB = ((BIRTerminator.WaitAll) thenBB.terminator).thenBB;
+            } else if (thenBB.terminator instanceof BIRTerminator.Wait ) {
+                this.env.trapBB = ((BIRTerminator.Wait) thenBB.terminator).thenBB;
             } else {
                 this.env.trapBB = ((BIRTerminator.Call) thenBB.terminator).thenBB;
             }

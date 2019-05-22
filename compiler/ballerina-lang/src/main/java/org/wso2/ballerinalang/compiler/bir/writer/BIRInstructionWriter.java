@@ -121,6 +121,7 @@ public class BIRInstructionWriter extends BIRVisitor {
             expr.accept(this);
         }
         waitEntry.lhsOp.accept(this);
+        addCpAndWriteString(waitEntry.thenBB.id.value);
     }
 
     public void visit(BIRTerminator.Flush entry) {

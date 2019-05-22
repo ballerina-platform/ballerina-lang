@@ -408,7 +408,8 @@ public type FuncBodyParser object {
                 i += 1;
             }
             VarRef lhsOp = self.parseVarRef();
-            Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp};
+            BasicBlock thenBB = self.parseBBRef();
+            Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp, thenBB:thenBB};
             return waitIns;
         } else if (kindTag == INS_WAIT_ALL) {
             TerminatorKind kind = TERMINATOR_WAIT_ALL;

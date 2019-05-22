@@ -246,11 +246,13 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     public static class Wait extends BIRTerminator {
         public List<BIROperand> exprList;
         public BIROperand lhsOp;
+        public BIRBasicBlock thenBB;
 
-        public Wait(DiagnosticPos pos, List<BIROperand> exprList, BIROperand lhsOp) {
+        public Wait(DiagnosticPos pos, List<BIROperand> exprList, BIROperand lhsOp, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.WAIT);
             this.exprList = exprList;
             this.lhsOp = lhsOp;
+            this.thenBB = thenBB;
         }
 
         @Override

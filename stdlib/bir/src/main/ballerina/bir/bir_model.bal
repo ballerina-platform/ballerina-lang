@@ -501,6 +501,7 @@ public type Wait record {|
     TerminatorKind kind;
     VarRef lhsOp;
     VarRef?[] exprList;
+    BasicBlock thenBB;
 |};
 
 public type Flush record {|

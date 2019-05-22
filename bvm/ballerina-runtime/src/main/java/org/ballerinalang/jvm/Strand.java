@@ -29,6 +29,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.jws.Oneway;
 
 /**
  * Strand base class used with jvm code generation for functions.
@@ -111,12 +112,11 @@ public class Strand {
         return null;
     }
 
-    public void handleWaitMultiple(Map<String, FutureValue> keyValues, boolean waitAll, MapValue target) {
+    public void handleWaitMultiple(Map<String, FutureValue> keyValues, MapValue target) {
         this.blockedOn.clear();
         keyValues.entrySet().forEach(entry -> {
             synchronized (entry.getValue()) {
                 if (entry.getValue().isDone) {
-                    System.out.println(entry.getValue().result);
                     target.put(entry.getKey(), entry.getValue().result);
                 } else {
                     this.yield = true;
@@ -125,6 +125,31 @@ public class Strand {
                 }
             }
         });
+    }
+
+    public WaitResult handleWaitAny(List<FutureValue> futures) {
+        WaitResult waitResult = new WaitResult(false, null);
+        for (FutureValue future : futures) {
+            synchronized (future) {
+                if (future.isDone) {
+                    waitResult = new WaitResult(true, future.result);
+                } else {
+                    this.blockedOn.add(future.strand);
+                }
+            }
+        }
+
+        if (waitResult.done) {
+            this.blockedOn.clear();
+            for (FutureValue future : futures) {
+                future.strand.scheduler.release(future.strand, this);
+            }
+        } else {
+            this.yield = true;
+            this.blocked = true;
+        }
+
+        return waitResult;
     }
 
     private WorkerDataChannel getWorkerDataChannel(ChannelDetails channel) {
@@ -155,6 +180,21 @@ public class Strand {
             this.flushLock = new ReentrantLock();
             this.result = null;
             this.inProgress = false;
+        }
+    }
+
+    /**
+     * Holds both waiting state and result.
+     *
+     * 0.995.0
+     */
+    public static class WaitResult {
+        public boolean done;
+        public Object result;
+
+        public WaitResult(boolean done, Object result) {
+            this.done = done;
+            this.result = result;
         }
     }
 }

@@ -164,6 +164,8 @@
                     <exclude name="waitTest17"/>
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.worker.BasicForkTest"/>
+            <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
         </classes>
     </test>
