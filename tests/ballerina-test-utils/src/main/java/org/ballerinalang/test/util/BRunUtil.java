@@ -21,6 +21,7 @@ import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
@@ -28,6 +29,7 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -55,6 +57,7 @@ import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -297,6 +300,9 @@ public class BRunUtil {
                 case TypeTags.STRING_TAG:
                     typeClazz = String.class;
                     break;
+                case TypeTags.DECIMAL_TAG:
+                    typeClazz = DecimalValue.class;
+                    break;
                 case TypeTags.FLOAT_TAG:
                     typeClazz = double.class;
                     break;
@@ -319,7 +325,7 @@ public class BRunUtil {
         Object jvmResult;
         BIRNode.BIRPackage birPackage = ((BLangPackage) compileResult.getAST()).symbol.bir;
         String funcClassName = BFileUtil.getQualifiedClassName(birPackage.org.value, birPackage.name.value,
-                                                               function.pos.src.cUnitName.replaceAll(".bal", ""));
+                getClassName(function.pos.src.cUnitName));
         Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
         try {
             Method method = funcClass.getDeclaredMethod(functionName, jvmParamTypes);
@@ -356,6 +362,14 @@ public class BRunUtil {
         return new BValue[] { result };
     }
 
+    private static String getClassName(String balFileName) {
+        if (!balFileName.endsWith(".bal")) {
+            return balFileName;
+        }
+
+        return balFileName.substring(0, balFileName.length() - 4);
+    }
+
     /**
      * This method converts the compile time BType and the value to to JVM runtime value.
      *
@@ -382,6 +396,9 @@ public class BRunUtil {
                 return value.stringValue();
             case TypeTags.FLOAT_TAG:
                 return ((BFloat) value).floatValue();
+            case TypeTags.DECIMAL_TAG:
+                BDecimal decimal = (BDecimal) value;
+                return new DecimalValue(decimal.stringValue(), DecimalValueKind.valueOf(decimal.valueKind.name()));
             case TypeTags.ARRAY_TAG:
                 org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
@@ -601,6 +618,10 @@ public class BRunUtil {
                 return new BBoolean((boolean) value);
             case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
                 return new BString((String) value);
+            case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
+                DecimalValue decimalValue = (DecimalValue) value;
+                return new BDecimal(decimalValue.value().toString(),
+                        org.ballerinalang.model.util.DecimalValueKind.valueOf(decimalValue.valueKind.name()));
             case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:
                 ArrayValue jvmTuple = ((ArrayValue) value);
                 BRefType<?>[] tupleValues = new BRefType<?>[jvmTuple.size()];
@@ -712,6 +733,8 @@ public class BRunUtil {
                 return BTypes.typeBoolean;
             case org.ballerinalang.jvm.types.TypeTags.BYTE_TAG:
                 return BTypes.typeByte;
+            case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
+                return BTypes.typeDecimal;
             case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:
                 org.ballerinalang.jvm.types.BTupleType tupleType = (org.ballerinalang.jvm.types.BTupleType) jvmType;
                 List<BType> memberTypes = new ArrayList<>();

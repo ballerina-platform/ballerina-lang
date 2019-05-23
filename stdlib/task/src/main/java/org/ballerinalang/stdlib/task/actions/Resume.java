@@ -19,6 +19,8 @@ package org.ballerinalang.stdlib.task.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -26,6 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Task;
+import org.ballerinalang.stdlib.task.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,5 +70,16 @@ public class Resume extends BlockingNativeCallableUnit {
             LOG.error(e.getMessage(), e);
             setError(context, e.getMessage());
         }
+    }
+
+    public static Object resume(Strand strand, ObjectValue taskListener) {
+        Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
+        try {
+            task.resume();
+        } catch (SchedulingException e) {
+            LOG.error(e.getMessage(), e);
+            return Utils.createError(e.getMessage());
+        }
+        return null;
     }
 }

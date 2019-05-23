@@ -155,10 +155,12 @@ public const TERMINATOR_FP_CALL = "FP_CALL";
 public const TERMINATOR_WK_RECEIVE = "WK_RECEIVE";
 public const TERMINATOR_WK_SEND = "WK_SEND";
 public const TERMINATOR_FLUSH = "FLUSH";
+public const TERMINATOR_LOCK = "LOCK";
+public const TERMINATOR_UNLOCK = "UNLOCK";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
                                 |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL|TERMINATOR_WK_RECEIVE
-                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH;
+                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH|TERMINATOR_LOCK|TERMINATOR_UNLOCK;
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -224,6 +226,9 @@ public type BTypeNil TYPE_NIL;
 
 public const TYPE_INT = "int";
 public type BTypeInt TYPE_INT;
+
+public const TYPE_DECIMAL = "decimal";
+public type BTypeDecimal TYPE_DECIMAL;
 
 public const TYPE_FLOAT = "float";
 public type BTypeFloat TYPE_FLOAT;
@@ -332,7 +337,7 @@ public type BFiniteType record {|
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
                   BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType |
-                  BFiniteType | BTableType | BStreamType;
+                  BFiniteType | BTableType | BStreamType | BTypeDecimal;
 
 public type ModuleID record {|
     string org = "";
@@ -560,6 +565,20 @@ public type GOTO record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     BasicBlock targetBB;
+|};
+
+public type Lock record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    string[] globleVars;
+    BasicBlock lockBB;
+|};
+
+public type Unlock record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    string[] globleVars;
+    BasicBlock unlockBB;
 |};
 
 public type Return record {|
