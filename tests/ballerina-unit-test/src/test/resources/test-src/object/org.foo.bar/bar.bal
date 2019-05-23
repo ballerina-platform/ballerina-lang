@@ -12,8 +12,7 @@ public type userBar object {
     public int age = 0;
     public string name = "hidden, private";
     public string address = "";
-
-    string zipcode = "23468";
+    public string zipcode = "23468";
 
     private int ssn;
 
@@ -44,13 +43,13 @@ public type BarObj object {
     public int age = 0;
     public string name = "";
 
-    function getName() returns (string);
+    public function getName() returns (string);
 
     function getAge() returns (int) {
         return self.age;
     }
 };
 
-function BarObj.getName() returns (string) {
+public function BarObj.getName() returns (string) {
     return self.name;
 }

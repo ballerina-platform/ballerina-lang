@@ -3705,12 +3705,12 @@ public class BVM {
         return getElementType(((BArrayType) type).getElementType());
     }
 
-    private static boolean checkObjectEquivalency(BStructureType rhsType, BStructureType lhsType,
-                                                 List<TypePair> unresolvedTypes) {
-        if (lhsType.getFields().values().stream().anyMatch(field -> Flags.isFlagOn(field.flags, Flags.PRIVATE))) {
-            return false;
-        }
+    public static boolean checkStructEquivalency(BStructureType rhsType, BStructureType lhsType) {
+        return checkObjectEquivalency(rhsType, lhsType, new ArrayList<>());
+    }
 
+    private static boolean checkObjectEquivalency(BStructureType rhsType, BStructureType lhsType,
+                                                  List<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(rhsType, lhsType);
@@ -3719,50 +3719,36 @@ public class BVM {
         }
         unresolvedTypes.add(pair);
 
+        // Both structs should be public or private.
+        // Get the XOR of both flags(masks)
+        // If both are public, then public bit should be 0;
+        // If both are private, then public bit should be 0;
+        // The public bit is on means, one is public, and the other one is private.
+        if (Flags.isFlagOn(lhsType.flags ^ rhsType.flags, Flags.PUBLIC)) {
+            return false;
+        }
+
+        // If both structs are private, they should be in the same package.
+        if (!Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
+                !rhsType.getPackagePath().equals(lhsType.getPackagePath())) {
+            return false;
+        }
+
         // Adjust the number of the attached functions of the lhs struct based on
         //  the availability of the initializer function.
         int lhsAttachedFunctionCount = lhsType.initializer != null ?
                 lhsType.getAttachedFunctions().length - 1 :
                 lhsType.getAttachedFunctions().length;
-        int rhsAttachedFunctionCount = rhsType.initializer != null ?
-                rhsType.getAttachedFunctions().length - 1 :
-                rhsType.getAttachedFunctions().length;
 
         if (lhsType.getFields().size() > rhsType.getFields().size() ||
-                lhsAttachedFunctionCount > rhsAttachedFunctionCount) {
+                lhsAttachedFunctionCount > rhsType.getAttachedFunctions().length) {
             return false;
         }
 
-        Map<String, BField> rhsFields = rhsType.getFields();
-
-        for (BField lhsField : lhsType.getFields().values()) {
-            BField rhsField = rhsFields.get(lhsField.fieldName);
-            if (rhsField == null || !isInSameVisibilityRegion(
-                    Optional.ofNullable(lhsField.fieldType.getPackagePath()).orElse(""),
-                    Optional.ofNullable(rhsField.fieldType.getPackagePath()).orElse(""), lhsField.flags,
-                    rhsField.flags) ||
-                    !checkIsType(rhsField.fieldType, lhsField.fieldType, new ArrayList<>())) {
-                return false;
-            }
-        }
-
-        BAttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
-        BAttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
-        for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
-                continue;
-            }
-
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || Flags.isFlagOn(lhsFunc.flags, Flags.PRIVATE) ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackagePath()).orElse(""),
-                                              Optional.ofNullable(rhsFunc.type.getPackagePath()).orElse(""),
-                                              lhsFunc.flags, rhsFunc.flags)) {
-                return false;
-            }
-        }
-
-        return true;
+        return !Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
+                rhsType.getPackagePath().equals(lhsType.getPackagePath()) ?
+                checkPrivateObjectsEquivalency(lhsType, rhsType, unresolvedTypes) :
+                checkPublicObjectsEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
     public static boolean checkRecordEquivalency(BRecordType lhsType, BRecordType rhsType,
@@ -3795,14 +3781,72 @@ public class BVM {
         return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
-    private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, int lhsFlags, int rhsFlags) {
-        if (Flags.isFlagOn(lhsFlags, Flags.PRIVATE)) {
-            return lhsTypePkg.equals(rhsTypePkg);
-        } else if (Flags.isFlagOn(lhsFlags, Flags.PUBLIC)) {
-            return Flags.isFlagOn(rhsFlags, Flags.PUBLIC);
+    private static boolean checkPrivateObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
+                                                          List<TypePair> unresolvedTypes) {
+        Map<String, BField> rhsFields = rhsType.getFields();
+        for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
+            BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
+            if (rhsField == null || !isSameType(rhsField.fieldType, lhsFieldEntry.getValue().fieldType)) {
+                return false;
+            }
         }
-        return !Flags.isFlagOn(rhsFlags, Flags.PRIVATE) && !Flags.isFlagOn(rhsFlags, Flags.PUBLIC) &&
-                lhsTypePkg.equals(rhsTypePkg);
+
+        BAttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
+        BAttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
+        for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
+                continue;
+            }
+
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
+            if (rhsFunc == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkPublicObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
+                                                         List<TypePair> unresolvedTypes) {
+        // Check the whether there is any private fields in RHS type
+        if (rhsType.getFields().values().stream().anyMatch(field -> !Flags.isFlagOn(field.flags, Flags.PUBLIC))) {
+            return false;
+        }
+
+        Map<String, BField> rhsFields = rhsType.getFields();
+        for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
+            BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
+            if (rhsField == null || !Flags.isFlagOn(lhsFieldEntry.getValue().flags, Flags.PUBLIC) ||
+                    !isSameType(rhsField.fieldType, lhsFieldEntry.getValue().fieldType)) {
+                return false;
+            }
+        }
+
+        BAttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
+        BAttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
+        for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
+                continue;
+            }
+
+            if (!Flags.isFlagOn(lhsFunc.flags, Flags.PUBLIC)) {
+                return false;
+            }
+
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
+            if (rhsFunc == null || !Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
+                return false;
+            }
+        }
+
+        // Check for private attached function in RHS type
+        for (BAttachedFunction rhsFunc : rhsFuncs) {
+            if (!Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType,
@@ -3841,7 +3885,7 @@ public class BVM {
         }
 
         for (int i = 0; i < source.paramTypes.length; i++) {
-            if (!isAssignable(target.paramTypes[i], source.paramTypes[i], unresolvedTypes)) {
+            if (!isAssignable(source.paramTypes[i], target.paramTypes[i], unresolvedTypes)) {
                 return false;
             }
         }

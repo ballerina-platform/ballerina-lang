@@ -480,7 +480,7 @@ function testStructEquivalencyWithArguments() returns (string, string, string){
 type Foo "a" | "b" | "c";
 
 type Person object {
-    string name = "";
+    private string name = "";
 
     function __init (string name) {
         self.name = name;
@@ -493,7 +493,7 @@ type Person object {
 };
 
 type Employee object {
-    string name = "";
+    private string name = "";
     private string id = "";
 
     function __init (string name, string id) {

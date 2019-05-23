@@ -19,8 +19,8 @@ type Job record {
 };
 
 type Captain object {
-    string name;
-    int id;
+    private string name;
+    private int id;
 
     function __init(string name, int id) {
         self.name = name;
@@ -33,8 +33,8 @@ type Captain object {
 };
 
 type Member object {
-    string name;
-    int id;
+    private string name;
+    private int id;
 
     function __init(string name, int id) {
         self.name = name;
