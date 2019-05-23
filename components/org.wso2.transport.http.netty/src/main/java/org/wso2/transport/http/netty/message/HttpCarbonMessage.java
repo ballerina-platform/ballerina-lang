@@ -74,7 +74,7 @@ public class HttpCarbonMessage {
     private String httpVersion;
     private String httpMethod;
     private String requestUrl;
-    private int httpStatusCode;
+    private Integer httpStatusCode;
 
     public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
@@ -304,11 +304,11 @@ public class HttpCarbonMessage {
         this.requestUrl = requestUrl;
     }
 
-    public int getHttpStatusCode() {
+    public Integer getHttpStatusCode() {
         return httpStatusCode;
     }
 
-    public void setHttpStatusCode(int httpStatusCode) {
+    public void setHttpStatusCode(Integer httpStatusCode) {
         this.httpStatusCode = httpStatusCode;
     }
 

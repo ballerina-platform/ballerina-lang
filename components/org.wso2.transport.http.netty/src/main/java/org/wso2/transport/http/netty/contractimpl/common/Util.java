@@ -111,8 +111,8 @@ public class Util {
     }
 
     private static int getIntValue(HttpCarbonMessage msg) {
-        int value = msg.getHttpStatusCode();
-        if (value == 0) {
+        Integer value = msg.getHttpStatusCode();
+        if (value == null) {
             return 200;
         }
         return value;
