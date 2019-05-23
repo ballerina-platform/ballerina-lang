@@ -42,7 +42,6 @@ public class BallerinaErrors {
     public static final String NULL_REF_EXCEPTION = "NullReferenceException";
     public static final String CALL_STACK_ELEMENT = "CallStackElement";
 
-
     public static final String ERROR_PRINT_PREFIX = "error: ";
 
     public static ErrorValue createError(String reason) {
