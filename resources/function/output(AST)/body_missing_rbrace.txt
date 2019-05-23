@@ -20,6 +20,7 @@ ERROR [sachini/parserModule] - RBRACE inserted
 	}],
 	"definitionList": [{
 		"nodeKind": "errorNode",
+		"tokenList": [],
 		"errorFunction": {
 			"nodeKind": "function",
 			"tokenList": [{

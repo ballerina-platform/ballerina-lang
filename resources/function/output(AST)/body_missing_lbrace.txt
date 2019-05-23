@@ -19,6 +19,7 @@ ERROR [sachini/parserModule] - LBRACE inserted
 	}],
 	"definitionList": [{
 		"nodeKind": "errorNode",
+		"tokenList": [],
 		"errorFunction": {
 			"nodeKind": "function",
 			"tokenList": [{

@@ -18,6 +18,7 @@ ERROR [sachini/parserModule] - 1:12: expected LPAREN; found 'EOF'
 	}],
 	"definitionList": [{
 		"nodeKind": "errorNode",
+		"tokenList": [],
 		"errorFunction": {
 			"nodeKind": "function",
 			"tokenList": [{

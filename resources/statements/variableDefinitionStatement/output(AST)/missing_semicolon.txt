@@ -85,6 +85,7 @@ ERROR [sachini/parserModule] - SEMICOLON inserted
 			}],
 			"statementList": [{
 				"nodeKind": "errorNode",
+				"tokenList": [],
 				"errorStatement": {
 					"nodeKind": "variableDefinitionStatement",
 					"tokenList": [{

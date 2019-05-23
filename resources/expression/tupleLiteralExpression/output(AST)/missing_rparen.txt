@@ -82,6 +82,7 @@ ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
 			}],
 			"statementList": [{
 				"nodeKind": "errorNode",
+				"tokenList": [],
 				"errorStatement": {
 					"nodeKind": "variableDefinitionStatement",
 					"tokenList": [{

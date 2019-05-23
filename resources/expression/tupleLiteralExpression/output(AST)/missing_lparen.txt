@@ -82,6 +82,7 @@ serialized json output;
 			}],
 			"statementList": [{
 				"nodeKind": "errorNode",
+				"tokenList": [],
 				"errorStatement": {
 					"nodeKind": "variableDefinitionStatement",
 					"tokenList": [{
@@ -134,8 +135,8 @@ serialized json output;
 							"index": 12,
 							"whiteSpace": null
 						}, {
-							"tokenType": 23,
-							"text": "<missing operator>",
+							"tokenType": 2,
+							"text": "(",
 							"startPos": -1,
 							"endPos": -1,
 							"lineNumber": 0,
