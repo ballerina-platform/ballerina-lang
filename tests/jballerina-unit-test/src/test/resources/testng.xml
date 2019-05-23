@@ -33,6 +33,7 @@
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
+            <package name="org.ballerinalang.test.main.function.*"/>
             <package name="org.ballerinalang.test.annotations"/>
         </packages>
 
@@ -160,6 +161,11 @@
             <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
                 <methods>
                     <exclude name="testFunctionPointerNative"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.lock.LocksInMainTest">
+                <methods>
+                    <include name="simpleLock"/>
                 </methods>
             </class>
         </classes>

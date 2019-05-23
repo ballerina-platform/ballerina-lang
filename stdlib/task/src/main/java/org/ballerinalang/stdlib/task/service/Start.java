@@ -19,6 +19,8 @@ package org.ballerinalang.stdlib.task.service;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -28,6 +30,7 @@ import org.ballerinalang.stdlib.task.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.impl.TaskServerConnectorImpl;
 import org.ballerinalang.stdlib.task.objects.Task;
+import org.ballerinalang.stdlib.task.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,5 +73,17 @@ public class Start extends BlockingNativeCallableUnit {
             LOG.error(e.getMessage(), e);
             setError(context, e.getMessage());
         }
+    }
+
+    public static Object start(Strand strand, ObjectValue taskListener) {
+        Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
+        TaskServerConnector serverConnector = new TaskServerConnectorImpl(task);
+        try {
+            serverConnector.start();
+        } catch (SchedulingException e) {
+            LOG.error(e.getMessage(), e);
+            return Utils.createError(e.getMessage());
+        }
+        return null;
     }
 }

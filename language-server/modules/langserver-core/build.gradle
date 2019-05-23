@@ -170,9 +170,3 @@ createJavadoc {
     // TODO: remove following, it fails at org.eclipse currently
     exclude "**"
 }
-
-configurations.all {
-    resolutionStrategy {
-        preferProjectModules()
-    }
-}

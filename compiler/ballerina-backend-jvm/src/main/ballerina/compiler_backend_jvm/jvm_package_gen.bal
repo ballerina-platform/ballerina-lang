@@ -102,8 +102,10 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
             foreach var globalVar in module.globalVars {
                 if (globalVar is bir:GlobalVariableDcl) {
                     generatePackageVariable(globalVar, cw);
+                    generateLockForVariable(globalVar, cw);
                 }
             }
+            generateStaticInitializer(module.globalVars, cw, moduleClass);
         } else {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
             generateDefaultConstructor(cw, OBJECT);
@@ -157,8 +159,10 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
             foreach var globalVar in module.globalVars {
                 if (globalVar is bir:GlobalVariableDcl) {
                     generatePackageVariable(globalVar, cw);
+                    generateLockForVariable(globalVar, cw);
                 }
             }
+            generateStaticInitializer(module.globalVars, cw, moduleClass);
             if (mainFunc is bir:Function) {
                 generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
                 generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
@@ -190,6 +194,39 @@ function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWrite
     string varName = globalVar.name.value;
     bir:BType bType = globalVar.typeValue;
     generateField(cw, bType, varName, true);
+}
+
+function generateLockForVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWriter cw) {
+    string lockClass = "Ljava/lang/Object;";
+    jvm:FieldVisitor fv;
+    fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, computeLockName(globalVar), lockClass);
+    fv.visitEnd();
+}
+
+function generateStaticInitializer(bir:GlobalVariableDcl?[] globalVars, jvm:ClassWriter cw, string className) {
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", (), ());
+
+    foreach var globalVar in globalVars {
+        if (globalVar is bir:GlobalVariableDcl) {
+            mv.visitTypeInsn(NEW, "java/lang/Object");
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+            mv.visitFieldInsn(PUTSTATIC, className, computeLockName(globalVar), "Ljava/lang/Object;");
+        }
+    }
+
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+}
+
+function computeLockName(bir:GlobalVariableDcl globalVar) returns string {
+    string varName = globalVar.name.value;
+    return computeLockNameFromString(varName);
+}
+
+function computeLockNameFromString(string varName) returns string {
+    return "$lock" + varName;
 }
 
 function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) returns bir:Package {

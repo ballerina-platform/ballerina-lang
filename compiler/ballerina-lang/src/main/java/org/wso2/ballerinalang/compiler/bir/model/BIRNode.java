@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,7 @@ public abstract class BIRNode {
         public List<BIRGlobalVariableDcl> globalVars;
         public List<BIRFunction> functions;
         public List<BIRAnnotation> annotations;
+        public List<BIRConstant> constants;
 
         public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version,
                           Name sourceFileName) {
@@ -69,6 +71,7 @@ public abstract class BIRNode {
             this.globalVars = new ArrayList<>();
             this.functions = new ArrayList<>();
             this.annotations = new ArrayList<>();
+            this.constants = new ArrayList<>();
         }
 
         @Override
@@ -452,6 +455,71 @@ public abstract class BIRNode {
             visitor.visit(this);
         }
 
+    }
+
+    /**
+     * Constant definition node in BIR.
+     *
+     * @since 0.995.0
+     */
+    public static class BIRConstant extends BIRNode {
+        /**
+         * Name of the constant.
+         */
+        public Name name;
+
+        /**
+         * Visibility of this constant.
+         * 0 - package_private
+         * 1 - private
+         * 2 - public
+         */
+        public Visibility visibility;
+
+        /**
+         * Type of the constant.
+         */
+        public BType type;
+
+        /**
+         * Value of the constant.
+         */
+        public ConstValue constValue;
+
+        public BIRConstant(DiagnosticPos pos, Name name, Visibility visibility,
+                             BType type, ConstValue constValue) {
+            super(pos);
+            this.name = name;
+            this.visibility = visibility;
+            this.type = type;
+            this.constValue = constValue;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+    }
+
+    /**
+     * Constant value.
+     *
+     * @since 0.995.0
+     */
+    public static class ConstValue {
+        public BType valueType;
+        public Object literalValue;
+
+        public Map<Name, ConstValue> constantValueMap;
+
+        public ConstValue() {
+            this.constantValueMap = new HashMap<>();
+        }
+
+        public Map<Name, ConstValue> getConstantValueMap() {
+            return constantValueMap;
+        }
     }
 
     /**
