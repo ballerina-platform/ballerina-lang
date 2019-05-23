@@ -256,7 +256,7 @@ public class Scheduler {
                         assert runnableList.size() == 0;
 
                         if (DEBUG) {
-                            debugLog("+++++++++++++++++++++++++++ all work completed+++++++++++++++++++++++++++++++");
+                            debugLog("+++++++++ all work completed ++++++++");
                         }
 
                         for (int i = 0; i < numThreads; i++) {
