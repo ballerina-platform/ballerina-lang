@@ -324,6 +324,13 @@ public class BIRPackageSymbolEnter {
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT) {
                 scopeToDefine = ((BObjectTypeSymbol) attachedType.tsymbol).methodScope;
+                if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName) ||
+                        funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                    BAttachedFunction attachedFunc = new BAttachedFunction(names.fromString(funcName), invokableSymbol,
+                            funcType);
+                    BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
+                    structureTypeSymbol.initializerFunc = attachedFunc;
+                }
             } else {
                 scopeToDefine = attachedType.tsymbol.scope;
             }
@@ -661,8 +668,10 @@ public class BIRPackageSymbolEnter {
                     int recordFields = inputStream.readInt();
                     for (int i = 0; i < recordFields; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
+                        int fieldFlags = 0;
+                        fieldFlags = visibilityAsMask(fieldFlags, inputStream.readByte());
                         BType fieldType = readType();
-                        BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(fieldName),
+                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                 recordSymbol.pkgID, fieldType, recordSymbol.scope.owner);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }
