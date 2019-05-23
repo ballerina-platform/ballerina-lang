@@ -359,7 +359,7 @@ type Parser object {
 		} else {
 			//token insertion if token assign is mismatched
 			Token assign = self.matchToken(ASSIGN,VAR_DEF_STATEMENT_NODE);
-			ExpressionNode exprNode = self.expressionBuilder();
+			ExpressionNode exprNode = self.expressionBuilder(VAR_DEF_STATEMENT_NODE);
 			//if no semicolon found in the end of the expr, then errorRecovered will set to false within the expressionBuilder method itself
 			if(exprNode == null){
 				log:printError(assign.lineNumber + ":" + assign.endPos +" : no valid expression found in variable definition statement.");
@@ -386,18 +386,26 @@ type Parser object {
     //| expression (REF_EQUAL | REF_NOT_EQUAL) expression
     //| (ADD | SUB | NOT | BIT_COMPLEMENT | UNTAINT) expression
     //| <tuple literal>
-	function expressionBuilder() returns ExpressionNode {
+    //
+    //the statementType determines the break condition or the terminal token of the while loop
+	function expressionBuilder(string statementType) returns ExpressionNode {
 		self.tupleListPos = 0;
-		//tracks the validity of the expression received from the expression helper function
-		boolean isExpr = true;
-		while (self.LAToken(1) != SEMICOLON && isExpr == true){
-			isExpr = self.parseExpression2();
 
-			if(isExpr == false){
-				//recovered = false;
-				self.errorRecovered = false;
+		//the statements which terminate with semicolon and the statements which will terminate with other tokens such as
+		//foreach statement will be separated to different if statements.
+		if(statementType == VAR_DEF_STATEMENT_NODE){
+			//tracks the validity of the expression received from the expression helper function
+			boolean isExpr = true;
+			while (self.LAToken(1) != SEMICOLON && isExpr == true){
+				isExpr = self.parseExpression2();
+
+				if(isExpr == false){
+					//recovered = false;
+					self.errorRecovered = false;
+				}
 			}
 		}
+
 
 		//if the expression stack contains any operators, build the expressions based on the operators
 		while (self.oprStack.peek() != -1) {
