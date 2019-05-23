@@ -18,6 +18,9 @@ package io.ballerina.plugins.idea.sdk;
 
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Ballerina sdk properties and capabilities.
+ */
 public class BallerinaSdk {
 
     @Nullable

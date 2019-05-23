@@ -37,6 +37,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 
+
 /**
  * Ballerina diagram editor implementation.
  */
@@ -56,6 +57,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
     @Nullable
     private final Document myDocument;
     @NotNull
+    private final Project myProject;
     private final Alarm myPooledAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
     @NotNull
     private final Alarm mySwingAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, this);
@@ -75,6 +77,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
     BallerinaDiagramEditor(@NotNull Project project, @NotNull VirtualFile file) {
         myFile = file;
         myDocument = FileDocumentManager.getInstance().getDocument(myFile);
+        myProject = project;
 
         if (myDocument != null) {
             myDocument.addDocumentListener(new DocumentListener() {
@@ -276,7 +279,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
         if (!myFile.isValid() || myDocument == null || Disposer.isDisposed(this)) {
             return;
         }
-        final String html = BallerinaDiagramUtils.generateDiagramHtml(myFile, myPanel);
+        final String html = BallerinaDiagramUtils.generateDiagramHtml(myFile, myPanel, myProject);
         // EA-75860: The lines to the top may be processed slowly;
         // Since we're in a pooled thread, we can be disposed already.
         if (!myFile.isValid() || Disposer.isDisposed(this)) {

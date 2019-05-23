@@ -5,28 +5,26 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
+import com.google.common.base.Strings;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.ballerina.plugins.idea.extensions.editoreventmanager.BallerinaEditorEventManager;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import io.ballerina.plugins.idea.sdk.BallerinaSdk;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.wso2.lsp4intellij.editor.EditorEventManager;
 import org.wso2.lsp4intellij.editor.EditorEventManagerBase;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -37,11 +35,8 @@ import static org.wso2.lsp4intellij.utils.FileUtils.editorToURIString;
 class BallerinaDiagramUtils {
     private static final Logger LOG = Logger.getInstance(BallerinaDiagramUtils.class);
 
+    private static final String COMPOSER_LIB_RESOURCE_PATH = "/lib/tools/composer-library";
     private static final String TEMPLATES_CLASSPATH = "/fileTemplates/diagram";
-    private static final String RESOURCE_COMPOSER = "/composer/composer.js";
-    private static final String RESOURCE_CODEPOINTS = "/composer/font/codepoints.js";
-    private static final String RESOURCE_THEME = "/composer/themes/ballerina-default.min.css";
-    private static final String RESOURCE_FONT = "/composer/font/font/font-ballerina.css";
     private static final String WEBVIEW_TEMPLATE_NAME = "webview";
     private static final String STYLES_TEMPLATE_NAME = "styles";
     private static final String SCRIPT_TEMPLATE_NAME = "loaded-script";
@@ -53,10 +48,6 @@ class BallerinaDiagramUtils {
             "#diagram > div > div > div.diagram-controllers > div.ui.sticky > div > div > div:nth-child(1){\n"
                     + "display: none;\n" + "}";
     private static final String BODY_CSS_CLASS = "diagram";
-
-    private static HashMap<String, String> webviewContents;
-    private static Template webviewTemplate;
-    private static boolean staticContentLoaded = false;
 
     public static String md5(String buffer, @NonNls String key) {
         MessageDigest md5 = null;
@@ -73,25 +64,35 @@ class BallerinaDiagramUtils {
     }
 
     @NotNull
-    static String generateDiagramHtml(@NotNull VirtualFile file, DiagramHtmlPanel myPanel) {
-        String ast = "";
-        Project project = ProjectUtil.guessProjectForFile(file);
-        if (project == null) {
-            return ast;
-        }
+    static String generateDiagramHtml(@NotNull VirtualFile file, DiagramHtmlPanel panel, Project project) {
 
         // Requests the AST from the Ballerina language server.
         Editor editor = editorFromVirtualFile(file, project);
         EditorEventManager manager = EditorEventManagerBase.forEditor(editor);
         BallerinaEditorEventManager balManager = (BallerinaEditorEventManager) manager;
-        if (balManager != null) {
-            ast = balManager.getAST();
+        if (balManager == null) {
+            LOG.debug("Editor event manager is null for: " + editor.toString());
+            return "";
         }
 
-        if (ast != null && !ast.isEmpty()) {
-            return getWebviewContent(editorToURIString(editor), ast, myPanel);
+        // Requests AST from the language server.
+        String ast = balManager.getAST();
+        if (Strings.isNullOrEmpty(ast)) {
+            LOG.debug("Received an empty AST response");
+            return "";
         }
-        return "";
+
+        BallerinaSdk balSdk = BallerinaSdkUtil.getBallerinaSdkFor(project);
+        if (balSdk.getSdkPath() == null) {
+            LOG.debug("No Ballerina SDK is found for the project: " + project.getName());
+            return "";
+        }
+        if (!balSdk.hasWebviewSupport()) {
+            LOG.debug("Detected ballerina sdk version does not have diagram editor support" + project.getName());
+            return "";
+        }
+
+        return getWebviewContent(editorToURIString(editor), ast, panel, balSdk.getSdkPath());
     }
 
     private static Editor editorFromVirtualFile(VirtualFile file, Project project) {
@@ -102,7 +103,7 @@ class BallerinaDiagramUtils {
         return null;
     }
 
-    private static String getWebviewContent(String uri, String ast, DiagramHtmlPanel myPanel) {
+    private static String getWebviewContent(String uri, String ast, DiagramHtmlPanel myPanel, String sdkPath) {
         try {
             if (myPanel == null) {
                 return "";
@@ -111,6 +112,7 @@ class BallerinaDiagramUtils {
             Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(TEMPLATES_CLASSPATH));
             Template scriptTemplate = handlebars.compile(SCRIPT_TEMPLATE_NAME);
             Template langClientTemplate = handlebars.compile(LANG_CLIENT_TEMPLATE_NAME);
+            Template webviewTemplate = handlebars.compile(WEBVIEW_TEMPLATE_NAME);
 
             // Injects ast response to the mocked language client template.
             HashMap<String, String> langClientContents = new HashMap<>();
@@ -126,77 +128,21 @@ class BallerinaDiagramUtils {
             scriptContents.put("getLangClient", langClientTemplate.apply(langClientContext));
             Context scriptContext = Context.newBuilder(scriptContents).resolver(MapValueResolver.INSTANCE).build();
 
-            return getUpdatedWebviewContent(scriptTemplate.apply(scriptContext));
-        } catch (IOException | RuntimeException e) {
-            LOG.warn("Error occurred when constructing webview content: ", e);
-            return "";
-        }
-    }
-
-    private static String getUpdatedWebviewContent(String scriptContent) {
-        try {
-            Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(TEMPLATES_CLASSPATH));
-
-            // Prevents loading the static contents in each diagram update request.
-            if (!staticContentLoaded) {
-                // Reads required styles and scripts (js/css) from the plugin jar.
-                final String composerJsContent = getFileContent(RESOURCE_COMPOSER);
-                final String codePointsJsContent = getFileContent(RESOURCE_CODEPOINTS);
-                final String themeCssConent = getFileContent(RESOURCE_THEME);
-                final String fontCssContent = getFileContent(RESOURCE_FONT);
-
-                webviewContents = new HashMap<>();
-                webviewTemplate = handlebars.compile(WEBVIEW_TEMPLATE_NAME);
-                // Constructs the final webview HTML template.
-                webviewContents.put("body", BODY_TEMPLATE);
-                webviewContents.put("bodyCssClass", BODY_CSS_CLASS);
-                webviewContents.put("themeCss", themeCssConent);
-                webviewContents.put("fontCss", fontCssContent);
-                webviewContents.put("styles", handlebars.compile(STYLES_TEMPLATE_NAME).text());
-                webviewContents.put("codePoints", codePointsJsContent);
-                webviewContents.put("composer", composerJsContent);
-                webviewContents.put("fireBug", handlebars.compile(FIREBUG_TEMPLATE_NAME).text());
-                //Todo - remove when the editing support is added.
-                webviewContents.put("disableEdit", DISABLE_EDITING_CSS);
-
-                staticContentLoaded = true;
-            }
-
-            if (webviewContents.get("loadedScript") != null) {
-                webviewContents.replace("loadedScript", scriptContent);
-            } else {
-                webviewContents.put("loadedScript", scriptContent);
-            }
-
+            // Constructs the final webview HTML template.
+            HashMap<String, String> webviewContents = new HashMap<>();
+            webviewContents.put("resourceRoot", Paths.get(sdkPath, COMPOSER_LIB_RESOURCE_PATH).toUri().toString());
+            webviewContents.put("body", BODY_TEMPLATE);
+            webviewContents.put("bodyCssClass", BODY_CSS_CLASS);
+            webviewContents.put("styles", handlebars.compile(STYLES_TEMPLATE_NAME).text());
+            webviewContents.put("fireBug", handlebars.compile(FIREBUG_TEMPLATE_NAME).text());
+            webviewContents.put("loadedScript", scriptTemplate.apply(scriptContext));
+            //Todo - remove when the editing support is added.
+            webviewContents.put("disableEdit", DISABLE_EDITING_CSS);
             Context webviewContext = Context.newBuilder(webviewContents).resolver(MapValueResolver.INSTANCE).build();
             return webviewTemplate.apply(webviewContext);
-
-
         } catch (IOException | RuntimeException e) {
             LOG.warn("Error occurred when constructing webview content: ", e);
             return "";
-        }
-    }
-
-    private static String getFileContent(String resource) throws IOException, RuntimeException {
-        File file;
-        URL res = BallerinaDiagramUtils.class.getResource(resource);
-        if (res.getProtocol().equals("jar")) {
-            try {
-                InputStream input = BallerinaDiagramUtils.class.getResourceAsStream(resource);
-                return IOUtils.toString(input, StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                LOG.warn("Error occurred when reading the file at " + resource, e);
-                throw e;
-            }
-        } else {
-            //this will probably work in your IDE, but not from a JAR.
-            file = new File(res.getFile());
-            if (!file.exists()) {
-                throw new RuntimeException("Error: File " + file + " not found!");
-            } else {
-                return FileUtils.readFileToString(file, "UTF-8");
-            }
         }
     }
 }

@@ -15,12 +15,10 @@
             }
             {{{styles}}}
         </style>
-        <style  type = "text/css">
-            {{{themeCss}}}
-        </style>
-        <style  type = "text/css">
-            {{{fontCss}}}
-        </style>
+
+        <link rel="stylesheet" type="text/css" href="{{{resourceRoot}}}/themes/ballerina-default.min.css">
+        <link rel="stylesheet" type="text/css" href="{{{resourceRoot}}}/font/font/font-ballerina.css">
+
         <style type = "text/css">
             {{{disableEdit}}}
         </style>
@@ -29,19 +27,12 @@
     <body style="overflow: auto;" class="{{{bodyCssClass}}}">
         {{{body}}}
         <script type = "text/JavaScript">
-            {{{codePoints}}}
+                {{{loadedScript}}}
         </script>
-        <script type = "text/JavaScript">
-            {{{composer}}}
-        </script>
-        <script type = "text/JavaScript">
-            {{{loadedScript}}}
-        </script>
+        <script charset="UTF-8" src="{{{resourceRoot}}}/font/codepoints.js"></script>
+        <script charset="UTF-8" onload="loadedScript();" src="{{{resourceRoot}}}/composer.js"></script>
         <script type = "text/JavaScript">
             {{{fireBug}}}
-        </script>
-        <script type = "text/JavaScript">
-            loadedScript();
         </script>
     </body>
 </html>
