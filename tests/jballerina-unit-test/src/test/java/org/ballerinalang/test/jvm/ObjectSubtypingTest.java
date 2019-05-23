@@ -18,11 +18,11 @@
 
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,7 +40,7 @@ public class ObjectSubtypingTest {
     @BeforeClass
     public void setup() {
 //        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "subtyping");
-//        compileResult = BCompileUtil.compile("test-src/jvm/objects_subtyping.bal");
+        compileResult = BCompileUtil.compile("test-src/jvm/objects_subtyping.bal");
     }
 
     @Test
@@ -50,7 +50,7 @@ public class ObjectSubtypingTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*incompatible types: 'Person1' cannot be cast to 'Employee1'")
+          expectedExceptionsMessageRegExp = ".*incompatible types: 'Person1' cannot be cast to 'Employee1'.*")
     public void testCastingRuntimeError() {
         BRunUtil.invoke(compileResult, "testCastingRuntimeError");
     }
