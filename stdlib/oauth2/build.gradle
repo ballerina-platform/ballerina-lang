@@ -19,8 +19,11 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
+    baloCreat project(':lib-creator-milestone')
+
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     implementation project(':ballerina-core')
-    implementation project(':ballerina-lang')
+//    implementation project(':ballerina-lang')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-auth')
     implementation project(':ballerina-http')
@@ -32,6 +35,17 @@ dependencies {
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - OAuth2'
