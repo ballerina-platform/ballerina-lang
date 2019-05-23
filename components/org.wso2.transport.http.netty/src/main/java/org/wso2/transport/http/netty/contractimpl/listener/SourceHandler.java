@@ -249,7 +249,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private void setRequestProperties() {
         inboundRequestMsg.setPipeliningEnabled(pipeliningEnabled); //Value of listener config
         String connectionHeaderValue = inboundRequestMsg.getHeader(HttpHeaderNames.CONNECTION.toString());
-        String httpVersion = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
+        String httpVersion = inboundRequestMsg.getHttpVersion();
         inboundRequestMsg.setKeepAlive(isKeepAliveConnection(keepAliveConfig, connectionHeaderValue,
                 httpVersion));
     }

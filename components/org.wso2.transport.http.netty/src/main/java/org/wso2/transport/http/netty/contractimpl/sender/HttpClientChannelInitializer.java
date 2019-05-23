@@ -95,7 +95,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
 
         String httpVersion = senderConfiguration.getHttpVersion();
-        if (Float.valueOf(httpVersion) == Constants.HTTP_2_0) {
+        if (httpVersion.equals(Constants.HTTP_2_0)) {
             http2 = true;
         }
         connection = new DefaultHttp2Connection(false);

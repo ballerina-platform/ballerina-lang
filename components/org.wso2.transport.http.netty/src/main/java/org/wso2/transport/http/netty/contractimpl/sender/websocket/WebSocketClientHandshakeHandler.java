@@ -121,7 +121,7 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
     private HttpCarbonResponse setUpCarbonMessage(ChannelHandlerContext ctx, HttpResponse msg) {
         HttpCarbonResponse carbonResponse = new HttpCarbonResponse(msg, new DefaultListener(ctx));
         carbonResponse.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
-        carbonResponse.setProperty(Constants.HTTP_STATUS_CODE, msg.status().code());
+        carbonResponse.setHttpStatusCode(msg.status().code());
         return carbonResponse;
     }
 

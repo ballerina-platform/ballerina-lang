@@ -72,7 +72,7 @@ public class Http2ALPNwithCertsTest {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.SERVER_PORT1);
         listenerConfiguration.setScheme(HTTPS_SCHEME);
-        listenerConfiguration.setVersion(String.valueOf(HTTP_2_0));
+        listenerConfiguration.setVersion(HTTP_2_0);
         listenerConfiguration.setSslSessionTimeOut(TestUtil.SSL_SESSION_TIMEOUT);
         listenerConfiguration.setSslHandshakeTimeOut(TestUtil.SSL_HANDSHAKE_TIMEOUT);
         listenerConfiguration.setServerKeyFile(TestUtil.getAbsolutePath(TestUtil.KEY_FILE));
@@ -83,7 +83,7 @@ public class Http2ALPNwithCertsTest {
     private SenderConfiguration getSenderConfigs() {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
         senderConfiguration.setClientTrustCertificates(TestUtil.getAbsolutePath(TestUtil.CERT_FILE));
-        senderConfiguration.setHttpVersion(String.valueOf(HTTP_2_0));
+        senderConfiguration.setHttpVersion(HTTP_2_0);
         senderConfiguration.setScheme(HTTPS_SCHEME);
         senderConfiguration.setSslSessionTimeOut(TestUtil.SSL_SESSION_TIMEOUT);
         senderConfiguration.setSslHandshakeTimeOut(TestUtil.SSL_HANDSHAKE_TIMEOUT);

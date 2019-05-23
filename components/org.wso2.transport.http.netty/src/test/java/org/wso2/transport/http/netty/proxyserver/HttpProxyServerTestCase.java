@@ -39,7 +39,6 @@ import java.nio.charset.Charset;
 
 import static org.mockserver.integration.ClientAndProxy.startClientAndProxy;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_HOST;
-import static org.wso2.transport.http.netty.contract.Constants.HTTP_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_PORT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_POST_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
@@ -63,7 +62,7 @@ public class HttpProxyServerTestCase {
         msg.setProperty(HTTP_PORT, TestUtil.SERVER_PORT1);
         msg.setProperty(PROTOCOL, HTTP_SCHEME);
         msg.setProperty(HTTP_HOST, TestUtil.TEST_HOST);
-        msg.setProperty(HTTP_METHOD, HTTP_POST_METHOD);
+        msg.setHttpMethod(HTTP_POST_METHOD);
         msg.setHeader("Host", "localhost:9001");
         msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
 

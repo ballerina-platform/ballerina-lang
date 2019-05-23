@@ -75,7 +75,7 @@ public class H2ConnectionPoolWithALPN {
             .createServerConnector(new ServerBootstrapConfiguration(new HashMap<>()), getH2ListenerConfigs());
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         serverConnectorFuture.setHttpConnectorListener(
-            new PassthroughHttpsMessageProcessorListener(getSenderConfigs(String.valueOf(HTTP_2_0)), true));
+            new PassthroughHttpsMessageProcessorListener(getSenderConfigs(HTTP_2_0), true));
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
@@ -118,7 +118,7 @@ public class H2ConnectionPoolWithALPN {
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         return httpWsConnectorFactory.createHttpClientConnector(
             HttpConnectorUtil.getTransportProperties(transportsConfiguration),
-            getSenderConfigs(String.valueOf(HTTP_2_0)));
+            getSenderConfigs(HTTP_2_0));
     }
 
     private String getResponse(HttpClientConnector client1) {

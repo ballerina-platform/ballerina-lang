@@ -53,7 +53,7 @@ public class EchoMessageListener implements HttpConnectorListener {
                         new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
                 httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
                 httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
-                httpResponse.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.OK.code());
+                httpResponse.setHttpStatusCode(HttpResponseStatus.OK.code());
 
                 do {
                     HttpContent httpContent = httpRequest.getHttpContent();

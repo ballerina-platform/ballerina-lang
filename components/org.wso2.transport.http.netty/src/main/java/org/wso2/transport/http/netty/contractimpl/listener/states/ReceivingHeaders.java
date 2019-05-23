@@ -25,7 +25,6 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
@@ -69,7 +68,7 @@ public class ReceivingHeaders implements ListenerState {
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
         this.inboundRequestMsg = inboundRequestMsg;
-        this.httpVersion = Float.parseFloat((String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
+        this.httpVersion = Float.parseFloat(inboundRequestMsg.getHttpVersion());
         boolean continueRequest = is100ContinueRequest(inboundRequestMsg);
         if (continueRequest) {
             messageStateContext.setListenerState(new Expect100ContinueHeaderReceived(messageStateContext, sourceHandler,

@@ -65,7 +65,7 @@ public class Continue100Listener implements HttpConnectorListener {
                                 new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
                 httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
                 httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
-                httpResponse.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.OK.code());
+                httpResponse.setHttpStatusCode(HttpResponseStatus.OK.code());
 
                 do {
                     HttpContent httpContent = httpRequest.getHttpContent();
@@ -88,7 +88,7 @@ public class Continue100Listener implements HttpConnectorListener {
                         new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
         httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(),
                                HttpHeaderValues.KEEP_ALIVE.toString());
-        httpResponse.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.CONTINUE.code());
+        httpResponse.setHttpStatusCode(HttpResponseStatus.CONTINUE.code());
         httpResponse.addHttpContent(new DefaultLastHttpContent());
         return httpResponse;
     }
@@ -100,7 +100,7 @@ public class Continue100Listener implements HttpConnectorListener {
                         new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.EXPECTATION_FAILED));
         httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(),
                                HttpHeaderValues.KEEP_ALIVE.toString());
-        httpResponse.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.EXPECTATION_FAILED.code());
+        httpResponse.setHttpStatusCode(HttpResponseStatus.EXPECTATION_FAILED.code());
         httpResponse.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
         return httpResponse;
     }

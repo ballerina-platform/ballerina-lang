@@ -67,7 +67,7 @@ public class ForwardedClientTemplate {
         requestMsg.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
         requestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
         requestMsg.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
-        requestMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_POST_METHOD);
+        requestMsg.setHttpMethod(Constants.HTTP_POST_METHOD);
         requestMsg.setHeaders(headers);
 
         CountDownLatch latch = new CountDownLatch(1);

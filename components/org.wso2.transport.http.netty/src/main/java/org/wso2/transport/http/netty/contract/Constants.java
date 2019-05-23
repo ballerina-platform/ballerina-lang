@@ -105,8 +105,6 @@ public final class Constants {
     public static final String PROTOCOL = "PROTOCOL";
     public static final String HTTP_SCHEME = "http";
     public static final String HTTPS_SCHEME = "https";
-    public static final String HTTP_VERSION = "HTTP_VERSION";
-    public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String JKS = "JKS";
     public static final String TLS_PROTOCOL = "TLS";
     public static final String REQUIRE = "require";
@@ -148,7 +146,6 @@ public final class Constants {
     public static final String HTTP_TRUST_STORE_PASS = "trustStorePassword";
     public static final String TLS_STORE_TYPE = "tlsStoreType";
 
-    public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
     public static final String RESOLVED_REQUESTED_URI = "RESOLVED_REQUESTED_URI";
 
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
@@ -160,7 +157,7 @@ public final class Constants {
     public static final String DEFAULT_VERSION_HTTP_1_1 = "HTTP/1.1";
     public static final float HTTP_1_1 = 1.1f;
     public static final float HTTP_1_0 = 1.0f;
-    public static final float HTTP_2_0 = 2.0f;
+    public static final String HTTP_2_0 = "2.0";
     public static final String HTTP_VERSION_PREFIX = "HTTP/";
     public static final String HTTP_1_1_VERSION = "1.1";
 
@@ -171,7 +168,6 @@ public final class Constants {
     public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
     public static final String REMOTE_HOST = "REMOTE_HOST";
     public static final String REMOTE_PORT = "REMOTE_PORT";
-    public static final String REQUEST_URL = "REQUEST_URL";
     public static final String ORIGIN_HOST = "ORIGIN_HOST";
 
     public static final String CHANNEL_ID = "CHANNEL_ID";

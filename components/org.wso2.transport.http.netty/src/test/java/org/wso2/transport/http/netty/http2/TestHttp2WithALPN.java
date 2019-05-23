@@ -62,7 +62,7 @@ public class TestHttp2WithALPN {
 
         connectorFactory = new DefaultHttpWsConnectorFactory();
         http2ClientConnector = connectorFactory
-            .createHttpClientConnector(new HashMap<>(), getSenderConfigs(String.valueOf(HTTP_2_0)));
+            .createHttpClientConnector(new HashMap<>(), getSenderConfigs(HTTP_2_0));
         http1ClientConnector = connectorFactory
             .createHttpClientConnector(new HashMap<>(), getSenderConfigs(String.valueOf(HTTP_1_1)));
     }

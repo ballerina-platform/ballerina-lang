@@ -79,7 +79,7 @@ public class CommonUtilTestCase {
         headers.set(HttpHeaderNames.CONTENT_LENGTH, 10);
         HttpCarbonMessage httpOutboundRequest = new HttpCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/get", headers));
-        httpOutboundRequest.setProperty(Constants.HTTP_METHOD, HttpMethod.GET.toString());
+        httpOutboundRequest.setHttpMethod(HttpMethod.GET.toString());
         httpOutboundRequest.setProperty(Constants.NO_ENTITY_BODY, true);
         boolean allow = Util.checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest);
 
@@ -94,7 +94,7 @@ public class CommonUtilTestCase {
         headers.set(HttpHeaderNames.CONTENT_LENGTH, 10);
         HttpCarbonMessage httpOutboundRequest = new HttpCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/get", headers));
-        httpOutboundRequest.setProperty(Constants.HTTP_METHOD, HttpMethod.GET.toString());
+        httpOutboundRequest.setHttpMethod(HttpMethod.GET.toString());
         httpOutboundRequest.setProperty(Constants.NO_ENTITY_BODY, false);
         boolean allow = Util.checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest);
 

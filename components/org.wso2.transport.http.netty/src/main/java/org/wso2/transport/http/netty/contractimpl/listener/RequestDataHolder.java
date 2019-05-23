@@ -19,7 +19,6 @@
 package org.wso2.transport.http.netty.contractimpl.listener;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
@@ -42,8 +41,8 @@ public class RequestDataHolder {
         contentTypeHeaderValue = requestMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
         transferEncodingHeaderValue = requestMessage.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
         contentLengthHeaderValue = requestMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
-        httpMethod = (String) requestMessage.getProperty(Constants.HTTP_METHOD);
-        httpVersion = (String) requestMessage.getProperty(Constants.HTTP_VERSION);
+        httpMethod = requestMessage.getHttpMethod();
+        httpVersion = requestMessage.getHttpVersion();
     }
 
     /**

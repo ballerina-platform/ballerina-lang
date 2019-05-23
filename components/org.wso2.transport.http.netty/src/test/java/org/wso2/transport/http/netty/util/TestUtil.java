@@ -248,7 +248,7 @@ public class TestUtil {
         httpPostRequest.setProperty(Constants.HTTP_PORT, serverPort);
         httpPostRequest.setProperty(Constants.PROTOCOL, Constants.HTTPS_SCHEME);
         httpPostRequest.setProperty(Constants.HTTP_HOST, host);
-        httpPostRequest.setProperty(Constants.HTTP_METHOD, Constants.HTTP_POST_METHOD);
+        httpPostRequest.setHttpMethod(Constants.HTTP_POST_METHOD);
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
         httpPostRequest.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));

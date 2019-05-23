@@ -106,7 +106,7 @@ public class ClientRespDecompressionTestCase {
         requestMsg.setProperty(Constants.HTTP_PORT, TestUtil.SERVER_CONNECTOR_PORT);
         requestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
         requestMsg.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
-        requestMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_POST_METHOD);
+        requestMsg.setHttpMethod(Constants.HTTP_POST_METHOD);
 
         requestMsg.setHeader("Accept-Encoding", "deflate;q=1.0, gzip;q=0.8");
 
