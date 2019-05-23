@@ -3710,7 +3710,7 @@ public class BVM {
     }
 
     private static boolean checkObjectEquivalency(BStructureType rhsType, BStructureType lhsType,
-                                                  List<TypePair> unresolvedTypes) {
+                                                 List<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(rhsType, lhsType);
@@ -3782,7 +3782,7 @@ public class BVM {
     }
 
     private static boolean checkPrivateObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                                          List<TypePair> unresolvedTypes) {
+                                                           List<TypePair> unresolvedTypes) {
         Map<String, BField> rhsFields = rhsType.getFields();
         for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
             BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
@@ -3807,7 +3807,7 @@ public class BVM {
     }
 
     private static boolean checkPublicObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                                         List<TypePair> unresolvedTypes) {
+                                                           List<TypePair> unresolvedTypes) {
         // Check the whether there is any private fields in RHS type
         if (rhsType.getFields().values().stream().anyMatch(field -> !Flags.isFlagOn(field.flags, Flags.PUBLIC))) {
             return false;

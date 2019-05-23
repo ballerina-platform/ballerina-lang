@@ -1121,7 +1121,7 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
 
-            // skip the init function invocation is its already generated
+            // skip the init function invocation is its already generated 
             // by someother package
             if(isInitInvoked(initFuncName)) {
                 continue;

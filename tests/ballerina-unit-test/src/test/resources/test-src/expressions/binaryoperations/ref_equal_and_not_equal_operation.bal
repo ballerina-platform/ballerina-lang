@@ -32,7 +32,7 @@ type ClosedEmployee record {|
 type Abc object {
     public string name;
     float salary;
-    int id;
+    private int id;
 
     public function __init (string name, float salary, int id) {
         self.name = name;
@@ -44,7 +44,7 @@ type Abc object {
 type Def object {
     public string name;
     float salary;
-    int id;
+    private int id;
     private int idTwo = 0;
 
     public function __init(string name, float salary, int id) {
