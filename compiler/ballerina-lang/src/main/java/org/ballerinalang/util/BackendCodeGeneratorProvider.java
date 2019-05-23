@@ -50,9 +50,9 @@ public class BackendCodeGeneratorProvider {
     }
 
     /**
-     * Get an instance of EmbeddedExecutor after iterating over the loaded ServiceLoaders.
+     * Get an instance of CompilerBackendCodeGenerator after iterating over the loaded ServiceLoaders.
      *
-     * @return instance of EmbeddedExecutor
+     * @return instance of CompilerBackendCodeGenerator
      */
     public CompilerBackendCodeGenerator getBackendCodeGenerator() {
         CompilerBackendCodeGenerator service = loader.iterator().next();
