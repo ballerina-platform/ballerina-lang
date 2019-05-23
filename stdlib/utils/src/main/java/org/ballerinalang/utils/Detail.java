@@ -47,7 +47,7 @@ public class Detail extends BlockingNativeCallableUnit {
         context.setReturnValues(((BError) refRegVal).getDetails());
     }
 
-    public static MapValue detail(Strand strand, ErrorValue value) {
-        return (MapValue) value.getDetails();
+    public static Object detail(Strand strand, ErrorValue value) {
+        return value.getDetails();
     }
 }
