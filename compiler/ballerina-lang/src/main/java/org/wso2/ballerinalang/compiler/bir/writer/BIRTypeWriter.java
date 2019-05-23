@@ -245,6 +245,7 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BField field : bRecordType.fields) {
             // TODO add position
             buff.writeInt(addStringCPEntry(field.name.value));
+            buff.writeByte(getVisibility(field.symbol).value());
             visitType(field.type);
         }
 
