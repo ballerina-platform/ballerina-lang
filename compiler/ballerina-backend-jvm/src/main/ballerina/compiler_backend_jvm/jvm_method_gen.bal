@@ -401,7 +401,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", ARRAY_VALUE));
             mv.visitVarInsn(ASTORE, index);
-        } else if (bType is bir:BObjectType) {
+        } else if (bType is bir:BObjectType || bType is bir:BServiceType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", OBJECT_VALUE));
             mv.visitVarInsn(ASTORE, index);
@@ -507,7 +507,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", TYPEDESC_VALUE));
-        } else if (bType is bir:BObjectType) {
+        } else if (bType is bir:BObjectType || bType is bir:BServiceType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", OBJECT_VALUE));
@@ -685,6 +685,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BObjectType ||
+                bType is bir:BServiceType ||
                 bType is bir:BTypeDecimal ||
                 bType is bir:BUnionType ||
                 bType is bir:BRecordType ||
@@ -778,7 +779,7 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return io:sprintf("L%s;", FUNCTION_POINTER);
     } else if (bType is bir:BTypeDesc) {
         return io:sprintf("L%s;", TYPEDESC_VALUE);
-    } else if (bType is bir:BObjectType) {
+    } else if (bType is bir:BObjectType || bType is bir:BServiceType) {
         return io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BXMLType) {
         return io:sprintf("L%s;", XML_VALUE);
@@ -825,7 +826,7 @@ function generateReturnType(bir:BType? bType) returns string {
                 bType is bir:BJSONType ||
                 bType is bir:BFiniteType) {
         return io:sprintf(")L%s;", OBJECT);
-    } else if (bType is bir:BObjectType) {
+    } else if (bType is bir:BObjectType || bType is bir:BServiceType) {
         return io:sprintf(")L%s;", OBJECT_VALUE);
     } else if (bType is bir:BInvokableType) {
         return io:sprintf(")L%s;", FUNCTION_POINTER);

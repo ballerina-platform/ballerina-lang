@@ -54,5 +54,4 @@ public class FormattingConstants {
     public static final String KIND = "kind";
     public static final String TYPE = "type";
     public static final String NAME = "name";
-    public static final String WORKERS = "workers";
 }

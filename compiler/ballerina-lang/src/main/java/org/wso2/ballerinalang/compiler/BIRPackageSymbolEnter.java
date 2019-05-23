@@ -668,9 +668,16 @@ public class BIRPackageSymbolEnter {
                     }
 
                     // read record init function
-                    getStringCPEntryValue(inputStream);
-                    inputStream.readByte();
-                    readType();
+                    String recordInitFuncName = getStringCPEntryValue(inputStream);
+                    int recordInitFuncFlags = 0;
+                    recordInitFuncFlags = visibilityAsMask(recordInitFuncFlags, inputStream.readByte());
+                    BInvokableType recordInitFuncType = (BInvokableType) readType();
+                    BInvokableSymbol recordInitFuncSymbol = Symbols.createFunctionSymbol(recordInitFuncFlags,
+                            names.fromString(recordInitFuncName), env.pkgSymbol.pkgID, recordInitFuncType,
+                            env.pkgSymbol, Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE));
+                    recordInitFuncSymbol.retType = recordInitFuncType.retType;
+                    recordSymbol.initializerFunc = new BAttachedFunction(names.fromString(recordInitFuncName),
+                            recordInitFuncSymbol, recordInitFuncType);
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 

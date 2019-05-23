@@ -87,6 +87,7 @@ type TerminatorGenerator object {
                 bType is bir:BStreamType ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BObjectType ||
+                bType is bir:BServiceType ||
                 bType is bir:BTypeDecimal ||
                 bType is bir:BRecordType ||
                 bType is bir:BTupleType ||
@@ -248,6 +249,7 @@ type TerminatorGenerator object {
                         bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
                         bType is bir:BObjectType ||
+                        bType is bir:BServiceType ||
                         bType is bir:BTypeDecimal ||
                         bType is bir:BUnionType ||
                         bType is bir:BRecordType ||
@@ -384,6 +386,7 @@ type TerminatorGenerator object {
                     bType is bir:BUnionType ||
                     bType is bir:BErrorType ||
                     bType is bir:BObjectType ||
+                    bType is bir:BServiceType ||
                     bType is bir:BStreamType ||
                     bType is bir:BTableType ||
                     bType is bir:BMapType ||
@@ -438,6 +441,7 @@ type TerminatorGenerator object {
                         bType is bir:BUnionType ||
                         bType is bir:BErrorType ||
                         bType is bir:BObjectType ||
+                        bType is bir:BServiceType ||
                         bType is bir:BStreamType ||
                         bType is bir:BTableType ||
                         bType is bir:BMapType ||
@@ -586,6 +590,7 @@ type TerminatorGenerator object {
                         bType is bir:BUnionType ||
                         bType is bir:BErrorType ||
                         bType is bir:BObjectType ||
+                        bType is bir:BServiceType ||
                         bType is bir:BStreamType ||
                         bType is bir:BTableType ||
                         bType is bir:BMapType ||

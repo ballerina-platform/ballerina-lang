@@ -20,16 +20,12 @@ package org.ballerinalang.net.http.clientendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
@@ -150,10 +146,10 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
         }
         senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
 
-        String httpVersion = clientEndpointConfig.get(HttpConstants.CLIENT_EP_HTTP_VERSION).toString();
+        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (HTTP_2_0_VERSION.equals(httpVersion)) {
-            BMap<String, BValue> http2Settings = (BMap<String, BValue>) clientEndpointConfig.get(
-                    HttpConstants.HTTP2_SETTINGS);
+            MapValue<String, Object> http2Settings = (MapValue<String, Object>) clientEndpointConfig.
+                    get(HttpConstants.HTTP2_SETTINGS);
             boolean http2PriorKnowledge = ((BBoolean) http2Settings.get(HTTP2_PRIOR_KNOWLEDGE)).booleanValue();
             senderConfiguration.setForceHttp2(http2PriorKnowledge);
         }
