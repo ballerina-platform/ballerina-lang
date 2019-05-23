@@ -100,7 +100,8 @@ public class BuilderUtils {
         // TODO fix below properly (add testing as well)
         if (jvmTarget) {
             outStream.println();
-            CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().getBackendCodeGenerator();
+            CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().
+                    getBackendCodeGenerator();
             Optional result = jvmCodeGen.generate(false, bLangPackage, context, packagePath);
             if (!result.isPresent()) {
                 throw new RuntimeException("Compiled binary jar is not found");
