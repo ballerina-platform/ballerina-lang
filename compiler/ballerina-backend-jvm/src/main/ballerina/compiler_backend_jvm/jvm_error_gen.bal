@@ -57,12 +57,15 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(jumpLabel);
     }
 
-    function printStackTraceFromFutureValue(jvm:MethodVisitor mv, int futureVar) {
-        mv.visitVarInsn(ALOAD, futureVar);
+    function printStackTraceFromFutureValue(jvm:MethodVisitor mv) {
+        mv.visitInsn(DUP);
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
+        mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER)); 
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
         jvm:Label labelIf = new;
         mv.visitJumpInsn(IFNULL, labelIf);
-        mv.visitVarInsn(ALOAD, futureVar);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
         mv.visitMethodInsn(INVOKEVIRTUAL, THROWABLE, PRINT_STACK_TRACE_METHOD, "()V", false);
         mv.visitInsn(RETURN);

@@ -18,6 +18,9 @@
 package org.ballerinalang.stdlib.reflect.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,5 +44,13 @@ public class GetFunctionAnnotations extends AbstractAnnotationReader {
         }
         BFunctionPointer fp = (BFunctionPointer) bValue;
         context.setReturnValues(getAnnotationValue(context, fp.value().getPkgPath(), fp.value().getName()));
+    }
+
+    public static ArrayValue getFunctionAnnotations(Strand strand, Object value) {
+        if (!(value instanceof FPValue)) {
+            return null;
+        }
+        FPValue fp = (FPValue) value;
+        return getAnnotationValue(fp.getType(), fp.getType().getName());
     }
 }

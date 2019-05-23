@@ -234,8 +234,11 @@ const string TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
 const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
 const string STRAND = "org/ballerinalang/jvm/Strand";
+
+const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string FUNCTION = "java/util/function/Function";
 const string CONSUMER = "java/util/function/Consumer";
+
 const string STRING_BUILDER = "java/lang/StringBuilder";
 const string COMPARABLE = "java/lang/Comparable";
 const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
@@ -246,6 +249,7 @@ const string WD_CHANNELS = "org/ballerinalang/jvm/WDChannels";
 const string WORKER_DATA_CHANNEL = "org/ballerinalang/jvm/WorkerDataChannel";
 const string CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
 const string WORKER_UTILS = "org/ballerinalang/jvm/WorkerUtils";
+const string LONG_STREAM = "java/util/stream/LongStream";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -284,5 +288,6 @@ const string MODULE_INIT_CLASS_NAME = "___init";
 const string BAL_EXTENSION = ".bal";
 
 // scheduler related constants
-const string SCHEDULE_METHOD =  "schedule";
+const string SCHEDULE_CONSUMER_METHOD =  "scheduleConsumer";
+const string SCHEDULE_FUNCTION_METHOD =  "scheduleFunction";
 const string SCHEDULER_START_METHOD =  "start";

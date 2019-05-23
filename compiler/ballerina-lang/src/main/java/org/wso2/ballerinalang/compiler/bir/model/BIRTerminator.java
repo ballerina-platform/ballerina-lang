@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Terminators connects basic blocks together.
@@ -206,6 +207,52 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
             this.op = op;
             this.trueBB = trueBB;
             this.falseBB = falseBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A lock instruction.
+     * <p>
+     * e.g., lock [#3, #0] bb6
+     *
+     * @since 0.990.4
+     */
+    public static class Lock extends BIRTerminator {
+        public final Set<BIRGlobalVariableDcl> globalVars;
+        public final BIRBasicBlock lockedBB;
+
+        public Lock(DiagnosticPos pos, Set<BIRGlobalVariableDcl> globalVars, BIRBasicBlock lockedBB) {
+            super(pos, InstructionKind.LOCK);
+            this.globalVars = globalVars;
+            this.lockedBB = lockedBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * An unlock instruction.
+     * <p>
+     * e.g., unlock [#3, #0] bb8
+     *
+     * @since 0.990.4
+     */
+    public static class Unlock extends BIRTerminator {
+        public final Set<BIRGlobalVariableDcl> globalVars;
+        public final BIRBasicBlock unlockBB;
+
+        public Unlock(DiagnosticPos pos, Set<BIRGlobalVariableDcl> globalVars, BIRBasicBlock unlockBB) {
+            super(pos, InstructionKind.UNLOCK);
+            this.globalVars = globalVars;
+            this.unlockBB = unlockBB;
         }
 
         @Override

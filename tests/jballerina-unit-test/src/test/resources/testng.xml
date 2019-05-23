@@ -33,6 +33,7 @@
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
+            <package name="org.ballerinalang.test.main.function.*"/>
         </packages>
 
         <classes>
@@ -156,6 +157,17 @@
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
             <class name="org.ballerinalang.test.types.constant.MapConstantTest" />
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
+            <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
+                <methods>
+                    <exclude name="testFunctionPointerNative"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.lock.LocksInMainTest">
+                <methods>
+                    <include name="simpleLock"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.IntegerRangeOperatorTest"/>
         </classes>
     </test>
 </suite>
