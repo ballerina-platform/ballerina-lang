@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/cache;
 import ballerina/log;
 import ballerina/runtime;
@@ -57,7 +58,7 @@ public type JWTAuthProviderConfig record {|
 # + jwtAuthProviderConfig - JWT auth provider configurations
 public type JWTAuthProvider object {
 
-    *AuthProvider;
+    *auth:AuthProvider;
 
     public JWTAuthProviderConfig jwtAuthProviderConfig;
 
