@@ -22,10 +22,10 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -53,20 +53,21 @@ public class Strand {
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
         this.wdChannels = new WDChannels();
-        this.blockedOn = new ArrayList<>();
+        this.blockedOn = new CopyOnWriteArrayList();
     }
 
     public Strand(Scheduler scheduler, Strand parent) {
         this.scheduler = scheduler;
         this.parent = parent;
         this.wdChannels = new WDChannels();
-        this.blockedOn = new ArrayList<>();
+        this.blockedOn = new CopyOnWriteArrayList();
     }
 
     public Strand(Scheduler scheduler, Map<String, Object> properties) {
         this.scheduler = scheduler;
         this.globalProps = properties;
         this.wdChannels = new WDChannels();
+        this.blockedOn = new CopyOnWriteArrayList();
     }
 
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {
