@@ -537,6 +537,10 @@ public type FuncBodyParser object {
             kind = BINARY_REF_EQUAL;
         } else if (kindTag == INS_REF_NOT_EQUAL){
             kind = BINARY_REF_NOT_EQUAL;
+        } else if (kindTag == INS_CLOSED_RANGE) {
+            kind = BINARY_CLOSED_RANGE;
+        } else if (kindTag == INS_HALF_OPEN_RANGE) {
+            kind = BINARY_HALF_OPEN_RANGE;
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
             panic err;
