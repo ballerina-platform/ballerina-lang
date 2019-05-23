@@ -43,7 +43,11 @@ public class BalServer {
      * @throws BallerinaTestException if something fails
      */
     public BalServer() throws BallerinaTestException {
-        setUpServerHome();
+        this(System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP));
+    }
+
+    public BalServer(String serverZipFile) throws BallerinaTestException {
+        setUpServerHome(serverZipFile);
         log.info("Server Home " + serverHome);
     }
 
@@ -54,9 +58,7 @@ public class BalServer {
      *
      * @throws BallerinaTestException if setting up the server fails
      */
-    private void setUpServerHome()
-            throws BallerinaTestException {
-        String serverZipFile = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+    private void setUpServerHome(String serverZipFile) throws BallerinaTestException {
 
         int indexOfZip = serverZipFile.lastIndexOf(".zip");
         if (indexOfZip == -1) {
