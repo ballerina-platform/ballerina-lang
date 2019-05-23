@@ -51,13 +51,13 @@ public class RemoveHeader extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-//        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//        String headerName = context.getStringArgument(FIRST_PARAMETER_INDEX);
-//        if (entityStruct.getNativeData(ENTITY_HEADERS) != null) {
-//            HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
-//            httpHeaders.remove(headerName);
-//        }
-//        context.setReturnValues();
+        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        String headerName = context.getStringArgument(FIRST_PARAMETER_INDEX);
+        if (entityStruct.getNativeData(ENTITY_HEADERS) != null) {
+            HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+            httpHeaders.remove(headerName);
+        }
+        context.setReturnValues();
     }
 
     public static void removeHeader(Strand strand, ObjectValue entityObj, String headerName) {

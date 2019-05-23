@@ -24,7 +24,11 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,6 +37,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
  * Get all header names.
@@ -50,27 +55,27 @@ public class GetHeaderNames extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-//        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//        BValueArray bStringArray = new BValueArray(BTypes.typeString);
-//        if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
-//            context.setReturnValues(bStringArray);
-//            return;
-//        }
-//        HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
-//        if (httpHeaders != null && !httpHeaders.isEmpty()) {
-//            int i = 0;
-//            Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-//            for (String headerName : httpHeaders.names()) {
-//                distinctNames.add(headerName);
-//            }
-//            for (String headerName : distinctNames) {
-//                bStringArray.add(i, headerName);
-//                i++;
-//            }
-//            context.setReturnValues(bStringArray);
-//        } else {
-//            context.setReturnValues(bStringArray);
-//        }
+        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        BValueArray bStringArray = new BValueArray(BTypes.typeString);
+        if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
+            context.setReturnValues(bStringArray);
+            return;
+        }
+        HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        if (httpHeaders != null && !httpHeaders.isEmpty()) {
+            int i = 0;
+            Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            for (String headerName : httpHeaders.names()) {
+                distinctNames.add(headerName);
+            }
+            for (String headerName : distinctNames) {
+                bStringArray.add(i, headerName);
+                i++;
+            }
+            context.setReturnValues(bStringArray);
+        } else {
+            context.setReturnValues(bStringArray);
+        }
     }
 
     public static ArrayValue getHeaderNames(Strand strand, ObjectValue entityObj) {

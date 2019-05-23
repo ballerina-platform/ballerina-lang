@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -196,24 +197,22 @@ public class Utils {
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
     @SuppressWarnings("unchecked")
-    public static void encode(BValue input, String charset, boolean isMimeSpecific) {
-        switch (input.getType().getTag()) {
+    public static Object encode(Object input, String charset, boolean isMimeSpecific) {
+        switch (TypeChecker.getType(input).getTag()) {
             case TypeTags.ARRAY_TAG:
-                encodeBlob(((BValueArray) input).getBytes(), isMimeSpecific);
-                break;
+                return encodeBlob(((BValueArray) input).getBytes(), isMimeSpecific);
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
                 //TODO : recheck following casing
                 ObjectValue byteChannel = (ObjectValue) input;
                 if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
-                    encodeByteChannel(byteChannel, isMimeSpecific);
+                    return encodeByteChannel(byteChannel, isMimeSpecific);
                 }
-                break;
+                return Utils.createBase64Error("incompatible object", isMimeSpecific);
             case TypeTags.STRING_TAG:
-                encodeString(input.stringValue(), charset, isMimeSpecific);
-                break;
+                return encodeString(input.toString(), charset, isMimeSpecific);
             default:
-                break;
+                return Utils.createBase64Error("incompatible input", isMimeSpecific);
         }
     }
 
@@ -251,20 +250,17 @@ public class Utils {
      * @param charset        Represent the charset value to be used with string
      * @param isMimeSpecific A boolean indicating whether the decoder should be mime specific or not
      */
-    public static void decode(BValue encodedInput, String charset, boolean isMimeSpecific) {
-        switch (encodedInput.getType().getTag()) {
+    public static Object decode(Object encodedInput, String charset, boolean isMimeSpecific) {
+        switch (TypeChecker.getType(encodedInput).getTag()) {
             case TypeTags.ARRAY_TAG:
-                decodeBlob(((BValueArray) encodedInput).getBytes(), isMimeSpecific);
-                break;
+                return decodeBlob(((BValueArray) encodedInput).getBytes(), isMimeSpecific);
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                decodeByteChannel((ObjectValue) encodedInput, isMimeSpecific);
-                break;
+                return decodeByteChannel((ObjectValue) encodedInput, isMimeSpecific);
             case TypeTags.STRING_TAG:
-                decodeString(encodedInput, charset, isMimeSpecific);
-                break;
+                return decodeString(encodedInput, charset, isMimeSpecific);
             default:
-                break;
+                return Utils.createBase64Error("incompatible input", isMimeSpecific);
         }
     }
 
@@ -346,14 +342,14 @@ public class Utils {
      * @param charset           Represent the charset value to be used with string
      * @param isMimeSpecific    A boolean indicating whether the decoder should be mime specific or not
      */
-    private static Object decodeString(BValue stringToBeDecoded, String charset, boolean isMimeSpecific) {
+    private static Object decodeString(Object stringToBeDecoded, String charset, boolean isMimeSpecific) {
         try {
             byte[] decodedValue;
             if (isMimeSpecific) {
-                decodedValue = Base64.getMimeDecoder().decode(stringToBeDecoded.stringValue()
+                decodedValue = Base64.getMimeDecoder().decode(stringToBeDecoded.toString()
                                                                       .getBytes(StandardCharsets.ISO_8859_1));
             } else {
-                decodedValue = Base64.getDecoder().decode(stringToBeDecoded.stringValue()
+                decodedValue = Base64.getDecoder().decode(stringToBeDecoded.toString()
                                                                   .getBytes(StandardCharsets.ISO_8859_1));
             }
            return new String(decodedValue, charset);

@@ -24,7 +24,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.mime.util.MultipartDataSource;
+import org.ballerinalang.mime.util.MultipartBDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
@@ -34,7 +34,6 @@ import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
 import org.ballerinalang.stdlib.io.utils.Base64Wrapper;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
-import org.ballerinalang.stdlib.mime.Util;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.MultipartUtils;
@@ -53,7 +52,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
 import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FIELD;
@@ -93,9 +91,8 @@ public class MultipartEncoderTest {
         BMap<String, BValue> multipartEntity = getMultipartEntity(result);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        //TODO migrate to jvm values and enable test
-//        MultipartDataSource multipartDataSource = new MultipartDataSource(multipartEntity, multipartDataBoundary);
-//        multipartDataSource.serialize(outputStream);
+        MultipartBDataSource multipartDataSource = new MultipartBDataSource(multipartEntity, multipartDataBoundary);
+        multipartDataSource.serialize(outputStream);
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
@@ -115,9 +112,8 @@ public class MultipartEncoderTest {
         BMap<String, BValue> multipartEntity = getMultipartEntity(result);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        //TODO migrate to jvm values and enable test
-//        MultipartDataSource multipartDataSource = new MultipartDataSource(multipartEntity, multipartDataBoundary);
-//        multipartDataSource.serialize(outputStream);
+        MultipartBDataSource multipartDataSource = new MultipartBDataSource(multipartEntity, multipartDataBoundary);
+        multipartDataSource.serialize(outputStream);
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/new-sub-type; boundary=" +
@@ -137,9 +133,8 @@ public class MultipartEncoderTest {
         BMap<String, BValue> nestedMultipartEntity = getNestedMultipartEntity(result);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        //TODO migrate to jvm values and enable test
-//        MultipartDataSource multipartDataSource = new MultipartDataSource(nestedMultipartEntity, multipartDataBoundary);
-//        multipartDataSource.serialize(outputStream);
+        MultipartBDataSource multipartDataSource = new MultipartBDataSource(nestedMultipartEntity, multipartDataBoundary);
+        multipartDataSource.serialize(outputStream);
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
@@ -173,7 +168,7 @@ public class MultipartEncoderTest {
     public void testContentDispositionForFormData() {
         BMap<String, BValue> bodyPart = getEntityStruct(result);
         BMap<String, BValue> contentDispositionStruct = getContentDispositionStruct(result);
-        Util.setContentDisposition(contentDispositionStruct, bodyPart,
+        MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
                                    "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
         BMap<String, BValue> contentDisposition =
                 (BMap<String, BValue>) bodyPart.get(CONTENT_DISPOSITION_FIELD);

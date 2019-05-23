@@ -54,6 +54,7 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.caching.RequestCacheControlObj;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
@@ -1101,6 +1102,22 @@ public class HttpUtil {
 
     public static String getContentTypeFromTransportMessage(HttpCarbonMessage transportMessage) {
         return transportMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
+    }
+
+    /**
+     * If the given Content-Type header value doesn't have a boundary parameter value, get a new boundary string and
+     * append it to Content-Type and set it to transport message.
+     *
+     * @param transportMessage Represent transport message
+     * @param contentType      Represent the Content-Type header value
+     * @return The boundary string that was extracted from header or the newly generated one
+     */
+    public static String addBBoundaryIfNotExist(HttpCarbonMessage transportMessage, String contentType) {
+        String boundaryString;
+        BString boundaryValue = HeaderUtil.extractBoundaryBParameter(contentType);
+        boundaryString = boundaryValue != null ? boundaryValue.toString() :
+                HttpUtil.addBoundaryParameter(transportMessage, contentType);
+        return boundaryString;
     }
 
     /**

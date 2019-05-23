@@ -33,6 +33,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
@@ -63,9 +64,63 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0_VERSION;
 )
 public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
 
+    private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
+
     @Override
     public void execute(Context context) {
-
+//        BMap<String, BValue> configBStruct =
+//                (BMap<String, BValue>) context.getRefArgument(HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX);
+//        BMap<String, BValue> globalPoolConfig = (BMap<String, BValue>) context
+//                .getRefArgument(HttpConstants.CLIENT_GLOBAL_POOL_INDEX);
+//        Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
+//        String urlString = context.getStringArgument(HttpConstants.CLIENT_ENDPOINT_URL_INDEX);
+//        HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
+//        String scheme;
+//        URL url;
+//        try {
+//            url = new URL(urlString);
+//        } catch (MalformedURLException e) {
+//            throw new BallerinaException("Malformed URL: " + urlString);
+//        }
+//        scheme = url.getProtocol();
+//        Map<String, Object> properties =
+//                HttpConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
+//        SenderConfiguration senderConfiguration =
+//                HttpConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
+//
+//        if (connectionManager.isHTTPTraceLoggerEnabled()) {
+//            senderConfiguration.setHttpTraceLogEnabled(true);
+//        }
+//        senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
+//
+//        String httpVersion = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_HTTP_VERSION).getStringValue();
+//        if (HTTP_2_0_VERSION.equals(httpVersion)) {
+//            BMap<String, BValue> http2Settings = (BMap<String, BValue>) configBStruct.get(HttpConstants.HTTP2_SETTINGS);
+//            boolean http2PriorKnowledge = ((BBoolean) http2Settings.get(HTTP2_PRIOR_KNOWLEDGE)).booleanValue();
+//            senderConfiguration.setForceHttp2(http2PriorKnowledge);
+//        }
+//
+//        populateSenderConfigurations(senderConfiguration, clientEndpointConfig);
+//        ConnectionManager poolManager;
+//        BMap<String, BValue> userDefinedPoolConfig = (BMap<String, BValue>) configBStruct.get(
+//                HttpConstants.USER_DEFINED_POOL_CONFIG);
+//
+//        if (userDefinedPoolConfig == null) {
+//            poolManager = getConnectionManager(globalPoolConfig);
+//        } else {
+//            poolManager = getConnectionManager(userDefinedPoolConfig);
+//        }
+//
+//        HttpClientConnector httpClientConnector = httpConnectorFactory
+//                .createHttpClientConnector(properties, senderConfiguration, poolManager);
+//        BMap<String, BValue> httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
+//                                                                              HTTP_PACKAGE_PATH,
+//                                                                              HTTP_CLIENT, urlString,
+//                                                                              clientEndpointConfig);
+//        httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
+//        httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
+//        configBStruct.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
+//        context.setReturnValues((httpClient));
     }
 
     @SuppressWarnings("unchecked")
