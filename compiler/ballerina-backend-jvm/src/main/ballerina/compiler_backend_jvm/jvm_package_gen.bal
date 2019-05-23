@@ -216,6 +216,7 @@ function generateStaticInitializer(bir:GlobalVariableDcl?[] globalVars, jvm:Clas
     }
 
     mv.visitInsn(RETURN);
+    mv.visitMaxs(0, 0);
     mv.visitEnd();
 }
 
