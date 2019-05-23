@@ -977,6 +977,27 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
+
+            <!-- ballerina jwt -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jwt</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jwt</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jwt</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
             <!-- End STD lib dependencies -->
 
             <dependency>
@@ -1835,6 +1856,7 @@
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
+                <module>stdlib/jwt</module>
 
                 <module>misc/lib-creator</module>
 
@@ -1933,6 +1955,7 @@
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
+                <module>stdlib/jwt</module>
 
                 <module>misc/lib-creator</module>
 
@@ -2025,6 +2048,7 @@
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
+                <module>stdlib/jwt</module>
 
                 <module>misc/lib-creator</module>
 

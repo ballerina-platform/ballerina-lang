@@ -250,6 +250,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jwt</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>testerina-core</artifactId>
         </dependency>
         <dependency>
@@ -456,6 +462,7 @@
                                 ballerina-transactions,
                                 ballerina-utils,
                                 ballerina-websub,
+                                ballerina-jwt,
 
                                 <!-- other artifacts -->
                                 ballerina,
@@ -679,6 +686,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/testerina-core-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-jwt-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                             </resources>
