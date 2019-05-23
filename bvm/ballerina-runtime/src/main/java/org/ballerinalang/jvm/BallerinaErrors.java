@@ -55,23 +55,23 @@ public class BallerinaErrors {
     }
 
     public static ErrorValue createConversionError(Object inputValue, BType targetType) {
-        return createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
-                             org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
-                                     .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
-                                                              .INCOMPATIBLE_CONVERT_OPERATION,
-                                                      TypeChecker.getType(inputValue), targetType));
+        return createError(BallerinaErrorReasons.CONVERSION_ERROR,
+                           BLangExceptionHelper
+                                   .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
+                                                            .INCOMPATIBLE_CONVERT_OPERATION,
+                                                    TypeChecker.getType(inputValue), targetType));
     }
 
     static ErrorValue createTypeCastError(Object sourceVal, BType targetType) {
-        throw new ErrorValue(BallerinaErrorReasons.TYPE_CAST_ERROR,
-                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,
-                                                                  TypeChecker.getType(sourceVal), targetType));
+        throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
+                          BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,
+                                                               TypeChecker.getType(sourceVal), targetType));
     }
 
     static ErrorValue createNumericConversionError(Object inputValue, BType targetType) {
-        throw new ErrorValue(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                             BLangExceptionHelper.getErrorMessage(
-                                     RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                     TypeChecker.getType(inputValue), inputValue, targetType));
+        throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                          BLangExceptionHelper.getErrorMessage(
+                                  RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                                  TypeChecker.getType(inputValue), inputValue, targetType));
     }
 }

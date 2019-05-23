@@ -55,12 +55,6 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
     } else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
         generateXMLToAttributesMap(mv, sourceType);
         return;
-    } else if (targetType is bir:BTableType) {
-        checkCast(mv, targetType);
-        return;
-    } else if (targetType is bir:BStreamType) {
-        checkCast(mv, targetType);
-        return;
     } else if (targetType is bir:BFiniteType) {
         generateCheckCastToFiniteType(mv, sourceType, targetType);
         return;
