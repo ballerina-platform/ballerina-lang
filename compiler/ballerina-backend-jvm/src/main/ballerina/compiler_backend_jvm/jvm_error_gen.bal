@@ -60,10 +60,8 @@ type ErrorHandlerGenerator object {
     function printStackTraceFromFutureValue(jvm:MethodVisitor mv) {
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand",
-            "Lorg/ballerinalang/jvm/Strand;");
-        mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "scheduler",
-            "Lorg/ballerinalang/jvm/Scheduler;");
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
+        mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER)); 
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
         jvm:Label labelIf = new;
