@@ -2446,6 +2446,7 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.error(annotAccessExpr.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
                             annotAccessExpr.annotationName.getValue());
         } else {
+            annotAccessExpr.annotationSymbol = (BAnnotationSymbol) symbol;
             BType annotType = ((BAnnotationSymbol) symbol).attachedType == null ? symTable.trueType :
                     ((BAnnotationSymbol) symbol).attachedType.type;
             actualType = BUnionType.create(null, annotType, symTable.nilType);

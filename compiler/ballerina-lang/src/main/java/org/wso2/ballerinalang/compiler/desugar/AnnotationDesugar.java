@@ -76,7 +76,7 @@ import java.util.stream.Collectors;
  */
 public class AnnotationDesugar {
 
-    private static final String ANNOTATION_DATA = "$annotation_data";
+    public static final String ANNOTATION_DATA = "$annotation_data";
     private static final String ANNOT_FUNC = "$annot_func$";
     private static final String LOCAL_ANNOT_MAP = "$local_annot_map$";
     private static final String DOT = ".";

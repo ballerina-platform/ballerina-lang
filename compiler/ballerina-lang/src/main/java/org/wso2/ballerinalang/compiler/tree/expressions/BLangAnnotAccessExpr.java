@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.AnnotAccessNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -31,11 +32,11 @@ public class BLangAnnotAccessExpr extends BLangAccessExpression implements Annot
 
     public BLangIdentifier pkgAlias;
     public BLangIdentifier annotationName;
+    public BAnnotationSymbol annotationSymbol;
 
     @Override
     public String toString() {
-        return String.valueOf(expr) + ".@" +
-                (pkgAlias.toString().isEmpty() ? "" :  pkgAlias.toString() + ":" + annotationName);
+        return String.valueOf(expr) + ".@" + annotationSymbol.bvmAlias();
     }
 
     @Override

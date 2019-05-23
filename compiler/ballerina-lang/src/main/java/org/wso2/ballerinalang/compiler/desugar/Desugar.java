@@ -3117,8 +3117,7 @@ public class Desugar extends BLangNodeVisitor {
         binaryExpr.opKind = OperatorKind.ANNOT_ACCESS;
         binaryExpr.lhsExpr = annotAccessExpr.expr;
         binaryExpr.rhsExpr = ASTBuilderUtil.createLiteral(annotAccessExpr.pkgAlias.pos, symTable.stringType,
-                                                          annotAccessExpr.pkgAlias.value + ":" +
-                                                                  annotAccessExpr.annotationName.value);
+                                                          annotAccessExpr.annotationSymbol.bvmAlias());
         binaryExpr.type = annotAccessExpr.type;
         binaryExpr.opSymbol = new BOperatorSymbol(names.fromString(OperatorKind.ANNOT_ACCESS.value()), null,
                                                   new BInvokableType(Lists.of(binaryExpr.lhsExpr.type,
