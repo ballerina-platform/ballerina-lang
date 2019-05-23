@@ -36,6 +36,8 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
+import static org.ballerinalang.net.http.HttpConstants.SERVER_NAME;
+
 /**
  * Test cases for ballerina/http.ServiceEndpoint.
  */
@@ -59,7 +61,6 @@ public class ServiceEndpointTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200);
-
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("protocol").stringValue(), protocolValue);
     }
@@ -86,5 +87,14 @@ public class ServiceEndpointTest {
 
         Assert.assertEquals(host, expectedHost, "Host does not populated correctly.");
         Assert.assertEquals(port, expectedPort, "Port does not populated correctly.");
+    }
+
+    @Test(description = "Test the header server name value of ServiceEndpoint struct within a service")
+    public void testGetServerHeader() throws UnknownHostException {
+        String path = "/hello/protocol";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
+        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200);
+        Assert.assertEquals(response.getHeader(SERVER_NAME), "ballerina");
     }
 }

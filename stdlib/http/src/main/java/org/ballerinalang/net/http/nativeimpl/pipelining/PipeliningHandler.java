@@ -29,6 +29,7 @@ import org.wso2.transport.http.netty.message.HttpPipeliningFuture;
 
 import java.util.Queue;
 
+import static org.ballerinalang.net.http.HttpConstants.SERVER_NAME;
 import static org.ballerinalang.net.http.HttpUtil.sendOutboundResponse;
 import static org.ballerinalang.net.http.nativeimpl.connection.ResponseWriter.sendResponseRobust;
 
@@ -52,6 +53,9 @@ public class PipeliningHandler {
     public static HttpResponseFuture sendPipelinedResponse(HttpCarbonMessage requestMsg,
                                                            HttpCarbonMessage responseMsg) {
         HttpResponseFuture responseFuture;
+        if (requestMsg.getHeaders().contains(SERVER_NAME)) {
+            responseMsg.setHeader(SERVER_NAME, requestMsg.getHeader(SERVER_NAME));
+        }
         try {
             responseMsg.setPipeliningEnabled(requestMsg.isPipeliningEnabled());
             if (pipeliningRequired(requestMsg)) {

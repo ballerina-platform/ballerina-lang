@@ -154,6 +154,7 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.SERVER_NAME;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.SSL_ENABLED_PROTOCOLS;
@@ -345,6 +346,7 @@ public class HttpUtil {
 
         HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
+        HttpUtil.setHeaderToResponseMsg(inboundRequestMsg, outboundResponseMsg);
         HttpUtil.setCompressionHeaders(context, inboundRequestMsg, outboundResponseMsg);
         HttpUtil.setChunkingHeader(context, outboundResponseMsg);
     }
@@ -885,6 +887,23 @@ public class HttpUtil {
         BMap<String, BValue> entityStruct = (BMap<String, BValue>) struct
                 .get(isRequestStruct(struct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
         return (entityStruct != null && EntityBodyHandler.getMessageDataSource(entityStruct) != null);
+    }
+
+    /**
+     * Set the server name in the output response header.
+     *
+     * @param requestMsg  request message.
+     * @param outboundResponseMsg  outbound response message.
+     * @return outbound response message with a header server name.
+     */
+    private static void setHeaderToResponseMsg(HttpCarbonMessage requestMsg, HttpCarbonMessage outboundResponseMsg) {
+        if (requestMsg.getHeaders().contains(SERVER_NAME)) {
+            if ((outboundResponseMsg.getHeaders().contains(SERVER_NAME) &&
+                    outboundResponseMsg.getHeader(SERVER_NAME).isEmpty()) ||
+                    !outboundResponseMsg.getHeaders().contains(SERVER_NAME)) {
+                outboundResponseMsg.setHeader(SERVER_NAME, requestMsg.getHeader(SERVER_NAME));
+            }
+        }
     }
 
     private static void setCompressionHeaders(Context context, HttpCarbonMessage requestMsg, HttpCarbonMessage
@@ -1580,7 +1599,7 @@ public class HttpUtil {
         }
     }
 
-    private static String getServerName() {
+    public static String getServerName() {
         String userAgent;
         String version = System.getProperty(BALLERINA_VERSION);
         if (version != null) {

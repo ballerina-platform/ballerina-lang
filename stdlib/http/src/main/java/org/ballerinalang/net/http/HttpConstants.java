@@ -313,6 +313,7 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_PIPELINING = "pipelining";
     public static final String ENABLE_PIPELINING = "enable";
     public static final String PIPELINING_REQUEST_LIMIT = "maxPipelinedRequests";
+    public static final String SERVER_NAME = "server";
 
     public static final String ENDPOINT_CONFIG_SECURE_SOCKET = "secureSocket";
 
