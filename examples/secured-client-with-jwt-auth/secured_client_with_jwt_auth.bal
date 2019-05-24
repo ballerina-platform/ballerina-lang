@@ -1,5 +1,5 @@
-import ballerina/auth;
 import ballerina/http;
+import ballerina/jwt;
 import ballerina/log;
 import ballerina/runtime;
 
@@ -39,7 +39,7 @@ public function main() {
 }
 
 // Create a JWT authentication provider with the relevant configurations.
-auth:JWTAuthProvider jwtAuthProvider = new({
+jwt:JWTAuthProvider jwtAuthProvider = new({
     issuer: "ballerina",
     audience: ["ballerina.io"],
     certificateAlias: "ballerina",
