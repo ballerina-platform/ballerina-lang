@@ -29,6 +29,9 @@ byte byteType = 43;
 // expected: float
 float floatType = 1.2;
 
+// expected: decimal
+decimal decimalType = 10.2;
+
 // expected: boolean
 boolean booleanType = false;
 

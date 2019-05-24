@@ -120,7 +120,7 @@ public type BirEmitter object {
             VariableDcl varDecl = getVariableDcl(v);
             self.typeEmitter.emitType(varDecl.typeValue, tabs = tabs + "\t");
             print(" ");
-            if (varDecl.name.value == "%0") {
+            if (varDecl.kind == VAR_KIND_RETURN) {
                 print("%ret");
             } else {
                 print(varDecl.name.value);
@@ -379,6 +379,20 @@ type TerminalEmitter object {
                 i = i + 1;
             }
             println(";");
+        } else if (term is Flush) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            int i = 0;
+            foreach var detail in term.workerChannels {
+                if (i != 0) {
+                    print(",");
+                }
+                print(detail.name);
+                i += 1;
+            }
+            println(";");
         } else if (term is WorkerReceive) {
             print(tabs);
             self.opEmitter.emitOp(term.lhsOp);
@@ -487,6 +501,8 @@ type TypeEmitter object {
             self.emitFutureType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
             print("()");
+        } else if (typeVal is BFiniteType) {
+            print(typeVal.name.value);
         } else if (typeVal is BErrorType) {
             self.emitErrorType(typeVal, tabs);
         }
@@ -504,7 +520,7 @@ type TypeEmitter object {
             println(" ", recField.name.value, ";");
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
-        print("...");
+        println("...", ";");
         print(tabs, "}");
     }
 
@@ -593,7 +609,7 @@ type TypeEmitter object {
 
 type PositionEmitter object {
     function emitPosition(DiagnosticPos pos) {
-        if (pos.sLine != -1) {
+        if (pos.sLine != 2147483648) {
             self.appendPos(pos.sLine);
             print("-");
             self.appendPos(pos.eLine);

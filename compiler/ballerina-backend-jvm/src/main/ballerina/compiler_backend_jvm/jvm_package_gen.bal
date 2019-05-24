@@ -29,6 +29,8 @@ map<string> globalVarClassNames = {};
 
 map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
 
+string currentClass = "";
+
 function lookupFullQualifiedClassName(string key) returns string {
     if (birFunctionMap.hasKey(key)) {
         BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
@@ -90,6 +92,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     generateFrameClasses(module, pkgEntries);
     foreach var (moduleClass, v) in jvmClassMap {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+        currentClass = moduleClass;
         if (moduleClass == typeOwnerClass) {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
             generateDefaultConstructor(cw, VALUE_CREATOR);
@@ -99,8 +102,10 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
             foreach var globalVar in module.globalVars {
                 if (globalVar is bir:GlobalVariableDcl) {
                     generatePackageVariable(globalVar, cw);
+                    generateLockForVariable(globalVar, cw);
                 }
             }
+            generateStaticInitializer(module.globalVars, cw, moduleClass);
         } else {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
             generateDefaultConstructor(cw, OBJECT);
@@ -144,6 +149,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     }
     foreach var (moduleClass, v) in jvmClassMap {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+        currentClass = moduleClass;
         if (moduleClass == typeOwnerClass) {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
             generateDefaultConstructor(cw, VALUE_CREATOR);
@@ -153,8 +159,10 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
             foreach var globalVar in module.globalVars {
                 if (globalVar is bir:GlobalVariableDcl) {
                     generatePackageVariable(globalVar, cw);
+                    generateLockForVariable(globalVar, cw);
                 }
             }
+            generateStaticInitializer(module.globalVars, cw, moduleClass);
             if (mainFunc is bir:Function) {
                 generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
                 generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
@@ -188,6 +196,39 @@ function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWrite
     generateField(cw, bType, varName, true);
 }
 
+function generateLockForVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWriter cw) {
+    string lockClass = "Ljava/lang/Object;";
+    jvm:FieldVisitor fv;
+    fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, computeLockName(globalVar), lockClass);
+    fv.visitEnd();
+}
+
+function generateStaticInitializer(bir:GlobalVariableDcl?[] globalVars, jvm:ClassWriter cw, string className) {
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", (), ());
+
+    foreach var globalVar in globalVars {
+        if (globalVar is bir:GlobalVariableDcl) {
+            mv.visitTypeInsn(NEW, "java/lang/Object");
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+            mv.visitFieldInsn(PUTSTATIC, className, computeLockName(globalVar), "Ljava/lang/Object;");
+        }
+    }
+
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+}
+
+function computeLockName(bir:GlobalVariableDcl globalVar) returns string {
+    string varName = globalVar.name.value;
+    return computeLockNameFromString(varName);
+}
+
+function computeLockNameFromString(string varName) returns string {
+    return "$lock" + varName;
+}
+
 function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) returns bir:Package {
     bir:ModuleID moduleId = {org: importModule.modOrg.value, name: importModule.modName.value,
                                 modVersion: importModule.modVersion.value};
@@ -195,17 +236,29 @@ function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) 
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
-    if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        return orgName + "/" + cleanupName(moduleName) + "/" + cleanupName(sourceFileName);
+    string className = cleanupName(sourceFileName);
+    if (!moduleName.equalsIgnoreCase(".")) {
+        className = cleanupName(moduleName) + "/" + className;
     }
-    return cleanupName(sourceFileName);
+
+    if (!orgName.equalsIgnoreCase("$anon")) {
+        className = cleanupName(orgName) + "/" + className;
+    }
+
+    return className;
 }
 
 function getPackageName(string orgName, string moduleName) returns string {
-    if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        return orgName + "/" + cleanupName(moduleName) + "/";
+    string packageName = "";
+    if (!moduleName.equalsIgnoreCase(".")) {
+        packageName = cleanupName(moduleName) + "/";
     }
-    return "";
+
+    if (!orgName.equalsIgnoreCase("$anon")) {
+        packageName = cleanupName(orgName) + "/" + packageName;
+    }
+
+    return packageName;
 }
 
 function splitPkgName(string key) returns (string, string) {
@@ -295,6 +348,53 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             birFunctionMap[pkgName + functionName] = functionWrapper;
         }
     }
+
+    // link typedef - object attached native functions
+    bir:TypeDef?[] typeDefs = module.typeDefs;
+
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        bir:BType bType = typeDef.typeValue;
+
+        if (bType is bir:BObjectType && !bType.isAbstract) {
+            bir:Function?[] attachedFuncs = getFunctions(typeDef.attachedFuncs);
+            foreach var func in attachedFuncs {
+
+                // link the bir function for lookup
+                bir:Function currentFunc = getFunction(func);
+                string functionName = currentFunc.name.value;
+                string lookupKey = bType.name.value + "." + functionName;
+
+                if (!isExternFunc(currentFunc)) {
+                    continue;
+                }
+
+                var result = jvm:lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
+                if (result is string) {
+                    bir:BInvokableType functionTypeDesc = currentFunc.typeValue;
+                    bir:BType? attachedType = bType;
+                    string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
+                                                                attachedType = attachedType);
+
+                    BIRFunctionWrapper functionWrapper = {
+                        orgName : orgName,
+                        moduleName : moduleName,
+                        versionValue : versionValue,
+                        func : currentFunc,
+                        fullQualifiedClassName : result,
+                        jvmMethodDescription : jvmMethodDescription
+                    };
+
+                    birFunctionMap[pkgName + lookupKey] = functionWrapper;
+                } else {
+                    error err = error("cannot find full qualified class name for extern function : " + pkgName +
+                                        lookupKey);
+                    panic err;
+                }
+            }
+        }
+    }
+
     return jvmClassMap;
 }
 

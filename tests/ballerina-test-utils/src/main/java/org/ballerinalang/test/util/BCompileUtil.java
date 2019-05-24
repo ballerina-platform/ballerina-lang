@@ -20,14 +20,15 @@ import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.compiler.backend.jvm.JVMCodeGen;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.spi.CompilerBackendCodeGenerator;
 import org.ballerinalang.test.util.jvm.JBallerinaInMemoryClassLoader;
+import org.ballerinalang.util.BackendCodeGeneratorProvider;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -55,6 +56,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -559,10 +561,16 @@ public class BCompileUtil {
         }
 
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
-        byte[] compiledJar = JVMCodeGen.generateJarBinary(false, bLangPackage, context, packageName);
+        CompilerBackendCodeGenerator jvmCodeGen =  BackendCodeGeneratorProvider.getInstance().getBackendCodeGenerator();
+        Optional result = jvmCodeGen.generate(false, bLangPackage, context, packageName);
+        if (!result.isPresent()) {
+            throw new RuntimeException("Compiled binary jar is not found");
+        }
+
+        byte[] compiledJar = (byte[]) result.get();
         JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
         String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                                                               packageName, MODULE_INIT_CLASS_NAME);
+                bLangPackage.packageID.name.value, MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
         String funcName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).initFunction);
         try {

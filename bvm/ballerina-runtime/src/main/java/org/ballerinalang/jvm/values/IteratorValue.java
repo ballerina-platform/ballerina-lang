@@ -17,10 +17,12 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,12 +40,18 @@ public interface IteratorValue extends RefValue, Iterator {
     }
 
     @Override
-    public default void stamp(BType type) {
-        // do nothing
+    default String stringValue() {
+        return null;
     }
+    
 
     @Override
     public default Object copy(Map<Object, Object> refs) {
         return null;
+    }
+
+    @Override
+    default void stamp(BType type, List<TypeValuePair> unresolvedValues) {
+
     }
 }

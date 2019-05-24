@@ -227,6 +227,7 @@ public type TargetService record {|
 # + cache - HTTP caching related configurations
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication related configurations
+# + http2Settings - Configurations related to HTTP/2 protocol
 public type ClientEndpointConfig record {|
     CircuitBreakerConfig? circuitBreaker = ();
     int timeoutMillis = 60000;
@@ -242,11 +243,18 @@ public type ClientEndpointConfig record {|
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
     OutboundAuthConfig? auth = ();
+    Http2Settings http2Settings = {};
 |};
-
 
 function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
                     returns Client = external;
+
+# Provides settings related to HTTP/2 protocol.
+#
+# + http2PriorKnowledge - Configuration to enable HTTP/2 prior knowledge
+public type Http2Settings record {|
+    boolean http2PriorKnowledge = false;
+|};
 
 # Provides configurations for controlling the retrying behavior in failure scenarios.
 #

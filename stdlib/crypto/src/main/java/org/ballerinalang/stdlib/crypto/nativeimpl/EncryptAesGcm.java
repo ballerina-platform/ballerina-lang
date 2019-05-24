@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -50,5 +52,17 @@ public class EncryptAesGcm extends BlockingNativeCallableUnit {
         BValue tagSize = context.getNullableRefArgument(4);
         CryptoUtils.aesEncryptDecrypt(context, CryptoUtils.CipherMode.ENCRYPT, Constants.GCM, padding, key, input, iv,
                 ((BInteger) tagSize).intValue());
+    }
+
+    public static Object encryptAesGcm(Strand strand, Object padding, ArrayValue inputValue, ArrayValue keyValue,
+                                       ArrayValue ivValue, Object tagSize) {
+        byte[] input = inputValue.getBytes();
+        byte[] key = keyValue.getBytes();
+        byte[] iv = null;
+        if (ivValue != null) {
+            iv = ivValue.getBytes();
+        }
+        return CryptoUtils.aesEncryptDecrypt(CryptoUtils.CipherMode.ENCRYPT, Constants.GCM, padding.toString(), key,
+                                             input, iv, ((Long) tagSize).intValue());
     }
 }

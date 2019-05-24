@@ -1344,8 +1344,10 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        final BLangExpression assignmentExpr = createIndexBasedAccessExpr(simpleVarRef.type, simpleVarRef.pos,
+        BLangExpression assignmentExpr = createIndexBasedAccessExpr(simpleVarRef.type, simpleVarRef.pos,
                 indexExpr, tupleVarSymbol, parentArrayAccessExpr);
+
+        assignmentExpr = addConversionExprIfRequired(assignmentExpr, simpleVarRef.type);
 
         final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos,
                 parentBlockStmt);
@@ -3515,7 +3517,7 @@ public class Desugar extends BLangNodeVisitor {
                 break;
             case STAMP:
                 result = visitTypeConversionInvocation(iExpr.expr.pos, iExpr.builtInMethod, iExpr.expr,
-                                                       iExpr.requiredArgs.get(0));
+                                                       iExpr.requiredArgs.get(0), iExpr.type);
                 break;
             case CONVERT:
                 result = visitConvertInvocation(iExpr);
@@ -3591,7 +3593,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             // Handle conversions which can be done with clone.stamp.
             return visitTypeConversionInvocation(iExpr.expr.pos, iExpr.builtInMethod, iExpr.expr,
-                                                 iExpr.requiredArgs.get(0));
+                                                 iExpr.requiredArgs.get(0), iExpr.type);
         }
         // Handle simple value conversion.
         if (iExpr.symbol instanceof BCastOperatorSymbol) {
@@ -3607,11 +3609,7 @@ public class Desugar extends BLangNodeVisitor {
                                                    symTable.anydataType);
         }
         BLangExpression invocationExpr = visitTypeConversionInvocation(iExpr.expr.pos, SIMPLE_VALUE_CONVERT,
-                                                                       iExpr.expr, inputTypeCastExpr);
-        if (safe) {
-            return createTypeCastExpr(invocationExpr, targetType,
-                                      Symbols.createUnboxValueTypeOpSymbol(symTable.anydataType, targetType));
-        }
+                                                                       iExpr.expr, inputTypeCastExpr, iExpr.type);
         return invocationExpr;
     }
 
@@ -3623,8 +3621,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression visitTypeConversionInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
-                                                          BLangExpression typeDesc, BLangExpression valExpr) {
-        return visitUtilMethodInvocation(pos, builtInMethod, Lists.of(typeDesc, valExpr));
+                                                          BLangExpression typeDesc, BLangExpression valExpr,
+                                                          BType lhType) {
+        return addConversionExprIfRequired(visitUtilMethodInvocation(pos, builtInMethod, Lists.of(typeDesc, valExpr)),
+                                           lhType);
     }
 
     private BLangExpression visitLengthInvocation(BLangInvocation iExpr) {
@@ -3633,8 +3633,11 @@ public class Desugar extends BLangNodeVisitor {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) symResolver
                     .lookupSymbol(symTable.pkgEnvMap.get(symTable.builtInPackageSymbol),
                                   names.fromString(BLangBuiltInMethod.STRING_LENGTH.getName()), SymTag.FUNCTION);
-            return ASTBuilderUtil.createInvocationExprMethod(iExpr.pos, bInvokableSymbol, Lists.of(iExpr.expr),
-                                                             new ArrayList<>(), new ArrayList<>(), symResolver);
+            BLangInvocation builtInLengthMethod = ASTBuilderUtil
+                    .createInvocationExprMethod(iExpr.pos, bInvokableSymbol, new ArrayList<>(),
+                                                new ArrayList<>(), new ArrayList<>(), symResolver);
+            builtInLengthMethod.expr = iExpr.expr;
+            return rewrite(builtInLengthMethod, env);
         }
         return visitUtilMethodInvocation(iExpr.pos, BLangBuiltInMethod.LENGTH, Lists.of(iExpr.expr));
     }

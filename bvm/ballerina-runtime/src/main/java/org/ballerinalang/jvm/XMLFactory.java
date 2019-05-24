@@ -233,7 +233,7 @@ public class XMLFactory {
      * @return Concatenated XML sequence
      */
     public static XMLValue<?> concatenate(XMLValue<?> firstSeq, XMLValue<?> secondSeq) {
-        ArrayValue concatSeq = new ArrayValue();
+        ArrayValue concatSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         int j = 0;
 
         // Load the content fully before concat the two
@@ -428,11 +428,11 @@ public class XMLFactory {
     }
 
     private static boolean isXmlSequenceEqual(XMLSequence xmlSequenceOne, XMLSequence xmlSequenceTwo) {
-        if (xmlSequenceOne.length() != xmlSequenceTwo.length()) {
+        if (xmlSequenceOne.size() != xmlSequenceTwo.size()) {
             return false;
         }
 
-        for (int i = 0; i < xmlSequenceOne.length(); i++) {
+        for (int i = 0; i < xmlSequenceOne.size(); i++) {
             if (!isEqual((XMLValue<?>) xmlSequenceOne.value().getRefValue(i),
                     (XMLValue<?>) xmlSequenceTwo.value().getRefValue(i))) {
                 return false;

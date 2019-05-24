@@ -35,16 +35,6 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(startLabel);
     }
 
-    function generateCatchInsForMain(jvm:Label endLabel, jvm:Label handlerLabel) {
-        self.mv.visitLabel(endLabel);
-        jvm:Label jumpLabel = new;
-        self.mv.visitJumpInsn(GOTO, jumpLabel);
-        self.mv.visitLabel(handlerLabel);
-        self.mv.visitMethodInsn(INVOKESTATIC, BALLERINA_ERRORS, PRINT_STACKTRACE_ON_MAIN_METHOD_ERROR,
-            io:sprintf("(L%s;)V", ERROR_VALUE), false);
-        self.mv.visitLabel(jumpLabel);
-    }
-
     function generateTryInsForTrap(bir:ErrorEntry currentEE, jvm:Label endLabel, jvm:Label handlerLabel,
                                    jvm:Label jumpLabel) {
         jvm:Label startLabel = new;
@@ -65,6 +55,21 @@ type ErrorHandlerGenerator object {
         int lhsIndex = self.getJVMIndexOfVarRef(<bir:VariableDcl>currentEE.errorOp.variableDcl);
         self.mv.visitVarInsn(ASTORE, lhsIndex);
         self.mv.visitLabel(jumpLabel);
+    }
+
+    function printStackTraceFromFutureValue(jvm:MethodVisitor mv) {
+        mv.visitInsn(DUP);
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
+        mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER)); 
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
+        jvm:Label labelIf = new;
+        mv.visitJumpInsn(IFNULL, labelIf);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
+        mv.visitMethodInsn(INVOKEVIRTUAL, THROWABLE, PRINT_STACK_TRACE_METHOD, "()V", false);
+        mv.visitInsn(RETURN);
+        mv.visitLabel(labelIf);
     }
 
     function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {

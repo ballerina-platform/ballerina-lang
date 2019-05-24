@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Terminators connects basic blocks together.
@@ -215,6 +216,52 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     }
 
     /**
+     * A lock instruction.
+     * <p>
+     * e.g., lock [#3, #0] bb6
+     *
+     * @since 0.990.4
+     */
+    public static class Lock extends BIRTerminator {
+        public final Set<BIRGlobalVariableDcl> globalVars;
+        public final BIRBasicBlock lockedBB;
+
+        public Lock(DiagnosticPos pos, Set<BIRGlobalVariableDcl> globalVars, BIRBasicBlock lockedBB) {
+            super(pos, InstructionKind.LOCK);
+            this.globalVars = globalVars;
+            this.lockedBB = lockedBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * An unlock instruction.
+     * <p>
+     * e.g., unlock [#3, #0] bb8
+     *
+     * @since 0.990.4
+     */
+    public static class Unlock extends BIRTerminator {
+        public final Set<BIRGlobalVariableDcl> globalVars;
+        public final BIRBasicBlock unlockBB;
+
+        public Unlock(DiagnosticPos pos, Set<BIRGlobalVariableDcl> globalVars, BIRBasicBlock unlockBB) {
+            super(pos, InstructionKind.UNLOCK);
+            this.globalVars = globalVars;
+            this.unlockBB = unlockBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * A panic statement.
      * <p>
      * panic error
@@ -251,6 +298,31 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
             super(pos, InstructionKind.WAIT);
             this.exprList = exprList;
             this.lhsOp = lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A flush instruction.
+     * <p>
+     * e.g., %5 = flush w1,w2;
+     *
+     * @since 0.995.0
+     */
+    public static class Flush extends BIRTerminator {
+        public ChannelDetails[] channels;
+        public BIROperand lhsOp;
+        public BIRBasicBlock thenBB;
+
+        public Flush(DiagnosticPos pos, ChannelDetails[] channels, BIROperand lhsOp, BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.FLUSH);
+            this.channels = channels;
+            this.lhsOp = lhsOp;
+            this.thenBB = thenBB;
         }
 
         @Override
