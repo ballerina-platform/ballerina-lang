@@ -170,6 +170,7 @@ public type NotOperatorProcessor object {
 
     public function setStateMachine(StateMachine stateMachine) {
         self.stateMachine = stateMachine;
+        stateMachine.register(self);
         AbstractPatternProcessor? processor = self.processor;
         if (processor is AbstractPatternProcessor) {
             processor.setStateMachine(stateMachine);
@@ -201,6 +202,10 @@ public type NotOperatorProcessor object {
             pProcessor.evict(stateEvent, processorAlias);
             io:println("NotOperatorProcessor:evict:194 -> ", stateEvent, "|", processorAlias);
         }
+    }
+
+    public function remove(StreamEvent streamEvent) {
+        // do nothing.
     }
 
     public function setPreviousProcessor(AbstractOperatorProcessor processor) {

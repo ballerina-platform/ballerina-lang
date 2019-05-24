@@ -51,17 +51,18 @@ public type AndOperatorProcessor object {
             if (lProcessor is AbstractPatternProcessor) {
                 if (self.rhsPartialStates.length() > 0) {
                     // foreach rhs partial state, copy event data and process in lhsProcessor.
-                    foreach var (id, partialEvt) in self.rhsPartialStates {
-                        StreamEvent clone = partialEvt.copy();
-                        clone.addData(event.cloneData());
+                    string[] evtIds = self.rhsPartialStates.keys().clone();
+                    foreach string id in evtIds {
+                        StreamEvent partialEvt = <StreamEvent>self.rhsPartialStates[id];
+                        partialEvt.addData(event.cloneData());
                         // at the leaf nodes (operand processor), it'll take current events'
                         // stream name into consideration. Therefore, we have to set that.
-                        clone.streamName = event.streamName;
-                        io:println("AndOperatorProcessor:process:57 -> ", clone, "|", processorAlias);
-                        (tmpPromote, tmpToNext) = lProcessor.process(clone, self.lhsAlias);
+                        partialEvt.streamName = event.streamName;
+                        io:println("AndOperatorProcessor:process:57 -> ", partialEvt, "|", processorAlias);
+                        (tmpPromote, tmpToNext) = lProcessor.process(partialEvt, self.lhsAlias);
                         promote = promote || tmpPromote;
                         toNext = toNext || tmpToNext;
-                        io:println("AndOperatorProcessor:process:61 -> ", clone, "|", processorAlias);
+                        io:println("AndOperatorProcessor:process:61 -> ", partialEvt, "|", processorAlias);
                     }
                 } else {
                     io:println("AndOperatorProcessor:process:64 -> ", event, "|", processorAlias);
@@ -78,17 +79,18 @@ public type AndOperatorProcessor object {
                 if (rProcessor is AbstractPatternProcessor) {
                     if (self.lhsPartialStates.length() > 0) {
                         // foreach lhs partial state, copy event data and process in rhsProcessor.
-                        foreach var (id, partialEvt) in self.lhsPartialStates {
-                            StreamEvent clone = partialEvt.copy();
-                            clone.addData(event.cloneData());
+                        string[] evtIds = self.lhsPartialStates.keys().clone();
+                        foreach string id in evtIds {
+                            StreamEvent partialEvt = <StreamEvent>self.lhsPartialStates[id];
+                            partialEvt.addData(event.cloneData());
                             // at the leaf nodes (operand processor), it'll take current events'
                             // stream name into consideration. Therefore, we have to set that.
-                            clone.streamName = event.streamName;
-                            io:println("AndOperatorProcessor:process:84 -> ", clone, "|", processorAlias);
-                            (tmpPromote, tmpToNext) = rProcessor.process(clone, self.rhsAlias);
+                            partialEvt.streamName = event.streamName;
+                            io:println("AndOperatorProcessor:process:84 -> ", partialEvt, "|", processorAlias);
+                            (tmpPromote, tmpToNext) = rProcessor.process(partialEvt, self.rhsAlias);
                             promote = promote || tmpPromote;
                             toNext = toNext || tmpToNext;
-                            io:println("AndOperatorProcessor:process:88 -> ", clone, "|", processorAlias);
+                            io:println("AndOperatorProcessor:process:88 -> ", partialEvt, "|", processorAlias);
                         }
                     } else {
                         io:println("AndOperatorProcessor:process:91 -> ", event, "|", processorAlias);
@@ -120,6 +122,7 @@ public type AndOperatorProcessor object {
 
     public function setStateMachine(StateMachine stateMachine) {
         self.stateMachine = stateMachine;
+        stateMachine.register(self);
         AbstractPatternProcessor? lProcessor = self.lhsProcessor;
         if (lProcessor is AbstractPatternProcessor) {
             lProcessor.setStateMachine(stateMachine);
@@ -197,6 +200,20 @@ public type AndOperatorProcessor object {
             io:println("AndOperatorProcessor:evict:193 -> ", stateEvent, "|", processorAlias);
             pProcessor.evict(stateEvent, processorAlias);
             io:println("AndOperatorProcessor:evict:195 -> ", stateEvent, "|", processorAlias);
+        }
+    }
+
+    public function remove(StreamEvent streamEvent) {
+        // remove matching partial states from this processor.
+        boolean removed = self.lhsPartialStates.remove(streamEvent.getEventId());
+        removed = self.rhsPartialStates.remove(streamEvent.getEventId());
+        // remove matching fulfilled states from this processor.
+        self.stateEvents.resetToFront();
+        while (self.stateEvents.hasNext()) {
+            StreamEvent s = getStreamEvent(self.stateEvents.next());
+            if (streamEvent.getEventId() == s.getEventId()) {
+                self.stateEvents.removeCurrent();
+            }
         }
     }
 

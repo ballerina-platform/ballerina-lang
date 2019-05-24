@@ -79,6 +79,7 @@ public type OrOperatorProcessor object {
 
     public function setStateMachine(StateMachine stateMachine) {
         self.stateMachine = stateMachine;
+        stateMachine.register(self);
         AbstractPatternProcessor? lProcessor = self.lhsProcessor;
         if (lProcessor is AbstractPatternProcessor) {
             lProcessor.setStateMachine(stateMachine);
@@ -149,6 +150,19 @@ public type OrOperatorProcessor object {
                 io:println("OrOperatorProcessor:evict:145 -> ", stateEvent, "|", processorAlias);
                 pProcessor.evict(stateEvent, processorAlias);
                 io:println("OrOperatorProcessor:evict:147 -> ", stateEvent, "|", processorAlias);
+            }
+        }
+    }
+
+    public function remove(StreamEvent streamEvent) {
+        boolean removed = self.rhsEvicted.remove(streamEvent.getEventId());
+        removed = self.lhsEvicted.remove(streamEvent.getEventId());
+        // remove matching fulfilled states from this processor.
+        self.stateEvents.resetToFront();
+        while (self.stateEvents.hasNext()) {
+            StreamEvent s = getStreamEvent(self.stateEvents.next());
+            if (streamEvent.getEventId() == s.getEventId()) {
+                self.stateEvents.removeCurrent();
             }
         }
     }

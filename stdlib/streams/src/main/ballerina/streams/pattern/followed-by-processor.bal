@@ -59,17 +59,20 @@ public type FollowedByProcessor object {
                 AbstractPatternProcessor? rProcessor = self.rhsProcessor;
                 if (rProcessor is AbstractPatternProcessor) {
                     // foreach partial state, copy event data and process in rhsProcessor.
-                    foreach var (id, partialEvt) in self.partialStates {
-                        StreamEvent clone = partialEvt.copy();
-                        clone.addData(event.cloneData());
+                    io:println("FollowedByProcessor:process:62 -> partial states: ", self.partialStates);
+                    string[] evtIds = self.partialStates.keys().clone();
+                    foreach string id in evtIds {
+                        StreamEvent partialEvt = <StreamEvent>self.partialStates[id];
+                        io:println("FollowedByProcessor:process:64 -> Looping: ", partialEvt);
+                        partialEvt.addData(event.cloneData());
                         // at the leaf nodes (operand processor), it'll take current events'
                         // stream name into consideration. Therefore, we have to set that.
-                        clone.streamName = event.streamName;
-                        io:println("FollowedByProcessor:process:65 -> ", clone, "|", processorAlias);
-                        (tmpPromote, tmpToNext) = rProcessor.process(clone, self.rhsAlias);
+                        partialEvt.streamName = event.streamName;
+                        io:println("FollowedByProcessor:process:65 -> ", partialEvt, "|", processorAlias);
+                        (tmpPromote, tmpToNext) = rProcessor.process(partialEvt, self.rhsAlias);
                         promote = promote || tmpPromote;
                         toNext = toNext || tmpToNext;
-                        io:println("FollowedByProcessor:process:69 -> ", clone, "|", processorAlias);
+                        io:println("FollowedByProcessor:process:69 -> ", partialEvt, "|", processorAlias);
                     }
                 }
             }
@@ -95,6 +98,7 @@ public type FollowedByProcessor object {
 
     public function setStateMachine(StateMachine stateMachine) {
         self.stateMachine = stateMachine;
+        stateMachine.register(self);
         AbstractPatternProcessor? lProcessor = self.lhsProcessor;
         if (lProcessor is AbstractPatternProcessor) {
             lProcessor.setStateMachine(stateMachine);
@@ -140,21 +144,26 @@ public type FollowedByProcessor object {
 
     public function evict(StreamEvent stateEvent, string? processorAlias) {
         // remove matching partial states from this processor.
-        boolean removed = self.partialStates.remove(stateEvent.getEventId());
-        // remove matching fulfilled states from this processor.
-        self.stateEvents.resetToFront();
-        while (self.stateEvents.hasNext()) {
-            StreamEvent s = getStreamEvent(self.stateEvents.next());
-            if (stateEvent.getEventId() == s.getEventId()) {
-                self.stateEvents.removeCurrent();
-            }
-        }
+        self.remove(stateEvent);
         // remove matching states from prev processor.
         AbstractOperatorProcessor? pProcessor = self.prevProcessor;
         if (pProcessor is AbstractOperatorProcessor) {
             io:println("FollowedByProcessor:evict:151 -> ", stateEvent, "|", processorAlias);
             pProcessor.evict(stateEvent, processorAlias);
             io:println("FollowedByProcessor:evict:153 -> ", stateEvent, "|", processorAlias);
+        }
+    }
+
+    public function remove(StreamEvent streamEvent) {
+        // remove matching partial states from this processor.
+        boolean removed = self.partialStates.remove(streamEvent.getEventId());
+        // remove matching fulfilled states from this processor.
+        self.stateEvents.resetToFront();
+        while (self.stateEvents.hasNext()) {
+            StreamEvent s = getStreamEvent(self.stateEvents.next());
+            if (streamEvent.getEventId() == s.getEventId()) {
+                self.stateEvents.removeCurrent();
+            }
         }
     }
 

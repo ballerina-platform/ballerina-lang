@@ -26,4 +26,5 @@ public type AbstractPatternProcessor abstract object {
     public function getAlias() returns string;
     public function setStateMachine(StateMachine stateMachine);
     public function validate();
+    public function remove(StreamEvent streamEvent);
 };

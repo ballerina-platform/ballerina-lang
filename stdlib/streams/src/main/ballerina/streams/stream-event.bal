@@ -96,6 +96,33 @@ public type StreamEvent object {
         dataMap[key] = val;
     }
 
+    # Returns the value of an attribute.
+    #
+    # + return - the attribute value.
+    public function get(string path) returns anydata {
+        string[] attribSplit = path.split("\\.");
+        string[] aliasSplit = attribSplit[0].split("\\[");
+        string attrib = attribSplit[1];
+        string alias = aliasSplit[0];
+        int index = 0;
+        map<anydata>[] dArray = self.dataMap[alias] ?: [];
+        if (aliasSplit.length() > 1) {
+            string indexStr = aliasSplit[1].replaceAll("]", "").trim();
+            if (indexStr.contains("last")) {
+                int lastIndex = dArray.length();
+                if (indexStr.contains("-")) {
+                    string subCount = indexStr.split("-")[1].trim();
+                    index = lastIndex - checkpanic int.convert(subCount);
+                } else {
+                    index = lastIndex;
+                }
+            } else {
+                index = checkpanic int.convert(indexStr);
+            }
+        }
+        return dArray[index][attrib];
+    }
+
     # Returns the name of the stream.
     #
     # + return - the stream name.

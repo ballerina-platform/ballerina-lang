@@ -17,6 +17,7 @@
 public type StateMachine object {
     private function (StreamEvent?[]) nextProcessorPointer;
     private CompoundPatternProcessor rootProcessor;
+    private AbstractPatternProcessor[] processors = [];
 
     function __init(CompoundPatternProcessor rootProcessor, function (StreamEvent?[]) nextProcessorPointer) {
         self.nextProcessorPointer = nextProcessorPointer;
@@ -38,6 +39,16 @@ public type StateMachine object {
     public function inject(StreamEvent streamEvent) {
         StreamEvent?[] streamEvents = [streamEvent];
         self.process(streamEvents);
+    }
+
+    public function remove(StreamEvent streamEvent) {
+        foreach AbstractPatternProcessor p in self.processors {
+            p.remove(streamEvent);
+        }
+    }
+
+    public function register(AbstractPatternProcessor processor) {
+        self.processors[self.processors.length()] = processor;
     }
 };
 

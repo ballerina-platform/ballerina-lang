@@ -94,6 +94,7 @@ public type CompoundPatternProcessor object {
 
     public function setStateMachine(StateMachine stateMachine) {
         self.stateMachine = stateMachine;
+        stateMachine.register(self);
         AbstractPatternProcessor? processor = self.processor;
         if (processor is AbstractPatternProcessor) {
             processor.setStateMachine(stateMachine);
@@ -116,13 +117,7 @@ public type CompoundPatternProcessor object {
 
     public function evict(StreamEvent stateEvent, string? processorAlias) {
         // remove matching fulfilled states from this processor.
-        self.stateEvents.resetToFront();
-        while (self.stateEvents.hasNext()) {
-            StreamEvent s = getStreamEvent(self.stateEvents.next());
-            if (stateEvent.getEventId() == s.getEventId()) {
-                self.stateEvents.removeCurrent();
-            }
-        }
+        self.remove(stateEvent);
         // remove matching states from prev processor.
         AbstractOperatorProcessor? pProcessor = self.prevProcessor;
         if (pProcessor is AbstractOperatorProcessor) {
@@ -132,8 +127,24 @@ public type CompoundPatternProcessor object {
         }
     }
 
+    public function remove(StreamEvent streamEvent) {
+        // remove matching fulfilled states from this processor.
+        self.stateEvents.resetToFront();
+        while (self.stateEvents.hasNext()) {
+            StreamEvent s = getStreamEvent(self.stateEvents.next());
+            if (streamEvent.getEventId() == s.getEventId()) {
+                self.stateEvents.removeCurrent();
+            }
+        }
+    }
+
     public function emit(StreamEvent stateEvent) {
         io:println("CompoundPatternProcessor:emit:132 -> ", stateEvent);
+        // remove from stateMachine
+        StateMachine? stateMachine = self.stateMachine;
+        if (stateMachine is StateMachine) {
+            stateMachine.remove(stateEvent);
+        }
         self.fulfilledEvents[self.fulfilledEvents.length()] = stateEvent;
     }
 
