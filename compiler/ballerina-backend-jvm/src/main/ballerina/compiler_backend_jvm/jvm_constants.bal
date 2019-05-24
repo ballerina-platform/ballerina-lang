@@ -268,6 +268,7 @@ const string TYPEDESC_TYPE = "org/ballerinalang/jvm/types/BTypedesc";
 const string BFIELD = "org/ballerinalang/jvm/types/BField";
 const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
 const string FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
+const string PACKAGE_TYPE = "org/ballerinalang/jvm/types/BPackage";
 
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";

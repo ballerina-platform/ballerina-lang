@@ -33,7 +33,9 @@ dependencies {
     implementation 'org.apache.ws.commons.axiom:axiom-dom'
     implementation 'org.apache.ws.commons.axiom:axiom-c14n'
 
-    testImplementation project(':ballerina-backend-jvm')
+//    testImplementation project(':ballerina-backend-jvm')
+
+    runtime project(':ballerina-backend-jvm')
 }
 
 configurations {
