@@ -960,7 +960,7 @@ type InstructionGenerator object {
         if (btype is bir:BTypeInt || btype is bir:BTypeByte) {
             self.mv.visitInsn(LNEG);
         } else if (btype is bir:BTypeFloat) {
-            self.mv.visitInsn(FNEG);
+            self.mv.visitInsn(DNEG);
         } else if (btype is bir:BTypeDecimal) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "negate",
                 io:sprintf("()L%s;", DECIMAL_VALUE), false);
