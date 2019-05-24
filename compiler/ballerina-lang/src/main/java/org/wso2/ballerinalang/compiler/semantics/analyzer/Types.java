@@ -783,7 +783,9 @@ public class Types {
             return false;
         }
 
-        if (lhsType.getFields().stream().anyMatch(field -> Symbols.isPrivate(field.symbol))) {
+        // The LHS type cannot have any private members. 
+        if (lhsType.getFields().stream().anyMatch(field -> Symbols.isPrivate(field.symbol)) ||
+                lhsFuncs.stream().anyMatch(func -> Symbols.isPrivate(func.symbol))) {
             return false;
         }
 
@@ -804,8 +806,7 @@ public class Types {
             }
 
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || Symbols.isPrivate(lhsFunc.symbol) ||
-                    !isInSameVisibilityRegion(lhsFunc.symbol, rhsFunc.symbol)) {
+            if (rhsFunc == null || !isInSameVisibilityRegion(lhsFunc.symbol, rhsFunc.symbol)) {
                 return false;
             }
         }

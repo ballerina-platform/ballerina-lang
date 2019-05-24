@@ -56,6 +56,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Responsible for performing runtime type checking.
@@ -470,47 +471,44 @@ public class TypeChecker {
         unresolvedTypes.add(pair);
 
         BObjectType sourceObjectType = (BObjectType) sourceType;
+        Map<String, BField> targetFields = targetType.getFields();
+        Map<String, BField> sourceFields = sourceObjectType.getFields();
+        AttachedFunction[] targetFuncs = targetType.getAttachedFunctions();
+        AttachedFunction[] sourceFuncs = sourceObjectType.getAttachedFunctions();
 
-        if (targetType.getFields().values().stream().anyMatch(field -> Flags.isFlagOn(field.flags, Flags.PRIVATE))) {
+        if (targetType.getFields().values().stream().anyMatch(field -> Flags.isFlagOn(field.flags, Flags.PRIVATE))
+                || Stream.of(targetFuncs).anyMatch(func -> Flags.isFlagOn(func.flags, Flags.PRIVATE))) {
             return false;
         }
 
         // Adjust the number of the attached functions of the lhs struct based on
         //  the availability of the initializer function.
-        int targetAttachedFunctionCount = targetType.initializer != null ?
-                targetType.getAttachedFunctions().length - 1 :
-                targetType.getAttachedFunctions().length;
-        int sourceAttachedFunctionCount = sourceObjectType.initializer != null ?
-                sourceObjectType.getAttachedFunctions().length - 1 :
-                sourceObjectType.getAttachedFunctions().length;
+        int targetAttachedFunctionCount = targetType.initializer != null ? targetFuncs.length - 1 : targetFuncs.length;
+        int sourceAttachedFunctionCount =
+                sourceObjectType.initializer != null ? sourceFuncs.length - 1 : sourceFuncs.length;
 
-        if (targetType.getFields().size() > sourceObjectType.getFields().size() ||
-                targetAttachedFunctionCount > sourceAttachedFunctionCount) {
+        if (targetFields.size() > sourceFields.size() || targetAttachedFunctionCount > sourceAttachedFunctionCount) {
             return false;
         }
 
-        Map<String, BField> rhsFields = sourceObjectType.getFields();
-
-        for (BField lhsField : targetType.getFields().values()) {
-            BField rhsField = rhsFields.get(lhsField.name);
-            if (rhsField == null || !isInSameVisibilityRegion(
-                    Optional.ofNullable(lhsField.type.getPackagePath()).orElse(""),
-                    Optional.ofNullable(rhsField.type.getPackagePath()).orElse(""), lhsField.flags,
-                    rhsField.flags) ||
+        for (BField lhsField : targetFields.values()) {
+            BField rhsField = sourceFields.get(lhsField.name);
+            if (rhsField == null ||
+                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackagePath()).orElse(""),
+                                              Optional.ofNullable(rhsField.type.getPackagePath()).orElse(""),
+                                              lhsField.flags, rhsField.flags) ||
                     !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
                 return false;
             }
         }
 
-        AttachedFunction[] lhsFuncs = targetType.getAttachedFunctions();
-        AttachedFunction[] rhsFuncs = sourceObjectType.getAttachedFunctions();
-        for (AttachedFunction lhsFunc : lhsFuncs) {
+        for (AttachedFunction lhsFunc : targetFuncs) {
             if (lhsFunc == targetType.initializer || lhsFunc == targetType.defaultsValuesInitFunc) {
                 continue;
             }
 
-            AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || Flags.isFlagOn(lhsFunc.flags, Flags.PRIVATE) ||
+            AttachedFunction rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
+            if (rhsFunc == null ||
                     !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackagePath()).orElse(""),
                                               Optional.ofNullable(rhsFunc.type.getPackagePath()).orElse(""),
                                               lhsFunc.flags, rhsFunc.flags)) {
