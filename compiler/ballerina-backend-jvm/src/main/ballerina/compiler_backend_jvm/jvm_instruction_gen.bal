@@ -951,7 +951,7 @@ type InstructionGenerator object {
         if (btype is bir:BTypeInt || btype is bir:BTypeByte) {
             self.mv.visitInsn(LNEG);
         } else if (btype is bir:BTypeFloat) {
-            self.mv.visitInsn(FNEG);
+            self.mv.visitInsn(DNEG);
         } else {
             error err = error(io:sprintf("Negation is not supported for type: %s", btype));
             panic err;

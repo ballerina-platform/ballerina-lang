@@ -34,6 +34,7 @@
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
             <package name="org.ballerinalang.test.main.function.*"/>
+            <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
         </packages>
 
         <classes>
