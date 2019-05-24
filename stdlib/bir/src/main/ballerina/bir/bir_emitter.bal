@@ -272,7 +272,17 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
-            print(ins.typeDef.name.value);
+            var typeDefRef = ins.typeDefRef;
+            if (typeDefRef is TypeDef) {
+                print(typeDefRef.name.value);
+            } else {
+                print(typeDefRef.externalPkg.org);
+                print("/");
+                print(typeDefRef.externalPkg.name);
+                print(" ");
+
+                print(typeDefRef.name.value);
+            }
             println(";");
         } else if (ins is NewError) {
             print(tabs);

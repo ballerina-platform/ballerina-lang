@@ -192,10 +192,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         writePosition(birCall.pos);
         buf.writeByte(birCall.kind.getValue());
         PackageID calleePkg = birCall.calleePkg;
-        int orgCPIndex = addStringCPEntry(calleePkg.orgName.value);
-        int nameCPIndex = addStringCPEntry(calleePkg.name.value);
-        int versionCPIndex = addStringCPEntry(calleePkg.version.value);
-        int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        int pkgIndex = addPkgCPEntry(calleePkg);
         buf.writeBoolean(birCall.isVirtual);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birCall.name.getValue()));
@@ -216,10 +213,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         writePosition(birAsyncCall.pos);
         buf.writeByte(birAsyncCall.kind.getValue());
         PackageID calleePkg = birAsyncCall.calleePkg;
-        int orgCPIndex = addStringCPEntry(calleePkg.orgName.value);
-        int nameCPIndex = addStringCPEntry(calleePkg.name.value);
-        int versionCPIndex = addStringCPEntry(calleePkg.version.value);
-        int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        int pkgIndex = addPkgCPEntry(calleePkg);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birAsyncCall.name.getValue()));
         buf.writeInt(birAsyncCall.args.size());
@@ -310,7 +304,14 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.NewInstance newInstance) {
         writePosition(newInstance.pos);
         buf.writeByte(newInstance.kind.getValue());
-        buf.writeInt(newInstance.def.index);
+        buf.writeBoolean(newInstance.isExternalDef);
+        if (newInstance.isExternalDef) {
+            assert newInstance.externalPackageId != null;
+            buf.writeInt(addPkgCPEntry(newInstance.externalPackageId));
+            buf.writeInt(addStringCPEntry(newInstance.objectName));
+        } else {
+            buf.writeInt(newInstance.def.index);
+        }
         newInstance.lhsOp.accept(this);
     }
 
@@ -394,10 +395,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         fpLoad.lhsOp.accept(this);
 
         PackageID pkgId = fpLoad.pkgId;
-        int orgCPIndex = addStringCPEntry(pkgId.orgName.value);
-        int nameCPIndex = addStringCPEntry(pkgId.name.value);
-        int versionCPIndex = addStringCPEntry(pkgId.version.value);
-        int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        int pkgIndex = addPkgCPEntry(pkgId);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(fpLoad.funcName.getValue()));
 
@@ -527,6 +525,13 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     private void addCpAndWriteString(String string) {
         buf.writeInt(addStringCPEntry(string));
+    }
+
+    private int addPkgCPEntry(PackageID packageID) {
+        int orgCPIndex = addStringCPEntry(packageID.orgName.value);
+        int nameCPIndex = addStringCPEntry(packageID.name.value);
+        int versionCPIndex = addStringCPEntry(packageID.version.value);
+        return cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
     }
 
     private int addStringCPEntry(String value) {

@@ -128,10 +128,8 @@ public type FuncBodyParser object {
             indexColOp, keyColOp: keyColOp, typeValue: bType };
             return newTable;
         } else if (kindTag == INS_NEW_INST) {
-            var defIndex = self.reader.readInt32();
             kind = INS_KIND_NEW_INST;
-            var lhsOp = self.parseVarRef();
-            NewInstance newInst = {pos:pos, kind:kind, lhsOp:lhsOp, typeDef: self.findTypeDef(defIndex)};
+            NewInstance newInst = {pos:pos, kind:kind, typeDefRef: self.parseTypeDefRef(), lhsOp: self.parseVarRef()};
             return newInst;
         } else if (kindTag == INS_TYPE_CAST) {
             kind = INS_KIND_TYPE_CAST;
@@ -328,6 +326,17 @@ public type FuncBodyParser object {
             return typeofNode;
         } else {
             return self.parseBinaryOpInstruction(kindTag, pos);
+        }
+    }
+
+    public function parseTypeDefRef() returns TypeDef|TypeRef {
+        var isExternalDef = self.reader.readBoolean();
+        if (isExternalDef) {
+            TypeRef typeRef = {externalPkg: self.reader.readModuleIDCpRef(),
+                               name: {value: self.reader.readStringCpRef()}};
+            return typeRef;
+        } else {
+            return self.findTypeDef(self.reader.readInt32());
         }
     }
 
