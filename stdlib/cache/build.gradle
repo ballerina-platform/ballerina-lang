@@ -21,8 +21,8 @@ description = 'Ballerina - Cache'
 
 dependencies {
 
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
+    baloCreat project(':lib-creator')
+    implementation project(':ballerina-lang')
     implementation 'commons-logging:commons-logging'
     implementation 'org.slf4j:slf4j-jdk14'
 
@@ -46,6 +46,11 @@ dependencies {
     testCompile 'org.testng:testng'
 }
 
+createBalo {
+    jvmTarget = 'true'
+}
+
+/*
 test {
     doFirst {
         copy {
@@ -59,6 +64,7 @@ test {
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
 }
+*/
 
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'

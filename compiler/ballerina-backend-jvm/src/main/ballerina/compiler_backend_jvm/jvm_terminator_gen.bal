@@ -39,9 +39,9 @@ type TerminatorGenerator object {
 
     function genLockTerm(bir:Lock lockIns, string funcName) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
-
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         foreach var globleVar in lockIns.globleVars {
-            var varClassName = lookupGlobalVarClassName(globleVar);
+            var varClassName = lookupGlobalVarClassName(currentPackageName + globleVar);
             var lockName = computeLockNameFromString(globleVar);
             self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, "Ljava/lang/Object;");
             self.mv.visitInsn(MONITORENTER);
@@ -53,9 +53,11 @@ type TerminatorGenerator object {
     function genUnlockTerm(bir:Unlock unlockIns, string funcName) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
 
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+
         // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
         foreach var globleVar in unlockIns.globleVars {
-            var varClassName = lookupGlobalVarClassName(globleVar);
+            var varClassName = lookupGlobalVarClassName(currentPackageName + globleVar);
             var lockName = computeLockNameFromString(globleVar);
             self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, "Ljava/lang/Object;");
             self.mv.visitInsn(MONITOREXIT);
@@ -664,17 +666,9 @@ type TerminatorGenerator object {
             if (lhsOp is bir:VarRef) {
                 generateVarStore(self.mv, lhsOp.variableDcl, currentPackageName, 
                     self.getJVMIndexOfVarRef(lhsOp.variableDcl));
-            }
-
-            self.mv.visitVarInsn(ALOAD, 0);
-            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
-            jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
-            self.mv.visitJumpInsn(IFNE, yieldLabel);
-
-            // goto thenBB
-            jvm:Label gotoLabel = self.labelGen.getLabel(funcName + ins.thenBB.id.value);
-            self.mv.visitJumpInsn(GOTO, gotoLabel);            
-        }   
+            }        
+        }
+        self.genYieldCheck(ins.thenBB, funcName);   
     }
 
     function genWorkerReceiveIns(bir:WorkerReceive ins, string funcName) {

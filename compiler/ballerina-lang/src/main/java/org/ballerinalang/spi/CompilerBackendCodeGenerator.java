@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,24 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.util;
+package org.ballerinalang.spi;
+
+import java.util.Optional;
 
 /**
- * This class contains the list of symbol flags.
+ * This represents the Java SPI interface for the compiler backend generator runner.
  *
- * @since 0.95.7
+ * @since 0.995.0
  */
-public class Flags {
+public interface CompilerBackendCodeGenerator {
 
-    public static final int PUBLIC = 1;
-    public static final int NATIVE = 2;
-    public static final int ATTACHED = 8;
-    public static final int REQUIRED = 256;
-    public static final int PRIVATE = 1024;
-    public static final int OPTIONAL = 8192;
-    public static final int SERVICE = 524288;
-
-    public static boolean isFlagOn(int bitmask, int flag) {
-        return (bitmask & flag) == flag;
-    }
+    /**
+     * Generates the target executable code.
+     * @param args arguments required for the target compiler backend.
+     * @return optional return value after generating the code.
+     */
+    Optional<Object> generate(Object... args);
 }

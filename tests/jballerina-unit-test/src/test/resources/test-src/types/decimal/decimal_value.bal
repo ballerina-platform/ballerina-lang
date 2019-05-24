@@ -71,10 +71,10 @@ function testDecimalModulus() returns (decimal) {
 }
 
 // Decimal negation.
-//function testDecimalNegation() returns (decimal) {
-//    decimal a = 4.565;
-//    return -a; // EXPECTED: -4.565
-//}
+function testDecimalNegation() returns (decimal) {
+    decimal a = 4.565;
+    return -a; // EXPECTED: -4.565
+}
 
 // Decimal comparison operations.
 function testDecimalComparisonOperations() returns (boolean, boolean, boolean, boolean, boolean, boolean) {
@@ -145,13 +145,13 @@ function testHexComplexExpression() returns decimal {
 }
 
 // Test positively signed literal assignment
-//function testPositivelySignedLiteralAssignment() returns (decimal, decimal, decimal) {
-//    decimal d1 = +12.23;
-//    decimal d2 = + 0.0;
-//    decimal d4 = -12.23;
-//    decimal d5 = d1 + d4;
-//    return (d1, d2, d5);
-//}
+function testPositivelySignedLiteralAssignment() returns (decimal, decimal, decimal) {
+    decimal d1 = +12.23;
+    decimal d2 = + 0.0;
+    decimal d4 = -12.23;
+    decimal d5 = d1 + d4;
+    return (d1, d2, d5);
+}
 
 // Test decimal inference for map literal context
 function testDecimalInferenceInMapContext() returns map<decimal> {

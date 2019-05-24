@@ -141,7 +141,7 @@ public class WebSocketUtil {
                 if (!isReady) {
                     readFirstFrame(webSocketConnection, webSocketConnector);
                 }
-                ErrorHandlerUtils.printError("error: " + BallerinaErrors.getPrintableStackTrace(error));
+                ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
                 closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
