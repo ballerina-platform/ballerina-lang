@@ -18,19 +18,19 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-//    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-launcher')
     implementation project(':ballerina-runtime-api')
-//    implementation project(':lib-creator')
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
-    testCompile project(':ballerina-launcher')
+    runtime project(':ballerina-backend-jvm')
+
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testCompile project(':ballerina-bir')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-simple'
 }
@@ -40,6 +40,7 @@ createBalo {
 }
 
 test {
+    systemProperty "enableJBallerinaTests", "true"
     doFirst {
         copy {
             from "$buildDir/generated-balo/repo/ballerina"
@@ -51,6 +52,18 @@ test {
     }
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+
+    afterSuite { suite, result ->
+        result.exception?.printStackTrace()
+    }
+
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 description = 'Ballerina - System'

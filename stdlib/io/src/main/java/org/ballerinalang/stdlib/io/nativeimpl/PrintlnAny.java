@@ -63,6 +63,8 @@ public class PrintlnAny extends BlockingNativeCallableUnit {
     }
 
     public static void println(Strand strand, ArrayValue values) {
+        System.out.println("-------++++++++++++++++++++++++1--println--------------1111111111---------------------");
+
         PrintStream out = System.out;
         if (values == null) {
             out.println((Object) null);

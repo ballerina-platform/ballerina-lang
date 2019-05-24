@@ -26,8 +26,12 @@
     </listeners>
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
-        <packages>
-            <package name="org.ballerinalang.stdlib.io.*"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.stdlib.io.IOPrintTest">
+                <methods>
+                    <include name="testStringPrintAndPrintln" />
+                </methods>
+            </class>
+        </classes>
     </test>
 </suite>

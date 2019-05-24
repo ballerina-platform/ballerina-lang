@@ -22,19 +22,22 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
-//    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-utils')
-//    implementation project(':lib-creator')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-runtime-api')
 
+//    runtime project(':ballerina-backend-jvm')
+
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testCompile project(':ballerina-runtime')
+    testCompile project(':ballerina-bir')
+    testCompile project(':ballerina-lang')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'commons-codec:commons-codec'
@@ -47,8 +50,9 @@ createBalo {
 
 description = 'Ballerina - I/O'
 
-/*
+
 test {
+    systemProperty "enableJBallerinaTests", "true"
     doFirst {
         copy {
             from "$buildDir/generated-balo/repo/ballerina"
@@ -59,4 +63,3 @@ test {
         suites 'src/test/resources/testng.xml'
     }
 }
-*/
