@@ -56,6 +56,7 @@ public class BalServer {
      * in automation.xml.
      * This method will inject jacoco agent to the carbon server startup scripts.
      *
+     * @param serverZipFile server zip file location
      * @throws BallerinaTestException if setting up the server fails
      */
     private void setUpServerHome(String serverZipFile) throws BallerinaTestException {
