@@ -29,7 +29,7 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[]
         fieldName = getTypeFieldName(typeDef.name.value);
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType || bType is bir:BObjectType || bType is bir:BErrorType) {
-            jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, fieldName, io:sprintf("L%s;", BTYPE));
+            jvm:FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, fieldName, io:sprintf("L%s;", BTYPE));
             fv.visitEnd();
         } else {
             // do not generate anything for other types (e.g.: finite type, unions, etc.)
@@ -546,9 +546,22 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
             PACKAGE_TYPE, BTYPE, BTYPE), false);
 }
 
+function typeRefToClassName(bir:TypeRef typeRef) returns string{
+    return typeRef.externalPkg.org + "/" +  typeRef.externalPkg.name;
+}
+
 // -------------------------------------------------------
 //              Type loading methods
 // -------------------------------------------------------
+function loadExternalOrLocalType(jvm:MethodVisitor mv,  bir:TypeDef|bir:TypeRef typeRef) {
+    if (typeRef is bir:TypeRef) {
+        string fieldName = getTypeFieldName(typeRef.name.value);
+        string externlTypeOwner =  typeRefToClassName(typeRef) + "/" + MODULE_INIT_CLASS_NAME;
+        mv.visitFieldInsn(GETSTATIC, externlTypeOwner, fieldName, io:sprintf("L%s;", BTYPE));
+    } else {
+        loadType(mv, typeRef.typeValue);
+    }
+}
 
 # Generate code to load an instance of the given type
 # to the top of the stack.

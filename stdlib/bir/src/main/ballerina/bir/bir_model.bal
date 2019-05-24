@@ -39,6 +39,11 @@ public type TypeDef record {
     Function?[]? attachedFuncs = ();
 };
 
+public type TypeRef record {|
+    Name name = {};
+    ModuleID externalPkg;
+|};
+
 public type Function record {|
     DiagnosticPos pos;
     int argsCount = 0;
@@ -417,7 +422,7 @@ public type NewStream record {|
 public type NewInstance record {|
     DiagnosticPos pos;
     InstructionKind kind;
-    TypeDef typeDef;
+    TypeDef|TypeRef typeDefRef;
     VarRef lhsOp;
 |};
 

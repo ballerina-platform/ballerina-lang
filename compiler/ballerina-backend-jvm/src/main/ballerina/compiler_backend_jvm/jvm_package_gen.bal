@@ -25,6 +25,8 @@ type BIRFunctionWrapper record {|
 
 map<BIRFunctionWrapper> birFunctionMap = {};
 
+map<bir:TypeDef> typeDefMap = {};
+
 map<string> globalVarClassNames = {};
 
 map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
@@ -37,6 +39,21 @@ function lookupFullQualifiedClassName(string key) returns string {
         return functionWrapper.fullQualifiedClassName;
     } else {
         error err = error("cannot find full qualified class for : " + key);
+        panic err;
+    }
+}
+
+function lookupTypeDef(bir:TypeDef|bir:TypeRef key) returns bir:TypeDef {
+    if (key is bir:TypeDef) {
+        return key;
+    } else {
+        string className = typeRefToClassName(key) + "/" + key.name.value;
+        var typeDef = typeDefMap[className];
+        if (typeDef is bir:TypeDef) {
+            return typeDef;
+        }
+
+        error err = error("Reference to unknown type " + className);
         panic err;
     }
 }
@@ -357,6 +374,9 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         bir:BType bType = typeDef.typeValue;
 
         if (bType is bir:BObjectType && !bType.isAbstract) {
+            string key = orgName + "/" + moduleName + "/" + typeDef.name.value;
+            typeDefMap[key] = typeDef;
+
             bir:Function?[] attachedFuncs = getFunctions(typeDef.attachedFuncs);
             foreach var func in attachedFuncs {
 
