@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/auth;
 import ballerina/http;
+import ballerina/jwt;
 
-auth:JWTAuthProvider jwtAuthProvider12_1 = new({
+jwt:JWTAuthProvider jwtAuthProvider12_1 = new({
     issuer: "example1",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -68,7 +68,7 @@ service passthroughService12 on listener12_1 {
     }
 }
 
-auth:JWTAuthProvider jwtAuthProvider12_2 = new({
+jwt:JWTAuthProvider jwtAuthProvider12_2 = new({
     issuer: "example1",
     audience: ["ballerina"],
     certificateAlias: "ballerina",

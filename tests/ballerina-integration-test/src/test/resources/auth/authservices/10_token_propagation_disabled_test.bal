@@ -16,6 +16,7 @@
 
 import ballerina/auth;
 import ballerina/http;
+import ballerina/jwt;
 
 // token propagation is set to false by default
 auth:ConfigAuthStoreProvider basicAuthProvider10 = new;
@@ -57,7 +58,7 @@ service passthroughService10 on listener10_1 {
     }
 }
 
-auth:JWTAuthProvider jwtAuthProvider10 = new({
+jwt:JWTAuthProvider jwtAuthProvider10 = new({
     issuer: "ballerina",
     audience: ["ballerina"],
     certificateAlias: "ballerina",

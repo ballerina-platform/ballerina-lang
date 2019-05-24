@@ -16,6 +16,7 @@
 
 import ballerina/auth;
 import ballerina/http;
+import ballerina/jwt;
 
 auth:ConfigAuthStoreProvider basicAuthProvider11 = new;
 http:BasicAuthnHandler basicAuthnHandler11 = new(basicAuthProvider11);
@@ -71,7 +72,7 @@ service passthroughService11 on listener11_1 {
     }
 }
 
-auth:JWTAuthProvider jwtAuthProvider11 = new({
+jwt:JWTAuthProvider jwtAuthProvider11 = new({
     issuer: "ballerina",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
