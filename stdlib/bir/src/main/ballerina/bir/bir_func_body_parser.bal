@@ -461,6 +461,32 @@ public type FuncBodyParser object {
             WorkerSend send = {pos:pos, kind:kind, channelName:{ value:dataChannel }, dataOp:dataOp,
                 isSameStrand:isSameStrand, isSync:isSync, lhsOp:lhsOp, thenBB:thenBB};
             return send;
+        } else if (kindTag == INS_LOCK) {
+            TerminatorKind kind = TERMINATOR_LOCK;
+
+            var globleVarCount = self.reader.readInt32();
+            string[] globleVarName = [];
+            int i = 0;
+            while (i < globleVarCount) {
+                globleVarName[i] = self.reader.readStringCpRef();
+                i += 1;
+            }
+
+            Lock lockIns = {pos:pos, kind:kind, globleVars:globleVarName, lockBB:self.parseBBRef()};
+            return lockIns;
+        } else if (kindTag == INS_UNLOCK) {
+            TerminatorKind kind = TERMINATOR_UNLOCK;
+
+            var globleVarCount = self.reader.readInt32();
+            string[] globleVarName = [];
+            int i = 0;
+            while (i < globleVarCount) {
+                globleVarName[i] = self.reader.readStringCpRef();
+                i += 1;
+            }
+
+            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVarName, unlockBB:self.parseBBRef()};
+            return unlockIns;
         }
         error err = error("term instruction kind " + kindTag + " not impl.");
         panic err;
@@ -511,6 +537,10 @@ public type FuncBodyParser object {
             kind = BINARY_REF_EQUAL;
         } else if (kindTag == INS_REF_NOT_EQUAL){
             kind = BINARY_REF_NOT_EQUAL;
+        } else if (kindTag == INS_CLOSED_RANGE) {
+            kind = BINARY_CLOSED_RANGE;
+        } else if (kindTag == INS_HALF_OPEN_RANGE) {
+            kind = BINARY_HALF_OPEN_RANGE;
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
             panic err;

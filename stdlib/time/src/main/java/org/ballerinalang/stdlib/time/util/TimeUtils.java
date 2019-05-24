@@ -75,7 +75,6 @@ public class TimeUtils {
 
     }
 
-
     public static ZoneId getTimeZone(String zoneIdValue) {
         try {
             return ZoneId.of(zoneIdValue);
