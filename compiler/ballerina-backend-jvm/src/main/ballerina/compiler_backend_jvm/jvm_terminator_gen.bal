@@ -659,17 +659,9 @@ type TerminatorGenerator object {
             if (lhsOp is bir:VarRef) {
                 generateVarStore(self.mv, lhsOp.variableDcl, currentPackageName, 
                     self.getJVMIndexOfVarRef(lhsOp.variableDcl));
-            }
-
-            self.mv.visitVarInsn(ALOAD, 0);
-            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
-            jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
-            self.mv.visitJumpInsn(IFNE, yieldLabel);
-
-            // goto thenBB
-            jvm:Label gotoLabel = self.labelGen.getLabel(funcName + ins.thenBB.id.value);
-            self.mv.visitJumpInsn(GOTO, gotoLabel);            
-        }   
+            }        
+        }
+        self.genYieldCheck(ins.thenBB, funcName);   
     }
 
     function genWorkerReceiveIns(bir:WorkerReceive ins, string funcName) {
