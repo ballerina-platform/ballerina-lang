@@ -61,6 +61,11 @@ dependencies {
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
 }
 
+createBalo {
+    jvmTarget = 'true'
+}
+
+/*
 test {
     doFirst {
         copy {
@@ -76,6 +81,7 @@ test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 }
+*/
 
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'

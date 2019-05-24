@@ -39,7 +39,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
-            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -162,7 +161,7 @@
                                 <argument>${project.build.directory}/generated-balo/repo/ballerina</argument>
                                 <argument>${project.build.directory}</argument>
                                 <argument>${project.version}</argument>
-                                <argument>false</argument>
+                                <argument>true</argument>
                             </arguments>
                         </configuration>
                     </execution>
