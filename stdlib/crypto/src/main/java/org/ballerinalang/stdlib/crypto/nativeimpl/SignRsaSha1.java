@@ -20,6 +20,9 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -64,6 +67,16 @@ public class SignRsaSha1 extends BlockingNativeCallableUnit {
                     (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY), input)));
         } catch (InvalidKeyException e) {
             context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid uninitialized key"));
+        }
+    }
+
+    public static Object signRsaSha1(Strand strand, ArrayValue inputValue, MapValue<?, ?> privateKey) {
+        byte[] input = inputValue.getBytes();
+        try {
+            PrivateKey key = (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);
+            return new ArrayValue(CryptoUtils.sign("SHA1withRSA", key, input));
+        } catch (InvalidKeyException e) {
+            return CryptoUtils.createCryptoError("invalid uninitialized key");
         }
     }
 }

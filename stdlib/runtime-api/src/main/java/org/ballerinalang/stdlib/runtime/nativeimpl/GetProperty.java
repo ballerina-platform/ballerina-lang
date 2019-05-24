@@ -19,6 +19,8 @@ package org.ballerinalang.stdlib.runtime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,5 +45,13 @@ public class GetProperty extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String name = context.getStringArgument(0);
         context.setReturnValues(RuntimeUtils.getSystemProperty(name));
+    }
+
+    public static String getProperty(Strand strand, String name) {
+        String value = System.getProperty(name);
+        if (value == null) {
+            return BTypes.typeString.getZeroValue();
+        }
+        return value;
     }
 }

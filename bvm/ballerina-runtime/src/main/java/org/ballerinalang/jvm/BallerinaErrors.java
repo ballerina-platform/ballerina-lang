@@ -17,17 +17,19 @@
 */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG;
 
 /**
  * Util Class for handling Error in Ballerina VM.
@@ -37,8 +39,10 @@ import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 public class BallerinaErrors {
     
     public static final String ERROR_MESSAGE_FIELD = "message";
-
     public static final String NULL_REF_EXCEPTION = "NullReferenceException";
+    public static final String CALL_STACK_ELEMENT = "CallStackElement";
+
+    public static final String ERROR_PRINT_PREFIX = "error: ";
 
     public static ErrorValue createError(String reason) {
         return new ErrorValue(reason, new MapValueImpl<>());
@@ -65,87 +69,41 @@ public class BallerinaErrors {
     }
 
     static ErrorValue createTypeCastError(Object sourceVal, BType targetType) {
-        throw new ErrorValue(BallerinaErrorReasons.TYPE_CAST_ERROR,
+        throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
                              BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,
                                                                   TypeChecker.getType(sourceVal), targetType));
     }
 
     static ErrorValue createNumericConversionError(Object inputValue, BType targetType) {
-        throw new ErrorValue(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+        throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                              BLangExceptionHelper.getErrorMessage(
                                      RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                      TypeChecker.getType(inputValue), inputValue, targetType));
     }
 
-    public static String getPrintableStackTrace(ErrorValue error) {
-        return getPrintableStackTrace(getErrorMessage(error), error.getStackTrace());
-    }
-
-    public static String getPrintableStackTrace(String errorMsg, StackTraceElement[] stackTrace) {
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(errorMsg).append("\n\tat ");
-        // Append function/action/resource name with package path (if any)
-        appendStackTraceElement(sb, stackTrace, 0, "");
-        for (int i = 1; i < stackTrace.length; i++) {
-            if (!appendStackTraceElement(sb, stackTrace, i, "\n\t   ")) {
-                break;
+    public static ArrayValue generateCallStack() {
+        List<MapValue<String, Object>> sfList = new ArrayList<>();
+        for (StackTraceElement frame : Thread.currentThread().getStackTrace()) {
+            MapValue<String, Object> sf = getStackFrame(frame);
+            if (sf != null) {
+                sfList.add(0, sf);
             }
         }
-        return sb.toString();
+        BType recordType = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT).getType();
+        ArrayValue callStack = new ArrayValue(recordType);
+        for (int i = 0; i < sfList.size(); i++) {
+            callStack.add(i, sfList.get(i));
+        }
+        return callStack;
     }
 
-    private static boolean appendStackTraceElement(StringBuilder sb, StackTraceElement[] stackTrace, int currentIndex,
-                                                   String tab) {
-        StackTraceElement stackFrame = stackTrace[currentIndex];
-        String pkgName = stackFrame.getClassName();
-        String fileName = stackFrame.getFileName();
-        int lineNo = stackFrame.getLineNumber();
-        if (lineNo < 0) {
-            return false;
-        }
-        // Handle init function
-        if (pkgName.equals(MODULE_INIT_CLASS_NAME)) {
-            sb.append(tab);
-            sb.append(INIT_FUNCTION_SUFFIX);
-            if (currentIndex != 0) {
-                fileName = stackTrace[currentIndex - 1].getFileName();
-            }
-            sb.append("(").append(fileName);
-            // Append the line number
-            sb.append(":").append(lineNo);
-            sb.append(")");
-            return false;
-        }
-        // Remove java sources for bal stacktrace.
-        if (!fileName.equals(pkgName.concat(BLANG_SRC_FILE_SUFFIX))) {
-            return true;
-        }
-        // Append the method name
-        sb.append(tab).append(stackFrame.getMethodName());
-        // Append the filename
-        sb.append("(").append(fileName);
-        // Append the line number
-        sb.append(":").append(lineNo).append(")");
-        return true;
-    }
-
-    private static String getErrorMessage(ErrorValue errorValue) {
-        String errorMsg = "";
-        boolean reasonAdded = false;
-        String reason = errorValue.getReason();
-        Object details = errorValue.getDetails();
-        if (reason != null && !reason.isEmpty()) {
-            errorMsg = reason;
-            reasonAdded = true;
-        }
-        if (details != null) {
-            errorMsg = errorMsg + (reasonAdded ? " " : "") + details.toString();
-        }
-        return errorMsg;
-    }
-
-    public static void printStackTraceOnMainMethodError(ErrorValue errorValue) {
-        ErrorHandlerUtils.printError("error: " + getPrintableStackTrace(errorValue));
+    private static MapValue<String, Object> getStackFrame(StackTraceElement stackTraceElement) {
+        Object[] values = new Object[4];
+        values[0] = stackTraceElement.getMethodName();
+        values[1] = stackTraceElement.getClassName();
+        values[2] = stackTraceElement.getFileName();
+        values[3] = stackTraceElement.getLineNumber();
+        return BallerinaValues.populateRecordFields(
+                BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT), values);
     }
 }

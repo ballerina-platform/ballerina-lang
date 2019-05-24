@@ -34,6 +34,8 @@ public enum InstructionKind {
     WK_RECEIVE((byte) 8),
     WK_SEND((byte) 9),
     FLUSH((byte) 10),
+    LOCK((byte) 11),
+    UNLOCK((byte) 12),
 
     // Non-terminating instructions
     MOVE((byte) 20),
@@ -87,6 +89,8 @@ public enum InstructionKind {
     OR((byte) 73),
     REF_EQUAL((byte) 74),
     REF_NOT_EQUAL((byte) 75),
+    CLOSED_RANGE((byte) 76),
+    HALF_OPEN_RANGE((byte) 77),
 
     // Unary expression related instructions.
     TYPEOF((byte) 80),

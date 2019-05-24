@@ -42,7 +42,15 @@ public interface Task {
      * @param context Ballerina context which runs the services.
      * @throws SchedulingException When there is a failure to stop the task after maximum number of runs specified.
      */
+    //TODO Remove after migration : implemented using bvm values/types
     void start(Context context) throws SchedulingException;
+
+    /**
+     * Run all the services attached to the task.
+     *
+     * @throws SchedulingException When there is a failure to stop the task after maximum number of runs specified.
+     */
+    void start() throws SchedulingException;
 
     /**
      * Stop the task.

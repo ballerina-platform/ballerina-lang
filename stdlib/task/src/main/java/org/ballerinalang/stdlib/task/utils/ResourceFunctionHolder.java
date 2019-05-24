@@ -19,6 +19,8 @@
 package org.ballerinalang.stdlib.task.utils;
 
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 
 import java.util.Objects;
@@ -33,12 +35,14 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIG
 public class ResourceFunctionHolder {
 
     private FunctionInfo onTriggerFunction;
+    private AttachedFunction onTriggerResource;
 
     /**
      * Creates a resource function holder from a service object.
      *
      * @param service Ballerina service object from which the resource functions should be extracted.
      */
+    //TODO Remove after migration : implemented using bvm values/types
     ResourceFunctionHolder(Service service) {
         String onTriggerResourceFullName = service.getBValue().getType().getName() + "." + RESOURCE_ON_TRIGGER;
         onTriggerFunction = null;
@@ -48,11 +52,37 @@ public class ResourceFunctionHolder {
     }
 
     /**
+     * Creates a resource function holder from a service object.
+     *
+     * @param service Ballerina service object from which the resource functions should be extracted.
+     */
+    ResourceFunctionHolder(ObjectValue service) {
+        String onTriggerResourceFullName = service.getType().getName() + "." + RESOURCE_ON_TRIGGER;
+        onTriggerResource = null;
+        for (AttachedFunction resource : service.getType().getAttachedFunctions()) {
+            //TODO test the name of resource
+            if (resource.getName().equals(onTriggerResourceFullName)) {
+                onTriggerResource = resource;
+            }
+        }
+    }
+
+    /**
      * Get the <code>onTrigger</code> function.
      *
      * @return onTrigger function related to the service.
      */
+    //TODO Remove after migration : implemented using bvm values/types
     FunctionInfo getOnTriggerFunction() {
         return this.onTriggerFunction;
+    }
+
+    /**
+     * Get the <code>onTrigger</code> function.
+     *
+     * @return onTrigger function related to the service.
+     */
+    AttachedFunction getOnTriggerResource() {
+        return this.onTriggerResource;
     }
 }
