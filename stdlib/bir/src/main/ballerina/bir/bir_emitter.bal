@@ -120,7 +120,7 @@ public type BirEmitter object {
             VariableDcl varDecl = getVariableDcl(v);
             self.typeEmitter.emitType(varDecl.typeValue, tabs = tabs + "\t");
             print(" ");
-            if (varDecl.name.value == "%0") {
+            if (varDecl.kind == VAR_KIND_RETURN) {
                 print("%ret");
             } else {
                 print(varDecl.name.value);
@@ -539,7 +539,7 @@ type TypeEmitter object {
             println(" ", recField.name.value, ";");
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
-        print("...");
+        println("...", ";");
         print(tabs, "}");
     }
 
