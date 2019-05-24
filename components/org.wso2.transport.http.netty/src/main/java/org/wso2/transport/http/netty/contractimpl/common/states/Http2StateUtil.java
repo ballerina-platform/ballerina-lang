@@ -309,7 +309,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Returns the stream id of next stream.
+     * Returns the stream id of next stream. This method should only be called from an io thread.
      *
      * @param conn the HTTP2 connection
      * @return the next stream id
@@ -319,7 +319,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Creates a stream with given stream id.
+     * Creates a stream with given stream id. This method should only be called from an io thread.
      *
      * @param conn     the HTTP2 connection
      * @param streamId the id of the stream
