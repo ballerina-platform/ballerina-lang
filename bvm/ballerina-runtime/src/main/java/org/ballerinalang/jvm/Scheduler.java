@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.slf4j.Logger;
@@ -192,6 +193,7 @@ public class Scheduler {
                 result = item.execute();
             } catch (Throwable e) {
                 panic = e;
+                notifyChannels(item, panic);
                 logger.error("Strand died", e);
             }
 
@@ -285,6 +287,28 @@ public class Scheduler {
             DEBUG_LOG.add(msg);
             Thread.sleep(100);
         } catch (InterruptedException ignored) {
+
+        }
+    }
+
+    private void notifyChannels(SchedulerItem item, Throwable panic) {
+        ChannelDetails[] channels = item.future.strand.channelDetails;
+
+        for (int i = 0; i < channels.length; i++) {
+            ChannelDetails details = channels[i];
+            WorkerDataChannel wdChannel;
+
+            if (details.channelInSameStrand) {
+                wdChannel = item.future.strand.wdChannels.getWorkerDataChannel(details.name);
+            } else {
+                wdChannel = item.future.strand.parent.wdChannels.getWorkerDataChannel(details.name);
+            }
+
+            if (details.send) {
+                wdChannel.setSendPanic(panic);
+            } else {
+                wdChannel.setReceiverPanic(panic);
+            }
         }
     }
 
