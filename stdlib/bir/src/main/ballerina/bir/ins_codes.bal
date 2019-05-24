@@ -81,7 +81,9 @@ public const int INS_AND = 72;
 public const int INS_OR = 73;
 public const int INS_REF_EQUAL = 74;
 public const int INS_REF_NOT_EQUAL = 75;
-public const int INS_ANNOT_ACCESS = 76;
+public const int INS_CLOSED_RANGE = 76;
+public const int INS_HALF_OPEN_RANGE = 77;
+public const int INS_ANNOT_ACCESS = 78;
 
 // Unary expression related instructions.
 public const int INS_TYPEOF = 80;

@@ -95,6 +95,10 @@ type InstructionGenerator object {
             self.generateRefEqualIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_REF_NOT_EQUAL) {
             self.generateRefNotEqualIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_CLOSED_RANGE) {
+            self.generateClosedRangeIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_HALF_OPEN_RANGE) {
+            self.generateClosedRangeIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_ANNOT_ACCESS) {
             self.generateAnnotAccessIns(binaryIns);
         } else {
@@ -306,6 +310,16 @@ type InstructionGenerator object {
         self.mv.visitInsn(ICONST_0);
 
         self.mv.visitLabel(label2);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateClosedRangeIns(bir:BinaryOp binaryIns) {
+        self.mv.visitTypeInsn(NEW, ARRAY_VALUE);
+        self.mv.visitInsn(DUP);
+        self.generateBinaryRhsAndLhsLoad(binaryIns);
+        self.mv.visitMethodInsn(INVOKESTATIC, LONG_STREAM, "rangeClosed", io:sprintf("(JJ)L%s;", LONG_STREAM), true);
+        self.mv.visitMethodInsn(INVOKEINTERFACE, LONG_STREAM, "toArray", "()[J", true);
+        self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", "([J)V", false);
         self.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 

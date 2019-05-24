@@ -53,7 +53,7 @@ abstract class AbstractAnnotationReader extends BlockingNativeCallableUnit {
 
     static ArrayValue getAnnotationValue(org.ballerinalang.jvm.types.BType bType, String key) {
         //TODO recheck following logic : test and verify
-        MapValueImpl annotationMap = ((AnnotatableType) bType).getAnnotation(bType.getPackagePath(), key);
+        MapValueImpl annotationMap = (MapValueImpl) ((AnnotatableType) bType).getAnnotation(key);
         return createAnnotationRecordArray(annotationMap);
     }
 

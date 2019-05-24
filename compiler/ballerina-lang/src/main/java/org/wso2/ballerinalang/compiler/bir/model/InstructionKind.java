@@ -89,7 +89,9 @@ public enum InstructionKind {
     OR((byte) 73),
     REF_EQUAL((byte) 74),
     REF_NOT_EQUAL((byte) 75),
-    ANNOT_ACCESS((byte) 76),
+    CLOSED_RANGE((byte) 76),
+    HALF_OPEN_RANGE((byte) 77),
+    ANNOT_ACCESS((byte) 78),
 
     // Unary expression related instructions.
     TYPEOF((byte) 80),
