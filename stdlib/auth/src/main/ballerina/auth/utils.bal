@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/encoding;
+import ballerina/log;
 
 # Constant for the auth error code.
 public const AUTH_ERROR_CODE = "{ballerina/auth}AuthError";
