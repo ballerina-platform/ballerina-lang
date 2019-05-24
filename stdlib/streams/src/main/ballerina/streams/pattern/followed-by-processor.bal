@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 public type FollowedByProcessor object {
     *AbstractPatternProcessor;
     *AbstractOperatorProcessor;
@@ -36,7 +34,6 @@ public type FollowedByProcessor object {
     }
 
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
-        io:println("FollowedByProcessor:process:38 -> ", event, "|", processorAlias);
         lock {
             self.lockField += 1;
             boolean promoted = false;
@@ -47,11 +44,9 @@ public type FollowedByProcessor object {
             // leftward traversal
             AbstractPatternProcessor? lProcessor = self.lhsProcessor;
             if (lProcessor is AbstractPatternProcessor) {
-                io:println("FollowedByProcessor:process:47 -> ", event, "|", processorAlias);
                 (tmpPromote, tmpToNext) = lProcessor.process(event, self.lhsAlias);
                 promote = promote || tmpPromote;
                 toNext = toNext || tmpToNext;
-                io:println("FollowedByProcessor:process:51 -> ", event, "|", processorAlias);
             }
             // rightward traversal
             if ((!promote || toNext) && self.partialStates.length() > 0) {
@@ -59,20 +54,16 @@ public type FollowedByProcessor object {
                 AbstractPatternProcessor? rProcessor = self.rhsProcessor;
                 if (rProcessor is AbstractPatternProcessor) {
                     // foreach partial state, copy event data and process in rhsProcessor.
-                    io:println("FollowedByProcessor:process:62 -> partial states: ", self.partialStates);
                     string[] evtIds = self.partialStates.keys().clone();
                     foreach string id in evtIds {
                         StreamEvent partialEvt = <StreamEvent>self.partialStates[id];
-                        io:println("FollowedByProcessor:process:64 -> Looping: ", partialEvt);
                         partialEvt.addData(event.cloneData());
                         // at the leaf nodes (operand processor), it'll take current events'
                         // stream name into consideration. Therefore, we have to set that.
                         partialEvt.streamName = event.streamName;
-                        io:println("FollowedByProcessor:process:65 -> ", partialEvt, "|", processorAlias);
                         (tmpPromote, tmpToNext) = rProcessor.process(partialEvt, self.rhsAlias);
                         promote = promote || tmpPromote;
                         toNext = toNext || tmpToNext;
-                        io:println("FollowedByProcessor:process:69 -> ", partialEvt, "|", processorAlias);
                     }
                 }
             }
@@ -84,14 +75,11 @@ public type FollowedByProcessor object {
                     while (self.stateEvents.hasNext()) {
                         StreamEvent s = getStreamEvent(self.stateEvents.next());
                         self.stateEvents.removeCurrent();
-                        io:println("FollowedByProcessor:process:81 -> ", s, "|", processorAlias);
                         pProcessor.promote(s, processorAlias);
-                        io:println("FollowedByProcessor:process:83 -> ", s, "|", processorAlias);
                         promoted = true;
                     }
                 }
             }
-            io:println("FollowedByProcessor:process:88 -> ", event, "|", processorAlias);
             return (promoted, toNext);
         }
     }
@@ -127,16 +115,13 @@ public type FollowedByProcessor object {
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         string pAlias = <string>processorAlias;
         if (pAlias == self.lhsAlias) {
-            io:println("FollowedByProcessor:promote:122 -> ", stateEvent, "|", processorAlias);
             // promoted from lhs means, it's a partial state.
             self.partialStates[stateEvent.getEventId()] = stateEvent;
         } else {
             // promoted from rhs means, it's a complete state.
             // so, remove the its respective partial event.
-            io:println("FollowedByProcessor:promote:128 -> ", stateEvent, "|", processorAlias);
             boolean removed = self.partialStates.remove(stateEvent.getEventId());
             if (removed) {
-                io:println("FollowedByProcessor:promote:131 -> ", stateEvent, "|", processorAlias);
                 self.stateEvents.addLast(stateEvent);
             }
         }
@@ -148,9 +133,7 @@ public type FollowedByProcessor object {
         // remove matching states from prev processor.
         AbstractOperatorProcessor? pProcessor = self.prevProcessor;
         if (pProcessor is AbstractOperatorProcessor) {
-            io:println("FollowedByProcessor:evict:151 -> ", stateEvent, "|", processorAlias);
             pProcessor.evict(stateEvent, processorAlias);
-            io:println("FollowedByProcessor:evict:153 -> ", stateEvent, "|", processorAlias);
         }
     }
 

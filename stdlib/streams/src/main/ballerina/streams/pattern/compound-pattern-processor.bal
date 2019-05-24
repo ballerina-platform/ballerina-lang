@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/time;
 
 public type CompoundPatternProcessor object {
@@ -36,7 +35,6 @@ public type CompoundPatternProcessor object {
     }
 
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
-        io:println("CompoundPatternProcessor:process:38 -> ", event, "|", processorAlias);
         lock {
             self.lockField += 1;
             boolean promote = false;
@@ -47,9 +45,7 @@ public type CompoundPatternProcessor object {
             if (processor is AbstractPatternProcessor) {
                 // processorAlias is not required when get promoted by
                 // its only imidiate descendent. Therefore passing ().
-                io:println("CompoundPatternProcessor:process:47 -> ", event, "|", processorAlias);
                 (promote, toNext) = processor.process(event, ());
-                io:println("CompoundPatternProcessor:process:49 -> ", event, "|", processorAlias);
             }
             // upward traversal
             if (promote) {
@@ -63,12 +59,9 @@ public type CompoundPatternProcessor object {
                         self.stateEvents.removeCurrent();
                         if (withinTime is int && (currentTime - s.timestamp) > withinTime) {
                             // state haven't fulfilled in within time, therefore evict.
-                            io:println("CompoundPatternProcessor:process:63 -> ", s, "|", processorAlias);
                             pProcessor.evict(s, processorAlias);
                         } else {
-                            io:println("CompoundPatternProcessor:process:66 -> ", s, "|", processorAlias);
                             pProcessor.promote(s, processorAlias);
-                            io:println("CompoundPatternProcessor:process:68 -> ", s, "|", processorAlias);
                             promoted = true;
                         }
                     }
@@ -80,14 +73,12 @@ public type CompoundPatternProcessor object {
                         StreamEvent s = getStreamEvent(self.stateEvents.next());
                         self.stateEvents.removeCurrent();
                         if (!(withinTime is int && (currentTime - s.timestamp) > withinTime)) {
-                            io:println("CompoundPatternProcessor:process:80 -> ", s, "|", processorAlias);
                             self.emit(s);
                             promoted = true;
                         }
                     }
                 }
             }
-            io:println("CompoundPatternProcessor:process:87 -> ", event, "|", processorAlias);
             return (promoted, toNext);
         }
     }
@@ -111,7 +102,6 @@ public type CompoundPatternProcessor object {
     }
 
     public function promote(StreamEvent stateEvent, string? processorAlias) {
-        io:println("CompoundPatternProcessor:promote:100 -> ", stateEvent, "|", processorAlias);
         self.stateEvents.addLast(stateEvent);
     }
 
@@ -121,9 +111,7 @@ public type CompoundPatternProcessor object {
         // remove matching states from prev processor.
         AbstractOperatorProcessor? pProcessor = self.prevProcessor;
         if (pProcessor is AbstractOperatorProcessor) {
-            io:println("CompoundPatternProcessor:evict:125 -> ", stateEvent, "|", processorAlias);
             pProcessor.evict(stateEvent, processorAlias);
-            io:println("CompoundPatternProcessor:evict:127 -> ", stateEvent, "|", processorAlias);
         }
     }
 
@@ -139,7 +127,6 @@ public type CompoundPatternProcessor object {
     }
 
     public function emit(StreamEvent stateEvent) {
-        io:println("CompoundPatternProcessor:emit:132 -> ", stateEvent);
         // remove from stateMachine
         StateMachine? stateMachine = self.stateMachine;
         if (stateMachine is StateMachine) {

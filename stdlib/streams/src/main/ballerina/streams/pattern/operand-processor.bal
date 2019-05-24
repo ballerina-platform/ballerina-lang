@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 public type OperandProcessor object {
     *AbstractPatternProcessor;
     public (function (map<anydata> stateData) returns boolean)? onConditionFunc;
@@ -74,11 +72,9 @@ public type OperandProcessor object {
                         lastEvent = self.lastEvent;
                         if (lastEvent is StreamEvent) {
                             map<anydata>[] evtData = lastEvent.dataMap[self.alias] ?: [];
-                            io:println("LastEvent:** ", lastEvent);
                             int c = evtData.length();
                             if ((self.minOccurs < 0 || c >= self.minOccurs)
                                 && (self.maxOccurs < 0 || c <= self.maxOccurs)) {
-                                io:println("LastEvent:** ", lastEvent);
                                 // promote
                                 AbstractOperatorProcessor? pProcessor = self.prevProcessor;
                                 if (pProcessor is AbstractOperatorProcessor) {

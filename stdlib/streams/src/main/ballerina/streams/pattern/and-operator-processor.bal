@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 
 public type AndOperatorProcessor object {
     *AbstractPatternProcessor;
@@ -38,7 +37,6 @@ public type AndOperatorProcessor object {
     }
 
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
-        io:println("AndOperatorProcessor:process:40 -> ", event, "|", processorAlias);
         lock {
             self.lockField += 1;
             boolean promoted = false;
@@ -58,18 +56,14 @@ public type AndOperatorProcessor object {
                         // at the leaf nodes (operand processor), it'll take current events'
                         // stream name into consideration. Therefore, we have to set that.
                         partialEvt.streamName = event.streamName;
-                        io:println("AndOperatorProcessor:process:57 -> ", partialEvt, "|", processorAlias);
                         (tmpPromote, tmpToNext) = lProcessor.process(partialEvt, self.lhsAlias);
                         promote = promote || tmpPromote;
                         toNext = toNext || tmpToNext;
-                        io:println("AndOperatorProcessor:process:61 -> ", partialEvt, "|", processorAlias);
                     }
                 } else {
-                    io:println("AndOperatorProcessor:process:64 -> ", event, "|", processorAlias);
                     (tmpPromote, tmpToNext) = lProcessor.process(event, self.lhsAlias);
                     promote = promote || tmpPromote;
                     toNext = toNext || tmpToNext;
-                    io:println("AndOperatorProcessor:process:68 -> ", event, "|", processorAlias);
                 }
             }
             // if not already promoted or toNext, then do rightward traversal.
@@ -86,18 +80,14 @@ public type AndOperatorProcessor object {
                             // at the leaf nodes (operand processor), it'll take current events'
                             // stream name into consideration. Therefore, we have to set that.
                             partialEvt.streamName = event.streamName;
-                            io:println("AndOperatorProcessor:process:84 -> ", partialEvt, "|", processorAlias);
                             (tmpPromote, tmpToNext) = rProcessor.process(partialEvt, self.rhsAlias);
                             promote = promote || tmpPromote;
                             toNext = toNext || tmpToNext;
-                            io:println("AndOperatorProcessor:process:88 -> ", partialEvt, "|", processorAlias);
                         }
                     } else {
-                        io:println("AndOperatorProcessor:process:91 -> ", event, "|", processorAlias);
                         (tmpPromote, tmpToNext) = rProcessor.process(event, self.rhsAlias);
                         promote = promote || tmpPromote;
                         toNext = toNext || tmpToNext;
-                        io:println("AndOperatorProcessor:process:95 -> ", event, "|", processorAlias);
                     }
                 }
             }
@@ -109,9 +99,7 @@ public type AndOperatorProcessor object {
                     while (self.stateEvents.hasNext()) {
                         StreamEvent s = getStreamEvent(self.stateEvents.next());
                         self.stateEvents.removeCurrent();
-                        io:println("AndOperatorProcessor:process:107 -> ", s, "|", processorAlias);
                         pProcessor.promote(s, processorAlias);
-                        io:println("AndOperatorProcessor:process:109 -> ", s, "|", processorAlias);
                         promoted = true;
                     }
                 }
@@ -151,27 +139,21 @@ public type AndOperatorProcessor object {
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         string pAlias = <string>processorAlias;
         if (pAlias == self.lhsAlias) {
-            io:println("AndOperatorProcessor:promote:147 -> ", stateEvent, "|", processorAlias);
             // promoted from lhs means, it can be a partial lhs state or a completed state.
             boolean rhsRemoved = self.rhsPartialStates.remove(stateEvent.getEventId());
             // rhsRemoved=true means, it was earlier a partial rhs state, and now it's a completed state.
             if (rhsRemoved) {
-                io:println("AndOperatorProcessor:promote:152 -> ", stateEvent, "|", processorAlias);
                 self.stateEvents.addLast(stateEvent);
             } else {
-                io:println("AndOperatorProcessor:promote:155 -> ", stateEvent, "|", processorAlias);
                 self.lhsPartialStates[stateEvent.getEventId()] = stateEvent;
             }
         } else {
-            io:println("AndOperatorProcessor:promote:159 -> ", stateEvent, "|", processorAlias);
             // promoted from rhs means, it can be a partial rhs state or a completed state.
             boolean lhsRemoved = self.lhsPartialStates.remove(stateEvent.getEventId());
             // lhsRemoved=true means, it was earlier a partial lhs state, and now it's a completed state.
             if (lhsRemoved) {
-                io:println("AndOperatorProcessor:promote:164 -> ", stateEvent, "|", processorAlias);
                 self.stateEvents.addLast(stateEvent);
             } else {
-                io:println("AndOperatorProcessor:promote:167 -> ", stateEvent, "|", processorAlias);
                 self.rhsPartialStates[stateEvent.getEventId()] = stateEvent;
             }
         }
@@ -197,9 +179,7 @@ public type AndOperatorProcessor object {
         // remove matching states from prev processor.
         AbstractOperatorProcessor? pProcessor = self.prevProcessor;
         if (pProcessor is AbstractOperatorProcessor) {
-            io:println("AndOperatorProcessor:evict:193 -> ", stateEvent, "|", processorAlias);
             pProcessor.evict(stateEvent, processorAlias);
-            io:println("AndOperatorProcessor:evict:195 -> ", stateEvent, "|", processorAlias);
         }
     }
 

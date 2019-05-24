@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/task;
 import ballerina/time;
 
@@ -73,7 +72,6 @@ public type NotOperatorProcessor object {
                 map<anydata> data = {};
                 // inject an event with current processors' alias as the stream name.
                 // So that, it will be identifiable in the process method.
-                io:println("NotOperatorProcessor:eventSchedulerService:71 -> Inject to stateMachine");
                 StreamEvent notEvt = new StreamEvent((p.getAlias(), data), evntType, currentTime);
                 // to get rid of event duplication.
                 notEvt.eventId = p.getAlias();
@@ -86,7 +84,6 @@ public type NotOperatorProcessor object {
     };
 
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
-        io:println("NotOperatorProcessor:process:84 -> ", event, "|", processorAlias);
         lock {
             self.lockField += 1;
             boolean promote = false;
@@ -96,7 +93,6 @@ public type NotOperatorProcessor object {
             AbstractOperatorProcessor? pProcessor = self.prevProcessor;
             if (event.getStreamName() == self.getAlias()) {
                 // injected events' stream name and the alias of the processor will be the same
-                io:println("NotOperatorProcessor:process:93 -> ", event, "|", processorAlias);
                 int timeDiff = currentTime - event.timestamp;
                 if (timeDiff > (self.forTimeMillis / 100) && timeDiff < self.forTimeMillis) {
                     // if the time diff is between 1% margin and forTimeMillis, then perform 'for' time correction.
@@ -105,9 +101,7 @@ public type NotOperatorProcessor object {
                 } else {
                     // promote emited event
                     if (pProcessor is AbstractOperatorProcessor) {
-                        io:println("NotOperatorProcessor:process:102 -> ", event, "|", processorAlias);
                         pProcessor.promote(event, processorAlias);
-                        io:println("NotOperatorProcessor:process:104 -> ", event, "|", processorAlias);
                         self.rescheduleNextEvent(());
                         promoted = true;
                         toNext = false;
@@ -115,55 +109,44 @@ public type NotOperatorProcessor object {
                 }
             } else {
                 // normal (non-injected) events.
-                io:println("NotOperatorProcessor:process:112 -> ", event, "|", processorAlias);
                 AbstractPatternProcessor? processor = self.processor;
                 if (processor is AbstractPatternProcessor) {
                     // processorAlias is not required when get promoted by
                     // its only imidiate descendent. Therefore passing ().
-                    io:println("NotOperatorProcessor:process:117 -> ", event, "|", processorAlias);
                     (promote, toNext) = processor.process(event, ());
-                    io:println("NotOperatorProcessor:process:119 -> ", event, "|", processorAlias);
                 }
                 // descendents will promote this processor on state fulfillment
                 if (promote) {
                     // since this is NOT operator, if got promoted, we have to evict existing state.
-                    io:println("NotOperatorProcessor:process:124 -> ", event, "|", processorAlias);
                     self.evict(event, processorAlias);
                     // once evicted, reschedule the next event.
                     if (self.forTimeMillis > 0) {
-                        io:println("NotOperatorProcessor:process:128 -> ", event, "|", processorAlias);
                         self.rescheduleNextEvent(());
                     }
                 } else {
                     // else, promote current event (everything which don't get promoted (with filters,
                     // non matching streams, etc...) to the previous processor.
-                    io:println("NotOperatorProcessor:process:134 -> ", event, "|", processorAlias);
                     if (pProcessor is AbstractOperatorProcessor) {
                         if (self.forTimeMillis > 0) {
                             // if the `for` time is given, any event that doesn't match the NOT state
                             // will be ignored and sent to the next processor.
-                            io:println("NotOperatorProcessor:process:139 -> ", event, "|", processorAlias);
                             promoted = false;
                             toNext = true;
                         } else {
                             // create an event without state data to represent NOT state, and promote it.
-                            io:println("NotOperatorProcessor:process:144 -> ", event, "|", processorAlias);
                             map<anydata> data = {};
                             StreamEvent clone = new StreamEvent((event.streamName, data), event.eventType, event.
                                 timestamp);
                             clone.eventId = event.eventId;
                             clone.streamName = event.streamName;
                             clone.timestamp = event.timestamp;
-                            io:println("NotOperatorProcessor:process:150 -> ", clone, "|", processorAlias);
                             pProcessor.promote(clone, processorAlias);
-                            io:println("NotOperatorProcessor:process:152 -> ", clone, "|", processorAlias);
                             promoted = true;
                             toNext = true;
                         }
                     }
                 }
             }
-            io:println("NotOperatorProcessor:process:159 -> ", event, "|", processorAlias);
             return (promoted, toNext);
         }
     }
@@ -198,9 +181,7 @@ public type NotOperatorProcessor object {
         // remove matching states from prev processors.
         AbstractOperatorProcessor? pProcessor = self.prevProcessor;
         if (pProcessor is AbstractOperatorProcessor) {
-            io:println("NotOperatorProcessor:evict:192 -> ", stateEvent, "|", processorAlias);
             pProcessor.evict(stateEvent, processorAlias);
-            io:println("NotOperatorProcessor:evict:194 -> ", stateEvent, "|", processorAlias);
         }
     }
 
