@@ -29,7 +29,7 @@ import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
 /**
  * A test suit listener for jballerina test cases initialization.
  *
- * @since 0.955.0
+ * @since 0.995.0
  */
 public class JBallerinaTestInitializer implements ITestListener {
 

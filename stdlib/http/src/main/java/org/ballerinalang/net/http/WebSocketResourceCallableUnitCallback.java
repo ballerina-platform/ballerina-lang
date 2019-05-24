@@ -41,7 +41,7 @@ public class WebSocketResourceCallableUnitCallback implements CallableUnitCallba
 
     @Override
     public void notifyFailure(ErrorValue error) {
-        ErrorHandlerUtils.printError("error: " + BallerinaErrors.getPrintableStackTrace(error));
+        ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
         WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
     }
 

@@ -287,7 +287,7 @@ public class WebSocketDispatcher {
 
             @Override
             public void notifyFailure(ErrorValue error) {
-                ErrorHandlerUtils.printError(BallerinaErrors.getPrintableStackTrace(error));
+                ErrorHandlerUtils.printError(error.getPrintableStackTrace());
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
@@ -323,7 +323,7 @@ public class WebSocketDispatcher {
 
             @Override
             public void notifyFailure(ErrorValue error) {
-                ErrorHandlerUtils.printError(BallerinaErrors.getPrintableStackTrace(error));
+                ErrorHandlerUtils.printError(error.getPrintableStackTrace());
             }
         };
         //TODO this is temp fix till we get the service.start() API
@@ -374,7 +374,7 @@ public class WebSocketDispatcher {
 
             @Override
             public void notifyFailure(ErrorValue error) {
-                ErrorHandlerUtils.printError(BallerinaErrors.getPrintableStackTrace(error));
+                ErrorHandlerUtils.printError(error.getPrintableStackTrace());
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };

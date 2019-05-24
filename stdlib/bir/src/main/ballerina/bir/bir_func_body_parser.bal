@@ -319,7 +319,7 @@ public type FuncBodyParser object {
                                elseOp:elseOp};
             return ternary;
         } else if (kindTag == INS_NEGATE) {
-            kind = INS_KIND_NOT;
+            kind = INS_KIND_NEGATE;
             var rhsOp = self.parseVarRef();
             var lhsOp = self.parseVarRef();
             UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
@@ -546,6 +546,10 @@ public type FuncBodyParser object {
             kind = BINARY_REF_EQUAL;
         } else if (kindTag == INS_REF_NOT_EQUAL){
             kind = BINARY_REF_NOT_EQUAL;
+        } else if (kindTag == INS_CLOSED_RANGE) {
+            kind = BINARY_CLOSED_RANGE;
+        } else if (kindTag == INS_HALF_OPEN_RANGE) {
+            kind = BINARY_HALF_OPEN_RANGE;
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
             panic err;
