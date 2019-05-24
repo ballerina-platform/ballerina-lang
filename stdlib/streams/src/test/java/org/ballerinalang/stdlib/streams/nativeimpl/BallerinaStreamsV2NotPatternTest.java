@@ -42,7 +42,7 @@ public class BallerinaStreamsV2NotPatternTest {
         notPatternTests = BCompileUtil.compile("test-src/native/streamingv2-native-simple-not-pattern-test.bal");
     }
 
-    @Test(description = "Test (A -> not B for 2 sec) pattern query.")
+    @Test(description = "Test (A -> not B for 2 sec) pattern query.", enabled = false)
     public void runPatternQuery1() {
         BValue[] outputEvents = BRunUtil.invoke(notPatternTests, "runPatternQuery1");
         Assert.assertNotNull(outputEvents);
@@ -52,7 +52,7 @@ public class BallerinaStreamsV2NotPatternTest {
         Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("cId"), new BInteger(0));
     }
 
-    @Test(description = "Test (A -> not B and C) pattern query.")
+    @Test(description = "Test (A -> not B and C) pattern query.", enabled = false)
     public void runPatternQuery2() {
         BValue[] outputEvents = BRunUtil.invoke(notPatternTests, "runPatternQuery2");
         Assert.assertNotNull(outputEvents);
@@ -62,7 +62,7 @@ public class BallerinaStreamsV2NotPatternTest {
         Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("cId"), new BInteger(31));
     }
 
-    @Test(description = "Test (A -> not B for 2 sec and C) pattern query.")
+    @Test(description = "Test (A -> not B for 2 sec and C) pattern query.", enabled = false)
     public void runPatternQuery3() {
         BValue[] outputEvents = BRunUtil.invoke(notPatternTests, "runPatternQuery3");
         Assert.assertNotNull(outputEvents);
@@ -72,7 +72,7 @@ public class BallerinaStreamsV2NotPatternTest {
         Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("cId"), new BInteger(31));
     }
 
-    @Test(description = "Test (A -> not B for 2 sec or C) pattern query.")
+    @Test(description = "Test (A -> not B for 2 sec or C) pattern query.", enabled = false)
     public void runPatternQuery4() {
         BValue[] outputEvents = BRunUtil.invoke(notPatternTests, "runPatternQuery4");
         Assert.assertNotNull(outputEvents);
@@ -85,7 +85,7 @@ public class BallerinaStreamsV2NotPatternTest {
         Assert.assertEquals(((BMap) outputEvents[1]).getMap().get("cId"), new BInteger(0));
     }
 
-    @Test(description = "Test (A -> not B for 2 sec and not C for 2 sec) pattern query.")
+    @Test(description = "Test (A -> not B for 2 sec and not C for 2 sec) pattern query.", enabled = false)
     public void runPatternQuery5() {
         BValue[] outputEvents = BRunUtil.invoke(notPatternTests, "runPatternQuery5");
         Assert.assertNotNull(outputEvents);
@@ -95,7 +95,7 @@ public class BallerinaStreamsV2NotPatternTest {
         Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("cId"), new BInteger(0));
     }
 
-    @Test(description = "Test (A -> not B for 2 sec or not C for 2 sec) pattern query.")
+    @Test(description = "Test (A -> not B for 2 sec or not C for 2 sec) pattern query.", enabled = false)
     public void runPatternQuery6() {
         BValue[] outputEvents = BRunUtil.invoke(notPatternTests, "runPatternQuery6");
         Assert.assertNotNull(outputEvents);
@@ -105,7 +105,7 @@ public class BallerinaStreamsV2NotPatternTest {
         Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("cId"), new BInteger(0));
     }
 
-    @Test(description = "Test (not A for 2 sec -> B) pattern query.")
+    @Test(description = "Test (not A for 2 sec -> B) pattern query.", enabled = false)
     public void runPatternQuery7() {
         BValue[] outputEvents = BRunUtil.invoke(notPatternTests, "runPatternQuery7");
         Assert.assertNotNull(outputEvents);
@@ -115,7 +115,7 @@ public class BallerinaStreamsV2NotPatternTest {
         Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("cId"), new BInteger(0));
     }
 
-    @Test(description = "Test (not A and B -> C) pattern query.")
+    @Test(description = "Test (not A and B -> C) pattern query.", enabled = false)
     public void runPatternQuery8() {
         BValue[] outputEvents = BRunUtil.invoke(notPatternTests, "runPatternQuery8");
         Assert.assertNotNull(outputEvents);
@@ -125,7 +125,7 @@ public class BallerinaStreamsV2NotPatternTest {
         Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("cId"), new BInteger(31));
     }
 
-    @Test(description = "Test (not A for 2 sec and B -> C) pattern query.")
+    @Test(description = "Test (not A for 2 sec and B -> C) pattern query.", enabled = false)
     public void runPatternQuery9() {
         BValue[] outputEvents = BRunUtil.invoke(notPatternTests, "runPatternQuery9");
         Assert.assertNotNull(outputEvents);
@@ -135,7 +135,7 @@ public class BallerinaStreamsV2NotPatternTest {
         Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("cId"), new BInteger(31));
     }
 
-    @Test(description = "Test (not A for 2 sec and not B for 2 sec -> C) pattern query.")
+    @Test(description = "Test (not A for 2 sec and not B for 2 sec -> C) pattern query.", enabled = false)
     public void runPatternQuery10() {
         BValue[] outputEvents = BRunUtil.invoke(notPatternTests, "runPatternQuery10");
         Assert.assertNotNull(outputEvents);
