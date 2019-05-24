@@ -1546,6 +1546,8 @@ public class BIRGen extends BLangNodeVisitor {
                 return InstructionKind.NOT;
             case SUB:
                 return InstructionKind.NEGATE;
+            case ADD:
+                return InstructionKind.MOVE;
             default:
                 throw new IllegalStateException("unsupported unary operator: " + opKind.value());
         }

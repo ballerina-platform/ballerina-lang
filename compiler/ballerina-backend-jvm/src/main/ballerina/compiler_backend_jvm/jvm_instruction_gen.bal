@@ -934,6 +934,9 @@ type InstructionGenerator object {
             self.mv.visitInsn(LNEG);
         } else if (btype is bir:BTypeFloat) {
             self.mv.visitInsn(FNEG);
+        } else if (btype is bir:BTypeDecimal) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "negate",
+                io:sprintf("()L%s;", DECIMAL_VALUE), false);
         } else {
             error err = error(io:sprintf("Negation is not supported for type: %s", btype));
             panic err;
