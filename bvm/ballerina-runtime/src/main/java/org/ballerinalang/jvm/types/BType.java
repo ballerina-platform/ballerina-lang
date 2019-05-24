@@ -75,6 +75,11 @@ public abstract class BType {
 
             // If both package paths are null or both package paths are not null,
             //    then check their names. If not return false
+
+            if (this.pkg == null || other.pkg == null) {
+                return false;
+            }
+
             if (this.pkg.getName() == null && other.pkg.getName() == null) {
                 return namesEqual;
             } else if (this.pkg.getName() != null && other.pkg.getName() != null) {

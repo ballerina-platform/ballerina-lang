@@ -227,7 +227,13 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:
 
     // Load package path
     // TODO: get it from the type
+    mv.visitTypeInsn(NEW, PACKAGE_TYPE);
+    mv.visitInsn(DUP);
     mv.visitLdcInsn(pkgName);
+    // TODO : Load package version properly
+    mv.visitLdcInsn("0.0.0");
+    mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
+                            "(Ljava/lang/String;Ljava/lang/String;)V", false);
 
     // Load flags
     int flag = getVisibilityFlag(typeDef);
@@ -239,7 +245,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:
 
     // initialize the record type
     mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>", 
-            io:sprintf("(L%s;L%s;IZ)V", STRING_VALUE, STRING_VALUE), 
+            io:sprintf("(L%s;L%s;IZ)V", STRING_VALUE, PACKAGE_TYPE),
             false);
 
     return;
@@ -333,7 +339,13 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
     mv.visitLdcInsn(name);
 
     // Load package path
+    mv.visitTypeInsn(NEW, PACKAGE_TYPE);
+    mv.visitInsn(DUP);
     mv.visitLdcInsn(pkgName);
+    // TODO : Load package version properly
+    mv.visitLdcInsn("0.0.0");
+    mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
+                            "(Ljava/lang/String;Ljava/lang/String;)V", false);
 
     // Load flags
     int flag = getVisibilityFlag(typeDef);
@@ -342,7 +354,7 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
 
     // initialize the object
     mv.visitMethodInsn(INVOKESPECIAL, OBJECT_TYPE, "<init>",
-            io:sprintf("(L%s;L%s;I)V", STRING_VALUE, STRING_VALUE),
+            io:sprintf("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE),
             false);
     return;
 }
@@ -515,8 +527,15 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
     // Load error type name
     mv.visitLdcInsn(name);
 
-    // Load package path
+    // Load package
+    mv.visitTypeInsn(NEW, PACKAGE_TYPE);
+    mv.visitInsn(DUP);
     mv.visitLdcInsn(pkgName);
+    // TODO : Load package version properly
+    mv.visitLdcInsn("0.0.0");
+    mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
+                            "(Ljava/lang/String;Ljava/lang/String;)V", false);
+
     
     // Load reason and details type
     loadType(mv, errorType.reasonType);
@@ -524,7 +543,7 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
 
     // initialize the error type
     mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, 
-            STRING_VALUE, BTYPE, BTYPE), false);
+            PACKAGE_TYPE, BTYPE, BTYPE), false);
 }
 
 // -------------------------------------------------------
