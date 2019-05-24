@@ -55,6 +55,7 @@ public class Strand {
         this.scheduler = scheduler;
         this.wdChannels = new WDChannels();
         this.blockedOn = new CopyOnWriteArrayList();
+        this.channelDetails = new ChannelDetails[0];
     }
 
     public Strand(Scheduler scheduler, Strand parent) {
@@ -62,6 +63,7 @@ public class Strand {
         this.parent = parent;
         this.wdChannels = new WDChannels();
         this.blockedOn = new CopyOnWriteArrayList();
+        this.channelDetails = new ChannelDetails[0];
     }
 
     public Strand(Scheduler scheduler, Map<String, Object> properties) {
@@ -69,6 +71,7 @@ public class Strand {
         this.globalProps = properties;
         this.wdChannels = new WDChannels();
         this.blockedOn = new CopyOnWriteArrayList();
+        this.channelDetails = new ChannelDetails[0];
     }
 
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {

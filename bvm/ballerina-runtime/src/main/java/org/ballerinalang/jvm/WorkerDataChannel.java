@@ -120,7 +120,9 @@ public class WorkerDataChannel {
             }
 
             if (this.panic != null && this.channel.peek() != null && this.channel.peek().isSync) {
-                // TODO: Fix for receiver panics
+                Throwable e = this.panic;
+                this.panic = null;
+                throw new RuntimeException(e);
             } else if (this.error != null && this.channel.peek() != null && this.channel.peek().isSync) {
                 // should make sure this error happened before sending the sync message
                 ErrorValue ret = this.error;
