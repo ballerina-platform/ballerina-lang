@@ -192,13 +192,28 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      * @since 0.995.0
      */
     public static class NewInstance extends BIRNonTerminator {
+        public final boolean isExternalDef;
+        public final PackageID externalPackageId;
         public BIRTypeDefinition def;
+        public final String objectName;
         public BIROperand lhsOp;
 
         public NewInstance(DiagnosticPos pos, BIRTypeDefinition def, BIROperand lhsOp) {
             super(pos, InstructionKind.NEW_INSTANCE);
             this.lhsOp = lhsOp;
             this.def = def;
+            this.objectName = null;
+            this.externalPackageId = null;
+            this.isExternalDef = false;
+        }
+
+        public NewInstance(DiagnosticPos pos, PackageID externalPackageId, String objectName, BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_INSTANCE);
+            this.objectName = objectName;
+            this.lhsOp = lhsOp;
+            this.def = null;
+            this.externalPackageId = externalPackageId;
+            this.isExternalDef = true;
         }
 
         @Override
