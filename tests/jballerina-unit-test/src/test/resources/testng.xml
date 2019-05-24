@@ -29,12 +29,18 @@
     </listeners>
     <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <packages>
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
             <package name="org.ballerinalang.test.main.function.*"/>
             <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
         </packages>
 
         <classes>
@@ -77,18 +83,7 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.expressions.elvis.ElvisExpressionTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.DivisionOperationTest">
-                <methods>
-                    <exclude name="testIntDivideByZeroExpr"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.ModOperationTest">
-                <methods>
-                    <exclude name="testIntModZero"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
-            <class name="org.ballerinalang.test.expressions.binaryoperations.BinaryExprTest" />
             <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
 
             <!--Built in methods-->
@@ -126,17 +121,6 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.MultiplyOperationTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.OperatorPrecedenceTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.RefEqualAndNotEqualOperationsTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.SubtractOperationTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.TypeTestExprTest">
-                <methods>
-                    <exclude name="testError_1"/>
-                    <exclude name="testError_2"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.EqualAndNotEqualOperationsTest"/>
             <class name="org.ballerinalang.test.types.decimaltype.BDecimalNaNInfinityTest">
                 <!--We can remove excludes once 'isNaN' and 'isFinite' are supported-->
                 <methods>
@@ -168,7 +152,6 @@
                     <include name="simpleLock"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.IntegerRangeOperatorTest"/>
         </classes>
     </test>
 </suite>
