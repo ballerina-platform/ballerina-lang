@@ -1638,6 +1638,10 @@ public class BIRGen extends BLangNodeVisitor {
                 return InstructionKind.REF_EQUAL;
             case REF_NOT_EQUAL:
                 return InstructionKind.REF_NOT_EQUAL;
+            case CLOSED_RANGE:
+                return InstructionKind.CLOSED_RANGE;
+            case HALF_OPEN_RANGE:
+                return InstructionKind.HALF_OPEN_RANGE;
             default:
                 throw new IllegalStateException("unsupported binary operation: " + opKind.value());
         }
