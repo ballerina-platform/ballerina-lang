@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.auth.jwt;
+package org.ballerinalang.stdlib.jwt;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -56,7 +56,7 @@ public class JwtTest {
         trustStorePath = Paths.get("src", "test", "resources", "datafiles", 
             "keystore", "ballerinaTruststore.p12").toAbsolutePath().toString();
         resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
-        Path sourceRoot = Paths.get(resourceRoot, "test-src", "jwt");
+        Path sourceRoot = Paths.get(resourceRoot, "test-src");
         compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-test.bal").toString());
     }
 

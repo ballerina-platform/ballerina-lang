@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/auth;
-import ballerina/http;
 import ballerina/crypto;
+import ballerina/http;
+import ballerina/jwt;
 
 function testCanHandleHttpJwtAuthWithoutHeader() returns boolean {
     http:JwtAuthnHandler handler = new(createJwtAuthProvider("ballerina/security/ballerinaTruststore.p12"));
@@ -58,31 +58,31 @@ function createRequest() returns http:Request {
     return inRequest;
 }
 
-function createJwtAuthProvider(string trustStorePath) returns auth:JWTAuthProvider {
+function createJwtAuthProvider(string trustStorePath) returns jwt:JWTAuthProvider {
     crypto:TrustStore trustStore = {
         path: trustStorePath,
         password: "ballerina"
     };
-    auth:JWTAuthProviderConfig jwtConfig = {
+    jwt:JWTAuthProviderConfig jwtConfig = {
         issuer: "wso2",
         audience: ["ballerina"],
         certificateAlias: "ballerina",
         trustStore: trustStore
     };
-    auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
+    jwt:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
     return jwtAuthProvider;
 }
 
-function generateJwt(auth:JwtHeader header, auth:JwtPayload payload, string keyStorePath) returns string|error {
+function generateJwt(jwt:JwtHeader header, jwt:JwtPayload payload, string keyStorePath) returns string|error {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    auth:JWTIssuerConfig issuerConfig = {
+    jwt:JWTIssuerConfig issuerConfig = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
     };
-    return auth:issueJwt(header, payload, issuerConfig);
+    return jwt:issueJwt(header, payload, issuerConfig);
 }
 
-function verifyJwt(string jwt, auth:JWTValidatorConfig config) returns auth:JwtPayload|error {
-    return auth:validateJwt(jwt, config);
+function verifyJwt(string jwt, jwt:JWTValidatorConfig config) returns jwt:JwtPayload|error {
+    return jwt:validateJwt(jwt, config);
 }

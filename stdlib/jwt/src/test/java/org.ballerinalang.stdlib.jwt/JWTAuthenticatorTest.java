@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.auth.jwt;
+package org.ballerinalang.stdlib.jwt;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -96,7 +96,7 @@ public class JWTAuthenticatorTest {
                 "datafiles/keystore/ballerinaKeystore.p12").getPath();
         resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
-        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "jwt", BALLERINA_CONF);
+        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", BALLERINA_CONF);
         Path ballerinaKeyStorePath = Paths.get(resourceRoot, "datafiles", "keystore", KEY_STORE);
         ballerinaKeyStoreCopyPath = sourceRoot.resolve(KEY_STORE);
         Path ballerinaTrustStorePath = Paths.get(resourceRoot, "datafiles", "keystore", TRUST_SORE);
