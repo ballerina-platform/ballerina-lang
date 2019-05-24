@@ -1,8 +1,6 @@
 import ballerina/io;
 
-type ObjectName1 object {
-
-};
+type ObjectName1 object {};
 
 type ObjectName2 object {
     private int bd = 0;

@@ -816,8 +816,8 @@ public class FormattingSourceGen {
                 }
             }
 
-            if (!(node.has("resource")
-                    && node.get("resource").getAsBoolean())) {
+            if (node.has("parameters")
+                    && node.has("defaultableParameters")) {
                 // Sort and add all the parameters.
                 JsonArray allParamsTemp = node.getAsJsonArray("parameters");
                 allParamsTemp.addAll(node.getAsJsonArray("defaultableParameters"));
