@@ -43,7 +43,7 @@ public class Put extends AbstractHTTPAction {
     @Override
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         HttpCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_PUT);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_PUT);
         return outboundRequestMsg;
     }
 

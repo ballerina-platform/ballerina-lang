@@ -66,7 +66,6 @@ import java.util.Optional;
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 import static org.ballerinalang.net.http.HttpUtil.getCompressionState;
@@ -498,8 +497,8 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         @Override
         public void onMessage(HttpCarbonMessage httpCarbonMessage) {
             super.onMessage(httpCarbonMessage);
-            Integer statusCode = (Integer) httpCarbonMessage.getProperty(HTTP_STATUS_CODE);
-            addHttpStatusCode(statusCode != null ? statusCode : 0);
+            int statusCode = httpCarbonMessage.getHttpStatusCode();
+            addHttpStatusCode(statusCode);
         }
 
         @Override

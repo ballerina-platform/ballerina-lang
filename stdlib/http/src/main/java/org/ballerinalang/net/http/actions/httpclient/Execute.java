@@ -22,7 +22,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -61,9 +60,9 @@ public class Execute extends AbstractHTTPAction {
 
         // If the verb is not specified, use the verb in incoming message
         if (httpVerb == null || httpVerb.isEmpty()) {
-            httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
+            httpVerb = outboundRequestMsg.getHttpMethod();
         }
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        outboundRequestMsg.setHttpMethod(httpVerb.trim().toUpperCase(Locale.getDefault()));
         handleAcceptEncodingHeader(outboundRequestMsg, getCompressionConfigFromEndpointConfig(bConnector));
 
         return outboundRequestMsg;

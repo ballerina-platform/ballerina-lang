@@ -51,8 +51,6 @@ public class HttpConstants {
     public static final String HTTP_CALLER_NAME = "ballerina/http:Caller";
     public static final String HTTP_MOCK_SERVER_ENDPOINT_NAME = "Tballerina/http:MockListener;";
     public static final String PROTOCOL_HTTPS = "https";
-    public static final String HTTP_METHOD = "HTTP_METHOD";
-    public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
     public static final String RESOLVED_REQUESTED_URI = "RESOLVED_REQUESTED_URI";
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -159,7 +157,6 @@ public class HttpConstants {
     public static final String HTTP_CLIENT = "Client";
     public static final String HTTP_CALLER = "HttpCaller";
 
-    public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
     public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
     public static final String ORIGIN_HOST = "ORIGIN_HOST";
@@ -319,7 +316,7 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
     public static final String FILE_PATH = "path";
     public static final String PASSWORD = "password";
-    public static final String PROTOCOL_VERSION = "name";
+    public static final String SSL_PROTOCOL_VERSION = "name";
     public static final String ENABLED_PROTOCOLS = "versions";
     public static final String ENABLE = "enable";
     public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";

@@ -66,13 +66,13 @@ public class Forward extends AbstractHTTPAction {
             HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestStruct);
             prepareOutboundRequest(context, path, outboundRequestMsg,
                                    !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
-            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD,
-                    BLangConnectorSPIUtil.toStruct(requestStruct).getStringField(HttpConstants.HTTP_REQUEST_METHOD));
+            outboundRequestMsg.setHttpMethod(BLangConnectorSPIUtil.toStruct(requestStruct)
+                    .getStringField(HttpConstants.HTTP_REQUEST_METHOD));
         } else {
             prepareOutboundRequest(context, path, outboundRequestMsg,
                                    !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
-            String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
-            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+            String httpVerb = outboundRequestMsg.getHttpMethod();
+            outboundRequestMsg.setHttpMethod(httpVerb.trim().toUpperCase(Locale.getDefault()));
         }
         return outboundRequestMsg;
     }

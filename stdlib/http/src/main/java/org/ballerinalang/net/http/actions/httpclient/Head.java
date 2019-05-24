@@ -45,7 +45,7 @@ public class Head extends AbstractHTTPAction {
     @Override
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         HttpCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
-        outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_HEAD);
+        outboundReqMsg.setHttpMethod(HttpConstants.HTTP_METHOD_HEAD);
         return outboundReqMsg;
     }
 }

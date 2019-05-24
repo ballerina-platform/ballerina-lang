@@ -43,7 +43,7 @@ public class Patch extends AbstractHTTPAction {
     @Override
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         HttpCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_PATCH);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_PATCH);
         return outboundRequestMsg;
     }
 

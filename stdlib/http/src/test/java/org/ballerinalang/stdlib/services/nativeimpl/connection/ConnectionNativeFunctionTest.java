@@ -50,7 +50,7 @@ public class ConnectionNativeFunctionTest {
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 301);
+        Assert.assertEquals((int) response.getHttpStatusCode(), 301);
         Assert.assertEquals(response.getHeader("Location"), "location1");
     }
 }

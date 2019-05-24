@@ -36,7 +36,7 @@ public class HttpResourceDispatcher {
 
     public static HttpResource findResource(HttpService service, HttpCarbonMessage inboundRequest) {
 
-        String method = (String) inboundRequest.getProperty(HttpConstants.HTTP_METHOD);
+        String method = inboundRequest.getHttpMethod();
         String subPath = (String) inboundRequest.getProperty(HttpConstants.SUB_PATH);
         subPath = sanitizeSubPath(subPath);
         Map<String, String> resourceArgumentValues = new HashMap<>();
@@ -50,7 +50,7 @@ public class HttpResourceDispatcher {
                 if (method.equals(HttpConstants.HTTP_METHOD_OPTIONS)) {
                     handleOptionsRequest(inboundRequest, service);
                 } else {
-                    inboundRequest.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
+                    inboundRequest.setHttpStatusCode(404);
                     throw new BallerinaConnectorException("no matching resource found for path : "
                             + inboundRequest.getProperty(HttpConstants.TO) + " , method : " + method);
                 }
@@ -81,12 +81,12 @@ public class HttpResourceDispatcher {
             response.setHeader(HttpHeaderNames.ALLOW.toString(),
                     DispatcherUtil.concatValues(service.getAllAllowedMethods(), false));
         } else {
-            cMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
+            cMsg.setHttpStatusCode(404);
             throw new BallerinaConnectorException("no matching resource found for path : "
                     + cMsg.getProperty(HttpConstants.TO) + " , method : " + "OPTIONS");
         }
         CorsHeaderGenerator.process(cMsg, response, false);
-        response.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
+        response.setHttpStatusCode(200);
         response.addHttpContent(new DefaultLastHttpContent());
         PipeliningHandler.sendPipelinedResponse(cMsg, response);
     }

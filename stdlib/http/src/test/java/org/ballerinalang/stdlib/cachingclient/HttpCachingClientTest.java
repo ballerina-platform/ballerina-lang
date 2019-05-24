@@ -50,7 +50,6 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
@@ -92,7 +91,7 @@ public class HttpCachingClientTest {
 
         HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(AGE, "10");
-        inResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
+        inResponseMsg.setHttpStatusCode(200);
 
         initInboundResponse(cachedResponse, inResponseMsg);
 
@@ -118,7 +117,7 @@ public class HttpCachingClientTest {
 
         HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(DATE, expectedDate);
-        inResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
+        inResponseMsg.setHttpStatusCode(200);
 
         initInboundResponse(inResponse, inResponseMsg);
 
@@ -148,7 +147,7 @@ public class HttpCachingClientTest {
         httpHeaders.add(WARNING, "Warning: 113 - \"Heuristic Expiration\"");
         httpHeaders.add(WARNING, warning214);
         httpHeaders.add(WARNING, warning299);
-        inResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
+        inResponseMsg.setHttpStatusCode(200);
 
         initInboundResponse(inResponse, inResponseMsg);
         BValue[] inputArg = {inResponse};
@@ -176,7 +175,7 @@ public class HttpCachingClientTest {
                                                                  PROTOCOL_PACKAGE_HTTP,
                                                                  RESPONSE);
         HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
-        cachedResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
+        cachedResponseMsg.setHttpStatusCode(200);
         cachedResponseMsg.setHeader(DATE, cachedDateHeader);
         cachedResponseMsg.setHeader(CACHE_CONTROL, cacheControlHeader);
         cachedResponseMsg.setHeader(EXPIRES, cachedExpiresHeader);
@@ -187,7 +186,7 @@ public class HttpCachingClientTest {
                                                                      PROTOCOL_PACKAGE_HTTP,
                                                                      RESPONSE);
         HttpCarbonMessage validationResponseMsg = HttpUtil.createHttpCarbonMessage(false);
-        validationResponseMsg.setProperty(HTTP_STATUS_CODE, 304);
+        validationResponseMsg.setHttpStatusCode(304);
         validationResponseMsg.setHeader(DATE, validationDateHeader);
         validationResponseMsg.setHeader(CACHE_CONTROL, cacheControlHeader);
         validationResponseMsg.setHeader(EXPIRES, validationExpiresHeader);
@@ -238,7 +237,7 @@ public class HttpCachingClientTest {
                                                                      PROTOCOL_PACKAGE_HTTP,
                                                                      RESPONSE);
         HttpCarbonMessage validationResponseMsg = HttpUtil.createHttpCarbonMessage(false);
-        validationResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
+        validationResponseMsg.setHttpStatusCode(200);
         validationResponseMsg.setHeader(LAST_MODIFIED, lastModifiedHeader);
         validationResponseMsg.setHeader(ETAG, etagHeader);
         initInboundResponse(validationResponse, validationResponseMsg);
@@ -283,7 +282,7 @@ public class HttpCachingClientTest {
                                                          .getStructInfo(RESPONSE_CACHE_CONTROL));
 
         HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
-        cachedResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
+        cachedResponseMsg.setHttpStatusCode(200);
         cachedResponseMsg.setHeader(AGE, "10");
         cachedResponseMsg.setHeader(CACHE_CONTROL, responseCacheControl.buildCacheControlDirectives());
         initInboundResponse(cachedResponse, cachedResponseMsg);
@@ -372,7 +371,7 @@ public class HttpCachingClientTest {
         responseCacheControl.setSMaxAge(20).setMaxAge(15);
 
         HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
-        cachedResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
+        cachedResponseMsg.setHttpStatusCode(200);
         cachedResponseMsg.setHeader(DATE, dateHeader);
         cachedResponseMsg.setHeader(EXPIRES, expiresHeader);
         cachedResponseMsg.setHeader(CACHE_CONTROL, responseCacheControl.buildCacheControlDirectives());
@@ -434,7 +433,7 @@ public class HttpCachingClientTest {
         responseCacheControl.setMaxAge(300).setSMaxAge(300);
 
         HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
-        cachedResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
+        cachedResponseMsg.setHttpStatusCode(200);
         cachedResponseMsg.setHeader(AGE, String.valueOf(200));
         cachedResponseMsg.setHeader(DATE, dateHeader);
         cachedResponseMsg.setHeader(EXPIRES, expiresHeader);

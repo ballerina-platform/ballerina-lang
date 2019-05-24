@@ -58,7 +58,7 @@ public class ServiceEndpointTest {
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200);
+        Assert.assertEquals((int) response.getHttpStatusCode(), 200);
 
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("protocol").stringValue(), protocolValue);
@@ -75,7 +75,7 @@ public class ServiceEndpointTest {
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200);
+        Assert.assertEquals((int) response.getHttpStatusCode(), 200);
 
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.stringValue(), expectedMessage, "Local address does not populated correctly.");

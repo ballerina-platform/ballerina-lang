@@ -49,7 +49,7 @@ public class HTTPCorsTest {
 
     public void assertEqualsCorsResponse(HttpCarbonMessage response, int statusCode, String origin, String credentials
             , String headers, String methods, String maxAge) {
-        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), statusCode);
+        Assert.assertEquals((int) response.getHttpStatusCode(), statusCode);
         Assert.assertEquals(response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()), origin);
         Assert.assertEquals(response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()),
                 credentials);
