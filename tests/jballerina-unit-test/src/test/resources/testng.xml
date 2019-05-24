@@ -41,7 +41,8 @@
             <package name="org.ballerinalang.test.main.function.*"/>
             <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
             <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
-            <package name="org.ballerinalang.test.types.decimaltype"/>
+            <package name="org.ballerinalang.test.types.decimaltype.*"/>
+            <package name="org.ballerinalang.test.types.any.*"/>
         </packages>
 
         <classes>
