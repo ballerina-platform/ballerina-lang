@@ -16,6 +16,7 @@
 
 import ballerina/encoding;
 import ballerina/io;
+import ballerina/jwt;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/runtime;
@@ -589,8 +590,8 @@ function getAuthTokenForJWTAuth(JwtAuthConfig authConfig) returns string|error {
     if (jwtIssuerConfig is ()) {
         return runtime:getInvocationContext().authenticationContext.authToken;
     } else {
-        auth:JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
-        auth:JwtPayload payload = {
+        jwt:JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
+        jwt:JwtPayload payload = {
             sub: runtime:getInvocationContext().principal.username,
             iss: jwtIssuerConfig.issuer,
             exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
@@ -599,13 +600,13 @@ function getAuthTokenForJWTAuth(JwtAuthConfig authConfig) returns string|error {
             jti: system:uuid(),
             aud: jwtIssuerConfig.audience
         };
-        auth:JWTIssuerConfig issuerConfig = {
+        jwt:JWTIssuerConfig issuerConfig = {
             keyStore: jwtIssuerConfig.keyStore,
             keyAlias: jwtIssuerConfig.keyAlias,
             keyPassword: jwtIssuerConfig.keyPassword
         };
         // TODO: cache the token per-user per-client and reuse it
-        return auth:issueJwt(header, payload, issuerConfig);
+        return jwt:issueJwt(header, payload, issuerConfig);
     }
 }
 

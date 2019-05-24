@@ -16,6 +16,7 @@
 
 import ballerina/crypto;
 import ballerina/io;
+import ballerina/jwt;
 
 ////////////////////////////////
 ///// HTTP Client Endpoint /////
@@ -446,7 +447,7 @@ public type DirectTokenRefreshConfig record {|
 #
 # + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
 public type JwtAuthConfig record {|
-    auth:InferredJwtIssuerConfig inferredJwtIssuerConfig;
+    jwt:InferredJwtIssuerConfig inferredJwtIssuerConfig;
 |};
 
 function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {
