@@ -1755,3 +1755,47 @@ function testRemoveOp() returns table<Order> {
                     });
     return orderTable;
 }
+
+function testByteArrayInsertAsDirectParameter() returns int {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 5 }
+    });
+    int id = 1;
+    boolean bitVal1 = true;
+    byte[] bitVal2 = [1, 2];
+    var insertCountRet = testDB->update("Insert into BitTypes (id, bit_val_1, bit_val_2) values (?, ?, ?)",
+               id, bitVal1, bitVal2);
+    int insertCount = insertCountRet is sql:UpdateResult ? insertCountRet.updatedRowCount : -1;
+
+    checkpanic testDB.stop();
+    return insertCount;
+}
+
+function testByteArrayInsertAsSqlParameter() returns int {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 5 }
+    });
+
+    int id = 2;
+    boolean bitVal1 = false;
+    byte[] bitVal2 = [1, 2, 5];
+
+    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: id };
+    sql:Parameter para2 = { sqlType: sql:TYPE_BOOLEAN, value: bitVal1 };
+    sql:Parameter para3 = { sqlType: sql:TYPE_BINARY, value: bitVal2 };
+
+    var insertCountRet = testDB->update("Insert into BitTypes (id, bit_val_1, bit_val_2) values (?, ?, ?)",
+                                para1, para2, para3);
+    int insertCount = insertCountRet is sql:UpdateResult ? insertCountRet.updatedRowCount : -1;
+
+    checkpanic testDB.stop();
+    return insertCount;
+}

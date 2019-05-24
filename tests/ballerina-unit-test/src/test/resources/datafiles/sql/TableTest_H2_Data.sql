@@ -52,6 +52,13 @@ INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type) VALUES
 INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type) VALUES
   (2, null, null, null);
 /
+CREATE TABLE IF NOT EXISTS BitTypes(
+  id         INT NOT NULL,
+  bit_val_1  BIT(1),
+  bit_val_2  BIT(64),
+  PRIMARY KEY (id)
+);
+/
 CREATE TABLE IF NOT EXISTS ArrayTypes(
   row_id        INTEGER NOT NULL,
   int_array     ARRAY,
