@@ -98,6 +98,27 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(birGoto.targetBB.id.value);
     }
 
+    public void visit(BIRTerminator.Lock lock) {
+        writePosition(lock.pos);
+        buf.writeByte(lock.kind.getValue());
+        buf.writeInt(lock.globalVars.size());
+        for (BIRNode.BIRGlobalVariableDcl globalVar : lock.globalVars) {
+            addCpAndWriteString(globalVar.name.value);
+        }
+        addCpAndWriteString(lock.lockedBB.id.value);
+    }
+
+    public void visit(BIRTerminator.Unlock unlock) {
+        writePosition(unlock.pos);
+        buf.writeByte(unlock.kind.getValue());
+        buf.writeInt(unlock.globalVars.size());
+        for (BIRNode.BIRGlobalVariableDcl globalVar : unlock.globalVars) {
+            addCpAndWriteString(globalVar.name.value);
+        }
+        addCpAndWriteString(unlock.unlockBB.id.value);
+    }
+
+
     public void visit(BIRTerminator.Return birReturn) {
         writePosition(birReturn.pos);
         buf.writeByte(birReturn.kind.getValue());
@@ -481,10 +502,10 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     // Positions
     void writePosition(DiagnosticPos pos) {
-        int sLine = 1;
-        int eLine = 1;
-        int sCol = -1;
-        int eCol = -1;
+        int sLine = Integer.MIN_VALUE;
+        int eLine = Integer.MIN_VALUE;
+        int sCol = Integer.MIN_VALUE;
+        int eCol = Integer.MIN_VALUE;
         String sourceFileName = "";
         if (pos != null) {
             sLine = pos.sLine;

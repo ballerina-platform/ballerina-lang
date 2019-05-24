@@ -210,7 +210,7 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns[0].stringValue(), "1500526800000");
     }
 
-    @Test()
+    @Test
     public void testFunctionPointerNullCheck() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/function-pointer-null-check.bal");
         BValue[] returns = BRunUtil.invoke(result, "checkFunctionPointerNullEqual");
@@ -253,7 +253,7 @@ public class FunctionPointersTest {
     @Test(expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
                     "types: 'function \\(Student\\) returns \\(int\\)' cannot be cast to 'function \\(Person\\) " +
-                    "returns \\(int\\)'\"\\}.*")
+                    "returns \\(int\\)'\"\\}.*", enabled = false)
     public void testAnyToFuncPointerConversion_2() {
         BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_2");
     }

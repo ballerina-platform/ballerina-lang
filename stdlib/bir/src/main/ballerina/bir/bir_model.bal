@@ -90,11 +90,13 @@ public const BINARY_AND = "AND";
 public const BINARY_OR = "OR";
 public const BINARY_REF_EQUAL = "REF_EQUAL";
 public const BINARY_REF_NOT_EQUAL = "REF_NOT_EQUAL";
+public const BINARY_CLOSED_RANGE = "CLOSED_RANGE";
+public const BINARY_HALF_OPEN_RANGE = "HALF_OPEN_RANGE";
 
 public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|BINARY_MOD
                                         |BINARY_EQUAL|BINARY_NOT_EQUAL|BINARY_REF_EQUAL|BINARY_REF_NOT_EQUAL
                                         |BINARY_GREATER_THAN|BINARY_GREATER_EQUAL|BINARY_LESS_THAN|BINARY_LESS_EQUAL
-                                        |BINARY_AND|BINARY_OR;
+                                        |BINARY_AND|BINARY_OR|BINARY_CLOSED_RANGE|BINARY_HALF_OPEN_RANGE;
 
 public const INS_KIND_MOVE = "MOVE";
 public const INS_KIND_CONST_LOAD = "CONST_LOAD";
@@ -155,10 +157,12 @@ public const TERMINATOR_FP_CALL = "FP_CALL";
 public const TERMINATOR_WK_RECEIVE = "WK_RECEIVE";
 public const TERMINATOR_WK_SEND = "WK_SEND";
 public const TERMINATOR_FLUSH = "FLUSH";
+public const TERMINATOR_LOCK = "LOCK";
+public const TERMINATOR_UNLOCK = "UNLOCK";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
                                 |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL|TERMINATOR_WK_RECEIVE
-                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH;
+                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH|TERMINATOR_LOCK|TERMINATOR_UNLOCK;
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -563,6 +567,20 @@ public type GOTO record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     BasicBlock targetBB;
+|};
+
+public type Lock record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    string[] globleVars;
+    BasicBlock lockBB;
+|};
+
+public type Unlock record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    string[] globleVars;
+    BasicBlock unlockBB;
 |};
 
 public type Return record {|

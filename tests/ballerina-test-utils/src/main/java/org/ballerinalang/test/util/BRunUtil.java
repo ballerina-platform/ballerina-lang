@@ -20,7 +20,6 @@ package org.ballerinalang.test.util;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
@@ -325,7 +324,7 @@ public class BRunUtil {
         Object jvmResult;
         BIRNode.BIRPackage birPackage = ((BLangPackage) compileResult.getAST()).symbol.bir;
         String funcClassName = BFileUtil.getQualifiedClassName(birPackage.org.value, birPackage.name.value,
-                                                               function.pos.src.cUnitName.replaceAll(".bal", ""));
+                getClassName(function.pos.src.cUnitName));
         Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
         try {
             Method method = funcClass.getDeclaredMethod(functionName, jvmParamTypes);
@@ -340,8 +339,8 @@ public class BRunUtil {
                         throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
                     if (t instanceof ErrorValue) {
-                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException("error: " + BallerinaErrors
-                                .getPrintableStackTrace((ErrorValue) t));
+                        throw new org.ballerinalang.util.exceptions
+                                .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
                     }
                     throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
                 }
@@ -360,6 +359,14 @@ public class BRunUtil {
 
         BValue result = getBVMValue(jvmResult);
         return new BValue[] { result };
+    }
+
+    private static String getClassName(String balFileName) {
+        if (!balFileName.endsWith(".bal")) {
+            return balFileName;
+        }
+
+        return balFileName.substring(0, balFileName.length() - 4);
     }
 
     /**
