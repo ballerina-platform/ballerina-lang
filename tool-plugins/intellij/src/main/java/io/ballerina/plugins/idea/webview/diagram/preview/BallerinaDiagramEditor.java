@@ -37,13 +37,12 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 
-
 /**
  * Ballerina diagram editor implementation.
  */
 public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEditor {
 
-    private static final long PARSING_CALL_TIMEOUT_MS = 500L;
+    private static final long PARSING_CALL_TIMEOUT_MS = 50L;
     private static final long RENDERING_DELAY_MS = 20L;
 
     @NotNull
@@ -58,10 +57,11 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
     private final Document myDocument;
     @NotNull
     private final Project myProject;
+    @NotNull
     private final Alarm myPooledAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
     @NotNull
     private final Alarm mySwingAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, this);
-
+    @NotNull
     private final Object requestsLock = new Object();
     @Nullable
     private Runnable myLastScrollRequest = null;
@@ -71,6 +71,8 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
     private volatile int myLastScrollOffset;
     @NotNull
     private String myLastRenderedHtml = "<html><header></header><body> Oops! Something went wrong :( </body></html>";
+    @NotNull
+    private String myLoadingHtml = "";
 
     private boolean isHidden = true;
 
@@ -82,14 +84,22 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
         if (myDocument != null) {
             myDocument.addDocumentListener(new DocumentListener() {
                 @Override
-                public void beforeDocumentChange(DocumentEvent e) {
+                public void beforeDocumentChange(@NotNull DocumentEvent e) {
                     myPooledAlarm.cancelAllRequests();
                 }
 
                 @Override
-                public void documentChanged(final DocumentEvent e) {
+                public void documentChanged(@NotNull final DocumentEvent e) {
                     if (!isHidden) {
-                        myPooledAlarm.addRequest(() -> updateHtml(false), PARSING_CALL_TIMEOUT_MS);
+                        // Prevents re-rendering diagram for whitespace changes.
+                        String inserted = e.getNewFragment().toString().trim();
+                        String deleted = e.getOldFragment().toString().trim();
+                        if (!inserted.isEmpty() || !deleted.isEmpty()) {
+                            myPooledAlarm.addRequest(() -> {
+                                updateHtml(false, true);
+                                updateHtml(false, false);
+                            }, PARSING_CALL_TIMEOUT_MS);
+                        }
                     }
                 }
             }, this);
@@ -107,7 +117,8 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
                 }, 0, ModalityState.stateForComponent(getComponent()));
 
                 myPooledAlarm.addRequest(() -> {
-                    updateHtml(false);
+                    updateHtml(false, true);
+                    updateHtml(false, false);
                 }, PARSING_CALL_TIMEOUT_MS);
                 isHidden = false;
             }
@@ -207,7 +218,11 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
         }
 
         myPooledAlarm.cancelAllRequests();
-        myPooledAlarm.addRequest(() -> updateHtml(true), 0);
+        myPooledAlarm.addRequest(() -> {
+            updateHtml(true, true);
+            updateHtml(true, false);
+        }, PARSING_CALL_TIMEOUT_MS);
+
     }
 
     @Override
@@ -271,7 +286,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
     /**
      * Is always run from pooled thread.
      */
-    private void updateHtml(final boolean preserveScrollOffset) {
+    private void updateHtml(final boolean preserveScrollOffset, boolean isLoading) {
         if (myPanel == null) {
             return;
         }
@@ -279,7 +294,16 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
         if (!myFile.isValid() || myDocument == null || Disposer.isDisposed(this)) {
             return;
         }
-        final String html = BallerinaDiagramUtils.generateDiagramHtml(myFile, myPanel, myProject);
+
+        final String html;
+        if (isLoading) {
+            if (myLoadingHtml.isEmpty()) {
+                myLoadingHtml = BallerinaDiagramUtils.getLoadingWheel(myFile, myPanel, myProject);
+            }
+            html = myLoadingHtml;
+        } else {
+            html = BallerinaDiagramUtils.generateDiagramHtml(myFile, myPanel, myProject);
+        }
         // EA-75860: The lines to the top may be processed slowly;
         // Since we're in a pooled thread, we can be disposed already.
         if (!myFile.isValid() || Disposer.isDisposed(this)) {
@@ -295,9 +319,8 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
                     return;
                 }
 
-                final String currentHtml = html;
-                if (!currentHtml.equals(myLastRenderedHtml) && !currentHtml.isEmpty()) {
-                    myLastRenderedHtml = currentHtml;
+                if (!html.equals(myLastRenderedHtml) && !html.isEmpty()) {
+                    myLastRenderedHtml = html;
                     myPanel.setHtml(myLastRenderedHtml);
 
                     if (preserveScrollOffset) {

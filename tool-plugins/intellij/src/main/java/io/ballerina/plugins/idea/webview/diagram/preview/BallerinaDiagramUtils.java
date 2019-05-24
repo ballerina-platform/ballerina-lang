@@ -37,6 +37,7 @@ class BallerinaDiagramUtils {
 
     private static final String COMPOSER_LIB_RESOURCE_PATH = "/lib/tools/composer-library";
     private static final String TEMPLATES_CLASSPATH = "/fileTemplates/diagram";
+    private static final String LOADER_TEMPLATE_NAME = "loading-wheel";
     private static final String WEBVIEW_TEMPLATE_NAME = "webview";
     private static final String STYLES_TEMPLATE_NAME = "styles";
     private static final String SCRIPT_TEMPLATE_NAME = "loaded-script";
@@ -62,6 +63,40 @@ class BallerinaDiagramUtils {
         BigInteger bi = new BigInteger(code).abs();
         return bi.abs().toString(16);
     }
+
+    @NotNull
+    static String getLoadingWheel(@NotNull VirtualFile file, DiagramHtmlPanel panel, Project project) {
+        try {
+            if (panel == null) {
+                return "";
+            }
+
+            BallerinaSdk balSdk = BallerinaSdkUtil.getBallerinaSdkFor(project);
+            if (balSdk.getSdkPath() == null) {
+                LOG.debug("No Ballerina SDK is found for the project: " + project.getName());
+                return "";
+            }
+            if (!balSdk.hasWebviewSupport()) {
+                LOG.debug("Detected ballerina sdk version does not have diagram editor support" + project.getName());
+                return "";
+            }
+
+            Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(TEMPLATES_CLASSPATH));
+            Template loaderTemplate = handlebars.compile(LOADER_TEMPLATE_NAME);
+
+            HashMap<String, String> loaderContents = new HashMap<>();
+            loaderContents.put("resourceRoot", Paths.get(balSdk.getSdkPath(), COMPOSER_LIB_RESOURCE_PATH).toUri()
+                    .toString());
+            Context loaderContext = Context.newBuilder(loaderContents).resolver(MapValueResolver.INSTANCE)
+                    .build();
+            return loaderTemplate.apply(loaderContext);
+
+        } catch (IOException | RuntimeException e) {
+            LOG.warn("Error occurred when constructing webview content: ", e);
+            return "";
+        }
+    }
+
 
     @NotNull
     static String generateDiagramHtml(@NotNull VirtualFile file, DiagramHtmlPanel panel, Project project) {
