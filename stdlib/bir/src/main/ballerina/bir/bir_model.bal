@@ -317,6 +317,7 @@ public type BAttachedFunction record {|
 
 public type BRecordField record {
     Name name;
+    Visibility visibility;
     BType typeValue;
     //TODO add position
 };
