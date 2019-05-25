@@ -64,6 +64,5 @@ public class Add extends BlockingNativeCallableUnit {
         } catch (BLangFreezeException e) {
             return BallerinaErrors.createError(e.getMessage(), "Failed to add data to the table: " + e.getDetail());
         }
-        return null;
     }
 }
