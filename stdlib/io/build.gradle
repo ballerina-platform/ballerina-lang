@@ -17,6 +17,12 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
@@ -31,13 +37,11 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-runtime-api')
 
-//    runtime project(':ballerina-backend-jvm')
+    testRuntimeOnly project(':ballerina-backend-jvm')
+//    testRuntimeOnly project(':ballerina-bir')
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(':ballerina-runtime')
-    testCompile project(':ballerina-bir')
-    testCompile project(':ballerina-lang')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'commons-codec:commons-codec'
@@ -62,4 +66,8 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+}
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
 }
