@@ -1195,7 +1195,12 @@ public class BIRGen extends BLangNodeVisitor {
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
-        this.env.targetOperand = lhsOp;
+
+        if (OperatorKind.ADD.equals(unaryExpr.operator) || OperatorKind.UNTAINT.equals(unaryExpr.operator)) {
+            emit(new Move(unaryExpr.pos, rhsOp, lhsOp));
+            this.env.targetOperand = lhsOp;
+            return;
+        }
 
         UnaryOP unaryIns = new UnaryOP(unaryExpr.pos, getUnaryInstructionKind(unaryExpr.operator), lhsOp, rhsOp);
         emit(unaryIns);
@@ -1622,6 +1627,8 @@ public class BIRGen extends BLangNodeVisitor {
                 return InstructionKind.NOT;
             case SUB:
                 return InstructionKind.NEGATE;
+            case ADD:
+                return InstructionKind.MOVE;
             default:
                 throw new IllegalStateException("unsupported unary operator: " + opKind.value());
         }
