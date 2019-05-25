@@ -77,8 +77,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private final Lock writeLock = lock.writeLock();
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private final HashMap<String, Object> nativeData = new HashMap<>();
-    protected boolean isHashResolved = false;
-    protected HashSet<MapValue<?,?>> _inEqualsWith = new HashSet<MapValue<?,?>>();
 
     public MapValueImpl(BType type) {
         super();
@@ -212,9 +210,9 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     /**
-     * Returns the hash code value.
+     * Returns the hash code value for map value object.
      *
-     * @return returns hashcode vale
+     * @return returns hashcode value.
      */
     @Override
     public int hashCode() {
