@@ -249,6 +249,7 @@ const string WD_CHANNELS = "org/ballerinalang/jvm/WDChannels";
 const string WORKER_DATA_CHANNEL = "org/ballerinalang/jvm/WorkerDataChannel";
 const string CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
 const string WORKER_UTILS = "org/ballerinalang/jvm/WorkerUtils";
+const string LONG_STREAM = "java/util/stream/LongStream";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
