@@ -164,7 +164,6 @@ public class BIRPackageSymbolEnter {
     }
 
     private BPackageSymbol definePackage(DataInputStream dataInStream) throws IOException {
-        this.typeReader = new BIRTypeReader(dataInStream); //TODO find a better approach than this
         byte[] magic = new byte[4];
         dataInStream.read(magic, 0, 4);
         if (!Arrays.equals(magic, BIRPackageFile.BIR_MAGIC)) {
@@ -201,6 +200,7 @@ public class BIRPackageSymbolEnter {
         // Define import packages.
         defineSymbols(dataInStream, rethrow(this::defineImportPackage));
 
+        this.typeReader = new BIRTypeReader(dataInStream); //TODO find a better approach than this
         // Define typeDescRef definitions.
         this.structureTypes = new ArrayList<>();
         defineSymbols(dataInStream, rethrow(this::defineTypeDef));
@@ -223,6 +223,7 @@ public class BIRPackageSymbolEnter {
         dataInStream.readLong(); //read and ignore constant byte chunk length.
         defineSymbols(dataInStream, rethrow(this::defineConstant));
 
+        this.typeReader = null;
         return this.env.pkgSymbol;
     }
 
