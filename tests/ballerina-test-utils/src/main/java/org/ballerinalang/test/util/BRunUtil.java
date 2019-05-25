@@ -611,10 +611,11 @@ public class BRunUtil {
     }
 
     private static BRefType<?> getBVMValue(Object value, Map<String, BRefType> bvmValueMap) {
+        String hashCode = String.valueOf(System.identityHashCode(value));
         if (value == null) {
             return null;
         }
-        BRefType bvmValue = bvmValueMap.get(String.valueOf(value.hashCode()));
+        BRefType bvmValue = bvmValueMap.get(hashCode);
         if (bvmValue != null) {
             return bvmValue;
         }
@@ -684,11 +685,11 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
                 MapValueImpl jvmMap = (MapValueImpl) value;
                 BMap bmap = new BMap(getBVMType(jvmMap.getType()));
+                bvmValueMap.put(String.valueOf(value.hashCode()), bmap);
                 for (Object key : jvmMap.keySet()) {
                     bmap.put(key, getBVMValue(jvmMap.get(key), bvmValueMap));
                 }
-                bvmValue = bmap;
-                break;
+                return bmap;
             case org.ballerinalang.jvm.types.TypeTags.TABLE_TAG:
                 TableValue jvmTable = (TableValue) value;
                 org.ballerinalang.jvm.types.BTableType jvmTableType =
@@ -719,12 +720,11 @@ public class BRunUtil {
                 ObjectValue jvmObject = (ObjectValue) value;
                 org.ballerinalang.jvm.types.BObjectType jvmObjectType = jvmObject.getType();
                 BMap<String, BRefType<?>> bvmObject = new BMap<>(getBVMType(jvmObjectType));
-
+                bvmValueMap.put(String.valueOf(value.hashCode()), bvmObject);
                 for (String key : jvmObjectType.getFields().keySet()) {
                     bvmObject.put(key, getBVMValue(jvmObject.get(key), bvmValueMap));
                 }
-                bvmValue = bvmObject;
-                break;
+                return bvmObject;
             case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
                 XMLValue<?> xml = (XMLValue<?>) value;
                 if (xml.getNodeType() != XMLNodeType.SEQUENCE) {
@@ -745,7 +745,7 @@ public class BRunUtil {
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
 
-        bvmValueMap.put(String.valueOf(value.hashCode()), bvmValue);
+        bvmValueMap.put(hashCode, bvmValue);
         return bvmValue;
     }
 
