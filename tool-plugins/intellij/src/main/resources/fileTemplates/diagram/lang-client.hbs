@@ -3,7 +3,7 @@ function getLangClient() {
         isInitialized: true,
         getAST: (params) => {
             return new Promise((resolve, reject) => {
-                resolve({ast: {{{ast}}}, parseSuccess: true});
+                resolve({ ast: {{{ast}}}, parseSuccess: {{{parseSuccess}}} });
             })
         },
         getEndpoints: () => {

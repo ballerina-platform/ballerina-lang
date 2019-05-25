@@ -20,8 +20,8 @@ public class BallerinaDiagramEditorProvider extends WeighedFileEditorProvider {
     public boolean accept(@NotNull Project project, @NotNull VirtualFile file) {
         final FileType fileType = file.getFileType();
 
-        return (fileType == BallerinaFileType.INSTANCE || fileType == ScratchFileType.INSTANCE
-                && LanguageUtil.getLanguageForPsi(project, file) == BallerinaLanguage.INSTANCE);
+        return (fileType == BallerinaFileType.INSTANCE || (fileType == ScratchFileType.INSTANCE
+                && LanguageUtil.getLanguageForPsi(project, file) == BallerinaLanguage.INSTANCE));
     }
 
     @NotNull

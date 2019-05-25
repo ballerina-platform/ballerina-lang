@@ -15,7 +15,7 @@
  */
 package io.ballerina.plugins.idea.extensions.editoreventmanager;
 
-import com.google.gson.JsonElement;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
@@ -26,6 +26,7 @@ import io.ballerina.plugins.idea.extensions.server.BallerinaASTRequest;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.client.languageserver.ServerOptions;
 import org.wso2.lsp4intellij.client.languageserver.requestmanager.RequestManager;
 import org.wso2.lsp4intellij.client.languageserver.wrapper.LanguageServerWrapper;
@@ -41,24 +42,25 @@ import java.util.concurrent.TimeoutException;
  */
 public class BallerinaEditorEventManager extends EditorEventManager {
 
-    private final int getAstTimeout = 2000;
+    private static final Logger LOG = Logger.getInstance(BallerinaEditorEventManager.class);
+    private static final int TIMEOUT_AST = 2000;
 
     public BallerinaEditorEventManager(Editor editor, DocumentListener documentListener,
-            EditorMouseListener mouseListener, EditorMouseMotionListener mouseMotionListener,
-            RequestManager requestManager, ServerOptions serverOptions, LanguageServerWrapper wrapper) {
+                                       EditorMouseListener mouseListener, EditorMouseMotionListener mouseMotionListener,
+                                       RequestManager requestManager, ServerOptions serverOptions,
+                                       LanguageServerWrapper wrapper) {
         super(editor, documentListener, mouseListener, mouseMotionListener, requestManager, serverOptions, wrapper);
     }
 
-    public String getAST() {
+    @Nullable
+    public BallerinaASTResponse getAST() {
         BallerinaRequestManager ballerinaRequestManager = (BallerinaRequestManager) getRequestManager();
         BallerinaASTRequest astRequest = new BallerinaASTRequest();
         astRequest.setDocumentIdentifier(getIdentifier());
         CompletableFuture<BallerinaASTResponse> future = ballerinaRequestManager.ast(astRequest);
         if (future != null) {
             try {
-                BallerinaASTResponse response = future.get(getAstTimeout, TimeUnit.MILLISECONDS);
-                JsonElement ast = response.getAst();
-                return ast != null ? ast.toString() : "";
+                return future.get(TIMEOUT_AST, TimeUnit.MILLISECONDS);
             } catch (TimeoutException e) {
                 LOG.warn(e);
                 return null;
@@ -69,7 +71,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
                 return null;
             }
         }
-        return "";
+        return null;
     }
 
     @Override

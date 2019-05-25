@@ -5,7 +5,6 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
-import com.google.common.base.Strings;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -14,6 +13,7 @@ import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.ballerina.plugins.idea.extensions.editoreventmanager.BallerinaEditorEventManager;
+import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NonNls;
@@ -111,9 +111,9 @@ class BallerinaDiagramUtils {
         }
 
         // Requests AST from the language server.
-        String ast = balManager.getAST();
-        if (Strings.isNullOrEmpty(ast)) {
-            LOG.debug("Received an empty AST response");
+        BallerinaASTResponse ast = balManager.getAST();
+        if (ast == null) {
+            LOG.debug("Error occurred when fetching AST response.");
             return "";
         }
 
@@ -138,7 +138,8 @@ class BallerinaDiagramUtils {
         return null;
     }
 
-    private static String getWebviewContent(String uri, String ast, DiagramHtmlPanel myPanel, String sdkPath) {
+    private static String getWebviewContent(String uri, BallerinaASTResponse astResponse, DiagramHtmlPanel myPanel,
+                                            String sdkPath) {
         try {
             if (myPanel == null) {
                 return "";
@@ -151,7 +152,8 @@ class BallerinaDiagramUtils {
 
             // Injects ast response to the mocked language client template.
             HashMap<String, String> langClientContents = new HashMap<>();
-            langClientContents.put("ast", ast);
+            langClientContents.put("ast", astResponse.getAst().toString());
+            langClientContents.put("parseSuccess", Boolean.toString(astResponse.isParseSuccess()));
             Context langClientContext = Context.newBuilder(langClientContents).resolver(MapValueResolver.INSTANCE)
                     .build();
 
