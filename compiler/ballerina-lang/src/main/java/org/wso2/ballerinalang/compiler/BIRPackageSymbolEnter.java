@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -685,12 +686,16 @@ public class BIRPackageSymbolEnter {
                     int recordInitFuncFlags = 0;
                     recordInitFuncFlags = visibilityAsMask(recordInitFuncFlags, inputStream.readByte());
                     BInvokableType recordInitFuncType = (BInvokableType) readType();
-                    BInvokableSymbol recordInitFuncSymbol = Symbols.createFunctionSymbol(recordInitFuncFlags,
-                            names.fromString(recordInitFuncName), env.pkgSymbol.pkgID, recordInitFuncType,
-                            env.pkgSymbol, Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE));
+                    Name initFuncName = names.fromString(recordInitFuncName);
+                    boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
+                    BInvokableSymbol recordInitFuncSymbol =
+                            Symbols.createFunctionSymbol(recordInitFuncFlags,
+                                                         initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
+                                                         env.pkgSymbol, isNative);
                     recordInitFuncSymbol.retType = recordInitFuncType.retType;
-                    recordSymbol.initializerFunc = new BAttachedFunction(names.fromString(recordInitFuncName),
-                            recordInitFuncSymbol, recordInitFuncType);
+                    recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
+                                                                         recordInitFuncType);
+                    recordSymbol.scope.define(initFuncName, recordInitFuncSymbol);
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 
