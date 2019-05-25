@@ -339,6 +339,7 @@ public type BFutureType record {|
 
 public type BFiniteType record {|
     Name name = {};
+    Visibility visibility;
     (int | string | boolean | float | byte| ()) [] values;
 |};
 
