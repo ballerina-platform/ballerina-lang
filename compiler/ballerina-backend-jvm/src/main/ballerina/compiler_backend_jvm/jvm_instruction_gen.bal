@@ -697,19 +697,10 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getByte", "(J)B", false);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getFloat", "(J)D", false);
-        } else if (bType is bir:BRecordType) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
-            self.mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
-        } else if (bType is bir:BXMLType) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
-            self.mv.visitTypeInsn(CHECKCAST, XML_VALUE);
-        } else if (bType is bir:BErrorType) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
-            self.mv.visitTypeInsn(CHECKCAST, ERROR_VALUE);
         } else {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
-            if (!(bType is bir:BTypeAny)) {
-                string targetTypeClass = getTargetClass(varRefType, bType);
+            string? targetTypeClass = getTargetClass(varRefType, bType);
+            if (targetTypeClass is string) {
                 self.mv.visitTypeInsn(CHECKCAST, targetTypeClass);
             }
         }
