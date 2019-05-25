@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -58,12 +59,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -241,15 +245,20 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeBoolean(bRecordType.sealed);
         visitType(bRecordType.restFieldType);
-        buff.writeInt(bRecordType.fields.size());
-        for (BField field : bRecordType.fields) {
-            // TODO add position
-            buff.writeInt(addStringCPEntry(field.name.value));
-            buff.writeByte(getVisibility(field.symbol).value());
-            visitType(field.type);
-        }
 
         BAttachedFunction initializerFunc = tsymbol.initializerFunc;
+        Set<Map.Entry<Name, Scope.ScopeEntry>> recordSymbols = tsymbol.scope.entries.entrySet();
+
+        buff.writeInt(recordSymbols.size() - 1); // recordSymbols = 1 initializer + n fields
+        for (Map.Entry<Name, Scope.ScopeEntry> entry : recordSymbols) {
+            BSymbol symbol = entry.getValue().symbol;
+            String fieldName = entry.getKey().value;
+            if (symbol != initializerFunc.symbol) {
+                buff.writeInt(addStringCPEntry(fieldName));
+                buff.writeByte(getVisibility(symbol).value());
+                visitType(symbol.type);
+            }
+        }
 
         buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
         buff.writeByte(getVisibility(initializerFunc.symbol).value());

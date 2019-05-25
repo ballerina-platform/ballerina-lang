@@ -466,6 +466,7 @@ public class BIRGen extends BLangNodeVisitor {
         emit(new BIRNonTerminator.FPLoad(lambdaExpr.pos, lambdaExpr.function.symbol.pkgID, funcName, lhsOp, params,
                 getClosureMapOperands(lambdaExpr)));
         this.env.targetOperand = lhsOp;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     private List<BIROperand> getClosureMapOperands(BLangLambdaFunction lambdaExpr) {
@@ -636,6 +637,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
+        this.env.targetOperandBB = env.enclBB;
 
         boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
 
@@ -670,6 +672,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
+        this.env.targetOperandBB = env.enclBB;
 
         String channelName = this.env.enclFunc.workerName.value + "->" + syncSend.workerIdentifier.value;
         boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
@@ -699,6 +702,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
+        this.env.targetOperandBB = env.enclBB;
 
         this.env.enclBB.terminator = new BIRTerminator.Flush(flushExpr.pos, channels, lhsOp, thenBB);
         this.env.enclFunc.basicBlocks.add(thenBB);
@@ -721,6 +725,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
+        this.env.targetOperandBB = env.enclBB;
 
         this.env.enclBB.terminator = new BIRTerminator.Wait(waitExpr.pos, exprList, lhsOp);
 
@@ -767,6 +772,7 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclFunc.localVars.add(tempVarDcl);
             lhsOp = new BIROperand(tempVarDcl);
             this.env.targetOperand = lhsOp;
+            this.env.targetOperandBB = env.enclBB;
         }
 
         // TODO: make vCall a new instruction to avoid package id in vCall
@@ -891,7 +897,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock whileEndBB = new BIRBasicBlock(this.env.nextBBId(names));
 
         // Add the branch instruction to the while expression basic block.
-        whileExprBB.terminator = new BIRTerminator.Branch(astWhileStmt.pos, whileExprResult, whileBodyBB, whileEndBB);
+        this.env.targetOperandBB.terminator =
+                new BIRTerminator.Branch(astWhileStmt.pos, whileExprResult, whileBodyBB, whileEndBB);
 
         // Visit while body
         this.env.enclBB = whileBodyBB;
@@ -918,6 +925,7 @@ public class BIRGen extends BLangNodeVisitor {
         emit(new BIRNonTerminator.ConstantLoad(astLiteralExpr.pos,
                 astLiteralExpr.value, astLiteralExpr.type, toVarRef));
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -942,6 +950,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         emit(new BIRNonTerminator.TypeCast(astTypeConversionExpr.pos, toVarRef, rhsOp));
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -952,6 +961,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand toVarRef = new BIROperand(tempVarDcl);
         emit(new BIRNonTerminator.NewStructure(astStructLiteralExpr.pos, astStructLiteralExpr.type, toVarRef));
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
 
         // Invoke the struct initializer here.
         if (astStructLiteralExpr.initializer != null) {
@@ -971,6 +981,7 @@ public class BIRGen extends BLangNodeVisitor {
                     InstructionKind.MAP_STORE, toVarRef, keyRegIndex, valueRegIndex));
         }
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -992,6 +1003,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
         emit(instruction);
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     private boolean isInSamePackage(BTypeSymbol objectTypeSymbol, BIRPackage enclPkg) {
@@ -1090,6 +1102,7 @@ public class BIRGen extends BLangNodeVisitor {
                     InstructionKind.ARRAY_STORE, toVarRef, arrayIndex, exprIndex));
         }
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1105,6 +1118,7 @@ public class BIRGen extends BLangNodeVisitor {
         emit(new BIRNonTerminator.IsLike(isLikeExpr.pos, isLikeExpr.typeNode.type, toVarRef, exprIndex));
 
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1120,6 +1134,7 @@ public class BIRGen extends BLangNodeVisitor {
         emit(new BIRNonTerminator.TypeTest(typeTestExpr.pos, typeTestExpr.typeNode.type, toVarRef, exprIndex));
 
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1149,6 +1164,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             emit(new Move(astVarRefExpr.pos, fromVarRef, tempVarRef));
             this.env.targetOperand = tempVarRef;
+            this.env.targetOperandBB = env.enclBB;
         }
         this.varAssignment = variableStore;
     }
@@ -1176,6 +1192,7 @@ public class BIRGen extends BLangNodeVisitor {
             BIROperand fromVarRef = new BIROperand(this.env.globalVarMap.get(astPackageVarRefExpr.symbol));
             emit(new Move(astPackageVarRefExpr.pos, fromVarRef, tempVarRef));
             this.env.targetOperand = tempVarRef;
+            this.env.targetOperandBB = env.enclBB;
         }
         this.varAssignment = variableStore;
     }
@@ -1194,6 +1211,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
+        this.env.targetOperandBB = env.enclBB;
 
         // Create binary instruction
         BinaryOp binaryIns = new BinaryOp(astBinaryExpr.pos, getBinaryInstructionKind(astBinaryExpr.opKind),
@@ -1215,12 +1233,14 @@ public class BIRGen extends BLangNodeVisitor {
         if (OperatorKind.ADD.equals(unaryExpr.operator) || OperatorKind.UNTAINT.equals(unaryExpr.operator)) {
             emit(new Move(unaryExpr.pos, rhsOp, lhsOp));
             this.env.targetOperand = lhsOp;
+            this.env.targetOperandBB = env.enclBB;
             return;
         }
 
         UnaryOP unaryIns = new UnaryOP(unaryExpr.pos, getUnaryInstructionKind(unaryExpr.operator), lhsOp, rhsOp);
         emit(unaryIns);
         this.env.targetOperand = lhsOp;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1232,6 +1252,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand lhsOp = new BIROperand(tempVarError);
         // visit reason and detail expressions
         this.env.targetOperand = lhsOp;
+        this.env.targetOperandBB = env.enclBB;
         errorExpr.reasonExpr.accept(this);
         BIROperand reasonOp = this.env.targetOperand;
         errorExpr.detailsExpr.accept(this);
@@ -1240,6 +1261,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                                            lhsOp, reasonOp, detailsOp);
         emit(newError);
         this.env.targetOperand = lhsOp;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1286,6 +1308,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         emit(new BIRNonTerminator.TypeTest(assignableExpr.pos, assignableExpr.targetType, toVarRef, exprIndex));
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1311,6 +1334,7 @@ public class BIRGen extends BLangNodeVisitor {
                 new BIRNonTerminator.NewXMLQName(xmlQName.pos, toVarRef, localnameIndex, nsURIIndex, prefixIndex);
         emit(newXMLQName);
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1353,6 +1377,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Populate the XML by adding namespace declarations, attributes and children
         populateXML(xmlElementLiteral, toVarRef);
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1382,6 +1407,7 @@ public class BIRGen extends BLangNodeVisitor {
                 new BIRNonTerminator.NewXMLText(xmlTextLiteral.pos, toVarRef, xmlTextIndex);
         emit(newXMLElement);
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1398,6 +1424,7 @@ public class BIRGen extends BLangNodeVisitor {
                 new BIRNonTerminator.NewXMLComment(xmlCommentLiteral.pos, toVarRef, xmlCommentIndex);
         emit(newXMLComment);
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1417,6 +1444,7 @@ public class BIRGen extends BLangNodeVisitor {
                 new BIRNonTerminator.NewXMLProcIns(xmlProcInsLiteral.pos, toVarRef, dataIndex, targetIndex);
         emit(newXMLProcIns);
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1467,6 +1495,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand xmlVarOp = this.env.targetOperand;
         emit(new BIRNonTerminator.TypeCast(xmlAttributeAccessExpr.pos, toVarRef, xmlVarOp));
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1477,6 +1506,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand toVarRef = new BIROperand(tempVarDcl);
         emit(new BIRNonTerminator.NewTypeDesc(accessExpr.pos, toVarRef, accessExpr.resolvedType));
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1488,6 +1518,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand toVarRef = new BIROperand(tempVarDcl);
         emit(new BIRNonTerminator.NewTypeDesc(typeLoad.pos, toVarRef, typeLoad.symbol.type));
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     @Override
@@ -1517,6 +1548,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
+        this.env.targetOperandBB = env.enclBB;
 
         // Create ternary instruction
         TernaryOp binaryIns = new TernaryOp(ternaryExpr.pos, lhsOp, conditionOp, thenOp, elseOp);
@@ -1538,6 +1570,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand fromVarRef = new BIROperand(this.env.globalVarMap.get(constRef.symbol));
         emit(new Move(constRef.pos, fromVarRef, tempVarRef));
         this.env.targetOperand = tempVarRef;
+        this.env.targetOperandBB = env.enclBB;
         this.varAssignment = variableStore;
     }
 
@@ -1657,6 +1690,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand toVarRef = new BIROperand(tempVarDcl);
         emit(new BIRNonTerminator.NewStructure(mappingLiteralExpr.pos, mappingLiteralExpr.type, toVarRef));
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
 
         // Handle Map init stuff
         for (BLangRecordKeyValue keyValue : mappingLiteralExpr.keyValuePairs) {
@@ -1673,6 +1707,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     private void generateArrayLiteral(BLangArrayLiteral astArrayLiteralExpr) {
@@ -1713,6 +1748,7 @@ public class BIRGen extends BLangNodeVisitor {
                     arrayIndex, exprIndex));
         }
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     private void generateTableLiteral(BLangTableLiteral tableLiteral) {
@@ -1752,6 +1788,7 @@ public class BIRGen extends BLangNodeVisitor {
                 indexColOp, keyColOp));
 
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     private void generateStreamLiteral(BLangStreamLiteral streamLiteral) {
@@ -1770,6 +1807,7 @@ public class BIRGen extends BLangNodeVisitor {
         emit(new BIRNonTerminator.NewStream(streamLiteral.pos, streamLiteral.type, toVarRef, columnsOp));
 
         this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
     }
 
     private void generateArrayAccess(BLangIndexBasedAccess astArrayAccessExpr) {
@@ -1802,6 +1840,7 @@ public class BIRGen extends BLangNodeVisitor {
             emit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos, InstructionKind.ARRAY_LOAD, tempVarRef,
                     keyRegIndex, varRefRegIndex));
             this.env.targetOperand = tempVarRef;
+            this.env.targetOperandBB = env.enclBB;
         }
 
         this.varAssignment = variableStore;
@@ -1858,6 +1897,7 @@ public class BIRGen extends BLangNodeVisitor {
             emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, tempVarRef, keyRegIndex,
                     varRefRegIndex));
             this.env.targetOperand = tempVarRef;
+            this.env.targetOperandBB = env.enclBB;
         }
         this.varAssignment = variableStore;
     }
@@ -1940,6 +1980,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Add attributes
         xmlElementLiteral.attributes.forEach(attribute -> {
             this.env.targetOperand = toVarRef;
+            this.env.targetOperandBB = env.enclBB;
             attribute.accept(this);
         });
 
@@ -1967,6 +2008,7 @@ public class BIRGen extends BLangNodeVisitor {
     private void generateXMLAccess(BLangXMLAccessExpr xmlAccessExpr, BIROperand tempVarRef,
                                    BIROperand varRefRegIndex, BIROperand keyRegIndex) {
         this.env.targetOperand = tempVarRef;
+        this.env.targetOperandBB = env.enclBB;
         InstructionKind insKind;
         if (xmlAccessExpr.fieldType == FieldKind.ALL) {
             emit(new BIRNonTerminator.XMLAccess(xmlAccessExpr.pos, InstructionKind.XML_LOAD_ALL, tempVarRef,
@@ -2012,5 +2054,6 @@ public class BIRGen extends BLangNodeVisitor {
 
         emit(new BIRNonTerminator.FPLoad(fpVarRef.pos, funcSymbol.pkgID, funcName, lhsOp, params, new ArrayList<>()));
         this.env.targetOperand = lhsOp;
+        this.env.targetOperandBB = env.enclBB;
     }
 }
