@@ -247,6 +247,12 @@ public class WorkerDataChannel {
         }
     }
 
+    public void removeFlushWait() {
+        acquireChannelLock();
+        this.flushSender = null;
+        releaseChannelLock();
+    }
+
     /**
      * This represents a worker result value. This is done as a value to be used in the
      * queues used for worker communication. In this way, the queue can distinguish the
