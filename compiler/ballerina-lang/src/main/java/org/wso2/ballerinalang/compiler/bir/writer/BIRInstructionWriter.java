@@ -265,7 +265,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
         writePosition(birConstantLoad.pos);
         buf.writeByte(birConstantLoad.kind.getValue());
-        typeWriter.visitType(birConstantLoad.type);
+        writeType(birConstantLoad.type);
         birConstantLoad.lhsOp.accept(this);
 
         BType type = birConstantLoad.type;
@@ -297,7 +297,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(NewStructure birNewStructure) {
         writePosition(birNewStructure.pos);
         buf.writeByte(birNewStructure.kind.getValue());
-        typeWriter.visitType(birNewStructure.type);
+        writeType(birNewStructure.type);
         birNewStructure.lhsOp.accept(this);
     }
 
@@ -318,7 +318,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(NewArray birNewArray) {
         writePosition(birNewArray.pos);
         buf.writeByte(birNewArray.kind.getValue());
-        typeWriter.visitType(birNewArray.type);
+        writeType(birNewArray.type);
         birNewArray.lhsOp.accept(this);
         birNewArray.sizeOp.accept(this);
     }
@@ -341,7 +341,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.IsLike birIsLike) {
         buf.writeByte(birIsLike.kind.getValue());
         writePosition(birIsLike.pos);
-        typeWriter.visitType(birIsLike.type);
+        writeType(birIsLike.type);
         birIsLike.lhsOp.accept(this);
         birIsLike.rhsOp.accept(this);
     }
@@ -349,7 +349,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.TypeTest birTypeTest) {
         writePosition(birTypeTest.pos);
         buf.writeByte(birTypeTest.kind.getValue());
-        typeWriter.visitType(birTypeTest.type);
+        writeType(birTypeTest.type);
         birTypeTest.lhsOp.accept(this);
         birTypeTest.rhsOp.accept(this);
     }
@@ -357,7 +357,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.NewTable newTable) {
         writePosition(newTable.pos);
         buf.writeByte(newTable.kind.getValue());
-        typeWriter.visitType(newTable.type);
+        writeType(newTable.type);
         newTable.lhsOp.accept(this);
         newTable.columnsOp.accept(this);
         newTable.dataOp.accept(this);
@@ -368,7 +368,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.NewStream newStream) {
         writePosition(newStream.pos);
         buf.writeByte(newStream.kind.getValue());
-        typeWriter.visitType(newStream.type);
+        writeType(newStream.type);
         newStream.lhsOp.accept(this);
         newStream.nameOp.accept(this);
     }
@@ -407,7 +407,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(fpLoad.params.size());
         fpLoad.params.forEach(param -> {
             buf.writeByte(param.kind.getValue());
-            typeWriter.visitType(param.type);
+            writeType(param.type);
             buf.writeInt(addStringCPEntry(param.name.value));
         });
 
@@ -485,7 +485,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         writePosition(newTypeDesc.pos);
         buf.writeByte(newTypeDesc.kind.getValue());
         newTypeDesc.lhsOp.accept(this);
-        typeWriter.visitType(newTypeDesc.type);
+        writeType(newTypeDesc.type);
     }
 
     @Override
@@ -536,5 +536,9 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     private int addStringCPEntry(String value) {
         return cp.addCPEntry(new CPEntry.StringCPEntry(value));
+    }
+
+    private void writeType(BType type) {
+        buf.writeInt(cp.addShapeCPEntry(type));
     }
 }

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.writer;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -213,7 +214,8 @@ public class CPEntry {
         CP_ENTRY_FLOAT((byte) 2),
         CP_ENTRY_BOOLEAN((byte) 3),
         CP_ENTRY_STRING((byte) 4),
-        CP_ENTRY_PACKAGE((byte) 5);
+        CP_ENTRY_PACKAGE((byte) 5),
+        CP_ENTRY_SHAPE((byte) 6);
 
         byte value;
 
@@ -223,6 +225,39 @@ public class CPEntry {
 
         public byte getValue() {
             return value;
+        }
+    }
+
+    public static class ShapeCPEntry extends CPEntry {
+
+        public final byte[] shape;
+        private final int hashCode;
+
+        public ShapeCPEntry(byte[] shape) {
+            super(Type.CP_ENTRY_SHAPE);
+            this.shape = shape;
+            this.hashCode = Arrays.hashCode(shape);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            ShapeCPEntry oShape = (ShapeCPEntry) o;
+
+            return Arrays.equals(oShape.shape, shape);
+        }
+
+        @Override
+        public int hashCode() {
+            return hashCode;
         }
     }
 }
