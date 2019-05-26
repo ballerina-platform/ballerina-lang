@@ -18,6 +18,7 @@
 package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.slf4j.Logger;
@@ -348,7 +349,12 @@ public class BServerInstance implements BServer {
 
         log.info("Starting Ballerina server..");
 
-        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        String scriptName;
+        if (BCompileUtil.jBallerinaTestsEnabled()) {
+            scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
+        } else {
+            scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        }
         String[] cmdArray;
         File commandDir = new File(balServer.getServerHome());
         try {

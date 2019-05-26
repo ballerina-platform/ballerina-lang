@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.run;
+package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.JBallerinaBaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.utils.TestUtils;
@@ -36,7 +36,7 @@ import java.nio.file.Paths;
  * This class tests invoking main function in a bal for jvm target via Ballerina Build Command and run it the jar for
  * testing given outputs.
  */
-public class JarRunFunctionPositiveTestCase extends BaseTest {
+public class JarRunFunctionPositiveTestCase extends JBallerinaBaseTest {
 
     private static final String JAR_NAME = "main_test.jar";
 
@@ -49,17 +49,18 @@ public class JarRunFunctionPositiveTestCase extends BaseTest {
         tempProjectDir = Files.createTempDirectory("temp-jar-func-test");
         jarPath = Paths.get(tempProjectDir.toString(), JAR_NAME).toString();
         String[] clientArgs = {
-                "--jvmTarget", "-o", jarPath,
+                "-o", jarPath,
                 (new File("src/test/resources/run/jar/test_main_for_jvm_target.bal")).getAbsolutePath()
         };
         balClient.runMain("build", clientArgs, null, new String[0], new LogLeecher[0], tempProjectDir.toString());
     }
 
-    @Test(enabled = false)
+    @Test
     public void runJar() throws BallerinaTestException {
-        String output = balClient.runMainAndReadStdOut("run", new String[] { new File(jarPath).getAbsolutePath() },
-                                                       tempProjectDir.toString());
-        Assert.assertEquals(output, "jvm main {}");
+        String output = balClient.runMainAndReadStdOut("run", new String[] {
+                new File(jarPath).getAbsolutePath(), "hello world"
+        }, tempProjectDir.toString());
+        Assert.assertEquals(output, "hello world\nmain error {\"detail\":\"hello world\"}");
     }
 
     @AfterClass
