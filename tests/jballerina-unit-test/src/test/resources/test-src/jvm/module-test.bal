@@ -16,6 +16,10 @@
 
 import testorg/test.math;
 
+public function main()  {
+   int sumValue = testModule(12);
+}
+
 public function testModule(int x) returns int {
    int sumValue = math:sum(x, x + 2);
    return math:multiply(sumValue, x);
