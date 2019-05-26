@@ -153,7 +153,7 @@ public type CompoundPatternProcessor object {
 
     # Emits given `StreamEvent` as a fulfilled event.
     #
-    # + streamEvent - event to emit
+    # + stateEvent - event to emit
     public function emit(StreamEvent stateEvent) {
         // remove from stateMachine
         StateMachine? stateMachine = self.stateMachine;

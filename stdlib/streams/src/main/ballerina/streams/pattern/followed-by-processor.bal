@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Processor to perform AND stream operations.
+# Processor to perform FollowedBy stream operations.
 #
 # + lhsProcessor - LHS processor of the AND processor
 # + rhsProcessor - RHS processor of the AND processor

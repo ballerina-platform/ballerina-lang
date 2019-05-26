@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Processor to perform AND stream operations.
+# Processor to perform OR stream operations.
 #
 # + lhsProcessor - LHS processor of the AND processor
 # + rhsProcessor - RHS processor of the AND processor
 # + lhsEvicted - LHS partially evicted states
-# + rhsProcessor - RHS partially evicted states
+# + rhsEvicted - RHS partially evicted states
 # + lhsAlias - LHS processor alias
 # + rhsAlias - RHS processor alias
 public type OrOperatorProcessor object {

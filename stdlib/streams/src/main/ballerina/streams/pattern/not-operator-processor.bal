@@ -17,21 +17,15 @@
 import ballerina/task;
 import ballerina/time;
 
-# Processor to perform AND stream operations.
-#
-# + processor - descendant `AbstractPatternProcessor` processor
-# + eventScheduler - `Scheduler` instance for scheduling `NOT for x millis` events
-# + forTimeMillis - `for` time in milliseconds
-# + schedulerLock - lock for the scheduler
-# + processorAlias - processor alias
+# Processor to perform NOT stream operations.
 public type NotOperatorProcessor object {
     *AbstractPatternProcessor;
     *AbstractOperatorProcessor;
+    public int forTimeMillis = -1;
     public AbstractPatternProcessor? processor;
     public task:Scheduler? eventScheduler = ();
-    public int forTimeMillis = -1;
-    public int schedulerLock = -1;
     public string? processorAlias = ();
+    public int schedulerLock = -1;
 
     public function __init(int? forTimeMillis) {
         self.prevProcessor = ();

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Processor to perform AND stream operations.
+# Processor to perform operand processor operations.
 #
 # + onConditionFunc - condition function (i.e [e1.id == id])
 # + alias - processor alias
