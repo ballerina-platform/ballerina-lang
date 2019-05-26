@@ -267,7 +267,7 @@ public class Scheduler {
                         assert runnableList.size() == 0;
 
                         if (DEBUG) {
-                            debugLog("all work completed");
+                            debugLog("+++++++++ all work completed ++++++++");
                         }
 
                         for (int i = 0; i < numThreads; i++) {
@@ -335,9 +335,11 @@ public class Scheduler {
         while ((item = blockedOnUnknownList.remove(strand)) == null) {
             i++;
             if (i == 1000000) {
-                logger.warn("Possible infinite wait for receiver worker");
+                logger.warn("Possible infinite wait for receiver worker by :" +
+                        Thread.currentThread().getStackTrace()[2]);
                 if (DEBUG) {
-                    debugLog("possible infinite wait for receiver " + strand.hashCode() + " to block");
+                    debugLog("possible infinite wait for receiver " + strand.hashCode() + " to block, by " +
+                            Thread.currentThread().getStackTrace()[2]);
                 }
             }
         }

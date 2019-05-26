@@ -321,7 +321,7 @@ public type FuncBodyParser object {
                                elseOp:elseOp};
             return ternary;
         } else if (kindTag == INS_NEGATE) {
-            kind = INS_KIND_NOT;
+            kind = INS_KIND_NEGATE;
             var rhsOp = self.parseVarRef();
             var lhsOp = self.parseVarRef();
             UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};

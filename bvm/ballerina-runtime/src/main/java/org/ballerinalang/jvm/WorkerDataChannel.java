@@ -251,6 +251,12 @@ public class WorkerDataChannel {
         }
     }
 
+    public void removeFlushWait() {
+        acquireChannelLock();
+        this.flushSender = null;
+        releaseChannelLock();
+    }
+
     /**
      * Method to set sender panics.
      *
