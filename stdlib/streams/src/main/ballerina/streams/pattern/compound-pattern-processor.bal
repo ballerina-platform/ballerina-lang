@@ -16,12 +16,16 @@
 
 import ballerina/time;
 
+# Processor to perform compound stream operations.
+#
+# + processor - descendant `AbstractPatternProcessor` processor
+# + fulfilledEvents - fulfilled states
+# + withinTimeMillis - time from initial state to current state should be within this time
 public type CompoundPatternProcessor object {
     *AbstractPatternProcessor;
     *AbstractOperatorProcessor;
     public AbstractPatternProcessor? processor;
     public StreamEvent?[] fulfilledEvents;
-    // time from initial state to current state should be within this time
     public int? withinTimeMillis;
 
     public function __init(int? withinTimeMillis) {
@@ -34,6 +38,12 @@ public type CompoundPatternProcessor object {
         self.lockField = 0;
     }
 
+    # Processes the `StreamEvent`.
+    #
+    # + event - event to process
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
+    #
+    # + return - a tuple indicating, whether the event is promoted and whether to continue to the next processor.
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         lock {
             self.lockField += 1;
@@ -83,6 +93,9 @@ public type CompoundPatternProcessor object {
         }
     }
 
+    # Set the `StateMachine` to the procesor and it's descendants.
+    #
+    # + stateMachine - `StateMachine` instance
     public function setStateMachine(StateMachine stateMachine) {
         self.stateMachine = stateMachine;
         stateMachine.register(self);
@@ -92,6 +105,7 @@ public type CompoundPatternProcessor object {
         }
     }
 
+    # Validates the processor and its configs.
     public function validate() {
         AbstractPatternProcessor? processor = self.processor;
         if (processor is AbstractPatternProcessor) {
@@ -101,10 +115,18 @@ public type CompoundPatternProcessor object {
         }
     }
 
+    # Promotes the `StreamEvent` to the previous processor.
+    #
+    # + stateEvent - event to promote
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         self.stateEvents.addLast(stateEvent);
     }
 
+    # Evicts the `StreamEvent` from current state branch.
+    #
+    # + stateEvent - event to promote
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     public function evict(StreamEvent stateEvent, string? processorAlias) {
         // remove matching fulfilled states from this processor.
         self.remove(stateEvent);
@@ -115,6 +137,9 @@ public type CompoundPatternProcessor object {
         }
     }
 
+    # Removes a given `StreamEvent` from the `StateMachine`.
+    #
+    # + streamEvent - event to be removed
     public function remove(StreamEvent streamEvent) {
         // remove matching fulfilled states from this processor.
         self.stateEvents.resetToFront();
@@ -126,6 +151,9 @@ public type CompoundPatternProcessor object {
         }
     }
 
+    # Emits given `StreamEvent` as a fulfilled event.
+    #
+    # + streamEvent - event to emit
     public function emit(StreamEvent stateEvent) {
         // remove from stateMachine
         StateMachine? stateMachine = self.stateMachine;
@@ -135,21 +163,33 @@ public type CompoundPatternProcessor object {
         self.fulfilledEvents[self.fulfilledEvents.length()] = stateEvent;
     }
 
+    # Returns fulfilled state events and flush returned states from the state machine.
+    #
+    # + return - an array of `StreamEvent`s.
     public function flushAndGetFulfilledEvents() returns StreamEvent?[] {
         StreamEvent?[] evts = self.fulfilledEvents;
         self.fulfilledEvents = [];
         return evts;
     }
 
+    # Sets a link to the previous `AbstractOperatorProcessor`.
+    #
+    # + processor - previous processor
     public function setPreviousProcessor(AbstractOperatorProcessor processor) {
         self.prevProcessor = processor;
     }
 
+    # Sets a link to the descendant `AbstractOperatorProcessor`.
+    #
+    # + processor - descendant processor
     public function setProcessor(AbstractPatternProcessor processor) {
         self.processor = processor;
         self.processor.setPreviousProcessor(self);
     }
 
+    # Returns the alias of the current processor.
+    #
+    # + return - alias of the processor.
     public function getAlias() returns string {
         string alias = "(";
         AbstractPatternProcessor? pProcessor = self.processor;
@@ -165,6 +205,11 @@ public type CompoundPatternProcessor object {
     }
 };
 
+# Creates and returns a `CompoundPatternProcessor` instance.
+#
+# + withinTimeMillis - time from initial state to current state
+#
+# + return - A `CompoundPatternProcessor` instance.
 public function createCompoundPatternProcessor(int? withinTimeMillis = ()) returns CompoundPatternProcessor {
     CompoundPatternProcessor compoundPatternProcessor = new(withinTimeMillis);
     return compoundPatternProcessor;

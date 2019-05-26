@@ -14,8 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Abstract processor encapsulating operator functions.
+#
+# + stateEvents - list of fulfilled states
 public type AbstractOperatorProcessor abstract object {
     public LinkedList stateEvents;
+
+    # Promotes the `StreamEvent` to the previous processor.
+    #
+    # + stateEvent - event to promote
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     public function promote(StreamEvent stateEvent, string? processorAlias);
+
+    # Evicts the `StreamEvent` from current state branch.
+    #
+    # + stateEvent - event to promote
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     public function evict(StreamEvent stateEvent, string? processorAlias);
 };

@@ -14,6 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Processor to perform AND stream operations.
+#
+# + onConditionFunc - condition function (i.e [e1.id == id])
+# + alias - processor alias
+# + minOccurs - minimum occurrences of the event
+# + maxOccurs - maximum occurrences of the event
+# + checkRange - is counting pattern
+# + lastEvent - if there's counting patterns, `lastEvent` will accumulate event data.
 public type OperandProcessor object {
     *AbstractPatternProcessor;
     public (function (map<anydata> stateData) returns boolean)? onConditionFunc;
@@ -22,7 +30,6 @@ public type OperandProcessor object {
     public int minOccurs = 1;
     public int maxOccurs = 1;
     public boolean checkRange = false;
-    // if there's counting patterns, `lastEvent` will accumulate event data.
     public StreamEvent? lastEvent;
 
     public function __init(string alias, (function (map<anydata> stateData) returns boolean)? onConditionFunc, int
@@ -38,6 +45,12 @@ public type OperandProcessor object {
         self.checkRange = self.minOccurs != 1 || self.maxOccurs != 1;
     }
 
+    # Processes the `StreamEvent`.
+    #
+    # + event - event to process
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
+    #
+    # + return - a tuple indicating, whether the event is promoted and whether to continue to the next processor.
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         lock {
             self.lockField += 1;
@@ -103,11 +116,17 @@ public type OperandProcessor object {
         }
     }
 
+    # Set the `StateMachine` to the procesor and it's descendants.
+    #
+    # + stateMachine - `StateMachine` instance
     public function setStateMachine(StateMachine stateMachine) {
         self.stateMachine = stateMachine;
         stateMachine.register(self);
     }
 
+    # Removes a given `StreamEvent` from the `StateMachine`.
+    #
+    # + streamEvent - event to be removed
     public function remove(StreamEvent streamEvent) {
         StreamEvent? lastEvent = self.lastEvent;
         if (lastEvent is StreamEvent) {
@@ -117,6 +136,7 @@ public type OperandProcessor object {
         }
     }
 
+    # Validates the processor and its configs.
     public function validate() {
         if (self.alias == "") {
             panic error("Operand must have a valid alias.");
@@ -130,15 +150,29 @@ public type OperandProcessor object {
         }
     }
 
+    # Sets a link to the previous `AbstractOperatorProcessor`.
+    #
+    # + processor - previous processor
     public function setPreviousProcessor(AbstractOperatorProcessor processor) {
         self.prevProcessor = processor;
     }
 
+    # Returns the alias of the current processor.
+    #
+    # + return - alias of the processor.
     public function getAlias() returns string {
         return self.alias;
     }
 };
 
+# Creates and returns a `OperandProcessor` instance.
+#
+# + alias - processor alias
+# + onConditionFunc - condition function (i.e [e1.id == id])
+# + minOccurs - minimum occurrences of the event
+# + maxOccurs - maximum occurrences of the event
+#
+# + return - A `OperandProcessor` instance.
 public function createOperandProcessor(string alias,
                                        (function (map<anydata> stateData) returns boolean)? onConditionFunc,
                                        int minOccurs = 1, int maxOccurs = 1)

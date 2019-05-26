@@ -17,6 +17,13 @@
 import ballerina/task;
 import ballerina/time;
 
+# Processor to perform AND stream operations.
+#
+# + processor - descendant `AbstractPatternProcessor` processor
+# + eventScheduler - `Scheduler` instance for scheduling `NOT for x millis` events
+# + forTimeMillis - `for` time in milliseconds
+# + schedulerLock - lock for the scheduler
+# + processorAlias - processor alias
 public type NotOperatorProcessor object {
     *AbstractPatternProcessor;
     *AbstractOperatorProcessor;
@@ -40,6 +47,9 @@ public type NotOperatorProcessor object {
         }
     }
 
+    # Reschedules the next NOT event.
+    #
+    # + delay - delay for the next event
     public function rescheduleNextEvent(int? delay) {
         lock {
             self.schedulerLock += 1;
@@ -83,6 +93,12 @@ public type NotOperatorProcessor object {
         }
     };
 
+    # Processes the `StreamEvent`.
+    #
+    # + event - event to process
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
+    #
+    # + return - a tuple indicating, whether the event is promoted and whether to continue to the next processor.
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         lock {
             self.lockField += 1;
@@ -151,6 +167,9 @@ public type NotOperatorProcessor object {
         }
     }
 
+    # Set the `StateMachine` to the procesor and it's descendants.
+    #
+    # + stateMachine - `StateMachine` instance
     public function setStateMachine(StateMachine stateMachine) {
         self.stateMachine = stateMachine;
         stateMachine.register(self);
@@ -160,6 +179,7 @@ public type NotOperatorProcessor object {
         }
     }
 
+    # Validates the processor and its configs.
     public function validate() {
         AbstractOperatorProcessor? pProcessor = self.prevProcessor;
         if (!(pProcessor is AndOperatorProcessor || self.forTimeMillis > 0)) {
@@ -173,10 +193,18 @@ public type NotOperatorProcessor object {
         }
     }
 
+    # Promotes the `StreamEvent` to the previous processor.
+    #
+    # + stateEvent - event to promote
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         // do nothing.
     }
 
+    # Evicts the `StreamEvent` from current state branch.
+    #
+    # + stateEvent - event to promote
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     public function evict(StreamEvent stateEvent, string? processorAlias) {
         // remove matching states from prev processors.
         AbstractOperatorProcessor? pProcessor = self.prevProcessor;
@@ -185,19 +213,31 @@ public type NotOperatorProcessor object {
         }
     }
 
+    # Removes a given `StreamEvent` from the `StateMachine`.
+    #
+    # + streamEvent - event to be removed
     public function remove(StreamEvent streamEvent) {
         // do nothing.
     }
 
+    # Sets a link to the previous `AbstractOperatorProcessor`.
+    #
+    # + processor - previous processor
     public function setPreviousProcessor(AbstractOperatorProcessor processor) {
         self.prevProcessor = processor;
     }
 
+    # Sets a link to the descendant `AbstractOperatorProcessor`.
+    #
+    # + processor - descendant processor
     public function setProcessor(AbstractPatternProcessor processor) {
         self.processor = processor;
         self.processor.setPreviousProcessor(self);
     }
 
+    # Returns the alias of the current processor.
+    #
+    # + return - alias of the processor.
     public function getAlias() returns string {
         string alias = "!";
         AbstractPatternProcessor? pProcessor = self.processor;
@@ -209,6 +249,11 @@ public type NotOperatorProcessor object {
     }
 };
 
+# Creates and returns a `NotOperatorProcessor` instance.
+#
+# + forTimeMillis - `for` time in milliseconds
+#
+# + return - A `NotOperatorProcessor` instance.
 public function createNotOperatorProcessor(int? forTimeMillis) returns NotOperatorProcessor {
     NotOperatorProcessor notOperatorProcessor = new(forTimeMillis);
     return notOperatorProcessor;

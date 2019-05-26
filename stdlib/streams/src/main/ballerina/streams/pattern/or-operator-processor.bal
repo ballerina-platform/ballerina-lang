@@ -14,6 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Processor to perform AND stream operations.
+#
+# + lhsProcessor - LHS processor of the AND processor
+# + rhsProcessor - RHS processor of the AND processor
+# + lhsEvicted - LHS partially evicted states
+# + rhsProcessor - RHS partially evicted states
+# + lhsAlias - LHS processor alias
+# + rhsAlias - RHS processor alias
 public type OrOperatorProcessor object {
     *AbstractPatternProcessor;
     *AbstractOperatorProcessor;
@@ -35,6 +43,12 @@ public type OrOperatorProcessor object {
         self.lockField = 0;
     }
 
+    # Processes the `StreamEvent`.
+    #
+    # + event - event to process
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
+    #
+    # + return - a tuple indicating, whether the event is promoted and whether to continue to the next processor.
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         lock {
             self.lockField += 1;
@@ -68,6 +82,9 @@ public type OrOperatorProcessor object {
         }
     }
 
+    # Set the `StateMachine` to the procesor and it's descendants.
+    #
+    # + stateMachine - `StateMachine` instance
     public function setStateMachine(StateMachine stateMachine) {
         self.stateMachine = stateMachine;
         stateMachine.register(self);
@@ -81,6 +98,7 @@ public type OrOperatorProcessor object {
         }
     }
 
+    # Validates the processor and its configs.
     public function validate() {
         AbstractPatternProcessor? lProcessor = self.lhsProcessor;
         if (lProcessor is AbstractPatternProcessor) {
@@ -96,6 +114,10 @@ public type OrOperatorProcessor object {
         }
     }
 
+    # Promotes the `StreamEvent` to the previous processor.
+    #
+    # + stateEvent - event to promote
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         // if there's partial eviction, clean it beforehand.
         string pAlias = <string>processorAlias;
@@ -108,6 +130,10 @@ public type OrOperatorProcessor object {
         self.stateEvents.addLast(stateEvent);
     }
 
+    # Evicts the `StreamEvent` from current state branch.
+    #
+    # + stateEvent - event to promote
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     public function evict(StreamEvent stateEvent, string? processorAlias) {
         boolean proceed = false;
         string pAlias = <string>processorAlias;
@@ -142,6 +168,9 @@ public type OrOperatorProcessor object {
         }
     }
 
+    # Removes a given `StreamEvent` from the `StateMachine`.
+    #
+    # + streamEvent - event to be removed
     public function remove(StreamEvent streamEvent) {
         boolean removed = self.rhsEvicted.remove(streamEvent.getEventId());
         removed = self.lhsEvicted.remove(streamEvent.getEventId());
@@ -155,20 +184,32 @@ public type OrOperatorProcessor object {
         }
     }
 
+    # Sets a link to the previous `AbstractOperatorProcessor`.
+    #
+    # + processor - previous processor
     public function setPreviousProcessor(AbstractOperatorProcessor processor) {
         self.prevProcessor = processor;
     }
 
+    # Sets a link to the lhs `AbstractOperatorProcessor`.
+    #
+    # + processor - lhs processor
     public function setLHSProcessor(AbstractPatternProcessor processor) {
         self.lhsProcessor = processor;
         self.lhsProcessor.setPreviousProcessor(self);
     }
 
+    # Sets a link to the rhs `AbstractOperatorProcessor`.
+    #
+    # + processor - rhs processor
     public function setRHSProcessor(AbstractPatternProcessor processor) {
         self.rhsProcessor = processor;
         self.rhsProcessor.setPreviousProcessor(self);
     }
 
+    # Returns the alias of the current processor.
+    #
+    # + return - alias of the processor.
     public function getAlias() returns string {
         string alias = "";
         AbstractPatternProcessor? lProcessor = self.lhsProcessor;
@@ -187,6 +228,9 @@ public type OrOperatorProcessor object {
     }
 };
 
+# Creates and returns a `OrOperatorProcessor` instance.
+#
+# + return - A `OrOperatorProcessor` instance.
 public function createOrOperatorProcessor() returns OrOperatorProcessor {
     OrOperatorProcessor orOperatorProcessor = new;
     return orOperatorProcessor;

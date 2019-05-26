@@ -14,7 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
+# Processor to perform AND stream operations.
+#
+# + lhsProcessor - LHS processor of the AND processor
+# + rhsProcessor - RHS processor of the AND processor
+# + lhsPartialStates - LHS partially promoted states
+# + rhsPartialStates - RHS partially promoted states
+# + lhsAlias - LHS processor alias
+# + rhsAlias - RHS processor alias
 public type AndOperatorProcessor object {
     *AbstractPatternProcessor;
     *AbstractOperatorProcessor;
@@ -36,6 +43,12 @@ public type AndOperatorProcessor object {
         self.lockField = 0;
     }
 
+    # Processes the `StreamEvent`.
+    #
+    # + event - event to process
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
+    #
+    # + return - a tuple indicating, whether the event is promoted and whether to continue to the next processor.
     public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
         lock {
             self.lockField += 1;
@@ -108,6 +121,9 @@ public type AndOperatorProcessor object {
         }
     }
 
+    # Set the `StateMachine` to the procesor and it's descendants.
+    #
+    # + stateMachine - `StateMachine` instance
     public function setStateMachine(StateMachine stateMachine) {
         self.stateMachine = stateMachine;
         stateMachine.register(self);
@@ -121,6 +137,7 @@ public type AndOperatorProcessor object {
         }
     }
 
+    # Validates the processor and its configs.
     public function validate() {
         AbstractPatternProcessor? lProcessor = self.lhsProcessor;
         if (lProcessor is AbstractPatternProcessor) {
@@ -136,6 +153,10 @@ public type AndOperatorProcessor object {
         }
     }
 
+    # Promotes the `StreamEvent` to the previous processor.
+    #
+    # + stateEvent - event to promote
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         string pAlias = <string>processorAlias;
         if (pAlias == self.lhsAlias) {
@@ -159,6 +180,10 @@ public type AndOperatorProcessor object {
         }
     }
 
+    # Evicts the `StreamEvent` from current state branch.
+    #
+    # + stateEvent - event to promote
+    # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     public function evict(StreamEvent stateEvent, string? processorAlias) {
         // remove matching partial states from this processor.
         boolean removed;
@@ -183,6 +208,9 @@ public type AndOperatorProcessor object {
         }
     }
 
+    # Removes a given `StreamEvent` from the `StateMachine`.
+    #
+    # + streamEvent - event to be removed
     public function remove(StreamEvent streamEvent) {
         // remove matching partial states from this processor.
         boolean removed = self.lhsPartialStates.remove(streamEvent.getEventId());
@@ -197,20 +225,32 @@ public type AndOperatorProcessor object {
         }
     }
 
+    # Sets a link to the previous `AbstractOperatorProcessor`.
+    #
+    # + processor - previous processor
     public function setPreviousProcessor(AbstractOperatorProcessor processor) {
         self.prevProcessor = processor;
     }
 
+    # Sets a link to the LHS `AbstractOperatorProcessor`.
+    #
+    # + processor - lhs processor
     public function setLHSProcessor(AbstractPatternProcessor processor) {
         self.lhsProcessor = processor;
         self.lhsProcessor.setPreviousProcessor(self);
     }
 
+    # Sets a link to the RHS `AbstractOperatorProcessor`.
+    #
+    # + processor - rhs processor
     public function setRHSProcessor(AbstractPatternProcessor processor) {
         self.rhsProcessor = processor;
         self.rhsProcessor.setPreviousProcessor(self);
     }
 
+    # Returns the alias of the current processor.
+    #
+    # + return - alias of the processor.
     public function getAlias() returns string {
         string alias = "";
         AbstractPatternProcessor? lProcessor = self.lhsProcessor;
@@ -229,6 +269,9 @@ public type AndOperatorProcessor object {
     }
 };
 
+# Creates and returns a `AndOperatorProcessor` instance.
+#
+# + return - A `AndOperatorProcessor` instance.
 public function createAndOperatorProcessor() returns AndOperatorProcessor {
     AndOperatorProcessor andOperatorProcessor = new;
     return andOperatorProcessor;
