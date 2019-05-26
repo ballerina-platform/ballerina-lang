@@ -152,7 +152,8 @@
             <class name="org.ballerinalang.test.worker.WorkerSyncSendTest"/>
             <class name="org.ballerinalang.test.worker.WorkerInActionTest">
                 <methods>
-                    <include name="testDefaultError"/>
+                    <exclude name="testConnectorAction1"/>
+                    <exclude name="testConnectorAction2"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.worker.WorkerInFunctionTest"/>
