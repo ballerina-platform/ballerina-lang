@@ -156,31 +156,37 @@
             </class>
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
             <class name="org.ballerinalang.test.types.constant.MapConstantTest" />
-            <class name="org.ballerinalang.test.worker.WaitForAllActionsTest">
-                <methods>
-                    <exclude name="waitTest13"/>
-                    <exclude name="waitTest14"/>
-                    <exclude name="waitTest15"/>
-                    <exclude name="waitTest16"/>
-                    <exclude name="waitTest17"/>
-                </methods>
-            </class>
+
             <class name="org.ballerinalang.test.worker.BasicForkTest"/>
             <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
             <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest">
                 <methods>
-                    <!--need to enable after fixing panic scenarios and executing init before main-->
-                    <exclude name="waitTest12"/>
                     <exclude name="waitTest13"/>
-                    <exclude name="waitTest20"/>
-                    <exclude name="waitTest21"/>
-                    <exclude name="waitTest22"/>
-                    <exclude name="waitTest24"/>
-                    <exclude name="waitTest2"/>
-                    <exclude name="waitTest15"/>
+                    <exclude name="waitTest23"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.worker.WaitForAllActionsTest">
+                <methods>
                     <exclude name="waitTest16"/>
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.worker.WorkerTest">
+                <methods>
+                    <!--TODO:Fix trap and future.cancel()-->
+                    <exclude name="receiveWithTrap"/>
+                    <exclude name="receiveWithCheckAndTrap"/>
+                    <exclude name="receiveWithTrapForDefault"/>
+                    <exclude name="receiveDefaultWithCheckAndTrap"/>
+                    <exclude name="workerWithFutureTest1"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.worker.WorkerSyncSendTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerInActionTest">
+                <methods>
+                    <include name="testDefaultError"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.worker.WorkerInFunctionTest"/>
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
             <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
                 <methods>

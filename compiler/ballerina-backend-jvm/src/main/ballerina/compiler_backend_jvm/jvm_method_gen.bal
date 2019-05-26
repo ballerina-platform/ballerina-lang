@@ -87,7 +87,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     // set channel details to strand.
     // these channel info is required to notify datachannels, when there is a panic
     // we cannot set this during strand creation, because function call do not have this info.
-    mv.visitVarInsn(ALOAD, 0);
+    mv.visitVarInsn(ALOAD, localVarOffset);
     loadChannelDetails(mv, func.workerChannels);
     mv.visitFieldInsn(PUTFIELD, STRAND, "channelDetails", io:sprintf("[L%s;", CHANNEL_DETAILS));
 

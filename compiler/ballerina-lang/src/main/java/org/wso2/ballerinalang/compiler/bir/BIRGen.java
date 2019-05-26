@@ -1585,6 +1585,8 @@ public class BIRGen extends BLangNodeVisitor {
                 this.env.trapBB = ((BIRTerminator.WaitAll) thenBB.terminator).thenBB;
             } else if (thenBB.terminator instanceof BIRTerminator.Wait) {
                 this.env.trapBB = ((BIRTerminator.Wait) thenBB.terminator).thenBB;
+            } else if (thenBB.terminator instanceof BIRTerminator.WorkerReceive) {
+                this.env.trapBB = ((BIRTerminator.WorkerReceive) thenBB.terminator).thenBB;
             } else {
                 this.env.trapBB = ((BIRTerminator.Call) thenBB.terminator).thenBB;
             }

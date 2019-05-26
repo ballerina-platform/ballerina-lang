@@ -608,8 +608,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         loadFiniteType(mv, bType);
         return;
     } else {
-        error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
-        panic err;
+        loadFutureType(mv, bType);
+        return;
     }
 
     mv.visitFieldInsn(GETSTATIC, BTYPES, typeFieldName, io:sprintf("L%s;", BTYPE));
@@ -773,6 +773,14 @@ function loadUserDefinedType(jvm:MethodVisitor mv, bir:Name typeName) {
 # + return - name of the field that holds the type instance
 function getTypeFieldName(string typeName) returns string {
     return io:sprintf("$type$%s", typeName);
+}
+
+function loadFutureType(jvm:MethodVisitor mv, bir:BFutureType bType) {
+    mv.visitTypeInsn(NEW, FUTURE_TYPE);
+    mv.visitInsn(DUP);
+
+    loadType(mv, bType.returnType);
+    mv.visitMethodInsn(INVOKESPECIAL, FUTURE_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
 }
 
 # Create and load an invokable type.

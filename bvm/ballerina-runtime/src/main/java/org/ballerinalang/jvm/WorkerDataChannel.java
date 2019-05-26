@@ -91,7 +91,7 @@ public class WorkerDataChannel {
      * @param strand - sending strand, that will be paused
      * @return error if receiver already in error state, else null
      */
-    public Object syncSendData(Object data, Strand strand) {
+    public Object syncSendData(Object data, Strand strand) throws Throwable {
         try {
             acquireChannelLock();
             if (!syncSent) {
@@ -107,7 +107,7 @@ public class WorkerDataChannel {
                 } else if (this.panic != null) {
                     Throwable panic = this.panic;
                     this.panic = null;
-                    throw new RuntimeException(panic);
+                    throw panic;
                 } else if (this.error != null) {
                     ErrorValue ret = this.error;
                     this.error = null;

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -24,6 +25,7 @@ import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
@@ -123,11 +125,14 @@ public class Strand {
         return null;
     }
 
-    public void handleWaitMultiple(Map<String, FutureValue> keyValues, MapValue target) {
+    public void handleWaitMultiple(Map<String, FutureValue> keyValues, MapValue target) throws Throwable {
         this.blockedOn.clear();
-        keyValues.entrySet().forEach(entry -> {
+        for (Map.Entry<String, FutureValue> entry : keyValues.entrySet()) {
             synchronized (entry.getValue()) {
                 if (entry.getValue().isDone) {
+                    if (entry.getValue().panic != null) {
+                        throw entry.getValue().panic;
+                    }
                     target.put(entry.getKey(), entry.getValue().result);
                 } else {
                     this.yield = true;
@@ -135,15 +140,28 @@ public class Strand {
                     this.blockedOn.add(entry.getValue().strand);
                 }
             }
-        });
+        }
     }
 
-    public WaitResult handleWaitAny(List<FutureValue> futures) {
+    public WaitResult handleWaitAny(List<FutureValue> futures) throws Throwable {
         WaitResult waitResult = new WaitResult(false, null);
+        int completed = 0;
+        Object error = null;
         for (FutureValue future : futures) {
             synchronized (future) {
                 if (future.isDone) {
+                    completed++;
+                    if (future.panic != null) {
+                        throw future.panic;
+                    }
+
+                    if (TypeChecker.checkIsType(future.result, BTypes.typeError)) {
+                        // if error, should wait for other futures as well
+                        error = future.result;
+                        continue;
+                    }
                     waitResult = new WaitResult(true, future.result);
+                    break;
                 } else {
                     this.blockedOn.add(future.strand);
                 }
@@ -155,6 +173,13 @@ public class Strand {
             for (FutureValue future : futures) {
                 future.strand.scheduler.release(future.strand, this);
             }
+        } else if (completed == futures.size()) {
+            // all futures have error result
+            this.blockedOn.clear();
+            for (FutureValue future : futures) {
+                future.strand.scheduler.release(future.strand, this);
+            }
+            waitResult = new WaitResult(true, error);
         } else {
             this.yield = true;
             this.blocked = true;
