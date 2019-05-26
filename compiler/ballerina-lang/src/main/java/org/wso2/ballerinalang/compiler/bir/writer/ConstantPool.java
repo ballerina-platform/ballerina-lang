@@ -18,14 +18,21 @@
 package org.wso2.ballerinalang.compiler.bir.writer;
 
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A pool of constant values in the binary BIR file.
@@ -39,13 +46,31 @@ public class ConstantPool {
 
     private final List<CPEntry> cpEntries = new ArrayList<>();
 
+    private final Map<TypeSymbol, CPEntry> cachedEntriesForTSym = new HashMap<>();
+
     public int addCPEntry(CPEntry cpEntry) {
-        if (cpEntries.contains(cpEntry)) {
-            return cpEntries.indexOf(cpEntry);
+        int i = cpEntries.indexOf(cpEntry);
+        if (i >= 0) {
+            return i;
         }
 
         cpEntries.add(cpEntry);
         return cpEntries.size() - 1;
+    }
+
+    public int addShapeCPEntry(BType shape) {
+        CPEntry cachedCpEntry = cachedEntriesForTSym.get(shape);
+        if (cachedCpEntry != null) {
+            return addCPEntry(cachedCpEntry);
+        }
+
+        ByteBuf typebuf = Unpooled.buffer();
+        BIRTypeWriter birTypeWriter = new BIRTypeWriter(typebuf, this);
+        birTypeWriter.visitType(shape);
+
+        byte[] bytes = Arrays.copyOfRange(typebuf.array(), 0, typebuf.writerIndex());
+
+        return addCPEntry(new CPEntry.ShapeCPEntry(bytes));
     }
 
     public byte[] serialize()  {
@@ -89,6 +114,11 @@ public class ConstantPool {
                     stream.writeInt(pkgCPEntry.orgNameCPIndex);
                     stream.writeInt(pkgCPEntry.pkgNameCPIndex);
                     stream.writeInt(pkgCPEntry.versionCPIndex);
+                    break;
+                case CP_ENTRY_SHAPE:
+                    CPEntry.ShapeCPEntry shapeCPEntry = (CPEntry.ShapeCPEntry) cpEntry;
+                    stream.writeInt(shapeCPEntry.shape.length);
+                    stream.write(shapeCPEntry.shape);
                     break;
                 default:
                     throw new IllegalStateException("unsupported constant pool entry type: " +

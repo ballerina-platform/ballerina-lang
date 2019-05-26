@@ -106,6 +106,7 @@ public class BIRPackageSymbolEnter {
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
+    private DataInputStream dataInStream;
 
     public static BIRPackageSymbolEnter getInstance(CompilerContext context) {
         BIRPackageSymbolEnter packageReader = context.get(COMPILED_PACKAGE_SYMBOL_ENTER_KEY);
@@ -201,7 +202,7 @@ public class BIRPackageSymbolEnter {
         // Define import packages.
         defineSymbols(dataInStream, rethrow(this::defineImportPackage));
 
-        this.typeReader = new BIRTypeReader(dataInStream); //TODO find a better approach than this
+        this.dataInStream = dataInStream;
         // Define typeDescRef definitions.
         this.structureTypes = new ArrayList<>();
         defineSymbols(dataInStream, rethrow(this::defineTypeDef));
@@ -272,11 +273,20 @@ public class BIRPackageSymbolEnter {
                 return new CPEntry.StringCPEntry(strValue);
             case CP_ENTRY_PACKAGE:
                 return new CPEntry.PackageCPEntry(dataInStream.readInt(),
-                        dataInStream.readInt(), dataInStream.readInt());
+                                                  dataInStream.readInt(), dataInStream.readInt());
+            case CP_ENTRY_SHAPE:
+                return new CPEntry.ShapeCPEntry(readByteArray(dataInStream));
             default:
                 throw new IllegalStateException("unsupported constant pool entry type: " +
                         cpEntryType.name());
         }
+    }
+
+    private byte[] readByteArray(DataInputStream dataInStream) throws IOException {
+        int length = dataInStream.readInt();
+        byte[] bytes = new byte[length];
+        dataInStream.readFully(bytes);
+        return bytes;
     }
 
     private void defineSymbols(DataInputStream dataInStream,
@@ -312,7 +322,7 @@ public class BIRPackageSymbolEnter {
 
         flags = visibilityAsMask(flags, dataInStream.readByte());
 
-        BInvokableType funcType = (BInvokableType) typeReader.readType();
+        BInvokableType funcType = (BInvokableType) readBType();
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
                 this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
         Scope scopeToDefine = this.env.pkgSymbol.scope;
@@ -384,7 +394,7 @@ public class BIRPackageSymbolEnter {
 
         flags = visibilityAsMask(flags, dataInStream.readByte());
 
-        BType type = typeReader.readType();
+        BType type = readBType();
 
         // Temp solution to add abstract flag if available TODO find a better approach
         flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.ABSTRACT) ? flags | Flags.ABSTRACT : flags;
@@ -406,6 +416,12 @@ public class BIRPackageSymbolEnter {
         this.env.pkgSymbol.scope.define(symbol.name, symbol);
     }
 
+    private BType readBType() throws IOException {
+        int typeCpIndex = dataInStream.readInt();
+        CPEntry.ShapeCPEntry shapeCPEntry = (CPEntry.ShapeCPEntry) this.env.constantPool[typeCpIndex];
+        return new BIRTypeReader(new DataInputStream(new ByteArrayInputStream(shapeCPEntry.shape))).readType();
+    }
+
     private void defineAnnotations(DataInputStream dataInStream) throws IOException {
         String name = getStringCPEntryValue(dataInStream);
 
@@ -413,7 +429,7 @@ public class BIRPackageSymbolEnter {
         flags = visibilityAsMask(flags, dataInStream.readByte());
 
         int attachPoints = dataInStream.readInt();
-        BType annotationType = typeReader.readType();
+        BType annotationType = readBType();
 
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, names.fromString(name),
                 this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
@@ -429,8 +445,8 @@ public class BIRPackageSymbolEnter {
         String constantName = getStringCPEntryValue(dataInStream);
         int flags = 0;
         flags = visibilityAsMask(flags, dataInStream.readByte());
-        BType finiteType = typeReader.readType();
-        BType valueType = typeReader.readType();
+        BType finiteType = readBType();
+        BType valueType = readBType();
 
         // Get the simple literal value.
         Object object = readLiteralValue(dataInStream, valueType);
@@ -477,7 +493,7 @@ public class BIRPackageSymbolEnter {
         int flags = visibilityAsMask(0, dataInStream.readByte());
 
         // Create variable symbol
-        BType varType = typeReader.readType();
+        BType varType = readBType();
         Scope enclScope = this.env.pkgSymbol.scope;
         BVarSymbol varSymbol;
 
@@ -534,7 +550,7 @@ public class BIRPackageSymbolEnter {
 
         boolean hasReceiver = dataInStream.readBoolean(); //if receiver type is written, read and ignore
         if (hasReceiver) {
-            typeReader.readType();
+            readBType();
         }
     }
 
@@ -812,7 +828,7 @@ public class BIRPackageSymbolEnter {
                     symbol.type = finiteType;
                     int valueSpaceSize = inputStream.readInt();
                     for (int i = 0; i < valueSpaceSize; i++) {
-                        defineValueSpace(inputStream, finiteType);
+                        defineValueSpace(inputStream, finiteType, this);
                     }
                     return finiteType;
                 case TypeTags.OBJECT:
@@ -890,7 +906,8 @@ public class BIRPackageSymbolEnter {
         }
     }
 
-    private void defineValueSpace(DataInputStream dataInStream, BFiniteType finiteType) throws IOException {
+    private void defineValueSpace(DataInputStream dataInStream, BFiniteType finiteType, BIRTypeReader typeReader)
+            throws IOException {
         BType valueType = typeReader.readType();
         BLangLiteral litExpr = createLiteralBasedOnType(valueType);
         switch (valueType.tag) {

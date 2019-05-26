@@ -17,7 +17,8 @@
 import ballerina/io;
 
 public type TypeParser object {
-    BirChannelReader reader;
+    ChannelReader reader;
+    ConstPoolParser cpParser;
 
     public int TYPE_TAG_INT = 1;
     public int TYPE_TAG_BYTE = TYPE_TAG_INT + 1;
@@ -65,8 +66,9 @@ public type TypeParser object {
     BType?[] compositeStack = [];
     int compositeStackI = 0;
 
-    public function __init(BirChannelReader reader) {
+    public function __init(ChannelReader reader, ConstPoolParser cpParser) {
         self.reader = reader;
+        self.cpParser = cpParser;
     }
 
     public function parseType() returns BType {
@@ -186,7 +188,7 @@ public type TypeParser object {
     }
 
     function parseRecordType() returns BRecordType {
-        BRecordType obj = { name:{value:self.reader.readStringCpRef()}, sealed:self.reader.readBoolean(),
+        BRecordType obj = { name:{value:self.readStringCpRef()}, sealed:self.reader.readBoolean(),
                     restFieldType: TYPE_NIL, fields: [],
                     initFunction: {funcType: {}, visibility: VISIBILITY_PRIVATE } };
         self.compositeStack[self.compositeStackI] = obj;
@@ -211,7 +213,7 @@ public type TypeParser object {
     }
 
     function parseRecordInitFunction() returns BAttachedFunction {
-        var funcName = self.reader.readStringCpRef();
+        var funcName = self.readStringCpRef();
         var visibility = parseVisibility(self.reader);
 
         var funcType = self.parseTypeInternal();
@@ -224,13 +226,13 @@ public type TypeParser object {
     }
 
     function parseRecordField() returns BRecordField {
-        return {name:{value:self.reader.readStringCpRef()}, visibility:parseVisibility(self.reader), typeValue:self.parseTypeInternal()};
+        return {name:{value:self.readStringCpRef()}, visibility:parseVisibility(self.reader), typeValue:self.parseTypeInternal()};
     }
 
     function parseObjectType() returns BType {
         // Below is a temp fix, need to fix this properly by using type tag
         boolean isService = self.reader.readInt8() == 1;
-        BObjectType obj = { name: { value: self.reader.readStringCpRef() },
+        BObjectType obj = { name: { value: self.readStringCpRef() },
             isAbstract: self.reader.readBoolean(),
             fields: [],
             attachedFunctions: [] };
@@ -253,7 +255,7 @@ public type TypeParser object {
         int c = 0;
         BAttachedFunction?[] attachedFunctions = [];
         while c < size {
-            var funcName = self.reader.readStringCpRef();
+            var funcName = self.readStringCpRef();
             var visibility = parseVisibility(self.reader);
 
             var funcType = self.parseTypeInternal();
@@ -282,7 +284,7 @@ public type TypeParser object {
     }
 
     function parseObjectField() returns BObjectField {
-        return {name:{value:self.reader.readStringCpRef()}, visibility:parseVisibility(self.reader), typeValue:self.parseTypeInternal()};
+        return {name:{value:self.readStringCpRef()}, visibility:parseVisibility(self.reader), typeValue:self.parseTypeInternal()};
     }
 
     function parseErrorType() returns BErrorType {
@@ -322,7 +324,7 @@ public type TypeParser object {
     }
 
     function parseFiniteType() returns BFiniteType {
-        BFiniteType finiteType = {name: { value: self.reader.readStringCpRef()},
+        BFiniteType finiteType = {name: { value: self.readStringCpRef()},
                                     visibility:parseVisibility(self.reader), values:[]};
         int size = self.reader.readInt32();
         int c = 0;
@@ -336,15 +338,34 @@ public type TypeParser object {
 
     private function getValue(BType valueType) returns (int | string | boolean | float | byte| ()) {
         if (valueType is BTypeInt || valueType is BTypeByte) {
-            return self.reader.readIntCpRef();
+            return self.readIntCpRef();
         } else if (valueType is BTypeString) {
-            return self.reader.readStringCpRef();
+            return self.readStringCpRef();
         } else if (valueType is BTypeBoolean) {
             return self.reader.readInt8() == 1;
         } else if (valueType is BTypeFloat) {
-            return self.reader.readFloatCpRef();
+            return self.readFloatCpRef();
         } else if (valueType is BTypeNil) {
             return ();
         }
     }
+
+    // TODO: remove duplicate function with the same name
+    private function readStringCpRef() returns string {
+        var stringCpIndex = self.reader.readInt32();
+        return self.cpParser.cp.strings[stringCpIndex];
+    }
+
+    // TODO: remove duplicate function with the same name
+    private function readIntCpRef() returns int {
+        var intCpIndex = self.reader.readInt32();
+        return self.cpParser.cp.ints[intCpIndex];
+    }
+
+    // TODO: remove duplicate function with the same name
+    private function readFloatCpRef() returns float {
+        var floatCpIndex = self.reader.readInt32();
+        return self.cpParser.cp.floats[floatCpIndex];
+    }
+
 };

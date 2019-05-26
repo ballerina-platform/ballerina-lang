@@ -19,14 +19,17 @@ public type ConstPool record {
     string[] strings = [];
     int[] ints = [];
     float[] floats = [];
+    BType?[] types = [];
 };
 
 public type ConstPoolParser object {
     ChannelReader reader;
+    TypeParser typeParser;
     ConstPool cp = {};
     int i;
 
     public function __init(ChannelReader reader) {
+        self.typeParser = new (reader, self);
         self.reader = reader;
         self.i = 0;
     }
@@ -51,6 +54,8 @@ public type ConstPoolParser object {
             self.parseString();
         } else if (cpType == 5){
             self.parseModuleID();
+        } else if (cpType == 6){
+            self.parseType();
         } else {
             error err = error("cp type " + cpType + " not supported.:");
             panic err;
@@ -74,6 +79,11 @@ public type ConstPoolParser object {
             name: self.cp.strings[self.reader.readInt32()],
             modVersion: self.cp.strings[self.reader.readInt32()] };
         self.cp.packages[self.i] = id;
+    }
+
+    function parseType() {
+        var typeLen = self.reader.readInt32();
+        self.cp.types[self.i] = self.typeParser.parseType();
     }
 
 };
