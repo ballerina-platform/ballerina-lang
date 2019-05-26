@@ -31,6 +31,8 @@ map<string> globalVarClassNames = {};
 
 map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
 
+map<bir:Package> compiledPkgCache = {};
+
 string currentClass = "";
 
 function lookupFullQualifiedClassName(string key) returns string {
@@ -88,15 +90,20 @@ function lookupGlobalVarClassName(string key) returns string {
 }
 
 public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntries) {
+    string orgName = module.org.value;
+    string moduleName = module.name.value;
+
+    if (compiledPkgCache.hasKey(orgName + moduleName)) {
+        return;
+    }
 
     // generate imported modules recursively
     foreach var mod in module.importModules {
         bir:Package importedPkg = lookupModule(mod, currentBIRContext);
         generateImportedPackage(importedPkg, pkgEntries);
+        compiledPkgCache[importedPkg.org.value + importedPkg.name.value] = importedPkg;
     }
 
-    string orgName = module.org.value;
-    string moduleName = module.name.value;
     string pkgName = getPackageName(orgName, moduleName);
     string sourceFileName = module.name.value;
 
@@ -437,5 +444,8 @@ function generateBuiltInPackages(bir:BIRContext birContext, map<byte[]> jarEntri
     bir:Package builtInModule = lookupModule(builtInBIRMod, birContext);
 
     generateImportedPackage(utilsModule, jarEntries);
+    compiledPkgCache[utilsModule.org.value + utilsModule.name.value] = utilsModule;
+
     generateImportedPackage(builtInModule, jarEntries);
+    compiledPkgCache[builtInModule.org.value + builtInModule.name.value] = builtInModule;
 }
