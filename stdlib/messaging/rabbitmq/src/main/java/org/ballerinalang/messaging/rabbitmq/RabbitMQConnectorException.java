@@ -33,7 +33,7 @@ public class RabbitMQConnectorException extends BallerinaException {
     /**
      * Constructs a new {@link RabbitMQConnectorException} with the specified detail message.
      *
-     * @param message Error Message
+     * @param message Error Message.
      */
     public RabbitMQConnectorException(String message) {
         super(message);
@@ -42,8 +42,8 @@ public class RabbitMQConnectorException extends BallerinaException {
     /**
      * Constructs a new {@link RabbitMQConnectorException} with error message and ballerina context.
      *
-     * @param message Error message
-     * @param context Ballerina context
+     * @param message Error message.
+     * @param context Ballerina context.
      */
     public RabbitMQConnectorException(String message, Context context) {
         super(message, context);
@@ -52,8 +52,8 @@ public class RabbitMQConnectorException extends BallerinaException {
     /**
      * Constructs a new {@link RabbitMQConnectorException} with the specified detail message and cause.
      *
-     * @param message Error message
-     * @param cause   Cause
+     * @param message Error message.
+     * @param cause   Cause.
      */
     public RabbitMQConnectorException(String message, Throwable cause) {
         super(message, cause);
@@ -63,9 +63,9 @@ public class RabbitMQConnectorException extends BallerinaException {
      * Constructs a new {@link RabbitMQConnectorException} with the specified detail message,
      * cause and ballerina context.
      *
-     * @param message Error message
-     * @param cause   Cause
-     * @param context Ballerina context
+     * @param message Error message.
+     * @param cause   Cause.
+     * @param context Ballerina context.
      */
     public RabbitMQConnectorException(String message, Throwable cause, Context context) {
         super(message, cause, context);
@@ -74,7 +74,7 @@ public class RabbitMQConnectorException extends BallerinaException {
     /**
      * Constructs a new {@link RabbitMQConnectorException} with the cause.
      *
-     * @param cause Throwable to be wrap by {@link RabbitMQConnectorException}
+     * @param cause Throwable to be wrap by {@link RabbitMQConnectorException}.
      */
     public RabbitMQConnectorException(Throwable cause) {
         super(cause);
@@ -83,7 +83,7 @@ public class RabbitMQConnectorException extends BallerinaException {
     /**
      * Constructs a new {@link RabbitMQConnectorException} with ballerina context.
      *
-     * @param stack Ballerina context
+     * @param stack Ballerina context.
      */
     public RabbitMQConnectorException(Context stack) {
         super(stack);

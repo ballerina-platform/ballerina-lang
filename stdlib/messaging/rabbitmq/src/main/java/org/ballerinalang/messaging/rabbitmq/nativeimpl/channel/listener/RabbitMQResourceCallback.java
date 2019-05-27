@@ -46,6 +46,5 @@ public class RabbitMQResourceCallback implements CallableUnitCallback {
     public void notifyFailure(BError error) {
         countDownLatch.countDown();
         ErrorHandlerUtils.printError("RabbitMQ Error: " + BLangVMErrors.getPrintableStackTrace(error));
-        // TODO: Handle this - Already closed exception - service should exit and all messages should be re-queued.
     }
 }

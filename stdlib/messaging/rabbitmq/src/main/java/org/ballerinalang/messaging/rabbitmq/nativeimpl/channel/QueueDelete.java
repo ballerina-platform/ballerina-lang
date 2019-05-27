@@ -58,8 +58,10 @@ public class QueueDelete extends BlockingNativeCallableUnit {
         String queueName = context.getStringArgument(0);
         Channel channel = RabbitMQUtils.getNativeObject(channelObject,
                 RabbitMQConstants.CHANNEL_NATIVE_OBJECT, Channel.class, context);
+        BValue ifUnused = context.getNullableRefArgument(1);
+        BValue ifEmpty = context.getNullableRefArgument(2);
         try {
-            ChannelUtils.queueDelete(channel, queueName);
+            ChannelUtils.queueDelete(channel, queueName, ifUnused, ifEmpty);
         } catch (RabbitMQConnectorException exception) {
             LOGGER.error("I/O exception while deleting the queue", exception);
             RabbitMQUtils.returnError(RabbitMQConstants.RABBITMQ_CLIENT_ERROR, context, exception);

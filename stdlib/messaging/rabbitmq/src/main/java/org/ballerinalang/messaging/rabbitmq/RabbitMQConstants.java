@@ -45,11 +45,12 @@ public class RabbitMQConstants {
     // Channel errors
     public static final String CLOSE_CHANNEL_ERROR = "An error occurred while closing the channel: ";
     public static final String ABORT_CHANNEL_ERROR = "An error occurred while aborting the channel: ";
-    public static final String CHANNEL_CLOSED_ERROR = "Channel already closed, no more messages will be received: ";
+    public static final String CHANNEL_CLOSED_ERROR = "Channel already closed, messages will no longer be received: ";
 
     // Connection constant fields
     public static final String CONNECTION_OBJECT = "Connection";
     public static final String CONNECTION_NATIVE_OBJECT = "rabbitmq_connection_object";
+    public static final String CHANNEL_REFERENCE = "amqpChannel";
 
     // Connection configuration constant fields
     public static final String RABBITMQ_CONNECTION_HOST = "host";
@@ -64,13 +65,20 @@ public class RabbitMQConstants {
     // Channel listener constant fields
     public static final String QUEUE_CONFIG = "queueConfig";
     public static final String ACK_MODE = "ackMode";
+    public static final String PREFETCH_COUNT = "prefetchCount";
+    public static final String PREFETCH_SIZE = "prefetchSize";
+    public static final String PREFETCH_GLOBAL = "global";
     public static final String CHANNEL_LISTENER_OBJECT = "ChannelListener";
     public static final String SERVICE_CONFIG = "ServiceConfig";
     public static final String CONSUMER_SERVICES = "consumer_services";
     public static final String AUTO_ACKMODE = "auto";
     public static final String CLIENT_ACKMODE = "client";
+    public static final int DEFAULT_PREFETCH = 10;
+    public static final String MULTIPLE_ACK_ERROR = "Trying to acknowledge the same message multiple times";
+    public static final String ACK_MODE_ERROR = "Trying to acknowledge messages in auto-ack mode";
 
     // Channel constant fields
+    public static final String QOS_STATUS = "qos_status";
     public static final String CHANNEL_OBJECT = "Channel";
     public static final String CHANNEL_NATIVE_OBJECT = "rabbitmq_channel_object";
 
@@ -78,7 +86,8 @@ public class RabbitMQConstants {
     public static final String MESSAGE_OBJECT = "Message";
     public static final String MESSAGE_CONTENT = "message_content";
     public static final String DELIVERY_TAG = "delivery_tag";
-    public static final boolean MULTIPLE = false;
+    public static final String MESSAGE_ACK_STATUS = "message_ack_status";
+    public static final String AUTO_ACK_STATUS = "message_ack_status";
 
     // Queue configuration constant fields
     public static final String ALIAS_QUEUE_NAME = "queueName";
@@ -90,10 +99,11 @@ public class RabbitMQConstants {
     public static final String ALIAS_EXCHANGE_NAME = "exchangeName";
     public static final String ALIAS_EXCHANGE_TYPE = "exchangeType";
     public static final String ALIAS_EXCHANGE_DURABLE = "durable";
+    public static final String ALIAS_EXCHANGE_AUTODELETE = "autoDelete";
 
     // Warning suppression
     public static final String UNCHECKED = "unchecked";
 
-    private RabbitMQConstants(){
+    private RabbitMQConstants() {
     }
 }

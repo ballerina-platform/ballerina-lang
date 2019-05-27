@@ -22,8 +22,10 @@ import com.rabbitmq.client.AlreadyClosedException;
 import com.rabbitmq.client.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
+import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -61,16 +63,26 @@ public class BasicNack extends BlockingNativeCallableUnit {
         long deliveryTag = (long) messageObject.getNativeData(RabbitMQConstants.DELIVERY_TAG);
         boolean multiple = context.getBooleanArgument(0);
         boolean requeue = context.getBooleanArgument(1);
-        try {
-            channel.basicNack(deliveryTag, multiple, requeue);
-        } catch (IOException exception) {
-            LOGGER.error("I/O Error occurred while negatively acknowledging the message");
-            RabbitMQUtils.returnError("Error occurred while negatively acknowledging the message",
-                    context, exception);
-        } catch (AlreadyClosedException exception) {
-            LOGGER.error(RabbitMQConstants.CHANNEL_CLOSED_ERROR);
-            RabbitMQUtils.returnError(RabbitMQConstants.CHANNEL_CLOSED_ERROR,
-                    context, exception);
+        boolean multipleAck = ChannelUtils.validateMultipleAcknowledgements(messageObject);
+        boolean ackMode = ChannelUtils.validateAckMode(messageObject);
+        if (!multipleAck && ackMode) {
+            try {
+                channel.basicNack(deliveryTag, multiple, requeue);
+            } catch (IOException exception) {
+                LOGGER.error("I/O Error occurred while negatively acknowledging the message");
+                RabbitMQUtils.returnError("Error occurred while negatively acknowledging the message",
+                        context, exception);
+            } catch (AlreadyClosedException exception) {
+                LOGGER.error(RabbitMQConstants.CHANNEL_CLOSED_ERROR);
+                RabbitMQUtils.returnError(RabbitMQConstants.CHANNEL_CLOSED_ERROR,
+                        context, exception);
+            }
+        } else if (multipleAck && ackMode) {
+            RabbitMQUtils.returnError(RabbitMQConstants.MULTIPLE_ACK_ERROR, context,
+                    new RabbitMQConnectorException(RabbitMQConstants.MULTIPLE_ACK_ERROR));
+        } else {
+            RabbitMQUtils.returnError(RabbitMQConstants.ACK_MODE_ERROR, context,
+                    new RabbitMQConnectorException(RabbitMQConstants.ACK_MODE_ERROR));
         }
     }
 }

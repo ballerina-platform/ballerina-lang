@@ -15,14 +15,14 @@
 // under the License.
 
 # Public Ballerina API - Ballerina RabbitMQ Message.
-public type Message object {
+public type Message client object {
 
    # Acknowledge one or several received messages.
    #
    # + multiple - `true` to acknowledge all messages up to and including the message called on,
    #                `false` to acknowledge just the message called on.
    # + return - Returns an error if an I/O error is encountered or nil if successful.
-   public function basicAck(boolean multiple = false) returns error? = external;
+   public remote function basicAck(boolean multiple = false) returns error? = external;
 
    # Reject one or several received messages.
    #
@@ -30,7 +30,7 @@ public type Message object {
    #                `false` to reject just the message called on.
    # + requeue - `true` if the rejected message(s) should be requeued rather than discarded/dead-lettered.
    # + return - Returns an error if an I/O error is encountered or nil if successful.
-   public function basicNack(boolean multiple = false, boolean requeue = true) returns error? = external;
+   public remote function basicNack(boolean multiple = false, boolean requeue = true) returns error? = external;
 
    # Retrieves the delivery tag of the message.
    #

@@ -31,7 +31,9 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -63,9 +65,13 @@ public class Start extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> channelListObject = (BMap<String, BValue>) context.getRefArgument(0);
-        BMap<String, BValue> channelObj = (BMap<String, BValue>) channelListObject.get("chann");
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
+        BMap<String, BValue> channelObj =
+                (BMap<String, BValue>) channelListObject.get(RabbitMQConstants.CHANNEL_REFERENCE);
         Channel channel = (Channel) channelObj.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         ArrayList<Service> services =
                 (ArrayList<Service>) channelListObject.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
         for (Service service : services) {
@@ -88,6 +94,15 @@ public class Start extends BlockingNativeCallableUnit {
                 default:
                     throw new BallerinaException("Unsupported acknowledgement mode");
             }
+            boolean qosStatus = channelObj.getNativeData(RabbitMQConstants.QOS_STATUS) != null;
+            if (!qosStatus) {
+                try {
+                    handleBasicQos(channel, value);
+                } catch (RabbitMQConnectorException exception) {
+                    RabbitMQUtils.returnError("Error occurred while setting the QoS settings", context,
+                            exception);
+                }
+            }
             receiveMessages(onMessageResource, channel, queueName, autoAck);
         }
     }
@@ -98,10 +113,11 @@ public class Start extends BlockingNativeCallableUnit {
      * @param resource Ballerina resource function.
      * @param message  Message content to be dispatched to the resource function.
      */
-    private void dispatchMessage(Resource resource, byte[] message, Channel channel, long deliveryTag) {
+    private void dispatchMessage(Resource resource, byte[] message, Channel channel, long deliveryTag,
+                                 boolean autoAck) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         Executor.submit(resource, new RabbitMQResourceCallback(countDownLatch), null, null,
-                getMessageBMap(resource, message, channel, deliveryTag));
+                getMessageBMap(resource, message, channel, deliveryTag, autoAck));
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
@@ -127,7 +143,7 @@ public class Start extends BlockingNativeCallableUnit {
                                                    Envelope envelope,
                                                    AMQP.BasicProperties properties,
                                                    byte[] body) throws IOException {
-                            dispatchMessage(resource, body, channel, envelope.getDeliveryTag());
+                            dispatchMessage(resource, body, channel, envelope.getDeliveryTag(), autoAck);
                         }
                     });
         } catch (IOException exception) {
@@ -143,13 +159,47 @@ public class Start extends BlockingNativeCallableUnit {
      * @param channel  RabbitMQ Channel object.
      * @return Ballerina RabbitMQ message BValue.
      */
-    private BValue getMessageBMap(Resource resource, byte[] message, Channel channel, long deliveryTag) {
+    private BValue getMessageBMap(Resource resource, byte[] message, Channel channel, long deliveryTag,
+                                  boolean autoAck) {
         ProgramFile programFile = resource.getResourceInfo().getPackageInfo().getProgramFile();
         BMap<String, BValue> messageObj = BLangConnectorSPIUtil.createBStruct(
                 programFile, RabbitMQConstants.PACKAGE_RABBITMQ, RabbitMQConstants.MESSAGE_OBJECT);
         messageObj.addNativeData(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
         messageObj.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
         messageObj.addNativeData(RabbitMQConstants.MESSAGE_CONTENT, message);
+        if (autoAck) {
+            messageObj.addNativeData(RabbitMQConstants.AUTO_ACK_STATUS, true);
+        }
         return messageObj;
+    }
+
+    /**
+     * Request specific "quality of service" settings.
+     *
+     * @param channel         RabbitMQ Channel object.
+     * @param annotationValue Struct value of the Annotation.
+     */
+    private static void handleBasicQos(Channel channel, Struct annotationValue) {
+        long prefetchCount = RabbitMQConstants.DEFAULT_PREFETCH;
+        if (annotationValue.getRefField(RabbitMQConstants.PREFETCH_COUNT) != null) {
+            prefetchCount = annotationValue.getIntField(RabbitMQConstants.PREFETCH_COUNT);
+        }
+        boolean isValidPrefetchSize = annotationValue.getRefField(RabbitMQConstants.PREFETCH_SIZE) != null;
+        boolean isValidGlobal = annotationValue.getRefField(RabbitMQConstants.PREFETCH_GLOBAL) != null;
+        try {
+            if (isValidPrefetchSize && isValidGlobal) {
+                channel.basicQos(Math.toIntExact(annotationValue.getIntField(RabbitMQConstants.PREFETCH_SIZE)),
+                        Math.toIntExact(prefetchCount),
+                        annotationValue.getBooleanField(RabbitMQConstants.PREFETCH_GLOBAL));
+            } else if (isValidGlobal) {
+                channel.basicQos(Math.toIntExact(prefetchCount),
+                        annotationValue.getBooleanField(RabbitMQConstants.PREFETCH_GLOBAL));
+            } else {
+                channel.basicQos(Math.toIntExact(prefetchCount));
+            }
+        } catch (IOException | ArithmeticException exception) {
+            String errorMessage = "An error occurred while setting the basic quality of service settings ";
+            throw new RabbitMQConnectorException(errorMessage + exception.getMessage(), exception);
+        }
     }
 }
