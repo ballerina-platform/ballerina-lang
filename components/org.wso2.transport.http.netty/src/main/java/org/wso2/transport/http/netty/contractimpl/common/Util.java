@@ -85,6 +85,7 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_PORT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.IS_PROXY_ENABLED;
 import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_HANDSHAKE_RESULT;
+import static org.wso2.transport.http.netty.contract.Constants.OK_200;
 import static org.wso2.transport.http.netty.contract.Constants.PROTOCOL;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
@@ -113,7 +114,7 @@ public class Util {
     private static int getIntValue(HttpCarbonMessage msg) {
         Integer value = msg.getHttpStatusCode();
         if (value == null) {
-            return 200;
+            return OK_200;
         }
         return value;
     }

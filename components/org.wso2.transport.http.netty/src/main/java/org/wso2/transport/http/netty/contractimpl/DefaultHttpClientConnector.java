@@ -89,7 +89,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         this.http2ConnectionManager = connectionManager.getHttp2ConnectionManager();
         this.senderConfiguration = senderConfiguration;
         initTargetChannelProperties(senderConfiguration);
-        if (senderConfiguration.getHttpVersion().equals(Constants.HTTP_2_0)) {
+        if (Constants.HTTP_2_0.equals(senderConfiguration.getHttpVersion())) {
             isHttp2 = true;
         }
         this.clientEventGroup = clientEventGroup;

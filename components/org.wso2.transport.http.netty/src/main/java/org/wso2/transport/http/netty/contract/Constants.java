@@ -133,6 +133,8 @@ public final class Constants {
     public static final String HTTP_POST_METHOD = "POST";
     public static final String HTTP_HEAD_METHOD = "HEAD";
 
+    public static final int OK_200 = 200;
+
     //HTTP server connector creation parameters
     public static final String HTTP_HOST = "host";
     public static final String HTTP_PORT = "port";

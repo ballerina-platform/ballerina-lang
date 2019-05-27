@@ -95,7 +95,7 @@ public class StateUtil {
     }
 
     private static void setHttpVersionProperty(HttpCarbonMessage httpOutboundRequest, String httpVersion) {
-        if (httpVersion.equals(Constants.HTTP_2_0)) {
+        if (Constants.HTTP_2_0.equals(httpVersion)) {
             // Upgrade request of HTTP/2 should be a HTTP/1.1 request
             httpOutboundRequest.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
         } else {
