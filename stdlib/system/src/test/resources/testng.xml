@@ -22,15 +22,8 @@ under the License.
 <suite name="ballerina-test-suite">
 
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.stdlib.system.*"/>-->
-        <!--</packages>-->
-        <classes>
-            <class name="org.ballerinalang.stdlib.system.SystemTest">
-                <methods>
-                    <include name="testValidEnv" />
-                </methods>
-            </class>
-        </classes>
+        <packages>
+            <package name="org.ballerinalang.stdlib.system.*"/>
+        </packages>
     </test>
 </suite>
