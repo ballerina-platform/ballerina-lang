@@ -306,8 +306,8 @@ public class TypeChecker {
     /**
      * Get the annotation value if present.
      *
-     * @param typedescValue The typedesc value
-     * @param annotTag      The annot-tag-reference
+     * @param typedescValue     The typedesc value
+     * @param annotTag          The annot-tag-reference
      * @return the annotation value if present, nil else
      */
     public static Object getAnnotValue(TypedescValue typedescValue, String annotTag) {

@@ -29,8 +29,28 @@ public function getServiceAnnotations(service serviceType) returns annotationDat
 
 public function getResourceAnnotations(service serviceType, string resourceName) returns annotationData[] = external;
 
-public function getStructAnnotations(typedesc structType) returns annotationData[] = external;
-
-public function getStructFieldAnnotations(typedesc structType, string fieldName) returns annotationData[] = external;
-
 public function getFunctionAnnotations(any functionPointer) returns annotationData[] = external;
+
+const CURRENT_PACKAGE_ALIAS = ".";
+const COLON = ":";
+
+public function getServiceAnnots(service serviceType, string? moduleName = (), string annotName) returns any {
+    return getServiceAnnotationsExternal(serviceType, (moduleName ?: CURRENT_PACKAGE_ALIAS) + COLON + annotName);
+}
+
+public function getResourceAnnots(service serviceType, string resourceName, string? moduleName = (),
+                                       string annotName) returns any {
+    return getResourceAnnotationsExternal(serviceType, resourceName,
+                                          (moduleName ?: CURRENT_PACKAGE_ALIAS) + COLON + annotName);
+}
+
+public function getFunctionAnnots(any functionPointer, string? moduleName = (), string annotName) returns any {
+    return getFunctionAnnotationsExternal(functionPointer, (moduleName ?: CURRENT_PACKAGE_ALIAS) + COLON + annotName);
+}
+
+function getServiceAnnotationsExternal(service serviceType, string annot) returns any = external;
+
+function getResourceAnnotationsExternal(service serviceType, string resourceName, string annot)
+    returns any = external;
+
+function getFunctionAnnotationsExternal(any functionPointer, string annot) returns any = external;

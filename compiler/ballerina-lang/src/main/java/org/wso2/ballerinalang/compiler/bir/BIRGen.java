@@ -163,6 +163,8 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
+import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATION_DATA;
+
 /**
  * Lower the AST to BIR.
  *
@@ -577,8 +579,11 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         Visibility visibility = getVisibility(varNode.symbol);
 
-        BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, visibility, varNode.symbol.type,
-                this.env.nextGlobalVarId(names), VarScope.GLOBAL, VarKind.GLOBAL);
+        Name name = ANNOTATION_DATA.equals(varNode.symbol.name.value) ? new Name(ANNOTATION_DATA) :
+                this.env.nextGlobalVarId(names);
+
+        BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, visibility, varNode.symbol.type, name,
+                                                                  VarScope.GLOBAL, VarKind.GLOBAL);
         this.env.enclPkg.globalVars.add(birVarDcl);
 
         this.env.globalVarMap.put(varNode.symbol, birVarDcl);

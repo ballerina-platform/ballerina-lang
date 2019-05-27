@@ -271,6 +271,7 @@ const string FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
 
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
+const string ANNOTATION_MAP_NAME = "$annotation_data";
 
 // types related constants
 const string TYPES_ERROR =  "typeError";

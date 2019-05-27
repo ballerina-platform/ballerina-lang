@@ -47,7 +47,7 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
     string fieldName;
     string typePkgName = ".";
     if (pkgName != "") {
-        typePkgName = typePkgName;
+        typePkgName = pkgName;
     }
 
     // Create the type
@@ -340,11 +340,20 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
     mv.visitLdcInsn(flag);
     mv.visitInsn(L2I);
 
+    // Load annotations.
+    string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
+                            lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+    mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
+    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    mv.visitLdcInsn(name);
+    mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processAnnotations",
+        io:sprintf("(L%s;L%s;)L%s;", MAP_VALUE, STRING_VALUE, MAP_VALUE), false);
+    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+
     // initialize the object
     mv.visitMethodInsn(INVOKESPECIAL, OBJECT_TYPE, "<init>",
-            io:sprintf("(L%s;L%s;I)V", STRING_VALUE, STRING_VALUE),
-            false);
-    return;
+        io:sprintf("(L%s;L%s;IL%s;)V", STRING_VALUE, STRING_VALUE, MAP_VALUE),
+        false);
 }
 
 function getVisibilityFlag(bir:TypeDef typeDef) returns int {

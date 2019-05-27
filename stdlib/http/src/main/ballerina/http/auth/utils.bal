@@ -148,39 +148,26 @@ function getScopes(FilterContext context) returns string[]|boolean {
 # + return - Resource level and service level authentication annotations
 function getServiceResourceAuthConfig(FilterContext context) returns (ServiceResourceAuth?, ServiceResourceAuth?) {
     // get authn details from the resource level
-    ServiceResourceAuth? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
-        reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
-    ServiceResourceAuth? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
-        reflect:getServiceAnnotations(context.serviceRef));
-    return (resourceLevelAuthAnn, serviceLevelAuthAnn);
-}
+    any annData = reflect:getResourceAnnots(context.serviceRef, context.resourceName, moduleName = ANN_MODULE,
+                                            RESOURCE_ANN_NAME);
+    ServiceResourceAuth? resourceLevelAuthAnn = ();
+    if !(annData is ()) {
+        HttpResourceConfig resourceConfig = <HttpResourceConfig> annData;
+        resourceLevelAuthAnn = resourceConfig["auth"];
+    }
 
-# Retrieves and return the auth annotation with the given module name, annotation name and annotation data.
-#
-# + annotationModule - Annotation module name
-# + annotationName - Annotation name
-# + annData - Array of annotationData instances
-# + return - `ServiceResourceAuth` instance if its defined, else nil
-function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData) returns ServiceResourceAuth? {
-    if (annData.length() == 0) {
-        return ();
+    //typedesc serviceTypedesc = typeof context.serviceRef;
+    //HttpServiceConfig? serviceConfig = serviceTypedesc.@ballerina/http:ServiceConfig;
+    //ServiceResourceAuth? serviceLevelAuthAnn = serviceConfig is () ? () : serviceConfig["auth"];
+
+    annData = reflect:getServiceAnnots(context.serviceRef, moduleName = ANN_MODULE, SERVICE_ANN_NAME);
+    ServiceResourceAuth? serviceLevelAuthAnn = ();
+    if !(annData is ()) {
+        HttpServiceConfig serviceConfig = <HttpServiceConfig> annData;
+        serviceLevelAuthAnn = serviceConfig["auth"];
     }
-    reflect:annotationData? authAnn = ();
-    foreach var ann in annData {
-        if (ann.name == annotationName && ann.moduleName == annotationModule) {
-            authAnn = ann;
-            break;
-        }
-    }
-    if (authAnn is reflect:annotationData) {
-        if (annotationName == RESOURCE_ANN_NAME) {
-            HttpResourceConfig resourceConfig = <HttpResourceConfig>authAnn.value;
-            return resourceConfig["auth"];
-        } else if (annotationName == SERVICE_ANN_NAME) {
-            HttpServiceConfig serviceConfig = <HttpServiceConfig>authAnn.value;
-            return serviceConfig["auth"];
-        }
-    }
+
+    return (resourceLevelAuthAnn, serviceLevelAuthAnn);
 }
 
 # Check for the service or the resource is secured by evaluating the enabled flag configured by the user.

@@ -62,7 +62,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
-        generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName);
+        //generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
             mv.visitTypeInsn(NEW, typeOwnerClass);
@@ -298,6 +298,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         }
         jvm:Label bbEndLable = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
         mv.visitLabel(bbEndLable);
+
+        if (j == 1 && isModuleInitFunction(module, func)) {
+            generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName);
+        }
 
         mv.visitIntInsn(BIPUSH, j);
         mv.visitVarInsn(ISTORE, stateVarIndex);

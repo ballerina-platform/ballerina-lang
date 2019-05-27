@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,28 +18,27 @@
 package org.ballerinalang.stdlib.reflect.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Get Function's Annotations.
+ * Get Service's Annotations.
  *
- * @since 0.965.0
+ * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "reflect",
-        functionName = "getFunctionAnnotations"
+        functionName = "getServiceAnnotationsExternal"
 )
-public class GetFunctionAnnotations extends AbstractAnnotationReader {
+public class GetServiceAnnotationsExternal extends BlockingNativeCallableUnit {
+    public static Object getServiceAnnotationsExternal(Strand strand, ObjectValue service, String annot) {
+        return service.getType().getAnnotation(annot);
+    }
 
     @Override
     public void execute(Context context) {
-        BValue bValue = context.getRefArgument(0);
-        if (!(bValue instanceof BFunctionPointer)) {
-            context.setReturnValues((BValue) null);
-        }
-        BFunctionPointer fp = (BFunctionPointer) bValue;
-        context.setReturnValues(getAnnotationValue(context, fp.value().getPkgPath(), fp.value().getName()));
+
     }
 }
