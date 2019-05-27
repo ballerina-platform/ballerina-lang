@@ -998,13 +998,12 @@ public class SQLDatasourceUtils {
         case TypeTags.DECIMAL_TAG:
             return Constants.SQLDataTypes.DECIMAL;
         case TypeTags.ARRAY_TAG:
-            if (value instanceof BArrayType) {
-                if (((BArrayType) value).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                    return Constants.SQLDataTypes.BINARY;
-                }
+            if ((value instanceof BArrayType) && ((BArrayType) value).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                return Constants.SQLDataTypes.BINARY;
+            } else {
+                throw new BallerinaException("Found unsupported array data type as direct value and supported array " +
+                        "type is byte for sql operation, use sql:Parameter: " + value.getName());
             }
-            throw new BallerinaException("unsupported data type as direct value for sql operation, " +
-                    "use sql:Parameter: " + value.getName());
         default:
             throw new BallerinaException(
                     "unsupported data type as direct value for sql operation, use sql:Parameter: " + value.getName());

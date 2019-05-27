@@ -1264,11 +1264,13 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, 
         poolOptions: { maximumPoolSize: 1 }
     });
 
-    string insertSQL = "INSERT INTO ComplexTypes(row_id, blob_type, clob_type, binary_type) VALUES (?,?,?,?)";
+    string insertSQL =
+    "INSERT INTO ComplexTypes(row_id, blob_type, clob_type, binary_type, bit_type) VALUES (?,?,?,?,?)";
     string selectSQL =
     "SELECT row_id, blob_type, clob_type, binary_type FROM ComplexTypes where row_id = 100 or row_id = 200";
     string text = "Sample Text";
     byte[] content = text.toByteArray("UTF-8");
+    byte[] byteArray = [1, 2, 3];
 
     int retDataInsert;
     int retNullInsert;
@@ -1281,14 +1283,16 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, 
     sql:Parameter para2 = { sqlType: sql:TYPE_BLOB, value: content };
     sql:Parameter para3 = { sqlType: sql:TYPE_CLOB, value: text };
     sql:Parameter para4 = { sqlType: sql:TYPE_BINARY, value: content };
-    var updateRet1 = testDB->update(insertSQL, para1, para2, para3, para4);
+    sql:Parameter para5 = { sqlType: sql:TYPE_BINARY, value: byteArray };
+    var updateRet1 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
     retDataInsert = updateRet1 is sql:UpdateResult ? updateRet1.updatedRowCount : retDataInsert;
     //Insert null values
     para1 = { sqlType: sql:TYPE_INTEGER, value: 200 };
     para2 = { sqlType: sql:TYPE_BLOB, value: () };
     para3 = { sqlType: sql:TYPE_CLOB, value: () };
     para4 = { sqlType: sql:TYPE_BINARY, value: () };
-    var updateRet2 = testDB->update(insertSQL, para1, para2, para3, para4);
+    para5 = { sqlType: sql:TYPE_BINARY, value: () };
+    var updateRet2 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
     retNullInsert = updateRet2 is sql:UpdateResult ? updateRet2.updatedRowCount : retNullInsert;
 
     var selectRet = testDB->select(selectSQL, ());
@@ -1756,26 +1760,7 @@ function testRemoveOp() returns table<Order> {
     return orderTable;
 }
 
-function testByteArrayInsertAsDirectParameter() returns int {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 5 }
-    });
-    int id = 1;
-    boolean bitVal1 = true;
-    byte[] bitVal2 = [1, 2];
-    var insertCountRet = testDB->update("Insert into BitTypes (id, bit_val_1, bit_val_2) values (?, ?, ?)",
-               id, bitVal1, bitVal2);
-    int insertCount = insertCountRet is sql:UpdateResult ? insertCountRet.updatedRowCount : -1;
-
-    checkpanic testDB.stop();
-    return insertCount;
-}
-
-function testByteArrayInsertAsSqlParameter() returns int {
+function testInsertDataWithByteArray() returns int {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1784,16 +1769,12 @@ function testByteArrayInsertAsSqlParameter() returns int {
         poolOptions: { maximumPoolSize: 5 }
     });
 
-    int id = 2;
-    boolean bitVal1 = false;
-    byte[] bitVal2 = [1, 2, 5];
+    string text = "Text";
+    byte[] content = text.toByteArray("UTF-8");
+    byte[] byteArray = [1, 2];
 
-    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: id };
-    sql:Parameter para2 = { sqlType: sql:TYPE_BOOLEAN, value: bitVal1 };
-    sql:Parameter para3 = { sqlType: sql:TYPE_BINARY, value: bitVal2 };
-
-    var insertCountRet = testDB->update("Insert into BitTypes (id, bit_val_1, bit_val_2) values (?, ?, ?)",
-                                para1, para2, para3);
+    var insertCountRet = testDB->update("INSERT INTO ComplexTypes(row_id, blob_type, clob_type, binary_type, bit_type)
+    VALUES (?,?,?,?,?)", 300, content, text, content, byteArray);
     int insertCount = insertCountRet is sql:UpdateResult ? insertCountRet.updatedRowCount : -1;
 
     checkpanic testDB.stop();

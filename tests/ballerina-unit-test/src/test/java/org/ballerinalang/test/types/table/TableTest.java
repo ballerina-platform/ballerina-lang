@@ -1428,14 +1428,8 @@ public class TableTest {
     }
 
     @Test(groups = TABLE_TEST, description = "Check inserting byte array data as direct parameter.")
-    public void testByteArrayInsertAsDirectParameter() {
-        BValue[] returns = BRunUtil.invoke(result, "testByteArrayInsertAsDirectParameter");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-    }
-
-    @Test(groups = TABLE_TEST, description = "Check inserting byte array data as SqlParameter.")
-    public void testByteArrayInsertAsSqlParameter() {
-        BValue[] returns = BRunUtil.invoke(result, "testByteArrayInsertAsSqlParameter");
+    public void testInsertDataWithByteArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertDataWithByteArray");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
