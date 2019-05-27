@@ -23,6 +23,10 @@ configurations.testCompileClasspath {
     }
 }
 
+configurations {
+    localDependency
+}
+
 dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
@@ -38,24 +42,36 @@ dependencies {
     implementation project(':ballerina-runtime-api')
 
     testRuntimeOnly project(':ballerina-backend-jvm')
-//    testRuntimeOnly project(':ballerina-bir')
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testCompile project(':ballerina-reflect')
+    testCompile project(':ballerina-jvm')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'commons-codec:commons-codec'
     testCompile 'org.apache.ws.commons.axiom:axiom-dom'
+
+    localDependency project(path: ':ballerina-bir', configuration: 'baloImplementation')
+    localDependency project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+    localDependency project(path: ':ballerina-jvm', configuration: 'baloImplementation')
 }
 
 createBalo {
     jvmTarget = 'true'
 }
 
+task createTestBalHome(type: Copy) {
+    from configurations.localDependency
+    into "$buildDir/ballerina-home/test/lib"
+}
+
 description = 'Ballerina - I/O'
 
 
 test {
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
+    dependsOn createTestBalHome
     systemProperty "enableJBallerinaTests", "true"
     doFirst {
         copy {
