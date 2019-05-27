@@ -20,10 +20,10 @@ import ballerina/log;
 listener http:Listener ep1 = new(9230, config = { httpVersion: "2.0" });
 listener http:Listener ep2 = new(9231, config = { httpVersion: "2.0" });
 
-http:Client h2WithPriorKnowledge = new("http://localhost:9098", config = { httpVersion: "2.0", http2Settings: {
+http:Client h2WithPriorKnowledge = new("http://localhost:9231", config = { httpVersion: "2.0", http2Settings: {
         http2PriorKnowledge: true }, poolConfig: {} });
 
-http:Client h1Client = new("http://localhost:9098", config = { httpVersion: "1.1", poolConfig: {}});
+http:Client h1Client = new("http://localhost:9231", config = { httpVersion: "1.1", poolConfig: {}});
 
 @http:ServiceConfig {
     basePath: "/test"
@@ -75,7 +75,7 @@ service testBackEnd on ep2 {
         } else {
             outboundResponse = "Connection and upgrade headers are not present";
         }
-        outboundResponse = outboundResponse + "--" + checkpanic req.getTextPayload() + req.httpVersion;
+        outboundResponse = outboundResponse + "--" + checkpanic req.getTextPayload() + "--" + req.httpVersion;
         checkpanic caller->respond(untaint outboundResponse);
     }
 }

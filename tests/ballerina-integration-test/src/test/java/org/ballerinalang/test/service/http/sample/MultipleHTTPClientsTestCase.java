@@ -36,8 +36,7 @@ public class MultipleHTTPClientsTestCase extends HttpBaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
-        Assert.assertEquals(responseData, "Connection and upgrade headers are not present--Prior knowledge is enabled",
-                            "HTTP/2 prior knowledge enabled scenario failed");
+        Assert.assertEquals(responseData, "Connection and upgrade headers are not present--HTTP/1.1 request--1.1");
     }
 
     @Test
@@ -46,7 +45,7 @@ public class MultipleHTTPClientsTestCase extends HttpBaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
-        Assert.assertEquals(responseData, "HTTP2-Settings,upgrade--h2c--Prior knowledge is disabled",
-                            "HTTP/2 prior knowledge disabled scenario failed");
+        Assert.assertEquals(responseData,
+                            "Connection and upgrade headers are not present--HTTP/2 with prior knowledge--2.0");
     }
 }
