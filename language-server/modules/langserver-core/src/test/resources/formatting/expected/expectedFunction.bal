@@ -51,3 +51,20 @@ private function name13()
 =
 external
 ;
+
+function name14(int i, string name = "john", string... rest) {
+
+}
+
+function name15(string name = "john", int i, string... rest) {
+
+}
+
+function name16(string name = "john", int i, int id = 0, string... rest) {
+
+}
+
+function name17(string name = "john", int i,
+int id = 0, string... rest) {
+
+}

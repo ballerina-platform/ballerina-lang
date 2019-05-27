@@ -19,7 +19,6 @@ import ballerina/internal;
 import ballerina/io;
 import ballerina/log;
 import ballerina/math;
-import ballerina/runtime;
 import ballerina/task;
 import ballerina/time;
 

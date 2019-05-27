@@ -24,16 +24,25 @@
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
-        <listener class-name="org.ballerinalang.test.utils.JBallerinaTestInitializer"/>
+        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
     <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <packages>
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
             <package name="org.ballerinalang.test.main.function.*"/>
+            <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
+            <package name="org.ballerinalang.test.types.decimaltype.*"/>
+            <package name="org.ballerinalang.test.types.any.*"/>
         </packages>
 
         <classes>
@@ -76,18 +85,7 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.expressions.elvis.ElvisExpressionTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.DivisionOperationTest">
-                <methods>
-                    <exclude name="testIntDivideByZeroExpr"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.ModOperationTest">
-                <methods>
-                    <exclude name="testIntModZero"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
-            <class name="org.ballerinalang.test.expressions.binaryoperations.BinaryExprTest" />
             <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
 
             <!--Built in methods-->
@@ -125,35 +123,6 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.MultiplyOperationTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.OperatorPrecedenceTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.RefEqualAndNotEqualOperationsTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.SubtractOperationTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.TypeTestExprTest">
-                <methods>
-                    <exclude name="testError_1"/>
-                    <exclude name="testError_2"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.EqualAndNotEqualOperationsTest"/>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalNaNInfinityTest">
-                <!--We can remove excludes once 'isNaN' and 'isFinite' are supported-->
-                <methods>
-                    <exclude name="testIsFinite"/>
-                    <exclude name="testIsNaN"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalValueNegativeTest"/>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalBFloatComparisonTest"/>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalTypeConversionTest"/>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalUsageTest"/>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalValueTest">
-                <!--Unary + and - is not supported yet-->
-                <methods>
-                    <exclude name="testDecimalNegation" />
-                    <exclude name="testPositivelySignedLiteralAssignment" />
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
             <class name="org.ballerinalang.test.types.constant.MapConstantTest" />
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
@@ -167,7 +136,6 @@
                     <include name="simpleLock"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.IntegerRangeOperatorTest"/>
         </classes>
     </test>
 </suite>

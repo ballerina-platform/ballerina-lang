@@ -86,10 +86,12 @@ public function toStreamEvents(SnapshottableStreamEvent[]|any[]? events) returns
 # + event - The `streams:StreamEvent` object to be converted to snapshotable event.
 # + return - The converted `streams:SnapshottableStreamEvent` object.
 public function toSnapshottableEvent(StreamEvent event) returns SnapshottableStreamEvent {
+    // todo: add the eventId
     return {
         eventType: event.eventType,
         timestamp: event.timestamp,
-        data: event.data
+        data: event.data,
+        streamName: event.streamName
     };
 }
 
@@ -97,6 +99,7 @@ public function toSnapshottableEvent(StreamEvent event) returns SnapshottableStr
 # + event - The `streams:SnapshottableStreamEvent` object to be converted to a stream event.
 # + return - The converted `streams:StreamEvent` object.
 public function toStreamEvent(SnapshottableStreamEvent event) returns StreamEvent {
+    // todo: add the eventId
     StreamEvent se = new(event.data, event.eventType, event.timestamp);
     return se;
 }
