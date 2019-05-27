@@ -257,6 +257,7 @@ public enum DiagnosticCode {
     INVALID_TYPE_DEFINITION_FOR_RECORD_VAR("invalid.type.definition.for.record.var"),
 
     INVALID_ERROR_BINDING_PATTERN("invalid.error.binding.pattern"),
+    INVALID_ERROR_REASON_BINDING_PATTERN("invalid.error.reason.binding.pattern"),
     INVALID_TYPE_DEFINITION_FOR_ERROR_VAR("invalid.type.definition.for.error.var"),
     INVALID_ERROR_LITERAL_BINDING_PATTERN("invalid.error.literal.in.binding.pattern"),
 

@@ -1062,26 +1062,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             errorVariable.reason.accept(this);
         }
 
-        if (errorVariable.detail == null) {
+        if (errorVariable.detail == null || (errorVariable.detail.isEmpty() && errorVariable.restDetail == null)) {
             if (isReasonIgnored) {
                 dlog.error(errorVariable.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
                 return false;
             }
             return true;
         }
-        errorVariable.detail.type = errorType.detailType;
-        if (errorVariable.detail.getKind() == NodeKind.VARIABLE) {
-            BLangSimpleVariable detailVariable = (BLangSimpleVariable) errorVariable.detail;
-            if (Names.IGNORE == names.fromIdNode(detailVariable.name)) {
-                detailVariable.type = symTable.noType;
-                if (isReasonIgnored) {
-                    dlog.error(errorVariable.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
-                    return false;
-                }
-                return true;
+
+        if (errorType.detailType.tsymbol.type.getKind() == TypeKind.MAP) {
+            BType constraintType = ((BMapType) errorType.detailType.tsymbol.type).constraint;
+            for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
+                errorDetailEntry.valueBindingPattern.type = constraintType;
+                errorDetailEntry.valueBindingPattern.accept(this);
             }
+        } else {
+            // match each record field
+            // todo: this is possible if we can match a named exception
+            //  match e { var TheErrro(_, _ = _, ...var res) => ...}
+            // clarify if it's a possibility
+            // if it's possible, match each namedArg with what's in the type, put the rest to rest map
+            BRecordType recordType = (BRecordType) errorType.detailType.tsymbol.type;
+            assert false;
         }
-        errorVariable.detail.accept(this);
+
+        if (errorVariable.restDetail != null) {
+            errorVariable.restDetail.type = symTable.pureTypeConstrainedMap;
+            errorVariable.restDetail.accept(this);
+        }
         return true;
     }
 

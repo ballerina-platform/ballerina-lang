@@ -863,12 +863,35 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        String detailIdentifier = null;
-        if (ctx.Identifier(1) != null) {
-            detailIdentifier = ctx.Identifier(1).getText();
+        String reasonIdentifier = ctx.Identifier().getText();
+        DiagnosticPos currentPos = getCurrentPos(ctx);
+        if (ctx.VAR() == null && !reasonIdentifier.equals("_")) {
+            dlog.error(currentPos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN, reasonIdentifier);
         }
-        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier(0).getText(),
-                detailIdentifier, ctx.recordBindingPattern() != null);
+
+        String restIdentifier = null;
+        if (ctx.errorRestBindingPattern() != null) {
+            restIdentifier = ctx.errorRestBindingPattern().Identifier().getText();
+        }
+
+        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), reasonIdentifier, restIdentifier);
+    }
+
+    @Override
+    public void enterErrorBindingPattern(BallerinaParser.ErrorBindingPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.startErrorBindingNode();
+    }
+
+    @Override
+    public void exitErrorDetailBindingPattern(BallerinaParser.ErrorDetailBindingPatternContext ctx) {
+        String bindingVarName = null;
+        if (ctx.bindingPattern().Identifier() != null) {
+            bindingVarName = ctx.bindingPattern().Identifier().getText();
+        }
+        this.pkgBuilder.addErrorDetailBinding(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), bindingVarName);
     }
 
     @Override
@@ -876,11 +899,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        boolean recordBindingPattern = false;
-        if (ctx.recordRefBindingPattern() != null || ctx.variableReference().size() == 2) {
-            recordBindingPattern = true;
-        }
-        this.pkgBuilder.addErrorVariableReference(getCurrentPos(ctx), getWS(ctx), recordBindingPattern);
+
+        int numNamedArgs = ctx.ASSIGN().size();
+        boolean reasonAvailable = ctx.errorReasonMatchPattern() != null;
+        boolean restPatternAvailable = ctx.errorMatchRestPattern() != null;
+
+        this.pkgBuilder.addErrorVariableReference(getCurrentPos(ctx), getWS(ctx),
+                numNamedArgs, reasonAvailable, restPatternAvailable);
     }
 
     @Override

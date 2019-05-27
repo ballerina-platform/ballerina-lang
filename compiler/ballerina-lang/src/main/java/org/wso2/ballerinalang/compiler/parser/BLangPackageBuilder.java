@@ -709,30 +709,53 @@ public class BLangPackageBuilder {
         return memberVar;
     }
 
-    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reasonIdentifier, String detailIdentifier,
-                          boolean hasRecordVariable) {
+    void startErrorBindingNode() {
         BLangErrorVariable errorVariable = (BLangErrorVariable) TreeBuilder.createErrorVariableNode();
-        errorVariable.pos = pos;
-        errorVariable.addWS(ws);
-        errorVariable.reason = (BLangSimpleVariable) generateBasicVarNodeWithoutType(pos, null,
-                reasonIdentifier, false);
-        if (hasRecordVariable) {
-            errorVariable.detail = this.varStack.pop();
-        } else if (detailIdentifier != null) {
-            errorVariable.detail = (BLangVariable) generateBasicVarNodeWithoutType(pos, null, detailIdentifier, false);
-        }
         this.varStack.push(errorVariable);
     }
 
-    void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws, boolean hasDetailExpr) {
+    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reasonIdentifier, String restIdentifier) {
+        // there is no detail identifier, there are many namedArgs
+
+        BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
+        errorVariable.pos = pos;
+        errorVariable.addWS(ws);
+        errorVariable.reason = (BLangSimpleVariable)
+                generateBasicVarNodeWithoutType(pos, null, reasonIdentifier, false);
+        if (restIdentifier != null) {
+            errorVariable.restDetail = (BLangSimpleVariable)
+                    generateBasicVarNodeWithoutType(pos, null, restIdentifier, false);
+        }
+    }
+
+    void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws, int numNamedArgs, boolean reasonAvailable,
+                                   boolean restPatternAvailable) {
         BLangErrorVarRef errorVarRef = (BLangErrorVarRef) TreeBuilder.createErrorVariableReferenceNode();
         errorVarRef.pos = pos;
         errorVarRef.addWS(ws);
-        if (hasDetailExpr) {
+        if (/*hasDetailExpr*/true) {
             errorVarRef.detail = (BLangVariableReference) this.exprNodeStack.pop();
         }
         errorVarRef.reason = (BLangVariableReference) this.exprNodeStack.pop();
         this.exprNodeStack.push(errorVarRef);
+    }
+
+    void addErrorDetailBinding(DiagnosticPos pos, Set<Whitespace> ws, String name, String bindingVarName) {
+        BLangIdentifier bLangIdentifier = (BLangIdentifier) this.createIdentifier(name);
+        bLangIdentifier.pos = pos;
+        bLangIdentifier.addWS(ws);
+        if (bindingVarName != null) {
+            BLangErrorVariable errorVariable = (BLangErrorVariable) this.varStack.peek();
+            BLangSimpleVariable simpleVariableNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+            simpleVariableNode.name = (BLangIdentifier) this.createIdentifier(bindingVarName);
+            BLangErrorVariable.BLangErrorDetailEntry detailEntry =
+                    new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, simpleVariableNode);
+            errorVariable.detail.add(detailEntry);
+        } else {
+            BLangVariable var = this.varStack.pop();
+            BLangErrorVariable errorVariable = (BLangErrorVariable) this.varStack.peek();
+            errorVariable.detail.add(new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, var));
+        }
     }
 
     void addTupleVariable(DiagnosticPos pos, Set<Whitespace> ws, int members) {

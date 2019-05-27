@@ -834,11 +834,42 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
+
         if (precedingVar.getKind() == NodeKind.ERROR_VARIABLE && var.getKind() == NodeKind.ERROR_VARIABLE) {
             BLangErrorVariable precedingErrVar = (BLangErrorVariable) precedingVar;
             BLangErrorVariable errVar = (BLangErrorVariable) var;
+
+            // Rest pattern in previous binding-pattern can bind to all the error details,
+            // hence current error pattern is not reachable.
+            if (precedingErrVar.restDetail != null) {
+                return true;
+            }
+
+            // Current pattern can bind anything that is bound in preceding, to current's rest binding var.
+            if (errVar.restDetail != null) {
+                return false;
+            }
+
             if (precedingErrVar.detail != null && errVar.detail != null) {
-                return checkStructuredPatternSimilarity(precedingErrVar.detail, errVar.detail);
+                // If preceding detail binding list contains all the details in current list,
+                // even though preceding contains more bindings, since a binding can bind to (),
+                // current is shadowed from preceding.
+                // Error details are a map<anydata|error>
+                Map<String, BLangVariable> preDetails = precedingErrVar.detail.stream()
+                        .collect(Collectors.toMap(entry -> entry.key.value, entry -> entry.valueBindingPattern));
+
+                for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : errVar.detail) {
+                    BLangVariable correspondingCurDetail = preDetails.get(detailEntry.key.value);
+                    if (correspondingCurDetail == null) {
+                        // Current binding pattern have more details to bind to
+                        return false;
+                    }
+                    boolean similar =
+                            checkStructuredPatternSimilarity(detailEntry.valueBindingPattern, correspondingCurDetail);
+                    if (!similar) {
+                        return false;
+                    }
+                }
             }
             return true;
         }

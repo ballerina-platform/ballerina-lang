@@ -317,8 +317,8 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.IsLike birIsLike) {
-        buf.writeByte(birIsLike.kind.getValue());
         writePosition(birIsLike.pos);
+        buf.writeByte(birIsLike.kind.getValue());
         typeWriter.visitType(birIsLike.type);
         birIsLike.lhsOp.accept(this);
         birIsLike.rhsOp.accept(this);

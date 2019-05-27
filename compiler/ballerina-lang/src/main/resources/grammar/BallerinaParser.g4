@@ -410,7 +410,15 @@ structuredBindingPattern
     ;
 
 errorBindingPattern
-    :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA (Identifier | recordBindingPattern))? RIGHT_PARENTHESIS
+    :   TYPE_ERROR LEFT_PARENTHESIS VAR? Identifier (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)? RIGHT_PARENTHESIS
+    ;
+
+errorRestBindingPattern
+    : ELLIPSIS VAR Identifier
+    ;
+
+errorDetailBindingPattern
+    : Identifier ASSIGN bindingPattern
     ;
 
 tupleBindingPattern
@@ -472,7 +480,16 @@ closedRecordRefBindingPattern
     ;
 
 errorRefBindingPattern
-    :   TYPE_ERROR LEFT_PARENTHESIS variableReference (COMMA (variableReference | recordRefBindingPattern))? RIGHT_PARENTHESIS
+    :   TYPE_ERROR LEFT_PARENTHESIS errorReasonMatchPattern (COMMA (Identifier ASSIGN Identifier))* (COMMA errorMatchRestPattern)? RIGHT_PARENTHESIS
+    ;
+
+errorReasonMatchPattern
+    : QuotedStringLiteral
+    | VAR? Identifier
+    ;
+
+errorMatchRestPattern
+    : ELLIPSIS VAR Identifier
     ;
 
 entryRefBindingPattern

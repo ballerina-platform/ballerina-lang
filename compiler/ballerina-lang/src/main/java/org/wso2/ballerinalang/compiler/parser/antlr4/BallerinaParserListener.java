@@ -926,6 +926,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitErrorBindingPattern(BallerinaParser.ErrorBindingPatternContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#errorRestBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorRestBindingPattern(BallerinaParser.ErrorRestBindingPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#errorRestBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorRestBindingPattern(BallerinaParser.ErrorRestBindingPatternContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#errorDetailBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorDetailBindingPattern(BallerinaParser.ErrorDetailBindingPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#errorDetailBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorDetailBindingPattern(BallerinaParser.ErrorDetailBindingPatternContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#tupleBindingPattern}.
 	 * @param ctx the parse tree
 	 */
@@ -1065,6 +1085,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitErrorRefBindingPattern(BallerinaParser.ErrorRefBindingPatternContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#errorReasonMatchPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorReasonMatchPattern(BallerinaParser.ErrorReasonMatchPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#errorReasonMatchPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorReasonMatchPattern(BallerinaParser.ErrorReasonMatchPatternContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#errorMatchRestPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorMatchRestPattern(BallerinaParser.ErrorMatchRestPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#errorMatchRestPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorMatchRestPattern(BallerinaParser.ErrorMatchRestPatternContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#entryRefBindingPattern}.
 	 * @param ctx the parse tree
