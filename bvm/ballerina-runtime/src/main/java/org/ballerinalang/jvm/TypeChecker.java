@@ -332,7 +332,6 @@ public class TypeChecker {
             case TypeTags.DECIMAL_TAG:
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
-            case TypeTags.BYTE_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
             case TypeTags.SERVICE_TAG:
@@ -341,6 +340,8 @@ public class TypeChecker {
                                                                 .allMatch(bValue -> checkIsType(bValue, targetType));
                 }
                 return sourceType.getTag() == targetType.getTag();
+            case TypeTags.BYTE_TAG:
+                return sourceType.getTag() == TypeTags.BYTE_TAG || sourceType.getTag() == TypeTags.INT_TAG;
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
             case TypeTags.TABLE_TAG:
