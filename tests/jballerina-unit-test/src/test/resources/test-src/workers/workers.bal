@@ -16,7 +16,7 @@ function waitOnSameFutureByMultiple() returns int {
     }
 
     waitOnSameFutureWorkers(w1);
-    runtime:sleep(10000);
+    runtime:sleep(1000);
     return updateMultiple;
 
 }
