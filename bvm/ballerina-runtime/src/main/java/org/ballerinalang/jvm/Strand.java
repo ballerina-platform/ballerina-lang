@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
@@ -101,7 +100,7 @@ public class Strand {
         this.globalProps.put(key, value);
     }
 
-    public ErrorValue handleFlush(ChannelDetails[] channels) {
+    public ErrorValue handleFlush(ChannelDetails[] channels) throws Throwable {
         try {
             if (flushDetail == null) {
                 this.flushDetail = new FlushDetail(channels);
@@ -109,11 +108,16 @@ public class Strand {
             this.flushDetail.flushLock.lock();
             if (flushDetail.inProgress) {
                 // this is a reschedule when flush is completed
+                if (this.flushDetail.panic != null) {
+                    throw this.flushDetail.panic;
+                }
                 ErrorValue result = this.flushDetail.result;
                 cleanUpFlush(channels);
                 return result;
             } else {
                 //this can be another flush in the same worker
+                this.flushDetail.panic = null;
+                this.flushDetail.result = null;
                 this.flushDetail.flushChannels = channels;
             }
 
@@ -230,6 +234,7 @@ public class Strand {
         public Lock flushLock;
         public ErrorValue result;
         public boolean inProgress;
+        public Throwable panic;
 
         public FlushDetail(ChannelDetails[] flushChannels) {
             this.flushChannels = flushChannels;

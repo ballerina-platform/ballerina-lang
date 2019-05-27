@@ -157,6 +157,33 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.worker.WorkerInFunctionTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerFlushTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerFailTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
+            <class name="org.ballerinalang.test.worker.WaitForOneActionsTest">
+                <methods><exclude name="waitTest9"/></methods>
+            </class>
+            <class name="org.ballerinalang.test.worker.WaitActionsNegativeTest"/>
+            <class name="org.ballerinalang.test.worker.VarMutabilityWithWorkersTest"/>
+            <class name="org.ballerinalang.test.worker.StackOverflowTest">
+                <methods>
+                    <!--TODO:Need to improve error detail transformation, java errors get returned-->
+                    <exclude name="recursiveFunction"/>
+                    <exclude name="testStackOverflowInFunction"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">
+                <methods>
+                    <!--TODO:convert within while returns empty-->
+                    <exclude name="largeForkCreationTest"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.worker.ForkReturnAnyTest"/>
+            <class name="org.ballerinalang.test.worker.ForkInFunctionTest"/>
+            <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
+            <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
+            <class name="org.ballerinalang.test.worker.BasicForkNegativeTest"/>
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
             <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
                 <methods>

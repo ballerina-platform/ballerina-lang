@@ -231,11 +231,11 @@ public class WorkerDataChannel {
      * @param strand waiting for flush
      * @return error or null
      */
-    public ErrorValue flushChannel(Strand strand) {
+    public ErrorValue flushChannel(Strand strand) throws Throwable {
         acquireChannelLock();
         try {
             if (this.panic != null) {
-                throw new RuntimeException(this.panic);
+                throw this.panic;
             } else if (this.error != null) {
                 return this.error;
             } else if (this.receiverCounter == this.senderCounter) {
@@ -288,6 +288,7 @@ public class WorkerDataChannel {
         if (this.flushSender != null) {
             this.flushSender.waitingStrand.flushDetail.flushLock.lock();
             Strand flushStrand = this.flushSender.waitingStrand;
+            this.flushSender.waitingStrand.flushDetail.panic = panic;
             if (flushStrand.blocked) {
                 flushStrand.scheduler.unblockStrand(flushStrand);
             }
