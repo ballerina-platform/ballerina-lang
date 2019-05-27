@@ -69,8 +69,14 @@ type Parser object {
 			//io:println(tokenNames[currToken.tokenType]);
 			return currToken;
 		} else {
-			log:printError(self.LookaheadToken(1).lineNumber + ":" + self.LookaheadToken(1).startPos +": expected " +
+			if(self.LAToken(1) == LEXER_ERROR_TOKEN){
+				log:printError(self.LookaheadToken(1).lineNumber + ":" + self.LookaheadToken(1).startPos + ": expected " +
+			tokenNames[mToken] + ";found an invalid token '" + self.LookaheadToken(1).text + "'");
+			}else{
+				log:printError(self.LookaheadToken(1).lineNumber + ":" + self.LookaheadToken(1).startPos +": expected " +
 			tokenNames[mToken] + "; found '" + self.LookaheadToken(1).text + "'");
+			}
+
 			Token panicToken = self.panicRecovery(mToken, rule);
 
 			return panicToken;
@@ -99,6 +105,7 @@ type Parser object {
 	function panicRecovery(int mToken,NodeKind rule) returns Token {
 		boolean panicMode = true;
 		self.errorRecovered = false;
+
 		if(rule == "variableDefinitionStatement"){
 			if(mToken == SEMICOLON){
 				Token insertSemi = self.insertToken(mToken);

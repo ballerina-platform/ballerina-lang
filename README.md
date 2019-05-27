@@ -21,7 +21,7 @@ Variable definition statement
     | <valueTypeName> IDENTIFIER SEMICOLON
     | <valueTypeName>  IDENTIFIER ASSIGN <expression> SEMICOLON
 Continue statement
-	| CONTINUE SEMICOLON
+    | CONTINUE SEMICOLON
 valueTypeName
     | INT
 Expression
