@@ -317,7 +317,6 @@ function test(int c) {
         int b = <- w1;
         io:println("w2 end ", c, " - ", b);
     }
-     map<anydata> rec = wait {w1,w2};
 }
 
 
