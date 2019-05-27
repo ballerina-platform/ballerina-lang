@@ -63,11 +63,11 @@ public type Channel client object {
     # Publishes a message. Publishing to a non-existent exchange will result in a channel-level
     # protocol exception, which closes the channel.
     #
-    # + message - The message body.
+    # + messageContent - The message body.
     # + routingKey - The routing key.
     # + exchange - The name of the exchange to which the message is published.
-    # + return - Returns an error if an I/O error is encountered or returns nil if successful.
-    public remote function basicPublish(Message message,
+    # + return - Returns an error if an I/O error is encountered or nil if successful.
+    public remote function basicPublish(MessageContent messageContent,
                                     string routingKey, string exchange = "") returns error? = external;
 
     # Deletes a queue, without regard for whether it is in use or has messages on it, If the paramters ifUnused or
@@ -91,7 +91,8 @@ public type Channel client object {
 
     # Closes the RabbitMQ `Channel`.
     #
-    # + closeCode - The close code (For information, go to the"Reply Codes" section in the [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
+    # + closeCode - The close code (For information, go to the "Reply Codes" section in the
+    #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
     # + closeMessage - A message indicating the reason for closing the channel.
     # + return - Returns an `error` if an I/O problem is encountered.
     public function close(int? closeCode = (), string? closeMessage = ()) returns error? = external;
@@ -100,7 +101,8 @@ public type Channel client object {
     # Forces the `Channel` to close and waits for all the close operations to complete.
     # Any encountered exceptions in the close operations are silently discarded.
     #
-    # + closeCode - The close code (For information, go to the"Reply Codes" section in the [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
+    # + closeCode - The close code (For information, go to the "Reply Codes" section in the
+    #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
     # + closeMessage - A message indicating the reason for closing the channel.
     # + return - Returns an `error` if an I/O problem is encountered.
     public function abortChannel(int? closeCode = (), string? closeMessage = ()) returns error? = external;
@@ -131,4 +133,4 @@ public type ExchangeConfiguration record {|
 |};
 
 # Holds the types of message content that can be published.
-type Message int | float | byte | boolean | string | map<any> | xml | json | byte[];
+type MessageContent int | float | byte | boolean | string | map<any> | xml | json | byte[];

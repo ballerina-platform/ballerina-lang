@@ -56,7 +56,9 @@ public class RegisterListener extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> channelListObject = (BMap<String, BValue>) context.getRefArgument(0);
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> channelObj = (BMap<String, BValue>) channelListObject.get("chann");
         Channel channel = (Channel) channelObj.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);

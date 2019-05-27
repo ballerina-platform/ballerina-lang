@@ -71,8 +71,10 @@ public type ChannelListener object {
 # Represents the list of parameters required to create a subscription.
 #
 # + queueConfig - Specifies configuration details about the queue to be subscribed to.
+# + ackMode - Type of acknowledgement mode.
 public type RabbitMQServiceConfig record {|
     QueueConfiguration queueConfig;
+    AcknowledgementMode ackMode = AUTO_ACK;
 |};
 
 # Service descriptor data generated at compile time.

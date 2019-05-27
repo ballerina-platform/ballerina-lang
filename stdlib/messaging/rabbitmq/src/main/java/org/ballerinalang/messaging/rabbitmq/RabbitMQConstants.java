@@ -35,6 +35,7 @@ public class RabbitMQConstants {
     // Error constant fields
     static final String RABBITMQ_ERROR_RECORD = "RabbitMQError";
     static final String RABBITMQ_ERROR_CODE = "{ballerina/rabbitmq}RabbitMQError";
+    public static final String RABBITMQ_CLIENT_ERROR = "RabbitMQ Client Error: ";
 
     // Connection errors
     public static final String CLOSE_CONNECTION_ERROR = "An error occurred while closing the connection: ";
@@ -44,6 +45,7 @@ public class RabbitMQConstants {
     // Channel errors
     public static final String CLOSE_CHANNEL_ERROR = "An error occurred while closing the channel: ";
     public static final String ABORT_CHANNEL_ERROR = "An error occurred while aborting the channel: ";
+    public static final String CHANNEL_CLOSED_ERROR = "Channel already closed, no more messages will be received: ";
 
     // Connection constant fields
     public static final String CONNECTION_OBJECT = "Connection";
@@ -61,13 +63,22 @@ public class RabbitMQConstants {
 
     // Channel listener constant fields
     public static final String QUEUE_CONFIG = "queueConfig";
+    public static final String ACK_MODE = "ackMode";
     public static final String CHANNEL_LISTENER_OBJECT = "ChannelListener";
     public static final String SERVICE_CONFIG = "ServiceConfig";
-    public static final String CHAR_SET = "UTF-8";
+    public static final String CONSUMER_SERVICES = "consumer_services";
+    public static final String AUTO_ACKMODE = "auto";
+    public static final String CLIENT_ACKMODE = "client";
 
     // Channel constant fields
     public static final String CHANNEL_OBJECT = "Channel";
     public static final String CHANNEL_NATIVE_OBJECT = "rabbitmq_channel_object";
+
+    // Message constant fields
+    public static final String MESSAGE_OBJECT = "Message";
+    public static final String MESSAGE_CONTENT = "message_content";
+    public static final String DELIVERY_TAG = "delivery_tag";
+    public static final boolean MULTIPLE = false;
 
     // Queue configuration constant fields
     public static final String ALIAS_QUEUE_NAME = "queueName";
@@ -80,7 +91,8 @@ public class RabbitMQConstants {
     public static final String ALIAS_EXCHANGE_TYPE = "exchangeType";
     public static final String ALIAS_EXCHANGE_DURABLE = "durable";
 
-    public static final String CONSUMER_SERVICES = "consumer_services";
+    // Warning suppression
+    public static final String UNCHECKED = "unchecked";
 
     private RabbitMQConstants(){
     }
