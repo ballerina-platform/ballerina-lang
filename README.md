@@ -16,9 +16,12 @@ Callable Unit Body
     | { <statement*>}
 Statement
     |<variable definition statement>
+    |<continue statement>
 Variable definition statement
     | <valueTypeName> IDENTIFIER SEMICOLON
-    | <valueTypeName>  IDENTIFIER ASSIGN <expression> SEMICOLON 
+    | <valueTypeName>  IDENTIFIER ASSIGN <expression> SEMICOLON
+Continue statement
+	| CONTINUE SEMICOLON
 valueTypeName
     | INT
 Expression

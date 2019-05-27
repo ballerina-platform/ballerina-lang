@@ -1,3 +1,4 @@
 function foo(){
-int a = b;
+int a = 2 + 3;
+continue;
 }

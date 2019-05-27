@@ -61,6 +61,7 @@ const int UNARY_PLUS = 54;
 
 const int BIT_COMPLEMENT = 55;
 const int UNTAINT = 56;
+const int CONTINUE = 57;
 
 string[] tokenNames = ["LBRACE", "RBRACE", "LPAREN", "RPAREN", "ADD", "ASSIGN", "SEMICOLON", "IDENTIFIER", "EQUALITY",
 "EOF", "NUMBER", "EQUAL", "REF_EQUAL", "QUOTED_STRING_LITERAL", "FINAL", "FUNCTION", "INT", "STRING",
@@ -69,7 +70,7 @@ string[] tokenNames = ["LBRACE", "RBRACE", "LPAREN", "RPAREN", "ADD", "ASSIGN", 
 "EQUAL_GT","COMPOUND_ADD","RARROW","COMPOUND_SUB","SYNCRARROW","COMPOUND_MUL","COMPOUND_DIV","MOD",
 "NOT","REF_NOT_EQUAL","GT","GT_EQUAL","COMPOUND_RIGHT_SHIFT","COMPOUND_LOGICAL_SHIFT",
 "LT","LT_EQUAL","LARROW","COMPOUND_LEFT_SHIFT","NOT_EQUAL","UNARY_MINUS","UNARY_PLUS",
-"BIT_COMPLEMENT","UNTAINT"];
+"BIT_COMPLEMENT","UNTAINT","CONTINUE"];
 
 
 public type Lexer object {
@@ -555,6 +556,7 @@ function isReserved(string word) returns int {
         "string" => resWord = STRING;
 		"untaint" => resWord = UNTAINT;
 		"final" => resWord = FINAL;
+		"continue" => resWord = CONTINUE;
     }
 
     return resWord;

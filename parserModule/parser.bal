@@ -190,6 +190,13 @@ type Parser object {
 				}
 				return { tokenType: PARSER_ERROR_TOKEN, text: "<unexpected Token: " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
 					lineNumber: 0, index: -1, whiteSpace: "" };
+		}else if(rule == "continueStatement"){
+			if(mToken == SEMICOLON){
+				Token insertSemi = self.insertToken(mToken);
+				insertSemi.text = ";";
+
+				return insertSemi;
+			}
 		}
 		//this return statement will be in an else statement
 		return { tokenType: PARSER_ERROR_TOKEN, text: "<unexpected " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
@@ -307,7 +314,8 @@ type Parser object {
 		return blNode;
 	}
 	//Statement
-	//    |<variable definition statement>
+	//  |<variable definition statement>
+	//	|<continue statement>
 	function parseStatement() returns StatementNode? {
 		//check if the LA belongs to any of the statement type or else return an error node
 		if(self.LAToken(1) == INT){
@@ -315,6 +323,13 @@ type Parser object {
 			StatementNode stNode = varD;
 
 			return stNode;
+
+		}else if(self.LAToken(1) == CONTINUE){
+			ContinueStatementNode continueNode = self.parseContinueStatementNode();
+			StatementNode contStNode = continueNode;
+
+			return contStNode;
+
 		}else{
 		Token panicToken = self.panicRecovery(INT, STATEMENT_NODE);
 		ErrorNode erNode = {nodeKind: ERROR_NODE,tokenList:self.errTokens};
@@ -374,6 +389,30 @@ type Parser object {
 
 			return vDef2;
 		}
+	}
+
+	//continue statement
+	//CONTINUE SEMICOLON
+	function parseContinueStatementNode() returns ContinueStatementNode{
+
+		Token valueTypeTkn = self.parseValueTypeName();
+		ValueKind valueKind1 = self.matchValueType(valueTypeTkn);
+
+		if(self.LAToken(1) == SEMICOLON) {
+			Token semiC = self.matchToken(SEMICOLON,CONTINUE_STATEMENT_NODE);
+			ContinueStatementNode contSt = { nodeKind: CONTINUE_STATEMENT_NODE, tokenList: [valueTypeTkn, semiC],
+				valueKind: valueKind1};
+
+			return contSt;
+		}else{
+			//token insertion if semicolon is mismatched
+			Token semiC2 = self.matchToken(SEMICOLON,CONTINUE_STATEMENT_NODE);
+			ContinueStatementNode constSt2 = { nodeKind: CONTINUE_STATEMENT_NODE, tokenList: [semiC2],
+				valueKind: valueKind1};
+
+			return constSt2;
+		}
+
 	}
 	//expression
 	//| <simple literal>
@@ -716,6 +755,7 @@ type Parser object {
 
 
 		}
+
 		//else if (self.LAToken(1) == LBRACE){
         //    self.priorOperator = false;
 	     //   RecordKeyValueNode[] recordList = [];
@@ -1095,6 +1135,7 @@ type Parser object {
 	//			}
 	//		}
 	//}
+
 	//valueTypeName
 	//    | INT
 	//    | STRING
@@ -1105,6 +1146,9 @@ type Parser object {
 		}else if (self.LAToken(1) == STRING) {
 			Token string1 = self.matchToken(STRING,STATEMENT_NODE);
 			return string1;
+		}else if (self.LAToken(1) == CONTINUE){
+			Token continue1 = self.matchToken(CONTINUE,CONTINUE_STATEMENT_NODE);
+			return continue1;
 		}else{
 			return  { tokenType: PARSER_ERROR_TOKEN, text: "<unexpected " + tokenNames[self.LAToken(1)] + ">" , startPos: -1 , endPos:-1,
 			lineNumber: 0, index: -1, whiteSpace: "" };
@@ -1113,10 +1157,12 @@ type Parser object {
 
 	//check the value type for the given token
 	function matchValueType(Token valueTypeTkn) returns ValueKind {
-		if (tokenNames[valueTypeTkn.tokenType] == "INT") {
+		if (tokenNames[valueTypeTkn.tokenType] == "INT"){
 			return INT_TYPE;
-		}else if (tokenNames[valueTypeTkn.tokenType] == "STRING")  {
+		}else if (tokenNames[valueTypeTkn.tokenType] == "STRING"){
 			return STRING_TYPE;
+		}else if (tokenNames[valueTypeTkn.tokenType] == "CONTINUE"){
+			return CONTINUE_TYPE;
 		}else{
 			return ERROR_VALUE_TYPE;
 		}

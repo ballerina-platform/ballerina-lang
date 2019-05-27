@@ -20,16 +20,19 @@ const RECORD_KEY_NODE = "recordKeyNode";
 const TUPLE_LITERAL_NODE = "tupleLiteralNode";
 const EMPTY_TUPLE_LITERAL_NODE = "emptyTupleLiteralNode";
 const UNARY_EXPRESSION_NODE = "unaryExpressionNode";
+const CONTINUE_STATEMENT_NODE = "continueStatement";
 
-type NodeKind PACKAGE_NODE|FUNCTION_NODE|STATEMENT_NODE|VAR_DEF_STATEMENT_NODE|VAR_DEC_STATEMENT_NODE|EXPRESSION_NODE|
-BINARY_EXP_NODE|IDENTIFIER_NODE|VAR_REF_NODE | FN_SIGNATURE_NODE | BLOCK_NODE | INTEGER_LITERAL | QUO_STRING_LITERAL |
-ERROR_NODE | RECORD_LITERAL_NODE | RECORD_KEY_VALUE_NODE | RECORD_KEY_NODE | TUPLE_LITERAL_NODE | EMPTY_TUPLE_LITERAL_NODE | UNARY_EXPRESSION_NODE;
+type NodeKind PACKAGE_NODE | FUNCTION_NODE | STATEMENT_NODE | VAR_DEF_STATEMENT_NODE | VAR_DEC_STATEMENT_NODE | EXPRESSION_NODE |
+ BINARY_EXP_NODE | IDENTIFIER_NODE | VAR_REF_NODE | FN_SIGNATURE_NODE | BLOCK_NODE | INTEGER_LITERAL | QUO_STRING_LITERAL |
+ ERROR_NODE | RECORD_LITERAL_NODE | RECORD_KEY_VALUE_NODE | RECORD_KEY_NODE | TUPLE_LITERAL_NODE |
+ EMPTY_TUPLE_LITERAL_NODE | UNARY_EXPRESSION_NODE | CONTINUE_STATEMENT_NODE;
 
 const INT_TYPE = "int";
 const STRING_TYPE = "string";
 const ERROR_VALUE_TYPE = "errorValueType";
+const CONTINUE_TYPE = "continue";
 
-type ValueKind INT_TYPE|STRING_TYPE|ERROR_VALUE_TYPE;
+type ValueKind INT_TYPE | STRING_TYPE | ERROR_VALUE_TYPE | CONTINUE_TYPE;
 
 const PLUS_OP = "+";
 const MINUS_OP = "-";
@@ -52,8 +55,8 @@ const BIT_COMPLEMENT_OP = "~";
 //untaint type to be a value kind?
 const UNTAINT_TYPE = "untaint";
 
-type OperatorKind PLUS_OP|MINUS_OP|DIVISION_OP|MULTIPLICATION_OP|ERROR_OP|COLON_OP |COMMA_OP |
-MOD_OP | LT_EQUAL_OP | GT_EQUAL_OP | GT_OP | LT_OP | EQUAL_OP | NOT_EQUAL_OP | REF_EQUAL_OP | REF_NOT_EQUAL_OP | NOT_OP | BIT_COMPLEMENT_OP |UNTAINT_TYPE;
+type OperatorKind PLUS_OP|MINUS_OP | DIVISION_OP | MULTIPLICATION_OP | ERROR_OP | COLON_OP | COMMA_OP |
+MOD_OP | LT_EQUAL_OP | GT_EQUAL_OP | GT_OP | LT_OP | EQUAL_OP | NOT_EQUAL_OP | REF_EQUAL_OP | REF_NOT_EQUAL_OP | NOT_OP | BIT_COMPLEMENT_OP | UNTAINT_TYPE;
 
 type Node record {
     NodeKind nodeKind;
@@ -86,7 +89,7 @@ type BlockNode record{
     StatementNode[] statementList;
 };
 
-type StatementNode VariableDefinitionStatementNode | ErrorNode;
+type StatementNode VariableDefinitionStatementNode | ContinueStatementNode | ErrorNode;
 
 type ErrorNode record{
 	*Node;
@@ -94,11 +97,16 @@ type ErrorNode record{
     FunctionNode errorFunction?;
 };
 
-type VariableDefinitionStatementNode record {
+type VariableDefinitionStatementNode record{
     *Node;
     ValueKind valueKind;
     VarRefIdentifier? varIdentifier;
     ExpressionNode? expression;
+};
+
+type ContinueStatementNode record{
+    *Node;
+    ValueKind valueKind;
 };
 
 type ExpressionNode BinaryExpressionNode | SimpleLiteral | VarRefIdentifier | RecordLiteralNode | TupleLiteralNode | UnaryExpressionNode ;
