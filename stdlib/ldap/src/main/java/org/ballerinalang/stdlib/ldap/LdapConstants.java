@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.auth.ldap;
+package org.ballerinalang.stdlib.ldap;
 
 /**
  * Constants to be used in LDAP user stores.

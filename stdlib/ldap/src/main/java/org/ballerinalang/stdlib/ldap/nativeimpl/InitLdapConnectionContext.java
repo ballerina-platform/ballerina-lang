@@ -16,15 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.auth.ldap.nativeimpl;
+package org.ballerinalang.stdlib.ldap.nativeimpl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.auth.ldap.CommonLdapConfiguration;
-import org.ballerinalang.auth.ldap.LdapConnectionContext;
-import org.ballerinalang.auth.ldap.LdapConstants;
-import org.ballerinalang.auth.ldap.SslContextTrustManager;
-import org.ballerinalang.auth.ldap.util.LdapUtils;
-import org.ballerinalang.auth.ldap.util.SslUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -38,6 +32,12 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
+import org.ballerinalang.stdlib.ldap.LdapConnectionContext;
+import org.ballerinalang.stdlib.ldap.LdapConstants;
+import org.ballerinalang.stdlib.ldap.SslContextTrustManager;
+import org.ballerinalang.stdlib.ldap.util.LdapUtils;
+import org.ballerinalang.stdlib.ldap.util.SslUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;

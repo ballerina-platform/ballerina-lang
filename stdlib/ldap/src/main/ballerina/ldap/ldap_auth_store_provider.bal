@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/crypto;
 import ballerina/runtime;
 
@@ -80,7 +81,7 @@ public type SecureClientSocket record {|
 # + instanceId - Endpoint instance id
 public type LdapAuthStoreProvider object {
 
-    *AuthProvider;
+    *auth:AuthProvider;
 
     public LdapAuthStoreProviderConfig ldapAuthStoreProviderConfig;
     public string instanceId;
@@ -100,12 +101,12 @@ public type LdapAuthStoreProvider object {
     # + credential - Credential value
     # + return - `true` if authentication is successful, otherwise `false` or `error` occurred while extracting credentials
     public function authenticate(string credential) returns boolean|error {
-        if (credential == EMPTY_STRING) {
+        if (credential == "") {
             return false;
         }
         string username;
         string password;
-        (username, password) = check extractUsernameAndPassword(credential);
+        (username, password) = check auth:extractUsernameAndPassword(credential);
         boolean isAuthenticated = doAuthenticate(self, username, password);
         if (isAuthenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;

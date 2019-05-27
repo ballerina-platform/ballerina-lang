@@ -16,14 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.auth.ldap.nativeimpl;
+package org.ballerinalang.stdlib.ldap.nativeimpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ballerinalang.auth.ldap.CommonLdapConfiguration;
-import org.ballerinalang.auth.ldap.LdapConstants;
-import org.ballerinalang.auth.ldap.UserStoreException;
-import org.ballerinalang.auth.ldap.util.LdapUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
@@ -37,6 +33,10 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
+import org.ballerinalang.stdlib.ldap.LdapConstants;
+import org.ballerinalang.stdlib.ldap.UserStoreException;
+import org.ballerinalang.stdlib.ldap.util.LdapUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;

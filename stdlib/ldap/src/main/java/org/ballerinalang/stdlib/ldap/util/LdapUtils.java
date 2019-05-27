@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.auth.ldap.util;
+package org.ballerinalang.stdlib.ldap.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ballerinalang.auth.ldap.CommonLdapConfiguration;
-import org.ballerinalang.auth.ldap.UserStoreException;
+import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
+import org.ballerinalang.stdlib.ldap.UserStoreException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.regex.Matcher;

@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.auth.ldap.util;
+package org.ballerinalang.stdlib.ldap.util;
 
-import org.ballerinalang.auth.ldap.LdapConstants;
+import org.ballerinalang.stdlib.ldap.LdapConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

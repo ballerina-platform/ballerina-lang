@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.auth.ldap;
+package org.ballerinalang.stdlib.ldap;
 
 /**
  * The exception to throw when there is a problem with the user store.

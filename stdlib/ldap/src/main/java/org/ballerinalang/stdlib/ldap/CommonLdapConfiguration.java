@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.auth.ldap;
+package org.ballerinalang.stdlib.ldap;
 
 import java.util.List;
 
