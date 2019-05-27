@@ -17,7 +17,14 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.values.ChannelDetails;
+import org.ballerinalang.jvm.values.ErrorValue;
+
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Strand base class used with jvm code generation for functions.
@@ -33,8 +40,135 @@ public class Strand {
     public boolean blocked;
     public Strand blockedOn;
     public Scheduler scheduler;
+    public Strand parent = null;
+    public WDChannels wdChannels;
+    public FlushDetail flushDetail;
+    public boolean blockedOnExtern;
+    private Map<String, Object> globalProps;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
+        this.wdChannels = new WDChannels();
+    }
+
+    public Strand(Scheduler scheduler, Strand parent) {
+        this.scheduler = scheduler;
+        this.parent = parent;
+        this.wdChannels = new WDChannels();
+    }
+
+    public Strand(Scheduler scheduler, Map<String, Object> properties) {
+        this.scheduler = scheduler;
+        this.globalProps = properties;
+        this.wdChannels = new WDChannels();
+    }
+
+    public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {
+        for (int i = 0; i < channels.length; i++) {
+            ChannelDetails channelDetails = channels[i];
+            WorkerDataChannel channel = getWorkerDataChannel(channelDetails);
+
+            if (channels[i].send) {
+                channel.setSendError(error);
+            } else {
+                channel.setReceiveError(error);
+            }
+        }
+    }
+
+    public void block() {
+
+    }
+
+    public void setReturnValues(Object returnValue) {
+        this.future = CompletableFuture.completedFuture(returnValue);
+    }
+
+    public void resume() {
+
+    }
+
+    public Object getProperty(String key) {
+        return this.globalProps.get(key);
+    }
+
+    public void setProperty(String key, Object value) {
+        this.globalProps.put(key, value);
+    }
+
+    public ErrorValue handleFlush(ChannelDetails[] channels) {
+        try {
+            if (flushDetail == null) {
+                this.flushDetail = new FlushDetail(channels);
+            }
+            this.flushDetail.flushLock.lock();
+            if (flushDetail.inProgress) {
+                // this is a reschedule when flush is completed
+                ErrorValue result = this.flushDetail.result;
+                cleanUpFlush(channels);
+                return result;
+            } else {
+                //this can be another flush in the same worker
+                this.flushDetail.flushChannels = channels;
+            }
+
+            for (int i = 0; i < channels.length; i++) {
+                ErrorValue error = getWorkerDataChannel(channels[i]).flushChannel(this);
+                if (error != null) {
+                    cleanUpFlush(channels);
+                    return error;
+                } else if (this.flushDetail.flushedCount == this.flushDetail.flushChannels.length) {
+                    // flush completed
+                    cleanUpFlush(channels);
+                    return null;
+                }
+            }
+            flushDetail.inProgress = true;
+            this.yield = true;
+            this.blocked = true;
+            return null;
+        } finally {
+            this.flushDetail.flushLock.unlock();
+        }
+    }
+
+    private void cleanUpFlush(ChannelDetails[] channels) {
+        this.flushDetail.inProgress = false;
+        this.flushDetail.flushedCount = 0;
+        this.flushDetail.result = null;
+        for (int i = 0; i < channels.length; i++) {
+            getWorkerDataChannel(channels[i]).removeFlushWait();
+        }
+    }
+
+    private WorkerDataChannel getWorkerDataChannel(ChannelDetails channel) {
+        WorkerDataChannel dataChannel;
+        if (channel.channelInSameStrand) {
+            dataChannel = this.wdChannels.getWorkerDataChannel(channel.name);
+        } else {
+            dataChannel = this.parent.wdChannels.getWorkerDataChannel(channel.name);
+        }
+        return dataChannel;
+    }
+
+    /**
+     * Class to hold flush action related details.
+     *
+     * 0.995.0
+     */
+    public static class FlushDetail {
+        public ChannelDetails[] flushChannels;
+        public int flushedCount;
+        public Lock flushLock;
+        public ErrorValue result;
+        public boolean inProgress;
+
+        public FlushDetail(ChannelDetails[] flushChannels) {
+            this.flushChannels = flushChannels;
+            this.flushedCount = 0;
+            this.flushLock = new ReentrantLock();
+            this.result = null;
+            this.inProgress = false;
+        }
     }
 }

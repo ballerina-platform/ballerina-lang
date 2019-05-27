@@ -36,7 +36,7 @@ service echoServer on server {
     }
 
     resource function onError(socket:Caller caller, error er) {
-        log:printError("An error occured", err = er);
+        log:printError("An error occurred", err = er);
     }
 }
 ```
@@ -132,11 +132,11 @@ public function main() {
             io:println(str.detail().message);
         }
     } else {
-        io:println("An error occured while receiving the data ", result);
+        io:println("An error occurred while receiving the data ", result);
     }
     var closeResult = socketClient->close();
     if (closeResult is error) {
-        io:println("An error occured while closing the connection ", closeResult);
+        io:println("An error occurred while closing the connection ", closeResult);
     }
 }
 ```

@@ -18,7 +18,8 @@
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 dependencies {
-    baloCreat project(':lib-creator')
+    baloCreat project(':lib-creator-milestone')
+//    baloCreat project(':lib-creator')
 }
 
 dependencies {

@@ -48,6 +48,8 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
                 {"importStatement1.json", "toplevel"},
                 {"importStatement2.json", "toplevel"},
                 {"importStatement3.json", "toplevel"},
+                {"importStatement4.json", "toplevel"},
+                {"namespaceDeclarationStatement1.json", "toplevel"},
                 {"topLevelCompletionAfterListenerKeyword1.json", "toplevel"},
                 {"topLevelCompletionAfterListenerKeyword2.json", "toplevel"},
                 {"topLevelCompletionAfterListenerKeyword3.json", "toplevel"},

@@ -83,7 +83,7 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
 # Verifies if the authorization is successful. If not responds to the user.
 #
 # + caller - Caller for outbound HTTP responses
-# + authorized - Authorization status for the request, or `error` if error occured
+# + authorized - Authorization status for the request, or `error` if error occurred
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
 function isAuthzSuccessful(Caller caller, boolean|error authorized) returns boolean {
     Response response = new;

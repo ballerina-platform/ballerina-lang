@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
@@ -46,5 +47,9 @@ public class Unescape extends BlockingNativeCallableUnit {
         //todo extend this in a proper way
         String unescapedString = stringValue.replace("\\", "");
         context.setReturnValues(new BString(unescapedString));
+    }
+
+    public static String unescape(Strand strand, String value) {
+        return value.replace("\\", "");
     }
 }

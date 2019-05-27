@@ -18,9 +18,12 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
+import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -43,7 +46,7 @@ import javax.xml.namespace.QName;
  * @param <T> Type of the underlying impl
  * @since 0.995.0
  */
-public abstract class XMLValue<T> implements RefValue {
+public abstract class XMLValue<T> implements RefValue, CollectionValue {
 
     BType type = BTypes.typeXML;
 
@@ -156,14 +159,14 @@ public abstract class XMLValue<T> implements RefValue {
     }
 
     /**
-     * Get attributes as a {@link MapValue}.
+     * Get attributes as a {@link MapValueImpl}.
      * 
-     * @return Attributes as a {@link MapValue}
+     * @return Attributes as a {@link MapValueImpl}
      */
     public abstract MapValue<String, ?> getAttributesMap();
 
     /**
-     * Set the attributes of the XML{@link MapValue}.
+     * Set the attributes of the XML{@link MapValueImpl}.
      * 
      * @param attributes Attributes to be set.
      */
@@ -236,7 +239,7 @@ public abstract class XMLValue<T> implements RefValue {
      * @param endIndex To slice
      * @return sliced sequence
      */
-    public abstract XMLValue<?> slice(int startIndex, int endIndex);
+    public abstract XMLValue<?> slice(long startIndex, long endIndex);
 
     /**
      * Searches in children recursively for elements matching the name and returns a sequence containing them all.
@@ -260,7 +263,7 @@ public abstract class XMLValue<T> implements RefValue {
      * 
      * @return length of this XML sequence.
      */
-    public abstract int length();
+    public abstract int size();
 
     /**
      * Builds itself.
@@ -276,13 +279,12 @@ public abstract class XMLValue<T> implements RefValue {
     }
 
     @Override
-    public void stamp(BType type) {
-        // if (type.getTag() == TypeTags.ANYDATA_TAG) {
-        // type = TypeChecker.resolveMatchingTypeForUnion(this, type);
-        // }
-        // this.type = type;
+    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
+        if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            type = TypeConverter.resolveMatchingTypeForUnion(this, type);
+        }
+        this.type = type;
     }
-
     // private methods
 
     protected static void handleXmlException(String message, Throwable t) {

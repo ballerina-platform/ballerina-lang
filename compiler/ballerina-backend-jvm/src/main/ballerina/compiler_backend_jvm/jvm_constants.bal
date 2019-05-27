@@ -206,6 +206,9 @@ final int V1_8 = 0 << 16 | 52;
 
 // jvm runtime values related classes
 const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
+const string MAP_VALUE_IMPL = "org/ballerinalang/jvm/values/MapValueImpl";
+const string TABLE_VALUE = "org/ballerinalang/jvm/values/TableValue";
+const string STREAM_VALUE = "org/ballerinalang/jvm/values/StreamValue";
 const string ARRAY_VALUE = "org/ballerinalang/jvm/values/ArrayValue";
 const string OBJECT_VALUE = "org/ballerinalang/jvm/values/ObjectValue";
 const string ABSTRACT_OBJECT_VALUE = "org/ballerinalang/jvm/values/AbstractObjectValue";
@@ -215,6 +218,7 @@ const string STRING_VALUE = "java/lang/String";
 const string LONG_VALUE = "java/lang/Long";
 const string BOOLEAN_VALUE = "java/lang/Boolean";
 const string DOUBLE_VALUE = "java/lang/Double";
+const string DECIMAL_VALUE = "org/ballerinalang/jvm/values/DecimalValue";
 const string BYTE_VALUE = "java/lang/Byte";
 const string XML_VALUE = "org/ballerinalang/jvm/values/XMLValue";
 const string XML_QNAME = "org/ballerinalang/jvm/values/XMLQName";
@@ -230,19 +234,30 @@ const string TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
 const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
 const string STRAND = "org/ballerinalang/jvm/Strand";
+
+const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string FUNCTION = "java/util/function/Function";
 const string CONSUMER = "java/util/function/Consumer";
+
 const string STRING_BUILDER = "java/lang/StringBuilder";
+const string COMPARABLE = "java/lang/Comparable";
 const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
 const string XML_FACTORY = "org/ballerinalang/jvm/XMLFactory";
 const string SET = "java/util/Set";
 const string LINKED_HASH_SET = "java/util/LinkedHashSet";
+const string WD_CHANNELS = "org/ballerinalang/jvm/WDChannels";
+const string WORKER_DATA_CHANNEL = "org/ballerinalang/jvm/WorkerDataChannel";
+const string CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
+const string WORKER_UTILS = "org/ballerinalang/jvm/WorkerUtils";
+const string LONG_STREAM = "java/util/stream/LongStream";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
 const string BTYPES = "org/ballerinalang/jvm/types/BTypes";
 const string ARRAY_TYPE = "org/ballerinalang/jvm/types/BArrayType";
 const string MAP_TYPE = "org/ballerinalang/jvm/types/BMapType";
+const string TABLE_TYPE = "org/ballerinalang/jvm/types/BTableType";
+const string STREAM_TYPE = "org/ballerinalang/jvm/types/BStreamType";
 const string UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
 const string RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
 const string OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";
@@ -254,19 +269,25 @@ const string BFIELD = "org/ballerinalang/jvm/types/BField";
 const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
 const string FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
 
-// error related classes
-const string BLANG_VM_ERRORS = "org/ballerinalang/jvm/BLangVMErrors";
-const string PRINT_STACKTRACE_ON_MAIN_METHOD_ERROR = "printStackTraceOnMainMethodError";
-
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
 
 // types related constants
 const string TYPES_ERROR =  "typeError";
 
+// error related constants
+const string PANIC_FIELD =  "panic";
+const string PRINT_STACK_TRACE_METHOD = "printStackTrace";
+
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
+const string THROWABLE = "java/lang/Throwable";
 
 // code generation related constants.
 const string MODULE_INIT_CLASS_NAME = "___init";
 const string BAL_EXTENSION = ".bal";
+
+// scheduler related constants
+const string SCHEDULE_CONSUMER_METHOD =  "scheduleConsumer";
+const string SCHEDULE_FUNCTION_METHOD =  "scheduleFunction";
+const string SCHEDULER_START_METHOD =  "start";

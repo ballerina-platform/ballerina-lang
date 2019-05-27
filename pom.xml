@@ -1853,6 +1853,7 @@
                 <module>misc/protobuf-ballerina</module>
 
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/jballerina-unit-test</module>
                 <module>tests/ballerina-spec-conformance-tests</module>
 
                 <module>cli/ballerina-cli-utils</module>
@@ -1870,6 +1871,8 @@
                 <module>composer</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
+                <module>distribution/zip/jballerina</module>
+                <module>distribution/zip/jballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-utils</module>
@@ -1947,6 +1950,7 @@
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/jballerina-unit-test</module>
                 <module>tests/ballerina-spec-conformance-tests</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>cli/ballerina-cli-utils</module>
@@ -2039,6 +2043,7 @@
                 <module>misc/protobuf-ballerina</module>
 
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/jballerina-unit-test</module>
                 <module>tests/ballerina-spec-conformance-tests</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
 
@@ -2058,6 +2063,8 @@
 
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
+                <module>distribution/zip/jballerina</module>
+                <module>distribution/zip/jballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-utils</module>
@@ -2385,6 +2392,7 @@
 
     <properties>
         <ballerina.version>0.992.0-m2-SNAPSHOT</ballerina.version>
+        <ballerina.milestone.version>0.992.0-m1</ballerina.milestone.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
@@ -2400,7 +2408,7 @@
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
-        <transport.http.version>6.0.289</transport.http.version>
+        <transport.http.version>6.0.292</transport.http.version>
         <carbon.securevault.version>5.0.12</carbon.securevault.version>
         <carbon.utils.version>1.2.1</carbon.utils.version>
         <slf4j.version>1.7.26</slf4j.version>

@@ -19,6 +19,8 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -39,6 +41,7 @@ import java.io.PrintStream;
 )
 public class PrintAny extends BlockingNativeCallableUnit {
 
+    //TODO Remove after migration : implemented using bvm values/types
     public void execute(Context ctx) {
         // Had to write "System . out . println" (ignore spaces) in another way to deceive the Check style plugin.
         PrintStream out = System.out;
@@ -54,5 +57,21 @@ public class PrintAny extends BlockingNativeCallableUnit {
             out.print((Object) null);
         }
         ctx.setReturnValues();
+    }
+
+    public static void print(Strand strand, ArrayValue values) {
+        PrintStream out = System.out;
+        if (values == null) {
+            out.print((Object) null);
+            return;
+        }
+
+        Object value;
+        for (int i = 0; i < values.size(); i++) {
+            value = values.get(i);
+            if (value != null) {
+                out.print(value.toString());
+            }
+        }
     }
 }

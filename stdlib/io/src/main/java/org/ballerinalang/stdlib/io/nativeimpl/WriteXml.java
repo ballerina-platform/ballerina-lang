@@ -20,6 +20,10 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
@@ -74,5 +78,23 @@ public class WriteXml implements NativeCallableUnit {
     @Override
     public boolean isBlocking() {
         return false;
+    }
+
+    public static Object writeXml(Strand strand, ObjectValue characterChannelObj, XMLValue<?> content) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
+        try {
+            CharacterChannel characterChannel = (CharacterChannel) characterChannelObj.getNativeData(
+                    IOConstants.CHARACTER_CHANNEL_NAME);
+            EventContext eventContext = new EventContext(callback);
+            IOUtils.writeFullContent(characterChannel, content.toString(), eventContext);
+            //TODO : Remove callback once strand non-blocking support is given
+            callback.sync();
+        } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
+            callback.setReturnValues(IOUtils.createError(e.getMessage()));
+        } finally {
+            callback.notifySuccess();
+        }
+        return callback.getReturnValue();
     }
 }

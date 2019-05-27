@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.math.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
@@ -42,5 +43,9 @@ public class NegateExact extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         long value = ctx.getIntArgument(0);
         ctx.setReturnValues(new BInteger(Math.negateExact(value)));
+    }
+
+    public static long negateExact(Strand strand, long value) {
+        return Math.negateExact(value);
     }
 }

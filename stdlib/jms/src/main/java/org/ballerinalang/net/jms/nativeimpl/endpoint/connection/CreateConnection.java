@@ -42,7 +42,6 @@ import javax.jms.JMSException;
  *
  * @since 0.970
  */
-
 @BallerinaFunction(
         orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
         functionName = "createConnection",

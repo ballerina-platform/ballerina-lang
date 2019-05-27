@@ -21,6 +21,9 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
@@ -94,5 +97,33 @@ public class CloseWritableRecordChannel implements NativeCallableUnit {
     @Override
     public boolean isBlocking() {
         return false;
+    }
+
+    public static Object close(Strand strand, ObjectValue channel) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
+
+        DelimitedRecordChannel recordChannel = (DelimitedRecordChannel)
+                channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(callback);
+        CloseDelimitedRecordEvent closeEvent = new CloseDelimitedRecordEvent(recordChannel, eventContext);
+        Register register = EventRegister.getFactory().register(closeEvent, CloseWritableRecordChannel::closeChannel);
+        eventContext.setRegister(register);
+        register.submit();
+        //TODO : Remove callback once strand non-blocking support is given
+        callback.sync();
+        return callback.getReturnValue();
+    }
+
+    private static EventResult closeChannel(EventResult<Boolean, EventContext> result) {
+        EventContext eventContext = result.getContext();
+        //TODO : Remove callback once strand non-blocking support is given
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
+        }
+        callback.notifySuccess();
+        return result;
     }
 }

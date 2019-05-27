@@ -20,14 +20,15 @@ import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.compiler.backend.jvm.JVMCodeGen;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.spi.CompilerBackendCodeGenerator;
 import org.ballerinalang.test.util.jvm.JBallerinaInMemoryClassLoader;
+import org.ballerinalang.util.BackendCodeGeneratorProvider;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -55,9 +56,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
@@ -275,7 +278,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
 
         return compile(context, packageName, compilerPhase, false);
     }
@@ -298,7 +301,7 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(CompilerOptionName.SIDDHI_RUNTIME_ENABLED, Boolean.toString(isSiddhiRuntimeEnabled));
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
 
         return compile(context, packageName, compilerPhase, false);
     }
@@ -351,7 +354,7 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(TEST_ENABLED, "true");
         options.put(SKIP_TESTS, "false");
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
         return context;
     }
 
@@ -362,7 +365,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
         context.put(SourceDirectory.class, sourceDirectory);
 
         CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
@@ -440,7 +443,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, resourceDir.resolve(sourceRoot).toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
         CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
@@ -510,7 +513,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
         CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
@@ -528,7 +531,7 @@ public class BCompileUtil {
     }
 
 
-    static boolean jBallerinaTestsEnabled() {
+    public static boolean jBallerinaTestsEnabled() {
         String value = System.getProperty(ENABLE_JBALLERINA_TESTS);
         return value != null && Boolean.valueOf(value);
     }
@@ -550,6 +553,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
         CompileResult compileResult = compile(context, packageName, CompilerPhase.BIR_GEN, false);
         if (compileResult.getErrorCount() > 0) {
@@ -557,15 +561,21 @@ public class BCompileUtil {
         }
 
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
-        byte[] compiledJar = JVMCodeGen.generateJarBinary(false, bLangPackage, context, packageName);
+        CompilerBackendCodeGenerator jvmCodeGen =  BackendCodeGeneratorProvider.getInstance().getBackendCodeGenerator();
+        Optional result = jvmCodeGen.generate(false, bLangPackage, context, packageName);
+        if (!result.isPresent()) {
+            throw new RuntimeException("Compiled binary jar is not found");
+        }
+
+        byte[] compiledJar = (byte[]) result.get();
         JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
         String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                                                               packageName, MODULE_INIT_CLASS_NAME);
+                bLangPackage.packageID.name.value, MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
         String funcName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).initFunction);
         try {
             Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
-            method.invoke(null, new Strand(new Scheduler()));
+            method.invoke(null, new Strand(new Scheduler(4)));
         } catch (Exception e) {
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         }

@@ -37,6 +37,27 @@ public type PackageParser object {
         return dcl;
     }
 
+    function skipAnnotations() {
+        var numAnnotations = self.reader.readInt32();
+        int i = 0;
+        while (i < numAnnotations) {
+            self.skipAnnotation();
+            i += 1;
+        }
+    }
+
+    public function skipAnnotation() {
+        _ = self.reader.readInt32();
+        _ = self.reader.readInt8();
+        _ = self.reader.readInt32();
+        _ = self.typeParser.parseType();
+    }
+
+    function skipConstants() {
+        int constLength = self.reader.readInt64();
+        _ = self.reader.readByteArray(untaint constLength);
+    }
+
     function parseFunctions(TypeDef?[] typeDefs) returns Function?[] {
         var numFuncs = self.reader.readInt32();
         Function?[] funcs = [];
@@ -62,6 +83,19 @@ public type PackageParser object {
             panic err;
         }
         var sig = self.typeParser.parseInvokableType();
+        // Read and ignore parameter details, not used in jvm gen
+        self.readAndIgnoreParamDetails();
+
+        BType? receiverType = ();
+        boolean hasReceiverType = self.reader.readBoolean();
+        if (hasReceiverType) {
+            receiverType = self.typeParser.parseType();
+        }
+
+        int taintLength = self.reader.readInt64();
+        _ = self.reader.readByteArray(untaint taintLength); // read and ignore taint table
+
+        _ = self.reader.readInt64(); // read and ignore function body length
         var argsCount = self.reader.readInt32();
         var numLocalVars = self.reader.readInt32();
 
@@ -75,6 +109,8 @@ public type PackageParser object {
         }
         BasicBlock?[] basicBlocks = self.getBasicBlocks(bodyParser);
         ErrorEntry?[] errorEntries = self.getErrorEntries(bodyParser);
+        ChannelDetail[] workerChannels = getWorkerChannels(self.reader);
+
         return {
             pos: pos,
             name: { value: name },
@@ -85,8 +121,30 @@ public type PackageParser object {
             basicBlocks: basicBlocks,
             errorEntries:errorEntries,
             argsCount: argsCount,
-            typeValue: sig
+            typeValue: sig,
+            workerChannels:workerChannels,
+            receiverType : receiverType
         };
+    }
+
+    private function readAndIgnoreParamDetails() {
+        int requiredParamCount = self.reader.readInt32();
+        int i = 0;
+        while (i < requiredParamCount) {
+            _ = self.reader.readInt32();
+            i += 1;
+        }
+
+        int defaultableParamCount = self.reader.readInt32();
+        int j = 0;
+        while (j < defaultableParamCount) {
+            _ = self.reader.readInt32();
+            j += 1;
+        }
+        boolean restParamExist = self.reader.readBoolean();
+        if (restParamExist) {
+            _ = self.reader.readInt32();
+        }
     }
 
     public function parsePackage() returns Package {
@@ -100,6 +158,10 @@ public type PackageParser object {
         self.parseTypeDefBodies(typeDefs);
 
         Function?[] funcs = self.parseFunctions(typeDefs);
+
+        self.skipAnnotations();
+
+        self.skipConstants();
 
         return { importModules : importModules,
                     typeDefs : typeDefs, 
@@ -160,11 +222,10 @@ public type PackageParser object {
 
     function parseTypeDefBodies(TypeDef?[] typeDefs) {
         int numTypeDefs = typeDefs.length();
-
         foreach var typeDef in typeDefs {
             TypeDef tDef = getTypeDef(typeDef);
             BType typeValue = tDef.typeValue;
-            if (typeValue is BObjectType || typeValue is BRecordType) {
+            if (typeValue is BObjectType || typeValue is BRecordType || typeValue is BServiceType) {
                 tDef.attachedFuncs = self.parseFunctions(typeDefs);
             }
         }
@@ -268,3 +329,16 @@ public function parseDiagnosticPos(BirChannelReader reader) returns DiagnosticPo
     return { sLine:sLine, eLine:eLine, sCol:sCol, eCol:eCol, sourceFileName:sourceFileName };
 }
 
+function getWorkerChannels(BirChannelReader reader) returns ChannelDetail[] {
+        ChannelDetail[] channelDetails = [];
+        var count = reader.readInt32();
+        int i = 0;
+        while (i < count) {
+            string name = reader.readStringCpRef();
+            boolean onSameStrand = reader.readBoolean();
+            boolean isSend = reader.readBoolean();
+            channelDetails[i] = { name: { value:name }, onSameStrand:onSameStrand, isSend:isSend };
+            i += 1;
+        }
+        return channelDetails;
+    }

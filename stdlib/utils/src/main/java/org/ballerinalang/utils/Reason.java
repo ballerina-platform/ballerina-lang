@@ -19,6 +19,8 @@ package org.ballerinalang.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BString;
@@ -44,5 +46,9 @@ public class Reason extends BlockingNativeCallableUnit {
         BValue refRegVal = context.getRefArgument(0);
         BString reason = new BString(((BError) refRegVal).getReason());
         context.setReturnValues(reason);
+    }
+
+    public static String reason(Strand strand, ErrorValue value) {
+        return value.getReason();
     }
 }

@@ -69,7 +69,7 @@ public class GetPayload extends BlockingNativeCallableUnit {
         if (messageType == Message.TEXT_TYPE) {
             ActiveMQBuffer msgBuffer = message.getBodyBuffer();
             context.setReturnValues(new BString(TextMessageUtil.readBodyText(msgBuffer).toString()));
-        } else if (messageType == Message.BYTES_TYPE) {
+        } else if (messageType == Message.BYTES_TYPE || messageType == Message.DEFAULT_TYPE) {
             ActiveMQBuffer msgBuffer = message.getBodyBuffer();
             byte[] bytes = new byte[msgBuffer.readableBytes()];
             BytesMessageUtil.bytesReadBytes(msgBuffer, bytes);

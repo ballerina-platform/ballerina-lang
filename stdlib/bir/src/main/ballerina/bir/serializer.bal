@@ -21,6 +21,8 @@ public function serialize(BType bType) returns string {
         return "()";
     } else if (bType is BTypeInt){
         return "int";
+    } else if (bType is BTypeDecimal){
+        return "decimal";
     } else if (bType is BTypeByte){
         return "byte";
     } else if (bType is BTypeBoolean){
@@ -45,6 +47,8 @@ public function serialize(BType bType) returns string {
         return "map<"+ serialize(bType.constraint) +">";
     } else if (bType is BTableType) {
         return "table<"+ serialize(bType.tConstraint) +">";
+    } else if (bType is BStreamType) {
+        return "stream<"+ serialize(bType.sConstraint) +">";
     } else if (bType is BTypeAnyData) {
         return "anydata";
     } else if (bType is BErrorType) {
