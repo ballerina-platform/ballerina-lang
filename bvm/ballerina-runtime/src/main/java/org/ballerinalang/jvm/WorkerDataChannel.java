@@ -90,6 +90,7 @@ public class WorkerDataChannel {
      * @param data - data to be sent over the channel
      * @param strand - sending strand, that will be paused
      * @return error if receiver already in error state, else null
+     * @throws Throwable panic
      */
     public Object syncSendData(Object data, Strand strand) throws Throwable {
         try {
@@ -230,6 +231,7 @@ public class WorkerDataChannel {
      *
      * @param strand waiting for flush
      * @return error or null
+     * @throws Throwable panic
      */
     public ErrorValue flushChannel(Strand strand) throws Throwable {
         acquireChannelLock();
