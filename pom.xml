@@ -1842,6 +1842,7 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
+                <module>stdlib/jwt</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/filepath</module>
@@ -1856,7 +1857,6 @@
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
-                <module>stdlib/jwt</module>
 
                 <module>misc/lib-creator</module>
 
@@ -1940,6 +1940,7 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
+                <module>stdlib/jwt</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/filepath</module>
@@ -1955,7 +1956,6 @@
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
-                <module>stdlib/jwt</module>
 
                 <module>misc/lib-creator</module>
 
@@ -2034,6 +2034,7 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
+                <module>stdlib/jwt</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/filepath</module>
@@ -2048,7 +2049,6 @@
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
-                <module>stdlib/jwt</module>
 
                 <module>misc/lib-creator</module>
 
