@@ -998,6 +998,27 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
+
+            <!-- ballerina ldap -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-ldap</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-ldap</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-ldap</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
             <!-- End STD lib dependencies -->
 
             <dependency>
@@ -1857,6 +1878,7 @@
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
+                <module>stdlib/ldap</module>
 
                 <module>misc/lib-creator</module>
 
@@ -1956,6 +1978,7 @@
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
+                <module>stdlib/ldap</module>
 
                 <module>misc/lib-creator</module>
 
@@ -2049,6 +2072,7 @@
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
+                <module>stdlib/ldap</module>
 
                 <module>misc/lib-creator</module>
 

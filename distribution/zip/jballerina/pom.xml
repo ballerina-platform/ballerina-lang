@@ -223,6 +223,10 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-jwt</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-ldap</artifactId>
+        </dependency>
         <!-- end of stdlib jar dependencies -->
 
         <dependency>
@@ -594,6 +598,12 @@
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-ldap</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
         <!-- end of balo dependencies -->
 
         <!-- ballerina source dependencies -->
@@ -813,6 +823,12 @@
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-ldap</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
         <!-- end of ballerina source dependencies -->
 
         <dependency>
@@ -898,6 +914,7 @@
                                 ballerina-utils,
                                 ballerina-websub,
                                 ballerina-jwt,
+                                ballerina-ldap,
 
                                 <!-- other dependencies -->
                                 ballerina-config,
@@ -1108,6 +1125,11 @@
                                 <!--<resource>-->
                                     <!--<directory>-->
                                         <!--${project.build.directory}/extracted-distributions/ballerina-jwt-ballerina-sources-zip/ballerina-->
+                                    <!--</directory>-->
+                                <!--</resource>-->
+                                <!--<resource>-->
+                                    <!--<directory>-->
+                                        <!--${project.build.directory}/extracted-distributions/ballerina-ldap-ballerina-sources-zip/ballerina-->
                                     <!--</directory>-->
                                 <!--</resource>-->
                             <!--</resources>-->
