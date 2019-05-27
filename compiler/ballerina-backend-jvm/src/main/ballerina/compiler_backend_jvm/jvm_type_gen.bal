@@ -89,7 +89,7 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             mv.visitInsn(DUP);
             addObjectFields(mv, bType.fields);
-            addObjectAtatchedFunctions(mv, bType.attachedFunctions, bType, indexMap);
+            addObjectAttachedFunctions(mv, bType.attachedFunctions, bType, indexMap, typePkgName);
         }
     }
 }
@@ -237,9 +237,12 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:
     // Load 'sealed' flag
     mv.visitLdcInsn(recordType.sealed);
 
+    // Load annotations.
+    loadAnnots(mv, pkgName, name);
+
     // initialize the record type
     mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>", 
-            io:sprintf("(L%s;L%s;IZ)V", STRING_VALUE, STRING_VALUE), 
+            io:sprintf("(L%s;L%s;IZL%s;)V", STRING_VALUE, STRING_VALUE, MAP_VALUE),
             false);
 
     return;
@@ -341,14 +344,7 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
     mv.visitInsn(L2I);
 
     // Load annotations.
-    string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
-                            lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
-    mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
-    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
-    mv.visitLdcInsn(name);
-    mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processAnnotations",
-        io:sprintf("(L%s;L%s;)L%s;", MAP_VALUE, STRING_VALUE, MAP_VALUE), false);
-    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    loadAnnots(mv, pkgName, name);
 
     // initialize the object
     mv.visitMethodInsn(INVOKESPECIAL, OBJECT_TYPE, "<init>",
@@ -433,8 +429,8 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
 #
 # + mv - method visitor
 # + attachedFunctions - attached functions to be added
-function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?[] attachedFunctions,
-                                        bir:BObjectType objType, BalToJVMIndexMap indexMap) {
+function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?[] attachedFunctions,
+                                    bir:BObjectType objType, BalToJVMIndexMap indexMap, string pkgName) {
     // Create the attached function array
     mv.visitLdcInsn(attachedFunctions.length());
     mv.visitInsn(L2I);
@@ -443,7 +439,7 @@ function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
     foreach var attachedFunc in attachedFunctions {
         if (attachedFunc is bir:BAttachedFunction) {
             // create and load attached function
-            createObjectAttachedFunction(mv, attachedFunc, objType);
+            createObjectAttachedFunction(mv, attachedFunc, objType, pkgName);
             bir:VariableDcl attachedFuncVar = { typeValue: "any",
                                                 name: { value: objType.name.value + attachedFunc.name.value},
                                                 kind: "LOCAL" };
@@ -480,7 +476,7 @@ function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
 # + mv - method visitor
 # + attachedFunc - object attached function
 function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunction attachedFunc,
-                                        bir:BObjectType objType) {
+                                      bir:BObjectType objType, string pkgName) {
     mv.visitTypeInsn(NEW, ATTACHED_FUNCTION);
     mv.visitInsn(DUP);
 
@@ -503,8 +499,11 @@ function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunctio
     mv.visitLdcInsn(visibility);
     mv.visitInsn(L2I);
 
+    // Load annotations.
+    loadAnnots(mv, pkgName, objType.name.value + "." + attachedFunc.name.value);
+
     mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",
-                        io:sprintf("(L%s;L%s;L%s;I)V", STRING_VALUE, OBJECT_TYPE, FUNCTION_TYPE), false);
+                        io:sprintf("(L%s;L%s;L%s;IL%s;)V", STRING_VALUE, OBJECT_TYPE, FUNCTION_TYPE, MAP_VALUE), false);
 }
 
 // -------------------------------------------------------
@@ -531,9 +530,23 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
     loadType(mv, errorType.reasonType);
     loadType(mv, errorType.detailType);
 
+    // Load annotations.
+    loadAnnots(mv, pkgName, name);
+
     // initialize the error type
-    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, 
-            STRING_VALUE, BTYPE, BTYPE), false);
+    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE,
+            STRING_VALUE, BTYPE, BTYPE, MAP_VALUE), false);
+}
+
+function loadAnnots(jvm:MethodVisitor mv, string pkgName, string name) {
+    string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
+    lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+    mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
+    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    mv.visitLdcInsn(name);
+    mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processAnnotations",
+        io:sprintf("(L%s;L%s;)L%s;", MAP_VALUE, STRING_VALUE, MAP_VALUE), false);
+    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
 }
 
 // -------------------------------------------------------

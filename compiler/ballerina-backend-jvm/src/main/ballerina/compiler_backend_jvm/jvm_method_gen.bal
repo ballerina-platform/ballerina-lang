@@ -132,7 +132,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     int[] states = [];
 
     int i = 0;
-    while (i < basicBlocks.length()) {
+    int bbCount = basicBlocks.length();
+    while (i < bbCount) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[i]);
         if(i == 0){
             lables[i] = labelGen.getLabel(funcName + bb.id.value);
@@ -170,7 +171,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (errorEntries.length() > errorEntryCnt) {
         currentEE = errorEntries[errorEntryCnt];
     }
-    while (j < basicBlocks.length()) {
+    while (j < bbCount) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[j]);
         string currentBBName = io:sprintf("%s", bb.id.value);
 
@@ -299,7 +300,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         jvm:Label bbEndLable = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
         mv.visitLabel(bbEndLable);
 
-        if (j == 1 && isModuleInitFunction(module, func)) {
+        // TODO - Maryam - fix properly
+        if (j == bbCount - 1 && isModuleInitFunction(module, func)) {
             generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName);
         }
 

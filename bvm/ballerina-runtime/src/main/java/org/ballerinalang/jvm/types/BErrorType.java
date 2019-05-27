@@ -18,13 +18,14 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 
 /**
  * {@code BErrorType} represents error type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BErrorType extends BType {
+public class BErrorType extends AnnotatableType {
 
     private BType reasonType;
     private BType detailType;
@@ -41,6 +42,13 @@ public class BErrorType extends BType {
         this.detailType = detailType;
     }
 
+    public BErrorType(String typeName, String pkgPath, BType reasonType, BType detailType, MapValue annotations) {
+        super(typeName, pkgPath, ErrorValue.class);
+        this.reasonType = reasonType;
+        this.detailType = detailType;
+        this.annotations = (MapValue<String, Object>) annotations;
+    }
+
     @Override
     public <V> V getZeroValue() {
         return null;
@@ -54,5 +62,10 @@ public class BErrorType extends BType {
     @Override
     public int getTag() {
         return TypeTags.ERROR_TAG;
+    }
+
+    @Override
+    public String getAnnotationKey() {
+        return typeName;
     }
 }

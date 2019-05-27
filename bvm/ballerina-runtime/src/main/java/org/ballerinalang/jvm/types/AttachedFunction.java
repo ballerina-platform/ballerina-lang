@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.util.StringJoiner;
@@ -38,6 +39,14 @@ public class AttachedFunction extends BFunctionType {
         this.type = type;
         this.parent = parent;
         this.flags = flags;
+    }
+
+    public AttachedFunction(String funcName, BObjectType parent, BFunctionType type, int flags, MapValue annotations) {
+        this.funcName = funcName;
+        this.type = type;
+        this.parent = parent;
+        this.flags = flags;
+        this.annotations = (MapValue<String, Object>) annotations;
     }
 
     @Override

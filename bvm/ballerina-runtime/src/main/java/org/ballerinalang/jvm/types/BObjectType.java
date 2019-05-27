@@ -41,14 +41,6 @@ public class BObjectType extends BStructureType {
         super(typeName, pkgPath, flags, Object.class);
     }
 
-    /**
-     * Create a {@code BObjectType} which represents the user defined object type.
-     *
-     * @param typeName 		string name of the type
-     * @param pkgPath 		package of the struct
-     * @param flags 		flags of the object type
-     * @param annotations 	annotations of the object type
-     */
     public BObjectType(String typeName, String pkgPath, int flags, MapValue annotations) {
         super(typeName, pkgPath, flags, Object.class);
         this.annotations = (MapValue<String, Object>) annotations;

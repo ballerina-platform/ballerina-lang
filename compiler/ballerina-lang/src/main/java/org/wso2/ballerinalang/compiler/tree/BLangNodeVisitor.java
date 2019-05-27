@@ -702,7 +702,7 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangFunctionVarRef functionVarRef) {
-//        throw new AssertionError();
+        throw new AssertionError();
     }
 
     public void visit(BLangTypeLoad typeLoad) {
