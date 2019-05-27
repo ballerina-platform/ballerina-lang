@@ -17,6 +17,6 @@
   -->
 <FindBugsFilter>
 	<Match>
-		<Bug pattern="BC_UNCONFIRMED_CAST" />
+		<Class name="org.ballerinalang.stdlib.ldap.SslContextTrustManager"/>
 	</Match>
 </FindBugsFilter>
