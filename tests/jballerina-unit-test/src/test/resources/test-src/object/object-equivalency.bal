@@ -1,3 +1,19 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import eq;
 import eq2;
 import req;
@@ -8,34 +24,34 @@ public type person1 object {
     public int age = 0;
     public string name = "";
     public string address = "";
-    public string zipcode = "95134";
-    public string ssn = "";
-    public int id = 0;
+    string zipcode = "95134";
+    string ssn = "";
+    int id = 0;
 
     public function __init () {}
 
-    public function getName () returns (string);
+    public function getName () returns string;
 
-    public function getAge () returns (int);
+    public function getAge () returns int;
 
-    public function getSSN () returns (string);
+    function getSSN () returns string;
 
-    public function setSSN (string s);
+    function setSSN (string s);
 };
 
-public function person1.getName () returns (string) {
+public function person1.getName () returns string {
     return self.name;
 }
 
-public function person1.getAge () returns (int) {
+public function person1.getAge () returns int {
     return self.age;
 }
 
-public function person1.getSSN () returns (string) {
+function person1.getSSN () returns string {
     return self.ssn;
 }
 
-public function person1.setSSN (string s) {
+function person1.setSSN (string s) {
     self.ssn = s;
 }
 
@@ -43,49 +59,49 @@ public type employee1 object {
     public int age = 0;
     public string name = "";
     public string address = "";
-    public string zipcode = "95134";
-    public string ssn = "";
-    public int id = 0;
     public int employeeId = 123456;
+    string zipcode = "95134";
+    string ssn = "";
+    int id = 0;
 
     public function __init (int age, string name) {
         self.age = age;
         self.name = name;
     }
 
-    public function getName () returns (string);
+    public function getName () returns string;
 
-    public function getAge () returns (int);
+    public function getAge () returns int;
 
-    public function getSSN () returns (string);
+    function getSSN () returns string;
 
-    public function setSSN (string s);
+    function setSSN (string s);
 
-    public function getEmployeeId () returns (int);
+    public function getEmployeeId () returns int;
 };
 
-public function employee1.getName () returns (string) {
+public function employee1.getName () returns string {
     return self.name;
 }
 
-public function employee1.getAge () returns (int) {
+public function employee1.getAge () returns int {
     return self.age;
 }
 
-public function employee1.getSSN () returns (string) {
+function employee1.getSSN () returns string {
     return self.ssn + ":employee";
 }
 
-public function employee1.setSSN (string s) {
+function employee1.setSSN (string s) {
     self.ssn = s;
 }
 
-public function employee1.getEmployeeId () returns (int) {
+public function employee1.getEmployeeId () returns int {
     return self.employeeId;
 }
 
 
-function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
+function testObjectEquivalenceWhenFieldsHaveModuleVisibility() returns string {
     employee1 e = new (14, "rat");
     e.setSSN("234-56-7890");
 
@@ -102,24 +118,24 @@ public type person2 object {
     public string ssn = "";
     public int id = 0;
 
-    public function getName () returns (string);
+    public function getName () returns string;
 
-    public function getAge () returns (int);
+    public function getAge () returns int;
 
-    public function getSSN () returns (string);
+    public function getSSN () returns string;
 
     public function setSSN (string s);
 };
 
-public function person2.getName () returns (string) {
+public function person2.getName () returns string {
     return self.name;
 }
 
-public function person2.getAge () returns (int) {
+public function person2.getAge () returns int {
     return self.age;
 }
 
-public function person2.getSSN () returns (string) {
+public function person2.getSSN () returns string {
     return self.ssn;
 }
 
@@ -136,26 +152,26 @@ public type employee2 object {
     public int id = 0;
     public int employeeId = 123456;
 
-    public function getName () returns (string);
+    public function getName () returns string;
 
-    public function getAge () returns (int);
+    public function getAge () returns int;
 
-    public function getSSN () returns (string);
+    public function getSSN () returns string;
 
     public function setSSN (string s);
 
-    public function getEmployeeId () returns (int);
+    public function getEmployeeId () returns int;
 };
 
-public function employee2.getName () returns (string) {
+public function employee2.getName () returns string {
     return self.name;
 }
 
-public function employee2.getAge () returns (int) {
+public function employee2.getAge () returns int {
     return self.age;
 }
 
-public function employee2.getSSN () returns (string) {
+public function employee2.getSSN () returns string {
     return self.ssn + ":employee";
 }
 
@@ -163,11 +179,11 @@ public function employee2.setSSN (string s) {
     self.ssn = s;
 }
 
-public function employee2.getEmployeeId () returns (int) {
+public function employee2.getEmployeeId () returns int {
     return self.employeeId;
 }
 
-function testEquivalenceOfPublicStructsInSamePackage () returns (string) {
+function testObjectEquivalenceWhenFieldsHavePublicVisibility() returns string {
     employee2 e = new;
     e.age = 14;
     e.name = "rat";
@@ -179,7 +195,7 @@ function testEquivalenceOfPublicStructsInSamePackage () returns (string) {
 }
 
 
-function testEqOfPublicStructs () returns (string) {
+function testEqOfPublicObjectsInBalo() returns string {
     eq:employee e = new (14, "rat");
     e.setSSN("234-56-7890");
 
@@ -198,26 +214,26 @@ public type employee3 object {
     public int id = 0;
     public int employeeId = 123456;
 
-    public function getName () returns (string);
+    public function getName () returns string;
 
-    public function getAge () returns (int);
+    public function getAge () returns int;
 
-    public function getSSN () returns (string);
+    public function getSSN () returns string;
 
     public function setSSN (string s);
 
-    public function getEmployeeId () returns (int);
+    public function getEmployeeId () returns int;
 };
 
-public function employee3.getName () returns (string) {
+public function employee3.getName () returns string {
     return self.name;
 }
 
-public function employee3.getAge () returns (int) {
+public function employee3.getAge () returns int {
     return self.age;
 }
 
-public function employee3.getSSN () returns (string) {
+public function employee3.getSSN () returns string {
     return self.ssn + ":employee";
 }
 
@@ -225,11 +241,11 @@ public function employee3.setSSN (string s) {
     self.ssn = s;
 }
 
-public function employee3.getEmployeeId () returns (int) {
+public function employee3.getEmployeeId () returns int {
     return self.employeeId;
 }
 
-function testEqOfPublicStructs1 () returns (string) {
+function testEqOfPublicObjects() returns string {
     employee3 e = new;
     e.age = 14;
     e.name = "rat";
@@ -240,7 +256,7 @@ function testEqOfPublicStructs1 () returns (string) {
     return p.getSSN();
 }
 
-function testEqOfPublicStructs2 () returns (string) {
+function testEqOfPublicObjects2() returns string {
     eq2:employee e = new;
     e.age = 14;
     e.name = "rat";
@@ -259,16 +275,16 @@ type userA object {
     public string name = "";
     public string address = "";
 
-    function getName () returns (string);
+    function getName () returns string;
 
-    function getAge () returns (int);
+    function getAge () returns int;
 };
 
-function userA.getName () returns (string) {
+function userA.getName () returns string {
     return self.name;
 }
 
-function userA.getAge () returns (int) {
+function userA.getAge () returns int {
     return self.age;
 }
 
@@ -277,16 +293,16 @@ type userB object {
     public string name = "";
     public string address = "";
 
-    function getName () returns (string);
+    function getName () returns string;
 
-    function getAge () returns (int);
+    function getAge () returns int;
 };
 
-function userB.getName () returns (string) {
+function userB.getName () returns string {
     return self.name;
 }
 
-function userB.getAge () returns (int) {
+function userB.getAge () returns int {
     return self.age;
 }
 
@@ -296,21 +312,21 @@ type userFoo object {
     public string address = "";
     public string zipcode = "23468";
 
-    function getName () returns (string);
+    function getName () returns string;
 
-    function getAge () returns (int);
+    function getAge () returns int;
 };
 
-function userFoo.getName () returns (string) {
+function userFoo.getName () returns string {
     return self.name;
 }
 
-function userFoo.getAge () returns (int) {
+function userFoo.getAge () returns int {
     return self.age;
 }
 
 
-function testRuntimeEqPrivateStructsInSamePackage () returns (string|error) {
+function testNonPublicTypedescEq() returns string|error {
     userFoo uFoo = new;
     uFoo.age = 10;
     uFoo.name = "ttt";
@@ -330,16 +346,16 @@ public type userPA object {
     public string address = "";
     public string zipcode = "";
 
-    public function getName () returns (string);
+    public function getName () returns string;
 
-    public function getAge () returns (int);
+    public function getAge () returns int;
 };
 
-public function userPA.getName () returns (string) {
+public function userPA.getName () returns string {
     return self.name;
 }
 
-public function userPA.getAge () returns (int) {
+public function userPA.getAge () returns int {
     return self.age;
 }
 
@@ -349,16 +365,16 @@ public type userPB object {
     public string address = "";
     public string zipcode = "";
 
-    public function getName () returns (string);
+    public function getName () returns string;
 
-    public function getAge () returns (int);
+    public function getAge () returns int;
 };
 
-public function userPB.getName () returns (string) {
+public function userPB.getName () returns string {
     return self.name;
 }
 
-public function userPB.getAge () returns (int) {
+public function userPB.getAge () returns int {
     return self.age;
 }
 
@@ -368,21 +384,21 @@ public type userPFoo object {
     public string address = "";
     public string zipcode = "23468";
 
-    public function getName () returns (string);
+    public function getName () returns string;
 
-    public function getAge () returns (int);
+    public function getAge () returns int;
 };
 
-public function userPFoo.getName () returns (string) {
+public function userPFoo.getName () returns string {
     return self.name;
 }
 
-public function userPFoo.getAge () returns (int) {
+public function userPFoo.getAge () returns int {
     return self.age;
 }
 
 
-function testRuntimeEqPublicStructsInSamePackage () returns (string) {
+function testEqOfPublicObjectsInSamePackage () returns string {
     userPFoo uFoo = new;
     uFoo.age = 10;
     uFoo.name = "Skyhigh";
@@ -395,7 +411,7 @@ function testRuntimeEqPublicStructsInSamePackage () returns (string) {
     return uB.name;
 }
 
-function testRuntimeEqPublicStructs () returns (string) {
+function testRuntimeEqPublicObjects() returns string {
     req:userPFoo uFoo = new (10, "Skytop", "102 Skyhigh street #129, San Jose");
 
     // This is a safe assignment
@@ -405,7 +421,7 @@ function testRuntimeEqPublicStructs () returns (string) {
     return uB.name;
 }
 
-function testRuntimeEqPublicStructs1 () returns (string) {
+function testRuntimeEqPublicObjects1() returns string {
     req:userPFoo uFoo = new (10, "Brandon", "102 Skyhigh street #129, San Jose");
 
     // This is a safe assignment
@@ -420,14 +436,14 @@ type personC object {
 
     function setContact(addressStruct ad);
 
-    function getAddress() returns (string);
+    function getAddress() returns string;
 };
 
 function personC.setContact(addressStruct ad){
     self.address = ad;
 }
 
-function personC.getAddress() returns (string){
+function personC.getAddress() returns string{
     return self.address.toString();
 }
 
@@ -435,10 +451,10 @@ type addressStruct object {
     public int no = 0;
     public string city = "";
 
-    function toString() returns (string);
+    function toString() returns string;
 };
 
-function addressStruct.toString() returns (string){
+function addressStruct.toString() returns string{
     return self.no + self.city;
 }
 
@@ -447,14 +463,14 @@ type officeAddressStruct object {
     public string city = "";
     public string department = "";
 
-    function toString() returns (string);
+    function toString() returns string;
 };
 
-function officeAddressStruct.toString() returns (string){
+function officeAddressStruct.toString() returns string{
     return self.department + self.no + self.city;
 }
 
-function testStructEquivalencyWithArguments() returns (string, string, string){
+function testObjectEquivalencyWithArguments() returns (string, string, string){
     personC p = new;
     p.name = "tom";
     addressStruct a = new;
@@ -480,7 +496,7 @@ function testStructEquivalencyWithArguments() returns (string, string, string){
 type Foo "a" | "b" | "c";
 
 type Person object {
-    private string name = "";
+    string name = "";
 
     function __init (string name) {
         self.name = name;
@@ -493,7 +509,7 @@ type Person object {
 };
 
 type Employee object {
-    private string name = "";
+    string name = "";
     private string id = "";
 
     function __init (string name, string id) {
@@ -525,16 +541,6 @@ function getPerson() returns (Foo, Person) | () | error {
     Foo f = "b";
     Employee p = new("foo","20");
     return (f,p);
-}
-
-function testObjectEqViewFromThirdPackage() returns (string|error) {
-    any barObj = new eq:BarObj();
-    var fooObj = trap <eq2:FooObj> barObj;
-    if fooObj is error {
-        panic fooObj;
-    } else {
-        return fooObj.name;
-    }
 }
 
 public type ObjectWithoutNew object {
@@ -626,28 +632,28 @@ public type PersonInOrder object {
         self.name = name;
     }
 
-    public function getName() returns (string) {
+    public function getName() returns string {
         return self.name;
     }
 
-    public function getAge() returns (int) {
+    public function getAge() returns int {
         return self.age;
     }
 
-    public function getAddress() returns (string) {
+    public function getAddress() returns string {
         return self.address;
     }
 };
 
 public type PersonNotInOrder object {
 
-    public function getName() returns (string) {
+    public function getName() returns string {
         return self.name;
     }
 
     public int age = 0;
 
-    public function getAge() returns (int) {
+    public function getAge() returns int {
         return self.age;
     }
 
@@ -658,7 +664,7 @@ public type PersonNotInOrder object {
 
     public string name = "";
 
-    public function getAddress() returns (string) {
+    public function getAddress() returns string {
         return self.address;
     }
 

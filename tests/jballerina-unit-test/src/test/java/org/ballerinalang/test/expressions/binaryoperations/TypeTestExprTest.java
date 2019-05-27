@@ -600,7 +600,7 @@ public class TypeTestExprTest {
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testError_1() {
         BValue[] returns = BRunUtil.invoke(result, "testError_1");
         Assert.assertEquals(returns.length, 4);
@@ -614,7 +614,7 @@ public class TypeTestExprTest {
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testError_2() {
         BValue[] returns = BRunUtil.invoke(result, "testError_2");
         Assert.assertEquals(returns.length, 3);

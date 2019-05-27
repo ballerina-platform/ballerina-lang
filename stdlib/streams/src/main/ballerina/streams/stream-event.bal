@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/system;
 
 # The `StreamEvent` object is a wrapper around the actual data being received to the input stream. If a record is
 # receive to a input stream, that record is converted to a map of anydata values and set that map to a field called
@@ -23,23 +24,41 @@
 # event is used to remove the state of its respective current event. A reset event is used to completely wipe the
 # state and a timer event is used to trigger the `process` method of a particular processor in timely manner.
 #
-# + eventType - description
-# + timestamp - description
-# + data - description
+# + eventType - event type
+# + timestamp - arrival timestamp
+# + data - event data
+# + dataMap - event data map
+# + streamName - name of the initial stream
+# + eventId - unique id of the event
 public type StreamEvent object {
     public EventType eventType;
     public int timestamp;
     public map<anydata> data = {};
+    public map<map<anydata>[]> dataMap = {};
+    public string streamName;
+    public string eventId;
 
-    public function __init((string, map<anydata>)|map<anydata> eventData, EventType eventType, int timestamp) {
+    public function __init((string, map<map<anydata>[]>)|(string, map<anydata>)|map<anydata> eventData,
+    EventType eventType, int timestamp) {
         self.eventType = eventType;
         self.timestamp = timestamp;
-        if (eventData is (string, map<anydata>)) {
+        self.streamName = "";
+        self.eventId = system:uuid();
+        if (eventData is (string, map<map<anydata>[]>)) {
+            self.streamName = eventData[0];
+            self.dataMap = eventData[1];
+            self.toData(self.dataMap);
+        } else if (eventData is (string, map<anydata>)) {
+            self.streamName = eventData[0];
             foreach var (k, v) in eventData[1] {
                 self.data[eventData[0] + DELIMITER + k] = v;
             }
+            self.toDataMap(self.data);
         } else {
             self.data = eventData;
+            string key = (eventData.length() > 0) ? eventData.keys()[0] : "";
+            self.streamName = key.split("\\.")[0];
+            self.toDataMap(self.data);
         }
     }
 
@@ -47,7 +66,9 @@ public type StreamEvent object {
     #
     # + return - A copy of the `StreamEvent` object with its state.
     public function copy() returns StreamEvent {
-        StreamEvent clone = new(self.cloneData(), self.eventType, self.timestamp);
+        (string,map<map<anydata>[]>) data = (self.streamName, self.cloneDataMap());
+        StreamEvent clone = new(data, self.eventType, self.timestamp);
+        clone.eventId = self.eventId;
         return clone;
     }
 
@@ -58,6 +79,7 @@ public type StreamEvent object {
         foreach var (k, v) in eventData {
             self.data[k] = v;
         }
+        self.toDataMap(eventData);
     }
 
     # Adds an attribute of an event to the map with its value.
@@ -67,30 +89,109 @@ public type StreamEvent object {
     public function addAttribute(string key, anydata val) {
         string k = self.getStreamName() + "." + key;
         self.data[k] = val;
+        // add to dataMap
+        self.dataMap[self.getStreamName()] = self.dataMap[self.getStreamName()] ?: [];
+        map<anydata> dataMap = self.dataMap[self.getStreamName()][0] ?: {};
+        self.dataMap[self.getStreamName()][0] = dataMap;
+        dataMap[key] = val;
     }
 
-    function cloneData() returns map<anydata> {
-        map<anydata> dataClone = {};
-        foreach var (k, v) in self.data {
-            dataClone[k] = v;
+    # Returns the value of an attribute.
+    #
+    # + return - the attribute value.
+    public function get(string path) returns anydata {
+        string[] attribSplit = path.split("\\.");
+        string[] aliasSplit = attribSplit[0].split("\\[");
+        string attrib = attribSplit[1];
+        string alias = aliasSplit[0];
+        int index = 0;
+        map<anydata>[] dArray = self.dataMap[alias] ?: [];
+        if (aliasSplit.length() > 1) {
+            string indexStr = aliasSplit[1].replaceAll("]", "").trim();
+            if (indexStr.contains("last")) {
+                int lastIndex = dArray.length();
+                if (indexStr.contains("-")) {
+                    string subCount = indexStr.split("-")[1].trim();
+                    index = lastIndex - checkpanic int.convert(subCount);
+                } else {
+                    index = lastIndex;
+                }
+            } else {
+                index = checkpanic int.convert(indexStr);
+            }
         }
+        return dArray[index][attrib];
+    }
+
+    # Returns the name of the stream.
+    #
+    # + return - the stream name.
+    public function getStreamName() returns string {
+        return self.streamName;
+    }
+
+    # Returns the id of the event.
+    #
+    # + return - the event id.
+    public function getEventId() returns string {
+        return self.eventId;
+    }
+
+    # Returns a clone of the event data.
+    #
+    # + return - clone of the event data.
+    public function cloneData() returns map<anydata> {
+        map<anydata> dataClone = self.data.clone();
         return dataClone;
     }
 
-    function getStreamName() returns string {
-        string key = (self.data.length() > 0) ? self.data.keys()[0] : "";
-        return key.split("\\.")[0];
+    # Returns a clone of the event data map.
+    #
+    # + return - clone of the event data map.
+    public function cloneDataMap() returns map<map<anydata>[]> {
+        map<map<anydata>[]> dataMapClone = self.dataMap.clone();
+        return dataMapClone;
     }
 
+    # Copy values of a given `dataMap` into the `self.data` field.
+    #
+    # + dataMap - map containg event attribute values.
+    public function toData(map<map<anydata>[]> dataMap) {
+        foreach var (key, val) in dataMap {
+            map<anydata> data = (val.length() > 0) ? val[0] : {};
+            foreach var (k, v) in data {
+                self.data[key + DELIMITER + k] = v;
+            }
+        }
+    }
+
+    # Copy values of a given `data` into the `self.dataMap` field.
+    #
+    # + data - map containg event attribute values.
+    public function toDataMap(map<anydata> data) {
+        foreach var (k, v) in data {
+            string[] key = k.split("\\.");
+            if (key.length() == 2) {
+                map<anydata>[] dataMapArray = self.dataMap[key[0]] ?: [];
+                self.dataMap[key[0]] = dataMapArray;
+                map<anydata> dataMap = dataMapArray.length() > 0 ? dataMapArray[0] : {};
+                self.dataMap[key[0]][0] = dataMap;
+                dataMap[key[1]] = v;
+            }
+        }
+    }
 };
 
+//todo: add eventId
 # This record represents a stream event which can be persisted.
 #
 # + eventType - description
 # + timestamp - description
 # + data - description
+# + streamName - description
 public type SnapshottableStreamEvent record {|
     EventType eventType = "CURRENT";
     int timestamp = 0;
     map<anydata> data = {};
+    string streamName = "";
 |};
