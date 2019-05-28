@@ -338,8 +338,8 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.IsLike birIsLike) {
-        buf.writeByte(birIsLike.kind.getValue());
         writePosition(birIsLike.pos);
+        buf.writeByte(birIsLike.kind.getValue());
         typeWriter.visitType(birIsLike.type);
         birIsLike.lhsOp.accept(this);
         birIsLike.rhsOp.accept(this);
@@ -502,10 +502,10 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     // Positions
     void writePosition(DiagnosticPos pos) {
-        int sLine = 1;
-        int eLine = 1;
-        int sCol = -1;
-        int eCol = -1;
+        int sLine = Integer.MIN_VALUE;
+        int eLine = Integer.MIN_VALUE;
+        int sCol = Integer.MIN_VALUE;
+        int eCol = Integer.MIN_VALUE;
         String sourceFileName = "";
         if (pos != null) {
             sLine = pos.sLine;

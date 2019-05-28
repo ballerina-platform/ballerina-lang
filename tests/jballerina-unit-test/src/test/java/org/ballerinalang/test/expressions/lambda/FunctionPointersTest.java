@@ -247,7 +247,7 @@ public class FunctionPointersTest {
     public void testFuncPointerConversion() {
         BValue[] returns = BRunUtil.invoke(fpProgram, "testFuncPointerConversion");
         Assert.assertNotNull(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 40);
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
