@@ -703,20 +703,26 @@ public class Types {
         return target.tag == TypeTags.ANY && !isValueType(source);
     }
 
-    public boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target) {
-        return checkFunctionTypeEquality(source, target, new ArrayList<>());
+    private boolean checkFunctionEquivalency(BInvokableType source, BInvokableType target,
+                                             List<TypePair> unresolvedTypes) {
+        // Source param types should be contravariant with target param types. Hence s and t switched when checking
+        // assignability.
+        return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));
+    }
+
+    private boolean isSameFunctionType(BInvokableType source, BInvokableType target, List<TypePair> unresolvedTypes) {
+        return checkFunctionTypeEquality(source, target, unresolvedTypes, this::isSameType);
     }
 
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
-                                              List<TypePair> unresolvedTypes) {
+                                              List<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
         if (source.paramTypes.size() != target.paramTypes.size()) {
             return false;
         }
 
         for (int i = 0; i < source.paramTypes.size(); i++) {
-            // Source param types should be contravariant with target param types
             if (target.paramTypes.get(i).tag != TypeTags.ANY
-                    && !isAssignable(target.paramTypes.get(i), source.paramTypes.get(i), unresolvedTypes)) {
+                    && !equality.test(source.paramTypes.get(i), target.paramTypes.get(i), unresolvedTypes)) {
                 return false;
             }
         }
@@ -728,7 +734,7 @@ public class Types {
         }
 
         // Source return type should be covariant with target return type
-        return isAssignable(source.retType, target.retType, unresolvedTypes);
+        return equality.test(source.retType, target.retType, unresolvedTypes);
     }
 
     public boolean checkArrayEquality(BType source, BType target, List<TypePair> unresolvedTypes) {
@@ -1410,7 +1416,8 @@ public class Types {
         public BSymbol visit(BInvokableType t, BType s) {
             if (s == symTable.anyType) {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
-            } else if (s.tag == TypeTags.INVOKABLE && checkFunctionTypeEquality((BInvokableType) s, t)) {
+            } else if (s.tag == TypeTags.INVOKABLE && checkFunctionEquivalency((BInvokableType) s, t,
+                                                                               new ArrayList<>())) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
             }
 
@@ -1558,8 +1565,7 @@ public class Types {
 
         @Override
         public Boolean visit(BInvokableType t, BType s) {
-            return s.tag == TypeTags.INVOKABLE &&
-                    checkFunctionTypeEquality((BInvokableType) s, t);
+            return s.tag == TypeTags.INVOKABLE && isSameFunctionType((BInvokableType) s, t, new ArrayList<>());
         }
 
         @Override
@@ -1651,7 +1657,7 @@ public class Types {
                                                        List<TypePair> unresolvedTypes) {
         return rhsFuncList.stream()
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
-                .filter(rhsFunc -> checkFunctionTypeEquality(rhsFunc.type, lhsFunc.type, unresolvedTypes))
+                .filter(rhsFunc -> checkFunctionEquivalency(rhsFunc.type, lhsFunc.type, unresolvedTypes))
                 .findFirst()
                 .orElse(null);
     }
@@ -2384,5 +2390,15 @@ public class Types {
         public int hashCode() {
             return Objects.hash(sourceType, targetType);
         }
+    }
+
+    /**
+     * A functional interface for parameterizing the type of type checking that needs to be done on the source and
+     * target types.
+     *
+     * @since 0.995.0
+     */
+    private interface TypeEqualityPredicate {
+        boolean test(BType source, BType target, List<TypePair> unresolvedTypes);
     }
 }
