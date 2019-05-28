@@ -5,6 +5,7 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
+import com.google.gson.JsonElement;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -37,14 +38,12 @@ class BallerinaDiagramUtils {
 
     private static final String COMPOSER_LIB_RESOURCE_PATH = "/lib/tools/composer-library";
     private static final String TEMPLATES_CLASSPATH = "/fileTemplates/diagram";
-    private static final String LOADER_TEMPLATE_NAME = "loading-wheel";
+    private static final String LOADER_TEMPLATE_NAME = "load-spinner";
     private static final String WEBVIEW_TEMPLATE_NAME = "webview";
     private static final String STYLES_TEMPLATE_NAME = "styles";
-    private static final String SCRIPT_TEMPLATE_NAME = "loaded-script";
+    private static final String SCRIPT_TEMPLATE_NAME = "scripts";
     private static final String LANG_CLIENT_TEMPLATE_NAME = "lang-client";
     private static final String FIREBUG_TEMPLATE_NAME = "firebug";
-    private static final String BODY_TEMPLATE = "<div id=\"warning\"></div>\n"
-            + "<div class=\"ballerina-editor design-view-container\" id=\"diagram\"></div>\n";
     private static final String DISABLE_EDITING_CSS =
             "#diagram > div > div > div.diagram-controllers > div.ui.sticky > div > div > div:nth-child(1){\n"
                     + "display: none;\n" + "}";
@@ -65,12 +64,8 @@ class BallerinaDiagramUtils {
     }
 
     @NotNull
-    static String getLoadingWheel(@NotNull VirtualFile file, DiagramHtmlPanel panel, Project project) {
+    static String getLoadSpinner(Project project) {
         try {
-            if (panel == null) {
-                return "";
-            }
-
             BallerinaSdk balSdk = BallerinaSdkUtil.getBallerinaSdkFor(project);
             if (balSdk.getSdkPath() == null) {
                 LOG.debug("No Ballerina SDK is found for the project: " + project.getName());
@@ -111,23 +106,25 @@ class BallerinaDiagramUtils {
         }
 
         // Requests AST from the language server.
-        BallerinaASTResponse ast = balManager.getAST();
-        if (ast == null) {
+        BallerinaASTResponse astResponse = balManager.getAST();
+        if (astResponse == null) {
             LOG.debug("Error occurred when fetching AST response.");
             return "";
         }
 
+        // Retrieves attached ballerina SDk of the project.
         BallerinaSdk balSdk = BallerinaSdkUtil.getBallerinaSdkFor(project);
         if (balSdk.getSdkPath() == null) {
             LOG.debug("No Ballerina SDK is found for the project: " + project.getName());
             return "";
         }
         if (!balSdk.hasWebviewSupport()) {
-            LOG.debug("Detected ballerina sdk version does not have diagram editor support" + project.getName());
+            LOG.debug(String.format("Detected ballerina sdk version for %s does not have diagram editor support",
+                    project.getName()));
             return "";
         }
 
-        return getWebviewContent(editorToURIString(editor), ast, panel, balSdk.getSdkPath());
+        return getWebviewContent(editorToURIString(editor), astResponse, panel, balSdk.getSdkPath());
     }
 
     private static Editor editorFromVirtualFile(VirtualFile file, Project project) {
@@ -142,6 +139,12 @@ class BallerinaDiagramUtils {
                                             String sdkPath) {
         try {
             if (myPanel == null) {
+                return "";
+            }
+
+            JsonElement ast = astResponse.getAst();
+            if (ast == null) {
+                LOG.debug("Received AST is null");
                 return "";
             }
 
@@ -168,7 +171,6 @@ class BallerinaDiagramUtils {
             // Constructs the final webview HTML template.
             HashMap<String, String> webviewContents = new HashMap<>();
             webviewContents.put("resourceRoot", Paths.get(sdkPath, COMPOSER_LIB_RESOURCE_PATH).toUri().toString());
-            webviewContents.put("body", BODY_TEMPLATE);
             webviewContents.put("bodyCssClass", BODY_CSS_CLASS);
             webviewContents.put("styles", handlebars.compile(STYLES_TEMPLATE_NAME).text());
             webviewContents.put("fireBug", handlebars.compile(FIREBUG_TEMPLATE_NAME).text());

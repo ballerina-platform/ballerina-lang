@@ -43,7 +43,7 @@ import java.util.concurrent.TimeoutException;
 public class BallerinaEditorEventManager extends EditorEventManager {
 
     private static final Logger LOG = Logger.getInstance(BallerinaEditorEventManager.class);
-    private static final int TIMEOUT_AST = 2000;
+    private static final int TIMEOUT_AST = 3000;
 
     public BallerinaEditorEventManager(Editor editor, DocumentListener documentListener,
                                        EditorMouseListener mouseListener, EditorMouseMotionListener mouseMotionListener,

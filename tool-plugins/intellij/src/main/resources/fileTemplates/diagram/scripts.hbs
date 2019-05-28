@@ -36,3 +36,7 @@ function loadedScript() {
     }
     drawDiagram();
 }
+
+function showLoadSpinner() {
+    document.getElementsByClassName("diagram")[0].append('<div class="loader-container"><i class="fw fw-loader fw-spin fw-3x root-loader"></i></div>');
+}

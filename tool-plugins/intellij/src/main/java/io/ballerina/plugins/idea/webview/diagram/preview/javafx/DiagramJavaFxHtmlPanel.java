@@ -35,7 +35,7 @@ import javax.swing.JFrame;
 
 
 /**
- *  JavaFx based diagram panel implementation.
+ * JavaFx based diagram panel implementation.
  */
 public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHtmlPanel {
 
@@ -56,6 +56,14 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
             }
         });
         subscribeForGrayscaleSetting();
+    }
+
+    public WebView getWebview() {
+        return super.getWebViewGuaranteed();
+    }
+
+    public void runInPlatformWhenAvailable(@NotNull Runnable runnable) {
+        super.runInPlatformWhenAvailable(runnable);
     }
 
     @Override
