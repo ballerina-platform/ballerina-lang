@@ -59,8 +59,8 @@ public type LoadBalanceClient client object {
     # The HEAD remote function implementation of the LoadBalancer Connector.
     #
     # + path - Resource path
-    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
-    #             or `mime:Entity[]`
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
     public remote function head(string path, RequestMessage message = ()) returns Response|error;
 
@@ -83,8 +83,8 @@ public type LoadBalanceClient client object {
     # The OPTIONS remote function implementation of the LoadBalancer Connector.
     #
     # + path - Resource path
-    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
-    #             or `mime:Entity[]`
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
     public remote function options(string path, RequestMessage message = ()) returns Response|error;
 
@@ -116,8 +116,8 @@ public type LoadBalanceClient client object {
     # The GET remote function implementation of the LoadBalancer Connector.
 
     # + path - Resource path
-    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
-    #             or `mime:Entity[]`
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
     public remote function get(string path, RequestMessage message = ()) returns Response|error;
 
@@ -127,7 +127,8 @@ public type LoadBalanceClient client object {
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
+    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission
+    #            fails
     public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error;
 
     # The getResponse implementation of the LoadBalancer Connector.
@@ -202,7 +203,9 @@ public remote function LoadBalanceClient.forward(string path, Request request) r
     return performLoadBalanceAction(self, path, request, HTTP_FORWARD);
 }
 
-public remote function LoadBalanceClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+public remote function LoadBalanceClient.execute(string httpVerb, string path, RequestMessage message)
+                                                                                        returns Response|error {
+
     Request req = buildRequest(message);
     return performLoadBalanceExecuteAction(self, path, req, httpVerb);
 }
@@ -217,7 +220,9 @@ public remote function LoadBalanceClient.get(string path, RequestMessage message
     return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
 
-public remote function LoadBalanceClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+public remote function LoadBalanceClient.submit(string httpVerb, string path, RequestMessage message)
+                                                                                        returns HttpFuture|error {
+
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
@@ -285,6 +290,8 @@ function performLoadBalanceAction(LoadBalanceClient lb, string path, Request req
             var serviceResponse = invokeEndpoint(path, request, requestAction, loadBalanceClient);
             if (serviceResponse is Response) {
                 return serviceResponse;
+            } else if (serviceResponse is HttpFuture) {
+                return getInvalidTypeError();
             } else {
                 if (lb.failover) {
                     loadBlancerInRequest = check createFailoverRequest(loadBlancerInRequest, requestEntity);
