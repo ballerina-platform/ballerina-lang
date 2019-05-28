@@ -4335,6 +4335,9 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 detailType = createDetailType(
                         bindingPatternVariable.pos, errorVariable.detail, errorVariable.restDetail);
+
+                BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
+                createTypeDefinition(detailType, detailType.tsymbol, recordTypeNode);
             }
             BErrorType errorType = new BErrorType(errorTypeSymbol, symTable.stringType, detailType);
             errorTypeSymbol.type = errorType;
@@ -4344,6 +4347,29 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         return bindingPatternVariable.type;
+    }
+
+    private BLangRecordTypeNode createRecordTypeNode(BLangErrorVariable errorVariable, BRecordType detailType) {
+        List<BLangSimpleVariable> fieldList = new ArrayList<>();
+        for (BLangErrorVariable.BLangErrorDetailEntry field : errorVariable.detail) {
+            BVarSymbol symbol = field.valueBindingPattern.symbol;
+            if (symbol == null) {
+                symbol = new BVarSymbol(
+                        Flags.PUBLIC,
+                        names.fromString(field.key.value + "$"),
+                        this.env.enclPkg.packageID,
+                        symTable.pureType,
+                        null);
+            }
+            BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(
+                    field.valueBindingPattern.pos,
+                    symbol.name.value,
+                    field.valueBindingPattern.type,
+                    field.valueBindingPattern.expr,
+                    symbol);
+            fieldList.add(fieldVar);
+        }
+        return createRecordTypeNode(fieldList, detailType);
     }
 
     private BLangSimpleVariable createReceiver(BLangIdentifier name) {
@@ -4364,28 +4390,8 @@ public class Desugar extends BLangNodeVisitor {
                 names.fromString("$anonErrorType$" + errorCount + "$reasonType"),
                 env.enclPkg.symbol.pkgID, null, null);
 
-        SymbolEnv typeDefEnv = SymbolEnv.createPkgLevelSymbolEnv(null, this.env.scope, this.env);
         BAttachedFunction init = createRecordInitFunc();
-
         detailRecordTypeSymbol.initializerFunc = init;
-        BLangFunction initFunction =
-                ASTBuilderUtil.createInitFunction(pos, Names.EMPTY.value, Names.INIT_FUNCTION_SUFFIX);
-
-        // create record init function
-        // look at SymbolEnter.defineRecordInitFunction
-//        detailRecordTypeSymbol.initializerFunc;
-//
-//        BLangRecordTypeNode recTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
-//        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-//        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunction(typeDef.pos, "", Names.INIT_FUNCTION_SUFFIX);
-////
-//        recordTypeNode.initFunction.receiver = createReceiver(typeDef.name);
-//        recordTypeNode.initFunction.attachedFunction = true;
-//        recordTypeNode.initFunction.flagSet.add(Flag.ATTACHED);
-//
-//
-//        defineNode(recordTypeNode.initFunction, conEnv);
-
 
         BRecordType detailRecordType = new BRecordType(detailRecordTypeSymbol);
         if (restDetail != null) {
@@ -4400,13 +4406,6 @@ public class Desugar extends BLangNodeVisitor {
             BVarSymbol fieldSym = new BVarSymbol(
                         Flags.PUBLIC, fieldName, detailRecordTypeSymbol.pkgID, fieldType, detailRecordTypeSymbol);
             detailRecordType.fields.add(new BField(fieldName, detailEntry.key.pos, fieldSym));
-
-//            BVarSymbol boundSym = detailEntry.valueBindingPattern.symbol;
-//            if (boundSym != null) {
-//
-//            } else {
-//                BType structuredBindingPatternType = getStructuredBindingPatternType(detailEntry.valueBindingPattern);
-//            }
         }
 
         return detailRecordType;
