@@ -60,10 +60,9 @@ public class Add extends BlockingNativeCallableUnit {
 
     public static Object add(Strand strand, TableValue table, Object data) {
         try {
-            table.performAddOperation((MapValueImpl<String, Object>) data);
+            return table.performAddOperation((MapValueImpl<String, Object>) data);
         } catch (BLangFreezeException e) {
             return BallerinaErrors.createError(e.getMessage(), "Failed to add data to the table: " + e.getDetail());
         }
-        return null;
     }
 }

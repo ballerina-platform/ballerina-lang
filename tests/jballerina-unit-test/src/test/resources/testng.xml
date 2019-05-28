@@ -43,6 +43,7 @@
             <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <package name="org.ballerinalang.test.types.any.*"/>
+            <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
         </packages>
 
         <classes>
