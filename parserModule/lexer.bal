@@ -128,24 +128,24 @@ public type Lexer object {
 					lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
             } else if (currChar == "(") {
 				self.tokenIndex += 1;
-                return {tokenType: LPAREN, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-                self.lineNum , index: self.tokenIndex ,whiteSpace: self.getWhiteSpace()};
+                return {tokenType: LPAREN, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum , index: self.tokenIndex ,whiteSpace: self.getWhiteSpace()};
             } else if (currChar == "{") {
 				self.tokenIndex += 1;
-                return {tokenType: LBRACE, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-                self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+                return {tokenType: LBRACE, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
             } else if (currChar == ")") {
 				self.tokenIndex += 1;
-                return {tokenType: RPAREN, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-                self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+                return {tokenType: RPAREN, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
             } else if (currChar == ":") {
 				self.tokenIndex += 1;
-				return {tokenType: COLON, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+				return {tokenType: COLON, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
 			} else if (currChar == ","){
 				self.tokenIndex += 1;
-				return {tokenType: COMMA, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+				return {tokenType: COMMA, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
 			}else if (currChar == "=") {
                 if (self.buffer.lookAhead() == "=") {
                     currChar = self.nextLexeme();
@@ -158,39 +158,40 @@ public type Lexer object {
                             lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
                     }
 					self.tokenIndex += 1;
-                    return {tokenType: EQUAL, text: "==", startPos: self.position - 1 , endPos:self.position, lineNumber:
-                    self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+                    return {tokenType: EQUAL, text: "==", startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
                 }else if (self.buffer.lookAhead() == ">"){
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
-					return {tokenType: EQUAL_GT, text: "=>", startPos: self.position - 1 , endPos:self.position, lineNumber:
-					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+					return {tokenType: EQUAL_GT, text: "=>", startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
 				self.tokenIndex += 1;
-                return {tokenType: ASSIGN, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-                self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
+                return {tokenType: ASSIGN, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
             }else if (currChar == ";") {
 				self.tokenIndex += 1;
-                return {tokenType: SEMICOLON, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-                self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
+                return {tokenType: SEMICOLON, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
             } else if (currChar == "+") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
-					return {tokenType: COMPOUND_ADD, text: "+=", startPos: self.position - 1 , endPos:self.position, lineNumber:
-					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+					return {tokenType: COMPOUND_ADD, text: "+=", startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
 				self.tokenIndex += 1;
-                return {tokenType: ADD, text: currChar, startPos: self.position, endPos: self.position, lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+                return {tokenType: ADD, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
             } else if (currChar == "-") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
-					return {tokenType: COMPOUND_SUB, text: "-=", startPos: self.position - 1 , endPos:self.position, lineNumber:
-					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+					return {tokenType: COMPOUND_SUB, text: "-=", startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}else if (self.buffer.lookAhead() == ">"){
 					currChar = self.nextLexeme();
 					self.position += 1;
@@ -202,23 +203,23 @@ public type Lexer object {
 							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 					}
 					self.tokenIndex += 1;
-					return {tokenType: RARROW, text: "->", startPos: self.position - 1 , endPos:self.position, lineNumber:
-					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+					return {tokenType: RARROW, text: "->", startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
 				self.tokenIndex += 1;
-                return {tokenType: SUB, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-                self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+                return {tokenType: SUB, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
             } else if (currChar == "*") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
-					return {tokenType: COMPOUND_MUL, text: "*=", startPos: self.position - 1 , endPos:self.position, lineNumber:
-					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+					return {tokenType: COMPOUND_MUL, text: "*=", startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
 				self.tokenIndex += 1;
-                return {tokenType: MUL, text: currChar, startPos: self.position, endPos: self.position, lineNumber
-                : self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+                return {tokenType: MUL, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
             }else if(currChar == "."){
 				if (self.buffer.lookAhead() == ".") {
 					currChar = self.nextLexeme();
@@ -237,54 +238,54 @@ public type Lexer object {
 							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 					}
 					self.tokenIndex += 1;
-					return {tokenType: RANGE, text: "..", startPos: self.position - 1 , endPos:self.position, lineNumber:
-					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+					return {tokenType: RANGE, text: "..", startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
 				self.tokenIndex += 1;
-				return {tokenType: DOT, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-				self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
+				return {tokenType: DOT, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
 			}else if(currChar == "["){
 				self.tokenIndex += 1;
-				return {tokenType: LEFT_BRACKET, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+				return {tokenType: LEFT_BRACKET, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 			} else if (currChar == "]"){
 				self.tokenIndex += 1;
-				return {tokenType: RIGHT_BRACKET, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+				return {tokenType: RIGHT_BRACKET, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 			}else if(currChar == "?"){
 				if (self.buffer.lookAhead() == ":") {
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
-					return { tokenType: ELVIS, text: "?:", startPos: self.position - 1 , endPos:self.position, lineNumber:
-					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+					return { tokenType: ELVIS, text: "?:", startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
 				self.tokenIndex += 1;
-				return {tokenType: QUESTION_MARK, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-				self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
+				return {tokenType: QUESTION_MARK, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
 			}else if (currChar == "#"){
 				self.tokenIndex += 1;
-				return {tokenType: HASH, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+				return {tokenType: HASH, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 			}else if (currChar == "~"){
 				self.tokenIndex += 1;
-				return {tokenType: BIT_COMPLEMENT, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+				return {tokenType: BIT_COMPLEMENT, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 			}else if (currChar == "/") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
-					return {tokenType: COMPOUND_DIV, text: "/=", startPos: self.position - 1 , endPos:self.position, lineNumber:
-					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+					return {tokenType: COMPOUND_DIV, text: "/=", startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
 				self.tokenIndex += 1;
-                return { tokenType: DIV, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-                self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+                return { tokenType: DIV, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
             }else if(currChar == "%"){
 				self.tokenIndex += 1;
-				return { tokenType: MOD, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+				return { tokenType: MOD, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 			}else if (currChar == "!") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
@@ -297,19 +298,19 @@ public type Lexer object {
 							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 					}
 					self.tokenIndex += 1;
-					return {tokenType: NOT_EQUAL, text: "!=", startPos: self.position - 1 , endPos:self.position, lineNumber:
-					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+					return {tokenType: NOT_EQUAL, text: "!=", startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
 				self.tokenIndex += 1;
-				return {tokenType: NOT, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-				self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
+				return {tokenType: NOT, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
 			}else if (currChar == ">") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
-					return {tokenType: GT_EQUAL, text: ">=", startPos: self.position - 1 , endPos:self.position, lineNumber:
-					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+					return {tokenType: GT_EQUAL, text: ">=", startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}else if (self.buffer.lookAhead() == ">"){
 					if (self.buffer.lookAhead() == "=") {
 						currChar = self.nextLexeme();
@@ -322,34 +323,34 @@ public type Lexer object {
 							currChar = self.nextLexeme();
 							self.position += 1;
 							self.tokenIndex += 1;
-							return {tokenType: COMPOUND_LOGICAL_SHIFT, text: ">>>=", startPos: self.position - 1 , endPos:self.position, lineNumber:
-							self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+							return {tokenType: COMPOUND_LOGICAL_SHIFT, text: ">>>=", startPos: self.position - 1 ,
+								endPos:self.position, lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 						}
 					}
 				}
 				self.tokenIndex += 1;
-				return {tokenType: GT, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-				self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
+				return {tokenType: GT, text: currChar, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
 			}else if (currChar == "<") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
-					return {tokenType: LT_EQUAL, text: "<=", startPos: self.position - 1 , endPos:self.position, lineNumber:
-					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+					return {tokenType: LT_EQUAL, text: "<=", startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}else if (self.buffer.lookAhead() == "-"){
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
-					return {tokenType: LARROW, text: "<-", startPos: self.position - 1 , endPos:self.position, lineNumber:
-					self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+					return {tokenType: LARROW, text: "<-", startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}else if(self.buffer.lookAhead() == "<"){
 					if (self.buffer.lookAhead() == "=") {
 						currChar = self.nextLexeme();
 						self.position += 1;
 						self.tokenIndex += 1;
-						return {tokenType: COMPOUND_LEFT_SHIFT, text: "<<=", startPos: self.position - 1 , endPos:self.position, lineNumber:
-						self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+						return {tokenType: COMPOUND_LEFT_SHIFT, text: "<<=", startPos: self.position - 1 , endPos:self.position,
+							lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 					}
 				}
 				self.tokenIndex += 1;
@@ -384,15 +385,17 @@ public type Lexer object {
                         str = str + currChar;
                         incompleteStr = false;
 						self.tokenIndex += 1;
-                        return {tokenType: QUOTED_STRING_LITERAL, text: str, startPos: self.position - strPos , endPos:
-                        self.position, lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+                        return {tokenType: QUOTED_STRING_LITERAL, text: str, startPos: self.position - strPos ,
+							endPos: self.position, lineNumber: self.lineNum  , index: self.tokenIndex,
+							whiteSpace: self.getWhiteSpace()};
                     }
 					//loop until Eof
                     if (self.buffer.lookAhead() == "") {
                         incompleteStr = false;
                         //if no inverted comma is found,all the characters until Eof is captured and returned as an Lexer Error Token
-						return {tokenType: LEXER_ERROR_TOKEN, text: str, startPos: self.position - strPos , endPos:
-						self.position, lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+						return {tokenType: LEXER_ERROR_TOKEN, text: str, startPos: self.position - strPos ,
+							endPos: self.position, lineNumber: self.lineNum  , index: self.tokenIndex,
+							whiteSpace: self.getWhiteSpace()};
 
                     }
                 }
@@ -419,13 +422,13 @@ public type Lexer object {
 						numb = numb + currChar;
 					}
 					self.tokenIndex += 1;
-					return {tokenType: LEXER_ERROR_TOKEN, text: numb, startPos: self.position - digitPos , endPos:self.position, lineNumber:
-					self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+					return {tokenType: LEXER_ERROR_TOKEN, text: numb, startPos: self.position - digitPos ,
+						endPos:self.position, lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
 				}
 				if(validNum){
 					self.tokenIndex += 1;
-					return {tokenType: NUMBER, text: numb, startPos: self.position - digitPos , endPos:self.position, lineNumber:
-					self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+					return {tokenType: NUMBER, text: numb, startPos: self.position - digitPos , endPos:self.position,
+						lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
 				}
             } else if (isLetter(currChar)) {
                 string word = currChar;
@@ -436,13 +439,14 @@ public type Lexer object {
                     wordLength += 1;
                     word = word + currChar;
                 }
+
                 int checkReserved = isReserved(word);
+
                 if (checkReserved != EOF) {
 					self.tokenIndex += 1;
                     return {tokenType: checkReserved, text: word, startPos: self.position - wordLength , endPos:self.position,
                         lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
-                }
-                else {
+                } else {
 					self.tokenIndex += 1;
                     return {tokenType: IDENTIFIER, text: word, startPos: self.position - wordLength , endPos:self.position,
                         lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
@@ -450,7 +454,8 @@ public type Lexer object {
             }
         }
 		self.tokenIndex += 1;
-        return {tokenType: EOF, text: "EOF", startPos: self.position, endPos: self.position, lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+        return {tokenType: EOF, text: "EOF", startPos: self.position, endPos: self.position, lineNumber: self.lineNum,
+			index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
     }
 
 	#if the whitespace stack is not empty, pop the stack and return the whitespace characters else return null
@@ -584,4 +589,3 @@ type WhiteSpaceStack object{
         return spaceSaved;
    }
 };
-
