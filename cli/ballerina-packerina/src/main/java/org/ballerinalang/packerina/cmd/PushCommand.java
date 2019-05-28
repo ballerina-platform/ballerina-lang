@@ -73,14 +73,7 @@ public class PushCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
 
-        if (argList == null || argList.size() == 0) {
-            boolean allModulesPushedSuccessfully = PushUtils.pushAllPackages(sourceRoot, repositoryHome, noBuild,
-                    experimentalFlag);
-            if (!allModulesPushedSuccessfully) {
-                // Exit status, zero for OK, non-zero for error
-                Runtime.getRuntime().exit(1);
-            }
-        } else if (argList.size() == 1) {
+        if (argList.size() == 1) {
             String packageName = argList.get(0);
             boolean modulePushedSuccessfully = PushUtils.pushPackages(packageName, sourceRoot, repositoryHome, noBuild,
                     experimentalFlag);
