@@ -61,7 +61,9 @@ public class InstallCommand implements BLauncherCmd {
             return;
         }
 
-        if (argList.size() == 1) {
+        if (argList == null || argList.size() == 0) {
+            throw LauncherUtils.createUsageExceptionWithHelp("no module given");
+        } else if (argList.size() == 1) {
             String packageStr = argList.get(0);
             PushUtils.pushPackages(packageStr, sourceRoot, "home", noBuild, experimentalFlag);
         } else {

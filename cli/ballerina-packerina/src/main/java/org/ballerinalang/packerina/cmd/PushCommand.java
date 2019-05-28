@@ -73,7 +73,9 @@ public class PushCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
 
-        if (argList.size() == 1) {
+        if (argList == null || argList.size() == 0) {
+            throw LauncherUtils.createUsageExceptionWithHelp("no module given");
+        } else if (argList.size() == 1) {
             String packageName = argList.get(0);
             boolean modulePushedSuccessfully = PushUtils.pushPackages(packageName, sourceRoot, repositoryHome, noBuild,
                     experimentalFlag);
