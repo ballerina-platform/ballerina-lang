@@ -23,7 +23,6 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.RecordVariableNode.BLangRecordVariableKeyValueNode;
@@ -32,7 +31,6 @@ import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.ballerinalang.model.tree.types.RecordTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ConstantValueResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -954,20 +952,11 @@ public class Desugar extends BLangNodeVisitor {
             && parentErrorVariable.restDetail == null) {
             return;
         }
-        // todo: fix this for new error binding pattern
+
         parentErrorVariable.detailExpr = generateErrorDetailBuiltinFunction(
                 parentErrorVariable.pos, ((BErrorType) parentErrorVariable.type).detailType, parentBlockStmt,
                 errorVarySymbol, parentIndexBasedAccess);
 
-        BVarSymbol errorVarSym = parentErrorVariable.symbol;
-//        BLangSimpleVariableDef detailVariableDef =
-//                ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.pos, parentBlockStmt);
-//
-//        BVarSymbol detailVarSym = new BVarSymbol(Flags.PUBLIC, Names.EMPTY, env.enclPkg.packageID,
-//                symTable.pureTypeConstrainedMap, errorVarSym);
-//        BLangVariable detailVar = ASTBuilderUtil.createVariable(parentErrorVariable.pos, "",
-//                symTable.pureTypeConstrainedMap, parentErrorVariable.detailExpr, detailVarSym);
-//        detailVariableDef.var = (BLangSimpleVariable) detailVar;
         BLangSimpleVariableDef detailTempVarDef = createVarDef("$error$detail",
                 symTable.pureTypeConstrainedMap, parentErrorVariable.detailExpr, parentErrorVariable.pos);
         detailTempVarDef.type = symTable.pureTypeConstrainedMap;
@@ -2466,9 +2455,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangSimpleVariableDef createVarDef(String name, BType type, BLangExpression expr, DiagnosticPos pos) {
-        BVarSymbol objSym = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
-                                           type, this.env.scope.owner);
-        BLangSimpleVariable objVar = ASTBuilderUtil.createVariable(pos, "", type, expr, objSym);
+        BSymbol objSym = symResolver.lookupSymbol(env, names.fromString(name), SymTag.VARIABLE);
+        if (objSym == null || objSym == symTable.notFoundSymbol) {
+            objSym = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID, type, this.env.scope.owner);
+        }
+        BLangSimpleVariable objVar = ASTBuilderUtil.createVariable(pos, "", type, expr, (BVarSymbol) objSym);
         BLangSimpleVariableDef objVarDef = ASTBuilderUtil.createVariableDef(pos);
         objVarDef.var = objVar;
         return objVarDef;
@@ -4334,7 +4325,7 @@ public class Desugar extends BLangNodeVisitor {
                 detailType = symTable.pureTypeConstrainedMap;
             } else {
                 detailType = createDetailType(
-                        bindingPatternVariable.pos, errorVariable.detail, errorVariable.restDetail);
+                        errorVariable.detail, errorVariable.restDetail);
 
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
                 createTypeDefinition(detailType, detailType.tsymbol, recordTypeNode);
@@ -4372,21 +4363,11 @@ public class Desugar extends BLangNodeVisitor {
         return createRecordTypeNode(fieldList, detailType);
     }
 
-    private BLangSimpleVariable createReceiver(BLangIdentifier name) {
-        BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        receiver.pos = null;
-        IdentifierNode identifier = ASTBuilderUtil.createIdentifier(null, Names.SELF.getValue());
-        receiver.setName(identifier);
-        BLangUserDefinedType structTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        structTypeNode.pkgAlias = new BLangIdentifier();
-        structTypeNode.typeName = name;
-        receiver.setTypeNode(structTypeNode);
-        return receiver;
-    }
-
-    private BType createDetailType(DiagnosticPos pos, List<BLangErrorVariable.BLangErrorDetailEntry> detail,
+    private BType createDetailType(List<BLangErrorVariable.BLangErrorDetailEntry> detail,
                                    BLangSimpleVariable restDetail) {
-        BRecordTypeSymbol detailRecordTypeSymbol = new BRecordTypeSymbol(SymTag.RECORD, Flags.PUBLIC,
+        BRecordTypeSymbol detailRecordTypeSymbol = new BRecordTypeSymbol(
+                SymTag.RECORD,
+                Flags.PUBLIC,
                 names.fromString("$anonErrorType$" + errorCount + "$reasonType"),
                 env.enclPkg.symbol.pkgID, null, null);
 
@@ -4394,11 +4375,7 @@ public class Desugar extends BLangNodeVisitor {
         detailRecordTypeSymbol.initializerFunc = init;
 
         BRecordType detailRecordType = new BRecordType(detailRecordTypeSymbol);
-        if (restDetail != null) {
-            detailRecordType.restFieldType = restDetail.type;
-        } else {
-            detailRecordType.restFieldType = symTable.anydataType;
-        }
+        detailRecordType.restFieldType = restDetail != null ? restDetail.type : symTable.anydataType;
 
         for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : detail) {
             Name fieldName = names.fromIdNode(detailEntry.key);
