@@ -138,4 +138,36 @@ public class ObjectTypeReferenceTest {
         Assert.assertSame(returns[1].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1800.0);
     }
+
+    @Test
+    public void testTypeReferencedFunctionImplementation() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_func_reference_neg.bal");
+        int index = 0;
+
+        Assert.assertEquals(result.getErrorCount(), 7);
+        BAssertUtil.validateError(result, index++,
+                                  "function signatures mismatched: expected 'function test1(string aString, int " +
+                                          "anInt) returns string|error', found 'function test1(string str, int anInt)" +
+                                          " returns string|error'", 51, 5);
+        BAssertUtil.validateError(result, index++,
+                                  "function signatures mismatched: expected 'public function test2(string aString)', " +
+                                          "found 'function test2(string aString)'", 56, 5);
+        BAssertUtil.validateError(result, index++,
+                                  "function signatures mismatched: expected 'function test3(int anInt, string " +
+                                          "aString, string defaultable, int def2)', found 'function test3(string " +
+                                          "aString, int anInt, string defaultable, int def2) returns string'", 59, 5);
+        BAssertUtil.validateError(result, index++,
+                                  "function signatures mismatched: expected 'function test4(string aString, int " +
+                                          "anInt, Bar... bars) returns string', found 'function test4(string aString," +
+                                          " int anInt, AnotherBar... bars) returns string'", 64, 5);
+        BAssertUtil.validateError(result, index++,
+                                  "function signatures mismatched: expected 'function test5(ON|OFF... status) returns" +
+                                          " Bar', found 'function test5(ON|OFF... stat) returns Bar'", 69, 5);
+        BAssertUtil.validateError(result, index++,
+                                  "function signatures mismatched: expected 'function test6((string,ON|OFF)... tup)'," +
+                                          " found 'function test6((string,ON|OFF)... tupl)'", 74, 5);
+        BAssertUtil.validateError(result, index,
+                                  "function signatures mismatched: expected 'function test7() returns ON|OFF', found " +
+                                          "'function test7(int x) returns ON|OFF'", 77, 5);
+    }
 }
