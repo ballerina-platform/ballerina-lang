@@ -20,8 +20,6 @@ package org.ballerinalang.test.services.testutils;
 
 import io.netty.handler.codec.http.HttpContent;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
@@ -38,8 +36,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
-
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
 
 /**
  * This contains test utils related to Ballerina service invocations.

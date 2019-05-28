@@ -24,7 +24,7 @@
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
-        <listener class-name="org.ballerinalang.test.utils.JBallerinaTestInitializer"/>
+        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
     <test name="jballerina-test" parallel="false">
@@ -43,6 +43,7 @@
             <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <package name="org.ballerinalang.test.types.any.*"/>
+            <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
         </packages>
 
         <classes>

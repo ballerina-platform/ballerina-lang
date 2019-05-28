@@ -228,6 +228,11 @@ public class CPEntry {
         }
     }
 
+    /**
+     * A type shape constant-pool entry.
+     *
+     * @since 0.995.0
+     */
     public static class ShapeCPEntry extends CPEntry {
 
         public final byte[] shape;

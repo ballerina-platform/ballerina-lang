@@ -216,6 +216,16 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     /**
+     * Returns the hash code value for map value object.
+     *
+     * @return returns hashcode value.
+     */
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+    
+    /**
      * Remove an item from the map.
      *
      * @param key key of the item to be removed

@@ -81,6 +81,9 @@ public class Clone extends BlockingNativeCallableUnit {
         if (value == null) {
             return null;
         }
+        if (!(value instanceof RefValue)) {
+            return value;
+        }
         RefValue refValue = (RefValue) value;
         if (refValue.getType().getTag() == TypeTags.ERROR || !TypeChecker.checkIsLikeType(refValue, org
                 .ballerinalang.jvm.types.BTypes.typePureType)) {

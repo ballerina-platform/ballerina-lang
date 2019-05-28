@@ -23,7 +23,7 @@ under the License.
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
-        <listener class-name="org.ballerinalang.test.utils.JBallerinaTestInitializer"/>
+        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
 
