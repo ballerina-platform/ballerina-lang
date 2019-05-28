@@ -41,7 +41,7 @@ public class MultipleHTTPClientsTestCase extends HttpBaseTest {
 
     @Test
     public void testH2Client() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9231, "test/h2"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9230, "test/h2"));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
