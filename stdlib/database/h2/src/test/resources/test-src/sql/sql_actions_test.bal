@@ -582,11 +582,12 @@ function testINParametersWithDirectVariables() returns (int, int, float,
     decimal numericType = 1234.567;
     decimal decimalType = 1234.567;
     float realType = 1234.567;
+    byte[] byteArray = [1, 2];
 
     var result = testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
-            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type)
-            VALUES (?,?,?,?,?,?,?,?,?,?)", rowid, intType, longType, floatType, doubleType, boolType,
-            stringType, numericType, decimalType, realType);
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, bit_type)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?)", rowid, intType, longType, floatType, doubleType, boolType,
+            stringType, numericType, decimalType, realType, byteArray);
     int insertCount = 0;
     if (result is sql:UpdateResult) {
         insertCount = result.updatedRowCount;

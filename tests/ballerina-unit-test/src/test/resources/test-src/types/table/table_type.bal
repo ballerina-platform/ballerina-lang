@@ -1759,24 +1759,3 @@ function testRemoveOp() returns table<Order> {
                     });
     return orderTable;
 }
-
-function testInsertDataWithByteArray() returns int {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 5 }
-    });
-
-    string text = "Text";
-    byte[] content = text.toByteArray("UTF-8");
-    byte[] byteArray = [1, 2];
-
-    var insertCountRet = testDB->update("INSERT INTO ComplexTypes(row_id, blob_type, clob_type, binary_type, bit_type)
-    VALUES (?,?,?,?,?)", 300, content, text, content, byteArray);
-    int insertCount = insertCountRet is sql:UpdateResult ? insertCountRet.updatedRowCount : -1;
-
-    checkpanic testDB.stop();
-    return insertCount;
-}

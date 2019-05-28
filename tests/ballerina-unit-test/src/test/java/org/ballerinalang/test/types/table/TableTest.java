@@ -1427,12 +1427,6 @@ public class TableTest {
         Assert.assertEquals(returns[0].stringValue(), "table<Order> {index: [], primaryKey: [], data: []}");
     }
 
-    @Test(groups = TABLE_TEST, description = "Check inserting byte array data as direct parameter.")
-    public void testInsertDataWithByteArray() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertDataWithByteArray");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-    }
-
     @AfterClass(alwaysRun = true)
     public void closeConnectionPool() {
         BRunUtil.invokeStateful(service, "closeConnectionPool");
