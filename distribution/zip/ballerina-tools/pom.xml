@@ -329,6 +329,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-library</artifactId>
+            <type>zip</type>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
