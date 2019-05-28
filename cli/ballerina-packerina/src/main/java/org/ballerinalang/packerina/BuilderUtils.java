@@ -109,68 +109,6 @@ public class BuilderUtils {
         }
     }
 
-    public static void compileWithTestsAndWrite(Path sourceRootPath, boolean offline, boolean lockEnabled,
-                                                boolean skiptests, boolean enableExperimentalFeatures) {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, sourceRootPath.toString());
-        options.put(OFFLINE, Boolean.toString(offline));
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
-        options.put(SKIP_TESTS, Boolean.toString(skiptests));
-        options.put(TEST_ENABLED, "true");
-        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
-
-        Compiler compiler = Compiler.getInstance(context);
-        List<BLangPackage> packages = compiler.build();
-
-        if (skiptests) {
-            if (packages.size() == 0) {
-                throw new BLangCompilerException("no ballerina source files found to compile");
-            }
-            outStream.println();
-            compiler.write(packages);
-        } else {
-            if (packages.size() == 0) {
-                throw new BLangCompilerException("no ballerina source files found to compile");
-            }
-            runTests(compiler, sourceRootPath, packages);
-            compiler.write(packages);
-        }
-    }
-
-    public static void compileWithTestsAndWrite(Path sourceRootPath, boolean offline, boolean lockEnabled,
-                                                boolean skiptests, boolean enableExperimentalFeatures,
-                                                boolean siddhiRuntimeEnabled) {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, sourceRootPath.toString());
-        options.put(OFFLINE, Boolean.toString(offline));
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
-        options.put(SKIP_TESTS, Boolean.toString(skiptests));
-        options.put(TEST_ENABLED, "true");
-        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
-        options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeEnabled));
-
-        Compiler compiler = Compiler.getInstance(context);
-        List<BLangPackage> packages = compiler.build();
-
-        if (skiptests) {
-            if (packages.size() == 0) {
-                throw new BLangCompilerException("no ballerina source files found to compile");
-            }
-            outStream.println();
-            compiler.write(packages);
-        } else {
-            if (packages.size() == 0) {
-                throw new BLangCompilerException("no ballerina source files found to compile");
-            }
-            runTests(compiler, sourceRootPath, packages);
-            compiler.write(packages);
-        }
-    }
-
     /**
      * Run tests in the build.
      *

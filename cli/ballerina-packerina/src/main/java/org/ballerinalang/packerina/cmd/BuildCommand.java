@@ -102,10 +102,6 @@ public class BuildCommand implements BLauncherCmd {
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
         if (nativeBinary) {
             genNativeBinary(sourceRootPath, argList);
-        } else if (argList == null || argList.size() == 0) {
-            // ballerina build
-            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests, experimentalFlag,
-                    siddhiRuntimeFlag);
         } else {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
