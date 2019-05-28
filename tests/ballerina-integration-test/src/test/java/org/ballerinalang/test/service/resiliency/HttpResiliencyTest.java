@@ -69,7 +69,8 @@ public class HttpResiliencyTest extends BaseTest {
     @BeforeTest(alwaysRun = true)
     public void start() throws BallerinaTestException {
         int[] requiredPorts = new int[]{8080, 9300, 8081, 9301, 8082, 9302, 8083, 9303, 8084, 9304, 8085, 9305,
-                8086, 9306, 8087, 9307, 8088, 9308, 8089, 9309, 8090, 9310, 8091, 9311, 8092, 9312, 8093, 9313};
+                8086, 9306, 8087, 9307, 8088, 9308, 8089, 9309, 8090, 9310, 8091, 9311, 8092, 9312, 8093, 9313,
+                8094, 9314};
         String sourcePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "resiliency").getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
@@ -288,6 +289,24 @@ public class HttpResiliencyTest extends BaseTest {
             dataProvider = "customLbResponseDataProvider")
     public void customLbResponseDataProvider(int responseCode, String messasge) throws Exception {
         verifyResponses(9313, LB_CUSTOM_ALGO_SERVICE_PATH, responseCode, messasge);
+    }
+
+    @Test(description = "Test basic failover scenario for HTTP2 clients")
+    public void basicHttp2FailoverTest() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9305, "fo/index")
+                , "{\"Name\":\"Ballerina\"}", headers);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
+                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getData(), "Failover start index is : 0", "Message content mismatched");
+        HttpResponse secondResponse = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9305, "fo/index")
+                , "{\"Name\":\"Ballerina\"}", headers);
+        Assert.assertEquals(secondResponse.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(secondResponse.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
+                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(secondResponse.getData(), "Failover start index is : 2", "Message content mismatched");
     }
 
     @DataProvider(name = "responseDataProvider")
