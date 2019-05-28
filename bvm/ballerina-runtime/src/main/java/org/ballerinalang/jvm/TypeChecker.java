@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.types.BFutureType;
 import org.ballerinalang.jvm.types.BJSONType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -571,8 +572,10 @@ public class TypeChecker {
 
             AttachedFunction rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackage().name).orElse(""),
-                            Optional.ofNullable(rhsFunc.type.getPackage().name).orElse(""),
+                    !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackage())
+                                    .map(BPackage::getName)
+                                    .orElse(""),
+                            Optional.ofNullable(rhsFunc.type.getPackage()).map(BPackage::getName).orElse(""),
                             lhsFunc.flags, rhsFunc.flags)) {
                 return false;
             }

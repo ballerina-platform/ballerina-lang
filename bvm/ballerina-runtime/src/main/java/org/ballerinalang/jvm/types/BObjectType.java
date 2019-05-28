@@ -75,7 +75,8 @@ public class BObjectType extends BStructureType {
     }
 
     public String toString() {
-        String name = (pkg == null || pkg.equals(".")) ? typeName : pkg + ":" + typeName;
+        String name = (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ?
+                typeName : pkg.getName() + ":" + typeName;
         StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");
 
         for (Entry<String, BField> field : getFields().entrySet()) {

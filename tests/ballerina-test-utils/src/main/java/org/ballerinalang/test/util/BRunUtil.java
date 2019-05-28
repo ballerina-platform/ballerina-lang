@@ -820,7 +820,8 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 return BTypes.typeNull;
             case org.ballerinalang.jvm.types.TypeTags.FINITE_TYPE_TAG:
-                return new BFiniteType(jvmType.getName(), jvmType.getPackage().getName());
+                return new BFiniteType(jvmType.getName(), jvmType.getPackage() == null ?
+                        null : jvmType.getPackage().name);
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }
