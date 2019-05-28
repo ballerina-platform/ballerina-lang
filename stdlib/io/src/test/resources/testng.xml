@@ -27,7 +27,14 @@
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
-            <package name="org.ballerinalang.stdlib.io.*"/>
+            <package name="org.ballerinalang.stdlib.io.bytes"/>
+            <package name="org.ballerinalang.stdlib.io.characters"/>
+            <package name="org.ballerinalang.stdlib.io.data"/>
+            <package name="org.ballerinalang.stdlib.io.records"/>
         </packages>
+        <classes>
+            <!--<class name="org.ballerinalang.stdlib.io.IOPrintTest"/>-->
+            <class name="org.ballerinalang.stdlib.io.IOTest"/>
+        </classes>
     </test>
 </suite>
