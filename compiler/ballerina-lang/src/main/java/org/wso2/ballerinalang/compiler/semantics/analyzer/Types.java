@@ -626,6 +626,10 @@ public class Types {
             return isTupleTypeAssignable(source, target, unresolvedTypes);
         }
 
+        if (source.tag == TypeTags.INVOKABLE && target.tag == TypeTags.INVOKABLE) {
+            return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new ArrayList<>());
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target, unresolvedTypes);
     }
@@ -704,7 +708,7 @@ public class Types {
         return target.tag == TypeTags.ANY && !isValueType(source);
     }
 
-    private boolean checkFunctionEquivalency(BInvokableType source, BInvokableType target,
+    private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
                                              List<TypePair> unresolvedTypes) {
         // Source param types should be contravariant with target param types. Hence s and t switched when checking
         // assignability.
@@ -1417,7 +1421,7 @@ public class Types {
         public BSymbol visit(BInvokableType t, BType s) {
             if (s == symTable.anyType) {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
-            } else if (s.tag == TypeTags.INVOKABLE && checkFunctionEquivalency((BInvokableType) s, t,
+            } else if (s.tag == TypeTags.INVOKABLE && isFunctionTypeAssignable((BInvokableType) s, t,
                                                                                new ArrayList<>())) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
             }
@@ -1658,7 +1662,7 @@ public class Types {
                                                        List<TypePair> unresolvedTypes) {
         return rhsFuncList.stream()
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
-                .filter(rhsFunc -> checkFunctionEquivalency(rhsFunc.type, lhsFunc.type, unresolvedTypes))
+                .filter(rhsFunc -> isFunctionTypeAssignable(rhsFunc.type, lhsFunc.type, unresolvedTypes))
                 .findFirst()
                 .orElse(null);
     }
