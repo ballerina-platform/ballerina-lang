@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.values.MapValue;
-
 /**
  * {@code BObjectType} represents a user defined object type in Ballerina.
  *
@@ -39,11 +37,6 @@ public class BObjectType extends BStructureType {
      */
     public BObjectType(String typeName, String pkgPath, int flags) {
         super(typeName, pkgPath, flags, Object.class);
-    }
-
-    public BObjectType(String typeName, String pkgPath, int flags, MapValue annotations) {
-        super(typeName, pkgPath, flags, Object.class);
-        this.annotations = (MapValue<String, Object>) annotations;
     }
 
     @Override

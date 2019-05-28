@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.util.Map;
@@ -60,12 +59,6 @@ public class BRecordType extends BStructureType {
         super(typeName, pkgPath, flags, MapValueImpl.class, fields);
         this.restFieldType = restFieldType;
         this.sealed = sealed;
-    }
-
-    public BRecordType(String typeName, String pkgPath, int flags, boolean sealed, MapValue annotations) {
-        super(typeName, pkgPath, flags, MapValueImpl.class);
-        this.sealed = sealed;
-        this.annotations = (MapValue<String, Object>) annotations;
     }
 
     @Override

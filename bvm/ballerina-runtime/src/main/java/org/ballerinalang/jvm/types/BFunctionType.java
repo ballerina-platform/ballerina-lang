@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.values.MapValue;
-
 import java.util.Arrays;
 
 /**
@@ -41,13 +39,6 @@ public class BFunctionType extends AnnotatableType {
         super("function ()", null, Object.class);
         this.paramTypes = paramTypes;
         this.retType = retType;
-    }
-
-    public BFunctionType(BType[] paramTypes, BType retType, MapValue annotations) {
-        super("function ()", null, Object.class);
-        this.paramTypes = paramTypes;
-        this.retType = retType;
-        this.annotations = (MapValue<String, Object>) annotations;
     }
 
     public BType[] getParameterType() {

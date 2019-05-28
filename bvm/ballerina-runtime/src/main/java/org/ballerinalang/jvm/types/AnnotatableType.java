@@ -35,8 +35,8 @@ public abstract class AnnotatableType extends BType {
 
     public abstract String getAnnotationKey();
 
-    public void addAnnotation(String key, Object annotation) {
-        this.annotations.put(key, annotation);
+    public void setAnnotations(MapValue<String, Object> annotations) {
+        this.annotations = annotations;
     }
 
     public Object getAnnotation(String key) {

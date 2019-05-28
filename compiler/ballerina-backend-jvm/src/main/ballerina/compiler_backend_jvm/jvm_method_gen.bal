@@ -62,7 +62,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
-        //generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName);
+        generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
             mv.visitTypeInsn(NEW, typeOwnerClass);
@@ -302,7 +302,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
         // TODO - Maryam - fix properly
         if (j == bbCount - 1 && isModuleInitFunction(module, func)) {
-            generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName);
+            generateAnnotLoad(mv, module.typeDefs, currentPackageName);
         }
 
         mv.visitIntInsn(BIPUSH, j);
@@ -1145,6 +1145,30 @@ function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisit
     mv.visitLdcInsn(paramIndex);
     mv.visitInsn(L2I);
     mv.visitInsn(AALOAD);
+}
+
+function generateAnnotLoad(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs, string pkgName) {
+    string typePkgName = ".";
+    if (pkgName != "") {
+        typePkgName = pkgName;
+    }
+
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        string name = typeDef.name.value;
+        bir:BType bType = typeDef.typeValue;
+        loadAnnots(mv, typePkgName, name, bType);
+    }
+}
+
+function loadAnnots(jvm:MethodVisitor mv, string pkgName, string name, bir:BType bType) {
+    string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
+                            lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+    mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
+    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    loadType(mv, bType);
+    mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processAnnotations",
+        io:sprintf("(L%s;L%s;)V", MAP_VALUE, BTYPE), false);
 }
 
 type BalToJVMIndexMap object {

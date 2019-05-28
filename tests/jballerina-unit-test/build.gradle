@@ -129,5 +129,6 @@ configurations.all {
     resolutionStrategy {
         force 'org.ballerinalang:ballerina-lang:0.990.4-SNAPSHOT'
         force 'org.ballerinalang:ballerina-core:0.990.4-SNAPSHOT'
+        force 'org.ballerinalang:ballerina-builtin:0.990.4-SNAPSHOT'
     }
 }

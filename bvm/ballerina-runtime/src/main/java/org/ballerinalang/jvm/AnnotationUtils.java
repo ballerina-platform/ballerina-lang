@@ -18,51 +18,44 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.AnnotatableType;
+import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-
-import java.util.Arrays;
 
 /**
- * Utility methods related to services and resources annotation processing.
+ * Utility methods related to annotation loading.
  *
  * @since 0.995.0
  */
 public class AnnotationUtils {
 
-    public static MapValue processAnnotations(MapValue globalValueMap, String key) {
-        if (!globalValueMap.containsKey(key)) {
-            return new MapValueImpl();
-        }
-        return (MapValue) globalValueMap.get(key);
-    }
-
-    public static void processObjectAnnotations(MapValueImpl globalValueMap, BObjectType objectType) {
-        processAnnotations(globalValueMap, objectType);
-        Arrays.stream(objectType.getAttachedFunctions()).forEach(function -> {
-            processAnnotations(globalValueMap, function);
-        });
-    }
-
-    private static void processAnnotations(MapValueImpl globalValueMap, AnnotatableType annotatableType) {
-        if (!globalValueMap.containsKey(annotatableType.getAnnotationKey())) {
+    /**
+     * Method to retrieve annotations of the type from the global annotation map and set it to the type.
+     *
+     * @param globalAnnotMap    The global annotation map
+     * @param bType             The type for which annotations need to be set
+     */
+    public static void processAnnotations(MapValue globalAnnotMap, BType bType) {
+        if (!(bType instanceof AnnotatableType)) {
             return;
         }
 
-        final Object map = globalValueMap.get(annotatableType.getAnnotationKey());
-
-        if (map == null || TypeChecker.getType(map).getTag() != BTypes.typeMap.getTag()) {
-            return;
+        AnnotatableType type = (AnnotatableType) bType;
+        String annotationKey = type.getAnnotationKey();
+        if (globalAnnotMap.containsKey(annotationKey)) {
+            type.setAnnotations((MapValue<String, Object>) globalAnnotMap.get(annotationKey));
         }
 
-        MapValueImpl<String, Object> annotationMap = (MapValueImpl<String, Object>) map;
-        for (String key : annotationMap.getKeys()) {
-            final MapValueImpl<String, Object> annotationData = (MapValueImpl<String, Object>) annotationMap.get(key);
-            final String annotationQName = key.split("\\$")[0];
-            final String[] qNameParts = annotationQName.split(":");
-            annotatableType.addAnnotation(qNameParts[0] + ":" + qNameParts[1], annotationData);
+        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            BObjectType objectType = (BObjectType) type;
+            for (AttachedFunction attachedFunction : objectType.getAttachedFunctions()) {
+                annotationKey = attachedFunction.getAnnotationKey();
+                if (globalAnnotMap.containsKey(annotationKey)) {
+                    attachedFunction.setAnnotations((MapValue<String, Object>) globalAnnotMap.get(annotationKey));
+                }
+            }
         }
     }
 }
