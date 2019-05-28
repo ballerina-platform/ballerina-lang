@@ -50,7 +50,7 @@ import javax.naming.ldap.LdapContext;
  * @since 0.983.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "auth",
+        orgName = "ballerina", packageName = "ldap",
         functionName = "doAuthenticate",
         args = {@Argument(name = "username", type = TypeKind.STRING),
                 @Argument(name = "password", type = TypeKind.STRING)

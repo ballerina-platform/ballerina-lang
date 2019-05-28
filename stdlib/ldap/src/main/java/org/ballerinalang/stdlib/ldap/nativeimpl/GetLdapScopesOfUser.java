@@ -58,10 +58,11 @@ import javax.naming.ldap.Rdn;
  * @since 0.983.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "auth",
+        orgName = "ballerina", packageName = "ldap",
         functionName = "getLdapScopes",
         args = {@Argument(name = "username", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)})
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
+        isPublic = true)
 public class GetLdapScopesOfUser extends BlockingNativeCallableUnit {
 
     private static final Log LOG = LogFactory.getLog(GetLdapScopesOfUser.class);

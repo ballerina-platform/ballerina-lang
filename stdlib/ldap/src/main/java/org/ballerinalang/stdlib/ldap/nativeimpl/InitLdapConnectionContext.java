@@ -60,7 +60,7 @@ import javax.net.ssl.SSLContext;
  * @since 0.983.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "auth",
+        orgName = "ballerina", packageName = "ldap",
         functionName = "initLdapConnectionContext",
         args = {@Argument(name = "ldapAuthStoreProvider", type = TypeKind.OBJECT, structType = "LdapAuthStoreProvider"),
                 @Argument(name = "instanceId", type = TypeKind.STRING)})
