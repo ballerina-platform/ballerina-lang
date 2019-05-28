@@ -41,7 +41,7 @@ ldap:LdapAuthStoreProviderConfig ldapConfig02 = {
 };
 
 ldap:LdapAuthStoreProvider ldapAuthStoreProvider02 = new(ldapConfig02, "ldap01");
-http:BasicAuthnHandler ldapAuthnHandler02 = new(ldapAuthStoreProvider02);
+http:BasicAuthHeaderAuthnHandler ldapAuthnHandler02 = new(ldapAuthStoreProvider02);
 
 listener http:Listener ep = new(9111, config = {
     auth: {

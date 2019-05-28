@@ -14,7 +14,7 @@ jwt:JWTAuthProvider jwtAuthProvider = new({
 });
 
 // Create a JWT authentication handler with the created JWT auth provider.
-http:JwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
+http:BearerAuthHeaderAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
 
 // The endpoint used here is the `http:Listener`. The JWT authentication
 // handler is set to this endpoint using the `authnHandlers` attribute.

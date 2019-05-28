@@ -27,7 +27,7 @@ jwt:JWTAuthProvider jwtAuthProvider07 = new({
     }
 });
 
-http:JwtAuthnHandler jwtAuthnHandler07 = new(jwtAuthProvider07);
+http:BearerAuthHeaderAuthnHandler jwtAuthnHandler07 = new(jwtAuthProvider07);
 
 listener http:Listener listener07 = new(9098, config = {
     auth: {

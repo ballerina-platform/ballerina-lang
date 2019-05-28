@@ -37,9 +37,9 @@ import java.nio.file.Paths;
 import java.util.Collections;
 
 /**
- * Authentication handler testcase.
+ * Basic auth header authentication handler testcase.
  */
-public class BasicAuthnHandlerTest {
+public class BasicAuthHeaderAuthnHandlerTest {
 
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
@@ -52,7 +52,7 @@ public class BasicAuthnHandlerTest {
         Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider", BALLERINA_CONF);
 
         // Copy the ballerina.conf to the source root before starting the tests
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("basic-authn-handler-test.bal").toString());
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("basic-auth-header-authn-handler-test.bal").toString());
 
         String secretFile = "secret.txt";
         Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);
@@ -70,28 +70,28 @@ public class BasicAuthnHandlerTest {
         Files.copy(Paths.get(from), Paths.get(to));
     }
 
-    @Test(description = "Test case for basic auth interceptor canHandle method, without the basic auth header")
+    @Test(description = "Test case for basic auth header interceptor canHandle method, without the basic auth header")
     public void testCanHandleHttpBasicAuthWithoutHeader() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpBasicAuthWithoutHeader");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for basic auth interceptor canHandle method")
+    @Test(description = "Test case for basic auth header interceptor canHandle method")
     public void testCanHandleHttpBasicAuth() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpBasicAuth");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for basic auth interceptor authentication failure")
+    @Test(description = "Test case for basic auth header interceptor authentication failure")
     public void testHandleHttpBasicAuthFailure() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpBasicAuthFailure");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for basic auth interceptor authentication success")
+    @Test(description = "Test case for basic auth header interceptor authentication success")
     public void testHandleHttpBasicAuth() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpBasicAuth");
         Assert.assertTrue(returns[0] instanceof BBoolean);

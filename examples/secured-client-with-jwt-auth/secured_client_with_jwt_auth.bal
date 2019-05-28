@@ -50,7 +50,7 @@ jwt:JWTAuthProvider jwtAuthProvider = new({
 });
 
 // Create a JWT authentication handler with the created JWT auth provider.
-http:JwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
+http:BearerAuthHeaderAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
 
 listener http:Listener ep = new(9090, config = {
     auth: {

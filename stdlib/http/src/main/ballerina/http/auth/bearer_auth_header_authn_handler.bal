@@ -15,14 +15,12 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/encoding;
 import ballerina/log;
-import ballerina/runtime;
 
-# Defines Basic Auth handler for HTTP traffic.
+# Representation of Bearer auth header authn handler for HTTP traffic.
 #
-# + authProvider - AuthProvider instance
-public type BasicAuthnHandler object {
+# + authProvider - `JWTAuthProvider` instance
+public type BearerAuthHeaderAuthnHandler object {
 
     *AuthnHandler;
 
@@ -32,25 +30,26 @@ public type BasicAuthnHandler object {
         self.authProvider = authProvider;
     }
 
-    # Intercept requests for authentication.
+    # Checks if the request can be authenticated with Bearer auth header.
     #
-    # + req - Request object
-    # + return - `true` if authentication is a success, else `false`
+    # + req - `Request` instance
+    # + return - `true` if can be authenticated, else `false`
     public function canHandle(Request req) returns boolean {
         if (req.hasHeader(AUTH_HEADER)) {
-            string basicAuthHeader = extractAuthorizationHeaderValue(req);
-            return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
+            string headerValue = extractAuthorizationHeaderValue(req);
+            return headerValue.hasPrefix(AUTH_SCHEME_BEARER);
         }
         return false;
     }
 
-    # Checks if the provided request can be authenticated with basic auth.
+    # Authenticates the incoming request with the use of credentials passed as Bearer auth header.
     #
-    # + req - Request object
-    # + return - `true` if it is possible authenticate with basic auth, else `false`, or `error` in case of errors
+    # + req - `Request` instance
+    # + return - `true` if authenticated successfully, else `false`, or `error` in case of errors
     public function handle(Request req) returns boolean|error {
-        string basicAuthHeader = extractAuthorizationHeaderValue(req);
-        string credential = basicAuthHeader.substring(5, basicAuthHeader.length()).trim();
+        string headerValue = extractAuthorizationHeaderValue(req);
+        string credential = headerValue.substring(6, headerValue.length()).trim();
         return self.authProvider.authenticate(credential);
     }
 };
+
