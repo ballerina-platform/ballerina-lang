@@ -2260,7 +2260,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (!Symbols.isFlagOn(func.symbol.flags, Flags.INTERFACE)) {
+        if (!Symbols.isFunctionDeclaration(func.symbol)) {
             return;
         }
 
