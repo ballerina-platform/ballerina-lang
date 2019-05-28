@@ -94,10 +94,9 @@ checkstyle {
 }
 
 createJavadoc {
-    source = fileTree("src/main/java")
+    source = sourceSets.main.allJava
     failOnError false
     options.addStringOption('-quiet')
-    exclude 'src/main/gen/**'
 }
 
 spotbugsMain {
@@ -108,7 +107,7 @@ spotbugsMain {
         html.enabled true
     }
     def excludeFile = file('spotbugs-exclude.xml')
-    if(excludeFile.exists()) {
+    if (excludeFile.exists()) {
         it.excludeFilter = excludeFile
     }
     ignoreFailures = true
