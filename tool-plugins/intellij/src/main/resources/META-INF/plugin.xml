@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>0.991.0</version>
+    <version>0.991.1</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -10,9 +10,8 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Improved performance, stability and reduced plugin size with “Lsp4IntelliJ” language client support.</li>
-        <li>Ballerina language server based code formatting.</li>
-        <li>Minor bug fixes and improvements.</li>
+        <li>Fix highlighting for new xml syntax.</li>
+        <li>Various bug fixes and improvements in Lsp4IntelliJ language client library.</li>
       </ul>
     ]]>
     </change-notes>
