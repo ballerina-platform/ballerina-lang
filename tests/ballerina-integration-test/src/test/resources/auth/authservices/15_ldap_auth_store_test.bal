@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/auth;
+import ballerina/ldap;
 import ballerina/http;
 
-auth:LdapAuthStoreProviderConfig ldapConfig02 = {
+ldap:LdapAuthStoreProviderConfig ldapConfig02 = {
     domainName: "ballerina.io",
     connectionURL: "ldap://localhost:9389",
     connectionName: "uid=admin,ou=system",
@@ -40,7 +40,7 @@ auth:LdapAuthStoreProviderConfig ldapConfig02 = {
     retryAttempts: 3
 };
 
-auth:LdapAuthStoreProvider ldapAuthStoreProvider02 = new(ldapConfig02, "ldap01");
+ldap:LdapAuthStoreProvider ldapAuthStoreProvider02 = new(ldapConfig02, "ldap01");
 http:BasicAuthnHandler ldapAuthnHandler02 = new(ldapAuthStoreProvider02);
 
 listener http:Listener ep = new(9111, config = {
