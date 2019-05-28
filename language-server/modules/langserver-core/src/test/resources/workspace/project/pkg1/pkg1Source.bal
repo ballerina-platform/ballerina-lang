@@ -6,7 +6,7 @@ type testObject object {
     function printHelloFuncion() {
         string printValue = "Ballerina";
     }
-    function functionWithNoSignature();
+    //function functionWithNoSignature();
 };
 
 type testRecord record {
