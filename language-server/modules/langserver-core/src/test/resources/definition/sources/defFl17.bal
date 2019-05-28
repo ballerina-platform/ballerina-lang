@@ -4,7 +4,7 @@ import ballerina/http;
 int port = 9090;
 
 auth:ConfigAuthStoreProvider basicAuthProvider = new;
-http:BasicAuthnHandler basicAuthnHandler = new(basicAuthProvider);
+http:BasicAuthHeaderAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 
 http:ServiceSecureSocket secureSocket = {
     keyStore: {
