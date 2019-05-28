@@ -314,7 +314,7 @@ public class Scheduler {
 
     private void reschedule(SchedulerItem item) {
         synchronized (item) {
-            if (item.getState() == BLOCKED) {
+            if (item.getState() != RUNNABLE) {
                 item.setState(RUNNABLE);
                 runnableList.add(item);
             }
