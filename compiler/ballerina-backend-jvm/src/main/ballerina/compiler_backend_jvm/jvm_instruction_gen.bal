@@ -99,6 +99,18 @@ type InstructionGenerator object {
             self.generateClosedRangeIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_HALF_OPEN_RANGE) {
             self.generateClosedRangeIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_BITWISE_AND) {
+            self.generateBitwiseAndIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_BITWISE_OR) {
+            self.generateBitwiseOrIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_BITWISE_XOR) {
+            self.generateBitwiseXorIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_BITWISE_LEFT_SHIFT) {
+            self.generateBitwiseLeftShiftIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_BITWISE_RIGHT_SHIFT) {
+            self.generateBitwiseRightShiftIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT) {
+            self.generateBitwiseUnsignedRightShiftIns(binaryIns);
         } else {
             error err = error("JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind));
             panic err;
@@ -144,10 +156,10 @@ type InstructionGenerator object {
             self.mv.visitInsn(LCMP);
         } else if (lhsOpType is bir:BTypeFloat && rhsOpType is bir:BTypeFloat) {
             self.mv.visitInsn(DCMPL);
-        } else {
-            string compareFuncName = self.getCompareFuncName(opcode);
+        } else if (lhsOpType is bir:BTypeDecimal && rhsOpType is bir:BTypeDecimal) {
+            string compareFuncName = self.getDecimalCompareFuncName(opcode);
             self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, compareFuncName,
-                io:sprintf("(L%s;L%s;)Z", COMPARABLE, COMPARABLE), false);
+                io:sprintf("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
             self.storeToVar(binaryIns.lhsOp.variableDcl);
             return;
         }
@@ -164,15 +176,15 @@ type InstructionGenerator object {
         self.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
-    private function getCompareFuncName(int opcode) returns string {
+    private function getDecimalCompareFuncName(int opcode) returns string {
         if (opcode == IFGT) {
-            return "ifgt";
+            return "checkDecimalGreaterThan";
         } else if (opcode == IFGE) {
-            return "ifge";
+            return "checkDecimalGreaterThanOrEqual";
         } else if (opcode == IFLT) {
-            return "iflt";
+            return "checkDecimalLessThan";
         } else if (opcode == IFLE) {
-            return "ifle";
+            return "checkDecimalLessThanOrEqual";
         } else {
             error err = error(io:sprintf("Opcode: '%s' is not a comparison opcode.", opcode));
             panic err;
@@ -195,6 +207,11 @@ type InstructionGenerator object {
             self.mv.visitJumpInsn(IFNE, label1);
         } else if (lhsOpType is bir:BTypeBoolean && rhsOpType is bir:BTypeBoolean) {
             self.mv.visitJumpInsn(IF_ICMPNE, label1);
+        } else if (lhsOpType is bir:BTypeDecimal && rhsOpType is bir:BTypeDecimal) {
+            self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkDecimalEqual",
+                io:sprintf("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
+            self.storeToVar(binaryIns.lhsOp.variableDcl);
+            return;
         } else {
             self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isEqual",
                     io:sprintf("(L%s;L%s;)Z", OBJECT, OBJECT), false);
@@ -229,6 +246,10 @@ type InstructionGenerator object {
             self.mv.visitJumpInsn(IFEQ, label1);
         } else if (lhsOpType is bir:BTypeBoolean && rhsOpType is bir:BTypeBoolean) {
             self.mv.visitJumpInsn(IF_ICMPEQ, label1);
+        } else if (lhsOpType is bir:BTypeDecimal && rhsOpType is bir:BTypeDecimal) {
+            self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkDecimalEqual",
+                io:sprintf("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
+            self.mv.visitJumpInsn(IFNE, label1);
         } else {
             self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isEqual",
                     io:sprintf("(L%s;L%s;)Z", OBJECT, OBJECT), false);
@@ -420,6 +441,51 @@ type InstructionGenerator object {
                 panic err;
             }
             self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateBitwiseAndIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitInsn(LAND);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateBitwiseOrIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitInsn(LOR);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateBitwiseXorIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitInsn(LXOR);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateBitwiseLeftShiftIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitInsn(L2I);
+        self.mv.visitInsn(LSHL);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateBitwiseRightShiftIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitInsn(L2I);
+        self.mv.visitInsn(LSHR);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateBitwiseUnsignedRightShiftIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitInsn(L2I);
+        self.mv.visitInsn(LUSHR);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
     function generateAndIns(bir:BinaryOp binaryIns) {
@@ -697,16 +763,13 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getByte", "(J)B", false);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getFloat", "(J)D", false);
-        } else if (bType is bir:BRecordType) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
-            self.mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
-        } else if (bType is bir:BXMLType) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
-            self.mv.visitTypeInsn(CHECKCAST, XML_VALUE);
         } else {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
+            string? targetTypeClass = getTargetClass(varRefType, bType);
+            if (targetTypeClass is string) {
+                self.mv.visitTypeInsn(CHECKCAST, targetTypeClass);
+            }
         }
-
         self.storeToVar(inst.lhsOp.variableDcl);
     }
 
@@ -951,7 +1014,10 @@ type InstructionGenerator object {
         if (btype is bir:BTypeInt || btype is bir:BTypeByte) {
             self.mv.visitInsn(LNEG);
         } else if (btype is bir:BTypeFloat) {
-            self.mv.visitInsn(FNEG);
+            self.mv.visitInsn(DNEG);
+        } else if (btype is bir:BTypeDecimal) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "negate",
+                io:sprintf("()L%s;", DECIMAL_VALUE), false);
         } else {
             error err = error(io:sprintf("Negation is not supported for type: %s", btype));
             panic err;
