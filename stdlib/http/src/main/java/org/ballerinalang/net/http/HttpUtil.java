@@ -898,9 +898,9 @@ public class HttpUtil {
      */
     private static void setHeaderToResponseMsg(HttpCarbonMessage requestMsg, HttpCarbonMessage outboundResponseMsg) {
         if (requestMsg.getHeaders().contains(SERVER_NAME)) {
-            if ((outboundResponseMsg.getHeaders().contains(SERVER_NAME) &&
-                    outboundResponseMsg.getHeader(SERVER_NAME).isEmpty()) ||
-                    !outboundResponseMsg.getHeaders().contains(SERVER_NAME)) {
+            if ((outboundResponseMsg.getHeaders().contains(SERVER_NAME)
+                    && outboundResponseMsg.getHeader(SERVER_NAME).isEmpty())
+                    || !outboundResponseMsg.getHeaders().contains(SERVER_NAME)) {
                 outboundResponseMsg.setHeader(SERVER_NAME, requestMsg.getHeader(SERVER_NAME));
             }
         }
