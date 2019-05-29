@@ -56,7 +56,7 @@ public class ArtemisUtils {
      * @param message   the error message
      * @param context   the Ballerina context
      * @param exception the exception to be propagated
-     * @param logger the logger to log errors
+     * @param logger    the logger to log errors
      */
     public static void throwException(String message, Context context, Exception exception, Logger logger) {
         logger.error(message, exception);
@@ -260,6 +260,44 @@ public class ArtemisUtils {
         byte[] bytes = new byte[msgBuffer.readableBytes()];
         BytesMessageUtil.bytesReadBytes(msgBuffer, bytes);
         return new BValueArray(bytes);
+    }
+
+    public static void populateMessageObj(ClientMessage clientMessage, Object transactionContext,
+                                          BMap<String, BValue> messageObj) {
+        @SuppressWarnings(ArtemisConstants.UNCHECKED)
+        BMap<String, BValue> messageConfigObj = (BMap<String, BValue>) messageObj.get(ArtemisConstants.MESSAGE_CONFIG);
+        populateMessageConfigObj(clientMessage, messageConfigObj);
+
+        messageObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT, transactionContext);
+        messageObj.addNativeData(ArtemisConstants.ARTEMIS_MESSAGE, clientMessage);
+    }
+
+    private static void populateMessageConfigObj(ClientMessage clientMessage, BMap<String, BValue> messageConfigObj) {
+        messageConfigObj.put(ArtemisConstants.EXPIRATION, new BInteger(clientMessage.getExpiration()));
+        messageConfigObj.put(ArtemisConstants.TIME_STAMP, new BInteger(clientMessage.getTimestamp()));
+        messageConfigObj.put(ArtemisConstants.PRIORITY, new BByte(clientMessage.getPriority()));
+        messageConfigObj.put(ArtemisConstants.DURABLE, new BBoolean(clientMessage.isDurable()));
+        setRoutingTypeToConfig(messageConfigObj, clientMessage);
+        if (clientMessage.getGroupID() != null) {
+            messageConfigObj.put(ArtemisConstants.GROUP_ID, new BString(clientMessage.getGroupID().toString()));
+        }
+        messageConfigObj.put(ArtemisConstants.GROUP_SEQUENCE, new BInteger(clientMessage.getGroupSequence()));
+        if (clientMessage.getCorrelationID() != null) {
+            messageConfigObj.put(ArtemisConstants.CORRELATION_ID,
+                                 new BString(clientMessage.getCorrelationID().toString()));
+        }
+        if (clientMessage.getReplyTo() != null) {
+            messageConfigObj.put(ArtemisConstants.REPLY_TO, new BString(clientMessage.getReplyTo().toString()));
+        }
+    }
+
+    public static void setRoutingTypeToConfig(BMap<String, BValue> msgConfigObj, ClientMessage message) {
+        byte routingType = message.getType();
+        if (routingType == RoutingType.MULTICAST.getType()) {
+            msgConfigObj.put(ArtemisConstants.ROUTING_TYPE, new BString(ArtemisConstants.MULTICAST));
+        } else if (routingType == RoutingType.ANYCAST.getType()) {
+            msgConfigObj.put(ArtemisConstants.ROUTING_TYPE, new BString(ArtemisConstants.ANYCAST));
+        }
     }
 
     private ArtemisUtils() {

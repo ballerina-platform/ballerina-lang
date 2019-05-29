@@ -96,7 +96,6 @@ public type Message client object {
     #
     # + return - the `MessageConfiguration` of this message
     public function getConfig() returns MessageConfiguration {
-        self.configuration.freeze();
         return self.configuration;
     }
 };
@@ -108,12 +107,20 @@ public type Message client object {
 # + priority - the message priority (between 0 and 9 inclusive)
 # + durable - whether the created message is durable or not
 # + routingType - `RoutingType` of the message
+# + groupId - used to group messages so that the same consumer receives all the messages with a particular groupId
+# + groupSequence - can use to specify a sequence within the group
+# + correlationId - a header for associating the current message with some previous message or application-specific ID
+# + replyTo - indicates which address a JMS consumer should reply to
 public type MessageConfiguration record {|
-    int? expiration = ();
-    int? timeStamp = ();
+    int expiration = 0;
+    int timeStamp = time:currentTime().time;
     byte priority = 0;
     boolean durable = true;
     RoutingType? routingType = ();
+    string? groupId = ();
+    int groupSequence = 0;
+    string? correlationId = ();
+    string? replyTo = ();
 |};
 
 # ActiveMQ Artemis message types.

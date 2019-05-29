@@ -45,6 +45,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -81,6 +83,7 @@ import java.util.Map;
         }
 )
 public class CreateMessage extends BlockingNativeCallableUnit {
+    private static final Logger logger = LoggerFactory.getLogger(CreateMessage.class);
 
     @Override
     public void execute(Context context) {
@@ -94,11 +97,15 @@ public class CreateMessage extends BlockingNativeCallableUnit {
 
         @SuppressWarnings(ArtemisConstants.UNCHECKED)
         BMap<String, BValue> configObj = (BMap<String, BValue>) context.getRefArgument(3);
-        long expiration = getIntFromIntOrNil(configObj.get(ArtemisConstants.EXPIRATION), 0);
-        long timeStamp = getIntFromIntOrNil(configObj.get(ArtemisConstants.TIME_STAMP), System.currentTimeMillis());
+        long expiration = ((BInteger) configObj.get(ArtemisConstants.EXPIRATION)).intValue();
+        long timeStamp = ((BInteger) configObj.get(ArtemisConstants.TIME_STAMP)).intValue();
         byte priority = (byte) ((BByte) configObj.get(ArtemisConstants.PRIORITY)).byteValue();
         boolean durable = ((BBoolean) configObj.get(ArtemisConstants.DURABLE)).booleanValue();
         BValue routingType = configObj.get(ArtemisConstants.ROUTING_TYPE);
+        BValue groupId = configObj.get(ArtemisConstants.GROUP_ID);
+        int groupSequence = ArtemisUtils.getIntFromConfig(configObj, ArtemisConstants.GROUP_SEQUENCE, logger);
+        BValue correlationId = configObj.get(ArtemisConstants.CORRELATION_ID);
+        BValue replyTo = configObj.get(ArtemisConstants.REPLY_TO);
 
         ClientSession session = (ClientSession) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_SESSION);
 
@@ -107,7 +114,16 @@ public class CreateMessage extends BlockingNativeCallableUnit {
         if (routingType instanceof BString) {
             message.setRoutingType(ArtemisUtils.getRoutingTypeFromString(routingType.stringValue()));
         }
-
+        if (groupId instanceof BString) {
+            message.setGroupID(groupId.stringValue());
+        }
+        message.setGroupSequence(groupSequence);
+        if (correlationId instanceof BString) {
+            message.setCorrelationID(correlationId.stringValue());
+        }
+        if (replyTo instanceof BString) {
+            message.setReplyTo(new SimpleString(replyTo.stringValue()));
+        }
         if (messageType == Message.TEXT_TYPE) {
             TextMessageUtil.writeBodyText(message.getBodyBuffer(), new SimpleString(dataVal.stringValue()));
         } else if (messageType == Message.BYTES_TYPE) {
@@ -158,12 +174,5 @@ public class CreateMessage extends BlockingNativeCallableUnit {
             default:
                 return Message.DEFAULT_TYPE;
         }
-    }
-
-    private long getIntFromIntOrNil(BValue value, long defaultVal) {
-        if (value instanceof BInteger) {
-            return ((BInteger) value).intValue();
-        }
-        return defaultVal;
     }
 }

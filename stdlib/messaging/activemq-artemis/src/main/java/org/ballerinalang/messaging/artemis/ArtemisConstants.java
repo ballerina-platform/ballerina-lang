@@ -79,7 +79,6 @@ public class ArtemisConstants {
     // Field names for Consumer
     public static final String FILTER = "filter";
     public static final String AUTO_ACK = "autoAck";
-    public static final String BROWSE_ONLY = "browseOnly";
     public static final String QUEUE_CONFIG = "queueConfig";
     public static final String QUEUE_NAME = "queueName";
     public static final String TEMPORARY = "temporary";
@@ -95,6 +94,7 @@ public class ArtemisConstants {
     public static final String EXPIRATION = "expiration";
     public static final String TIME_STAMP = "timeStamp";
     public static final String PRIORITY = "priority";
+    public static final String MESSAGE_CONFIG = "configuration";
 
     // Field names for Producer
     public static final String RATE = "rate";
@@ -103,8 +103,13 @@ public class ArtemisConstants {
     // Common field names
     public static final String DURABLE = "durable";
     public static final String ROUTING_TYPE = "routingType";
+    public static final String GROUP_ID = "groupId";
+    public static final String GROUP_SEQUENCE = "groupSequence";
+    public static final String CORRELATION_ID = "correlationId";
+    public static final String REPLY_TO = "replyTo";
     public static final String AUTO_CREATED = "autoCreated";
-    static final String MULTICAST = "MULTICAST";
+    public static final String MULTICAST = "MULTICAST";
+    public static final String ANYCAST = "ANYCAST";
 
     // Field name for Session
     public static final String USERNAME = "username";

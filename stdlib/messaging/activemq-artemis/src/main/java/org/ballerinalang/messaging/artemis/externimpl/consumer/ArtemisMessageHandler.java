@@ -85,7 +85,7 @@ class ArtemisMessageHandler implements MessageHandler {
         if (paramSize > 1) {
             dispatchResourceWithDataBinding(clientMessage, paramDetails);
         } else {
-            dispatchResource(clientMessage, createAndGetMessageBMap(onMessageResource, clientMessage, sessionObj));
+            dispatchResource(clientMessage, createAndGetMessageObj(onMessageResource, clientMessage, sessionObj));
         }
 
     }
@@ -94,12 +94,10 @@ class ArtemisMessageHandler implements MessageHandler {
         BValue[] bValues = new BValue[paramDetails.size()];
         try {
             bValues[1] = getContentForType(clientMessage, paramDetails.get(1).getVarType());
-            bValues[0] = createAndGetMessageBMap(onMessageResource, clientMessage, sessionObj);
+            bValues[0] = createAndGetMessageObj(onMessageResource, clientMessage, sessionObj);
             dispatchResource(clientMessage, bValues);
         } catch (BallerinaException ex) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("The message received do not match the resource signature", ex);
-            }
+            logger.error("The message received do not match the resource signature", ex);
         }
     }
 
@@ -116,14 +114,14 @@ class ArtemisMessageHandler implements MessageHandler {
         }
     }
 
-    private BValue createAndGetMessageBMap(Resource onMessageResource, ClientMessage clientMessage,
-                                           BMap<String, BValue> sessionObj) {
+    private BValue createAndGetMessageObj(Resource onMessageResource, ClientMessage clientMessage,
+                                          BMap<String, BValue> sessionObj) {
         ProgramFile programFile = onMessageResource.getResourceInfo().getPackageInfo().getProgramFile();
         BMap<String, BValue> messageObj = BLangConnectorSPIUtil.createBStruct(
                 programFile, ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS, ArtemisConstants.MESSAGE_OBJ);
-        messageObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT,
-                                 sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT));
-        messageObj.addNativeData(ArtemisConstants.ARTEMIS_MESSAGE, clientMessage);
+        ArtemisUtils.populateMessageObj(clientMessage,
+                                        sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT),
+                                        messageObj);
         return messageObj;
     }
 
@@ -158,7 +156,6 @@ class ArtemisMessageHandler implements MessageHandler {
             default:
                 throw new ArtemisConnectorException(
                         "The content type of the message received does not match the resource signature type.");
-
         }
     }
 
