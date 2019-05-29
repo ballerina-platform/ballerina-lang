@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.packerina;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.backend.jvm.JVMCodeGen;
 import org.ballerinalang.testerina.util.TesterinaUtils;

@@ -375,17 +375,4 @@ public class PushUtils {
         }
         return firstLine;
     }
-
-    /**
-     * Checks if the directory is a special directory that is not a module.
-     *
-     * @param dirName directory name
-     * @return if the directory is a special directory or not
-     */
-    private static boolean isSpecialDirectory(Path dirName) {
-        List<String> ignoreDirs = Arrays.asList(ProjectDirConstants.TARGET_DIR_NAME,
-                                                ProjectDirConstants.RESOURCE_DIR_NAME);
-        String dirNameStr = dirName.toString();
-        return dirNameStr.startsWith(".") || dirName.toFile().isHidden() || ignoreDirs.contains(dirNameStr);
-    }
 }

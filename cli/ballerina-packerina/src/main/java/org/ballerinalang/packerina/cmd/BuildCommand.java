@@ -98,7 +98,7 @@ public class BuildCommand implements BLauncherCmd {
             throw LauncherUtils.createUsageExceptionWithHelp("no ballerina source file or module given");
         }
         
-        if (argList != null && argList.size() > 1) {
+        if (argList.size() > 1) {
             throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
 
