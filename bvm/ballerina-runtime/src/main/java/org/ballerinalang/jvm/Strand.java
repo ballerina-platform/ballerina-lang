@@ -156,6 +156,7 @@ public class Strand {
             synchronized (entry.getValue()) {
                 if (entry.getValue().isDone) {
                     if (entry.getValue().panic != null) {
+                        this.blockedOn.clear();
                         throw entry.getValue().panic;
                     }
                     target.put(entry.getKey(), entry.getValue().result);
@@ -195,15 +196,9 @@ public class Strand {
 
         if (waitResult.done) {
             this.blockedOn.clear();
-            for (FutureValue future : futures) {
-                future.strand.scheduler.release(future.strand, this);
-            }
         } else if (completed == futures.size()) {
             // all futures have error result
             this.blockedOn.clear();
-            for (FutureValue future : futures) {
-                future.strand.scheduler.release(future.strand, this);
-            }
             waitResult = new WaitResult(true, error);
         } else {
             this.yield = true;

@@ -314,6 +314,8 @@ public class Scheduler {
     private void reschedule(SchedulerItem item) {
         synchronized (item) {
             if (item.getState() != RUNNABLE) {
+                // release if the same strand is waiting for others (wait multiple)
+                release(item.future.strand.blockedOn, item.future.strand);
                 item.setState(RUNNABLE);
                 runnableList.add(item);
             }
@@ -348,13 +350,14 @@ public class Scheduler {
         reschedule(item);
     }
 
-    public void release(Strand blockedOn, Strand strand) {
-        synchronized (blockedOn) {
+    public void release(List<Strand> blockedOnList, Strand strand) {
+        blockedOnList.forEach(blockedOn ->
             blockedList.computeIfPresent(blockedOn, (sameAsBlockedOn, blocked) -> {
                 blocked.removeIf(item -> item.future.strand == strand);
                 return blocked;
-            });
-        }
+            })
+        );
+
     }
 }
 
