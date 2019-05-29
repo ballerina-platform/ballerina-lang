@@ -250,6 +250,7 @@ const string WORKER_DATA_CHANNEL = "org/ballerinalang/jvm/WorkerDataChannel";
 const string CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
 const string WORKER_UTILS = "org/ballerinalang/jvm/WorkerUtils";
 const string LONG_STREAM = "java/util/stream/LongStream";
+const string MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -291,3 +292,12 @@ const string BAL_EXTENSION = ".bal";
 const string SCHEDULE_CONSUMER_METHOD =  "scheduleConsumer";
 const string SCHEDULE_FUNCTION_METHOD =  "scheduleFunction";
 const string SCHEDULER_START_METHOD =  "start";
+
+// visibility flags
+const int BAL_PUBLIC = 1;
+const int BAL_NATIVE = 2;
+const int BAL_ATTACHED = 8;
+const int BAL_REQUIRED = 256;
+const int BAL_PRIVATE = 1024;
+const int BAL_OPTIONAL = 8192;
+const int BAL_SERVICE = 524288;
