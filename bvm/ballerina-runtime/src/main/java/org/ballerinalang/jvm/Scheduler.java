@@ -23,11 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -58,7 +59,7 @@ public class Scheduler {
      * Scheduler items that are blocked on given strand.
      * List key is the blocker.
      */
-    private Map<Strand, List<SchedulerItem>> blockedList = new ConcurrentHashMap<>();
+    private Map<Strand, Set<SchedulerItem>> blockedList = new ConcurrentHashMap<>();
 
     /**
      * Scheduler items that are blocked but the blocker is not known.
@@ -80,7 +81,7 @@ public class Scheduler {
 
     private AtomicInteger totalStrands = new AtomicInteger();
     private final int numThreads;
-    private static final List<SchedulerItem> COMPLETED = Collections.emptyList();
+    private static final Set<SchedulerItem> COMPLETED = Collections.emptySet();
 
     public Scheduler(int numThreads) {
         this.numThreads = numThreads;
@@ -215,7 +216,7 @@ public class Scheduler {
                                         reschedule(item);
                                     } else {
                                         if (blocked == null) {
-                                            blocked = new ArrayList<>();
+                                            blocked = new HashSet<>();
                                         }
                                         if (DEBUG) {
                                             debugLog(item + " blocked on wait for " + blockedOn.hashCode());
@@ -242,7 +243,7 @@ public class Scheduler {
                     }
 
                     Strand justCompleted = item.future.strand;
-                    List<SchedulerItem> blockedOnJustCompleted;
+                    Set<SchedulerItem> blockedOnJustCompleted;
                     if (DEBUG) {
                         debugLog(item + " complected");
                     }
@@ -286,9 +287,7 @@ public class Scheduler {
             Thread.sleep(100);
             DEBUG_LOG.add(msg);
             Thread.sleep(100);
-        } catch (InterruptedException ignored) {
-
-        }
+        } catch (InterruptedException ignored) { }
     }
 
     private void notifyChannels(SchedulerItem item, Throwable panic) {
