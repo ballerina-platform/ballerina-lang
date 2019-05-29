@@ -322,17 +322,20 @@ public class BIRPackageSymbolEnter {
             invokableSymbol.owner = attachedType.tsymbol;
             invokableSymbol.name =
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
-            if (attachedType.tag == TypeTags.OBJECT) {
-                scopeToDefine = ((BObjectTypeSymbol) attachedType.tsymbol).methodScope;
-                if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName) ||
-                        funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
-                    BAttachedFunction attachedFunc = new BAttachedFunction(names.fromString(funcName), invokableSymbol,
-                            funcType);
-                    BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
+            if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
+                if (attachedType.tag == TypeTags.OBJECT) {
+                    scopeToDefine = ((BObjectTypeSymbol) attachedType.tsymbol).methodScope;
+                } else {
+                    scopeToDefine = attachedType.tsymbol.scope;
+                }
+                BAttachedFunction attachedFunc =
+                        new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
+                BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
+                if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
+                        || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                    structureTypeSymbol.attachedFuncs.add(attachedFunc);
                     structureTypeSymbol.initializerFunc = attachedFunc;
                 }
-            } else {
-                scopeToDefine = attachedType.tsymbol.scope;
             }
         }
 
@@ -838,10 +841,13 @@ public class BIRPackageSymbolEnter {
 
                         BAttachedFunction attachedFunc =
                                 new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
-                        objectSymbol.attachedFuncs.add(attachedFunc);
-                        if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
-                                || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
-                            objectSymbol.initializerFunc = attachedFunc;
+                        if (!Names.OBJECT_INIT_SUFFIX.value.equals(funcName) &&
+                                !funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                            objectSymbol.attachedFuncs.add(attachedFunc);
+                            if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
+                                    || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                                objectSymbol.initializerFunc = attachedFunc;
+                            }
                         }
 
 //                        setDocumentation(varSymbol, attrData); // TODO fix
