@@ -94,8 +94,9 @@ public type Lexer object {
         return self.buffer.consume();
     }
 
-	//the characters from the buffer stream will be tokenized and a lexer token will be returned
-    function nextToken() returns Token{
+	#the characters from the buffer stream will be tokenized and a token will be returned
+ 	# +return - Token
+    public function nextToken() returns Token{
 		//current character
         string currChar = "";
 		//while the currChar is not Eof, consume the lexemes and build tokens
@@ -146,7 +147,7 @@ public type Lexer object {
 				self.tokenIndex += 1;
 				return {tokenType: COMMA, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
-			}else if (currChar == "=") {
+			} else if (currChar == "=") {
                 if (self.buffer.lookAhead() == "=") {
                     currChar = self.nextLexeme();
                     self.position += 1;
@@ -160,7 +161,7 @@ public type Lexer object {
 					self.tokenIndex += 1;
                     return {tokenType: EQUAL, text: "==", startPos: self.position - 1 , endPos:self.position,
 						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-                }else if (self.buffer.lookAhead() == ">"){
+                } else if (self.buffer.lookAhead() == ">"){
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
@@ -170,7 +171,7 @@ public type Lexer object {
 				self.tokenIndex += 1;
                 return {tokenType: ASSIGN, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
-            }else if (currChar == ";") {
+            } else if (currChar == ";") {
 				self.tokenIndex += 1;
                 return {tokenType: SEMICOLON, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
@@ -192,7 +193,7 @@ public type Lexer object {
 					self.tokenIndex += 1;
 					return {tokenType: COMPOUND_SUB, text: "-=", startPos: self.position - 1 , endPos:self.position,
 						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				}else if (self.buffer.lookAhead() == ">"){
+				} else if (self.buffer.lookAhead() == ">"){
 					currChar = self.nextLexeme();
 					self.position += 1;
 					if (self.buffer.lookAhead() == ">") {
@@ -220,7 +221,7 @@ public type Lexer object {
 				self.tokenIndex += 1;
                 return {tokenType: MUL, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
-            }else if(currChar == "."){
+            } else if(currChar == "."){
 				if (self.buffer.lookAhead() == ".") {
 					currChar = self.nextLexeme();
 					self.position += 1;
@@ -230,7 +231,7 @@ public type Lexer object {
 						self.tokenIndex += 1;
 						return {tokenType: ELLIPSIS, text: "...", startPos: self.position - 2 , endPos:self.position,
 							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-					}else if (self.buffer.lookAhead() == "<"){
+					} else if (self.buffer.lookAhead() == "<"){
 						currChar = self.nextLexeme();
 						self.position += 1;
 						self.tokenIndex += 1;
@@ -244,7 +245,7 @@ public type Lexer object {
 				self.tokenIndex += 1;
 				return {tokenType: DOT, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
-			}else if(currChar == "["){
+			} else if(currChar == "["){
 				self.tokenIndex += 1;
 				return {tokenType: LEFT_BRACKET, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
@@ -252,7 +253,7 @@ public type Lexer object {
 				self.tokenIndex += 1;
 				return {tokenType: RIGHT_BRACKET, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-			}else if(currChar == "?"){
+			} else if(currChar == "?"){
 				if (self.buffer.lookAhead() == ":") {
 					currChar = self.nextLexeme();
 					self.position += 1;
@@ -263,15 +264,15 @@ public type Lexer object {
 				self.tokenIndex += 1;
 				return {tokenType: QUESTION_MARK, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
-			}else if (currChar == "#"){
+			} else if (currChar == "#"){
 				self.tokenIndex += 1;
 				return {tokenType: HASH, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-			}else if (currChar == "~"){
+			} else if (currChar == "~"){
 				self.tokenIndex += 1;
 				return {tokenType: BIT_COMPLEMENT, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-			}else if (currChar == "/") {
+			} else if (currChar == "/") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
 					self.position += 1;
@@ -282,11 +283,11 @@ public type Lexer object {
 				self.tokenIndex += 1;
                 return { tokenType: DIV, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-            }else if(currChar == "%"){
+            } else if(currChar == "%"){
 				self.tokenIndex += 1;
 				return { tokenType: MOD, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-			}else if (currChar == "!") {
+			} else if (currChar == "!") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
 					self.position += 1;
@@ -304,21 +305,21 @@ public type Lexer object {
 				self.tokenIndex += 1;
 				return {tokenType: NOT, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
-			}else if (currChar == ">") {
+			} else if (currChar == ">") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
 					return {tokenType: GT_EQUAL, text: ">=", startPos: self.position - 1 , endPos:self.position,
 						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				}else if (self.buffer.lookAhead() == ">"){
+				} else if (self.buffer.lookAhead() == ">"){
 					if (self.buffer.lookAhead() == "=") {
 						currChar = self.nextLexeme();
 						self.position += 1;
 						self.tokenIndex += 1;
 						return {tokenType: COMPOUND_RIGHT_SHIFT, text: ">>=", startPos: self.position - 2 , endPos:self.position,
 							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-					}else if (self.buffer.lookAhead() == ">"){
+					} else if (self.buffer.lookAhead() == ">"){
 						if (self.buffer.lookAhead() == "=") {
 							currChar = self.nextLexeme();
 							self.position += 1;
@@ -331,20 +332,20 @@ public type Lexer object {
 				self.tokenIndex += 1;
 				return {tokenType: GT, text: currChar, startPos: self.position, endPos: self.position,
 					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
-			}else if (currChar == "<") {
+			} else if (currChar == "<") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
 					return {tokenType: LT_EQUAL, text: "<=", startPos: self.position - 1 , endPos:self.position,
 						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				}else if (self.buffer.lookAhead() == "-"){
+				} else if (self.buffer.lookAhead() == "-"){
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
 					return {tokenType: LARROW, text: "<-", startPos: self.position - 1 , endPos:self.position,
 						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				}else if(self.buffer.lookAhead() == "<"){
+				} else if(self.buffer.lookAhead() == "<"){
 					if (self.buffer.lookAhead() == "=") {
 						currChar = self.nextLexeme();
 						self.position += 1;
