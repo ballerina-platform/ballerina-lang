@@ -16,18 +16,18 @@
 
 import ballerina/log;
 
-# JMS DurableTopicSubscriber endpoint
+# JMS DurableTopicListener endpoint
 #
 # + consumerActions - Object that handles network operations related to the subscriber
-# + session - Session of the topic subscriber
-public type DurableTopicSubscriber object {
+# + session - Session of the topic listener
+public type DurableTopicListener object {
 
     *AbstractListener;
 
     public DurableTopicSubscriberCaller consumerActions = new;
     public Session? session;
 
-    # Initialize DurableTopicSubscriber endpoint.
+    # Initialize DurableTopicListener endpoint.
     #
     # + c - The JMS Session object or Configurations related to the receiver
     # + topicPattern - Name or the pattern of the topic subscription
@@ -77,12 +77,12 @@ public type DurableTopicSubscriber object {
 
     # Return the subscrber caller actions
     #
-    # + return - DurableTopicSubscriber actions handler
+    # + return - DurableTopicListener actions handler
     public function getCallerActions() returns DurableTopicSubscriberCaller {
         return self.consumerActions;
     }
 
-    # Ends consuming messages from the DurableTopicSubscriber endpoint
+    # Ends consuming messages from the DurableTopicListener
     #
     # + return - Nil or error upon failure to close subscriber
     public function __stop() returns error? {
@@ -92,7 +92,7 @@ public type DurableTopicSubscriber object {
     function closeSubscriber(DurableTopicSubscriberCaller actions) returns error? = external;
 };
 
-# Caller actions related to DurableTopicSubscriber endpoint
+# Caller actions related to DurableTopicSubscriber
 public type DurableTopicSubscriberCaller client object {
 
     # Acknowledges a received message
