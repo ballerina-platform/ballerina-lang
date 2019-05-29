@@ -178,6 +178,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRTerminator.WaitAll waitAll) {
+        throw new AssertionError();
+    }
+
     public void visit(BIRTerminator.Flush birFlush) {
         throw new AssertionError();
     }

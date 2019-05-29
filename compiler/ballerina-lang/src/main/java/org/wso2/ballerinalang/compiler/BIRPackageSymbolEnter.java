@@ -370,6 +370,8 @@ public class BIRPackageSymbolEnter {
                 return flags | Flags.PRIVATE;
             case VisibilityFlags.PUBLIC:
                 return flags | Flags.PUBLIC;
+            case VisibilityFlags.OPTIONAL:
+                return flags | Flags.OPTIONAL;
         }
         return flags;
     }
@@ -671,8 +673,10 @@ public class BIRPackageSymbolEnter {
                     int recordFields = inputStream.readInt();
                     for (int i = 0; i < recordFields; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
+                        int fieldFlags = 0;
+                        fieldFlags = visibilityAsMask(fieldFlags, inputStream.readByte());
                         BType fieldType = readType();
-                        BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(fieldName),
+                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                 recordSymbol.pkgID, fieldType, recordSymbol.scope.owner);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }

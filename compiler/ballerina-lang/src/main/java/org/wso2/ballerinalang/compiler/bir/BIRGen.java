@@ -115,6 +115,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -721,7 +722,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
 
-        this.env.enclBB.terminator = new BIRTerminator.Wait(waitExpr.pos, exprList, lhsOp);
+        this.env.enclBB.terminator = new BIRTerminator.Wait(waitExpr.pos, exprList, lhsOp, thenBB);
 
         this.env.enclFunc.basicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
@@ -1259,6 +1260,31 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
+        BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(waitLiteral.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        emit(new BIRNonTerminator.NewStructure(waitLiteral.pos, waitLiteral.type, toVarRef));
+        this.env.targetOperand = toVarRef;
+
+        List<String> keys = new ArrayList<>();
+        List<BIROperand> valueExprs = new ArrayList<>();
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyValue : waitLiteral.keyValuePairs) {
+            keys.add(keyValue.key.value);
+            BLangExpression expr = keyValue.valueExpr != null ? keyValue.valueExpr : keyValue.keyExpr;
+            expr.accept(this);
+            BIROperand valueRegIndex = this.env.targetOperand;
+            valueExprs.add(valueRegIndex);
+        }
+        this.env.enclBB.terminator = new BIRTerminator.WaitAll(waitLiteral.pos, toVarRef, keys, valueExprs, thenBB);
+        this.env.targetOperand = toVarRef;
+        this.env.enclFunc.basicBlocks.add(thenBB);
+        this.env.enclBB = thenBB;
+    }
+
+    @Override
     public void visit(BLangIsAssignableExpr assignableExpr) {
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.booleanType, this.env.nextLocalVarId(names),
                 VarScope.FUNCTION, VarKind.TEMP);
@@ -1559,7 +1585,16 @@ public class BIRGen extends BLangNodeVisitor {
     private void genIntermediateErrorEntries(BIRBasicBlock thenBB) {
         if (thenBB != this.env.enclBB) {
             this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(thenBB, this.env.targetOperand));
-            this.env.trapBB = ((BIRTerminator.Call) thenBB.terminator).thenBB;
+            // TODO:temp solution to avoid class casts
+            if (thenBB.terminator instanceof BIRTerminator.WaitAll) {
+                this.env.trapBB = ((BIRTerminator.WaitAll) thenBB.terminator).thenBB;
+            } else if (thenBB.terminator instanceof BIRTerminator.Wait) {
+                this.env.trapBB = ((BIRTerminator.Wait) thenBB.terminator).thenBB;
+            } else if (thenBB.terminator instanceof BIRTerminator.WorkerReceive) {
+                this.env.trapBB = ((BIRTerminator.WorkerReceive) thenBB.terminator).thenBB;
+            } else {
+                this.env.trapBB = ((BIRTerminator.Call) thenBB.terminator).thenBB;
+            }
             genIntermediateErrorEntries(this.env.trapBB);
         }
     }

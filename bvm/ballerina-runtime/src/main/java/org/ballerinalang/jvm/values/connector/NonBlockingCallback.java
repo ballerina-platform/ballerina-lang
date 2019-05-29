@@ -56,7 +56,7 @@ public class NonBlockingCallback {
         this.executionWaitSem.release();
         //TODO : Replace following with callback.notifyFailure() once strand non-blocking support is given
         strand.setReturnValues(getReturnValue());
-        this.strand.resume();
+        this.strand.scheduler.unblockStrand(strand);
     }
 
     public void sync() {

@@ -619,11 +619,9 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setElement",
                     io:sprintf("(L%s;L%s;L%s;)V", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "put",
-                    io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
-
-            // emit a pop, since we are not using the return value from the map.put()
-            self.mv.visitInsn(POP);
+            self.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore",
+                                        io:sprintf("(L%s;L%s;L%s;)V", MAP_VALUE, STRING_VALUE, OBJECT),
+                                        false);
         }
     }
 

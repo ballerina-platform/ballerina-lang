@@ -278,7 +278,9 @@ public class WorkerTest {
             System.setOut(new PrintStream(tempOutStream));
             BRunUtil.invoke(result, "sameStrandMultipleInvocation");
             String result = new String(tempOutStream.toByteArray());
-            Assert.assertTrue(result.contains("11 - 11"), result);
+            // we cannot guarantee an ordering between message sends
+            Assert.assertTrue((result.contains("11 - 11") && result.contains("12 - 12")) ||
+                            (result.contains("11 - 12") && result.contains("12 - 11")), result);
         } finally {
             System.setOut(defaultOut);
         }

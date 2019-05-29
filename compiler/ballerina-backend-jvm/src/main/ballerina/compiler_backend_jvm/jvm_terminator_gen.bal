@@ -489,67 +489,85 @@ type TerminatorGenerator object {
     }
 
     function generateWaitIns(bir:Wait waitInst, string funcName) {
-        // TODO : need to fix to support multiple waits
-        bir:VarRef? futureVal = waitInst.exprList[0];
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
-        if (futureVal is bir:VarRef) {
-            generateVarLoad(self.mv, futureVal.variableDcl, currentPackageName, 
-                self.getJVMIndexOfVarRef(futureVal.variableDcl));
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitTypeInsn(NEW, ARRAY_LIST);
+        self.mv.visitInsn(DUP);
+        self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, "<init>", "()V", false);
+
+        int i = 0;
+        while (i < waitInst.exprList.length()) {
+            self.mv.visitInsn(DUP);
+            bir:VarRef? futureVal = waitInst.exprList[i];
+            if (futureVal is bir:VarRef) {
+                generateVarLoad(self.mv, futureVal.variableDcl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(futureVal.variableDcl));
+            }
+            self.mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
+            self.mv.visitInsn(POP);
+            i += 1;
         }
 
-        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "isDone", "Z");
-        jvm:Label label = new;
-        self.mv.visitJumpInsn(IFNE, label);
-        jvm:Label label2 = new;
-        self.mv.visitLabel(label2);
-        // strand.blocked = true
-        self.mv.visitVarInsn(ALOAD, 0);
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitFieldInsn(PUTFIELD, STRAND, "blocked", "Z");
-
-        // strand.blockedOn = future.strand
-        self.mv.visitVarInsn(ALOAD, 0);
-        if (futureVal is bir:VarRef) {
-            bir:VariableDcl? varDecl = futureVal.variableDcl;
-            if (varDecl is bir:VariableDcl) {
-                generateVarLoad(self.mv, varDecl, currentPackageName, 
-                    self.getJVMIndexOfVarRef(varDecl));
-            }  
-        }
-        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
-        self.mv.visitFieldInsn(PUTFIELD, STRAND, "blockedOn", io:sprintf("L%s;", STRAND));
-
-        // strand.yield = true
-        self.mv.visitVarInsn(ALOAD, 0);
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitFieldInsn(PUTFIELD, STRAND, "yield", "Z");
-        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
-        self.mv.visitJumpInsn(GOTO, yieldLabel);
-        self.mv.visitLabel(label);
-
-        // future.result = lhs
-        if (futureVal is bir:VarRef) {
-            bir:VariableDcl? varDecl = futureVal.variableDcl;
-            if (varDecl is bir:VariableDcl) {
-                generateVarLoad(self.mv, varDecl, currentPackageName, 
-                    self.getJVMIndexOfVarRef(varDecl));
-            }  
-        }
-        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleWaitAny", io:sprintf("(L%s;)L%s$WaitResult;", LIST, STRAND), false);
+        bir:VariableDcl tempVar = { typeValue: "any",
+                                 name: { value: "waitResult" },
+                                 kind: "ARG" };
+        int resultIndex = self.getJVMIndexOfVarRef(tempVar);
+        self.mv.visitVarInsn(ASTORE, resultIndex);
+        
+        // assign result if result available
+        jvm:Label afterIf = new;
+        self.mv.visitVarInsn(ALOAD, resultIndex);
+        self.mv.visitFieldInsn(GETFIELD, io:sprintf("%s$WaitResult", STRAND), "done", "Z");
+        self.mv.visitJumpInsn(IFEQ, afterIf);
+        jvm:Label withinIf = new;
+        self.mv.visitLabel(withinIf);
+        self.mv.visitVarInsn(ALOAD, resultIndex);
+        self.mv.visitFieldInsn(GETFIELD, io:sprintf("%s$WaitResult", STRAND), "result", io:sprintf("L%s;", OBJECT));
         addUnboxInsn(self.mv, waitInst.lhsOp.typeValue);
         generateVarStore(self.mv, waitInst.lhsOp.variableDcl, currentPackageName, 
                     self.getJVMIndexOfVarRef(waitInst.lhsOp.variableDcl));
+
+        self.mv.visitLabel(afterIf);
+        self.genYieldCheck(waitInst.thenBB, funcName);
+    }
+
+    function genWaitAllIns(bir:WaitAll waitAll, string funcName) {
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitTypeInsn(NEW, "java/util/HashMap");
+        self.mv.visitInsn(DUP);
+        self.mv.visitMethodInsn(INVOKESPECIAL, "java/util/HashMap", "<init>", "()V", false);
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+        int i = 0;
+        while (i < waitAll.keys.length()) {
+            self.mv.visitInsn(DUP);
+            self.mv.visitLdcInsn(waitAll.keys[i]);
+            bir:VarRef? futureRef = waitAll.futures[i];
+            if (futureRef is bir:VarRef) {
+                generateVarLoad(self.mv, futureRef.variableDcl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(futureRef.variableDcl));
+            }
+            self.mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "put", io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
+            self.mv.visitInsn(POP);
+            i += 1;
+        }
+
+        generateVarLoad(self.mv, waitAll.lhsOp.variableDcl, currentPackageName, 
+                    self.getJVMIndexOfVarRef(waitAll.lhsOp.variableDcl));
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleWaitMultiple", io:sprintf("(L%s;L%s;)V", MAP, MAP_VALUE), false);
+        self.genYieldCheck(waitAll.thenBB, funcName);
     }
 
     function genFPCallIns(bir:FPCall fpCall, string funcName) {
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         if (fpCall.isAsync) {
             // Load the scheduler from strand
             self.mv.visitVarInsn(ALOAD, 0);
             self.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));    
         } else {
             // load function ref, going to directly call the fp
-            int fpIndex = self.getJVMIndexOfVarRef(getVariableDcl(fpCall.fp.variableDcl));
-            self.mv.visitVarInsn(ALOAD, fpIndex);
+            generateVarLoad(self.mv, fpCall.fp.variableDcl, currentPackageName, 
+                self.getJVMIndexOfVarRef(fpCall.fp.variableDcl));
         }
         
         // create an object array of args
@@ -614,8 +632,8 @@ type TerminatorGenerator object {
         // if async, we submit this to sceduler (worker scenario)
         if (fpCall.isAsync) {
             // load function ref now
-            int fpIndex = self.getJVMIndexOfVarRef(getVariableDcl(fpCall.fp.variableDcl));
-            self.mv.visitVarInsn(ALOAD, fpIndex);
+            generateVarLoad(self.mv, fpCall.fp.variableDcl, currentPackageName, 
+                self.getJVMIndexOfVarRef(fpCall.fp.variableDcl));
             self.submitToScheduler(fpCall.lhsOp);           
         } else if (fpCall.lhsOp is ()) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "accept", io:sprintf("(L%s;)V", OBJECT), false);
@@ -627,7 +645,7 @@ type TerminatorGenerator object {
             if (lhsType is bir:BType) {
                 addUnboxInsn(self.mv, lhsType);
             }
-            string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+
             bir:VariableDcl? lhsVar = fpCall.lhsOp.variableDcl;
             if (lhsVar is bir:VariableDcl) {
                 generateVarStore(self.mv, lhsVar, currentPackageName, lhsIndex);
@@ -661,9 +679,9 @@ type TerminatorGenerator object {
             if (lhsOp is bir:VarRef) {
                 generateVarStore(self.mv, lhsOp.variableDcl, currentPackageName, 
                     self.getJVMIndexOfVarRef(lhsOp.variableDcl));
-            }        
-        }
-        self.genYieldCheck(ins.thenBB, funcName);   
+            }      
+        } 
+        self.genYieldCheck(ins.thenBB, funcName);  
     }
 
     function genWorkerReceiveIns(bir:WorkerReceive ins, string funcName) {
