@@ -541,6 +541,18 @@ public type FuncBodyParser object {
             kind = BINARY_CLOSED_RANGE;
         } else if (kindTag == INS_HALF_OPEN_RANGE) {
             kind = BINARY_HALF_OPEN_RANGE;
+        } else if (kindTag == INS_BITWISE_AND) {
+            kind = BINARY_BITWISE_AND;
+        } else if (kindTag == INS_BITWISE_OR) {
+            kind = BINARY_BITWISE_OR;
+        } else if (kindTag == INS_BITWISE_XOR) {
+            kind = BINARY_BITWISE_XOR;
+        } else if (kindTag == INS_BITWISE_LEFT_SHIFT) {
+            kind = BINARY_BITWISE_LEFT_SHIFT;
+        } else if (kindTag == INS_BITWISE_RIGHT_SHIFT) {
+            kind = BINARY_BITWISE_RIGHT_SHIFT;
+        } else if (kindTag == INS_BITWISE_UNSIGNED_RIGHT_SHIFT) {
+            kind = BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT;
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
             panic err;

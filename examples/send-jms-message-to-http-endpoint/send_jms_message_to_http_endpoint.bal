@@ -6,7 +6,7 @@ import ballerina/log;
 // ActiveMQ Artemis broker for demonstration while it can be tried with other
 // brokers that support JMS.
 
-listener jms:QueueReceiver consumerEndpoint = new({
+listener jms:QueueListener consumerEndpoint = new({
         initialContextFactory: 
         "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
         providerUrl: "tcp://localhost:61616",
