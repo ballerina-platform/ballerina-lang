@@ -319,6 +319,7 @@ public type BAttachedFunction record {|
 
 public type BRecordField record {
     Name name;
+    Visibility visibility;
     BType typeValue;
     //TODO add position
 };
@@ -368,8 +369,9 @@ public type BInvokableType record {
 public const VISIBILITY_PACKAGE_PRIVATE = "PACKAGE_PRIVATE";
 public const VISIBILITY_PRIVATE = "PRIVATE";
 public const VISIBILITY_PUBLIC = "PUBLIC";
+public const VISIBILITY_OPTIONAL = "OPTIONAL";
 
-public type Visibility VISIBILITY_PACKAGE_PRIVATE|VISIBILITY_PRIVATE|VISIBILITY_PUBLIC;
+public type Visibility VISIBILITY_PACKAGE_PRIVATE|VISIBILITY_PRIVATE|VISIBILITY_PUBLIC|VISIBILITY_OPTIONAL;
 
 
 // Instructions
