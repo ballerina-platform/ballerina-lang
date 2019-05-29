@@ -16,13 +16,21 @@
  */
 package org.ballerinalang.test.annotations;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import java.util.List;
 
 /**
  * Class to test annotation attachments.
@@ -35,273 +43,140 @@ public class AnnotationAttachmentTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 128);
+        compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
     }
 
     @Test
-    public void testInvalidAttachmentOnType() {
-        int index = 0;
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on type", 36, 1);
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on type", 39, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on type", 42, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on type", 45, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on type", 48, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on type", 51, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on type", 52, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on type", 55, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on type", 58, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on type", 61, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on type", 64, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on type", 67, 1);
+    public void testAnnotOnType() {
+        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
+                compileResult.getAST().getTypeDefinitions().get(2).getAnnotationAttachments();
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v1", "val", "v1 value");
     }
 
     @Test
-    public void testInvalidAttachmentOnObjectType() {
-        int index = 12;
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on type, object", 74, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on type, object", 77, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on type, object", 80, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on type, object", 83, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on type, object", 86, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on type, object", 87, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on type, object", 90, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on type, object", 93, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on type, object", 96, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on type, object", 99, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on type, object", 102, 1);
+    public void testAnnotOnObjectType() {
+        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
+                compileResult.getAST().getTypeDefinitions().get(3).getAnnotationAttachments();
+        Assert.assertEquals(attachments.size(), 2);
+        assertNameAndKeyValuePair(attachments.get(0), "v1", "val", "v1 value object");
+        assertNameAndKeyValuePair(attachments.get(1), "v2", "val", "v2 value");
     }
 
     @Test
-    public void testInvalidAttachmentOnObjectMethodDefinition() {
-        int index = 23;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on function, object_method",
-                      108, 5);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on function, object_method",
-                      111, 5);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on function, object_method",
-                      114, 5);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on function, object_method",
-                      117, 5);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on function, object_method",
-                      120, 5);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on function, object_method",
-                      121, 5);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on function, object_method",
-                      124, 5);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on function, object_method",
-                      127, 5);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on function, object_method",
-                      130, 5);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on function, object_method",
-                      133, 5);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on function, object_method",
-                      136, 5);
+    public void testAnnotOnObjectFunctionDefinition() {
+        BLangFunction function = getFunction("setName");
+        List<BLangAnnotationAttachment> attachments = function.annAttachments;
+        Assert.assertEquals(attachments.size(), 2);
+        assertNameAndKeyValuePair(attachments.get(0), "v3", "val", "v31 value");
+        assertNameAndKeyValuePair(attachments.get(1), "v4", "val", 41L);
+
+        attachments = function.requiredParams.get(0).annAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v6", "val", "v61 value required");
+
+        attachments = function.defaultableParams.get(0).getVariable().annAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v6", "val", "v61 value defaultable");
+
+        attachments = function.restParam.annAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v6", "val", "v61 value rest");
+
+        attachments = function.returnTypeAnnAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        BLangAnnotationAttachment attachment = attachments.get(0);
+        Assert.assertEquals(attachment.annotationName.getValue(), "v7");
+        Assert.assertNull(attachment.expr);
     }
 
     @Test
-    public void testInvalidAttachmentOnObjectMethodDeclaration() {
-        int index = 34;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on function, object_method",
-                      143, 5);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on function, object_method",
-                      146, 5);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on function, object_method",
-                      149, 5);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on function, object_method",
-                      152, 5);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on function, object_method",
-                      155, 5);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on function, object_method",
-                      156, 5);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on function, object_method",
-                      159, 5);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on function, object_method",
-                      162, 5);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on function, object_method",
-                      165, 5);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on function, object_method",
-                      168, 5);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on function, object_method",
-                      171, 5);
+    public void testAnnotOnObjectFunctionDeclaration() {
+        // TODO: 5/30/19 Maryam - fix and add tests
     }
 
     @Test
-    public void testInvalidAttachmentOnObjectOutsideMethodDefinition() {
-        int index = 45;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on function, object_method",
-                      177, 1);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on function, object_method",
-                      180, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on function, object_method",
-                      183, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on function, object_method",
-                      186, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on function, object_method",
-                      189, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on function, object_method",
-                      190, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on function, object_method",
-                      193, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on function, object_method",
-                      196, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on function, object_method",
-                      199, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on function, object_method",
-                      202, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on function, object_method",
-                      205, 1);
+    public void testAnnotOnFunction() {
+        BLangFunction function = getFunction("func");
+        List<BLangAnnotationAttachment> attachments = function.annAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v3", "val", "v33 value");
+
+        attachments = function.requiredParams.get(0).annAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v6", "val", "v63 value required");
+
+        attachments = function.defaultableParams.get(0).getVariable().annAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v6", "val", "v63 value defaultable");
+
+        attachments = function.restParam.annAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v6", "val", "v63 value rest");
+
+        attachments = function.returnTypeAnnAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        BLangAnnotationAttachment attachment = attachments.get(0);
+        Assert.assertEquals(attachment.annotationName.getValue(), "v7");
+        Assert.assertNull(attachment.expr);
     }
 
     @Test
-    public void testInvalidAttachmentOnFunction() {
-        int index = 56;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on function", 212, 1);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on function", 215, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on function", 218, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on function", 221, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on function", 224, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on function", 227, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on function", 228, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on function", 231, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on function", 234, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on function", 237, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on function", 240, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on function", 243, 1);
+    public void testAnnotOnAnnot() {
+        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
+                compileResult.getAST().getAnnotations().stream()
+                .filter(annotationNode ->  annotationNode.getName().toString().equals("v14"))
+                .findFirst()
+                .get().getAnnotationAttachments();
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v10", "str", "v10 value");
     }
 
     @Test
-    public void testInvalidAttachmentOnParam() {
-        int index = 68;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on parameter", 250, 31);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on parameter", 253, 29);
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on parameter", 256, 29);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on parameter", 259, 29);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on parameter", 262, 29);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on parameter", 265, 29);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on parameter", 266, 29);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on parameter", 269, 29);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on parameter", 272, 29);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on parameter", 275, 29);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on parameter", 278, 29);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on parameter", 281, 29);
+    public void testAnnotOnVar() {
+        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
+                compileResult.getAST().getGlobalVariables().stream()
+                        .filter(variableNode ->  variableNode.getName().toString().equals("i"))
+                        .findFirst()
+                        .get().getAnnotationAttachments();
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v11", "val", 11L);
     }
 
     @Test
-    public void testInvalidAttachmentOnReturn() {
-        int index = 80;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on return", 283, 53);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on return", 286, 53);
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on return", 289, 53);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on return", 292, 53);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on return", 295, 53);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on return", 298, 53);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on return", 301, 53);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on return", 304, 53);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on return", 307, 53);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on return", 310, 53);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on return", 313, 53);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on return", 316, 53);
+    public void testAnnotOnConst() {
+        List<BLangAnnotationAttachment> attachments =
+                ((BLangConstant) compileResult.getAST().getConstants().stream()
+                        .filter(constant -> ((BLangConstant) constant).name.toString().equals("F"))
+                        .findFirst()
+                        .get())
+                        .getAnnotationAttachments();
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v12", "str", "v12 value");
     }
 
-    @Test(enabled = false)
-    public void testInvalidAttachmentOnListener() {
-        int index = 92;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on listener", 322, 1);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on listener", 325, 1);
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on listener", 328, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on listener", 331, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on listener", 334, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on listener", 337, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on listener", 340, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on listener", 341, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on listener", 344, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on listener", 347, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on listener", 350, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on listener", 353, 1);
+    private void assertNameAndKeyValuePair(BLangAnnotationAttachment attachment, String annotName, String fieldName,
+                                           Object value) {
+        Assert.assertEquals(attachment.annotationName.getValue(), annotName);
+        Assert.assertEquals(attachment.expr.getKind(), NodeKind.RECORD_LITERAL_EXPR);
+
+        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) attachment.expr;
+        Assert.assertEquals(recordLiteral.getKeyValuePairs().size(), 1);
+
+        BLangRecordLiteral.BLangRecordKeyValue keyValuePair = recordLiteral.getKeyValuePairs().get(0);
+        BLangExpression keyExpression = keyValuePair.getKey();
+        String key = keyExpression instanceof BLangSimpleVarRef ?
+                ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value :
+                ((BLangLiteral) keyExpression).value.toString();
+        Assert.assertEquals(key, fieldName);
+        Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, value);
     }
 
-    @Test(enabled = false)
-    public void testInvalidAttachmentOnService() {
-        int index = 104;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on service", 358, 1);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on service", 361, 1);
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on service", 364, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on service", 367, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on service", 370, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on service", 373, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on service", 376, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on service", 377, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on service", 380, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on service", 383, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on service", 386, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on service", 389, 1);
-    }
-
-    @Test(enabled = false)
-    public void testInvalidAttachmentOnResource() {
-        int index = 116;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on function, resource", 394, 5);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on function, resource", 397, 5);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on function, resource", 400, 5);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on function, resource", 403, 5);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on function, resource", 406, 5);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on function, resource", 407, 5);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on function, resource", 410, 5);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on function, resource", 413, 5);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on function, resource", 416, 5);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on function, resource", 419, 5);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on function, resource", 422, 5);
-    }
-
-    @Test
-    public void testInvalidAttachmentOnAnnotation() {
-        int index = 92;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on annotation", 446, 1);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on annotation", 449, 1);
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on annotation", 452, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on annotation", 455, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on annotation", 458, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on annotation", 461, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on annotation", 464, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on annotation", 465, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on annotation", 468, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on annotation", 471, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on annotation", 474, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on annotation", 477, 1);
-    }
-
-    @Test
-    public void testInvalidAttachmentOnVar() {
-        int index = 104;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on var", 482, 1);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on var", 485, 1);
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on var", 488, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on var", 491, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on var", 494, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on var", 497, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on var", 500, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on var", 501, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on var", 504, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on var", 507, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on var", 510, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on var", 513, 1);
-    }
-
-    @Test
-    public void testInvalidAttachmentOnConst() {
-        int index = 116;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on const", 518, 1);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on const", 521, 1);
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on const", 524, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on const", 527, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on const", 530, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on const", 533, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on const", 536, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on const", 537, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on const", 540, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on const", 543, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on const", 546, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on const", 549, 1);
+    private BLangFunction getFunction(String functionName) {
+        return (BLangFunction) compileResult.getAST().getFunctions().stream()
+                .filter(function ->  function.getName().toString().equals(functionName))
+                .findFirst()
+                .get();
     }
 }
