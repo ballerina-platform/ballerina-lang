@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
- 
+
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
@@ -29,6 +29,7 @@ dependencies {
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-runtime-api')
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
 }
@@ -45,4 +46,10 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }

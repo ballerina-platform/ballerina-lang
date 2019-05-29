@@ -12,47 +12,47 @@
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
-// under the License.package http2;
+// under the License.
 
 import ballerina/http;
+import ballerina/log;
 
-listener http:Listener ep1 = new(9097, config = { httpVersion: "2.0" });
-listener http:Listener ep2 = new(9098, config = { httpVersion: "2.0" });
+listener http:Listener ep1 = new(9230, config = { httpVersion: "2.0" });
+listener http:Listener ep2 = new(9231, config = { httpVersion: "2.0" });
+
+http:Client h2WithPriorKnowledge = new("http://localhost:9231", config = { httpVersion: "2.0", http2Settings: {
+        http2PriorKnowledge: true }, poolConfig: {} });
+
+http:Client h1Client = new("http://localhost:9231", config = { httpVersion: "1.1", poolConfig: {}});
 
 @http:ServiceConfig {
-    basePath: "/priorKnowledge"
+    basePath: "/test"
 }
-service priorKnowledgeTest on ep1 {
+service globalClientTest on ep1 {
 
     @http:ResourceConfig {
         methods: ["GET"],
-        path: "/on"
+        path: "/h1"
     }
-    resource function priorOn(http:Caller caller, http:Request req) {
-        http:Client h2WithPriorKnowledge = new("http://localhost:9098", config = { httpVersion: "2.0", http2Settings: {
-                http2PriorKnowledge: true }, poolConfig: {} });
-
-        var response = h2WithPriorKnowledge->post("/backend", "Prior knowledge is enabled");
+    resource function testH1Client(http:Caller caller, http:Request req) {
+        var response = h1Client->post("/backend", "HTTP/1.1 request");
         if (response is http:Response) {
             checkpanic caller->respond(untaint response);
         } else {
-            checkpanic caller->respond("Error in client post with prior knowledge on");
+            checkpanic caller->respond("Error in client post - HTTP/1.1");
         }
     }
 
     @http:ResourceConfig {
         methods: ["GET"],
-        path: "/off"
+        path: "/h2"
     }
-    resource function priorOff(http:Caller caller, http:Request req) {
-        http:Client h2WithoutPriorKnowledge = new("http://localhost:9098", config = { httpVersion: "2.0", http2Settings: {
-                http2PriorKnowledge: false }, poolConfig: {} });
-
-        var response = h2WithoutPriorKnowledge->post("/backend", "Prior knowledge is disabled");
+    resource function testH2Client(http:Caller caller, http:Request req) {
+        var response = h2WithPriorKnowledge->post("/backend", "HTTP/2 with prior knowledge");
         if (response is http:Response) {
             checkpanic caller->respond(untaint response);
         } else {
-            checkpanic caller->respond("Error in client post with prior knowledge off");
+            checkpanic caller->respond("Error in client post - HTTP/2");
         }
     }
 }
@@ -68,15 +68,14 @@ service testBackEnd on ep2 {
     }
     resource function test(http:Caller caller, http:Request req) {
         string outboundResponse = "";
-        if (req.hasHeader(http:CONNECTION) && req.hasHeader(http:UPGRADE)) {
-            string[] connHeaders = req.getHeaders(http:CONNECTION);
+        if (req.hasHeader("connection") && req.hasHeader("upgrade")) {
+            string[] connHeaders = req.getHeaders("connection");
             outboundResponse = connHeaders[1];
-            outboundResponse = outboundResponse + "--" + req.getHeader(http:UPGRADE);
+            outboundResponse = outboundResponse + "--" + req.getHeader("upgrade");
         } else {
             outboundResponse = "Connection and upgrade headers are not present";
         }
-
-        outboundResponse = outboundResponse + "--" + checkpanic req.getTextPayload();
+        outboundResponse = outboundResponse + "--" + checkpanic req.getTextPayload() + "--" + req.httpVersion;
         checkpanic caller->respond(untaint outboundResponse);
     }
 }
