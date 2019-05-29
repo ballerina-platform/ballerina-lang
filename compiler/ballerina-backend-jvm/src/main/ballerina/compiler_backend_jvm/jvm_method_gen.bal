@@ -263,7 +263,14 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             } else if (inst is bir:FPLoad) {
                 instGen.generateFPLoadIns(inst);
             } else if (inst is bir:TypeTest) {
-                instGen.generateTypeTestIns(inst);
+                if (inst.kind == bir:INS_KIND_TYPE_TEST) {
+                    instGen.generateTypeTestIns(inst);
+                } else if (inst.kind == bir:INS_KIND_IS_LIKE) {
+                    instGen.generateIsLikeIns(inst);
+                } else {
+                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
+                    panic err;
+                }
             } else if (inst is bir:NewXMLQName) {
                 instGen.generateNewXMLQNameIns(inst);
             } else if (inst is bir:NewStringXMLQName) {

@@ -55,4 +55,8 @@ public class BErrorType extends BType {
     public int getTag() {
         return TypeTags.ERROR_TAG;
     }
+
+    public BType getDetailType() {
+        return detailType;
+    }
 }
