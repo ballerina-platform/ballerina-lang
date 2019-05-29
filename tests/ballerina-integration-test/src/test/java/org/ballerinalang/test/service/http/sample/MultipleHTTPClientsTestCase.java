@@ -33,20 +33,21 @@ import java.io.IOException;
 public class MultipleHTTPClientsTestCase extends HttpBaseTest {
     @Test
     public void testH1Client() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9230, "test/h1"));
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        String responseData = response.getData();
+        String responseData = sendRequest("test/h1");
         Assert.assertEquals(responseData, "Connection and upgrade headers are not present--HTTP/1.1 request--1.1");
     }
 
     @Test
     public void testH2Client() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9230, "test/h2"));
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        String responseData = response.getData();
+        String responseData = sendRequest("test/h2");
         Assert.assertEquals(responseData,
                             "Connection and upgrade headers are not present--HTTP/2 with prior knowledge--2.0");
+    }
+
+    private String sendRequest(String path) throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9230, path));
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        return response.getData();
     }
 }

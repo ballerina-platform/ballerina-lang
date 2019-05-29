@@ -6,16 +6,11 @@ ActiveMQ.
 The module provides consumer and producer endpoint types for queues and topics. Following are the endpoint types
 supported by this module:
 
-- QueueReceiver
-- TopicSubscriber
-- DurableTopicSubscriber
-- SimpleQueueReceiver
-- SimpleTopicSubscriber
-- SimpleDurableTopicSubscriber
+- QueueListener
+- TopicListener
+- DurableTopicListener
 - QueueSender
 - TopicPublisher
-- SimpleQueueSender
-- SimpleTopicPublisher
 
 The endpoints prefixed with `Simple` will automatically create a JMS connection and a JMS session when the endpoint is
 initialized. For other endpoints, the developer must explicitly provide a properly initialized JMS Session.
@@ -31,7 +26,7 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a simple queue receiver.
-listener jms:QueueReceiver consumerEP = new({
+listener jms:QueueListener consumerEP = new({
     initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
     providerUrl: "tcp://localhost:61616",
     acknowledgementMode: "AUTO_ACKNOWLEDGE"
@@ -172,7 +167,7 @@ jms:Session jmsSession = new(conn, {
     acknowledgementMode: "AUTO_ACKNOWLEDGE"
 });
 
-listener jms:TopicSubscriber subscriberEndpoint = new(jmsSession, topicPattern = "MyTopic");
+listener jms:TopicListener subscriberEndpoint = new(jmsSession, topicPattern = "MyTopic");
 
 service jmsListener on subscriberEndpoint {
     resource function onMessage(jms:TopicSubscriberCaller subscriber, jms:Message message) {

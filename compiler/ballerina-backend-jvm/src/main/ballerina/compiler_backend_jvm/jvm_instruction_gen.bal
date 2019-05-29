@@ -99,6 +99,18 @@ type InstructionGenerator object {
             self.generateClosedRangeIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_HALF_OPEN_RANGE) {
             self.generateClosedRangeIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_BITWISE_AND) {
+            self.generateBitwiseAndIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_BITWISE_OR) {
+            self.generateBitwiseOrIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_BITWISE_XOR) {
+            self.generateBitwiseXorIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_BITWISE_LEFT_SHIFT) {
+            self.generateBitwiseLeftShiftIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_BITWISE_RIGHT_SHIFT) {
+            self.generateBitwiseRightShiftIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT) {
+            self.generateBitwiseUnsignedRightShiftIns(binaryIns);
         } else {
             error err = error("JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind));
             panic err;
@@ -429,6 +441,51 @@ type InstructionGenerator object {
                 panic err;
             }
             self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateBitwiseAndIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitInsn(LAND);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateBitwiseOrIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitInsn(LOR);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateBitwiseXorIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitInsn(LXOR);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateBitwiseLeftShiftIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitInsn(L2I);
+        self.mv.visitInsn(LSHL);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateBitwiseRightShiftIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitInsn(L2I);
+        self.mv.visitInsn(LSHR);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateBitwiseUnsignedRightShiftIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitInsn(L2I);
+        self.mv.visitInsn(LUSHR);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
     function generateAndIns(bir:BinaryOp binaryIns) {
