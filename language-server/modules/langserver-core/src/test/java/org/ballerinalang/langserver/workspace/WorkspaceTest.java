@@ -41,6 +41,7 @@ import java.nio.file.Path;
  * 
  * @since 0.982.0
  */
+@Test(groups = "broken")
 public class WorkspaceTest {
     
     private Endpoint serviceEndpoint;

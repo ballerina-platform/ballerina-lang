@@ -187,7 +187,8 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
 
     private void addSymbol(BLangNode node, BSymbol balSymbol, SymbolKind kind) {
         String symbolName = balSymbol.getName().getValue();
-        if (query != null && !query.isEmpty() && !symbolName.startsWith(query)) {
+        if ((query != null && !query.isEmpty() && !symbolName.startsWith(query))
+                || CommonUtil.isInvalidSymbol(balSymbol)) {
             return;
         }
         SymbolInformation lspSymbol = new SymbolInformation();
