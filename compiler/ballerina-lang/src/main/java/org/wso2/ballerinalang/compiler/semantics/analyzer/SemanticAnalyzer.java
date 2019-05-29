@@ -1084,12 +1084,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
                 String entryName = errorDetailEntry.key.getValue();
                 BField entryField = fieldMap.get(entryName);
-                if (entryField != null) {
-                    errorDetailEntry.valueBindingPattern.type = entryField.type;
-                } else {
-                    errorDetailEntry.valueBindingPattern.type = recordType.restFieldType;
+
+                BLangVariable boundVar = errorDetailEntry.valueBindingPattern;
+                boundVar.type = entryField != null ? entryField.type : recordType.restFieldType;
+
+                boolean isIgnoredVar = boundVar.getKind() == NodeKind.VARIABLE
+                        && ((BLangSimpleVariable) boundVar).name.value.equals(Names.IGNORE.value);
+                if (!isIgnoredVar) {
+                    boundVar.accept(this);
                 }
-                errorDetailEntry.valueBindingPattern.accept(this);
             }
         }
 

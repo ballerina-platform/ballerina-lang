@@ -4449,6 +4449,10 @@ public class Desugar extends BLangNodeVisitor {
         BRecordType detailRecordType = new BRecordType(detailRecordTypeSymbol);
         detailRecordType.restFieldType = restDetail != null ? restDetail.type : symTable.anydataType;
 
+        if (restDetail == null) {
+            detailRecordType.sealed = true;
+        }
+
         for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : detail) {
             Name fieldName = names.fromIdNode(detailEntry.key);
             BType fieldType = getStructuredBindingPatternType(detailEntry.valueBindingPattern);
