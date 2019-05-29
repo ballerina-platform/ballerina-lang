@@ -36,6 +36,7 @@ public enum InstructionKind {
     FLUSH((byte) 10),
     LOCK((byte) 11),
     UNLOCK((byte) 12),
+    WAIT_ALL((byte) 13),
 
     // Non-terminating instructions
     MOVE((byte) 20),
