@@ -17,7 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.bir.writer;
 
-import java.util.Arrays;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+
 import java.util.Objects;
 
 /**
@@ -235,34 +236,24 @@ public class CPEntry {
      */
     public static class ShapeCPEntry extends CPEntry {
 
-        public final byte[] shape;
-        private final int hashCode;
+        public final BType shape;
 
-        public ShapeCPEntry(byte[] shape) {
+        public ShapeCPEntry(BType shape) {
             super(Type.CP_ENTRY_SHAPE);
             this.shape = shape;
-            this.hashCode = Arrays.hashCode(shape);
         }
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-
-
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            ShapeCPEntry oShape = (ShapeCPEntry) o;
-
-            return Arrays.equals(oShape.shape, shape);
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ShapeCPEntry that = (ShapeCPEntry) o;
+            return Objects.equals(shape, that.shape);
         }
 
         @Override
         public int hashCode() {
-            return hashCode;
+            return Objects.hash(shape);
         }
     }
 }

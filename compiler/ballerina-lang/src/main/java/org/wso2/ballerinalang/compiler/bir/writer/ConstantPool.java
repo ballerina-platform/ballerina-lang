@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.io.ByteArrayOutputStream;
@@ -30,9 +29,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A pool of constant values in the binary BIR file.
@@ -46,8 +43,6 @@ public class ConstantPool {
 
     private final List<CPEntry> cpEntries = new ArrayList<>();
 
-    private final Map<TypeSymbol, CPEntry> cachedEntriesForTSym = new HashMap<>();
-
     public int addCPEntry(CPEntry cpEntry) {
         int i = cpEntries.indexOf(cpEntry);
         if (i >= 0) {
@@ -59,33 +54,35 @@ public class ConstantPool {
     }
 
     public int addShapeCPEntry(BType shape) {
-        CPEntry cachedCpEntry = cachedEntriesForTSym.get(shape);
-        if (cachedCpEntry != null) {
-            return addCPEntry(cachedCpEntry);
-        }
-
-        ByteBuf typebuf = Unpooled.buffer();
-        BIRTypeWriter birTypeWriter = new BIRTypeWriter(typebuf, this);
-        birTypeWriter.visitType(shape);
-
-        byte[] bytes = Arrays.copyOfRange(typebuf.array(), 0, typebuf.writerIndex());
-
-        return addCPEntry(new CPEntry.ShapeCPEntry(bytes));
+        CPEntry.ShapeCPEntry shapeCPEntry = new CPEntry.ShapeCPEntry(shape);
+        return addCPEntry(shapeCPEntry);
     }
 
     public byte[] serialize()  {
         ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
         try (DataOutputStream dataStream = new DataOutputStream(byteArrayStream)) {
             writeToStream(dataStream);
-            return byteArrayStream.toByteArray();
+            dataStream.flush();
+            byte[] bytes = byteArrayStream.toByteArray();
+            overwriteSize(bytes);
+            return bytes;
         } catch (IOException e) {
             throw new BLangCompilerException("failed to create bir consent pool", e);
         }
     }
 
+    private void overwriteSize(byte[] bytes) throws IOException {
+        int v = cpEntries.size();
+        bytes[0] = (byte) ((v >>> 24) & 0xFF);
+        bytes[1] = (byte) ((v >>> 16) & 0xFF);
+        bytes[2] = (byte) ((v >>> 8) & 0xFF);
+        bytes[3] = (byte) ((v >>> 0) & 0xFF);
+    }
+
     private void writeToStream(DataOutputStream stream) throws IOException {
-        stream.writeInt(cpEntries.size());
-        for (CPEntry cpEntry : cpEntries) {
+        stream.writeInt(-1);
+        for (int i = 0; i < cpEntries.size(); i++) {
+            CPEntry cpEntry = cpEntries.get(i);
             stream.writeByte(cpEntry.entryType.value);
             switch (cpEntry.entryType) {
                 case CP_ENTRY_INTEGER:
@@ -117,8 +114,14 @@ public class ConstantPool {
                     break;
                 case CP_ENTRY_SHAPE:
                     CPEntry.ShapeCPEntry shapeCPEntry = (CPEntry.ShapeCPEntry) cpEntry;
-                    stream.writeInt(shapeCPEntry.shape.length);
-                    stream.write(shapeCPEntry.shape);
+
+                    ByteBuf typeBuf = Unpooled.buffer();
+                    BIRTypeWriter birTypeWriter = new BIRTypeWriter(typeBuf, this);
+                    birTypeWriter.visitType(shapeCPEntry.shape);
+                    byte[] bytes = Arrays.copyOfRange(typeBuf.array(), 0, typeBuf.writerIndex());
+
+                    stream.writeInt(bytes.length);
+                    stream.write(bytes);
                     break;
                 default:
                     throw new IllegalStateException("unsupported constant pool entry type: " +

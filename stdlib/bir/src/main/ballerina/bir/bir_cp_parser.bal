@@ -24,12 +24,11 @@ public type ConstPool record {
 
 public type ConstPoolParser object {
     ChannelReader reader;
-    TypeParser typeParser;
     ConstPool cp = {};
     int i;
+    byte[]?[] unparsedTypes = [];
 
     public function __init(ChannelReader reader) {
-        self.typeParser = new (reader, self);
         self.reader = reader;
         self.i = 0;
     }
@@ -40,6 +39,18 @@ public type ConstPoolParser object {
             self.parseConstPoolEntry();
             self.i += 1;
         }
+
+        int i = 0;
+        var unparsedTypeCount = self.unparsedTypes.length();
+        while(i <  unparsedTypeCount) {
+            var unparsedBytes = self.unparsedTypes[i];
+            if (unparsedBytes is byte[]){
+                TypeParser p  = new (self.cp, self.unparsedTypes, i);
+                var ignoreAlreadyInCp = p.parseTypeAndAddToCp();
+            }
+            i = i + 1;
+        }
+
         return self.cp;
     }
 
@@ -83,7 +94,8 @@ public type ConstPoolParser object {
 
     function parseType() {
         var typeLen = self.reader.readInt32();
-        self.cp.types[self.i] = self.typeParser.parseType();
+        var unparsedType = self.reader.readByteArray(untaint typeLen);
+        self.unparsedTypes[self.i] = unparsedType;
     }
 
 };

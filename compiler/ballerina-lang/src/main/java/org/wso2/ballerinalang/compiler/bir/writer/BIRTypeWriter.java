@@ -64,7 +64,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -80,7 +79,6 @@ public class BIRTypeWriter implements TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
-    private LinkedList<Object> compositeStack = new LinkedList<>();
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
@@ -88,20 +86,12 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     public void visitType(BType type) {
-        if (writeSelfRef(type.tsymbol)) {
-            return;
-        }
-        //TODO improve below check, basically try to remove, doing this because symbol is null for them
-        if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT || type.tag == TypeTags.ERROR) {
-            compositeStack.push(type.tsymbol);
-        }
         buff.writeByte(type.tag);
         type.accept(this);
+    }
 
-        if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT || type.tag == TypeTags.ERROR) {
-            Object popped = compositeStack.pop();
-            assert popped == type.tsymbol;
-        }
+    private void writeTypeCpIndex(BType type) {
+        buff.writeInt(cp.addShapeCPEntry(type));
     }
 
     @Override
@@ -113,7 +103,7 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BArrayType bArrayType) {
         buff.writeByte(bArrayType.state.getValue());
         buff.writeInt(bArrayType.size);
-        visitType(bArrayType.getElementType());
+        writeTypeCpIndex(bArrayType.getElementType());
     }
 
     @Override
@@ -127,8 +117,8 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BErrorType bErrorType) {
-        visitType(bErrorType.reasonType);
-        visitType(bErrorType.detailType);
+        writeTypeCpIndex(bErrorType.reasonType);
+        writeTypeCpIndex(bErrorType.detailType);
     }
 
     @Override
@@ -142,7 +132,7 @@ public class BIRTypeWriter implements TypeVisitor {
                 throw new AssertionError(
                         "Type serialization is not implemented for finite type with value: " + valueLiteral.getKind());
             }
-            visitType(valueLiteral.type);
+            writeTypeCpIndex(valueLiteral.type);
             writeValue(((BLangLiteral) valueLiteral).value, valueLiteral.type);
         }
     }
@@ -156,9 +146,9 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BInvokableType bInvokableType) {
         buff.writeInt(bInvokableType.paramTypes.size());
         for (BType params : bInvokableType.paramTypes) {
-            visitType(params);
+            writeTypeCpIndex(params);
         }
-        visitType(bInvokableType.retType);
+        writeTypeCpIndex(bInvokableType.retType);
     }
 
     @Override
@@ -168,22 +158,22 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BMapType bMapType) {
-        visitType(bMapType.constraint);
+        writeTypeCpIndex(bMapType.constraint);
     }
 
     @Override
     public void visit(BTableType bTableType) {
-        visitType(bTableType.constraint);
+        writeTypeCpIndex(bTableType.constraint);
     }
 
     @Override
     public void visit(BStreamType bStreamType) {
-        visitType(bStreamType.constraint);
+        writeTypeCpIndex(bStreamType.constraint);
     }
 
     @Override
     public void visit(BFutureType bFutureType) {
-        visitType(bFutureType.constraint);
+        writeTypeCpIndex(bFutureType.constraint);
     }
 
     @Override
@@ -225,7 +215,7 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BTupleType bTupleType) {
         buff.writeInt(bTupleType.tupleTypes.size());
         for (BType memberType : bTupleType.tupleTypes) {
-            visitType(memberType);
+            writeTypeCpIndex(memberType);
         }
     }
 
@@ -233,9 +223,7 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BUnionType bUnionType) {
         buff.writeInt(bUnionType.getMemberTypes().size());
         for (BType memberType : bUnionType.getMemberTypes()) {
-            if (!writeSelfRef(memberType.tsymbol)) {
-                visitType(memberType);
-            }
+            writeTypeCpIndex(memberType);
         }
     }
 
@@ -245,7 +233,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeBoolean(bRecordType.sealed);
-        visitType(bRecordType.restFieldType);
+        writeTypeCpIndex(bRecordType.restFieldType);
 
         BAttachedFunction initializerFunc = tsymbol.initializerFunc;
         Set<Map.Entry<Name, Scope.ScopeEntry>> recordSymbols = tsymbol.scope.entries.entrySet();
@@ -257,13 +245,13 @@ public class BIRTypeWriter implements TypeVisitor {
             if (symbol != initializerFunc.symbol) {
                 buff.writeInt(addStringCPEntry(fieldName));
                 buff.writeByte(getVisibility(symbol).value());
-                visitType(symbol.type);
+                writeTypeCpIndex(symbol.type);
             }
         }
 
         buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
         buff.writeByte(getVisibility(initializerFunc.symbol).value());
-        visitType(initializerFunc.type);
+        writeTypeCpIndex(initializerFunc.type);
     }
 
     @Override
@@ -286,7 +274,7 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
             buff.writeByte(getVisibility(field.symbol).value());
-            visitType(field.type);
+            writeTypeCpIndex(field.type);
         }
         List<BAttachedFunction> attachedFuncs;
         if (tSymbol.kind == SymbolKind.OBJECT) {
@@ -298,18 +286,8 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BAttachedFunction attachedFunc : attachedFuncs) {
             buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
             buff.writeByte(getVisibility(attachedFunc.symbol).value());
-            visitType(attachedFunc.type);
+            writeTypeCpIndex(attachedFunc.type);
         }
-    }
-
-    private boolean writeSelfRef(BTypeSymbol tsymbol) {
-        int i = compositeStack.indexOf(tsymbol);
-        if (i >= 0) {
-            buff.writeByte(TYPE_TAG_SELF);
-            buff.writeInt(i);
-            return true;
-        }
-        return false;
     }
 
     @Override
