@@ -1077,13 +1077,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 errorDetailEntry.valueBindingPattern.accept(this);
             }
         } else {
-            // match each record field
-            // todo: this is possible if we can match a named exception
-            //  match e { var TheErrro(_, _ = _, ...var res) => ...}
-            // clarify if it's a possibility
-            // if it's possible, match each namedArg with what's in the type, put the rest to rest map
             BRecordType recordType = (BRecordType) errorType.detailType.tsymbol.type;
-            assert false;
+            Map<String, BField> fieldMap = recordType.fields.stream()
+                    .collect(Collectors.toMap(f -> f.name.value, f -> f));
+
+            for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
+                String entryName = errorDetailEntry.key.getValue();
+                BField entryField = fieldMap.get(entryName);
+                if (entryField != null) {
+                    errorDetailEntry.valueBindingPattern.type = entryField.type;
+                } else {
+                    errorDetailEntry.valueBindingPattern.type = recordType.restFieldType;
+                }
+                errorDetailEntry.valueBindingPattern.accept(this);
+            }
         }
 
         if (errorVariable.restDetail != null) {

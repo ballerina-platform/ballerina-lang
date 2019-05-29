@@ -18,11 +18,13 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.util.HashMap;
@@ -43,7 +45,7 @@ public class ErrorValue extends RuntimeException implements RefValue {
 
     public ErrorValue(String reason, Object details) {
         super(reason);
-        this.type = BTypes.typeError;
+        this.type = new BErrorType(TypeConstants.ERROR, null, BTypes.typeString, TypeChecker.getType(details));
         this.reason = reason;
         this.details = details;
     }
@@ -72,6 +74,11 @@ public class ErrorValue extends RuntimeException implements RefValue {
     @Override
     public void attemptFreeze(Status freezeStatus) {
         // do nothing, since error types are always frozen
+    }
+
+    @Override
+    public boolean isFrozen() {
+        return true;
     }
 
     @Override
