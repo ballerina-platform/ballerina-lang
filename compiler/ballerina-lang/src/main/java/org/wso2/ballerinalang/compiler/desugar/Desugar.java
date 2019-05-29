@@ -783,7 +783,7 @@ public class Desugar extends BLangNodeVisitor {
 
             if (variable.getKind() == NodeKind.RECORD_VARIABLE) {
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
-                        parentTupleVariable.pos, new BMapType(TypeTags.RECORD, symTable.anyType, null),
+                        parentTupleVariable.pos, new BMapType(TypeTags.MAP, symTable.anyType, null),
                         tupleVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
@@ -853,7 +853,7 @@ public class Desugar extends BLangNodeVisitor {
 
             if (recordFieldKeyValue.valueBindingPattern.getKind() == NodeKind.RECORD_VARIABLE) {
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
-                        parentRecordVariable.pos, new BMapType(TypeTags.RECORD, symTable.anyType, null),
+                        parentRecordVariable.pos, new BMapType(TypeTags.MAP, symTable.anyType, null),
                         recordVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
@@ -1337,7 +1337,7 @@ public class Desugar extends BLangNodeVisitor {
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(recordVarRef.pos, symTable.intType,
                         (long) index);
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
-                        parentTupleVariable.pos, new BMapType(TypeTags.RECORD, symTable.anyType, null),
+                        parentTupleVariable.pos, new BMapType(TypeTags.MAP, symTable.anyType, null),
                         tupleVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
@@ -1353,7 +1353,7 @@ public class Desugar extends BLangNodeVisitor {
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(errorVarRef.pos, symTable.intType,
                         (long) index);
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
-                        parentTupleVariable.pos, new BMapType(TypeTags.RECORD, symTable.anyType, null),
+                        parentTupleVariable.pos, new BMapType(TypeTags.MAP, symTable.anyType, null),
                         tupleVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
@@ -1419,7 +1419,7 @@ public class Desugar extends BLangNodeVisitor {
 
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(recordDestructure.pos);
 
-        BType runTimeType = new BMapType(TypeTags.RECORD, symTable.anyType, null);
+        BType runTimeType = new BMapType(TypeTags.MAP, symTable.anyType, null);
 
         final BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(recordDestructure.pos, "", runTimeType,
                 null, new BVarSymbol(0, names.fromString("$map$0"), this.env.scope.owner.pkgID,
@@ -1470,7 +1470,7 @@ public class Desugar extends BLangNodeVisitor {
             if (NodeKind.RECORD_VARIABLE_REF == variableReference.getKind()) {
                 BLangRecordVarRef recordVariable = (BLangRecordVarRef) variableReference;
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
-                        parentRecordVarRef.pos, new BMapType(TypeTags.RECORD, symTable.anyType, null),
+                        parentRecordVarRef.pos, new BMapType(TypeTags.MAP, symTable.anyType, null),
                         recordVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
