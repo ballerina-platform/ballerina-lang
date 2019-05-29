@@ -18,11 +18,11 @@ import ballerina/log;
 
 # Queue Receiver endpoint
 #
-# + consumerActions - handles all the caller actions related to the QueueReceiver endpoint
+# + consumerActions - handles all the caller actions related to the QueueListener
 # + session - Session of the queue receiver
 # + messageSelector - The message selector for the queue receiver
 # + identifier - Unique identifier for the reciever
-public type QueueReceiver object {
+public type QueueListener object {
 
     *AbstractListener;
 
@@ -31,7 +31,7 @@ public type QueueReceiver object {
     public string messageSelector = "";
     public string identifier = "";
 
-    # Initializes the QueueReceiver endpoint
+    # Initializes the QueueListener
     #
     # + c - The JMS Session object or Configurations related to the receiver
     # + queueName - Name of the queue
@@ -39,7 +39,7 @@ public type QueueReceiver object {
     # + identifier - Unique identifier for the receiver
     public function __init(Session|ReceiverEndpointConfiguration c, string? queueName = (), string messageSelector = "",
                            string identifier = "") {
-        self.consumerActions.queueReceiver = self;
+        self.consumerActions.queueListener = self;
         if (c is Session) {
             self.session = c;
         } else {
@@ -81,14 +81,14 @@ public type QueueReceiver object {
 
     private function start() returns error? = external;
 
-    # Retrieves the QueueReceiver consumer action handler
+    # Retrieves the QueueReceiver
     #
-    # + return - QueueReceiver actions handler
+    # + return - the QueueReceiver
     public function getCallerActions() returns QueueReceiverCaller {
         return self.consumerActions;
     }
 
-    # Stops consuming messages through QueueReceiver endpoint
+    # Stops consuming messages through QueueListener
     #
     # + return - Nil or error upon failure to close queue receiver
     public function __stop() returns error? {
@@ -101,10 +101,10 @@ public type QueueReceiver object {
 
 # Caller actions related to queue receiver endpoint.
 #
-# + queueReceiver - queue receiver endpoint
+# + queueListener - the QueueListener
 public type QueueReceiverCaller client object {
 
-    public QueueReceiver? queueReceiver = ();
+    public QueueListener? queueListener = ();
 
     # Acknowledges a received message
     #
@@ -125,16 +125,16 @@ public type QueueReceiverCaller client object {
     # + return - Returns a message or () if the timeout exceeds, returns an error on JMS provider internal error
     public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?
     {
-        var queueReceiver = self.queueReceiver;
-        if (queueReceiver is QueueReceiver) {
-            var session = queueReceiver.session;
+        var queueListener = self.queueListener;
+        if (queueListener is QueueListener) {
+            var session = queueListener.session;
             validateQueue(destination);
-            queueReceiver.createQueueReceiver(session, queueReceiver.messageSelector, destination);
+            queueListener.createQueueReceiver(session, queueListener.messageSelector, destination);
         } else {
             log:printInfo("Message receiver is not properly initialized for queue " + destination.destinationName);
         }
         var result = self->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
-        self.queueReceiver.closeQueueReceiver(self);
+        self.queueListener.closeQueueReceiver(self);
         return result;
     }
 };
