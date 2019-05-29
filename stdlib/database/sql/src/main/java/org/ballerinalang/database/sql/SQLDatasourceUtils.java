@@ -1001,8 +1001,8 @@ public class SQLDatasourceUtils {
             if ((value instanceof BArrayType) && ((BArrayType) value).getElementType().getTag() == TypeTags.BYTE_TAG) {
                 return Constants.SQLDataTypes.BINARY;
             } else {
-                throw new BallerinaException("Found unsupported array data type as direct value and supported array " +
-                        "type is byte for sql operation, use sql:Parameter: " + value.getName());
+                throw new BallerinaException("Array data type as direct value is supported only " +
+                        "with byte type elements, use sql:Parameter " + value.getName());
             }
         default:
             throw new BallerinaException(
