@@ -310,8 +310,6 @@ function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndp
         http2Settings: config.http2Settings,
         circuitBreaker: config.circuitBreaker,
         timeoutMillis: config.timeoutMillis,
-        //keepAlive: config.keepAlive,
-        //chunking: config.chunking,
         httpVersion: config.httpVersion,
         forwarded: config.forwarded,
         followRedirects: config.followRedirects,

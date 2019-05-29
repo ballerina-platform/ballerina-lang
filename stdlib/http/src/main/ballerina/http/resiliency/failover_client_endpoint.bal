@@ -471,25 +471,6 @@ public type FailoverClientEndpointConfiguration record {|
     int intervalMillis = 0;
 |};
 
-//public type FailoverClientEndpointConfiguration record {|
-//    CircuitBreakerConfig? circuitBreaker = ();
-//    int timeoutMillis = 60000;
-//    string httpVersion = "1.1";
-//    string forwarded = "disable";
-//    KeepAlive keepAlive = KEEPALIVE_AUTO;
-//    Chunking chunking = "AUTO";
-//    FollowRedirects? followRedirects = ();
-//    RetryConfig? retryConfig = ();
-//    ProxyConfig? proxy = ();
-//    PoolConfiguration? poolConfig = ();
-//    TargetService[] targets = [];
-//    CacheConfig cache = {};
-//    Compression compression = COMPRESSION_AUTO;
-//    OutboundAuthConfig? auth = ();
-//    int[] failoverCodes = [501, 502, 503, 504];
-//    int intervalMillis = 0;
-//|};
-
 function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,
                                                   TargetService target) returns ClientEndpointConfig {
     ClientEndpointConfig clientEPConfig = {
@@ -497,8 +478,6 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
         http2Settings: foConfig.http2Settings,
         circuitBreaker:foConfig.circuitBreaker,
         timeoutMillis:foConfig.timeoutMillis,
-        //keepAlive:foConfig.keepAlive,
-        //chunking:foConfig.chunking,
         httpVersion:foConfig.httpVersion,
         forwarded:foConfig.forwarded,
         followRedirects:foConfig.followRedirects,

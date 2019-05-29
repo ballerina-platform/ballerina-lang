@@ -253,24 +253,6 @@ public type Http1Settings record {|
     Chunking chunking = CHUNKING_AUTO;
 |};
 
-//public type ClientEndpointConfig record {|
-//    CircuitBreakerConfig? circuitBreaker = ();
-//    int timeoutMillis = 60000;
-//    KeepAlive keepAlive = KEEPALIVE_AUTO;
-//    Chunking chunking = "AUTO";
-//    string httpVersion = "1.1";
-//    string forwarded = "disable";
-//    FollowRedirects? followRedirects = ();
-//    RetryConfig? retryConfig = ();
-//    ProxyConfig? proxy = ();
-//    PoolConfiguration? poolConfig = ();
-//    SecureSocket? secureSocket = ();
-//    CacheConfig cache = {};
-//    Compression compression = COMPRESSION_AUTO;
-//    OutboundAuthConfig? auth = ();
-//    Http2Settings http2Settings = {};
-//|};
-
 function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
                     returns Client = external;
 

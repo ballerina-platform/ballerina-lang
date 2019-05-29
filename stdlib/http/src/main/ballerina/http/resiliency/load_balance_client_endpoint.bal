@@ -359,25 +359,6 @@ public type LoadBalanceClientEndpointConfiguration record {|
     boolean failover = true;
 |};
 
-//public type LoadBalanceClientEndpointConfiguration record {|
-//    CircuitBreakerConfig? circuitBreaker = ();
-//    int timeoutMillis = 60000;
-//    string httpVersion = "1.1";
-//    string forwarded = "disable";
-//    KeepAlive keepAlive = KEEPALIVE_AUTO;
-//    Chunking chunking = "AUTO";
-//    FollowRedirects? followRedirects = ();
-//    RetryConfig? retryConfig = ();
-//    ProxyConfig? proxy = ();
-//    PoolConfiguration? poolConfig = ();
-//    TargetService[] targets = [];
-//    CacheConfig cache = {};
-//    Compression compression = COMPRESSION_AUTO;
-//    OutboundAuthConfig? auth = ();
-//    LoadBalancerRule? lbRule = ();
-//    boolean failover = true;
-//|};
-
 function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
                                                      TargetService target) returns ClientEndpointConfig {
     ClientEndpointConfig clientEPConfig = {
@@ -385,8 +366,6 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
         http2Settings: lbConfig.http2Settings,
         circuitBreaker:lbConfig.circuitBreaker,
         timeoutMillis:lbConfig.timeoutMillis,
-        //keepAlive:lbConfig.keepAlive,
-        //chunking:lbConfig.chunking,
         httpVersion:lbConfig.httpVersion,
         forwarded:lbConfig.forwarded,
         followRedirects:lbConfig.followRedirects,
