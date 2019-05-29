@@ -57,7 +57,7 @@ public function extractAuthorizationHeaderValue(Request req) returns string {
 #
 # + context - `FilterContext` instance
 # + return - Authentication handlers or whether it is needed to engage listener level handlers or not
-function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|boolean {
+function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|AuthnHandler[][]|boolean {
     ServiceResourceAuth? resourceLevelAuthAnn;
     ServiceResourceAuth? serviceLevelAuthAnn;
     (resourceLevelAuthAnn, serviceLevelAuthAnn) = getServiceResourceAuthConfig(context);
@@ -78,6 +78,10 @@ function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|boolean 
             if (resourceAuthHandlers.length() > 0) {
                 return resourceAuthHandlers;
             }
+        } else if (resourceAuthHandlers is AuthnHandler[][]) {
+            if (resourceAuthHandlers[0].length() > 0) {
+                return resourceAuthHandlers;
+            }
         }
     }
 
@@ -93,6 +97,10 @@ function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|boolean 
             if (serviceAuthHandlers.length() > 0) {
                 return serviceAuthHandlers;
             }
+        } else if (serviceAuthHandlers is AuthnHandler[][]) {
+            if (serviceAuthHandlers[0].length() > 0) {
+                return serviceAuthHandlers;
+            }
         }
     }
     return true;
@@ -103,7 +111,7 @@ function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|boolean 
 #
 # + context - `FilterContext` instance
 # + return - Authorization scopes or whether it is needed to engage listener level scopes or not
-function getScopes(FilterContext context) returns string[]|boolean {
+function getScopes(FilterContext context) returns string[]|string[][]|boolean {
     ServiceResourceAuth? resourceLevelAuthAnn;
     ServiceResourceAuth? serviceLevelAuthAnn;
     (resourceLevelAuthAnn, serviceLevelAuthAnn) = getServiceResourceAuthConfig(context);
@@ -123,6 +131,10 @@ function getScopes(FilterContext context) returns string[]|boolean {
             if (resourceScopes.length() > 0) {
                 return resourceScopes;
             }
+        } else if (resourceScopes is string[][]) {
+            if (resourceScopes[0].length() > 0) {
+                return resourceScopes;
+            }
         }
     }
 
@@ -135,6 +147,10 @@ function getScopes(FilterContext context) returns string[]|boolean {
         var serviceScopes = serviceLevelAuthAnn["scopes"];
         if (serviceScopes is string[]) {
             if (serviceScopes.length() > 0) {
+                return serviceScopes;
+            }
+        } else if (serviceScopes is string[][]) {
+            if (serviceScopes[0].length() > 0) {
                 return serviceScopes;
             }
         }
@@ -161,7 +177,8 @@ function getServiceResourceAuthConfig(FilterContext context) returns (ServiceRes
 # + annotationName - Annotation name
 # + annData - Array of annotationData instances
 # + return - `ServiceResourceAuth` instance if its defined, else nil
-function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData) returns ServiceResourceAuth? {
+function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData)
+        returns ServiceResourceAuth? {
     if (annData.length() == 0) {
         return ();
     }
