@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.task.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -58,6 +60,12 @@ public class DetachService extends BlockingNativeCallableUnit {
         Task task = (Task) taskStruct.getNativeData(NATIVE_DATA_TASK_OBJECT);
         BMap<String, BValue> serviceStruct = (BMap) context.getRefArgument(1);
         String serviceName = BLangConnectorSPIUtil.getService(context.getProgramFile(), serviceStruct).getName();
+        task.removeService(serviceName);
+    }
+
+    public static void detachService(Strand strand, ObjectValue taskListener, ObjectValue service) {
+        Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
+        String serviceName = service.getType().getName();
         task.removeService(serviceName);
     }
 }

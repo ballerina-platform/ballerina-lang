@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -46,5 +48,9 @@ public class HashSha384 extends BlockingNativeCallableUnit {
         BValue inputBValue = context.getRefArgument(0);
         byte[] input = ((BValueArray) inputBValue).getBytes();
         context.setReturnValues(new BValueArray(CryptoUtils.hash(context, "SHA-384", input)));
+    }
+
+    public static ArrayValue hashSha384(Strand strand, ArrayValue inputValue) {
+        return new ArrayValue(CryptoUtils.hash("SHA-384", inputValue.getBytes()));
     }
 }

@@ -26,6 +26,7 @@ dependencies {
     baloCreat project(':lib-creator-milestone')
 //    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
+    implementation project(':ballerina-runtime')
 //    implementation project(':lib-creator')
     implementation project(':ballerina-time')
     implementation 'commons-codec:commons-codec'

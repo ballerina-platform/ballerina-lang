@@ -35,6 +35,7 @@ dependencies {
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     baloCreat project(':lib-creator-milestone')
     implementation project(':ballerina-core')
+    implementation project(':ballerina-runtime')
 //    implementation project(':ballerina-lang')
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-config')

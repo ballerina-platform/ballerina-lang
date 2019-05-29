@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -36,6 +37,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
@@ -43,7 +45,6 @@ import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,8 +53,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Responsible for performing runtime type checking.
@@ -77,17 +80,22 @@ public class TypeChecker {
 
     public static double anyToFloat(Object sourceVal) {
         return TypeConverter.anyToFloat(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
-                                                                                           BTypes.typeFloat));
+                                                                                             BTypes.typeFloat));
     }
 
     public static boolean anyToBoolean(Object sourceVal) {
         return TypeConverter.anyToBoolean(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
-                                                                                             BTypes.typeBoolean));
+                                                                                               BTypes.typeBoolean));
     }
 
     public static long anyToByte(Object sourceVal) {
         return TypeConverter.anyToByte(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
                                                                                             BTypes.typeByte));
+    }
+
+    public static DecimalValue anyToDecimal(Object sourceVal) {
+        return TypeConverter.anyToDecimal(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
+                                                                                               BTypes.typeDecimal));
     }
 
     /**
@@ -149,11 +157,11 @@ public class TypeChecker {
     public static BType getType(Object value) {
         if (value == null) {
             return BTypes.typeNull;
-        } else if (value instanceof Long) {
+        } else if (value instanceof Long || value instanceof Integer) {
             return BTypes.typeInt;
         } else if (value instanceof Double) {
             return BTypes.typeFloat;
-        } else if (value instanceof BigDecimal) {
+        } else if (value instanceof DecimalValue) {
             return BTypes.typeDecimal;
         } else if (value instanceof String) {
             return BTypes.typeString;
@@ -175,6 +183,83 @@ public class TypeChecker {
      */
     public static boolean isEqual(Object lhsValue, Object rhsValue) {
         return isEqual(lhsValue, rhsValue, new ArrayList<>());
+    }
+
+    /**
+     * Check if two decimal values are equal in value.
+     *
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value of the right hand side
+     * @return True if values are equal, else false.
+     */
+    public static boolean checkDecimalEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
+        return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
+               lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0;
+    }
+
+    /**
+     * Check if left hand side decimal value is less than the right hand side decimal value.
+     *
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value of the right hand side
+     * @return True if left hand value is less than right hand side value, else false.
+     */
+    public static boolean checkDecimalLessThan(DecimalValue lhsValue, DecimalValue rhsValue) {
+        return checkDecimalGreaterThanOrEqual(rhsValue, lhsValue);
+    }
+
+    /**
+     * Check if left hand side decimal value is less than or equal the right hand side decimal value.
+     *
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value of the right hand side
+     * @return True if left hand value is less than or equal right hand side value, else false.
+     */
+    public static boolean checkDecimalLessThanOrEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
+        return checkDecimalGreaterThan(rhsValue, lhsValue);
+    }
+
+    /**
+     * Check if left hand side decimal value is greater than the right hand side decimal value.
+     *
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value of the right hand side
+     * @return True if left hand value is greater than right hand side value, else false.
+     */
+    public static boolean checkDecimalGreaterThan(DecimalValue lhsValue, DecimalValue rhsValue) {
+        switch (lhsValue.valueKind) {
+            case POSITIVE_INFINITY:
+                return isDecimalRealNumber(rhsValue) || rhsValue.valueKind == DecimalValueKind.NEGATIVE_INFINITY;
+            case ZERO:
+            case OTHER:
+                return rhsValue.valueKind == DecimalValueKind.NEGATIVE_INFINITY || (isDecimalRealNumber(rhsValue) &&
+                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) > 0);
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Check if left hand side decimal value is greater than or equal the right hand side decimal value.
+     *
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value of the right hand side
+     * @return True if left hand value is greater than or equal right hand side value, else false.
+     */
+    public static boolean checkDecimalGreaterThanOrEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
+        return checkDecimalGreaterThan(lhsValue, rhsValue) ||
+               (isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
+                lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0);
+    }
+
+    /**
+     * Checks if the given decimal number is a real number.
+     *
+     * @param decimalValue The decimal value being checked
+     * @return True if the decimal value is a real number.
+     */
+    private static boolean isDecimalRealNumber(DecimalValue decimalValue) {
+        return decimalValue.valueKind == DecimalValueKind.ZERO || decimalValue.valueKind == DecimalValueKind.OTHER;
     }
 
     /**
@@ -231,7 +316,6 @@ public class TypeChecker {
             case TypeTags.DECIMAL_TAG:
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
-            case TypeTags.BYTE_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
             case TypeTags.SERVICE_TAG:
@@ -240,6 +324,8 @@ public class TypeChecker {
                                                                 .allMatch(bValue -> checkIsType(bValue, targetType));
                 }
                 return sourceType.getTag() == targetType.getTag();
+            case TypeTags.BYTE_TAG:
+                return sourceType.getTag() == TypeTags.BYTE_TAG || sourceType.getTag() == TypeTags.INT_TAG;
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
             case TypeTags.TABLE_TAG:
@@ -367,9 +453,21 @@ public class TypeChecker {
         }
 
         BArrayType sourceArrayType = (BArrayType) sourceType;
-        if (sourceArrayType.getState() != targetType.getState() || sourceArrayType.getSize() != targetType.getSize()) {
-            return false;
+
+        switch (sourceArrayType.getState()) {
+            case UNSEALED:
+                if (targetType.getState() != ArrayState.UNSEALED) {
+                    return false;
+                }
+                break;
+            case CLOSED_SEALED:
+                if (targetType.getState() == ArrayState.CLOSED_SEALED &&
+                        sourceArrayType.getSize() != targetType.getSize()) {
+                    return false;
+                }
+                break;
         }
+
         return checkIsType(sourceArrayType.getElementType(), targetType.getElementType(), unresolvedTypes);
     }
 
@@ -426,10 +524,6 @@ public class TypeChecker {
 
     private static boolean checkObjectEquivalency(BType sourceType, BObjectType targetType,
                                                   List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            return false;
-        }
-
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(sourceType, targetType);
@@ -438,111 +532,72 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
 
-        // Both structs should be public or private.
-        // Get the XOR of both flags(masks)
-        // If both are public, then public bit should be 0;
-        // If both are private, then public bit should be 0;
-        // The public bit is on means, one is public, and the other one is private.
         BObjectType sourceObjectType = (BObjectType) sourceType;
-        if (Flags.isFlagOn(targetType.flags ^ sourceObjectType.flags, Flags.PUBLIC)) {
-            return false;
-        }
+        Map<String, BField> targetFields = targetType.getFields();
+        Map<String, BField> sourceFields = sourceObjectType.getFields();
+        AttachedFunction[] targetFuncs = targetType.getAttachedFunctions();
+        AttachedFunction[] sourceFuncs = sourceObjectType.getAttachedFunctions();
 
-        // If both structs are private, they should be in the same package.
-        if (!Flags.isFlagOn(targetType.flags, Flags.PUBLIC) &&
-                !sourceObjectType.getPackagePath().equals(targetType.getPackagePath())) {
+        if (targetType.getFields().values().stream().anyMatch(field -> Flags.isFlagOn(field.flags, Flags.PRIVATE))
+                || Stream.of(targetFuncs).anyMatch(func -> Flags.isFlagOn(func.flags, Flags.PRIVATE))) {
             return false;
         }
 
         // Adjust the number of the attached functions of the lhs struct based on
-        // the availability of the initializer function.
-        int lhsAttachedFunctionCount = targetType.initializer != null ? targetType.getAttachedFunctions().length - 1
-                : targetType.getAttachedFunctions().length;
+        //  the availability of the initializer function.
+        int targetAttachedFunctionCount = targetType.initializer != null ? targetFuncs.length - 1 : targetFuncs.length;
+        int sourceAttachedFunctionCount =
+                sourceObjectType.initializer != null ? sourceFuncs.length - 1 : sourceFuncs.length;
 
-        if (targetType.getFields().size() > sourceObjectType.getFields().size() ||
-                lhsAttachedFunctionCount > sourceObjectType.getAttachedFunctions().length) {
+        if (targetFields.size() > sourceFields.size() || targetAttachedFunctionCount > sourceAttachedFunctionCount) {
             return false;
         }
 
-        return !Flags.isFlagOn(targetType.flags, Flags.PUBLIC) &&
-                sourceObjectType.getPackagePath().equals(targetType.getPackagePath())
-                        ? checkPrivateObjectsEquivalency(targetType, sourceObjectType, unresolvedTypes)
-                        : checkPublicObjectsEquivalency(targetType, sourceObjectType, unresolvedTypes);
-    }
-
-    private static boolean checkPrivateObjectsEquivalency(BObjectType lhsType, BObjectType rhsType,
-                                                          List<TypePair> unresolvedTypes) {
-        Map<String, BField> rhsFields = rhsType.getFields();
-        for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
-            BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
-            if (rhsField == null || !isSameType(rhsField.type, lhsFieldEntry.getValue().type)) {
+        for (BField lhsField : targetFields.values()) {
+            BField rhsField = sourceFields.get(lhsField.name);
+            if (rhsField == null ||
+                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackagePath()).orElse(""),
+                                              Optional.ofNullable(rhsField.type.getPackagePath()).orElse(""),
+                                              lhsField.flags, rhsField.flags) ||
+                    !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
                 return false;
             }
         }
 
-        AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
-        AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
-        for (AttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
+        for (AttachedFunction lhsFunc : targetFuncs) {
+            if (lhsFunc == targetType.initializer || lhsFunc == targetType.defaultsValuesInitFunc) {
                 continue;
             }
 
-            AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean checkPublicObjectsEquivalency(BObjectType lhsType, BObjectType rhsType,
-                                                         List<TypePair> unresolvedTypes) {
-        // Check the whether there is any private fields in RHS type
-        if (rhsType.getFields().values().stream().anyMatch(field -> !Flags.isFlagOn(field.flags, Flags.PUBLIC))) {
-            return false;
-        }
-
-        Map<String, BField> rhsFields = rhsType.getFields();
-        for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
-            BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
-            if (rhsField == null || !Flags.isFlagOn(lhsFieldEntry.getValue().flags, Flags.PUBLIC) ||
-                    !isSameType(rhsField.type, lhsFieldEntry.getValue().type)) {
-                return false;
-            }
-        }
-
-        AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
-        AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
-        for (AttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
-                continue;
-            }
-
-            if (!Flags.isFlagOn(lhsFunc.flags, Flags.PUBLIC)) {
-                return false;
-            }
-
-            AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || !Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
-                return false;
-            }
-        }
-
-        // Check for private attached function in RHS type
-        for (AttachedFunction rhsFunc : rhsFuncs) {
-            if (!Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
+            AttachedFunction rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
+            if (rhsFunc == null ||
+                    !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackagePath()).orElse(""),
+                                              Optional.ofNullable(rhsFunc.type.getPackagePath()).orElse(""),
+                                              lhsFunc.flags, rhsFunc.flags)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, int lhsFlags, int rhsFlags) {
+        if (Flags.isFlagOn(lhsFlags, Flags.PRIVATE)) {
+            return lhsTypePkg.equals(rhsTypePkg);
+        } else if (Flags.isFlagOn(lhsFlags, Flags.PUBLIC)) {
+            return Flags.isFlagOn(rhsFlags, Flags.PUBLIC);
+        }
+        return !Flags.isFlagOn(rhsFlags, Flags.PRIVATE) && !Flags.isFlagOn(rhsFlags, Flags.PUBLIC) &&
+                lhsTypePkg.equals(rhsTypePkg);
     }
 
     private static AttachedFunction getMatchingInvokableType(AttachedFunction[] rhsFuncs, AttachedFunction lhsFunc,
                                                              List<TypePair> unresolvedTypes) {
-        return Arrays.stream(rhsFuncs).filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
+        return Arrays.stream(rhsFuncs)
+                .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
                 .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.type, lhsFunc.type, unresolvedTypes))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 
     private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target,
@@ -552,7 +607,7 @@ public class TypeChecker {
         }
 
         for (int i = 0; i < source.paramTypes.length; i++) {
-            if (!checkIsType(source.paramTypes[i], target.paramTypes[i], unresolvedTypes)) {
+            if (!checkIsType(target.paramTypes[i], source.paramTypes[i], unresolvedTypes)) {
                 return false;
             }
         }
@@ -862,7 +917,7 @@ public class TypeChecker {
         }
         return false;
     }
-    
+
     private static boolean isAnydata(BType type) {
         return isAnydata(type, new HashSet<>());
     }
@@ -1100,7 +1155,7 @@ public class TypeChecker {
      * @since 0.995.0
      */
     private static class ValuePair {
-        List<Object> valueList = new ArrayList<>(2);
+        ArrayList<Object> valueList = new ArrayList<>(2);
 
         ValuePair(Object valueOne, Object valueTwo) {
             valueList.add(valueOne);
@@ -1113,8 +1168,20 @@ public class TypeChecker {
                 return false;
             }
 
-            return ((ValuePair) otherPair).valueList.containsAll(valueList) &&
-                    valueList.containsAll(((ValuePair) otherPair).valueList);
+            ArrayList otherList = ((ValuePair) otherPair).valueList;
+            ArrayList currentList = valueList;
+
+            if (otherList.size() != currentList.size()) {
+                return false;
+            }
+
+            for (int i = 0; i < otherList.size(); i++) {
+                if (!otherList.get(i).equals(currentList.get(i))) {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

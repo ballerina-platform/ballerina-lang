@@ -631,9 +631,12 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Return if this assignment is not a safe assignment
-        varNode.expr = rewriteExpr(varNode.expr);
+        BLangExpression bLangExpression = rewriteExpr(varNode.expr);
+        if (bLangExpression != null) {
+            bLangExpression = addConversionExprIfRequired(bLangExpression, varNode.type);
+        }
+        varNode.expr = bLangExpression;
         result = varNode;
-
     }
 
     @Override
@@ -1344,8 +1347,10 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        final BLangExpression assignmentExpr = createIndexBasedAccessExpr(simpleVarRef.type, simpleVarRef.pos,
+        BLangExpression assignmentExpr = createIndexBasedAccessExpr(simpleVarRef.type, simpleVarRef.pos,
                 indexExpr, tupleVarSymbol, parentArrayAccessExpr);
+
+        assignmentExpr = addConversionExprIfRequired(assignmentExpr, simpleVarRef.type);
 
         final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos,
                 parentBlockStmt);
@@ -4119,6 +4124,10 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (lhsType.tag == TypeTags.NIL && rhsType.isNullable()) {
+            return expr;
+        }
+
+        if (lhsType.tag == TypeTags.ARRAY && rhsType.tag == TypeTags.TUPLE) {
             return expr;
         }
 

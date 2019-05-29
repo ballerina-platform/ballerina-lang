@@ -45,7 +45,7 @@ public class JwtTest {
     private CompileResult compileResult;
     private String jwtToken;
     private String jwtTokenWithoutIssAndSub;
-    private String jwtTokenWithouAudAndSub;
+    private String jwtTokenWithoutAudAndSub;
     private String keyStorePath;
     private String trustStorePath;
 
@@ -122,8 +122,8 @@ public class JwtTest {
         BValue[] inputBValues = {new BString(keyStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwtWithNoAudOrSub", inputBValues);
         Assert.assertTrue(returns[0] instanceof BString);
-        jwtTokenWithouAudAndSub = returns[0].stringValue();
-        String[] parts = jwtTokenWithouAudAndSub.split("\\.");
+        jwtTokenWithoutAudAndSub = returns[0].stringValue();
+        String[] parts = jwtTokenWithoutAudAndSub.split("\\.");
         String header = new String(Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
         String payload = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
         Assert.assertEquals("{\"alg\":\"RS256\", \"typ\":\"JWT\"}", header);
@@ -139,7 +139,7 @@ public class JwtTest {
     }
 
     @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
-            "using a validator configured to valudate issuer and subject")
+            "using a validator configured to validate issuer and subject")
     public void testCompleteValidatorWithNoIssOrSubNegative() {
         BValue[] inputBValues = {new BString(jwtTokenWithoutIssAndSub), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwt", inputBValues);
@@ -149,9 +149,9 @@ public class JwtTest {
     }
 
     @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
-            "using a validator configured to valudate audience and subject")
+            "using a validator configured to validate audience and subject")
     public void testCompleteValidatorWithNoAudOrSubNegative() {
-        BValue[] inputBValues = {new BString(jwtTokenWithouAudAndSub), new BString(trustStorePath)};
+        BValue[] inputBValues = {new BString(jwtTokenWithoutAudAndSub), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwt", inputBValues);
         Assert.assertTrue((returns[0]) instanceof BError);
         Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
@@ -159,7 +159,7 @@ public class JwtTest {
     }
 
     @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
-            "using a validator configured not to valudate issuer and subject")
+            "using a validator configured not to validate issuer and subject")
     public void testPartialValidatorWithNoIssOrSub() {
         BValue[] inputBValues = {new BString(jwtTokenWithoutIssAndSub), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwtWithNoIssOrSub", inputBValues);
@@ -167,7 +167,7 @@ public class JwtTest {
     }
 
     @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
-            "using a validator configured to valudate issuer and subject")
+            "using a validator configured to validate issuer and subject")
     public void testPartialValidatorWithIssAndSub() {
         BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwtWithNoIssOrSub", inputBValues);

@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -41,10 +42,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
+import static org.ballerinalang.net.http.HttpConstants.HTTP2_PRIOR_KNOWLEDGE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpUtil.getConnectionManager;
 import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0_VERSION;
 
 /**
  * Initialization of client endpoint.
@@ -82,13 +85,20 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
         scheme = url.getProtocol();
         Map<String, Object> properties =
                 HttpConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
-        SenderConfiguration senderConfiguration =
-                HttpConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setScheme(scheme);
 
         if (connectionManager.isHTTPTraceLoggerEnabled()) {
             senderConfiguration.setHttpTraceLogEnabled(true);
         }
         senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
+
+        String httpVersion = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_HTTP_VERSION).getStringValue();
+        if (HTTP_2_0_VERSION.equals(httpVersion)) {
+            BMap<String, BValue> http2Settings = (BMap<String, BValue>) configBStruct.get(HttpConstants.HTTP2_SETTINGS);
+            boolean http2PriorKnowledge = ((BBoolean) http2Settings.get(HTTP2_PRIOR_KNOWLEDGE)).booleanValue();
+            senderConfiguration.setForceHttp2(http2PriorKnowledge);
+        }
 
         populateSenderConfigurations(senderConfiguration, clientEndpointConfig);
         ConnectionManager poolManager;

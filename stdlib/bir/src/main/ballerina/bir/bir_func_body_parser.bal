@@ -164,6 +164,8 @@ public type FuncBodyParser object {
                 value = self.reader.readIntCpRef();
             } else if (bType is BTypeString) {
                 value = self.reader.readStringCpRef();
+            } else if (bType is BTypeDecimal) {
+                value = self.reader.readStringCpRef();
             } else if (bType is BTypeBoolean) {
                 value = self.reader.readBoolean();
             } else if (bType is BTypeFloat) {
@@ -319,7 +321,7 @@ public type FuncBodyParser object {
                                elseOp:elseOp};
             return ternary;
         } else if (kindTag == INS_NEGATE) {
-            kind = INS_KIND_NOT;
+            kind = INS_KIND_NEGATE;
             var rhsOp = self.parseVarRef();
             var lhsOp = self.parseVarRef();
             UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
@@ -408,6 +410,13 @@ public type FuncBodyParser object {
             VarRef lhsOp = self.parseVarRef();
             Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp};
             return waitIns;
+        } else if (kindTag == INS_FLUSH) {
+            TerminatorKind kind = TERMINATOR_FLUSH;
+            ChannelDetail[] channels = getWorkerChannels(self.reader);
+            VarRef lhsOp = self.parseVarRef();
+            BasicBlock thenBB = self.parseBBRef();
+            Flush flushIns = {pos:pos, workerChannels:channels, kind:kind, lhsOp:lhsOp, thenBB:thenBB};
+            return flushIns;
         } else if (kindTag == INS_FP_CALL) {
             TerminatorKind kind = TERMINATOR_FP_CALL;
             VarRef fp = self.parseVarRef();
@@ -452,6 +461,32 @@ public type FuncBodyParser object {
             WorkerSend send = {pos:pos, kind:kind, channelName:{ value:dataChannel }, dataOp:dataOp,
                 isSameStrand:isSameStrand, isSync:isSync, lhsOp:lhsOp, thenBB:thenBB};
             return send;
+        } else if (kindTag == INS_LOCK) {
+            TerminatorKind kind = TERMINATOR_LOCK;
+
+            var globleVarCount = self.reader.readInt32();
+            string[] globleVarName = [];
+            int i = 0;
+            while (i < globleVarCount) {
+                globleVarName[i] = self.reader.readStringCpRef();
+                i += 1;
+            }
+
+            Lock lockIns = {pos:pos, kind:kind, globleVars:globleVarName, lockBB:self.parseBBRef()};
+            return lockIns;
+        } else if (kindTag == INS_UNLOCK) {
+            TerminatorKind kind = TERMINATOR_UNLOCK;
+
+            var globleVarCount = self.reader.readInt32();
+            string[] globleVarName = [];
+            int i = 0;
+            while (i < globleVarCount) {
+                globleVarName[i] = self.reader.readStringCpRef();
+                i += 1;
+            }
+
+            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVarName, unlockBB:self.parseBBRef()};
+            return unlockIns;
         }
         error err = error("term instruction kind " + kindTag + " not impl.");
         panic err;
@@ -502,6 +537,22 @@ public type FuncBodyParser object {
             kind = BINARY_REF_EQUAL;
         } else if (kindTag == INS_REF_NOT_EQUAL){
             kind = BINARY_REF_NOT_EQUAL;
+        } else if (kindTag == INS_CLOSED_RANGE) {
+            kind = BINARY_CLOSED_RANGE;
+        } else if (kindTag == INS_HALF_OPEN_RANGE) {
+            kind = BINARY_HALF_OPEN_RANGE;
+        } else if (kindTag == INS_BITWISE_AND) {
+            kind = BINARY_BITWISE_AND;
+        } else if (kindTag == INS_BITWISE_OR) {
+            kind = BINARY_BITWISE_OR;
+        } else if (kindTag == INS_BITWISE_XOR) {
+            kind = BINARY_BITWISE_XOR;
+        } else if (kindTag == INS_BITWISE_LEFT_SHIFT) {
+            kind = BINARY_BITWISE_LEFT_SHIFT;
+        } else if (kindTag == INS_BITWISE_RIGHT_SHIFT) {
+            kind = BINARY_BITWISE_RIGHT_SHIFT;
+        } else if (kindTag == INS_BITWISE_UNSIGNED_RIGHT_SHIFT) {
+            kind = BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT;
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
             panic err;

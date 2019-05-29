@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.runtime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.AsyncTimer;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -42,6 +44,14 @@ public class Sleep implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callback) {
         long delayMillis = context.getIntArgument(0);
         AsyncTimer.schedule(callback::notifySuccess, delayMillis);
+    }
+
+    public static void sleep(Strand strand, long delayMillis) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
+        AsyncTimer.schedule(callback::notifySuccess, delayMillis);
+        //TODO : Remove callback once strand non-blocking support is given
+        callback.sync();
     }
 
     @Override

@@ -89,6 +89,8 @@ public type TypeParser object {
             return TYPE_INT;
         } else if (typeTag == self.TYPE_TAG_BYTE){
             return TYPE_BYTE;
+        } else if (typeTag == self.TYPE_TAG_DECIMAL){
+            return TYPE_DECIMAL;
         } else if (typeTag == self.TYPE_TAG_FLOAT){
             return TYPE_FLOAT;
         } else if (typeTag == self.TYPE_TAG_STRING){
@@ -320,9 +322,9 @@ public type TypeParser object {
     }
 
     function parseFiniteType() returns BFiniteType {
+        BFiniteType finiteType = {name: { value: self.reader.readStringCpRef()}, values:[]};
         int size = self.reader.readInt32();
         int c = 0;
-        BFiniteType finiteType = {values:[]};
         while c < size {
             BType valueType = self.parseTypeInternal();
             finiteType.values[c] = self.getValue(valueType);
