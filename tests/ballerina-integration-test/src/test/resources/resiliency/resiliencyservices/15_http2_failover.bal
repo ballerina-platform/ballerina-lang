@@ -25,18 +25,18 @@ service failoverDemoService06 on failoverEP06 {
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
         string startIndex = string.convert(foBackendEP06.succeededEndpointIndex);
-        var backendRes = foBackendEP06->submit("/", request);
+        var backendRes = foBackendEP06->submit("/", "GET", request);
         if (backendRes is http:HttpFuture) {
-            var response = http2RetryClient->getResponse(httpFuture);
+            var response = foBackendEP06->getResponse(backendRes);
             if (response is http:Response) {
                 string responseMessage = "Failover start index is : " + startIndex;
                 var responseToCaller = caller->respond(response);
                 handleResponseToCaller(responseToCaller);
             } else {
-                sendErrorResponse(caller, backendRes);
+                sendErrorResponse(caller, response);
             }
         } else {
-            sendErrorResponse(caller, response);
+            sendErrorResponse(caller, backendRes);
         }
     }
 }
