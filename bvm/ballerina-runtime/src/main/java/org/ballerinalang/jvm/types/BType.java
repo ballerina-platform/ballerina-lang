@@ -65,7 +65,7 @@ public abstract class BType {
     public abstract int getTag();
     
     public String toString() {
-        return (pkg.getName() == null || pkg.getName().equals(".")) ? typeName : pkg.getName() + ":" + typeName;
+        return (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ? typeName : pkg.getName() + ":" + typeName;
     }
 
     public boolean equals(Object obj) {
@@ -77,7 +77,7 @@ public abstract class BType {
             //    then check their names. If not return false
 
             if (this.pkg == null || other.pkg == null) {
-                return false;
+                return namesEqual;
             }
 
             if (this.pkg.getName() == null && other.pkg.getName() == null) {

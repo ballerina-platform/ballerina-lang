@@ -1063,6 +1063,12 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>composer-library</artifactId>
+                <type>zip</type>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>testerina-core</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>

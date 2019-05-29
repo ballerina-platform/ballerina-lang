@@ -18,7 +18,6 @@
 package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.connector.api.BallerinaServerConnector;
-import org.ballerinalang.connector.api.BallerinaServerConnector;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.HashMap;

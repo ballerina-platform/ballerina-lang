@@ -18,6 +18,7 @@
 package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,7 +202,12 @@ public class BMainInstance implements BMain {
      */
     public void runMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
                          LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
-        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        String scriptName;
+        if (BCompileUtil.jBallerinaTestsEnabled()) {
+            scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
+        } else {
+            scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        }
         String[] cmdArray;
         try {
 
@@ -284,7 +290,13 @@ public class BMainInstance implements BMain {
      */
     public String runMainAndReadStdOut(String command, String[] args, Map<String, String> envProperties,
                                        String commandDir, boolean readErrStream) throws BallerinaTestException {
-        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+
+        String scriptName;
+        if (BCompileUtil.jBallerinaTestsEnabled()) {
+            scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
+        } else {
+            scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        }
         String[] cmdArray;
         try {
 
