@@ -1614,6 +1614,18 @@ public class BIRGen extends BLangNodeVisitor {
                 return InstructionKind.CLOSED_RANGE;
             case HALF_OPEN_RANGE:
                 return InstructionKind.HALF_OPEN_RANGE;
+            case BITWISE_AND:
+                return InstructionKind.BITWISE_AND;
+            case BITWISE_OR:
+                return InstructionKind.BITWISE_OR;
+            case BITWISE_XOR:
+                return InstructionKind.BITWISE_XOR;
+            case BITWISE_LEFT_SHIFT:
+                return InstructionKind.BITWISE_LEFT_SHIFT;
+            case BITWISE_RIGHT_SHIFT:
+                return InstructionKind.BITWISE_RIGHT_SHIFT;
+            case BITWISE_UNSIGNED_RIGHT_SHIFT:
+                return InstructionKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
             default:
                 throw new IllegalStateException("unsupported binary operation: " + opKind.value());
         }

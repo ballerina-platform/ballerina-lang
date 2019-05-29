@@ -32,7 +32,7 @@
                     <exclude name="writeBytes"/>
                 </methods>
             </class>
-            
+
             <class name="org.ballerinalang.stdlib.io.bytes.BytesInputOutputBufferTest">
                 <methods>
                     <exclude name="fileStreamCopyTest"/>
