@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
@@ -39,9 +40,18 @@ import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.util.HashSet;
+import java.util.List;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
+import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
+import static org.ballerinalang.model.elements.PackageID.ARRAY;
+import static org.ballerinalang.model.elements.PackageID.DECIMAL;
+import static org.ballerinalang.model.elements.PackageID.ERROR;
+import static org.ballerinalang.model.elements.PackageID.FLOAT;
+import static org.ballerinalang.model.elements.PackageID.FUTURE;
+import static org.ballerinalang.model.elements.PackageID.INT;
+import static org.ballerinalang.model.elements.PackageID.MAP;
+import static org.ballerinalang.model.elements.PackageID.STRING;
+import static org.ballerinalang.model.elements.PackageID.VALUE;
 import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE;
 
 /**
@@ -108,22 +118,69 @@ public class CompilerDriver {
         return packageNode;
     }
 
-    public void loadBuiltinPackage() {
-        // Load built-in packages.
-        if (LOAD_BUILTIN_FROM_SOURCE) {
-            BLangPackage builtInPkg = getBuiltInPackage();
-            symbolTable.builtInPackageSymbol = builtInPkg.symbol;
-        } else {
-            symbolTable.builtInPackageSymbol = pkgLoader.loadPackageSymbol(BUILTIN, null, null);
+    void loadLangModules(List<PackageID> pkgIdList) {
+        // This logic interested in loading lang modules from source. For others we can load from balo.
+        if (!LOAD_BUILTIN_FROM_SOURCE) {
+            symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
+            symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
+            symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
+            symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
+            symbolTable.langFloatModuleSymbol = pkgLoader.loadPackageSymbol(FLOAT, null, null);
+            symbolTable.langFutureModuleSymbol = pkgLoader.loadPackageSymbol(FUTURE, null, null);
+            symbolTable.langIntModuleSymbol = pkgLoader.loadPackageSymbol(INT, null, null);
+            symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
+            symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
+            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
+            return;
         }
 
-    }
+        // Loading lang modules from source. At a given time there is only one module.
+        PackageID langLib = pkgIdList.get(0);
+        if (langLib.equals(ANNOTATIONS)) {
+            symbolTable.langAnnotationModuleSymbol = getLangModuleFromSource(ANNOTATIONS);
+            return; // Nothing else to load.
+        }
 
-    void loadUtilsPackage() {
-        // Load utils package.
-        symbolTable.utilsPackageSymbol = pkgLoader.loadPackageSymbol(UTILS, null, null);
-    }
+        // Other lang modules requires annotation module. Hence loading it first.
+        symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
 
+        // Now load each module.
+        if (langLib.equals(ARRAY)) {
+            symbolTable.langArrayModuleSymbol = getLangModuleFromSource(ARRAY);
+            return;
+        }
+        if (langLib.equals(DECIMAL)) {
+            symbolTable.langDecimalModuleSymbol = getLangModuleFromSource(DECIMAL);
+            return;
+        }
+        if (langLib.equals(ERROR)) {
+            symbolTable.langErrorModuleSymbol = getLangModuleFromSource(ERROR);
+            return;
+        }
+        if (langLib.equals(FLOAT)) {
+            symbolTable.langFloatModuleSymbol = getLangModuleFromSource(FLOAT);
+            return;
+        }
+        if (langLib.equals(FUTURE)) {
+            symbolTable.langFutureModuleSymbol = getLangModuleFromSource(FUTURE);
+            return;
+        }
+        if (langLib.equals(INT)) {
+            symbolTable.langIntModuleSymbol = getLangModuleFromSource(INT);
+            return;
+        }
+        if (langLib.equals(MAP)) {
+            symbolTable.langMapModuleSymbol = getLangModuleFromSource(MAP);
+            return;
+        }
+        if (langLib.equals(STRING)) {
+            symbolTable.langStringModuleSymbol = getLangModuleFromSource(STRING);
+            return;
+        }
+        if (langLib.equals(VALUE)) {
+            symbolTable.langValueModuleSymbol = getLangModuleFromSource(VALUE);
+        }
+    }
     // Private methods
 
     private void compilePackageSymbol(BPackageSymbol packageSymbol) {
@@ -249,9 +306,10 @@ public class CompilerDriver {
                 nextPhase == CompilerPhase.DESUGAR;
     }
 
-    private BLangPackage getBuiltInPackage() {
+    private BPackageSymbol getLangModuleFromSource(PackageID modID) {
+
         return codegen(desugar(taintAnalyze(codeAnalyze(semAnalyzer.analyze(
-                pkgLoader.loadAndDefinePackage(SymbolTable.BUILTIN))))));
+                pkgLoader.loadAndDefinePackage(modID)))))).symbol;
     }
 
 }

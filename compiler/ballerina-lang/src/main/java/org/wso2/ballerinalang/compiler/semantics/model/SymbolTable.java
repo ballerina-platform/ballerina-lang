@@ -73,12 +73,6 @@ public class SymbolTable {
     private static final CompilerContext.Key<SymbolTable> SYM_TABLE_KEY =
             new CompilerContext.Key<>();
 
-    public static final PackageID BUILTIN = new PackageID(Names.BUILTIN_ORG,
-            Names.BUILTIN_PACKAGE,
-            Names.EMPTY);
-    public static final PackageID RUNTIME = new PackageID(Names.BUILTIN_ORG,
-            Names.RUNTIME_PACKAGE,
-            Names.EMPTY);
     public static final PackageID UTILS = new PackageID(Names.BUILTIN_ORG, Names.UTILS_PACKAGE, Names.EMPTY);
 
     public static final Integer BBYTE_MIN_VALUE = 0;
@@ -125,7 +119,16 @@ public class SymbolTable {
     public BUnionType pureType;
     public BMapType pureTypeConstrainedMap;
 
-    public BPackageSymbol builtInPackageSymbol;
+    public BPackageSymbol langAnnotationModuleSymbol;
+    public BPackageSymbol langArrayModuleSymbol;
+    public BPackageSymbol langDecimalModuleSymbol;
+    public BPackageSymbol langErrorModuleSymbol;
+    public BPackageSymbol langFloatModuleSymbol;
+    public BPackageSymbol langFutureModuleSymbol;
+    public BPackageSymbol langIntModuleSymbol;
+    public BPackageSymbol langMapModuleSymbol;
+    public BPackageSymbol langStringModuleSymbol;
+    public BPackageSymbol langValueModuleSymbol;
     public BPackageSymbol utilsPackageSymbol;
 
     private Names names;
@@ -146,10 +149,11 @@ public class SymbolTable {
         this.names = Names.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        this.rootPkgSymbol = new BPackageSymbol(BUILTIN, null);
+        this.rootPkgSymbol = new BPackageSymbol(PackageID.DEFAULT, null);
         this.rootPkgNode.symbol = this.rootPkgSymbol;
-        this.rootScope = new BuiltInScope(rootPkgSymbol);
+        this.rootScope = new Scope(rootPkgSymbol);
         this.rootPkgSymbol.scope = this.rootScope;
+
         this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID,
                 rootPkgSymbol.pkgID, noType, rootPkgSymbol);
         this.invalidUsageSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID, rootPkgSymbol.pkgID, noType,

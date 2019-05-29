@@ -34,6 +34,19 @@ import java.util.stream.Collectors;
 public class PackageID {
 
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, Names.DEFAULT_PACKAGE, Names.DEFAULT_VERSION);
+
+    // Lang.* Modules IDs
+    public static final PackageID ANNOTATIONS = new PackageID(Names.BALLERINA_ORG, Names.LANG_ANNOTATIONS, Names.EMPTY);
+    public static final PackageID ARRAY = new PackageID(Names.BALLERINA_ORG, Names.LANG_ARRAY, Names.EMPTY);
+    public static final PackageID DECIMAL = new PackageID(Names.BALLERINA_ORG, Names.LANG_DECIMAL, Names.EMPTY);
+    public static final PackageID ERROR = new PackageID(Names.BALLERINA_ORG, Names.LANG_ERROR, Names.EMPTY);
+    public static final PackageID FLOAT = new PackageID(Names.BALLERINA_ORG, Names.LANG_FLOAT, Names.EMPTY);
+    public static final PackageID FUTURE = new PackageID(Names.BALLERINA_ORG, Names.LANG_FUTURE, Names.EMPTY);
+    public static final PackageID INT = new PackageID(Names.BALLERINA_ORG, Names.LANG_INT, Names.EMPTY);
+    public static final PackageID MAP = new PackageID(Names.BALLERINA_ORG, Names.LANG_MAP, Names.EMPTY);
+    public static final PackageID STRING = new PackageID(Names.BALLERINA_ORG, Names.LANG_STRING, Names.EMPTY);
+    public static final PackageID VALUE = new PackageID(Names.BALLERINA_ORG, Names.LANG_VALUE, Names.EMPTY);
+
     public final Name orgName;
     public Name name;
     public Name version = Names.DEFAULT_VERSION;

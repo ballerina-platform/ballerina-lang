@@ -3737,17 +3737,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression visitLengthInvocation(BLangInvocation iExpr) {
-        if (iExpr.expr.type.tag == TypeTags.STRING) {
-            // Builtin module provides string.length() function hence reusing it.
-            BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) symResolver
-                    .lookupSymbol(symTable.pkgEnvMap.get(symTable.builtInPackageSymbol),
-                                  names.fromString(BLangBuiltInMethod.STRING_LENGTH.getName()), SymTag.FUNCTION);
-            BLangInvocation builtInLengthMethod = ASTBuilderUtil
-                    .createInvocationExprMethod(iExpr.pos, bInvokableSymbol, new ArrayList<>(),
-                                                new ArrayList<>(), new ArrayList<>(), symResolver);
-            builtInLengthMethod.expr = iExpr.expr;
-            return rewrite(builtInLengthMethod, env);
-        }
         return visitUtilMethodInvocation(iExpr.pos, BLangBuiltInMethod.LENGTH, Lists.of(iExpr.expr));
     }
 
