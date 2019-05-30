@@ -29,22 +29,6 @@ const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
 auth:ConfigAuthStoreProvider basicAuthProvider = new;
 http:BasicAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 
-http:ServiceEndpointConfiguration hubListenerConfig = {
-    auth: {
-        authnHandlers: [basicAuthnHandler]
-    },
-    secureSocket: {
-        keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
-        },
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
-    }
-};
-
 websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 
 listener http:Listener publisherServiceEP = new http:Listener(8080);
@@ -209,8 +193,22 @@ function startWebSubHub() returns websub:WebSubHub {
         poolOptions: { maximumPoolSize: 5 }
     });
     websub:HubPersistenceStore hpo = new websub:H2HubPersistenceStore(h2Client);
-    var result = websub:startHub(new http:Listener(9191, config =  hubListenerConfig),
-                                    hubConfiguration = { remotePublish : { enabled : true }, hubPersistenceStore: hpo });
+    var result = websub:startHub(new http:Listener(9191, config =  {
+        auth: {
+            authnHandlers: [basicAuthnHandler]
+        },
+        secureSocket: {
+            keyStore: {
+                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                password: "ballerina"
+            },
+            trustStore: {
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
+            }
+        }
+    }),
+    hubConfiguration = { remotePublish : { enabled : true }, hubPersistenceStore: hpo });
     if (result is websub:WebSubHub) {
         return result;
     } else {
