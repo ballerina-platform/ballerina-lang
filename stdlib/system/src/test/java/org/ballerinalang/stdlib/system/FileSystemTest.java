@@ -55,7 +55,12 @@ public class FileSystemTest {
 
     private CompileResult compileResult;
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
+    private Path srcFilePath = Paths.get("src", "test", "resources", "data-files", "src-file.txt");
+    private Path destFilePath = Paths.get("src", "test", "resources", "data-files", "dest-file.txt");
+    private Path srcDirPath = Paths.get("src", "test", "resources", "data-files", "src-dir");
     private Path tempDirPath;
+    private Path tempSourcePath;
+    private Path tempDestPath;
     private static final Logger log = LoggerFactory.getLogger(FileSystemTest.class);
 
     @BeforeClass
@@ -65,6 +70,8 @@ public class FileSystemTest {
         if (Files.notExists(tempDirPath)) {
             Files.createDirectory(tempDirPath);
         }
+        tempSourcePath = tempDirPath.resolve("src-file.txt");
+        tempDestPath = tempDirPath.resolve("dest-file.txt");
     }
 
     @Test(description = "Test for retrieving temporary directory")
@@ -77,12 +84,8 @@ public class FileSystemTest {
 
     @Test(description = "Test for changing file path")
     public void testFileRename() throws IOException {
-        Path tempSourcePath = null;
-        Path tempDestPath = null;
         try {
-            tempSourcePath = tempDirPath.resolve("src-file.txt");
-            tempDestPath = tempDirPath.resolve("dest-file.txt");
-            Files.copy(Paths.get("src", "test", "resources", "data-files", "src-file.txt"), tempSourcePath,
+            Files.copy(srcFilePath, tempSourcePath,
                     StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
             
             BValue[] args = {new BString(tempSourcePath.toString()), new BString(tempDestPath.toString())};
@@ -90,25 +93,17 @@ public class FileSystemTest {
             Assert.assertTrue(Files.exists(tempDestPath));
             assertFalse(Files.exists(tempSourcePath));
         } finally {
-            if (tempSourcePath != null) {
-                Files.deleteIfExists(tempSourcePath);
-            }
-            if (tempDestPath != null) {
-                Files.deleteIfExists(tempDestPath);
-            }
+            Files.deleteIfExists(tempSourcePath);
+            Files.deleteIfExists(tempDestPath);
         }
     }
 
     @Test(description = "Test for changing file path to already existing file path")
     public void testFileRenameWithInvalidPath() throws IOException {
-        Path tempSourcePath = null;
-        Path tempDestPath = null;
         try {
-            tempSourcePath = tempDirPath.resolve("src-file.txt");
-            tempDestPath = tempDirPath.resolve("dest-file.txt");
-            Files.copy(Paths.get("src", "test", "resources", "data-files", "src-file.txt"), tempSourcePath,
+            Files.copy(srcFilePath, tempSourcePath,
                     StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-            Files.copy(Paths.get("src", "test", "resources", "data-files", "src-file.txt"), tempDestPath,
+            Files.copy(srcFilePath, tempDestPath,
                     StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 
             BValue[] args = {new BString(tempSourcePath.toString()), new BString(tempDestPath.toString())};
@@ -118,30 +113,24 @@ public class FileSystemTest {
             assertEquals(error.getReason(), "{ballerina/system}OPERATION_FAILED");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } finally {
-            if (tempSourcePath != null) {
-                Files.deleteIfExists(tempSourcePath);
-            }
-            if (tempDestPath != null) {
-                Files.deleteIfExists(tempDestPath);
-            }
+            Files.deleteIfExists(tempSourcePath);
+            Files.deleteIfExists(tempDestPath);
         }
     }
 
     @Test(description = "Test for removing file/directory from system")
     public void testFileRemove() throws IOException {
-        Path tempSourceFilePath = null;
         Path tempSourceDirPath = null;
         try {
-            tempSourceFilePath = tempDirPath.resolve("src-file.txt");
             tempSourceDirPath = tempDirPath.resolve("src-dir");
-            FileUtils.copyDirectory(Paths.get("src", "test", "resources", "data-files", "src-dir").toFile(),
+            FileUtils.copyDirectory(srcDirPath.toFile(),
                     tempSourceDirPath.toFile());
-            Files.copy(Paths.get("src", "test", "resources", "data-files", "src-file.txt"), tempSourceFilePath,
+            Files.copy(srcFilePath, tempSourcePath,
                     StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
             // Remove source file
-            BValue[] args = {new BString(tempSourceFilePath.toString()), new BBoolean(false)};
+            BValue[] args = {new BString(tempSourcePath.toString()), new BBoolean(false)};
             BRunUtil.invoke(compileResult, "testRemove", args);
-            assertFalse(Files.exists(tempSourceFilePath));
+            assertFalse(Files.exists(tempSourcePath));
 
             // Remove directory with recursive false
             BValue[] args1 = {new BString(tempSourceDirPath.toString()), new BBoolean(false)};
@@ -158,9 +147,7 @@ public class FileSystemTest {
             assertFalse(Files.exists(tempSourceDirPath));
 
         } finally {
-            if (tempSourceFilePath != null) {
-                Files.deleteIfExists(tempSourceFilePath);
-            }
+            Files.deleteIfExists(tempSourcePath);
             if (tempSourceDirPath != null) {
                 FileUtils.deleteDirectory(tempSourceDirPath.toFile());
             }
@@ -180,8 +167,7 @@ public class FileSystemTest {
 
     @Test(description = "Test for retrieving file info from system")
     public void testGetFileInfo() {
-        Path filepath = Paths.get("src", "test", "resources", "data-files", "src-file.txt");
-        BValue[] args = {new BString(filepath.toString())};
+        BValue[] args = {new BString(srcFilePath.toString())};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetFileInfo", args);
         assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> bvalue = (BMap) returns[0];
@@ -192,8 +178,7 @@ public class FileSystemTest {
 
     @Test(description = "Test for retrieving file info from non existence file")
     public void testGetFileInfoNonExistFile() {
-        Path tempSourceFilePath = tempDirPath.resolve("dest-file.txt");
-        BValue[] args1 = {new BString(tempSourceFilePath.toString())};
+        BValue[] args1 = {new BString(tempDestPath.toString())};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetFileInfo", args1);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
@@ -203,8 +188,7 @@ public class FileSystemTest {
 
     @Test(description = "Test for retrieving files inside directory")
     public void testReadDir() {
-        Path filepath = Paths.get("src", "test", "resources", "data-files", "src-dir");
-        BValue[] args = {new BString(filepath.toString())};
+        BValue[] args = {new BString(srcDirPath.toString())};
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDir", args);
         assertTrue(returns[0].getType() instanceof BObjectType);
     }
@@ -223,8 +207,7 @@ public class FileSystemTest {
 
     @Test(description = "Test for reading file info from non existence directory")
     public void testReadFile() {
-        Path filepath = Paths.get("src", "test", "resources", "data-files", "src-file.txt");
-        BValue[] args = {new BString(filepath.toString())};
+        BValue[] args = {new BString(srcFilePath.toString())};
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDir", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
@@ -234,8 +217,7 @@ public class FileSystemTest {
 
     @Test(description = "Test for checking whether file exists")
     public void testFileExists() {
-        Path filepath = Paths.get("src", "test", "resources", "data-files", "src-file.txt");
-        BValue[] args = {new BString(filepath.toString())};
+        BValue[] args = {new BString(srcFilePath.toString())};
         BValue[] returns = BRunUtil.invoke(compileResult, "testFileExists", args);
         assertTrue(returns[0] instanceof BBoolean);
         BBoolean value = (BBoolean) returns[0];
@@ -244,8 +226,7 @@ public class FileSystemTest {
 
     @Test(description = "Test for checking whether file exists in non existent file")
     public void testExistsNonExistFile() {
-        Path filepath = Paths.get("src", "test", "resources", "data-files", "dest-file.txt");
-        BValue[] args = {new BString(filepath.toString())};
+        BValue[] args = {new BString(destFilePath.toString())};
         BValue[] returns = BRunUtil.invoke(compileResult, "testFileExists", args);
         assertTrue(returns[0] instanceof BBoolean);
         BBoolean value = (BBoolean) returns[0];
@@ -254,22 +235,20 @@ public class FileSystemTest {
 
     @Test(description = "Test for creating new file")
     public void testCreateFile() throws IOException {
-        Path filepath = tempDirPath.resolve("dest-file.txt");
-        Files.deleteIfExists(filepath);
+        Files.deleteIfExists(tempDestPath);
         try {
-            BValue[] args = {new BString(filepath.toString())};
+            BValue[] args = {new BString(tempDestPath.toString())};
             BValue[] returns = BRunUtil.invoke(compileResult, "testCreateFile", args);
             assertTrue(returns[0] instanceof BString);
-            assertTrue(Files.exists(filepath));
+            assertTrue(Files.exists(tempDestPath));
         } finally {
-            Files.deleteIfExists(filepath);
+            Files.deleteIfExists(tempDestPath);
         }
     }
 
     @Test(description = "Test for creating new file in already exist path")
     public void testCreateFileAlreadyExistPath() {
-        Path filepath = Paths.get("src", "test", "resources", "data-files", "src-file.txt");
-        BValue[] args = {new BString(filepath.toString())};
+        BValue[] args = {new BString(srcFilePath.toString())};
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateFile", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
@@ -309,17 +288,13 @@ public class FileSystemTest {
 
     @Test(description = "Test for copying a file to new location")
     public void testCopyFile() throws IOException, InterruptedException {
-        Path tempDestPath = null;
         try {
-            Path sourcePath = Paths.get("src", "test", "resources", "data-files", "src-file.txt");
-            tempDestPath = tempDirPath.resolve("dest-file.txt");
-
-            BValue[] args = {new BString(sourcePath.toString()), new BString(tempDestPath.toString()),
+            BValue[] args = {new BString(srcFilePath.toString()), new BString(tempDestPath.toString()),
                     new BBoolean(false)};
             BRunUtil.invoke(compileResult, "testCopy", args);
             assertTrue(Files.exists(tempDestPath));
-            assertTrue(Files.exists(sourcePath));
-            assertEquals(tempDestPath.toFile().length(), sourcePath.toFile().length());
+            assertTrue(Files.exists(srcFilePath));
+            assertEquals(tempDestPath.toFile().length(), srcFilePath.toFile().length());
 
             // Execute same with replaceExist false
             long modifiedTime = tempDestPath.toFile().lastModified();
@@ -328,56 +303,43 @@ public class FileSystemTest {
             assertEquals(modifiedTimeWithoutReplace, modifiedTime);
 
             // Execute same with replaceExist true
-            BValue[] args1 = {new BString(sourcePath.toString()), new BString(tempDestPath.toString()),
+            BValue[] args1 = {new BString(srcFilePath.toString()), new BString(tempDestPath.toString()),
                     new BBoolean(true)};
             Thread.sleep(1000);
             BRunUtil.invoke(compileResult, "testCopy", args1);
             long modifiedTimeWithReplace = tempDestPath.toFile().lastModified();
             assertNotEquals(modifiedTimeWithReplace, modifiedTime);
         } finally {
-            if (tempDestPath != null) {
-                Files.deleteIfExists(tempDestPath);
-            }
+            Files.deleteIfExists(tempDestPath);
         }
     }
 
     @Test(description = "Test for copying a file with non existent source file")
     public void testCopyFileNonExistSource() throws IOException {
-        Path tempDestPath = null;
         try {
-            Path sourcePath = Paths.get("src", "test", "resources", "data-files", "dest-file.txt");
-            tempDestPath = tempDirPath.resolve("dest-file.txt");
-
-            BValue[] args = {new BString(sourcePath.toString()), new BString(tempDestPath.toString()),
+            BValue[] args = {new BString(destFilePath.toString()), new BString(tempDestPath.toString()),
                     new BBoolean(false)};
             BValue[] returns = BRunUtil.invoke(compileResult, "testCopy", args);
             BError error = (BError) returns[0];
             assertEquals(error.getReason(), "{ballerina/system}INVALID_OPERATION");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } finally {
-            if (tempDestPath != null) {
-                Files.deleteIfExists(tempDestPath);
-            }
+            Files.deleteIfExists(tempDestPath);
         }
     }
 
     @Test(description = "Test for copying a directory to new location")
     public void testCopyDir() throws IOException {
-        Path tempDestPath = null;
+        Path tempDestPath = tempDirPath.resolve("dest-dir");
         try {
-            Path sourcePath = Paths.get("src", "test", "resources", "data-files", "src-dir");
-            tempDestPath = tempDirPath.resolve("dest-dir");
-
-            BValue[] args = {new BString(sourcePath.toString()), new BString(tempDestPath.toString()),
+            BValue[] args = {new BString(srcDirPath.toString()), new BString(tempDestPath.toString()),
                     new BBoolean(false)};
             BRunUtil.invoke(compileResult, "testCopy", args);
             assertTrue(Files.exists(tempDestPath));
-            assertTrue(Files.exists(sourcePath));
-            assertEquals(tempDestPath.toFile().length(), sourcePath.toFile().length());
+            assertTrue(Files.exists(srcDirPath));
+            assertEquals(tempDestPath.toFile().length(), srcDirPath.toFile().length());
         } finally {
-            if (tempDestPath != null) {
-                FileUtils.deleteDirectory(tempDestPath.toFile());
-            }
+            FileUtils.deleteDirectory(tempDestPath.toFile());
         }
     }
 }
