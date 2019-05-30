@@ -31,12 +31,11 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a simple queue receiver.
-listener jms:SimpleQueueReceiver consumerEP = new({
+listener jms:QueueReceiver consumerEP = new({
     initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
     providerUrl: "tcp://localhost:61616",
-    acknowledgementMode: "AUTO_ACKNOWLEDGE",
-    queueName: "MyQueue"
-});
+    acknowledgementMode: "AUTO_ACKNOWLEDGE"
+    }, queueName = "MyQueue");
 
 // Bind the created consumer to the listener service.
 service jmsListener on consumerEP {
@@ -61,12 +60,11 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a topic publisher.
-jms:SimpleTopicPublisher topicPublisher = new({
+jms:TopicPublisher topicPublisher = new({
     initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
     providerUrl: "tcp://localhost:61616",
-    acknowledgementMode: "AUTO_ACKNOWLEDGE",
-    topicPattern: "BallerinaTopic"
-});
+    acknowledgementMode: "AUTO_ACKNOWLEDGE"
+    }, topicPattern = "MyTopic");
 
 public function main(string... args) {
     // Create a text message.

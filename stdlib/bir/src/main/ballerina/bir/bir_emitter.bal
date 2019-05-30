@@ -80,6 +80,11 @@ public type BirEmitter object {
             println();
             self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
             print("}");
+        } else if (typeValue is BRecordType) {
+            self.typeEmitter.emitRecordType(typeValue, "");
+            println();
+            self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
+            print("}");
         } else {
             self.typeEmitter.emitType(bTypeDef.typeValue);
         }
@@ -115,7 +120,7 @@ public type BirEmitter object {
             VariableDcl varDecl = getVariableDcl(v);
             self.typeEmitter.emitType(varDecl.typeValue, tabs = tabs + "\t");
             print(" ");
-            if (varDecl.name.value == "%0") {
+            if (varDecl.kind == VAR_KIND_RETURN) {
                 print("%ret");
             } else {
                 print(varDecl.name.value);
@@ -136,6 +141,20 @@ public type BirEmitter object {
             if (e is ErrorEntry) {
                 self.emitErrorEntry(e);
                 println();// empty line
+            }
+        }
+        if (bFunction.workerChannels.length() > 0) {
+            print("WORKER_CHANNELS: ");    
+        }
+
+        int channelsSize = bFunction.workerChannels.length();
+        foreach ChannelDetail ch in bFunction.workerChannels {
+            channelsSize -= 1;
+            print(ch.name.value);
+            if (channelsSize > 0) {
+                print(",");
+            } else {
+                println(";");
             }
         }
         println(tabs, "}");
@@ -226,6 +245,14 @@ type InstructionEmitter object {
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
             self.typeEmitter.emitType(ins.typeValue);
+            println(";");
+        } else if (ins is NewStream) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.typeEmitter.emitType(ins.typeValue);
+            print(", ");
+            self.opEmitter.emitOp(ins.nameOp);
             println(";");
         } else if (ins is NewTable) {
             print(tabs);
@@ -352,6 +379,40 @@ type TerminalEmitter object {
                 i = i + 1;
             }
             println(";");
+        } else if (term is Flush) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            int i = 0;
+            foreach var detail in term.workerChannels {
+                if (i != 0) {
+                    print(",");
+                }
+                print(detail.name);
+                i += 1;
+            }
+            println(";");
+        } else if (term is WorkerReceive) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            print(term.channelName.value);
+            println(";");
+        } else if (term is WorkerSend) {
+            print(tabs);
+            if (term.isSync) {
+                VarRef? ref = term.lhsOp;
+                if (ref is VarRef) {
+                    self.opEmitter.emitOp(ref);
+                    print(" = ");
+                }   
+            }
+            self.opEmitter.emitOp(term.dataOp);
+            print(" ", term.kind, " ");
+            print(term.channelName.value);
+            println(";");
         } else if (term is AsyncCall) {
             print(tabs);
             VarRef? lhsOp = term.lhsOp;
@@ -440,6 +501,8 @@ type TypeEmitter object {
             self.emitFutureType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
             print("()");
+        } else if (typeVal is BFiniteType) {
+            print(typeVal.name.value);
         } else if (typeVal is BErrorType) {
             self.emitErrorType(typeVal, tabs);
         }
@@ -457,7 +520,7 @@ type TypeEmitter object {
             println(" ", recField.name.value, ";");
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
-        print("...");
+        println("...", ";");
         print(tabs, "}");
     }
 
@@ -546,7 +609,7 @@ type TypeEmitter object {
 
 type PositionEmitter object {
     function emitPosition(DiagnosticPos pos) {
-        if (pos.sLine != -1) {
+        if (pos.sLine != 2147483648) {
             self.appendPos(pos.sLine);
             print("-");
             self.appendPos(pos.eLine);

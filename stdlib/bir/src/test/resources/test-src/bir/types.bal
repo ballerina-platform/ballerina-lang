@@ -29,6 +29,9 @@ byte byteType = 43;
 // expected: float
 float floatType = 1.2;
 
+// expected: decimal
+decimal decimalType = 10.2;
+
 // expected: boolean
 boolean booleanType = false;
 
@@ -91,3 +94,6 @@ table<Employee> employeeTable = table {
             {2, "Employee2"}
         ]
     };
+
+// expected: stream<record {int id; string name; }>
+stream<Employee> employeeStream = new;

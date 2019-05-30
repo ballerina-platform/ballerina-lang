@@ -18,10 +18,11 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
-//    implementation project(':ballerina-lang')
+//    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    baloCreat project(':lib-creator')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-runtime-api')
 //    implementation project(':lib-creator')
@@ -35,6 +36,10 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'commons-io:commons-io'
+}
+
+createBalo {
+    jvmTarget = 'true'
 }
 
 test {

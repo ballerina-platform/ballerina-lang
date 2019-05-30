@@ -38,10 +38,14 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.PRODUCER_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.PRODUCER_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         isPublic = true
 )
 public class Close extends BlockingNativeCallableUnit {
@@ -52,7 +56,9 @@ public class Close extends BlockingNativeCallableUnit {
         BMap<String, BValue> producerObj = (BMap<String, BValue>) context.getRefArgument(0);
         ClientProducer producer = (ClientProducer) producerObj.getNativeData(ArtemisConstants.ARTEMIS_PRODUCER);
         try {
-            producer.close();
+            if (!producer.isClosed()) {
+                producer.close();
+            }
             ArtemisUtils.closeIfAnonymousSession(producerObj);
         } catch (ActiveMQException e) {
             context.setReturnValues(ArtemisUtils.getError(context, "Error when closing the producer"));

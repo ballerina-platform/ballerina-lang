@@ -16,11 +16,12 @@
  */
 
 plugins {
-    id "org.jetbrains.intellij" version "0.3.7"
-    id "de.undercouch.download" version "3.2.0"
+    id "org.jetbrains.intellij" version "0.4.8"
+    id "de.undercouch.download" version "3.4.3"
     id "org.sonarqube" version "2.6"
 }
 
+apply from: "$rootDir/gradle/javaProject.gradle"
 version = ballerinaPluginVersion
 
 repositories {
@@ -33,7 +34,7 @@ repositories {
 dependencies {
     compile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.6.0'
     compile group: 'com.vladsch.flexmark', name: 'flexmark', version: '0.34.58'
-    compile 'com.github.ballerina-platform:lsp4intellij:improved-inspections-SNAPSHOT'
+    compile 'com.github.ballerina-platform:lsp4intellij:master-SNAPSHOT'
 }
 
 apply plugin: 'java'
@@ -82,17 +83,36 @@ task copyPsiViewerPluginToSandBox(type: Copy) {
 copyPsiViewerPluginToSandBox.mustRunAfter prepareSandbox
 runIde.dependsOn copyPsiViewerPluginToSandBox
 
-apply plugin: 'checkstyle'
 checkstyle {
-    configDir new File("src/main/resources/checkstyle")
     checkstyleMain {
-        source "src/main/java"
+        source = fileTree("src/main/java")
         include '**/*.java'
     }
     checkstyleTest {
-        source "src/test/java"
+        source = fileTree("src/test/java")
     }
 }
 
-//runIde.dependsOn check
-//buildPlugin.dependsOn check
+createJavadoc {
+    source = fileTree("src/main/java")
+    failOnError false
+    options.addStringOption('-quiet')
+    exclude 'src/main/gen/**'
+}
+
+spotbugsMain {
+    it.effort "min"
+    it.reportLevel "low"
+    it.reports {
+        xml.enabled false
+        html.enabled true
+    }
+    def excludeFile = file('spotbugs-exclude.xml')
+    if(excludeFile.exists()) {
+        it.excludeFilter = excludeFile
+    }
+    ignoreFailures = true
+}
+
+runIde.dependsOn check
+buildPlugin.dependsOn check

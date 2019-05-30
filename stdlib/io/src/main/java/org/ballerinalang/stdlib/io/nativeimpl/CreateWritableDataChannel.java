@@ -21,6 +21,8 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -75,7 +77,7 @@ public class CreateWritableDataChannel extends BlockingNativeCallableUnit {
      * @param byteOrder byte order defined through ballerina api.
      * @return byte order mapped with java equivalent.
      */
-    private ByteOrder getByteOrder(String byteOrder) {
+    private static ByteOrder getByteOrder(String byteOrder) {
         switch (byteOrder) {
             case "BE":
                 return ByteOrder.BIG_ENDIAN;
@@ -99,6 +101,19 @@ public class CreateWritableDataChannel extends BlockingNativeCallableUnit {
             String message = "Error while creating data channel:" + e.getMessage();
             log.error(message, e);
             throw new BallerinaIOException(message, e);
+        }
+    }
+
+    public static void init(Strand strand, ObjectValue dataChannelObj, ObjectValue byteChannelObj, String order) {
+        try {
+            ByteOrder byteOrder = getByteOrder(order);
+            Channel channel = (Channel) byteChannelObj.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+            DataChannel dataChannel = new DataChannel(channel, byteOrder);
+            dataChannelObj.addNativeData(IOConstants.DATA_CHANNEL_NAME, dataChannel);
+        } catch (Exception e) {
+            String message = "Error while creating data channel:" + e.getMessage();
+            log.error(message, e);
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(message, e);
         }
     }
 }

@@ -74,7 +74,21 @@ public class Timer extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
+    //TODO Remove after migration : implemented using bvm values/types
     public void start(Context context) throws SchedulingException {
+        JobDataMap jobDataMap = getJobDataMapFromTask();
+        try {
+            scheduleTimer(jobDataMap);
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Failed to schedule Task.", e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws SchedulingException {
         JobDataMap jobDataMap = getJobDataMapFromTask();
         try {
             scheduleTimer(jobDataMap);

@@ -146,6 +146,11 @@ public class FormattingTest {
                 {"expectedNamedArgsExpr.bal", "namedArgsExpr.bal"},
                 {"expectedRestArgsExpr.bal", "restArgsExpr.bal"},
                 {"expectedRecordDestructure.bal", "recordDestructure.bal"},
+                {"expectedCheckPanic.bal", "checkPanic.bal"},
+                {"expectedAnonRecord.bal", "anonRecord.bal"},
+                {"expectedInvocation.bal", "invocation.bal"},
+                {"expectedTypeDesc.bal", "typeDesc.bal"},
+                {"expectedAnonObject.bal", "anonObject.bal"},
         };
     }
 

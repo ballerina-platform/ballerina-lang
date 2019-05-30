@@ -32,6 +32,8 @@
 
      public boolean isDone;
 
+     public Throwable panic;
+
      public FutureValue(Strand strand) {
          this.strand = strand;
      }

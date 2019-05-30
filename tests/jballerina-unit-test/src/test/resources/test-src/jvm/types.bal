@@ -123,6 +123,12 @@ function tableFunc() returns table<Grades> {
               [ {  "Mary",  90, 87 }]
            };
     return gradesTable;
+
+}
+
+function streamFunc() returns stream<Grades> {
+    stream<Grades> gradesStream = new;
+    return gradesStream;
 }
 
 function arrayFunc(string[] strs) returns Grades[] {
@@ -199,7 +205,8 @@ function anyTest() returns any {
 
    int[] ia = [1, 3, 5, 6];
    any ar = ia;
-   return acceptAny(g2);
+   any x = g2;
+   return acceptAny(x);
 }
 
 function acceptAny(any anyval) returns any {
@@ -669,4 +676,14 @@ public function testSelfReferencingRecord() returns Foo {
     Foo f1 = {a:1};
     Foo f2 = {a:2, f:f1};
     return f2;
+}
+
+function testDecimalWithoutArgs() returns decimal {
+   decimal b = 7;
+   return b;
+}
+
+function testDecimalWithArgs(decimal a) returns decimal {
+   decimal b = 5 + a;
+   return b;
 }

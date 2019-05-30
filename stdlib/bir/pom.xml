@@ -34,7 +34,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
-            <version>${ballerina.milestone.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-lang</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -51,12 +56,14 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-io</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-internal</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -91,6 +98,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-cli-utils</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <!--<scope>test</scope>-->
         </dependency>
         <dependency>
@@ -118,6 +126,7 @@
                         </goals>
                         <phase>compile</phase>
                         <configuration>
+                            <classpathScope>runtime</classpathScope>
                             <systemProperties>
                                 <systemProperty>
                                     <key>BALLERINA_DEV_MODE_COMPILE</key>
@@ -130,6 +139,7 @@
                                 <argument>${project.build.directory}/generated-balo/repo/ballerina</argument>
                                 <argument>${project.build.directory}</argument>
                                 <argument>${project.version}</argument>
+                                <argument>false</argument>
                             </arguments>
                             <mainClass>org.ballerinalang.stdlib.utils.GenerateBalo</mainClass>
                     <classpathScope>test</classpathScope>

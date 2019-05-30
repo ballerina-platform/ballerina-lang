@@ -15,15 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
+import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
@@ -31,9 +35,13 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
+import java.util.Map;
 
 /**
  * Test cases to cover some basic types related tests on JBallerina.
@@ -553,7 +561,7 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'string'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'string'.*")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }
@@ -572,31 +580,31 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'int'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'int'.*")
     public void testNullJsonToInt() {
         BRunUtil.invoke(compileResult, "testNullJsonToInt");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'float'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'float'.*")
     public void testNullJsonToFloat() {
         BRunUtil.invoke(compileResult, "testNullJsonToFloat");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'string'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'string'.*")
     public void testNullJsonToString() {
         BRunUtil.invoke(compileResult, "testNullJsonToString");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'boolean'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'boolean'.*")
     public void testNullJsonToBoolean() {
         BRunUtil.invoke(compileResult, "testNullJsonToBoolean");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'int\\[\\]'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'int\\[\\]'.*")
     public void testNullJsonToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonToArray");
     }
@@ -712,7 +720,7 @@ public class TypesTest {
     @Test
     public void testSelfReferencingRecord() {
         BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingRecord");
-        Assert.assertEquals((result[0]).stringValue(), "{a:2, f:{a:1}}");
+        Assert.assertEquals((result[0]).stringValue(), "{a:2, f:{a:1, f:()}}");
     }
 
     @Test
@@ -731,5 +739,33 @@ public class TypesTest {
         Assert.assertEquals(data.getMap().get("physics"), new BInteger(90));
         Assert.assertEquals(data.getMap().get("chemistry"), new BInteger(87));
 
+    }
+
+    @Test
+    public void testNewStream() {
+        BValue[] result = BRunUtil.invoke(compileResult, "streamFunc");
+        Assert.assertNotNull(result[0]);
+        BStream stream = (BStream) result[0];
+        Assert.assertEquals(stream.getStreamId(), "gradesStream");
+        BRecordType recordType = (BRecordType) stream.getConstraintType();
+        Assert.assertEquals(recordType.getName(), "Grades");
+        Map<String, BField> fields = recordType.getFields();
+        Assert.assertEquals(fields.size(), 3);
+        Assert.assertEquals(fields.get("name").getFieldType(), BTypes.typeString);
+        Assert.assertEquals(fields.get("physics").getFieldType(), BTypes.typeInt);
+        Assert.assertEquals(fields.get("chemistry").getFieldType(), BTypes.typeInt);
+    }
+
+    @Test
+    public void testDecimalWithoutArgs() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testDecimalWithoutArgs", new BValue[] {});
+        Assert.assertEquals(((BDecimal) result[0]).intValue(), 7);
+    }
+
+    @Test
+    public void testDecimalWithArgs() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testDecimalWithArgs",
+                                          new BValue[] {new BDecimal(BigDecimal.valueOf(5))});
+        Assert.assertEquals(((BDecimal) result[0]).intValue(), 10);
     }
 }

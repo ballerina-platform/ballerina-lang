@@ -192,6 +192,56 @@ public class CodeActionTest {
         TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
     }
 
+    @Test(dataProvider = "codeaction-quickfixes-data-provider")
+    public void testCodeActionWithQuickFixes(String config, String source) throws IOException {
+        String configJsonPath = "codeaction" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+
+        LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
+        BallerinaFile ballerinaFile = lsCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
+        List<Diagnostic> lsDiagnostics = new ArrayList<>();
+        ballerinaFile.getDiagnostics().ifPresent(diagnostics -> lsDiagnostics.addAll(getLSDiagnostics(diagnostics)));
+        CodeActionContext context = new CodeActionContext(lsDiagnostics);
+        Position pos = new Position(configJsonObject.get("line").getAsInt(),
+                                    configJsonObject.get("character").getAsInt());
+        Range range = new Range(pos, pos);
+        String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, context);
+
+        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
+        String title = expected.get("title").toString();
+
+        boolean codeActionFound = false;
+        JsonObject responseJson = this.getResponseJson(res);
+        for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
+            JsonElement right = jsonElement.getAsJsonObject().get("right");
+
+            JsonObject edit = right.getAsJsonObject().get("edit").getAsJsonObject().get("documentChanges")
+                    .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray().get(0)
+                    .getAsJsonObject();
+            if (right.getAsJsonObject().get("title").toString().equals(title) && edit.equals(
+                    expected.get("edit"))) {
+                codeActionFound = true;
+                break;
+            }
+        }
+        String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
+        Assert.assertTrue(codeActionFound,
+                          "Cannot find expected Code Action for: " + title + ", cursor at " + cursorStr);
+        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
+    }
+
+    @DataProvider(name = "codeaction-quickfixes-data-provider")
+    public Object[][] codeActionQuickFixesDataProvider() {
+        log.info("Test textDocument/codeAction QuickFixes");
+        return new Object[][]{
+                {"fixReturnType1.json", "fixReturnType.bal"},
+                {"fixReturnType2.json", "fixReturnType.bal"},
+                {"fixReturnType3.json", "fixReturnType.bal"}
+        };
+    }
+
     @DataProvider(name = "codeaction-no-diagnostics-data-provider")
     public Object[][] codeActionDataProvider() {
         log.info("Test textDocument/codeAction with no diagnostics");

@@ -19,6 +19,7 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
     implementation project(':ballerina-core')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
     baloCreat project(':lib-creator')
     implementation project(':ballerina-streaming:siddhi-core')
@@ -27,6 +28,7 @@ dependencies {
 
 createBalo {
     isBuiltin = 'true'
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - Built-in Implementation'

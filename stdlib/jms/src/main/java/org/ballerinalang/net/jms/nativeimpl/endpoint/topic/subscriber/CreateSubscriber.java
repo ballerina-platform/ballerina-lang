@@ -45,7 +45,6 @@ import javax.jms.Session;
  *
  * @since 0.970
  */
-
 @BallerinaFunction(
         orgName = JmsConstants.BALLERINA,
         packageName = JmsConstants.JMS,
