@@ -89,8 +89,7 @@ public class Copy extends BlockingNativeCallableUnit {
         }
 
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                throws IOException {
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             Path newDirectory = target.resolve(source.relativize(dir));
             if (replaceExisting) {
                 Files.copy(dir, newDirectory, StandardCopyOption.REPLACE_EXISTING);

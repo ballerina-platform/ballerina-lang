@@ -31,7 +31,7 @@ public type FileInfo object {
     self.dir = dir;
   }
 
-  # Returns filename.
+  # Returns the filename.
   #
   # + return - the filename
   public function getName() returns string {
@@ -52,7 +52,7 @@ public type FileInfo object {
 	return self.modifiedTime;
   }
 
-  # Returns whether file is directory
+  # Returns whether the file is a directory.
   #
   # + return - File is a directory or not.
   public function isDir() returns boolean {

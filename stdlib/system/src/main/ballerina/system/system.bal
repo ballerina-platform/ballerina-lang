@@ -41,16 +41,14 @@ public function getUserHome() returns string = external;
 # + return - The random string
 public function uuid() returns string = external;
 
-# Reports whether file or directory exists for the given the
-# path.
+# Reports whether file or directory exists for the given the path.
 #
 # + path - String value of file path.
 # + return - True if path is absolute, else false
 public function exists(string path) returns boolean = external;
 
 # Creates a new directory with the specified file name.
-# If parentDirs flag is true, Creates a directory in specified
-# path with any necessary parents.
+# If parentDirs flag is true, Creates a directory in specified path with any necessary parents.
 #
 # + dir - directory name.
 # + parentDirs - Indicates whether the `createDir` should create non-existing parent directories.
@@ -61,8 +59,7 @@ public function createDir(string dir, boolean parentDirs = false) returns error?
 # If recursive flag is true, Removes the path and any children  # it contains.
 #
 # + path - String value of file/directory path.
-# + recursive - Indicates whether the `remove` should
-# recursively remove all the file inside the given directory.
+# + recursive - Indicates whether the `remove` should recursively remove all the file inside the given directory.
 # + return - Returns an `error` if failed to remove.
 public function remove(string path, boolean recursive = false) returns error? = external;
 
