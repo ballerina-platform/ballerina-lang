@@ -15,6 +15,7 @@
  */
 package io.ballerina.plugins.idea.extensions.editoreventmanager;
 
+import com.google.gson.JsonObject;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -22,9 +23,12 @@ import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.event.EditorMouseListener;
 import com.intellij.openapi.editor.event.EditorMouseMotionListener;
 import io.ballerina.plugins.idea.extensions.client.BallerinaRequestManager;
+import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChange;
+import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChangeResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTRequest;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.client.languageserver.ServerOptions;
@@ -58,6 +62,30 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         BallerinaASTRequest astRequest = new BallerinaASTRequest();
         astRequest.setDocumentIdentifier(getIdentifier());
         CompletableFuture<BallerinaASTResponse> future = ballerinaRequestManager.ast(astRequest);
+        if (future != null) {
+            try {
+                return future.get(TIMEOUT_AST, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                LOG.warn(e);
+                return null;
+            } catch (InterruptedException | JsonRpcException | ExecutionException e) {
+                LOG.warn(e);
+                // Todo - Enable after fixing
+                // wrapper.crashed(e);
+                return null;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public BallerinaASTDidChangeResponse astDidChange(JsonObject ast, String uri) {
+        BallerinaRequestManager ballerinaRequestManager = (BallerinaRequestManager) getRequestManager();
+        BallerinaASTDidChange didChangeNotification = new BallerinaASTDidChange();
+        didChangeNotification.setTextDocumentIdentifier(new VersionedTextDocumentIdentifier(uri, Integer.MAX_VALUE));
+        didChangeNotification.setAst(ast);
+        CompletableFuture<BallerinaASTDidChangeResponse> future = ballerinaRequestManager
+                .astDidChange(didChangeNotification);
         if (future != null) {
             try {
                 return future.get(TIMEOUT_AST, TimeUnit.MILLISECONDS);

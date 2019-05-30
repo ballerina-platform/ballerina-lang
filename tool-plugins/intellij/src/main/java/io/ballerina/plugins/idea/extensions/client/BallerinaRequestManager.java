@@ -15,6 +15,8 @@
  */
 package io.ballerina.plugins.idea.extensions.client;
 
+import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChange;
+import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChangeResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTRequest;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaDocumentService;
@@ -35,7 +37,7 @@ public class BallerinaRequestManager extends DefaultRequestManager {
     BallerinaDocumentService ballerinaDocumentService;
 
     public BallerinaRequestManager(LanguageServerWrapper wrapper, LanguageServer server, LanguageClient client,
-            ServerCapabilities serverCapabilities) {
+                                   ServerCapabilities serverCapabilities) {
         super(wrapper, server, client, serverCapabilities);
         BallerinaExtendedLangServer extendedServer = (BallerinaExtendedLangServer) server;
         ballerinaDocumentService = extendedServer.getBallerinaDocumentService();
@@ -51,6 +53,17 @@ public class BallerinaRequestManager extends DefaultRequestManager {
         } else {
             return null;
         }
+    }
 
+    public CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification) {
+        if (checkStatus()) {
+            try {
+                return ballerinaDocumentService.astDidChange(notification);
+            } catch (Exception e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 }
