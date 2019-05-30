@@ -323,10 +323,20 @@ public class BIRPackageSymbolEnter {
             invokableSymbol.owner = attachedType.tsymbol;
             invokableSymbol.name =
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
-            if (attachedType.tag == TypeTags.OBJECT) {
-                scopeToDefine = ((BObjectTypeSymbol) attachedType.tsymbol).methodScope;
-            } else {
-                scopeToDefine = attachedType.tsymbol.scope;
+            if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
+                if (attachedType.tag == TypeTags.OBJECT) {
+                    scopeToDefine = ((BObjectTypeSymbol) attachedType.tsymbol).methodScope;
+                } else {
+                    scopeToDefine = attachedType.tsymbol.scope;
+                }
+                BAttachedFunction attachedFunc =
+                        new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
+                BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
+                if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
+                        || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                    structureTypeSymbol.attachedFuncs.add(attachedFunc);
+                    structureTypeSymbol.initializerFunc = attachedFunc;
+                }
             }
         }
 
@@ -361,6 +371,8 @@ public class BIRPackageSymbolEnter {
                 return flags | Flags.PRIVATE;
             case VisibilityFlags.PUBLIC:
                 return flags | Flags.PUBLIC;
+            case VisibilityFlags.OPTIONAL:
+                return flags | Flags.OPTIONAL;
         }
         return flags;
     }
@@ -665,8 +677,10 @@ public class BIRPackageSymbolEnter {
                     int recordFields = inputStream.readInt();
                     for (int i = 0; i < recordFields; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
+                        int fieldFlags = 0;
+                        fieldFlags = visibilityAsMask(fieldFlags, inputStream.readByte());
                         BType fieldType = readType();
-                        BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(fieldName),
+                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                 recordSymbol.pkgID, fieldType, recordSymbol.scope.owner);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }
@@ -833,10 +847,13 @@ public class BIRPackageSymbolEnter {
 
                         BAttachedFunction attachedFunc =
                                 new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
-                        objectSymbol.attachedFuncs.add(attachedFunc);
-                        if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
-                                || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
-                            objectSymbol.initializerFunc = attachedFunc;
+                        if (!Names.OBJECT_INIT_SUFFIX.value.equals(funcName) &&
+                                !funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                            objectSymbol.attachedFuncs.add(attachedFunc);
+                            if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
+                                    || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                                objectSymbol.initializerFunc = attachedFunc;
+                            }
                         }
 
 //                        setDocumentation(varSymbol, attrData); // TODO fix

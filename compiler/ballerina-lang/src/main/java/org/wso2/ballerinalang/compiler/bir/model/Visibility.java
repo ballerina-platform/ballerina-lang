@@ -36,7 +36,12 @@ public enum Visibility {
     /**
      * Visible across packages.
      */
-    PUBLIC((byte) 2);
+    PUBLIC((byte) 2),
+
+    /**
+     * An optional access flag.
+     */
+    OPTIONAL((byte) 3);
 
     private byte value;
 

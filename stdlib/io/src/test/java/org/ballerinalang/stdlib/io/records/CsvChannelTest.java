@@ -46,7 +46,7 @@ public class CsvChannelTest {
 
     @BeforeClass
     public void setup() {
-        csvInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/csv_io.bal");
+        csvInputOutputProgramFile = BCompileUtil.compile("test-src/io/csv_io.bal");
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 

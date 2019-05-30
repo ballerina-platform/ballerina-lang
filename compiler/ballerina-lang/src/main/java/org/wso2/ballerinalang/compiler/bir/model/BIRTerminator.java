@@ -293,11 +293,13 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     public static class Wait extends BIRTerminator {
         public List<BIROperand> exprList;
         public BIROperand lhsOp;
+        public BIRBasicBlock thenBB;
 
-        public Wait(DiagnosticPos pos, List<BIROperand> exprList, BIROperand lhsOp) {
+        public Wait(DiagnosticPos pos, List<BIROperand> exprList, BIROperand lhsOp, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.WAIT);
             this.exprList = exprList;
             this.lhsOp = lhsOp;
+            this.thenBB = thenBB;
         }
 
         @Override
@@ -383,6 +385,34 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
             this.lhsOp = lhsOp;
             this.isSameStrand = isSameStrand;
             this.isSync = isSync;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A wait all instruction.
+     * <p>
+     * e.g., record {id:w1,id2:w2} res = wait {w1, w2};
+     *
+     * @since 0.995.0
+     */
+    public static class WaitAll extends BIRTerminator {
+        public BIROperand lhsOp;
+        public List<String> keys;
+        public List<BIROperand> valueExprs;
+        public BIRBasicBlock thenBB;
+
+        public WaitAll(DiagnosticPos pos, BIROperand lhsOp, List<String> keys, List<BIROperand> valueExprs,
+                       BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.WAIT_ALL);
+            this.lhsOp = lhsOp;
+            this.keys = keys;
+            this.valueExprs = valueExprs;
+            this.thenBB = thenBB;
         }
 
         @Override
