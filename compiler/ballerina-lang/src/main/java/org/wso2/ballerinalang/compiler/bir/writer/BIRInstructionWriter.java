@@ -374,10 +374,16 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     // Operands
     public void visit(BIROperand birOperand) {
-        buf.writeByte(birOperand.variableDcl.kind.getValue());
-        buf.writeByte(birOperand.variableDcl.scope.getValue());
-        // TODO use the integer index of the variable.
-        addCpAndWriteString(birOperand.variableDcl.name.value);
+        if (birOperand.variableDcl.ignoreVariable) {
+            buf.writeBoolean(true);
+            typeWriter.visitType(birOperand.variableDcl.type);
+        } else {
+            buf.writeBoolean(false);
+            buf.writeByte(birOperand.variableDcl.kind.getValue());
+            buf.writeByte(birOperand.variableDcl.scope.getValue());
+            // TODO use the integer index of the variable.
+            addCpAndWriteString(birOperand.variableDcl.name.value);
+        }
     }
 
     public void visit(BIRNonTerminator.NewError birNewError) {
