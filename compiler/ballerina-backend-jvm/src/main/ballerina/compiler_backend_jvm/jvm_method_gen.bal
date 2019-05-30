@@ -228,14 +228,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             } else if (inst is bir:NewArray) {
                 instGen.generateArrayNewIns(inst);
             } else if (inst is bir:NewMap) {
-                if (inst.kind == bir:INS_KIND_NEW_MAP) {
-                    instGen.generateMapNewIns(inst);
-                } else if (inst.kind == bir:INS_KIND_NEW_TYPEDESC) {
-                    instGen.generateNewTypedescIns(inst);
-                } else {
-                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
-                    panic err;
-                }
+                instGen.generateMapNewIns(inst);
+            } else if (inst is bir:NewTypeDesc) {
+                instGen.generateNewTypedescIns(inst);
             } else if (inst is bir:NewTable) {
                 instGen.generateTableNewIns(inst);
             } else if (inst is bir:NewStream) {
