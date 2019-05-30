@@ -26,6 +26,7 @@ public const int INS_WK_SEND = 9;
 public const int INS_FLUSH = 10;
 public const int INS_LOCK = 11;
 public const int INS_UNLOCK = 12;
+public const int INS_WAIT_ALL = 13;
 
 // Non-terminating instructions
 public const int INS_MOVE = 20;
@@ -89,3 +90,11 @@ public const int INS_ANNOT_ACCESS = 78;
 public const int INS_TYPEOF = 80;
 public const int INS_NOT = 81;
 public const int INS_NEGATE = 82;
+
+// Bitwise operation related instructions
+public const int INS_BITWISE_AND = 83;
+public const int INS_BITWISE_OR = 84;
+public const int INS_BITWISE_XOR = 85;
+public const int INS_BITWISE_LEFT_SHIFT = 86;
+public const int INS_BITWISE_RIGHT_SHIFT = 87;
+public const int INS_BITWISE_UNSIGNED_RIGHT_SHIFT = 88;

@@ -408,8 +408,28 @@ public type FuncBodyParser object {
                 i += 1;
             }
             VarRef lhsOp = self.parseVarRef();
-            Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp};
+            BasicBlock thenBB = self.parseBBRef();
+            Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp, thenBB:thenBB};
             return waitIns;
+        } else if (kindTag == INS_WAIT_ALL) {
+            TerminatorKind kind = TERMINATOR_WAIT_ALL;
+            var lhsOp = self.parseVarRef();
+            int length = self.reader.readInt32();
+            string[] keys = [];
+            int futureIndex = 0;
+            while (futureIndex < length) {
+                keys[futureIndex] = self.reader.readStringCpRef();
+                futureIndex += 1;
+            }
+            futureIndex = 0;
+            VarRef?[] futures = [];
+            while (futureIndex < length) {
+                futures[futureIndex] = self.parseVarRef();
+                futureIndex += 1;
+            }
+            BasicBlock thenBB = self.parseBBRef();
+            WaitAll waitAll = {pos:pos, kind:kind, keys:keys, futures:futures, lhsOp:lhsOp, thenBB:thenBB};
+            return waitAll;
         } else if (kindTag == INS_FLUSH) {
             TerminatorKind kind = TERMINATOR_FLUSH;
             ChannelDetail[] channels = getWorkerChannels(self.reader);
@@ -543,6 +563,18 @@ public type FuncBodyParser object {
             kind = BINARY_HALF_OPEN_RANGE;
         } else if (kindTag == INS_ANNOT_ACCESS){
             kind = BINARY_ANNOT_ACCESS;
+        } else if (kindTag == INS_BITWISE_AND) {
+            kind = BINARY_BITWISE_AND;
+        } else if (kindTag == INS_BITWISE_OR) {
+            kind = BINARY_BITWISE_OR;
+        } else if (kindTag == INS_BITWISE_XOR) {
+            kind = BINARY_BITWISE_XOR;
+        } else if (kindTag == INS_BITWISE_LEFT_SHIFT) {
+            kind = BINARY_BITWISE_LEFT_SHIFT;
+        } else if (kindTag == INS_BITWISE_RIGHT_SHIFT) {
+            kind = BINARY_BITWISE_RIGHT_SHIFT;
+        } else if (kindTag == INS_BITWISE_UNSIGNED_RIGHT_SHIFT) {
+            kind = BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT;
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
             panic err;

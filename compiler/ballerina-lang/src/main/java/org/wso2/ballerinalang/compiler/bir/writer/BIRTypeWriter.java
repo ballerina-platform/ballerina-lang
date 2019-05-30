@@ -245,6 +245,7 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BField field : bRecordType.fields) {
             // TODO add position
             buff.writeInt(addStringCPEntry(field.name.value));
+            buff.writeByte(getVisibility(field.symbol).value());
             visitType(field.type);
         }
 
@@ -328,7 +329,9 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     private Visibility getVisibility(BSymbol symbol) {
-        if (Symbols.isPublic(symbol)) {
+        if (Symbols.isOptional(symbol)) {
+            return Visibility.OPTIONAL;
+        } else if (Symbols.isPublic(symbol)) {
             return Visibility.PUBLIC;
         } else if (Symbols.isPrivate(symbol)) {
             return Visibility.PRIVATE;

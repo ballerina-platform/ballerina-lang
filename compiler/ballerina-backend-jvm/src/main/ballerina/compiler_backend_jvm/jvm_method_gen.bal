@@ -84,6 +84,13 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         k = 0;
     }
 
+    // set channel details to strand.
+    // these channel info is required to notify datachannels, when there is a panic
+    // we cannot set this during strand creation, because function call do not have this info.
+    mv.visitVarInsn(ALOAD, localVarOffset);
+    loadChannelDetails(mv, func.workerChannels);
+    mv.visitFieldInsn(PUTFIELD, STRAND, "channelDetails", io:sprintf("[L%s;", CHANNEL_DETAILS));
+
     bir:VariableDcl?[] localVars = func.localVars;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
@@ -329,6 +336,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             errorGen.genPanic(terminator);
         } else if (terminator is bir:Wait) {
             termGen.generateWaitIns(terminator, funcName);
+        } else if (terminator is bir:WaitAll) {
+            termGen.genWaitAllIns(terminator, funcName);
         } else if (terminator is bir:FPCall) {
             termGen.genFPCallIns(terminator, funcName);
         } else if (terminator is bir:WorkerSend) {
