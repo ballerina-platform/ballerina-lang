@@ -19,7 +19,6 @@ package org.ballerinalang.net.http;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.XMLFactory;
@@ -303,7 +302,8 @@ public class WebSocketDispatcher {
             connectionInfo.getWebSocketEndpoint().set(WebSocketConstants.LISTENER_IS_OPEN_FIELD, false);
         }
         WebSocketService webSocketService = connectionInfo.getService();
-        AttachedFunction onErrorResource = webSocketService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_ERROR);
+        AttachedFunction onErrorResource = webSocketService.getResourceByName(
+                WebSocketConstants.RESOURCE_NAME_ON_ERROR);
         if (isUnexpectedError(throwable)) {
             log.error("Unexpected error", throwable);
         }
@@ -341,7 +341,8 @@ public class WebSocketDispatcher {
 //        if (context != null) {
             return HttpUtil.getError(errMsg);
 //        } else {
-//            ProgramFile programFile = connectionInfo.getBalService().getServiceInfo().getPackageInfo().getProgramFile();
+//            ProgramFile programFile = connectionInfo.getBalService().getServiceInfo().getPackageInfo()
+//                    .getProgramFile();
 //            BMap<String, BValue> httpErrorRecord = BLangConnectorSPIUtil.createBStruct(
 //                    programFile, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.HTTP_ERROR_RECORD);
 //            httpErrorRecord.put(HttpConstants.HTTP_ERROR_MESSAGE, new BString(errMsg));
@@ -357,7 +358,8 @@ public class WebSocketDispatcher {
     static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
-        AttachedFunction onIdleTimeoutResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
+        AttachedFunction onIdleTimeoutResource = wsService.getResourceByName(
+                WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
         if (onIdleTimeoutResource == null) {
             webSocketConnection.readNextFrame();
             return;

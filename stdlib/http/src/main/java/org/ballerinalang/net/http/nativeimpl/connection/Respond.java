@@ -101,7 +101,8 @@ public class Respond extends ConnectionAction {
 //                setPipeliningListener(outboundResponseMsg);
 //                executePipeliningLogic(inboundRequestMsg.getSourceContext(), pipelinedResponse);
 //            } else {
-//                sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
+//                sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct,
+//                                           outboundResponseMsg);
 //            }
 //        } catch (EncoderException e) {
 //            //Exception is already notified by http transport.

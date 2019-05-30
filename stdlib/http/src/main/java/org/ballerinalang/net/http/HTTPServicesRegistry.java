@@ -117,7 +117,8 @@ public class HTTPServicesRegistry {
                                                      basePath + errorMessage);
             }
             servicesByBasePath.put(basePath, httpService);
-            String errLog = String.format("Service deployed : %s with context %s", service.getType().getName(), basePath);
+            String errLog = String.format("Service deployed : %s with context %s", service.getType().getName(),
+                                          basePath);
             logger.info(errLog);
 
             //basePath will get cached after registering service

@@ -140,8 +140,8 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         handshakeFuture.setWebSocketConnectorListener(clientConnectorListener);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         handshakeFuture.setClientHandshakeListener(
-                new WebSocketClientHandshakeListener(webSocketClient, wsService, clientConnectorListener, readyOnConnect,
-                                                     countDownLatch));
+                new WebSocketClientHandshakeListener(webSocketClient, wsService, clientConnectorListener,
+                                                     readyOnConnect, countDownLatch));
         try {
             if (!countDownLatch.await(60, TimeUnit.SECONDS)) {
                 throw new BallerinaConnectorException("Waiting for WebSocket handshake has not been successful");

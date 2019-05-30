@@ -17,11 +17,9 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.connector.ParamDetail;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.TransactionConstants;

@@ -604,7 +604,8 @@ public class HttpUtil {
         if (inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT) != null) {
             MapValue mutualSslRecord = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP,
                                                                          MUTUAL_SSL_HANDSHAKE_RECORD);
-            mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS, inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
+            mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
+                                inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
             inboundRequest.set(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
         }
 
@@ -672,7 +673,8 @@ public class HttpUtil {
      */
     public static void enrichHttpCallerWithConnectionInfo(ObjectValue httpCaller, HttpCarbonMessage inboundMsg,
                                                           HttpResource httpResource, MapValue config) {
-        MapValue<String, Object> remote = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
+        MapValue<String, Object> remote = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP,
+                                                                            HttpConstants.REMOTE);
         MapValue<String, Object> local = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
 
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
@@ -694,7 +696,8 @@ public class HttpUtil {
             local.put(HttpConstants.LOCAL_PORT_FIELD, localPort);
         }
         httpCaller.addNativeData(HttpConstants.LOCAL_STRUCT_INDEX, local);
-        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD, inboundMsg.getProperty(HttpConstants.PROTOCOL));
+        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
+                                 inboundMsg.getProperty(HttpConstants.PROTOCOL));
         httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, config);
         httpCaller.addNativeData(HttpConstants.HTTP_SERVICE, httpResource.getParentService());
     }
@@ -1192,7 +1195,8 @@ public class HttpUtil {
      * @return the Response struct
      */
     public static ObjectValue createResponseStruct(HttpCarbonMessage httpCarbonMessage) {
-        ObjectValue responseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.RESPONSE);
+        ObjectValue responseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                                                    HttpConstants.RESPONSE);
         ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, HttpConstants.ENTITY);
         ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
@@ -1268,10 +1272,12 @@ public class HttpUtil {
 
     public static void populatePoolingConfig(MapValue<String, Long> poolRecord, PoolConfiguration poolConfiguration) {
         long maxActiveConnections = poolRecord.get(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS);
-        poolConfiguration.setMaxActivePerPool(validateConfig(maxActiveConnections, HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS));
+        poolConfiguration.setMaxActivePerPool(
+                validateConfig(maxActiveConnections, HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS));
 
         long maxIdleConnections = poolRecord.get(HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS);
-        poolConfiguration.setMaxIdlePerPool(validateConfig(maxIdleConnections, HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS));
+        poolConfiguration.setMaxIdlePerPool(
+                validateConfig(maxIdleConnections, HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS));
 
         long waitTime = poolRecord.get(HttpConstants.CONNECTION_POOLING_WAIT_TIME);
         poolConfiguration.setMaxWaitTime(waitTime);
@@ -1383,7 +1389,8 @@ public class HttpUtil {
 
         sslConfiguration.setSslHandshakeTimeOut(secureSocket.getDefaultableIntValue(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
 
-        List<Object> ciphersValueList = Arrays.asList(secureSocket.getArrayValue(HttpConstants.SSL_CONFIG_CIPHERS).getValues());
+        List<Object> ciphersValueList = Arrays.asList(
+                secureSocket.getArrayValue(HttpConstants.SSL_CONFIG_CIPHERS).getValues());
         if (ciphersValueList.size() > 0) {
             String ciphers = ciphersValueList.stream().map(Object::toString)
                     .collect(Collectors.joining(",", "", ""));
@@ -1643,7 +1650,8 @@ public class HttpUtil {
         List<Parameter> serverParamList = new ArrayList<>();
         Parameter serverParameters;
         if (protocols != null) {
-            List<String> sslEnabledProtocolsValueList = Arrays.asList(protocols.getArrayValue(ENABLED_PROTOCOLS).getStringArray());
+            List<String> sslEnabledProtocolsValueList = Arrays.asList(
+                    protocols.getArrayValue(ENABLED_PROTOCOLS).getStringArray());
             if (!sslEnabledProtocolsValueList.isEmpty()) {
                 String sslEnabledProtocols = sslEnabledProtocolsValueList.stream()
                         .collect(Collectors.joining(",", "", ""));
@@ -1657,7 +1665,8 @@ public class HttpUtil {
             }
         }
 
-        List<String> ciphersValueList = Arrays.asList(sslConfig.getArrayValue(HttpConstants.SSL_CONFIG_CIPHERS).getStringArray());
+        List<String> ciphersValueList = Arrays.asList(sslConfig.getArrayValue(HttpConstants.SSL_CONFIG_CIPHERS)
+                                                              .getStringArray());
         if (!ciphersValueList.isEmpty()) {
             String ciphers = ciphersValueList.stream().collect(Collectors.joining(",", "", ""));
             serverParameters = new Parameter(HttpConstants.CIPHERS, ciphers);

@@ -44,7 +44,8 @@ public class Patch extends AbstractHTTPAction {
 //        executeNonBlockingAction(dataContext, false);
     }
 
-    public static void nativePatch(Strand strand, ObjectValue clientObj, String url, MapValue config, String path, ObjectValue requestObj) {
+    public static void nativePatch(Strand strand, ObjectValue clientObj, String url, MapValue config, String path,
+                                   ObjectValue requestObj) {
         //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
 

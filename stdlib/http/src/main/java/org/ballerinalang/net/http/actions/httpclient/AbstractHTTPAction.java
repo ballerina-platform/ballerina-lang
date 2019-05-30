@@ -261,7 +261,8 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
     }
 
-    private static void cleanOutboundReq(HttpCarbonMessage outboundRequestMsg, ObjectValue request, String contentType) {
+    private static void cleanOutboundReq(HttpCarbonMessage outboundRequestMsg, ObjectValue request,
+                                         String contentType) {
         ObjectValue entity = extractEntity(request);
         if (entity != null) {
             Object messageDataSource = EntityBodyHandler.getMessageDataSource(entity);
@@ -284,7 +285,8 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         return (Boolean) request.get(HttpConstants.REQUEST_REUSE_STATUS_FIELD);
     }
 
-    private static void sendOutboundRequest(DataContext dataContext, HttpCarbonMessage outboundRequestMsg, boolean async) {
+    private static void sendOutboundRequest(DataContext dataContext, HttpCarbonMessage outboundRequestMsg,
+                                            boolean async) {
         try {
             send(dataContext, outboundRequestMsg, async);
             //TODO NonBlockingCallback is temporary fix to handle non blocking call
@@ -292,7 +294,8 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         } catch (BallerinaConnectorException e) {
             dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(e));
         } catch (Exception e) {
-            BallerinaException exception = new BallerinaException("Failed to send outboundRequestMsg to the backend", e);
+            BallerinaException exception = new BallerinaException("Failed to send outboundRequestMsg to the backend",
+                                                                  e);
             dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(exception));
         }
     }

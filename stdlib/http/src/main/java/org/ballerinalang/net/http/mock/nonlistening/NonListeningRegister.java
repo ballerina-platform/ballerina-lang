@@ -76,7 +76,8 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
 //        context.setReturnValues();
     }
 
-    public static void register(Strand strand, ObjectValue serviceEndpoint, ObjectValue service, MapValue annotationData) {
+    public static void register(Strand strand, ObjectValue serviceEndpoint, ObjectValue service,
+                                MapValue annotationData) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 

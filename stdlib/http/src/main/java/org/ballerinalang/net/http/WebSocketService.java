@@ -20,9 +20,9 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

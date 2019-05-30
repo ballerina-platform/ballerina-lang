@@ -52,7 +52,8 @@ public class Forward extends AbstractHTTPAction {
 //        executeNonBlockingAction(dataContext, false);
     }
 
-    public static void nativeForward(Strand strand, ObjectValue clientObj, String url, MapValue config, String path, ObjectValue requestObj) {
+    public static void nativeForward(Strand strand, ObjectValue clientObj, String url, MapValue config, String path,
+                                     ObjectValue requestObj) {
         //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
 
@@ -76,7 +77,8 @@ public class Forward extends AbstractHTTPAction {
             HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestObj);
             prepareOutboundRequest(serviceUri, path, outboundRequestMsg,
                                    !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
-            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, requestObj.get(HttpConstants.HTTP_REQUEST_METHOD).toString());
+            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD,
+                                           requestObj.get(HttpConstants.HTTP_REQUEST_METHOD).toString());
         } else {
             prepareOutboundRequest(serviceUri, path, outboundRequestMsg,
                                    !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
