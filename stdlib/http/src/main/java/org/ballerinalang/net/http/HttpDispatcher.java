@@ -217,7 +217,7 @@ public class HttpDispatcher {
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, bxml);
                     return bxml;
                 case TypeTags.ARRAY_TAG:
-                    if (((BArrayType)entityBodyType).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                    if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.BYTE_TAG) {
                         ArrayValue blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
                         EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
                         return blobDataSource;

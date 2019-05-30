@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;

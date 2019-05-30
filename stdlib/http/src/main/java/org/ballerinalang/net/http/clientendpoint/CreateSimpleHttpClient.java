@@ -95,7 +95,8 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
 //
 //        String httpVersion = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_HTTP_VERSION).getStringValue();
 //        if (HTTP_2_0_VERSION.equals(httpVersion)) {
-//            BMap<String, BValue> http2Settings = (BMap<String, BValue>) configBStruct.get(HttpConstants.HTTP2_SETTINGS);
+//            BMap<String, BValue> http2Settings = (BMap<String, BValue>) configBStruct
+//                    .get(HttpConstants.HTTP2_SETTINGS);
 //            boolean http2PriorKnowledge = ((BBoolean) http2Settings.get(HTTP2_PRIOR_KNOWLEDGE)).booleanValue();
 //            senderConfiguration.setForceHttp2(http2PriorKnowledge);
 //        }

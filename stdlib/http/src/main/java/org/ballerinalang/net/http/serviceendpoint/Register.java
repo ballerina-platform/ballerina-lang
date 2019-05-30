@@ -19,15 +19,6 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.ParamDetail;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
@@ -71,7 +62,8 @@ public class Register extends AbstractHttpNativeFunction {
 //        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 //
 //        ParamDetail param;
-//        if (service.getResources().length > 0 && (param = service.getResources()[0].getParamDetails().get(0)) != null) {
+//        if (service.getResources().length > 0 && (param = service.getResources()[0].getParamDetails().get(0))
+//          != null) {
 //            String callerType = param.getVarType().toString();
 //            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
 //                httpServicesRegistry.registerService(service);
@@ -86,7 +78,8 @@ public class Register extends AbstractHttpNativeFunction {
 //        context.setReturnValues();
     }
 
-    public static void register(Strand strand, ObjectValue serviceEndpoint, ObjectValue service, MapValue annotationData) {
+    public static void register(Strand strand, ObjectValue serviceEndpoint, ObjectValue service,
+                                MapValue annotationData) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 

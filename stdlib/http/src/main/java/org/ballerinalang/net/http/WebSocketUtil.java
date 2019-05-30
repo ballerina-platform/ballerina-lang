@@ -20,7 +20,6 @@ package org.ballerinalang.net.http;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
@@ -94,7 +93,8 @@ public class WebSocketUtil {
                     callback.setReturnValues(webSocketEndpoint);
                     callback.notifySuccess();
                 } else {
-                    AttachedFunction onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
+                    AttachedFunction onOpenResource = wsService.getResourceByName(
+                            WebSocketConstants.RESOURCE_NAME_ON_OPEN);
                     if (onOpenResource != null) {
                         executeOnOpenResource(wsService, onOpenResource, webSocketEndpoint, webSocketConnection);
                     } else {

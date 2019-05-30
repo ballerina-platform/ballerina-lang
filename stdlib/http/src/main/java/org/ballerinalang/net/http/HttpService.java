@@ -208,7 +208,7 @@ public class HttpService implements Cloneable {
 
         if (checkConfigAnnotationAvailability(serviceConfig)) {
 
-            httpService.setCompressionConfig((MapValue<String, Object>)serviceConfig.get(ANN_CONFIG_ATTR_COMPRESSION));
+            httpService.setCompressionConfig((MapValue<String, Object>) serviceConfig.get(ANN_CONFIG_ATTR_COMPRESSION));
             httpService.setChunkingConfig(serviceConfig.get(ANN_CONFIG_ATTR_CHUNKING).toString());
             httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getMapValue(CORS_FIELD)));
             httpService.setHostName(serviceConfig.getStringValue(HOST_FIELD).trim());
@@ -318,7 +318,8 @@ public class HttpService implements Cloneable {
         return getServiceConfigAnnotation(service, HTTP_PACKAGE_PATH, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
     }
 
-    protected static MapValue getServiceConfigAnnotation(ObjectValue service, String packagePath, String annotationName) {
+    protected static MapValue getServiceConfigAnnotation(ObjectValue service, String packagePath,
+                                                         String annotationName) {
         MapValue annotation = service.getType().getAnnotation(packagePath, annotationName);
 
         if (annotation == null || annotation.isEmpty()) {

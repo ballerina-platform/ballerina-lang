@@ -18,11 +18,9 @@
 
 package org.ballerinalang.net.http.caching;
 
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.util.Map;
 import java.util.StringJoiner;

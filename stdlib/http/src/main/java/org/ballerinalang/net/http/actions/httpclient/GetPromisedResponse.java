@@ -59,7 +59,8 @@ public class GetPromisedResponse extends AbstractHTTPAction {
 //        HttpClientConnector clientConnector = (HttpClientConnector) ((BMap<String, BValue>) bConnector.values()[0])
 //                .getNativeData(HttpConstants.HTTP_CLIENT);
 //        clientConnector.getPushResponse(http2PushPromise).
-//                setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
+//                setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise
+//                        .getPromisedStreamId());
     }
 
     public static void getPromisedResponse(Strand strand, ObjectValue clientObj, ObjectValue pushPromiseObj) {
