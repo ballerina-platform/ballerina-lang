@@ -137,7 +137,7 @@ public type BirEmitter object {
             VariableDcl varDecl = getVariableDcl(v);
             self.typeEmitter.emitType(varDecl.typeValue, tabs = tabs + "\t");
             print(" ");
-            if (varDecl.name.value == "%0") {
+            if (varDecl.kind == VAR_KIND_RETURN) {
                 print("%ret");
             } else {
                 print(varDecl.name.value);
@@ -411,6 +411,25 @@ type TerminalEmitter object {
                 i = i + 1;
             }
             println(";");
+        } else if (term is WaitAll) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            print("{");
+            int i = 0;
+            while (i < term.keys.length()) {
+                if (i != 0) {
+                    print(",");
+                }
+                print(term.keys[i], ":");
+                VarRef? expr = term.futures[i];
+                if (expr is VarRef) {
+                    self.opEmitter.emitOp(expr);
+                }
+                i = i + 1;
+            }
+            println("} -> ", term.thenBB.id.value, ";");
         } else if (term is Flush) {
             print(tabs);
             self.opEmitter.emitOp(term.lhsOp);
@@ -552,7 +571,7 @@ type TypeEmitter object {
             println(" ", recField.name.value, ";");
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
-        print("...");
+        println("...", ";");
         print(tabs, "}");
     }
 

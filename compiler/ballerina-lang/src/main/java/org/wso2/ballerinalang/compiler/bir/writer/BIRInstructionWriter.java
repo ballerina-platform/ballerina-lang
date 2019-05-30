@@ -142,6 +142,7 @@ public class BIRInstructionWriter extends BIRVisitor {
             expr.accept(this);
         }
         waitEntry.lhsOp.accept(this);
+        addCpAndWriteString(waitEntry.thenBB.id.value);
     }
 
     public void visit(BIRTerminator.Flush entry) {
@@ -177,6 +178,16 @@ public class BIRInstructionWriter extends BIRVisitor {
             entry.lhsOp.accept(this);
         }
         addCpAndWriteString(entry.thenBB.id.value);
+    }
+
+    public void visit(BIRTerminator.WaitAll waitAll) {
+        writePosition(waitAll.pos);
+        buf.writeByte((waitAll.kind.getValue()));
+        waitAll.lhsOp.accept(this);
+        buf.writeInt(waitAll.keys.size());
+        waitAll.keys.forEach(key -> buf.writeInt(addStringCPEntry(key)));
+        waitAll.valueExprs.forEach(val -> val.accept(this));
+        addCpAndWriteString(waitAll.thenBB.id.value);
     }
 
     // Non-terminating instructions
@@ -338,8 +349,8 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.IsLike birIsLike) {
-        buf.writeByte(birIsLike.kind.getValue());
         writePosition(birIsLike.pos);
+        buf.writeByte(birIsLike.kind.getValue());
         typeWriter.visitType(birIsLike.type);
         birIsLike.lhsOp.accept(this);
         birIsLike.rhsOp.accept(this);

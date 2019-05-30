@@ -38,74 +38,65 @@ public class ObjectEquivalencyTest {
         compileResult = BCompileUtil.compile("test-src/object/object-equivalency.bal");
     }
 
-    @Test(description = "Test equivalence of structs that are in the same package")
-    public void testEqOfPrivateStructsInSamePackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEquivalenceOfPrivateStructsInSamePackage");
-
+    @Test(description = "Test equivalence of objects that are in the same package and the members are visible at " +
+            "module level or above.")
+    public void testObjectEquivalenceWhenFieldsHaveModuleVisibility() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectEquivalenceWhenFieldsHaveModuleVisibility");
         Assert.assertEquals(returns[0].stringValue(), "234-56-7890:employee");
     }
 
-    @Test(description = "Test equivalence of public structs that are in the same package")
-    public void testEqOfPublicStructsInSamePackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEquivalenceOfPublicStructsInSamePackage");
-
+    @Test(description = "Test equivalence of of objects that are in the same package and all the members are public")
+    public void testObjectEquivalenceWhenFieldsHavePublicVisibility() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectEquivalenceWhenFieldsHavePublicVisibility");
         Assert.assertEquals(returns[0].stringValue(), "234-56-7890:employee");
     }
 
-    @Test(description = "Test equivalence of public structs that are in the same package. " +
+    @Test(description = "Test equivalence of public objects that are in the same package. " +
             "Equivalency test is performed in another package.")
-    public void testEqOfPublicStructs() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
-                "testEqOfPublicStructs");
-
+    public void testEqOfPublicObjectsInBalo() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjectsInBalo");
         Assert.assertEquals(returns[0].stringValue(), "234-56-7890:employee");
     }
 
-    @Test(description = "Test equivalency of public structs that are in two different packages")
-    public void testEqOfPublicStructs1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicStructs1");
-
+    @Test(description = "Test equivalency of public objects that are in two different packages")
+    public void testEqOfPublicObjects() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjects");
         Assert.assertEquals(returns[0].stringValue(), "234-56-1234:employee");
     }
 
-    @Test(description = "Test equivalency of public structs that are in two different packages")
-    public void testEqOfPublicStructs2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicStructs2");
-
+    @Test(description = "Test equivalency of public objects that are in two different packages")
+    public void testEqOfPublicObjects2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjects2");
         Assert.assertEquals(returns[0].stringValue(), "234-56-3345:employee");
     }
 
-    @Test(description = "Test runtime equivalency of structs")
-    public void testRuntimeEqPrivateStructsInSamePackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPrivateStructsInSamePackage");
-
+    @Test(description = "Test runtime equivalency of objects")
+    public void testNonPublicTypedescEq() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNonPublicTypedescEq");
         Assert.assertEquals(returns[0].stringValue(), "ttt");
     }
 
-    @Test(description = "Test runtime equivalency of structs")
-    public void testRuntimeEqPublicStructsInSamePackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructsInSamePackage");
-
+    @Test(description = "Test runtime equivalency of public objects")
+    public void testEqOfPublicObjectsInSamePackage() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjectsInSamePackage");
         Assert.assertEquals(returns[0].stringValue(), "Skyhigh");
     }
 
-    @Test(description = "Test runtime equivalency of structs")
-    public void testRuntimeEqPublicStructs() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs");
-
+    @Test(description = "Test runtime equivalency of public objects")
+    public void testRuntimeEqPublicObjects() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicObjects");
         Assert.assertEquals(returns[0].stringValue(), "Skytop");
     }
 
-    @Test(description = "Test runtime equivalency of structs")
-    public void testRuntimeEqPublicStructs1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs1");
-
+    @Test(description = "Test runtime equivalency of object")
+    public void testRuntimeEqPublicObjects1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicObjects1");
         Assert.assertEquals(returns[0].stringValue(), "Brandon:userPFoo");
     }
 
-    @Test(description = "Test struct equivalency as an argument")
-    public void testStructEquivalencyWithArguments() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructEquivalencyWithArguments");
+    @Test(description = "Test object equivalency as an argument")
+    public void testObjectEquivalencyWithArguments() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectEquivalencyWithArguments");
 
         Assert.assertEquals(returns[0].stringValue(), "ENG2CMB");
         Assert.assertEquals(returns[1].stringValue(), "1CMB");
@@ -116,14 +107,6 @@ public class ObjectEquivalencyTest {
     public void testTupleMatchWithObjectEquivalency() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testTupleMatchWithObjectEquivalency");
         Assert.assertEquals(returns[0].stringValue(), "SUCCESS");
-    }
-
-    @Test(description = "Test object equivalency negative",
-            expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'eq:BarObj' cannot be cast to 'eq2:FooObj'\"\\}.*")
-    public void testObjectEqViewFromThirdPackageNegative() {
-        BRunUtil.invoke(compileResult, "testObjectEqViewFromThirdPackage");
     }
 
     @Test

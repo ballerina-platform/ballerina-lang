@@ -59,6 +59,7 @@
             <class name="org.ballerinalang.test.service.http.sample.CipherStrengthSSLTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.ResourceFunctionReturnTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerActionsTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.MultipleHTTPClientsTestCase"/>
         </classes>
     </test>
 
@@ -114,6 +115,8 @@
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
             <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
             <class name="org.ballerinalang.test.auth.AuthnWithCustomHandlersTest"/>
+            <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnConfigPatternTest"/>
         </classes>
     </test>
 

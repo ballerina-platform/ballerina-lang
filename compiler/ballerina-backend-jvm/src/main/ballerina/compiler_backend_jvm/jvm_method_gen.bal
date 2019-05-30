@@ -84,6 +84,13 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         k = 0;
     }
 
+    // set channel details to strand.
+    // these channel info is required to notify datachannels, when there is a panic
+    // we cannot set this during strand creation, because function call do not have this info.
+    mv.visitVarInsn(ALOAD, localVarOffset);
+    loadChannelDetails(mv, func.workerChannels);
+    mv.visitFieldInsn(PUTFIELD, STRAND, "channelDetails", io:sprintf("[L%s;", CHANNEL_DETAILS));
+
     bir:FunctionParam?[] functionParams = [];
     bir:VariableDcl?[] localVars = func.localVars;
     while (k < localVars.length()) {
@@ -1103,7 +1110,7 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
 function castFromString(bir:BType targetType, jvm:MethodVisitor mv) {
     mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
     if (targetType is bir:BTypeInt || targetType is bir:BTypeByte) {
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "parseLong", "(Ljava/lang/String;)J", false);
+        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "parseLong", "(Ljava/lang/String;)J", false);
     } else if (targetType is bir:BTypeFloat) {
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "parseDouble", "(Ljava/lang/String;)D", false);
     } else if (targetType is bir:BTypeBoolean) {

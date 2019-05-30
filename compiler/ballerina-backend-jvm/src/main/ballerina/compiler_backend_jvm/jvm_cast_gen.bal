@@ -55,12 +55,6 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
     } else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
         generateXMLToAttributesMap(mv, sourceType);
         return;
-    } else if (targetType is bir:BTableType) {
-        checkCast(mv, targetType);
-        return;
-    } else if (targetType is bir:BStreamType) {
-        checkCast(mv, targetType);
-        return;
     } else if (targetType is bir:BFiniteType) {
         generateCheckCastToFiniteType(mv, sourceType, targetType);
         return;
@@ -70,8 +64,10 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
     checkCast(mv, targetType);
 
     // cast to the specific java class
-    string targetTypeClass = getTargetClass(sourceType, targetType);
-    mv.visitTypeInsn(CHECKCAST, targetTypeClass);
+    string? targetTypeClass = getTargetClass(sourceType, targetType);
+    if (targetTypeClass is string) {
+        mv.visitTypeInsn(CHECKCAST, targetTypeClass);
+    }
 }
 
 function generateCheckCastToInt(jvm:MethodVisitor mv, bir:BType sourceType) {
@@ -222,7 +218,7 @@ function checkCast(jvm:MethodVisitor mv, bir:BType targetType) {
             io:sprintf("(L%s;L%s;)L%s;", OBJECT, BTYPE, OBJECT), false);
 }
 
-function getTargetClass(bir:BType sourceType, bir:BType targetType) returns string {
+function getTargetClass(bir:BType sourceType, bir:BType targetType) returns string? {
     string targetTypeClass;
     if (targetType is bir:BArrayType || targetType is bir:BTupleType) {
         targetTypeClass = ARRAY_VALUE;
@@ -244,9 +240,10 @@ function getTargetClass(bir:BType sourceType, bir:BType targetType) returns stri
         targetTypeClass = TYPEDESC_VALUE;
     } else if (targetType is bir:BInvokableType) {
         targetTypeClass = FUNCTION_POINTER;
+    } else if (targetType is bir:BFutureType) {
+        targetTypeClass = FUTURE_VALUE;
     } else {
-        error err = error(io:sprintf("Casting is not supported from '%s' to '%s'", sourceType, targetType));
-        panic err;
+        return;
     }
 
     return targetTypeClass;
@@ -300,8 +297,10 @@ function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targ
     }
 
     // cast to the specific java class
-    string targetTypeClass = getTargetClass(sourceType, targetType);
-    mv.visitTypeInsn(CHECKCAST, targetTypeClass);
+    string? targetTypeClass = getTargetClass(sourceType, targetType);
+    if (targetTypeClass is string) {
+        mv.visitTypeInsn(CHECKCAST, targetTypeClass);
+    }
 }
 
 function generateCastToInt(jvm:MethodVisitor mv, bir:BType sourceType) {

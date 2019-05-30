@@ -28,7 +28,7 @@ import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.StartNonDaemonThreadHandler;
 
 /**
- * Extern function to start the JMS TopicSubscriber.
+ * Extern function to start the JMS TopicListener.
  *
  * @since 0.995
  */

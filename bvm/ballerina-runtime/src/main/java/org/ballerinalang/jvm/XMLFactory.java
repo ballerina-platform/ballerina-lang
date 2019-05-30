@@ -233,7 +233,7 @@ public class XMLFactory {
      * @return Concatenated XML sequence
      */
     public static XMLValue<?> concatenate(XMLValue<?> firstSeq, XMLValue<?> secondSeq) {
-        ArrayValue concatSeq = new ArrayValue();
+        ArrayValue concatSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         int j = 0;
 
         // Load the content fully before concat the two
