@@ -124,7 +124,6 @@ public type ObjectGenerator object {
         jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, funcNameRegIndex, funcs, labels,
                 defaultCaseLabel);
 
-        string className = objClassName;
 
         // case body
         int i = 0;
@@ -138,44 +137,62 @@ public type ObjectGenerator object {
             bir:BType? retType = func.typeValue["retType"];
 
             string methodSig = "";
-            int jvmMethodInvokeInsn = INVOKEVIRTUAL;
-
-            jvm:Label blockedOnExternLabel = new;
-            jvm:Label notBlockedOnExternLabel = new;
 
             if (isExternFunc(func)) {
                 mv.visitVarInsn(ALOAD, 1);
                 mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+                jvm:Label blockedOnExternLabel = new;
                 mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
-
-                if (!(retType is () || retType is bir:BTypeNil)) {
-                    mv.visitVarInsn(ALOAD, 1);
-                    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "future",
-                                            "Ljava/util/concurrent/Future;");
-                    mv.visitMethodInsn(INVOKEINTERFACE, "java/util/concurrent/Future", "get", "()Ljava/lang/Object;",
-                                                true);
-                    addUnboxInsn(mv, retType);
-                }
 
                 mv.visitVarInsn(ALOAD, 1);
                 mv.visitInsn(ICONST_0);
                 mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
 
-                mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
+                if (!(retType is () || retType is bir:BTypeNil)) {
+                    mv.visitVarInsn(ALOAD, 1);
+                    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "returnValue", "Ljava/lang/Object;");
+                    mv.visitInsn(ARETURN);
+                } else {
+                    mv.visitInsn(ACONST_NULL);
+                    mv.visitInsn(ARETURN);
+                }
 
                 mv.visitLabel(blockedOnExternLabel);
 
                 string lookupKey = getPackageName(self.module.org.value, self.module.name.value) + objTypeName + "." +
                                                     methodName;
                 methodSig = lookupJavaMethodDescription(lookupKey);
-                className = lookupFullQualifiedClassName(lookupKey);
-                jvmMethodInvokeInsn = INVOKESTATIC;
+                string className = lookupFullQualifiedClassName(lookupKey);
 
                 // load strand
                 mv.visitVarInsn(ALOAD, 1);
 
                 // load self
                 mv.visitVarInsn(ALOAD, 0);
+
+                int j = 0;
+                foreach var paramType in paramTypes {
+                    bir:BType pType = getType(paramType);
+                    // load parameters
+                    mv.visitVarInsn(ALOAD, 3);
+
+                    // load j'th parameter
+                    mv.visitLdcInsn(j);
+                    mv.visitInsn(L2I);
+                    mv.visitInsn(AALOAD);
+                    addUnboxInsn(mv, pType);
+                    j += 1;
+                }
+
+                mv.visitMethodInsn(INVOKESTATIC, className, getName(func), methodSig, false);
+
+                if (retType is () || retType is bir:BTypeNil) {
+                    mv.visitInsn(ACONST_NULL);
+                } else {
+                    addBoxInsn(mv, retType);
+                }
+
+                mv.visitInsn(ARETURN);
             } else {
                 // use index access, since retType can be nil.
                 methodSig = getMethodDesc(paramTypes, retType);
@@ -185,33 +202,30 @@ public type ObjectGenerator object {
 
                 // load strand
                 mv.visitVarInsn(ALOAD, 1);
+                int j = 0;
+                foreach var paramType in paramTypes {
+                    bir:BType pType = getType(paramType);
+                    // load parameters
+                    mv.visitVarInsn(ALOAD, 3);
+
+                    // load j'th parameter
+                    mv.visitLdcInsn(j);
+                    mv.visitInsn(L2I);
+                    mv.visitInsn(AALOAD);
+                    addUnboxInsn(mv, pType);
+                    j += 1;
+                }
+
+                mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, getName(func), methodSig, false);
+
+                if (retType is () || retType is bir:BTypeNil) {
+                    mv.visitInsn(ACONST_NULL);
+                } else {
+                    addBoxInsn(mv, retType);
+                }
+
+                mv.visitInsn(ARETURN);
             }
-
-            int j = 0;
-            foreach var paramType in paramTypes {
-                bir:BType pType = getType(paramType);
-                // load parameters
-                mv.visitVarInsn(ALOAD, 3);
-
-                // load j'th parameter
-                mv.visitLdcInsn(j);
-                mv.visitInsn(L2I);
-                mv.visitInsn(AALOAD);
-                addUnboxInsn(mv, pType);
-                j += 1;
-            }
-
-            mv.visitMethodInsn(jvmMethodInvokeInsn, className, getName(func), methodSig, false);
-
-            if (retType is () || retType is bir:BTypeNil) {
-                mv.visitInsn(ACONST_NULL);
-            } else {
-                addBoxInsn(mv, retType);
-            }
-
-            mv.visitLabel(notBlockedOnExternLabel);
-
-            mv.visitInsn(ARETURN);
             i += 1;
         }
 
