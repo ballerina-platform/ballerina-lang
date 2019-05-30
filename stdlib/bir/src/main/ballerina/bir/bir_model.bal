@@ -412,7 +412,8 @@ public type NewMap record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
-    BType typeValue;
+    BType bType;
+    TypeRef? typeRef;
 |};
 
 public type NewTable record {|
