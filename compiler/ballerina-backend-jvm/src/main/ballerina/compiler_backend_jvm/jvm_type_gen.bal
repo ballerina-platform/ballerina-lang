@@ -754,7 +754,12 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
         mv.visitInsn(L2I);
 
         // Load the member type
-        loadType(mv, mType);
+        if (mType is bir:BErrorType) {
+            // Todo: Handle for recursive user defined error types.
+            mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
+        } else {
+            loadType(mv, mType);
+        }
 
         // Add the member to the array
         mv.visitInsn(AASTORE);
