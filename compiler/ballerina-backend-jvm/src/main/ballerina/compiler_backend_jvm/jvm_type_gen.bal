@@ -236,7 +236,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:
                             "(Ljava/lang/String;Ljava/lang/String;)V", false);
 
     // Load flags
-    int flag = getVisibilityFlag(typeDef);
+    int flag = getVisibilityFlag(typeDef.visibility);
     mv.visitLdcInsn(flag);
     mv.visitInsn(L2I);
 
@@ -300,8 +300,8 @@ function createRecordField(jvm:MethodVisitor mv, bir:BRecordField field) {
     mv.visitLdcInsn(field.name.value);
 
     // Load flags
-    // TODO: get the flags
-    mv.visitLdcInsn(0);
+    int flag = getVisibilityFlag(field.visibility);
+    mv.visitLdcInsn(flag);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
@@ -348,7 +348,7 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
                             "(Ljava/lang/String;Ljava/lang/String;)V", false);
 
     // Load flags
-    int flag = getVisibilityFlag(typeDef);
+    int flag = getVisibilityFlag(typeDef.visibility);
     mv.visitLdcInsn(flag);
     mv.visitInsn(L2I);
 
@@ -359,11 +359,11 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
     return;
 }
 
-function getVisibilityFlag(bir:TypeDef typeDef) returns int {
-    bir:Visibility visibility = typeDef.visibility;
-
+function getVisibilityFlag(bir:Visibility visibility) returns int {
     if (visibility == bir:VISIBILITY_PUBLIC) {
-        return 1;
+        return BAL_PUBLIC;
+    } else if (visibility == bir:VISIBILITY_OPTIONAL) {
+        return BAL_OPTIONAL;
     } else {
         return 0;
     }
@@ -640,8 +640,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         loadFiniteType(mv, bType);
         return;
     } else {
-        error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
-        panic err;
+        loadFutureType(mv, bType);
+        return;
     }
 
     mv.visitFieldInsn(GETSTATIC, BTYPES, typeFieldName, io:sprintf("L%s;", BTYPE));
@@ -812,6 +812,14 @@ function getTypeFieldName(string typeName) returns string {
     return io:sprintf("$type$%s", typeName);
 }
 
+function loadFutureType(jvm:MethodVisitor mv, bir:BFutureType bType) {
+    mv.visitTypeInsn(NEW, FUTURE_TYPE);
+    mv.visitInsn(DUP);
+
+    loadType(mv, bType.returnType);
+    mv.visitMethodInsn(INVOKESPECIAL, FUTURE_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+}
+
 # Create and load an invokable type.
 #
 # + mv - method visitor
@@ -860,7 +868,7 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", ARRAY_VALUE );
     } else if (bType is bir:BErrorType) {
         return io:sprintf("L%s;", ERROR_VALUE);
-    } else if (bType is bir:BMapType) {
+    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
         return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BTypeDesc) {
         return io:sprintf("L%s;", TYPEDESC_TYPE);
@@ -875,7 +883,6 @@ function getTypeDesc(bir:BType bType) returns string {
     } else if (bType is bir:BTypeAny ||
                bType is bir:BTypeAnyData ||
                bType is bir:BUnionType ||
-               bType is bir:BRecordType ||
                bType is bir:BJSONType ||
                bType is bir:BXMLType) {
         return io:sprintf("L%s;", OBJECT);

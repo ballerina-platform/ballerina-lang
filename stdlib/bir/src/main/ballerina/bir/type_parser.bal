@@ -389,6 +389,8 @@ public type TypeParser object {
             return "PRIVATE";
         } else if (b == 2) {
             return "PUBLIC";
+        } else if (b == 3) {
+            return "OPTIONAL";
         }
         error err = error("unknown variable visiblity tag " + b);
             panic err;

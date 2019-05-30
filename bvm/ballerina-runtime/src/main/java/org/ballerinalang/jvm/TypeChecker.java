@@ -109,7 +109,7 @@ public class TypeChecker {
     public static boolean checkIsType(Object sourceVal, BType targetType) {
         BType sourceType = getType(sourceVal);
         if (isMutable(sourceVal, sourceType)) {
-            return checkIsType(getType(sourceVal), targetType, new ArrayList<>());
+            return checkIsType(sourceType, targetType, new ArrayList<>());
         }
 
         return checkIsLikeType(sourceVal, targetType, new ArrayList<>());
@@ -449,6 +449,13 @@ public class TypeChecker {
     }
 
     private static boolean checkIsArrayType(BType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() == TypeTags.UNION_TAG) {
+            return ((BUnionType) sourceType).getMemberTypes().stream()
+                    .allMatch(memberType -> {
+                        return checkIsArrayType(memberType, targetType, unresolvedTypes);
+                    });
+        }
+
         if (sourceType.getTag() != TypeTags.ARRAY_TAG) {
             return false;
         }

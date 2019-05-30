@@ -22,9 +22,9 @@ import ballerina/reflect;
 # + authnHandlers - Array of authentication handlers
 public type AuthnFilter object {
 
-    public AuthnHandler[] authnHandlers;
+    public AuthnHandler?[]|AuthnHandler?[][] authnHandlers;
 
-    public function __init(AuthnHandler[] authnHandlers) {
+    public function __init(AuthnHandler?[]|AuthnHandler?[][] authnHandlers) {
         self.authnHandlers = authnHandlers;
     }
 
@@ -37,7 +37,7 @@ public type AuthnFilter object {
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         boolean|error authenticated;
         var authnHandlers = getAuthnHandlers(context);
-        if (authnHandlers is AuthnHandler[]) {
+        if (authnHandlers is AuthnHandler?[]|AuthnHandler?[][]) {
             authenticated = handleAuthnRequest(authnHandlers, request);
         } else {
             if (authnHandlers) {
@@ -54,25 +54,44 @@ public type AuthnFilter object {
     }
 };
 
-function handleAuthnRequest(AuthnHandler[] authnHandlers, Request request) returns boolean|error {
-    error? err = ();
-    foreach AuthnHandler authnHandler in authnHandlers {
-        boolean canHandleResponse = authnHandler.canHandle(request);
-        if (canHandleResponse) {
-            var handleResponse = authnHandler.handle(request);
-            if (handleResponse is boolean) {
-                if (handleResponse) {
-                    // If one of the authenticators from the chain could successfully authenticate the user, it is not
-                    // required to look through other providers. The authenticator chain is using "OR" combination of
-                    // provider results.
-                    return true;
+function handleAuthnRequest(AuthnHandler?[]|AuthnHandler?[][] authnHandlers, Request request) returns boolean|error {
+    if (authnHandlers is AuthnHandler?[]) {
+        return checkForAuthnHandlers(authnHandlers, request);
+    } else {
+        foreach AuthnHandler?[] authnHandler in authnHandlers {
+            var response = checkForAuthnHandlers(authnHandler, request);
+            if (response is boolean) {
+                if (!response) {
+                    return response;
                 }
             } else {
-                err = handleResponse;
+                return response;
+            }
+        }
+        return true;
+    }
+}
+
+function checkForAuthnHandlers(AuthnHandler?[] authnHandlers, Request request) returns boolean|error {
+    error? err = ();
+    foreach AuthnHandler? authnHandler in authnHandlers {
+        if (authnHandler is AuthnHandler) {
+            boolean canHandleResponse = authnHandler.canHandle(request);
+            if (canHandleResponse) {
+                var handleResponse = authnHandler.handle(request);
+                if (handleResponse is boolean) {
+                    if (handleResponse) {
+                        // If one of the authenticators from the chain could successfully authenticate the user,
+                        // it is not required to look through other providers. The authenticator chain is using "OR"
+                        // combination of provider results.
+                        return true;
+                    }
+                } else {
+                    err = handleResponse;
+                }
             }
         }
     }
-
     if (err is error) {
         return err;
     }

@@ -389,6 +389,25 @@ type TerminalEmitter object {
                 i = i + 1;
             }
             println(";");
+        } else if (term is WaitAll) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            print("{");
+            int i = 0;
+            while (i < term.keys.length()) {
+                if (i != 0) {
+                    print(",");
+                }
+                print(term.keys[i], ":");
+                VarRef? expr = term.futures[i];
+                if (expr is VarRef) {
+                    self.opEmitter.emitOp(expr);
+                }
+                i = i + 1;
+            }
+            println("} -> ", term.thenBB.id.value, ";");
         } else if (term is Flush) {
             print(tabs);
             self.opEmitter.emitOp(term.lhsOp);

@@ -385,6 +385,8 @@ public class BIRPackageSymbolEnter {
                 return flags | Flags.PRIVATE;
             case VisibilityFlags.PUBLIC:
                 return flags | Flags.PUBLIC;
+            case VisibilityFlags.OPTIONAL:
+                return flags | Flags.OPTIONAL;
         }
         return flags;
     }
