@@ -739,7 +739,7 @@ public class Types {
         }
 
         // Source return type should be covariant with target return type
-        return equality.test(source.retType, target.retType, unresolvedTypes);
+        return isAssignable(source.retType, target.retType, unresolvedTypes);
     }
 
     public boolean checkArrayEquality(BType source, BType target, List<TypePair> unresolvedTypes) {
