@@ -981,13 +981,24 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     // first element of the args array will be set by the scheduler
     // load and cast param values
     int paramIndex = 0;
-    foreach var paramType in paramTypes {
+    int paramTypeIndex = 0;
+    int argArrayIndex = 0;
+    while (paramTypeIndex < paramTypes.length()) {
+        var paramType = paramTypes[paramTypeIndex];
         bir:BType pType = getType(paramType);
         mv.visitInsn(DUP);
         mv.visitIntInsn(BIPUSH, paramIndex + 1);
-        generateParamCast(paramIndex, pType, mv);
+        generateParamCast(argArrayIndex, pType, mv);
         mv.visitInsn(AASTORE);
         paramIndex += 1;
+
+        mv.visitInsn(DUP);
+        mv.visitIntInsn(BIPUSH, paramIndex + 1);
+        mv.visitLdcInsn("true");
+        mv.visitInsn(AASTORE);
+        paramIndex += 1;
+        argArrayIndex += 1;
+        paramTypeIndex += 2;
     }
 
     // invoke the user's main method
