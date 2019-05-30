@@ -565,17 +565,29 @@ type InstructionGenerator object {
     }
 
     function generateMapNewIns(bir:NewMap mapNewIns) {
-        bir:BType typeOfMapNewIns = mapNewIns.typeValue;
+        bir:BType typeOfMapNewIns = mapNewIns.bType;
 
         string className = MAP_VALUE_IMPL;
 
         if (typeOfMapNewIns is bir:BRecordType) {
-            className = self.currentPackageName + cleanupTypeName(typeOfMapNewIns.name.value);
+            var typeRef = mapNewIns.typeRef;
+            className = self.currentPackageName;
+            if (typeRef is bir:TypeRef) {
+                className = typeRefToClassName(typeRef) + "/";
+            }
+            className = className + cleanupTypeName(typeOfMapNewIns.name.value);
+            self.mv.visitTypeInsn(NEW, className);
+            self.mv.visitInsn(DUP);
+            if (typeRef is bir:TypeRef) {
+                loadExternalOrLocalType(self.mv, typeRef);
+            } else {
+                loadType(self.mv, mapNewIns.bType);
+            }
+        } else {
+            self.mv.visitTypeInsn(NEW, className);
+            self.mv.visitInsn(DUP);
+            loadType(self.mv, mapNewIns.bType);
         }
-
-        self.mv.visitTypeInsn(NEW, className);
-        self.mv.visitInsn(DUP);
-        loadType(self.mv, mapNewIns.typeValue);
         self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(mapNewIns.lhsOp.variableDcl);
     }
