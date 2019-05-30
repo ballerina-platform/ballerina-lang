@@ -19,7 +19,6 @@
 package org.ballerinalang.test.object;
 
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -28,13 +27,12 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test Function Arguments with Default Expressions.
+ * Test Function Arguments in Objects with Default Expressions.
  *
  * @since 0.995.0
  */
