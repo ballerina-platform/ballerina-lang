@@ -17,8 +17,6 @@ type Parser object {
 	boolean expOperand = true;
 	//if invalid occurence is captured in an expression
 	boolean invalidOccurence = false;
-	//invalid expression
-	boolean invalidExpression = false;
 	// tuple list expression count
 	int tupleListPos = 0;
 	//counter in the operator token in list in tuple literal expression
@@ -33,7 +31,7 @@ type Parser object {
 	}
 
 	public function parse() returns PackageNode {
-		DefinitionNode[] dList = [];
+		DefinitionNode?[] dList = [];
 		//definition list position
 		int pos = 0;
 		//parse while the current token is not EOF token
@@ -57,7 +55,8 @@ type Parser object {
 		}
 		//consume the EOF Token
 		Token currToken = self.parserBuffer.consumeToken();
-		PackageNode pkNode = { nodeKind: PACKAGE_NODE, tokenList: [currToken], definitionList: dList };
+		DefinitionNode[] dList2 = DefinitionNode[].stamp(dList);
+		PackageNode pkNode = { nodeKind: PACKAGE_NODE, tokenList: [currToken], definitionList: dList2};
 		return pkNode;
 	}
 
@@ -229,19 +228,18 @@ type Parser object {
 		Token functionToken = currToken;
 		FunctionSignatureNode? signatureNode = self.parseCallableUnitSignature();
 
-		if(signatureNode == null){
-			FunctionNode fn1 = {nodeKind: FUNCTION_NODE, tokenList: [functionToken], fnSignature: null, blockNode:null};
+		if(signatureNode is ()){
+			FunctionNode fn1 = {nodeKind: FUNCTION_NODE, tokenList: [functionToken], fnSignature: (), blockNode:()};
 
 			return fn1;
 		}else if (self.errorRecovered == false){
 			FunctionNode fn1 = {nodeKind: FUNCTION_NODE, tokenList: [functionToken], fnSignature: signatureNode,
-			 blockNode:null};
+			 blockNode:()};
 
 			return fn1;
 		}else{
 			BlockNode bNode = self.parseCallableUnitBody();
-			FunctionNode fn1 = {nodeKind: FUNCTION_NODE, tokenList: [functionToken], fnSignature: signatureNode,
-			 blockNode:bNode};
+			FunctionNode fn1 = {nodeKind: FUNCTION_NODE, tokenList: [functionToken], fnSignature: signatureNode, blockNode:bNode};
 
 			return fn1;
 		}
@@ -254,7 +252,7 @@ type Parser object {
 		Token identifier = self.matchToken(IDENTIFIER,FUNCTION_NODE);
 
 		if(identifier.tokenType == PARSER_ERROR_TOKEN){
-		return null;
+		return ();
 		}else{
 			Token lParen = self.matchToken(LPAREN,FUNCTION_NODE);
 			if(lParen.tokenType == PARSER_ERROR_TOKEN){
@@ -289,7 +287,7 @@ type Parser object {
 	//    | { <statement*>}
 	//error recovery method: token insertion
 	function parseCallableUnitBody() returns BlockNode {
-		StatementNode[] stsList = [];
+		StatementNode?[] stsList = [];
 		//position of statements in stsList
 		int pos = 0;
 
@@ -323,7 +321,7 @@ type Parser object {
 		}
 		//Token insertion if rBrace not found
 		Token rBrace = self.matchToken(RBRACE,FUNCTION_NODE);
-		BlockNode blNode = { nodeKind: BLOCK_NODE, tokenList: [lBrace, rBrace], statementList: stsList };
+		BlockNode blNode = { nodeKind: BLOCK_NODE, tokenList: [lBrace, rBrace], statementList: StatementNode[].stamp(stsList) };
 
 		return blNode;
 	}
@@ -368,12 +366,12 @@ type Parser object {
 			if (self.LAToken(1) == SEMICOLON) {
 				Token semiC = self.matchToken(SEMICOLON,VAR_DEF_STATEMENT_NODE);
 				VariableDefinitionStatementNode vDef = { nodeKind: VAR_DEF_STATEMENT_NODE, tokenList: [valueTypeTkn, semiC],
-					valueKind: valueKind1, varIdentifier: null, expression: null };
+					valueKind: valueKind1, varIdentifier: (), expression: () };
 
 				return vDef;
 			}else{
 			VariableDefinitionStatementNode vDef2 = { nodeKind: VAR_DEF_STATEMENT_NODE, tokenList: [valueTypeTkn],
-				valueKind: valueKind1, varIdentifier: null, expression: null };
+				valueKind: valueKind1, varIdentifier: (), expression: () };
 
 			return vDef2;
 			}
@@ -384,7 +382,7 @@ type Parser object {
 		if (self.LAToken(1) == SEMICOLON) {
 			Token semiC = self.matchToken(SEMICOLON,VAR_DEF_STATEMENT_NODE);
 			VariableDefinitionStatementNode vDef = { nodeKind: VAR_DEF_STATEMENT_NODE, tokenList: [valueTypeTkn, semiC],
-				valueKind: valueKind1, varIdentifier: vRef, expression: null };
+				valueKind: valueKind1, varIdentifier: vRef, expression: () };
 
 			return vDef;
 		} else {
@@ -392,7 +390,7 @@ type Parser object {
 			Token assign = self.matchToken(ASSIGN,VAR_DEF_STATEMENT_NODE);
 			ExpressionNode exprNode = self.expressionBuilder(VAR_DEF_STATEMENT_NODE);
 			//if no semicolon found in the end of the expr, then errorRecovered will set to false within the expressionBuilder method itself
-			if(exprNode == null){
+			if(exprNode is ()){
 				log:printError(assign.lineNumber + ":" + assign.endPos +" : no valid expression found in variable definition statement.");
 				//recovered = false;
 				self.errorRecovered = false;
@@ -487,7 +485,7 @@ type Parser object {
 					log:printError(operator.lineNumber + ":" + operator.startPos +" : missing unary expression");
 					self.invalidOccurence = true;
 					UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator],
-					operatorKind: opKind3, uExpression : null };
+					operatorKind: opKind3, uExpression : () };
 					self.expStack.push(uExpression);
 				}else{
 					ExpressionNode expr3 = self.expStack.pop();
@@ -499,7 +497,7 @@ type Parser object {
 				OperatorKind opKind = self.matchOperatorType(operator);
 				ExpressionNode expr2 = self.expStack.pop();
 				ExpressionNode expr1 = self.expStack.pop();
-				if(expr1 == null){
+				if(expr1 is ()){
 					//recovered = false;
 					self.errorRecovered = false;
 					log:printError(operator.lineNumber + ":" + operator.startPos +
@@ -670,7 +668,7 @@ type Parser object {
 		} else if (self.LAToken(1) == RPAREN){
 			//self.priorOperator = false;
 			//tuple expression list
-			ExpressionNode[] tupleList = [];
+			ExpressionNode?[] tupleList = [];
 			//list to keep track of commas
 			Token[] commaList = [];
 
@@ -713,7 +711,7 @@ type Parser object {
 
 							self.invalidOccurence = true;
 							UnaryExpressionNode uExpression = { nodeKind: UNARY_EXPRESSION_NODE, tokenList: [operator], operatorKind: opKind3,
-							uExpression : null };
+							uExpression : () };
 							self.expStack.push(uExpression);
 						}else{
 							ExpressionNode expr3 = self.expStack.pop();
@@ -729,7 +727,7 @@ type Parser object {
 						OperatorKind opKind = self.matchOperatorType(operator);
 						ExpressionNode expr1 = self.expStack.pop();
 						BinaryExpressionNode bExpr = { nodeKind: BINARY_EXP_NODE, tokenList: [operator], operatorKind:
-						opKind,leftExpr: expr1, rightExpr: null};
+						opKind,leftExpr: expr1, rightExpr: ()};
 						self.expStack.push(bExpr);
 						self.expOperand = false;
 					}else{
@@ -750,7 +748,7 @@ type Parser object {
 
 				//ExpressionNode parenExpr = self.expStack.topExpr();
 				ExpressionNode parenExpr = self.expStack.pop();
-				if(parenExpr == null){
+				if(parenExpr is ()){
 					EmptyTupleLiteralNode emptyTuple = {nodeKind:EMPTY_TUPLE_LITERAL_NODE, tokenList:commaList };
 					SimpleLiteral smLiteral = emptyTuple;
 					self.expStack.push(smLiteral);
@@ -766,7 +764,7 @@ type Parser object {
 						reverseCount += 1;
 					}
 
-					TupleLiteralNode tupleLNode = {nodeKind: TUPLE_LITERAL_NODE , tokenList: commaList,tupleExprList:tupleList };
+					TupleLiteralNode tupleLNode = {nodeKind: TUPLE_LITERAL_NODE , tokenList: commaList,tupleExprList:ExpressionNode[].stamp(tupleList) };
 					self.expStack.push(tupleLNode);
 				}
 
@@ -1106,7 +1104,7 @@ type OperatorStack object {
 };
 
 type ExprStack object {
-	ExpressionNode[] exprStack = [null];
+	ExpressionNode[] exprStack = [()];
 	int top;
 
 	public function __init(int top = 0) {
@@ -1132,7 +1130,7 @@ type ExprStack object {
 	}
 
 	function isEmpty() returns boolean {
-		if(self.exprStack.length() == 1 && self.exprStack[0] == null ){
+		if(self.exprStack.length() == 1 && self.exprStack[0] is () ){
 			return true;
 		}
 		return false;

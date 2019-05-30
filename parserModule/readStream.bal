@@ -4,10 +4,14 @@ import ballerina/log;
 public function main() {
 	PackageNode? parsedFile = parseFile("inputFile.txt");
 	if(parsedFile is PackageNode){
+		io:println("here");
 		json|error j = json.convert(parsedFile);
-		    if (j is json) {
-		        io:println(j);
-		    }
+		   if (j is json) {
+		       io:println(j);
+		   }else{
+		   		       io:println(j);
+
+		   }
 		//io:println(parsedFile);
 	}
 }
@@ -22,7 +26,7 @@ function parseFile(string fileLocation) returns PackageNode? {
 		log:printError("error occurred while processing chars ", err = bReader);
 		closeRc(sourceChannel);
 		
-		return null;
+		return ();
 	}else{
 		Lexer lex = new(bReader);
 		ParserBufferReader pBuffer = new(lex, capacity = 5);
@@ -33,6 +37,7 @@ function parseFile(string fileLocation) returns PackageNode? {
 		return pkgNode;
 	}
 }
+
 function closeRc(io:ReadableCharacterChannel ch) {
 	var cr = ch.close();
 	if (cr is error) {

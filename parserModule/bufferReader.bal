@@ -24,6 +24,7 @@ public type BufferReader object {
         }
     }
     //buffer is filled character by character based on the capacity defined
+
     function fillBuffer() returns error? {
         while (self.bufferSize < self.capacity) {
             self.characterArray[self.bufferSize] = check self.sourceChannel.read(1);

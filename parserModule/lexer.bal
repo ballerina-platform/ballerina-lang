@@ -325,7 +325,8 @@ public type Lexer object {
 							self.position += 1;
 							self.tokenIndex += 1;
 							return {tokenType: COMPOUND_LOGICAL_SHIFT, text: ">>>=", startPos: self.position - 1 ,
-								endPos:self.position, lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+								endPos:self.position, lineNumber: self.lineNum , index: self.tokenIndex,
+								whiteSpace: self.getWhiteSpace() };
 						}
 					}
 				}
@@ -470,9 +471,9 @@ public type Lexer object {
 				//space = self.wpStack.pop() + space;
 			}
 			return space;
-		} else {
-			return null;
 		}
+		return ();
+
 	}
 };
 
