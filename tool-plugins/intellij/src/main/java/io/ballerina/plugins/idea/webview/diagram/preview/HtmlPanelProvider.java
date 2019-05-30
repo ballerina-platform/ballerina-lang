@@ -16,7 +16,9 @@ package io.ballerina.plugins.idea.webview.diagram.preview;
 import com.intellij.CommonBundle;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.ExtensionPointName;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.xmlb.annotations.Attribute;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +37,7 @@ public abstract class HtmlPanelProvider {
     private static HtmlPanelProvider[] ourProviders = null;
 
     @NotNull
-    public abstract DiagramHtmlPanel createHtmlPanel();
+    public abstract DiagramHtmlPanel createHtmlPanel(Project project, VirtualFile file);
 
     @NotNull
     public abstract AvailabilityInfo isAvailable();

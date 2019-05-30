@@ -13,6 +13,8 @@
 // limitations under the License.
 package io.ballerina.plugins.idea.webview.diagram.preview.javafx;
 
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import io.ballerina.plugins.idea.webview.diagram.preview.DiagramHtmlPanel;
 import io.ballerina.plugins.idea.webview.diagram.preview.HtmlPanelProvider;
 import org.jetbrains.annotations.NotNull;
@@ -24,8 +26,8 @@ public class JavaFxHtmlPanelProvider extends HtmlPanelProvider {
 
     @NotNull
     @Override
-    public DiagramHtmlPanel createHtmlPanel() {
-        return new DiagramJavaFxHtmlPanel();
+    public DiagramHtmlPanel createHtmlPanel(Project project, VirtualFile file) {
+        return new DiagramJavaFxHtmlPanel(project, file);
     }
 
     @NotNull

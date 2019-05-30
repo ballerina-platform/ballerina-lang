@@ -1,20 +1,19 @@
 package io.ballerina.plugins.idea.webview.diagram.preview.javafx;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectUtil;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.impl.http.HttpVirtualFile;
 import com.intellij.openapi.wm.ToolWindowId;
-import com.intellij.openapi.wm.WindowManager;
-import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.javafx.JavaFxHtmlPanel;
 import com.intellij.util.messages.MessageBusConnection;
+import io.ballerina.plugins.idea.extensions.editoreventmanager.BallerinaEditorEventManager;
+import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChangeResponse;
+import io.ballerina.plugins.idea.webview.diagram.preview.BallerinaDiagramUtils;
 import io.ballerina.plugins.idea.webview.diagram.preview.DiagramHtmlPanel;
 import io.ballerina.plugins.idea.webview.diagram.settings.DiagramApplicationSettings;
 import javafx.beans.value.ChangeListener;
@@ -27,17 +26,16 @@ import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.awt.Point;
-import java.util.Objects;
-
-import javax.swing.JFrame;
+import org.wso2.lsp4intellij.editor.EditorEventManager;
+import org.wso2.lsp4intellij.editor.EditorEventManagerBase;
 
 
 /**
  * JavaFx based diagram panel implementation.
  */
 public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHtmlPanel {
+
+    private static final Logger LOG = Logger.getInstance(DiagramJavaFxHtmlPanel.class);
 
     @NotNull
     private String myCSP = "";
@@ -47,9 +45,13 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
     private final ScrollPreservingListener myScrollPreservingListener = new ScrollPreservingListener();
     @NotNull
     private final BridgeSettingListener myBridgeSettingListener = new BridgeSettingListener();
+    private static Project myProject;
+    private static VirtualFile myFile;
 
-    DiagramJavaFxHtmlPanel() {
+    DiagramJavaFxHtmlPanel(@NotNull Project project, @NotNull VirtualFile file) {
         super();
+        myProject = project;
+        myFile = file;
         runInPlatformWhenAvailable(() -> {
             if (myWebView != null) {
                 updateFontSmoothingType(myWebView, true);
@@ -122,7 +124,7 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
     @Override
     protected String prepareHtml(@NotNull String html) {
         return ImageRefreshFix.setStamps(html.replace("<head>",
-                "<head>" + "<meta http-equiv=\"Content-Security-Policy\" content=\"" + myCSP + "\"/>"));
+                String.format("<head><meta http-equiv=\"Content-Security-Policy\" content=\"%s\"/>", myCSP)));
     }
 
     @Override
@@ -135,50 +137,42 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
     }
 
     /**
-     * JavaPanelBridge.
+     * DiagramPanelBridge.
      */
     @SuppressWarnings("unused")
-    public static class JavaPanelBridge {
-        static final JavaPanelBridge INSTANCE = new JavaPanelBridge();
+    public static class DiagramPanelBridge {
+        static final DiagramPanelBridge INSTANCE = new DiagramPanelBridge();
         private static final NotificationGroup DIAGRAM_NOTIFICATION_GROUP = NotificationGroup
                 .toolWindowGroup("Diagram headers group", ToolWindowId.MESSAGES_WINDOW);
 
-        public void openInExternalBrowser(@NotNull String link) {
-            String fileURI = link;
-            String anchor = null;
-            if (link.contains("#")) {
-                fileURI = Objects.requireNonNull(StringUtil.substringBefore(link, "#"));
-                anchor = Objects.requireNonNull(StringUtil.substringAfter(link, "#"));
-            }
+        public void handleDiagramEdit(String eventData) {
+            try {
+                JsonParser parser = new JsonParser();
+                JsonObject didChangeParams = parser.parse(eventData).getAsJsonObject();
+                String uri = didChangeParams.get("textDocumentIdentifier").getAsJsonObject().get("uri").getAsString();
+                JsonObject ast = didChangeParams.get("ast").getAsJsonObject();
 
-            VirtualFile targetFile = VirtualFileManager.getInstance().findFileByUrl(fileURI);
-            if (targetFile == null || targetFile instanceof HttpVirtualFile) {
-                SafeOpener.openLink(link);
-            } else {
-                openLocalFile(targetFile, anchor);
-            }
-        }
+                // Requests the AST from the Ballerina language server.
+                Editor editor = BallerinaDiagramUtils.getEditorFor(myFile, myProject);
+                EditorEventManager manager = EditorEventManagerBase.forEditor(editor);
+                BallerinaEditorEventManager editorManager = (BallerinaEditorEventManager) manager;
+                if (editorManager == null) {
+                    LOG.debug(String.format("Editor event manager is null for: %s", editor.toString()));
+                    return;
+                }
 
-        private static void openLocalFile(@NotNull VirtualFile targetFile, @Nullable String anchor) {
-            Project project = ProjectUtil.guessProjectForFile(targetFile);
-            if (project == null) {
-                return;
+                // Notify AST change to the language server.
+                BallerinaASTDidChangeResponse astDidChangeResponse = editorManager.astDidChange(ast, uri);
+                if (astDidChangeResponse == null) {
+                    LOG.debug("Error occurred when fetching astDidChange response.");
+                }
+            } catch (Exception e) {
+                LOG.warn("Error occurred when handling diagram edit event.", e);
             }
-            if (anchor == null) {
-                FileEditorManager.getInstance(project).openFile(targetFile, true);
-                return;
-            }
-
-            final JFrame frame = WindowManager.getInstance().getFrame(project);
-            final Point mousePosition = Objects.requireNonNull(frame).getMousePosition();
-            if (mousePosition == null) {
-                return;
-            }
-            RelativePoint point = new RelativePoint(frame, mousePosition);
         }
 
         public void log(@Nullable String text) {
-            Logger.getInstance(JavaPanelBridge.class).warn(text);
+            Logger.getInstance(DiagramPanelBridge.class).warn(text);
         }
     }
 
@@ -186,7 +180,7 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
         @Override
         public void changed(ObservableValue<? extends State> observable, State oldValue, State newValue) {
             JSObject win = (JSObject) getWebViewGuaranteed().getEngine().executeScript("window");
-            win.setMember("JavaPanelBridge", JavaPanelBridge.INSTANCE);
+            win.setMember("DiagramPanelBridge", DiagramPanelBridge.INSTANCE);
         }
     }
 

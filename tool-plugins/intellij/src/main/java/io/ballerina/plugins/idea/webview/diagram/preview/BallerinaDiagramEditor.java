@@ -26,7 +26,6 @@ import io.ballerina.plugins.idea.webview.diagram.settings.DiagramApplicationSett
 import io.ballerina.plugins.idea.webview.diagram.settings.DiagramCssSettings;
 import io.ballerina.plugins.idea.webview.diagram.settings.DiagramPreviewSettings;
 import io.ballerina.plugins.idea.webview.diagram.split.SplitFileEditor;
-import javafx.scene.web.WebView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +36,6 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-
 
 /**
  * Ballerina diagram editor implementation.
@@ -51,8 +49,6 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
     private final JPanel myHtmlPanelWrapper;
     @Nullable
     private DiagramJavaFxHtmlPanel myPanel;
-    @Nullable
-    private WebView myWebview;
     @Nullable
     private HtmlPanelProvider.ProviderInfo myLastPanelProviderInfo = null;
     @NotNull
@@ -97,16 +93,6 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
                         String inserted = e.getNewFragment().toString().trim();
                         String deleted = e.getOldFragment().toString().trim();
                         if (!inserted.isEmpty() || !deleted.isEmpty()) {
-                            // Shows load spinner until the next html is rendered.
-//                            myPanel.runInPlatformWhenAvailable(() -> {
-//                                if (myWebview != null) {
-//                                    try {
-//                                        myWebview.getEngine().executeScript("showLoadSpinner();");
-//                                    } catch (JSException err) {
-//                                        //Todo: Handle
-//                                    }
-//                                }
-//                            });
                             myPooledAlarm.addRequest(() -> updateHtml(false, false), DEBOUNCE_DELAY_MS);
                         }
                     }
@@ -347,19 +333,15 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
         if (myPanel != null) {
             myHtmlPanelWrapper.remove(myPanel.getComponent());
             Disposer.dispose(myPanel);
-            myWebview = null;
             myPanel = null;
         }
     }
 
     private void attachHtmlPanel() {
         DiagramApplicationSettings settings = DiagramApplicationSettings.getInstance();
-        myPanel = (DiagramJavaFxHtmlPanel) retrievePanelProvider(settings).createHtmlPanel();
+        myPanel = (DiagramJavaFxHtmlPanel) retrievePanelProvider(settings).createHtmlPanel(myProject, myFile);
         myHtmlPanelWrapper.add(myPanel.getComponent(), BorderLayout.CENTER);
         myHtmlPanelWrapper.repaint();
-        if (myPanel != null) {
-            myPanel.runInPlatformWhenAvailable(() -> myWebview = myPanel.getWebview());
-        }
     }
 
     private static void updatePanelCssSettings(@NotNull DiagramHtmlPanel panel,

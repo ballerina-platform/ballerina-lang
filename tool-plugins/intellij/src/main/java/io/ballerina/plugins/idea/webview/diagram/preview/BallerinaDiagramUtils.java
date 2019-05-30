@@ -33,7 +33,10 @@ import java.util.Objects;
 
 import static org.wso2.lsp4intellij.utils.FileUtils.editorToURIString;
 
-class BallerinaDiagramUtils {
+/**
+ * Diagram utilities.
+ */
+public class BallerinaDiagramUtils {
     private static final Logger LOG = Logger.getInstance(BallerinaDiagramUtils.class);
 
     private static final String COMPOSER_LIB_RESOURCE_PATH = "/lib/tools/composer-library";
@@ -97,16 +100,16 @@ class BallerinaDiagramUtils {
     static String generateDiagramHtml(@NotNull VirtualFile file, DiagramHtmlPanel panel, Project project) {
 
         // Requests the AST from the Ballerina language server.
-        Editor editor = editorFromVirtualFile(file, project);
+        Editor editor = getEditorFor(file, project);
         EditorEventManager manager = EditorEventManagerBase.forEditor(editor);
-        BallerinaEditorEventManager balManager = (BallerinaEditorEventManager) manager;
-        if (balManager == null) {
+        BallerinaEditorEventManager editorManager = (BallerinaEditorEventManager) manager;
+        if (editorManager == null) {
             LOG.debug("Editor event manager is null for: " + editor.toString());
             return "";
         }
 
         // Requests AST from the language server.
-        BallerinaASTResponse astResponse = balManager.getAST();
+        BallerinaASTResponse astResponse = editorManager.getAST();
         if (astResponse == null) {
             LOG.debug("Error occurred when fetching AST response.");
             return "";
@@ -127,7 +130,7 @@ class BallerinaDiagramUtils {
         return getWebviewContent(editorToURIString(editor), astResponse, panel, balSdk.getSdkPath());
     }
 
-    private static Editor editorFromVirtualFile(VirtualFile file, Project project) {
+    public static Editor getEditorFor(VirtualFile file, Project project) {
         FileEditor[] allEditors = FileEditorManager.getInstance(project).getAllEditors(file);
         if (allEditors.length > 0 && allEditors[0] instanceof TextEditor) {
             return ((TextEditor) allEditors[0]).getEditor();
