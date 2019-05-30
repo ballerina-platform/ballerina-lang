@@ -54,7 +54,7 @@ public class SourcePruner {
         );
         BLOCK_REMOVE_KW_TERMINALS = Arrays.asList(
                 BallerinaParser.SERVICE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.MATCH,
-                BallerinaParser.FOREACH
+                BallerinaParser.FOREACH, BallerinaParser.WORKER
         );
     }
     /**
