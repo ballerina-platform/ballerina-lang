@@ -290,8 +290,10 @@ public class BRunUtil {
             Object argument = getJVMValue(type, bvmArgs[i]);
             switch (type.tag) {
                 case TypeTags.INT_TAG:
-                case TypeTags.BYTE_TAG:
                     typeClazz = long.class;
+                    break;
+                case TypeTags.BYTE_TAG:
+                    typeClazz = int.class;
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     typeClazz = boolean.class;
@@ -386,7 +388,7 @@ public class BRunUtil {
             case TypeTags.NULL_TAG:
                 return null;
             case TypeTags.BYTE_TAG:
-                return ((BValueType) value).byteValue();
+                return (int) ((BValueType) value).byteValue();
             case TypeTags.INT_TAG:
                 return ((BValueType) value).intValue();
             case TypeTags.BOOLEAN_TAG:
@@ -452,7 +454,7 @@ public class BRunUtil {
             case TypeTags.NULL_TAG:
                 return null;
             case TypeTags.BYTE_TAG:
-                return ((BByte) value).byteValue();
+                return (int) ((BByte) value).byteValue();
             case TypeTags.INT_TAG:
                 return ((BInteger) value).intValue();
             case TypeTags.BOOLEAN_TAG:
@@ -623,6 +625,9 @@ public class BRunUtil {
         switch (type.getTag()) {
             case org.ballerinalang.jvm.types.TypeTags.INT_TAG:
                 bvmValue = new BInteger((long) value);
+                break;
+            case org.ballerinalang.jvm.types.TypeTags.BYTE_TAG:
+                bvmValue = new BByte(((Number) value).longValue());
                 break;
             case org.ballerinalang.jvm.types.TypeTags.FLOAT_TAG:
                 bvmValue = new BFloat((double) value);

@@ -220,6 +220,7 @@ const string BOOLEAN_VALUE = "java/lang/Boolean";
 const string DOUBLE_VALUE = "java/lang/Double";
 const string DECIMAL_VALUE = "org/ballerinalang/jvm/values/DecimalValue";
 const string BYTE_VALUE = "java/lang/Byte";
+const string INT_VALUE = "java/lang/Integer";
 const string XML_VALUE = "org/ballerinalang/jvm/values/XMLValue";
 const string XML_QNAME = "org/ballerinalang/jvm/values/XMLQName";
 const string FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
@@ -234,6 +235,7 @@ const string TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
 const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
 const string STRAND = "org/ballerinalang/jvm/Strand";
+const string TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
 
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string FUNCTION = "java/util/function/Function";

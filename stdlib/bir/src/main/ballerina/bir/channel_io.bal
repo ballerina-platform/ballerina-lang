@@ -76,6 +76,11 @@ public type ChannelReader object {
         }
         return arr;
     }
+
+    public function readByte() returns byte {
+        var (bytes, _mustBe1) = check self.byteChannel.read(1);
+        return bytes[0];
+    }
 };
 
 function bytesToInt(byte[] b) returns int {

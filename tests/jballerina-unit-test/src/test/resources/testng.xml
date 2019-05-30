@@ -137,6 +137,16 @@
                     <include name="simpleLock"/>
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.types.bytetype.BByteOperationsTest" />
+            <class name="org.ballerinalang.test.types.bytetype.BByteArrayValueNegativeTest" />
+            <class name="org.ballerinalang.test.types.bytetype.BByteValueNegativeTest" />
+            <class name="org.ballerinalang.test.types.bytetype.BByteValueTest">
+                <methods>
+                    <exclude name="testByteOrIntMatch3"/>
+                    <exclude name="testByteOrIntMatch4"/>
+                    <exclude name="simpleWorkerMessagePassingTest"/>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

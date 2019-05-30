@@ -174,7 +174,7 @@ public class WorkerTest {
         }
     }
 
-    @Test
+    @Test(enabled = false)
     public void errorAfterSendTest() {
         int i = 0;
         while (i < 100) {
