@@ -116,9 +116,15 @@ public class WaitForAnyActionsTest {
 
     @Test
     public void waitTest11() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest11", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(vals[0].stringValue(), "hello foo");
+        // in this case it returns result of wait f1|f2|f3; where f1 and f2 panics. So the panic also one of
+        // possible results here
+        try {
+            BValue[] vals = BRunUtil.invoke(result, "waitTest11", new BValue[0]);
+            Assert.assertEquals(vals.length, 1);
+            Assert.assertEquals(vals[0].stringValue(), "hello foo");
+        } catch (RuntimeException e) {
+            Assert.assertTrue(e.getMessage().startsWith("error: err from panic {}"));
+        }
     }
 
     @Test (expectedExceptions = {BLangRuntimeException.class},

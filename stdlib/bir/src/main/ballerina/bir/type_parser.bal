@@ -224,7 +224,7 @@ public type TypeParser object {
     }
 
     function parseRecordField() returns BRecordField {
-        return {name:{value:self.reader.readStringCpRef()}, typeValue:self.parseTypeInternal()};
+        return {name:{value:self.reader.readStringCpRef()}, visibility:parseVisibility(self.reader), typeValue:self.parseTypeInternal()};
     }
 
     function parseObjectType() returns BType {
