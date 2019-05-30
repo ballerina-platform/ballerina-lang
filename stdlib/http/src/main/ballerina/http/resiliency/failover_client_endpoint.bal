@@ -437,7 +437,7 @@ function populateErrorsFromLastResponse (Response inResponse, error?[] failoverA
 # Provides a set of HTTP related configurations and failover related configurations.
 #
 # + httpVersion - The HTTP version to be used to communicate with the endpoint
-# + http1Settings - Configurations related to HTTP/1.1 protocol
+# + http1Settings - Configurations related to HTTP/1.x protocol
 # + http2Settings - Configurations related to HTTP/2 protocol
 # + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header

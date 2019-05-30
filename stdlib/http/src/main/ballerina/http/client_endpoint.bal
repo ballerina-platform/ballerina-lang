@@ -214,7 +214,7 @@ public type TargetService record {|
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
 #
 # + httpVersion - The HTTP version understood by the client
-# + http1Settings - Configurations related to HTTP/1.1 protocol
+# + http1Settings - Configurations related to HTTP/1.x protocol
 # + http2Settings - Configurations related to HTTP/2 protocol
 # + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
@@ -244,7 +244,7 @@ public type ClientEndpointConfig record {|
     RetryConfig? retryConfig = ();
 |};
 
-# Provides settings related to HTTP/1.1 protocol.
+# Provides settings related to HTTP/1.x protocol.
 #
 # + keepAlive - Specifies whether to reuse a connection for multiple requests
 # + chunking - The chunking behaviour of the request

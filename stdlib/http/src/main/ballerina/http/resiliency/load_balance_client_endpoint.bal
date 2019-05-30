@@ -325,7 +325,7 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 # The configurations related to the load balance client endpoint.
 #
 # + httpVersion - The HTTP version to be used to communicate with the endpoint
-# + http1Settings - Configurations related to HTTP/1.1 protocol
+# + http1Settings - Configurations related to HTTP/1.x protocol
 # + http2Settings - Configurations related to HTTP/2 protocol
 # + timeoutMillis - The maximum time to wait (in milli seconds) for a response before closing the connection
 # + forwarded - The choice of setting forwarded/x-forwarded header

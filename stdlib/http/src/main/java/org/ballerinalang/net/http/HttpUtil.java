@@ -1227,7 +1227,7 @@ public class HttpUtil {
     }
 
     /**
-     * Populate sender configurations that are common to both HTTP/1.1 and HTTP/2.
+     * Populate sender configurations that are common to both HTTP/1.x and HTTP/2.
      *
      * @param senderConfiguration  sender configurations that need to be populated
      * @param clientEndpointConfig ballerina client endpoint configurations
