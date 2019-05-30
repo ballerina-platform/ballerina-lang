@@ -1156,13 +1156,8 @@ public class CommonUtil {
     }
 
     private static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
-        String symbolName;
-        if (bSymbol.owner != null && bSymbol.owner.name != null
-                && bSymbol.name.value.startsWith(bSymbol.owner.name.value + ".")) {
-            symbolName = bSymbol.name.value.replace(bSymbol.owner.name.value + ".", "");
-        } else {
-            symbolName = bSymbol.getName().getValue();
-        }
+        List<String> symbolNameComponents = Arrays.asList(bSymbol.getName().getValue().split("\\."));
+        String symbolName = CommonUtil.getLastItem(symbolNameComponents);
 
         return symbolName.contains(UtilSymbolKeys.LT_SYMBOL_KEY)
                 || symbolName.contains(UtilSymbolKeys.GT_SYMBOL_KEY)
