@@ -393,7 +393,7 @@ public abstract class LSCompletionProvider {
      */
     protected List<CompletionItem> getVarDefExpressionCompletions(LSContext context) {
         List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
-        List<CompletionItem> completionItems = new ArrayList<>(this.getVarDefExpressionKeywords(context));
+        List<CompletionItem> completionItems = new ArrayList<>(this.getVarDefCompletions(context));
         int counter = 0;
         StringBuilder subRule = new StringBuilder("function testFunction () {" + CommonUtil.LINE_SEPARATOR + "\t");
         while (counter < lhsTokens.size()) {
@@ -673,7 +673,7 @@ public abstract class LSCompletionProvider {
      * @param context Completion context
      * @return {@link List}     List of resolved completion items
      */
-    private List<CompletionItem> getVarDefExpressionKeywords(LSContext context) {
+    private List<CompletionItem> getVarDefCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
@@ -694,7 +694,7 @@ public abstract class LSCompletionProvider {
         CompletionItem checkKeyword = Snippet.KW_CHECK.get().build(context);
         completionItems.add(checkKeyword);
         // Add the wait keyword
-        CompletionItem waitKeyword = Snippet.KW_CHECK.get().build(context);
+        CompletionItem waitKeyword = Snippet.KW_WAIT.get().build(context);
         completionItems.add(waitKeyword);
         // Add But keyword item
         CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(context);
