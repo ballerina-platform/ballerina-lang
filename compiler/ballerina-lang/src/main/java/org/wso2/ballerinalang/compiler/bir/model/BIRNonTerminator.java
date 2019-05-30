@@ -171,11 +171,27 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     public static class NewStructure extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BType type;
+        public final boolean isExternalDef;
+        public final PackageID externalPackageId;
+        public final String recordName;
 
         public NewStructure(DiagnosticPos pos, BType type, BIROperand lhsOp) {
             super(pos, InstructionKind.NEW_STRUCTURE);
             this.type = type;
             this.lhsOp = lhsOp;
+            this.recordName = null;
+            this.externalPackageId = null;
+            this.isExternalDef = false;
+        }
+
+        public NewStructure(DiagnosticPos pos, PackageID externalPackageId, String recordName, BType type,
+                            BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_STRUCTURE);
+            this.recordName = recordName;
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.externalPackageId = externalPackageId;
+            this.isExternalDef = true;
         }
 
         @Override
