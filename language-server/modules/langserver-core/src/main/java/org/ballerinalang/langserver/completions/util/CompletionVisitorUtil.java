@@ -24,11 +24,13 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
+import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -233,6 +235,42 @@ public class CompletionVisitorUtil {
         }
 
         return isWithinParams;
+    }
+    
+    public static boolean isWithinWorkerReturnContext(SymbolEnv env, LSContext lsContext, TreeVisitor treeVisitor,
+                                                      BLangFunction funcNode) {
+        Position cursorPosition = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        DiagnosticPos position = CommonUtil.toZeroBasedPosition(funcNode.getPosition());
+        ArrayList<Whitespace> whitespaces = new ArrayList<>(funcNode.getWS());
+        int cursorLine = cursorPosition.getLine();
+        int cursorCol = cursorPosition.getCharacter();
+        int sLine = position.sLine;
+        int sCol = position.sCol;
+        int openBraceStart = cursorCol;
+        int counter = 1;
+        
+        while (true) {
+            // start the loop from the first element, where skipping the "worker" token
+            if (counter > whitespaces.size() - 1) {
+                break;
+            }
+            Whitespace whitespace = whitespaces.get(counter);
+            if (whitespace.getPrevious().equals(UtilSymbolKeys.OPEN_BRACE_KEY)) {
+                openBraceStart += whitespace.getWs().length();
+                break;
+            }
+            openBraceStart += whitespace.getPrevious().length() + whitespace.getWs().length();
+            counter++;
+        }
+        
+        if (cursorLine == sLine && cursorCol > sCol && cursorCol < openBraceStart) {
+            lsContext.put(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY, true);
+            treeVisitor.populateSymbols(treeVisitor.resolveAllVisibleSymbols(env), env);
+            treeVisitor.forceTerminateVisitor();
+            return true;
+        }
+
+        return false;
     }
 
     /**
