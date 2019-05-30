@@ -311,10 +311,10 @@ public class HttpResiliencyTest extends BaseTest {
 
     @Test(
             description = "Test circuit breaker functionality for HTTP/2 methods",
-            dataProvider = "trialRunFailureResponseDataProvider"
+            dataProvider = "http2CircuitBreakerDataProvider"
     )
     public void testBasicHttp2CircuitBreaker(int responseCode, String message) throws Exception {
-        verifyResponses(9315, TYPICAL_CB_SERVICE_PATH, responseCode, message);
+        verifyResponses(9315, TRIAL_FAILURE_SERVICE_PATH, responseCode, message);
     }
 
     @DataProvider(name = "responseDataProvider")
@@ -385,6 +385,16 @@ public class HttpResiliencyTest extends BaseTest {
 
     @DataProvider(name = "trialRunFailureResponseDataProvider")
     public Object[][] trialRunFailureResponseDataProvider() {
+        return new Object[][]{
+                new Object[]{SC_SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+        };
+    }
+
+    @DataProvider(name = "http2CircuitBreakerDataProvider")
+    public Object[][] http2CircuitBreakerDataProvider() {
         return new Object[][]{
                 new Object[]{SC_SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_MESSAGE},
                 new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},

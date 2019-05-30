@@ -31,12 +31,12 @@ service circuitbreaker07 on circuitBreakerEP07 {
         path: "/trialrun"
     }
     resource function getState(http:Caller caller, http:Request request) {
-        requestCount += 1;
+        cbTrialRequestCount += 1;
         // To ensure the reset timeout period expires
         if (cbTrialRequestCount == 3) {
             runtime:sleep(3000);
         }
-        var backendFuture = backendClientEP07->submit("/hello07", "GET", request);
+        var backendFuture = backendClientEP07->submit("GET", "/hello07", untaint request);
         if (backendFuture is http:HttpFuture) {
             var backendRes = backendClientEP07->getResponse(backendFuture);
             if (backendRes is http:Response) {
