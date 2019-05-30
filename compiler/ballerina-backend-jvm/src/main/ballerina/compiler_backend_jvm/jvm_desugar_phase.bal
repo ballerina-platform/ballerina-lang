@@ -19,6 +19,7 @@ function addDefaultableBooleanVarsToSignature(bir:Function? func) {
     if (isExternFunc(currentFunc)) {
         return;
     }
+    currentFunc.typeValue = currentFunc.typeValue.clone();
     currentFunc.typeValue.paramTypes = updateParamTypesWithDefaultableBooleanVar(currentFunc.typeValue.paramTypes);
     int i = 0;
     int index = 0;
