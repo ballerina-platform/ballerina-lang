@@ -27,25 +27,25 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Test multiple clients with different configurations that are defined in global scope.
+ * Test keep-alive with HTTP clients.
  */
 @Test(groups = "http-test")
-public class MultipleHTTPClientsTestCase extends HttpBaseTest {
+public class KeepAliveTestCase extends HttpBaseTest {
+
     @Test
-    public void testH1Client() throws IOException {
-        String responseData = sendRequest("test/h1");
-        Assert.assertEquals(responseData, "Connection and upgrade headers are not present--HTTP/1.1 request--1.1");
+    public void testWithHttp_1_1() throws IOException {
+        String responseData = sendRequest("keepAliveTest/h1_1");
+        Assert.assertEquals(responseData, "http_1_1--keep-alive--keep-alive--keep-alive--close");
     }
 
     @Test
-    public void testH2Client() throws IOException {
-        String responseData = sendRequest("test/h2");
-        Assert.assertEquals(responseData,
-                            "Connection and upgrade headers are not present--HTTP/2 with prior knowledge--2.0");
+    public void testWithHttp_1_0() throws IOException {
+        String responseData = sendRequest("keepAliveTest/h1_0");
+        Assert.assertEquals(responseData, "http_1_0--close--close--keep-alive--close");
     }
 
     private String sendRequest(String path) throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9230, path));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9231, path));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         return response.getData();
