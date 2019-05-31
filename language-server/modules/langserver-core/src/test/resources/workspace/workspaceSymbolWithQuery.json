@@ -3,54 +3,6 @@
   "expected": {
     "result": [
       {
-        "name": "testDocService",
-        "kind": "Class",
-        "location": {
-          "range": {
-            "start": {
-              "line": 8,
-              "character": 0
-            },
-            "end": {
-              "line": 29,
-              "character": 1
-            }
-          }
-        }
-      },
-      {
-        "name": "testDocService$$service$2.sayHello",
-        "kind": "Function",
-        "location": {
-          "range": {
-            "start": {
-              "line": 10,
-              "character": 4
-            },
-            "end": {
-              "line": 28,
-              "character": 5
-            }
-          }
-        }
-      },
-      {
-        "name": "testDocService",
-        "kind": "Variable",
-        "location": {
-          "range": {
-            "start": {
-              "line": 8,
-              "character": 8
-            },
-            "end": {
-              "line": 8,
-              "character": 22
-            }
-          }
-        }
-      },
-      {
         "name": "testPackageFunction",
         "kind": "Function",
         "location": {
@@ -99,22 +51,6 @@
         }
       },
       {
-        "name": "testObject.printHelloFuncion",
-        "kind": "Function",
-        "location": {
-          "range": {
-            "start": {
-              "line": 5,
-              "character": 4
-            },
-            "end": {
-              "line": 7,
-              "character": 5
-            }
-          }
-        }
-      },
-      {
         "name": "testRecord",
         "kind": "Class",
         "location": {
@@ -127,9 +63,41 @@
               "line": 15,
               "character": 2
             }
+          }
+        }
+      },
+      {
+        "name": "testDocService",
+        "kind": "Class",
+        "location": {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 0
+            },
+            "end": {
+              "line": 29,
+              "character": 1
             }
           }
         }
+      },
+      {
+        "name": "testDocService",
+        "kind": "Variable",
+        "location": {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 8
+            },
+            "end": {
+              "line": 8,
+              "character": 22
+            }
+          }
+        }
+      }
     ],
     "jsonrpc": "2.0"
   }
