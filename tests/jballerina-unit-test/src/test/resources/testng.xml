@@ -201,8 +201,6 @@
             <class name="org.ballerinalang.test.types.bytetype.BByteValueNegativeTest" />
             <class name="org.ballerinalang.test.types.bytetype.BByteValueTest">
                 <methods>
-                    <exclude name="testByteOrIntMatch3"/>
-                    <exclude name="testByteOrIntMatch4"/>
                     <exclude name="simpleWorkerMessagePassingTest"/>
                 </methods>
             </class>
