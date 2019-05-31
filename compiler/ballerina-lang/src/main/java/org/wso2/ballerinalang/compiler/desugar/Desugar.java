@@ -729,9 +729,10 @@ public class Desugar extends BLangNodeVisitor {
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
 
         // Create a simple var for the error 'error x = ($error$)'.
+        BVarSymbol errorVarSymbol = new BVarSymbol(0, names.fromString("$error$"),
+                this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner);
         final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varDefNode.pos, "", symTable.errorType, null,
-                new BVarSymbol(0, names.fromString("$error$"), this.env.scope.owner.pkgID, symTable.errorType,
-                        this.env.scope.owner));
+                errorVarSymbol);
         error.expr = errorVariable.expr;
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos, blockStmt);
         variableDef.var = error;
@@ -936,9 +937,9 @@ public class Desugar extends BLangNodeVisitor {
      * The var def statements are created by creating the reason() and detail() builtin methods.
      */
     private void createVarDefStmts(BLangErrorVariable parentErrorVariable, BLangBlockStmt parentBlockStmt,
-                                   BVarSymbol errorVarySymbol, BLangIndexBasedAccess parentIndexBasedAccess) {
+                                   BVarSymbol errorVariableSymbol, BLangIndexBasedAccess parentIndexBasedAccess) {
         parentErrorVariable.reason.expr = generateErrorReasonBuiltinFunction(parentErrorVariable.reason.pos,
-                parentErrorVariable.reason.type, errorVarySymbol, parentIndexBasedAccess);
+                parentErrorVariable.reason.type, errorVariableSymbol, parentIndexBasedAccess);
         if (names.fromIdNode((parentErrorVariable.reason).name) == Names.IGNORE) {
             parentErrorVariable.reason = null;
         } else {
@@ -953,8 +954,8 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         parentErrorVariable.detailExpr = generateErrorDetailBuiltinFunction(
-                parentErrorVariable.pos, ((BErrorType) parentErrorVariable.type).detailType, parentBlockStmt,
-                errorVarySymbol, parentIndexBasedAccess);
+                parentErrorVariable.pos, symTable.pureTypeConstrainedMap, parentBlockStmt,
+                errorVariableSymbol, parentIndexBasedAccess);
 
         BLangSimpleVariableDef detailTempVarDef = createVarDef("$error$detail",
                 symTable.pureTypeConstrainedMap, parentErrorVariable.detailExpr, parentErrorVariable.pos);
@@ -969,13 +970,24 @@ public class Desugar extends BLangNodeVisitor {
             createAndAddBoundVariableDef(parentBlockStmt, detailEntry, detailEntryVar);
 
         }
-        if (parentErrorVariable.restDetail != null) {
+        if (parentErrorVariable.restDetail != null && !parentErrorVariable.restDetail.name.value.equals(IGNORE.value)) {
             BLangSimpleVarRef detailVarRef = ASTBuilderUtil.createVariableRef(
                     parentErrorVariable.restDetail.pos, detailTempVarDef.var.symbol);
             BLangInvocation bLangInvocation = addRestMapSetupCode(parentErrorVariable, detailVarRef);
             createAndAddBoundRestDetailDef(parentErrorVariable, parentBlockStmt, bLangInvocation);
         }
         rewrite(parentBlockStmt, env);
+    }
+
+    private BLangSimpleVariableDef forceCastIfApplicable(BVarSymbol errorVarySymbol, DiagnosticPos pos,
+                                                         BType targetType) {
+        BLangSimpleVarRef variableRef = ASTBuilderUtil.createVariableRef(pos, errorVarySymbol);
+        BLangExpression expr = addConversionExprIfRequired(variableRef, targetType);
+
+        BVarSymbol errorVarSym = new BVarSymbol(Flags.PUBLIC, names.fromString(""), this.env.enclPkg.packageID,
+                targetType, this.env.scope.owner);
+        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(pos, "", targetType, expr, errorVarSym);
+        return ASTBuilderUtil.createVariableDef(pos, errorVar);
     }
 
     private BLangInvocation addRestMapSetupCode(BLangErrorVariable parentErrorVariable,
@@ -990,13 +1002,6 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create filter iterator operation
         BLangInvocation filterIterator = (BLangInvocation) TreeBuilder.createInvocationNode();
-//
-//        BInvokableType type = new BInvokableType(
-//                Lists.of(),
-//                symTable.booleanType,
-//                null);
-//        BInvokableSymbol invokableSymbol = Symbols.createInvokableSymbol(
-//                SymTag.INVOKABLE, Flags.PUBLIC, null, this.env.enclPkg.packageID, type, null);
 
         filterIterator.iterableOperationInvocation = true;
         filterIterator.argExprs.add(lambdaFunction);
@@ -1168,7 +1173,9 @@ public class Desugar extends BLangNodeVisitor {
         //      return true;
         // }
 
-        BLangFunction function = ASTBuilderUtil.createFunction(pos, "$anonFunc$" + lambdaFunctionCount++);
+        String anonfuncName = "$anonRestParamFilterFunc$" + lambdaFunctionCount++;
+        BLangFunction function = ASTBuilderUtil.createFunction(pos, anonfuncName);
+
         BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$0"), this.env.scope.owner.pkgID,
                 getStringAnyTupleType(), this.env.scope.owner);
         BLangBlockStmt functionBlock = createAnonymousFunctionBlock(pos, function, keyValSymbol);
@@ -1253,6 +1260,7 @@ public class Desugar extends BLangNodeVisitor {
         function.requiredParams.add(inputParameter);
         BLangValueType booleanTypeKind = new BLangValueType();
         booleanTypeKind.typeKind = TypeKind.BOOLEAN;
+        booleanTypeKind.type = symTable.booleanType;
         function.returnTypeNode = booleanTypeKind;
 
         BLangBlockStmt functionBlock = ASTBuilderUtil.createBlockStmt(pos, new ArrayList<>());
@@ -2534,6 +2542,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariable objVar = ASTBuilderUtil.createVariable(pos, "", type, expr, (BVarSymbol) objSym);
         BLangSimpleVariableDef objVarDef = ASTBuilderUtil.createVariableDef(pos);
         objVarDef.var = objVar;
+        objVarDef.type = objVar.type;
         return objVarDef;
     }
 
@@ -4131,8 +4140,16 @@ public class Desugar extends BLangNodeVisitor {
             return ASTBuilderUtil.createIfElseStmt(pattern.pos, ifCondition, patternBody, null);
         }
 
+        // Cast matched expression into matched type.
+        BType expectedType = matchExprVar.type;
+        if (pattern.getKind() == NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE) {
+            BLangMatchStructuredBindingPatternClause matchPattern = (BLangMatchStructuredBindingPatternClause) pattern;
+            expectedType = getStructuredBindingPatternType(matchPattern.bindingPatternVariable);
+        }
+        BLangSimpleVariableDef varDef = forceCastIfApplicable(matchExprVar.symbol, pattern.pos, expectedType);
+
         // Create a variable reference for _$$_
-        BLangSimpleVarRef matchExprVarRef = ASTBuilderUtil.createVariableRef(pattern.pos, matchExprVar.symbol);
+        BLangSimpleVarRef matchExprVarRef = ASTBuilderUtil.createVariableRef(pattern.pos, varDef.var.symbol);
 
         if (NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE == pattern.getKind()) { // structured match patterns
             BLangMatchStructuredBindingPatternClause structuredPattern =
@@ -4166,7 +4183,8 @@ public class Desugar extends BLangNodeVisitor {
                                         .resolveBinaryOperator(OperatorKind.AND, symTable.booleanType,
                                                 symTable.booleanType));
             } else {
-                structuredPattern.body.stmts.add(0, varDefStmt);
+                structuredPattern.body.stmts.add(0, varDef);
+                structuredPattern.body.stmts.add(1, varDefStmt);
             }
         }
 
@@ -4447,7 +4465,7 @@ public class Desugar extends BLangNodeVisitor {
         detailRecordTypeSymbol.initializerFunc = init;
 
         BRecordType detailRecordType = new BRecordType(detailRecordTypeSymbol);
-        detailRecordType.restFieldType = restDetail != null ? restDetail.type : symTable.anydataType;
+        detailRecordType.restFieldType = symTable.anydataType;
 
         if (restDetail == null) {
             detailRecordType.sealed = true;

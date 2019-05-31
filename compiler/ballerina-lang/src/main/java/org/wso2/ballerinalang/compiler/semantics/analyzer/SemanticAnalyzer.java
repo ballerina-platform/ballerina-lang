@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -1038,9 +1039,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     for (BErrorType possibleErrType : possibleTypes) {
                         detailType.add(possibleErrType.detailType);
                     }
+                    BType errorDetailType = detailType.size() > 1
+                                    ? BUnionType.create(null, detailType)
+                                    : detailType.iterator().next();
                     errorType = new BErrorType(null, symTable.stringType,
-                            detailType.size() > 1 ? BUnionType.create(null, detailType) :
-                                    detailType.iterator().next());
+                            errorDetailType);
                 } else {
                     errorType = possibleTypes.get(0);
                 }
@@ -1070,14 +1073,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        if (errorType.detailType.tsymbol.type.getKind() == TypeKind.MAP) {
-            BType constraintType = ((BMapType) errorType.detailType.tsymbol.type).constraint;
-            for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
-                errorDetailEntry.valueBindingPattern.type = constraintType;
-                errorDetailEntry.valueBindingPattern.accept(this);
-            }
-        } else {
-            BRecordType recordType = (BRecordType) errorType.detailType.tsymbol.type;
+        if (errorType.detailType.getKind() == TypeKind.RECORD) {
+            BRecordType recordType = (BRecordType) errorType.detailType;
             Map<String, BField> fieldMap = recordType.fields.stream()
                     .collect(Collectors.toMap(f -> f.name.value, f -> f));
 
@@ -1094,9 +1091,29 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     boundVar.accept(this);
                 }
             }
+
+            if (errorVariable.restDetail != null) {
+                errorVariable.restDetail.type = recordType.restFieldType;
+                errorVariable.restDetail.accept(this);
+            }
+            return true;
+
+        } else if (errorType.detailType.getKind() == TypeKind.MAP) {
+            BType constraintType = ((BMapType) errorType.detailType).constraint;
+            for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
+                errorDetailEntry.valueBindingPattern.type = constraintType;
+                errorDetailEntry.valueBindingPattern.accept(this);
+            }
+        } else if (errorType.detailType.getKind() == TypeKind.UNION) {
+//            BType widenDetailType = getWiderMappingType((BUnionType) errorType.detailType);
+            BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
+                    env.enclPkg.packageID, symTable.errorType, env.scope.owner);
+            // todo: need to support string subtypes as reason type.
+            errorVariable.type = new BErrorType(errorTypeSymbol, symTable.stringType, symTable.pureTypeConstrainedMap);
+            return validateErrorVariable(errorVariable);
         }
 
-        if (errorVariable.restDetail != null) {
+        if (errorVariable.restDetail != null && !errorVariable.restDetail.name.value.equals(Names.IGNORE.value)) {
             errorVariable.restDetail.type = symTable.pureTypeConstrainedMap;
             errorVariable.restDetail.accept(this);
         }
