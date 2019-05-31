@@ -1,6 +1,6 @@
 ## Module Overview
 
-This module provides JWT authentication provider, which can be used to authenticate with a JWT token; and functionality related to issuing a JWT and validating JWT.
+This module provides a JWT authentication provider, which can be used to authenticate using a JWT token and the functionality related to issuing a JWT token and validating it.
 
 The `jwt:JWTAuthProvider` is another implementation of the `auth:AuthProvider` interface, which authenticates by validating a JWT.
 
