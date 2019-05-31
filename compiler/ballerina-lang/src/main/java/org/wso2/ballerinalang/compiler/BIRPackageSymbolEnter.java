@@ -732,8 +732,6 @@ public class BIRPackageSymbolEnter {
                         BField structField = new BField(varSymbol.name, null, varSymbol);
                         recordType.fields.add(structField);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
-                        BField structField = new BField(varSymbol.name, null, varSymbol);
-                        recordType.fields.add(structField);
                     }
 
                     // read record init function
@@ -902,8 +900,6 @@ public class BIRPackageSymbolEnter {
                         BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
                         objectType.fields.add(structField);
                         objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
-                        BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
-                        objectType.fields.add(structField);
 //                        setDocumentation(varSymbol, attrData); // TODO fix
                     }
                     int funcCount = inputStream.readInt();
