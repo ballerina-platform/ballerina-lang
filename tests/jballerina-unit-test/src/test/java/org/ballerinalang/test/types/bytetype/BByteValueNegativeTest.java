@@ -95,7 +95,7 @@ public class BByteValueNegativeTest {
         Assert.assertEquals(returnValue.length, 1);
         Assert.assertTrue(returnValue[0] instanceof BError);
         Assert.assertEquals(returnValue[0].stringValue(), "{ballerina}NumberConversionError {\"message\":" +
-                "\"'int' value '-12' cannot be converted to 'byte'\"}");
+                "\"incompatible convert operation: 'int' value '-12' cannot be converted as 'byte'\"}");
     }
 
     @Test(description = "Test int to byte conversion negative")
@@ -104,7 +104,7 @@ public class BByteValueNegativeTest {
         Assert.assertEquals(returnValue.length, 1);
         Assert.assertTrue(returnValue[0] instanceof BError);
         Assert.assertEquals(returnValue[0].stringValue(), "{ballerina}NumberConversionError {\"message\":" +
-                "\"'int' value '-257' cannot be converted to 'byte'\"}");
+                "\"incompatible convert operation: 'int' value '-257' cannot be converted as 'byte'\"}");
     }
 
     @Test(description = "Test int to byte conversion negative")
@@ -113,6 +113,6 @@ public class BByteValueNegativeTest {
         Assert.assertEquals(returnValue.length, 1);
         Assert.assertTrue(returnValue[0] instanceof BError);
         Assert.assertEquals(returnValue[0].stringValue(), "{ballerina}NumberConversionError {\"message\":" +
-                "\"'int' value '12345' cannot be converted to 'byte'\"}");
+                "\"incompatible convert operation: 'int' value '12,345' cannot be converted as 'byte'\"}");
     }
 }
