@@ -78,9 +78,7 @@ public type Client client object {
 # Represents client endpoint configuration.
 #
 # + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
-# + keepAlive - Specifies whether to reuse a connection for multiple requests
 # + httpVersion - The HTTP version understood by the client
-# + chunking - The chunking behaviour of the request
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + proxy - Proxy server related options
 # + poolConfig - Connection pool configuration
@@ -88,9 +86,7 @@ public type Client client object {
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 public type ClientEndpointConfig record {|
     int timeoutMillis = 60000;
-    KeepAlive keepAlive = KEEPALIVE_AUTO;
     string httpVersion = "2.0";
-    Chunking chunking = CHUNKING_NEVER;
     string forwarded = "disable";
     ProxyConfig? proxy = ();
     PoolConfiguration? poolConfig = ();

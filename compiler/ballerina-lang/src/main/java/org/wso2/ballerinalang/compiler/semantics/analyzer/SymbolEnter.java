@@ -102,7 +102,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -876,12 +875,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (variable.expr == null) {
             return;
         }
-        if (variable.expr.getKind() != NodeKind.LITERAL && variable.expr.getKind() != NodeKind.NUMERIC_LITERAL) {
-            this.dlog.error(variable.expr.pos, DiagnosticCode.INVALID_DEFAULT_PARAM_VALUE, variable.name);
-            return;
-        }
-        BLangLiteral literal = (BLangLiteral) variable.expr;
-        variable.symbol.defaultValue = new DefaultValueLiteral(literal.value, literal.type.tag);
+        variable.symbol.defaultExpression = variable.expr;
     }
 
     @Override
@@ -1354,14 +1348,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         .peek(varDefNode -> defineNode(varDefNode.var, invokableEnv))
                         .map(varDefNode -> {
                             BVarSymbol varSymbol = varDefNode.var.symbol;
-                            if (varDefNode.var.expr.getKind() != NodeKind.LITERAL &&
-                                    varDefNode.var.expr.getKind() != NodeKind.NUMERIC_LITERAL) {
-                                this.dlog.error(varDefNode.var.expr.pos, DiagnosticCode.INVALID_DEFAULT_PARAM_VALUE,
-                                        varDefNode.var.name);
-                            } else {
-                                BLangLiteral literal = (BLangLiteral) varDefNode.var.expr;
-                                varSymbol.defaultValue = new DefaultValueLiteral(literal.value, literal.type.tag);
-                            }
+                            varSymbol.defaultExpression = varDefNode.var.expr;
                             return varSymbol;
                         })
                         .collect(Collectors.toList());

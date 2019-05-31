@@ -1204,7 +1204,13 @@ public class HttpUtil {
         return responseObj;
     }
 
-    public static void populateSenderConfigurations(SenderConfiguration senderConfiguration, MapValue<String, Object>
+    /**
+     * Populate sender configurations that are common to both HTTP/1.x and HTTP/2.
+     *
+     * @param senderConfiguration  sender configurations that need to be populated
+     * @param clientEndpointConfig ballerina client endpoint configurations
+     */
+    public static void populateSenderConfigurations(SenderConfiguration senderConfiguration, Struct
             clientEndpointConfig) {
         ProxyServerConfiguration proxyServerConfiguration;
         MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
@@ -1234,18 +1240,13 @@ public class HttpUtil {
             senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
         }
 
-        String chunking = clientEndpointConfig.get(HttpConstants.CLIENT_EP_CHUNKING).toString();
-        senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
-
-        long timeoutMillis = clientEndpointConfig.getIntValue(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
+        long timeoutMillis = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
         if (timeoutMillis < 0) {
             senderConfiguration.setSocketIdleTimeout(0);
         } else {
             senderConfiguration.setSocketIdleTimeout(
                     validateConfig(timeoutMillis, HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT));
         }
-        String keepAliveConfig = clientEndpointConfig.get(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE).toString();
-        senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
 
         String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (httpVersion != null) {
