@@ -547,8 +547,6 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 }
             } else if (inst is bir:NewXMLPI) {
                 instGen.generateNewXMLProcIns(inst);
-            }  else if (inst is bir:Ternary) {
-                instGen.generateTernaryIns(inst);
             } else {
                 error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
