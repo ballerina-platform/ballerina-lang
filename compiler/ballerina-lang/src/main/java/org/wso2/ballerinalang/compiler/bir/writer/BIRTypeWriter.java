@@ -18,7 +18,9 @@
 package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -76,19 +78,48 @@ import java.util.Set;
  * @since 0.995.0
  */
 public class BIRTypeWriter implements TypeVisitor {
-    public static final int TYPE_TAG_SELF = 50;
+    public static final int TYPE_TAG_REFERENCE_TYPE = 52;
     private final ByteBuf buff;
 
     private final ConstantPool cp;
 
-    public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
+    // To check if the object type is from the same package or not.
+    private final BIRNode.BIRPackage birPackage;
+
+    public BIRTypeWriter(ByteBuf buff, ConstantPool cp, BIRNode.BIRPackage birPackage) {
         this.buff = buff;
         this.cp = cp;
+        this.birPackage = birPackage;
     }
 
     public void visitType(BType type) {
+        //TODO writing reference from the original package, only for object types. Find a better approach
+        if (type.tag == TypeTags.OBJECT && !(type instanceof BServiceType)) {
+            if (!isSamePackage(type.tsymbol)) {
+                buff.writeByte(TYPE_TAG_REFERENCE_TYPE);
+                buff.writeInt(addStringCPEntry(type.tsymbol.pkgID.orgName.value));
+                buff.writeInt(addStringCPEntry(type.tsymbol.pkgID.name.value));
+                buff.writeInt(addStringCPEntry(type.tsymbol.pkgID.version.value));
+                buff.writeInt(addStringCPEntry(type.tsymbol.name.value));
+                return;
+            }
+        }
         buff.writeByte(type.tag);
         type.accept(this);
+    }
+
+    private boolean isSamePackage(BSymbol tSymbol) {
+        PackageID packageID = tSymbol.pkgID;
+        if (!packageID.orgName.equals(this.birPackage.org)) {
+            return false;
+        }
+        if (!packageID.name.equals(this.birPackage.name)) {
+            return false;
+        }
+        if (!packageID.version.equals(this.birPackage.version)) {
+            return false;
+        }
+        return true;
     }
 
     private void writeTypeCpIndex(BType type) {
@@ -269,7 +300,9 @@ public class BIRTypeWriter implements TypeVisitor {
         BTypeSymbol tSymbol = bObjectType.tsymbol;
 
         buff.writeInt(addStringCPEntry(tSymbol.name.value));
-        buff.writeBoolean((tSymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT); // Abstract object or not
+        //TODO below two line are a temp solution, introduce a generic concept
+        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.ABSTRACT)); // Abstract object or not
+        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT));
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields) {
             buff.writeInt(addStringCPEntry(field.name.value));

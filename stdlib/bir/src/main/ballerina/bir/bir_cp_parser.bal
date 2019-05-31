@@ -28,10 +28,12 @@ public type ConstPoolParser object {
     ConstPool cp = {};
     int i;
     byte[]?[] unparsedTypes = [];
+    BIRContext birContext;
 
-    public function __init(ChannelReader reader) {
+    public function __init(ChannelReader reader, BIRContext birContext) {
         self.reader = reader;
         self.i = 0;
+        self.birContext = birContext;
     }
 
     public function parse() returns ConstPool {
@@ -46,7 +48,7 @@ public type ConstPoolParser object {
         while(i <  unparsedTypeCount) {
             var unparsedBytes = self.unparsedTypes[i];
             if (unparsedBytes is byte[]){
-                TypeParser p  = new (self.cp, self.unparsedTypes, i);
+                TypeParser p  = new (self.cp, self.unparsedTypes, i, self.birContext);
                 var ignoreAlreadyInCp = p.parseTypeAndAddToCp();
             }
             i = i + 1;

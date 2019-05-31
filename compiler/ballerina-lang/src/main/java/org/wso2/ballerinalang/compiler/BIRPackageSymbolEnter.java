@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -98,6 +99,7 @@ import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
  */
 public class BIRPackageSymbolEnter {
     private final PackageLoader packageLoader;
+    private final SymbolResolver symbolResolver;
     private final SymbolTable symTable;
     private final Names names;
     private final BLangDiagnosticLog dlog;
@@ -124,6 +126,7 @@ public class BIRPackageSymbolEnter {
         context.put(COMPILED_PACKAGE_SYMBOL_ENTER_KEY, this);
 
         this.packageLoader = PackageLoader.getInstance(context);
+        this.symbolResolver = SymbolResolver.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -324,6 +327,7 @@ public class BIRPackageSymbolEnter {
 
         flags = dataInStream.readByte() == 1 ? flags | Flags.NATIVE : flags;
         flags = dataInStream.readByte() == 1 ? flags | Flags.INTERFACE : flags;
+        flags = dataInStream.readByte() == 1 ? flags | Flags.REMOTE : flags;
 
         flags = visibilityAsMask(flags, dataInStream.readByte());
 
@@ -348,6 +352,7 @@ public class BIRPackageSymbolEnter {
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
                 BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
+                structureTypeSymbol.attachedFuncs.add(attachedFunc);
                 if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
                         || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
                     structureTypeSymbol.attachedFuncs.add(attachedFunc);
@@ -405,6 +410,9 @@ public class BIRPackageSymbolEnter {
 
         // Temp solution to add abstract flag if available TODO find a better approach
         flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.ABSTRACT) ? flags | Flags.ABSTRACT : flags;
+
+        // Temp solution to add client flag if available TODO find a better approach
+        flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT) ? flags | Flags.CLIENT : flags;
 
         BTypeSymbol symbol = type.tsymbol;
         symbol.type = type;
@@ -658,7 +666,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private class BIRTypeReader {
-        public static final int TYPE_TAG_SELF = 50;
+        public static final int TYPE_TAG_REFERENCE_TYPE = 52;
         public static final int SERVICE_TYPE_TAG = 51;
         private DataInputStream inputStream;
 
@@ -720,6 +728,9 @@ public class BIRPackageSymbolEnter {
                         BType fieldType = readTypeFromCp();
                         BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                 recordSymbol.pkgID, fieldType, recordSymbol.scope.owner);
+
+                        BField structField = new BField(varSymbol.name, null, varSymbol);
+                        recordType.fields.add(structField);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                         BField structField = new BField(varSymbol.name, null, varSymbol);
                         recordType.fields.add(structField);
@@ -864,6 +875,7 @@ public class BIRPackageSymbolEnter {
                     boolean service = inputStream.readByte() == 1;
                     String objName = getStringCPEntryValue(inputStream);
                     int objFlags = (inputStream.readBoolean() ? Flags.ABSTRACT : 0) | Flags.PUBLIC;
+                    objFlags = inputStream.readBoolean() ? objFlags | Flags.CLIENT : objFlags;
                     BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(objFlags,
                             names.fromString(objName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
                     objectSymbol.scope = new Scope(objectSymbol);
@@ -886,6 +898,9 @@ public class BIRPackageSymbolEnter {
                         BType fieldType = readTypeFromCp();
                         BVarSymbol objectVarSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                 objectSymbol.pkgID, fieldType, objectSymbol.scope.owner);
+
+                        BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
+                        objectType.fields.add(structField);
                         objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
                         BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
                         objectType.fields.add(structField);
@@ -893,27 +908,9 @@ public class BIRPackageSymbolEnter {
                     }
                     int funcCount = inputStream.readInt();
                     for (int i = 0; i < funcCount; i++) {
-                        String funcName = getStringCPEntryValue(inputStream);
-                        int funcFlags = 0;
-                        funcFlags = visibilityAsMask(funcFlags, inputStream.readByte());
-                        BInvokableType funcType = (BInvokableType) readTypeFromCp();
-                        BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(funcFlags,
-                                names.fromString(funcName), env.pkgSymbol.pkgID, funcType,
-                                env.pkgSymbol, Symbols.isFlagOn(objFlags, Flags.NATIVE));
-                        invokableSymbol.retType = funcType.retType;
-
-                        BAttachedFunction attachedFunc =
-                                new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
-                        if (!Names.OBJECT_INIT_SUFFIX.value.equals(funcName) &&
-                                !funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
-                            objectSymbol.attachedFuncs.add(attachedFunc);
-                            if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
-                                    || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
-                                objectSymbol.initializerFunc = attachedFunc;
-                            }
-                        }
-
-//                        setDocumentation(varSymbol, attrData); // TODO fix
+                        getStringCPEntryValue(inputStream);
+                        inputStream.readByte();
+                        readTypeFromCp();
                     }
                     Object poppedObjType = compositeStack.pop();
                     assert poppedObjType == objectType;
@@ -926,6 +923,17 @@ public class BIRPackageSymbolEnter {
                     break;
                 case SERVICE_TYPE_TAG:
                     return symTable.anyServiceType;
+                case TYPE_TAG_REFERENCE_TYPE:
+                    String org = getStringCPEntryValue(inputStream);
+                    String pkg = getStringCPEntryValue(inputStream);
+                    String version = getStringCPEntryValue(inputStream);
+                    String typeName = getStringCPEntryValue(inputStream);
+                    PackageID packageID = new PackageID(names.fromString(org),
+                            names.fromString(pkg), names.fromString(version));
+                    // At this point, package should be in the cache.
+                    BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(packageID, null, null);
+                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+                    return symbolResolver.lookupSymbol(pkgEnv, names.fromString(typeName), SymTag.TYPE).type;
 //                case TypeTags.CHANNEL:
 
 //                case TypeTags.SERVICE:

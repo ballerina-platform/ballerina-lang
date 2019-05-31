@@ -84,7 +84,7 @@ public class TypeGenTest {
 
     @Test(dataProvider = "bTypes")
     public void serializeAndDeserializeBTypeTest(BType type, String source) {
-        ConstantPool cp = new ConstantPool();
+        ConstantPool cp = new ConstantPool(null);
         byte[] typeBinary = serializeBType(type, cp);
         byte[] cpBinary = cp.serialize();
         try {
@@ -111,7 +111,7 @@ public class TypeGenTest {
 
     private byte[] serializeBType(BType type, ConstantPool cp) {
         ByteBuf buff = Unpooled.buffer();
-        BIRTypeWriter birTypeWriter = new BIRTypeWriter(buff, cp);
+        BIRTypeWriter birTypeWriter = new BIRTypeWriter(buff, cp, null);
         birTypeWriter.visitType(type);
         return Arrays.copyOfRange(buff.nioBuffer().array(), 0, buff.nioBuffer().limit());
     }
