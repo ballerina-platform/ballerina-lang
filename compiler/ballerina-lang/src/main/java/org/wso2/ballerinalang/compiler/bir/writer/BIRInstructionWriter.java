@@ -392,7 +392,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIROperand birOperand) {
         if (birOperand.variableDcl.ignoreVariable) {
             buf.writeBoolean(true);
-            typeWriter.visitType(birOperand.variableDcl.type);
+            writeType(birOperand.variableDcl.type);
         } else {
             buf.writeBoolean(false);
             buf.writeByte(birOperand.variableDcl.kind.getValue());
