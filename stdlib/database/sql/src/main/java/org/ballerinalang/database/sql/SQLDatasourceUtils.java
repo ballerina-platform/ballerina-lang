@@ -998,7 +998,7 @@ public class SQLDatasourceUtils {
         case TypeTags.DECIMAL_TAG:
             return Constants.SQLDataTypes.DECIMAL;
         case TypeTags.ARRAY_TAG:
-            if ((value instanceof BArrayType) && ((BArrayType) value).getElementType().getTag() == TypeTags.BYTE_TAG) {
+            if (((BArrayType) value).getElementType().getTag() == TypeTags.BYTE_TAG) {
                 return Constants.SQLDataTypes.BINARY;
             } else {
                 throw new BallerinaException("Array data type as direct value is supported only " +
