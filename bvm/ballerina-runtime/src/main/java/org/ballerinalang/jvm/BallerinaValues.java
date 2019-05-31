@@ -17,9 +17,13 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.ValueCreator;
+
+import java.util.Map;
 
 /**
  * The factory utility class that creates runtime values from given package and type names.
@@ -60,16 +64,10 @@ public class BallerinaValues {
      * @return value of the record.
      */
     public static MapValue<String, Object> populateRecordFields(MapValue<String, Object> record, Object... values) {
-        int valCount = 0;
-        for (String key : record.getKeys()) {
-            Object value;
-            if (values.length > valCount) {
-                value = values[valCount];
-            } else {
-                value = null;
-            }
-            record.put(key, value);
-            valCount++;
+        BRecordType recordType = (BRecordType) record.getType();
+        int i = 0;
+        for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
+            record.put(fieldEntry.getKey(), values[i++]);
         }
         return record;
     }
