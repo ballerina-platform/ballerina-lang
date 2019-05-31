@@ -187,7 +187,9 @@ public type ObjectGenerator object {
                     mv.visitInsn(L2I);
                     mv.visitInsn(AALOAD);
                     addUnboxInsn(mv, pType);
-                    j += 1;
+                    
+                    // assuming that boolean args are added with named/expr args support
+                    j += 2;
                 }
 
                 mv.visitMethodInsn(INVOKESTATIC, className, getName(func), methodSig, false);
