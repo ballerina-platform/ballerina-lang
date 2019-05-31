@@ -515,7 +515,7 @@ public type FuncBodyParser object {
     public function parseVarRef() returns VarRef {
         boolean ignoreVariable = self.reader.readBoolean();
         if (ignoreVariable) {
-            var bType = self.typeParser.parseType();
+            var bType = self.reader.readTypeCpRef();
             VariableDcl decl = { kind: VAR_KIND_ARG, varScope: VAR_SCOPE_FUNCTION, name: { value: "_" } };
             return { typeValue: bType, variableDcl: decl };
         }
