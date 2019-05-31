@@ -142,7 +142,6 @@ public const INS_KIND_NEW_STREAM = "NEW_STREAM";
 public const INS_KIND_TYPEOF = "TYPEOF";
 public const INS_KIND_NOT = "NOT";
 public const INS_KIND_NEW_TYPEDESC = "NEW_TYPEDESC";
-public const INS_KIND_TERNARY = "TERNARY";
 public const INS_KIND_NEGATE = "NEGATE";
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
@@ -154,8 +153,7 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
                                 INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
                                 INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_NEW_TABLE | INS_KIND_TYPEOF |
-                                INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM | INS_KIND_TERNARY |
-                                INS_KIND_NEGATE;
+                                INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM | INS_KIND_NEGATE;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -692,15 +690,6 @@ public type NewTypeDesc record {|
     InstructionKind kind;
     VarRef lhsOp;
     BType typeValue;
-|};
-
-public type Ternary record {|
-    DiagnosticPos pos;
-    InstructionKind kind;
-    VarRef lhsOp;
-    VarRef conditionOp;
-    VarRef thenOp;
-    VarRef elseOp;
 |};
 
 public type WaitAll record {|

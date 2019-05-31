@@ -646,37 +646,4 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             visitor.visit(this);
         }
     }
-
-    /**
-     * A ternary operator instruction
-     * <p>
-     * e.g., a == null ? b : c
-     *
-     * @since 0.995.0
-     */
-    public static class TernaryOp extends BIRNonTerminator implements BIRAssignInstruction {
-        public BIROperand lhsOp;
-        public BIROperand conditionOp;
-        public BIROperand thenOp;
-        public BIROperand elseOp;
-
-        public TernaryOp(DiagnosticPos pos, BIROperand lhsOp, BIROperand conditionOp, BIROperand thenOp,
-                BIROperand elseOp) {
-            super(pos, InstructionKind.TERNARY);
-            this.lhsOp = lhsOp;
-            this.conditionOp = conditionOp;
-            this.thenOp = thenOp;
-            this.elseOp = elseOp;
-        }
-
-        @Override
-        public BIROperand getLhsOperand() {
-            return lhsOp;
-        }
-
-        @Override
-        public void accept(BIRVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
 }

@@ -313,15 +313,6 @@ public type FuncBodyParser object {
             var bType = self.typeParser.parseType();
             NewTypeDesc newTypeDesc = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType};
             return newTypeDesc;
-        }  else if (kindTag == INS_TERNARY) {
-            kind = INS_KIND_TERNARY;
-            var lhsOp = self.parseVarRef();
-            var conditionOp = self.parseVarRef();
-            var thenOp = self.parseVarRef();
-            var elseOp = self.parseVarRef();
-            Ternary ternary = {pos:pos, kind:kind, lhsOp:lhsOp, conditionOp:conditionOp, thenOp:thenOp, 
-                               elseOp:elseOp};
-            return ternary;
         } else if (kindTag == INS_NEGATE) {
             kind = INS_KIND_NEGATE;
             var rhsOp = self.parseVarRef();
