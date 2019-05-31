@@ -46,8 +46,12 @@ dependencies {
     
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-test-utils')
+    testCompile project(':ballerina-reflect')
+    testCompile project(':ballerina-jvm')
 
     localDependency project(path: ':ballerina-bir', configuration: 'baloImplementation')
+    localDependency project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+    localDependency project(path: ':ballerina-jvm', configuration: 'baloImplementation')
 }
 
 createBalo {
@@ -64,6 +68,8 @@ description = 'Ballerina - Math'
 test {
     systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
     dependsOn createTestBalHome
+    systemProperty "enableJBallerinaTests", "true"
+
     doFirst {
         copy {
             from "$buildDir/generated-balo/repo/ballerina"
