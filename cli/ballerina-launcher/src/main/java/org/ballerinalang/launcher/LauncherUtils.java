@@ -304,6 +304,7 @@ public class LauncherUtils {
             byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());
             return reader.readProgram(byteIS);
         } catch (Throwable e) {
+            e.printStackTrace();
             throw createLauncherException("failed to compile file: " + makeFirstLetterLowerCase(e.getMessage()));
         } finally {
             if (byteIS != null) {

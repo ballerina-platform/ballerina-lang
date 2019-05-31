@@ -20,11 +20,11 @@ package org.ballerinalang.stdlib.cache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -43,7 +43,7 @@ public class CacheExpiryTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compileAndSetup("test-src/cache/cache-expiry-test.bal");
+        compileResult = BCompileUtil.compile("test-src/cache/cache-expiry-test.bal");
         printDiagnostics(compileResult, log);
     }
 
