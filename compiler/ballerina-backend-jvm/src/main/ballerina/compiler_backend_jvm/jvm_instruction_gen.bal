@@ -665,7 +665,7 @@ type InstructionGenerator object {
     function generateArrayValueLoad(bir:FieldAccess inst) {
         self.loadVar(inst.rhsOp.variableDcl);
         self.loadVar(inst.keyOp.variableDcl);
-        bir:BType bType = inst.lhsOp.variableDcl.typeValue;
+        bir:BType bType = inst.rhsOp.variableDcl.typeValue;
 
         bir:BType varRefType = inst.rhsOp.variableDcl.typeValue;
         if (varRefType is bir:BJSONType ||
