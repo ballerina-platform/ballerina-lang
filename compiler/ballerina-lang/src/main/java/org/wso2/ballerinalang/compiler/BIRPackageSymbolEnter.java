@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.bir.model.VisibilityFlags;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
@@ -450,10 +451,13 @@ public class BIRPackageSymbolEnter {
     private Object readLiteralValue(DataInputStream dataInStream, BType valueType) throws IOException {
         switch (valueType.tag) {
             case TypeTags.INT:
-            case TypeTags.BYTE:
                 int integerCpIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[integerCpIndex];
                 return integerCPEntry.value;
+            case TypeTags.BYTE:
+                int byteCpIndex = dataInStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[byteCpIndex];
+                return byteCPEntry.value;
             case TypeTags.FLOAT:
                 int floatCpIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[floatCpIndex];
@@ -882,10 +886,14 @@ public class BIRPackageSymbolEnter {
         BLangLiteral litExpr = createLiteralBasedOnType(valueType);
         switch (valueType.tag) {
             case TypeTags.INT:
-            case TypeTags.BYTE:
                 int integerCpIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[integerCpIndex];
                 litExpr.value = integerCPEntry.value;
+                break;
+            case TypeTags.BYTE:
+                int byteCpIndex = dataInStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[byteCpIndex];
+                litExpr.value = byteCPEntry.value;
                 break;
             case TypeTags.FLOAT:
                 int floatCpIndex = dataInStream.readInt();

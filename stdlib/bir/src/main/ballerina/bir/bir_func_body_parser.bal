@@ -159,9 +159,11 @@ public type FuncBodyParser object {
             kind = INS_KIND_CONST_LOAD;
             var lhsOp = self.parseVarRef();
 
-            int | string | boolean | float value = 0;
-            if (bType is BTypeInt || bType is BTypeByte) {
+            int | string | boolean | float | byte value = 0;
+            if (bType is BTypeInt) {
                 value = self.reader.readIntCpRef();
+            } else if (bType is BTypeByte) {
+                value = self.reader.readByteCpRef();
             } else if (bType is BTypeString) {
                 value = self.reader.readStringCpRef();
             } else if (bType is BTypeDecimal) {
@@ -311,15 +313,6 @@ public type FuncBodyParser object {
             var bType = self.typeParser.parseType();
             NewTypeDesc newTypeDesc = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType};
             return newTypeDesc;
-        }  else if (kindTag == INS_TERNARY) {
-            kind = INS_KIND_TERNARY;
-            var lhsOp = self.parseVarRef();
-            var conditionOp = self.parseVarRef();
-            var thenOp = self.parseVarRef();
-            var elseOp = self.parseVarRef();
-            Ternary ternary = {pos:pos, kind:kind, lhsOp:lhsOp, conditionOp:conditionOp, thenOp:thenOp, 
-                               elseOp:elseOp};
-            return ternary;
         } else if (kindTag == INS_NEGATE) {
             kind = INS_KIND_NEGATE;
             var rhsOp = self.parseVarRef();
@@ -513,6 +506,13 @@ public type FuncBodyParser object {
     }
 
     public function parseVarRef() returns VarRef {
+        boolean ignoreVariable = self.reader.readBoolean();
+        if (ignoreVariable) {
+            var bType = self.typeParser.parseType();
+            VariableDcl decl = { kind: VAR_KIND_ARG, varScope: VAR_SCOPE_FUNCTION, name: { value: "_" } };
+            return { typeValue: bType, variableDcl: decl };
+        }
+
         VarKind kind = parseVarKind(self.reader);
         VarScope varScope = parseVarScope(self.reader);
         string varName = self.reader.readStringCpRef();

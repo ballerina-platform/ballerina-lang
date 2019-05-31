@@ -58,6 +58,20 @@ public type PackageParser object {
         _ = self.reader.readByteArray(untaint constLength);
     }
 
+    public function parseFunctionParam() returns FunctionParam {
+        VarKind kind = parseVarKind(self.reader);
+        var typeValue = self.typeParser.parseType();
+        var name = self.reader.readStringCpRef();
+        var hasDefaultExpr = self.reader.readBoolean();
+        FunctionParam dcl = {
+            typeValue: typeValue,
+            name: { value: name },
+            kind: kind,
+            hasDefaultExpr: hasDefaultExpr
+        };
+        return dcl;
+    }
+
     function parseFunctions(TypeDef?[] typeDefs) returns Function?[] {
         var numFuncs = self.reader.readInt32();
         Function?[] funcs = [];
@@ -97,16 +111,45 @@ public type PackageParser object {
 
         _ = self.reader.readInt64(); // read and ignore function body length
         var argsCount = self.reader.readInt32();
-        var numLocalVars = self.reader.readInt32();
 
         VariableDcl?[] dcls = [];
-        int i = 0;
-        while (i < numLocalVars) {
+        var haveReturn = self.reader.readBoolean();
+        if (haveReturn) {
             var dcl = self.parseVariableDcl();
-            dcls[i] = dcl;
+            dcls[dcls.length()] = dcl;
             localVarMap[dcl.name.value] = dcl;
-            i += 1;
         }
+
+        var numParameters = self.reader.readInt32();
+        int count = 0;
+        int numDefaultParams = 0;
+        FunctionParam?[] params = [];
+        while (count < numParameters) {
+            FunctionParam dcl = self.parseFunctionParam();
+            params[count] = dcl;
+            if (dcl.hasDefaultExpr) {
+                numDefaultParams = numDefaultParams + 1;
+            }
+            dcls[dcls.length()] = dcl;
+            localVarMap[dcl.name.value] = dcl;
+            count += 1;
+        }
+        count = 0;
+        var numLocalVars = self.reader.readInt32();
+        while (count < numLocalVars) {
+            var dcl = self.parseVariableDcl();
+            dcls[dcls.length()] = dcl;
+            localVarMap[dcl.name.value] = dcl;
+            count += 1;
+        }
+
+        count = 0;
+        BasicBlock?[][] paramDefaultBBs = [];
+        while (count < numDefaultParams) {
+            paramDefaultBBs[count] = self.getBasicBlocks(bodyParser);
+            count += 1;
+        }
+
         BasicBlock?[] basicBlocks = self.getBasicBlocks(bodyParser);
         ErrorEntry?[] errorEntries = self.getErrorEntries(bodyParser);
         ChannelDetail[] workerChannels = getWorkerChannels(self.reader);
@@ -119,6 +162,8 @@ public type PackageParser object {
             visibility: visibility,
             localVars: dcls,
             basicBlocks: basicBlocks,
+            params: params,
+            paramDefaultBBs: paramDefaultBBs,
             errorEntries:errorEntries,
             argsCount: argsCount,
             typeValue: sig,

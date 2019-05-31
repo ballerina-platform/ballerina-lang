@@ -32,11 +32,11 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TernaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
@@ -288,8 +288,12 @@ public class BIRInstructionWriter extends BIRVisitor {
         BType type = birConstantLoad.type;
         switch (type.tag) {
             case TypeTags.INT:
-            case TypeTags.BYTE:
                 buf.writeInt(cp.addCPEntry(new IntegerCPEntry((Long) birConstantLoad.value)));
+                break;
+            case TypeTags.BYTE:
+                // TODO: birConstantLoad.value should return an Integer. This is a temporary fix
+                int byteValue = ((Long) birConstantLoad.value).intValue();
+                buf.writeInt(cp.addCPEntry(new ByteCPEntry(byteValue)));
                 break;
             case TypeTags.BOOLEAN:
                 // Not adding to constant pool as it increases the size (bit vs integer)
@@ -385,10 +389,16 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     // Operands
     public void visit(BIROperand birOperand) {
-        buf.writeByte(birOperand.variableDcl.kind.getValue());
-        buf.writeByte(birOperand.variableDcl.scope.getValue());
-        // TODO use the integer index of the variable.
-        addCpAndWriteString(birOperand.variableDcl.name.value);
+        if (birOperand.variableDcl.ignoreVariable) {
+            buf.writeBoolean(true);
+            typeWriter.visitType(birOperand.variableDcl.type);
+        } else {
+            buf.writeBoolean(false);
+            buf.writeByte(birOperand.variableDcl.kind.getValue());
+            buf.writeByte(birOperand.variableDcl.scope.getValue());
+            // TODO use the integer index of the variable.
+            addCpAndWriteString(birOperand.variableDcl.name.value);
+        }
     }
 
     public void visit(BIRNonTerminator.NewError birNewError) {
@@ -499,16 +509,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(newTypeDesc.kind.getValue());
         newTypeDesc.lhsOp.accept(this);
         typeWriter.visitType(newTypeDesc.type);
-    }
-
-    @Override
-    public void visit(TernaryOp ternaryOp) {
-        writePosition(ternaryOp.pos);
-        buf.writeByte(ternaryOp.kind.getValue());
-        ternaryOp.lhsOp.accept(this);
-        ternaryOp.conditionOp.accept(this);
-        ternaryOp.thenOp.accept(this);
-        ternaryOp.elseOp.accept(this);
     }
 
     // Positions
