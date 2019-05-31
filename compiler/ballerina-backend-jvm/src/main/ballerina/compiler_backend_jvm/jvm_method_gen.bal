@@ -1023,19 +1023,28 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     mv.visitEnd();
 
     //need to generate lambda for package Init as well, if exist
-    if(hasInitFunction(pkg)) {
+    if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
             io:sprintf("$lambda$%s$", initFuncName),
             io:sprintf("([L%s;)V", OBJECT), (), ());
         mv.visitCode();
+
          //load strand as first arg
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND);
-
         mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)V", STRAND), false);
+
+        // call start function
+        string startFuncName = cleanupFunctionName(getModuleStartFuncName(pkg));
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, STRAND);
+        mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)V", STRAND), false);
+
         mv.visitInsn(RETURN);
         mv.visitMaxs(0,0);
         mv.visitEnd();
@@ -1102,6 +1111,26 @@ function getModuleInitFuncName(bir:Package module) returns string {
         funcName = moduleName + ".<init>";
     } else {
         funcName = moduleName + ":" + module.versionValue.value + ".<init>";
+    }
+
+    if (!orgName.equalsIgnoreCase("$anon")) {
+        funcName = orgName  + "/" + funcName;
+    }
+
+    return funcName;
+}
+
+function getModuleStartFuncName(bir:Package module) returns string {
+    string orgName = module.org.value;
+    string moduleName = module.name.value;
+
+    string funcName;
+    if (moduleName.equalsIgnoreCase(".")) {
+        funcName = "..<start>";
+    } else if ("".equalsIgnoreCase(module.versionValue.value)) {
+        funcName = moduleName + ".<start>";
+    } else {
+        funcName = moduleName + ":" + module.versionValue.value + ".<start>";
     }
 
     if (!orgName.equalsIgnoreCase("$anon")) {

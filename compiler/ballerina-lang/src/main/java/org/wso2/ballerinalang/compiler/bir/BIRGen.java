@@ -243,6 +243,7 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.typeDefinitions.forEach(astTypeDef -> astTypeDef.accept(this));
         astPkg.globalVars.forEach(astGlobalVar -> astGlobalVar.accept(this));
         astPkg.initFunction.accept(this);
+        astPkg.startFunction.accept(this);
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
         astPkg.annotations.forEach(astAnn -> astAnn.accept(this));
         astPkg.constants.forEach(astConst -> astConst.accept(this));

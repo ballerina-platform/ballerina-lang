@@ -341,8 +341,17 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             jvmClassMap[initClass] = class;
             birFunctionMap[pkgName + functionName] = getFunctionWrapper(getFunction(initFunc), orgName, moduleName,
                                                                         versionValue, initClass);
-            count = 1;
+            count += 1;
+
+            bir:Function startFunc = <bir:Function>functions[1];
+            functionName = startFunc.name.value;
+
+            if (functionName == getModuleStartFuncName(module)) {
+                class.functions[1] = startFunc;
+                count += 1;
+            }
         }
+
         // Generate classes for other functions.
         while (count < funcSize) {
             bir:Function func = <bir:Function>functions[count];

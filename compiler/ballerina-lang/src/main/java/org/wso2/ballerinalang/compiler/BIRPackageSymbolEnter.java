@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -716,6 +717,8 @@ public class BIRPackageSymbolEnter {
                         BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                 recordSymbol.pkgID, fieldType, recordSymbol.scope.owner);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
+                        BField structField = new BField(varSymbol.name, null, varSymbol);
+                        recordType.fields.add(structField);
                     }
 
                     // read record init function
@@ -880,6 +883,8 @@ public class BIRPackageSymbolEnter {
                         BVarSymbol objectVarSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                 objectSymbol.pkgID, fieldType, objectSymbol.scope.owner);
                         objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
+                        BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
+                        objectType.fields.add(structField);
 //                        setDocumentation(varSymbol, attrData); // TODO fix
                     }
                     int funcCount = inputStream.readInt();

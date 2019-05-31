@@ -33,6 +33,11 @@ public type ObjectGenerator object {
                 string className = self.getTypeValueClassName(typeDef.name.value);
                 byte[] bytes = self.createObjectValueClass(bType, className, typeDef);
                 jarEntries[className + ".class"] = bytes;
+            } else if (bType is bir:BServiceType) {
+                self.currentObjectType = bType.oType;
+                string className = self.getTypeValueClassName(typeDef.name.value);
+                byte[] bytes = self.createObjectValueClass(bType.oType, className, typeDef);
+                jarEntries[className + ".class"] = bytes;
             } else if (bType is bir:BRecordType) {
                 self.currentRecordType = bType;
                 string className = self.getTypeValueClassName(typeDef.name.value);
