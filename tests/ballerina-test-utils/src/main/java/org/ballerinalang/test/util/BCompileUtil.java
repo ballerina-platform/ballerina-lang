@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.values.BMap;
@@ -49,6 +50,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -580,6 +582,16 @@ public class BCompileUtil {
 
             method = initClazz.getDeclaredMethod(startFuncName, Strand.class);
             method.invoke(null, new Strand(new Scheduler(4)));
+        } catch (InvocationTargetException e) {
+            Throwable t = e.getTargetException();
+            if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
+                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+            }
+            if (t instanceof ErrorValue) {
+                throw new org.ballerinalang.util.exceptions
+                        .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
+            }
+            throw new RuntimeException("Error while invoking function '" + initFuncName + "'", e);
         } catch (Exception e) {
             throw new RuntimeException("Error while invoking function '" + initFuncName + "'", e);
         }
