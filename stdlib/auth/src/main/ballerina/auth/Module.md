@@ -9,7 +9,7 @@ An authentication provider defines an authentication scheme that could be used t
 When creating a new authentication provider, you need to implement the below function.
 - `authenticate` : Authenticates the user based on the user credentials (i.e., the username/password) or a token such as JWT.
 
-By default, the`auth:ConfigAuthStoreProvider` authenticates based on usernames and passwords stored in a configuration file. The `auth:ConfigAuthStoreProvider` is an implementation of the `auth:AuthProvider` interface, which uses the Ballerina configuration file to store usernames, passwords, scopes, and relevant associations.
+By default, the `auth:ConfigAuthStoreProvider` authenticates based on usernames and passwords stored in a configuration file. The `auth:ConfigAuthStoreProvider` is an implementation of the `auth:AuthProvider` interface, which uses the Ballerina configuration file to store usernames, passwords, scopes, and relevant associations.
 
 A user is denoted by a section in the configuration file. The password and the scopes assigned to the user are denoted as keys under the relevant user section as shown below.
 
