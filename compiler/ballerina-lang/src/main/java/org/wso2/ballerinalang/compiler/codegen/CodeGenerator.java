@@ -167,6 +167,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Constants;
+import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -3857,8 +3858,20 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Only named parameters can have default values.
         for (BVarSymbol param : funcSymbol.defaultableParams) {
-            DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
-            paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
+            if (param.defaultValue != null) {
+                DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
+                paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
+            } else if (param.defaultExpression != null) {
+                if (param.defaultExpression.getKind() == NodeKind.LITERAL ||
+                        param.defaultExpression.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    BLangLiteral literal = (BLangLiteral) param.defaultExpression;
+                    param.defaultValue = new DefaultValueLiteral(literal.value, literal.type.tag);
+                    DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
+                    paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
+                } else {
+                    throw new BLangCompilerException("only literals supported for parameter default values.");
+                }
+            }
         }
 
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE, paramDefaulValAttrInfo);

@@ -584,6 +584,7 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol dupFuncSymbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
         funcNode.symbol = dupFuncSymbol;
 
+        funcNode.defaultableParams = rewrite(funcNode.defaultableParams, fucEnv);
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
 
@@ -2127,6 +2128,7 @@ public class Desugar extends BLangNodeVisitor {
         // to unbox or box a narrowed type.
         BType targetType = genVarRefExpr.type;
         genVarRefExpr.type = genVarRefExpr.symbol.type;
+        genVarRefExpr.ignoreExpression = varRefExpr.ignoreExpression;
         BLangExpression expression = addConversionExprIfRequired(genVarRefExpr, targetType);
         result = expression.impConversionExpr != null ? expression.impConversionExpr : expression;
     }
@@ -3870,18 +3872,21 @@ public class Desugar extends BLangNodeVisitor {
 
         // Re-order the named arguments
         List<BLangExpression> args = new ArrayList<>();
-        for (BVarSymbol param : invokableSymbol.defaultableParams) {
-            // If some named parameter is not passed when invoking the function, get the 
-            // default value for that parameter from the parameter symbol.
-            BLangExpression expr;
-            if (namedArgs.containsKey(param.name.value)) {
-                expr = namedArgs.get(param.name.value);
+        for (BVarSymbol defaultableParam : invokableSymbol.defaultableParams) {
+            if (namedArgs.containsKey(defaultableParam.name.value)) {
+                args.add(namedArgs.get(defaultableParam.name.value));
             } else {
-                int paramTypeTag = param.type.tag;
-                expr = getDefaultValueLiteral(param.defaultValue, paramTypeTag);
-                expr = addConversionExprIfRequired(expr, param.type);
+                BLangExpression expr;
+                int paramTypeTag = defaultableParam.type.tag;
+                if (defaultableParam.defaultExpression != null) {
+                    expr = defaultableParam.defaultExpression;
+                    expr = addConversionExprIfRequired(expr, defaultableParam.type);
+                } else {
+                    expr = getDefaultValue(paramTypeTag);
+                }
+                expr.ignoreExpression = true; // flag to indicate BIRGen to ignore
+                args.add(expr);
             }
-            args.add(expr);
         }
         iExpr.namedArgs = args;
     }
@@ -4900,7 +4905,29 @@ public class Desugar extends BLangNodeVisitor {
         if (value instanceof Boolean) {
             return getBooleanLiteral((Boolean) value);
         }
-        throw new IllegalStateException("Unsupported default value type");
+        throw new IllegalStateException("Unsupported default value type " + paramTypeTag);
+    }
+
+    private BLangExpression getDefaultValue(int paramTypeTag) {
+        switch (paramTypeTag) {
+            case TypeTags.STRING:
+                return getStringLiteral("");
+            case TypeTags.BOOLEAN:
+                return getBooleanLiteral(false);
+            case TypeTags.FLOAT:
+                return getFloatLiteral(0.0);
+            case TypeTags.BYTE:
+            case TypeTags.INT:
+                return getFloatLiteral(0);
+            case TypeTags.DECIMAL:
+                return getDecimalLiteral("0.0");
+            case TypeTags.FINITE:
+            case TypeTags.RECORD:
+            case TypeTags.OBJECT:
+            case TypeTags.UNION:
+            default:
+                return getNullLiteral();
+        }
     }
 
     private BLangLiteral getStringLiteral(String value) {

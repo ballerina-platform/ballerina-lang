@@ -51,6 +51,16 @@ function lookupJavaMethodDescription(string key) returns string {
     }
 }
 
+function isBIRFunctionExtern(string key) returns boolean {
+    if (birFunctionMap.hasKey(key)) {
+        BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
+        return isExternFunc(functionWrapper.func);
+    } else {
+        error err = error("cannot find function definition for : " + key);
+        panic err;
+    }
+}
+
 function getBIRFunctionWrapper(BIRFunctionWrapper? wrapper) returns BIRFunctionWrapper {
     if (wrapper is BIRFunctionWrapper) {
         return wrapper;
@@ -82,7 +92,9 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     string moduleName = module.name.value;
     string pkgName = getPackageName(orgName, moduleName);
     string sourceFileName = module.name.value;
-
+    foreach var func in module.functions {
+        addDefaultableBooleanVarsToSignature(func);
+    }
     typeOwnerClass = getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
     map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, untaint lambdas);
 
@@ -134,6 +146,9 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     string moduleName = module.name.value;
     string pkgName = getPackageName(orgName, moduleName);
 
+    foreach var func in module.functions {
+        addDefaultableBooleanVarsToSignature(func);
+    }
     typeOwnerClass = getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
     map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, untaint lambdas);
 
