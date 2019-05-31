@@ -90,11 +90,15 @@ public enum Snippet {
 
     KW_TYPE(SnippetGenerator.getTypeKeywordSnippet()),
 
-    KW_ANNOTATION(SnippetGenerator.getAnnotationDefSnippet()),
+    KW_ANNOTATION(SnippetGenerator.getAnnotationKeywordSnippet()),
 
     KW_VAR(SnippetGenerator.getVarKeywordSnippet()),
 
     KW_LISTENER(SnippetGenerator.getListenerKeywordSnippet()),
+
+    KW_RETURNS(SnippetGenerator.getReturnsKeywordSnippet()),
+
+    KW_UNTAINT(SnippetGenerator.getUntaintKeywordSnippet()),
 
     // Statement Snippets
     STMT_ABORT(SnippetGenerator.getAbortSnippet()),

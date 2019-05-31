@@ -78,7 +78,7 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
         if (serviceToken.isPresent()) {
             return Optional.ofNullable(this.getProvider(BallerinaParser.ServiceDefinitionContext.class));
         }
-        Optional<String> subRule = this.getSubrule(lhsTokens);
+        Optional<String> subRule = this.getSubRule(lhsTokens);
         subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinCompilationUnit(rule, ctx));
         ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
 

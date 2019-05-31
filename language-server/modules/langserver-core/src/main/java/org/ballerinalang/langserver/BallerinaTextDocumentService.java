@@ -163,7 +163,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
                 context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 CompletionUtil.resolveSymbols(context);
-//                CompletionSubRuleParser.parse(context);
                 completions.addAll(CompletionUtil.getCompletionItems(context));
             } catch (Exception | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
