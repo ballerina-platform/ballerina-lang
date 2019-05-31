@@ -751,7 +751,7 @@ public class BLangPackageBuilder {
             BLangErrorVariable.BLangErrorDetailEntry detailEntry =
                     new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, simpleVariableNode);
             errorVariable.detail.add(detailEntry);
-        } else {
+        } else if (this.varStack.size() > 1) {
             BLangVariable var = this.varStack.pop();
             BLangErrorVariable errorVariable = (BLangErrorVariable) this.varStack.peek();
             errorVariable.detail.add(new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, var));

@@ -981,11 +981,16 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangSimpleVariableDef forceCastIfApplicable(BVarSymbol errorVarySymbol, DiagnosticPos pos,
                                                          BType targetType) {
-        BLangSimpleVarRef variableRef = ASTBuilderUtil.createVariableRef(pos, errorVarySymbol);
-        BLangExpression expr = addConversionExprIfRequired(variableRef, targetType);
-
         BVarSymbol errorVarSym = new BVarSymbol(Flags.PUBLIC, names.fromString(""), this.env.enclPkg.packageID,
                 targetType, this.env.scope.owner);
+        BLangSimpleVarRef variableRef = ASTBuilderUtil.createVariableRef(pos, errorVarySymbol);
+
+        BLangExpression expr;
+        if (targetType.tag == TypeTags.RECORD) {
+            expr = variableRef;
+        } else {
+            expr = addConversionExprIfRequired(variableRef, targetType);
+        }
         BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(pos, "", targetType, expr, errorVarSym);
         return ASTBuilderUtil.createVariableDef(pos, errorVar);
     }
@@ -4411,11 +4416,10 @@ public class Desugar extends BLangNodeVisitor {
                                                                     env.enclPkg.symbol.pkgID,
                                                                     null, null);
             BType detailType;
-            if (errorVariable.detail == null || errorVariable.detail.isEmpty()) {
+            if ((errorVariable.detail == null || errorVariable.detail.isEmpty()) && errorVariable.restDetail != null) {
                 detailType = symTable.pureTypeConstrainedMap;
             } else {
-                detailType = createDetailType(
-                        errorVariable.detail, errorVariable.restDetail);
+                detailType = createDetailType(errorVariable.detail, errorVariable.restDetail);
 
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
                 createTypeDefinition(detailType, detailType.tsymbol, recordTypeNode);

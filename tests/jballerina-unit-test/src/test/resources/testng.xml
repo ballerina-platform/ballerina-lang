@@ -164,6 +164,7 @@
                     <exclude name="testUnspecifiedErrorDetailFrozenness" />
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStructuredErrorPatternsTest" />
         </classes>
     </test>
 </suite>
