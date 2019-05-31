@@ -265,7 +265,18 @@ public class BRunUtil {
      */
     private static BValue[] invokeOnJBallerina(CompileResult compileResult, String functionName, BValue[] args) {
         BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
+        args = addDefaultableBoolean(args);
         return invoke(compileResult, function, functionName, args);
+    }
+
+    private static BValue[] addDefaultableBoolean(BValue[] args) {
+        BValue[] result = new BValue[args.length * 2];
+        for (int j = 0, i = 0; i < args.length; i++) {
+            result[j] = args[i];
+            result[j + 1] = new BBoolean(true);
+            j += 2;
+        }
+        return result;
     }
 
     /**
@@ -279,9 +290,14 @@ public class BRunUtil {
      */
     private static BValue[] invoke(CompileResult compileResult, BIRNode.BIRFunction function, String functionName,
                                    BValue[] bvmArgs) {
-        List<org.wso2.ballerinalang.compiler.semantics.model.types.BType> bvmParamTypes = function.type.paramTypes;
+        List<org.wso2.ballerinalang.compiler.semantics.model.types.BType> bvmParamTypes = new ArrayList<>();
+        for (org.wso2.ballerinalang.compiler.semantics.model.types.BType paramType : function.type.paramTypes) {
+            bvmParamTypes.add(paramType);
+            bvmParamTypes.add(
+                    new org.wso2.ballerinalang.compiler.semantics.model.types.BType(TypeTags.BOOLEAN_TAG, null));
+        }
         Class<?>[] jvmParamTypes = new Class[bvmParamTypes.size() + 1];
-        Object[] jvmArgs = new Object[bvmParamTypes.size() + 1];
+        Object[] jvmArgs = new Object[bvmArgs.length + 1];
         jvmParamTypes[0] = Strand.class;
 
         for (int i = 0; i < bvmParamTypes.size(); i++) {

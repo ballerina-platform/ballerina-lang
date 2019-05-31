@@ -52,6 +52,8 @@
                     <exclude name="testOptionalArgsInNativeFunc" />
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments" />
+            <class name="org.ballerinalang.test.object.ObjectFunctionsWithDefaultableArguments" />
             <class name="org.ballerinalang.test.object.ObjectTest" >
                 <methods>
                     <!-- Fails due to link error at runtime -->

@@ -67,6 +67,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNode.BIRFunctionParameter birFunctionParameter) {
+        throw new AssertionError();
+    }
+
     public void visit(BIRFunction birFunction) {
         throw new AssertionError();
     }

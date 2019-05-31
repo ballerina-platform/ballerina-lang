@@ -214,12 +214,31 @@ public class BIRBinaryWriter {
         // Arg count
         birbuf.writeInt(birFunction.argsCount);
         // Local variables
+
+        birbuf.writeBoolean(birFunction.returnVariable != null);
+        if (birFunction.returnVariable != null) {
+            birbuf.writeByte(birFunction.returnVariable.kind.getValue());
+            funcTypeWriter.visitType(birFunction.returnVariable.type);
+            birbuf.writeInt(addStringCPEntry(birFunction.returnVariable.name.value));
+        }
+
+        birbuf.writeInt(birFunction.parameters.size());
+        for (BIRNode.BIRFunctionParameter param : birFunction.parameters.keySet()) {
+            birbuf.writeByte(param.kind.getValue());
+            funcTypeWriter.visitType(param.type);
+            birbuf.writeInt(addStringCPEntry(param.name.value));
+            birbuf.writeBoolean(param.hasDefaultExpr);
+        }
+
         birbuf.writeInt(birFunction.localVars.size());
         for (BIRNode.BIRVariableDcl localVar : birFunction.localVars) {
             birbuf.writeByte(localVar.kind.getValue());
             funcTypeWriter.visitType(localVar.type);
             birbuf.writeInt(addStringCPEntry(localVar.name.value));
         }
+
+        // Write basic blocks related to parameter default values
+        birFunction.parameters.values().stream().filter(bbList -> !bbList.isEmpty()).forEach(funcInsWriter::writeBBs);
 
         // Write basic blocks
         funcInsWriter.writeBBs(birFunction.basicBlocks);
