@@ -52,6 +52,8 @@
                     <exclude name="testOptionalArgsInNativeFunc" />
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments" />
+            <class name="org.ballerinalang.test.object.ObjectFunctionsWithDefaultableArguments" />
             <class name="org.ballerinalang.test.object.ObjectTest" >
                 <methods>
                     <!-- Fails due to link error at runtime -->
@@ -194,6 +196,14 @@
             <class name="org.ballerinalang.test.lock.LocksInMainTest">
                 <methods>
                     <include name="simpleLock"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.types.bytetype.BByteOperationsTest" />
+            <class name="org.ballerinalang.test.types.bytetype.BByteArrayValueNegativeTest" />
+            <class name="org.ballerinalang.test.types.bytetype.BByteValueNegativeTest" />
+            <class name="org.ballerinalang.test.types.bytetype.BByteValueTest">
+                <methods>
+                    <exclude name="simpleWorkerMessagePassingTest"/>
                 </methods>
             </class>
         </classes>
