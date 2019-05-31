@@ -159,9 +159,11 @@ public type FuncBodyParser object {
             kind = INS_KIND_CONST_LOAD;
             var lhsOp = self.parseVarRef();
 
-            int | string | boolean | float value = 0;
-            if (bType is BTypeInt || bType is BTypeByte) {
+            int | string | boolean | float | byte value = 0;
+            if (bType is BTypeInt) {
                 value = self.reader.readIntCpRef();
+            } else if (bType is BTypeByte) {
+                value = self.reader.readByteCpRef();
             } else if (bType is BTypeString) {
                 value = self.reader.readStringCpRef();
             } else if (bType is BTypeDecimal) {
@@ -408,8 +410,28 @@ public type FuncBodyParser object {
                 i += 1;
             }
             VarRef lhsOp = self.parseVarRef();
-            Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp};
+            BasicBlock thenBB = self.parseBBRef();
+            Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp, thenBB:thenBB};
             return waitIns;
+        } else if (kindTag == INS_WAIT_ALL) {
+            TerminatorKind kind = TERMINATOR_WAIT_ALL;
+            var lhsOp = self.parseVarRef();
+            int length = self.reader.readInt32();
+            string[] keys = [];
+            int futureIndex = 0;
+            while (futureIndex < length) {
+                keys[futureIndex] = self.reader.readStringCpRef();
+                futureIndex += 1;
+            }
+            futureIndex = 0;
+            VarRef?[] futures = [];
+            while (futureIndex < length) {
+                futures[futureIndex] = self.parseVarRef();
+                futureIndex += 1;
+            }
+            BasicBlock thenBB = self.parseBBRef();
+            WaitAll waitAll = {pos:pos, kind:kind, keys:keys, futures:futures, lhsOp:lhsOp, thenBB:thenBB};
+            return waitAll;
         } else if (kindTag == INS_FLUSH) {
             TerminatorKind kind = TERMINATOR_FLUSH;
             ChannelDetail[] channels = getWorkerChannels(self.reader);
@@ -493,6 +515,13 @@ public type FuncBodyParser object {
     }
 
     public function parseVarRef() returns VarRef {
+        boolean ignoreVariable = self.reader.readBoolean();
+        if (ignoreVariable) {
+            var bType = self.typeParser.parseType();
+            VariableDcl decl = { kind: VAR_KIND_ARG, varScope: VAR_SCOPE_FUNCTION, name: { value: "_" } };
+            return { typeValue: bType, variableDcl: decl };
+        }
+
         VarKind kind = parseVarKind(self.reader);
         VarScope varScope = parseVarScope(self.reader);
         string varName = self.reader.readStringCpRef();

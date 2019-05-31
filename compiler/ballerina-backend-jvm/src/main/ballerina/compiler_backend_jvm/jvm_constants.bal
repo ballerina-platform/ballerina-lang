@@ -220,6 +220,7 @@ const string BOOLEAN_VALUE = "java/lang/Boolean";
 const string DOUBLE_VALUE = "java/lang/Double";
 const string DECIMAL_VALUE = "org/ballerinalang/jvm/values/DecimalValue";
 const string BYTE_VALUE = "java/lang/Byte";
+const string INT_VALUE = "java/lang/Integer";
 const string XML_VALUE = "org/ballerinalang/jvm/values/XMLValue";
 const string XML_QNAME = "org/ballerinalang/jvm/values/XMLQName";
 const string FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
@@ -234,6 +235,7 @@ const string TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
 const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
 const string STRAND = "org/ballerinalang/jvm/Strand";
+const string TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
 
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string FUNCTION = "java/util/function/Function";
@@ -250,6 +252,7 @@ const string WORKER_DATA_CHANNEL = "org/ballerinalang/jvm/WorkerDataChannel";
 const string CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
 const string WORKER_UTILS = "org/ballerinalang/jvm/WorkerUtils";
 const string LONG_STREAM = "java/util/stream/LongStream";
+const string MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -268,6 +271,7 @@ const string TYPEDESC_TYPE = "org/ballerinalang/jvm/types/BTypedesc";
 const string BFIELD = "org/ballerinalang/jvm/types/BField";
 const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
 const string FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
+const string FUTURE_TYPE = "org/ballerinalang/jvm/types/BFutureType";
 
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
@@ -291,3 +295,12 @@ const string BAL_EXTENSION = ".bal";
 const string SCHEDULE_CONSUMER_METHOD =  "scheduleConsumer";
 const string SCHEDULE_FUNCTION_METHOD =  "scheduleFunction";
 const string SCHEDULER_START_METHOD =  "start";
+
+// visibility flags
+const int BAL_PUBLIC = 1;
+const int BAL_NATIVE = 2;
+const int BAL_ATTACHED = 8;
+const int BAL_REQUIRED = 256;
+const int BAL_PRIVATE = 1024;
+const int BAL_OPTIONAL = 8192;
+const int BAL_SERVICE = 524288;

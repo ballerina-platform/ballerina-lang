@@ -357,6 +357,7 @@ public class HttpConstants {
     public static final String TARGET_SERVICES = "targets";
     public static final String CLIENT_EP_ACCEPT_ENCODING = "acceptEncoding";
     public static final String HTTP2_PRIOR_KNOWLEDGE = "http2PriorKnowledge";
+    public static final String HTTP1_SETTINGS = "http1Settings";
     public static final String HTTP2_SETTINGS = "http2Settings";
 
     //Connection Throttling field names

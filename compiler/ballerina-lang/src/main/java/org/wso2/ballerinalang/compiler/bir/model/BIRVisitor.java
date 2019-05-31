@@ -68,6 +68,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNode.BIRFunctionParameter birFunctionParameter) {
+        throw new AssertionError();
+    }
+
     public void visit(BIRFunction birFunction) {
         throw new AssertionError();
     }
@@ -175,6 +179,10 @@ public abstract class BIRVisitor {
     }
 
     public void visit(BIRTerminator.Wait birWait) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRTerminator.WaitAll waitAll) {
         throw new AssertionError();
     }
 

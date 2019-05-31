@@ -37,7 +37,7 @@ public class AuthzCacheTest extends AuthBaseTest {
 
     private final int servicePort = 9098;
 
-    @Test(description = "Authn success test case with example1 issuer")
+    @Test(description = "Authz cache test")
     public void testAuthCache() throws Exception {
         // JWT used in the initial request:
         // {

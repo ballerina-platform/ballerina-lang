@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.bir.model.VisibilityFlags;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
@@ -322,10 +323,20 @@ public class BIRPackageSymbolEnter {
             invokableSymbol.owner = attachedType.tsymbol;
             invokableSymbol.name =
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
-            if (attachedType.tag == TypeTags.OBJECT) {
-                scopeToDefine = ((BObjectTypeSymbol) attachedType.tsymbol).methodScope;
-            } else {
-                scopeToDefine = attachedType.tsymbol.scope;
+            if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
+                if (attachedType.tag == TypeTags.OBJECT) {
+                    scopeToDefine = ((BObjectTypeSymbol) attachedType.tsymbol).methodScope;
+                } else {
+                    scopeToDefine = attachedType.tsymbol.scope;
+                }
+                BAttachedFunction attachedFunc =
+                        new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
+                BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
+                if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
+                        || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                    structureTypeSymbol.attachedFuncs.add(attachedFunc);
+                    structureTypeSymbol.initializerFunc = attachedFunc;
+                }
             }
         }
 
@@ -360,6 +371,8 @@ public class BIRPackageSymbolEnter {
                 return flags | Flags.PRIVATE;
             case VisibilityFlags.PUBLIC:
                 return flags | Flags.PUBLIC;
+            case VisibilityFlags.OPTIONAL:
+                return flags | Flags.OPTIONAL;
         }
         return flags;
     }
@@ -438,10 +451,13 @@ public class BIRPackageSymbolEnter {
     private Object readLiteralValue(DataInputStream dataInStream, BType valueType) throws IOException {
         switch (valueType.tag) {
             case TypeTags.INT:
-            case TypeTags.BYTE:
                 int integerCpIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[integerCpIndex];
                 return integerCPEntry.value;
+            case TypeTags.BYTE:
+                int byteCpIndex = dataInStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[byteCpIndex];
+                return byteCPEntry.value;
             case TypeTags.FLOAT:
                 int floatCpIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[floatCpIndex];
@@ -661,8 +677,10 @@ public class BIRPackageSymbolEnter {
                     int recordFields = inputStream.readInt();
                     for (int i = 0; i < recordFields; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
+                        int fieldFlags = 0;
+                        fieldFlags = visibilityAsMask(fieldFlags, inputStream.readByte());
                         BType fieldType = readType();
-                        BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(fieldName),
+                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                 recordSymbol.pkgID, fieldType, recordSymbol.scope.owner);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }
@@ -829,10 +847,13 @@ public class BIRPackageSymbolEnter {
 
                         BAttachedFunction attachedFunc =
                                 new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
-                        objectSymbol.attachedFuncs.add(attachedFunc);
-                        if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
-                                || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
-                            objectSymbol.initializerFunc = attachedFunc;
+                        if (!Names.OBJECT_INIT_SUFFIX.value.equals(funcName) &&
+                                !funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                            objectSymbol.attachedFuncs.add(attachedFunc);
+                            if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
+                                    || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                                objectSymbol.initializerFunc = attachedFunc;
+                            }
                         }
 
 //                        setDocumentation(varSymbol, attrData); // TODO fix
@@ -865,10 +886,14 @@ public class BIRPackageSymbolEnter {
         BLangLiteral litExpr = createLiteralBasedOnType(valueType);
         switch (valueType.tag) {
             case TypeTags.INT:
-            case TypeTags.BYTE:
                 int integerCpIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[integerCpIndex];
                 litExpr.value = integerCPEntry.value;
+                break;
+            case TypeTags.BYTE:
+                int byteCpIndex = dataInStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[byteCpIndex];
+                litExpr.value = byteCPEntry.value;
                 break;
             case TypeTags.FLOAT:
                 int floatCpIndex = dataInStream.readInt();
