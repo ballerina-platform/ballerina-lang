@@ -41,6 +41,10 @@
 
      public Throwable panic;
 
+     public boolean isCancelled;
+
+     public boolean doCancel;
+
      public FutureValue(Strand strand) {
          this.strand = strand;
      }
@@ -71,5 +75,18 @@
      @Override
      public Object copy(Map<Object, Object> refs) {
          return null;
+     }
+
+     public boolean isDone() {
+         return isDone;
+     }
+
+     public boolean isCancelled() {
+         return isCancelled;
+     }
+
+     public boolean cancel() {
+         this.doCancel = true;
+         return this.isCancelled;
      }
  }

@@ -175,8 +175,15 @@ public class Scheduler {
     private void run() {
         while (true) {
             SchedulerItem item;
+            Throwable panic = null;
             try {
                 item = runnableList.take();
+                if (item.future.doCancel) {
+                    item.future.isCancelled = true;
+                    // TODO:CREATE A proper error
+                    panic = new Throwable("Future already cancelled");
+                    notifyChannels(item, panic);
+                }
             } catch (InterruptedException ignored) {
                 continue;
             }
@@ -186,16 +193,24 @@ public class Scheduler {
             }
 
             Object result = null;
-            Throwable panic = null;
             try {
-                if (DEBUG) {
-                    debugLog(item + " executing");
+                if (!item.future.isCancelled) {
+                    if (DEBUG) {
+                        debugLog(item + " executing");
+                    }
+                    result = item.execute();
                 }
-                result = item.execute();
             } catch (Throwable e) {
                 panic = e;
                 notifyChannels(item, panic);
                 logger.error("Strand died", e);
+            }
+
+            if (item.future.doCancel) {
+                item.future.isCancelled = true;
+                // TODO:CREATE A proper error
+                panic = new Throwable("Future already cancelled");
+                notifyChannels(item, panic);
             }
 
             switch (item.getState()) {
@@ -320,6 +335,12 @@ public class Scheduler {
                 runnableList.add(item);
             }
         }
+    }
+
+    private void rescheduleBlocked(Strand blockedOn) {
+        blockedList.get(blockedOn).forEach(schedulerItem -> {
+            reschedule(schedulerItem);
+        });
     }
 
     private FutureValue createFuture(Strand parent) {
