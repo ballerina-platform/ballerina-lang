@@ -817,8 +817,10 @@ function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
 }
 
 function getTypeDesc(bir:BType bType) returns string {
-    if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+    if (bType is bir:BTypeInt) {
         return "J";
+    } else if (bType is bir:BTypeByte) {
+        return "I";
     } else if (bType is bir:BTypeFloat) {
         return "D";
     } else if (bType is bir:BTypeString) {

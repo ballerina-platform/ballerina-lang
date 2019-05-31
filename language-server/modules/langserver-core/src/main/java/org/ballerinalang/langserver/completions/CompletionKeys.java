@@ -71,4 +71,10 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<List<CommonToken>> RHS_TOKENS_KEY
             = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> IN_FUNCTION_PARAMETER_CONTEXT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> IN_WORKER_RETURN_CONTEXT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> IN_INVOCATION_PARAM_CONTEXT_KEY
+            = new LSContext.Key<>();
 }
