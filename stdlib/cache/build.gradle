@@ -72,14 +72,14 @@ createBalo {
 
 task createTestBalHome(type: Copy) {
     from configurations.localDependency
-    into "$buildDir/ballerina-home/test/lib"
+    into "$buildDir/ballerina-home/test/lib/"
 }
 
 test {
+    systemProperty "enableJBallerinaTests", "true"
     systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
-    systemProperty "enableJBallerinaTests", "true"
     dependsOn createTestBalHome
     doFirst {
         copy {

@@ -63,7 +63,7 @@ public class ServiceScopeProvider extends LSCompletionProvider {
             return this.getProvider(AnnotationAttachmentContextProvider.class).getCompletions(ctx);
         }
 
-        Optional<String> subRule = this.getSubrule(lhsTokens);
+        Optional<String> subRule = this.getSubRule(lhsTokens);
         subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinServiceDefinition(rule, ctx));
         ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
 

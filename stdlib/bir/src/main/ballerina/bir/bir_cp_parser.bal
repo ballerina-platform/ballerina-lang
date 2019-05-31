@@ -19,6 +19,7 @@ public type ConstPool record {
     string[] strings = [];
     int[] ints = [];
     float[] floats = [];
+    byte[] bytes = [];
     BType?[] types = [];
 };
 
@@ -66,6 +67,8 @@ public type ConstPoolParser object {
         } else if (cpType == 5){
             self.parseModuleID();
         } else if (cpType == 6){
+            self.parseByte();
+        } else if (cpType == 7){
             self.parseType();
         } else {
             error err = error("cp type " + cpType + " not supported.:");
@@ -83,6 +86,10 @@ public type ConstPoolParser object {
 
     function parseString() {
         self.cp.strings[self.i] = self.reader.readString();
+    }
+
+    function parseByte() {
+        self.cp.bytes[self.i] = self.reader.readByte();
     }
 
     function parseModuleID() {

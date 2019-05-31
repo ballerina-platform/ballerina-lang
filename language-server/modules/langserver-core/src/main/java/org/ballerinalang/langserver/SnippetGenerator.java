@@ -153,6 +153,26 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Returns Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getReturnsKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.RETURNS_KEYWORD, "returns ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Untaint Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getUntaintKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.UNTAINT_KEYWORD, "untiant ",
+                ItemResolverConstants.KEYWORD_TYPE, SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Foreach Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

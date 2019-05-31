@@ -24,6 +24,7 @@ under the License.
         <listener class-name="org.ballerinalang.stdlib.cache.util.JBallerinaTestInitializer"/>
     </listeners>
 
+    <!-- Ballerina cache Test Cases. -->
     <test name="ballerina-cache-test-suite" preserve-order="true" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <packages>

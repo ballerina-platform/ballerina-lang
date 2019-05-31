@@ -64,7 +64,6 @@ public const int INS_XML_ATTRIBUTE_STORE = 49;
 public const int INS_NEW_TABLE = 50;
 public const int INS_NEW_TYPEDESC = 51;
 public const int INS_NEW_STREAM = 52;
-public const int INS_TERNARY = 53;
 
 // Binary expression related instructions.
 public const int INS_ADD = 61;
