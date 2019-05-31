@@ -62,6 +62,10 @@ public class ByteArrayToString extends BlockingNativeCallableUnit {
 
     public static String byteArrayToString(Strand strand, ArrayValue bytes, String encoding) {
         try {
+            // TODO : Remove this once extern functions are supported with default value parameters.
+            if (encoding == null) {
+                encoding = "utf-8";
+            }
             return new String(bytes.getBytes(), encoding);
         } catch (UnsupportedEncodingException e) {
             throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("unsupported encoding: " + encoding , e);
