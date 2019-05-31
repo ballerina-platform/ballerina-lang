@@ -361,11 +361,11 @@ public class BIRBinaryWriter {
         return cp.addCPEntry(new StringCPEntry(value));
     }
 
-    private void writeType(ByteBuf buf, BType type) {
-        buf.writeInt(cp.addShapeCPEntry(type));
-    }
-
     private int addByteCPEntry(int value) {
         return cp.addCPEntry(new ByteCPEntry(value));
+    }
+
+    private void writeType(ByteBuf buf, BType type) {
+        buf.writeInt(cp.addShapeCPEntry(type));
     }
 }

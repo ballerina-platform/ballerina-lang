@@ -19,8 +19,8 @@ public type ConstPool record {
     string[] strings = [];
     int[] ints = [];
     float[] floats = [];
-    BType?[] types = [];
     byte[] bytes = [];
+    BType?[] types = [];
 };
 
 public type ConstPoolParser object {
