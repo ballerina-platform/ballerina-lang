@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
@@ -328,6 +329,10 @@ public class BIRTypeWriter implements TypeVisitor {
         return cp.addCPEntry(new FloatCPEntry(value));
     }
 
+    private int addByteCPEntry(int value) {
+        return cp.addCPEntry(new ByteCPEntry(value));
+    }
+
     private Visibility getVisibility(BSymbol symbol) {
         if (Symbols.isOptional(symbol)) {
             return Visibility.OPTIONAL;
@@ -343,8 +348,11 @@ public class BIRTypeWriter implements TypeVisitor {
     private void writeValue(Object value, BType typeOfValue) {
         switch (typeOfValue.tag) {
             case TypeTags.INT:
-            case TypeTags.BYTE:
                 buff.writeInt(addIntCPEntry((Long) value));
+                break;
+            case TypeTags.BYTE:
+                int byteValue = ((Number) value).intValue();
+                buff.writeInt(addByteCPEntry(byteValue));
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase

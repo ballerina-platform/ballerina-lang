@@ -83,6 +83,7 @@ public type ObjectGenerator object {
     private function createObjectMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs) {
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
+                addDefaultableBooleanVarsToSignature(func);
                 generateMethod(func, cw, self.module, attachedType = self.currentObjectType);
             }
         }

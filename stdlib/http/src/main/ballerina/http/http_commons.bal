@@ -14,6 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Represents HTTP/1.0 protocol
+const string HTTP_1_0 = "1.0";
+
+# Represents HTTP/1.1 protocol
+const string HTTP_1_1 = "1.1";
+
+# Represents HTTP/2.0 protocol
+const string HTTP_2_0 = "2.0";
+
+# Defines the supported HTTP protocols.
+#
+# `HTTP_1_0`: HTTP/1.0 protocol
+# `HTTP_1_1`: HTTP/1.1 protocol
+# `HTTP_2_0`: HTTP/2.0 protocol
+public type HttpVersion HTTP_1_0|HTTP_1_1|HTTP_2_0;
+
 # Represents http protocol scheme
 const string HTTP_SCHEME = "http://";
 

@@ -1,4 +1,3 @@
-package org.ballerinalang.test.service.http.sample;
 /*
  *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -16,6 +15,8 @@ package org.ballerinalang.test.service.http.sample;
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
+package org.ballerinalang.test.service.http.sample;
 
 import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;

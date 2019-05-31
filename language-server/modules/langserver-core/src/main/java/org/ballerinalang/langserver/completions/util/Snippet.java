@@ -98,6 +98,8 @@ public enum Snippet {
 
     KW_RETURNS(SnippetGenerator.getReturnsKeywordSnippet()),
 
+    KW_UNTAINT(SnippetGenerator.getUntaintKeywordSnippet()),
+
     // Statement Snippets
     STMT_ABORT(SnippetGenerator.getAbortSnippet()),
 

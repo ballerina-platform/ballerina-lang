@@ -43,6 +43,8 @@ public type Function record {|
     DiagnosticPos pos;
     int argsCount = 0;
     BasicBlock?[] basicBlocks = [];
+    FunctionParam?[] params = [];
+    BasicBlock?[][] paramDefaultBBs = [];
     ErrorEntry?[] errorEntries = [];
     boolean isDeclaration = false;
     boolean isInterface = false;
@@ -215,6 +217,11 @@ public type VariableDcl record {|
     Name name = {};
     BType typeValue = "()";
     anydata...; // This is to type match with Object type fields in subtypes
+|};
+
+public type FunctionParam record {|
+    *VariableDcl;
+    boolean hasDefaultExpr;
 |};
 
 public type GlobalVariableDcl record {|
@@ -399,7 +406,7 @@ public type ConstantLoad record {|
     InstructionKind kind;
     VarRef lhsOp;
     BType typeValue;
-    int | string | boolean | float | () value;
+    int | string | boolean | float | byte | () value;
 |};
 
 public type NewMap record {|

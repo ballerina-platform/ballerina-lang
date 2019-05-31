@@ -116,7 +116,24 @@ public type BirEmitter object {
         print(tabs, visibility.toLower(), " function ", bFunction.name.value, " ");
         self.typeEmitter.emitType(bFunction.typeValue);
         println(" {", bFunction.isDeclaration ? "\t// extern" : bFunction.isInterface ? "\t// interface" : "");
+        int i = 0;
         foreach var v in bFunction.localVars {
+            if v is FunctionParam {
+                self.typeEmitter.emitType(v.typeValue, tabs = tabs + "\t");
+                print(" ");
+                print(v.name.value);
+                print("\t ", v.kind);
+                if (v.hasDefaultExpr) {
+                    print("\t// defaultable -> ");
+                    var bb = bFunction.paramDefaultBBs[i][0];
+                    if (bb is BasicBlock) {
+                        print(bb.id.value);
+                    }
+                    i = i + 1;
+                }
+                println();
+                continue;
+            }
             VariableDcl varDecl = getVariableDcl(v);
             self.typeEmitter.emitType(varDecl.typeValue, tabs = tabs + "\t");
             print(" ");
@@ -128,6 +145,21 @@ public type BirEmitter object {
             println("\t// ", varDecl.kind);
         }
         println();// empty line
+        i = 0;
+        foreach var v in bFunction.localVars {
+            if v is FunctionParam {
+                if (v.hasDefaultExpr) {
+                    var bb = bFunction.paramDefaultBBs[i];
+                    foreach var b in bb {
+                        if (b is BasicBlock) {
+                            self.emitBasicBlock(b, tabs + "\t");
+                            println();// empty line
+                        }
+                    }
+                    i = i + 1;
+                }
+            }
+        }
         foreach var b in bFunction.basicBlocks {
             if (b is BasicBlock) {
                 self.emitBasicBlock(b, tabs + "\t");
@@ -497,7 +529,7 @@ type TypeEmitter object {
 
     function emitType(BType typeVal, string tabs = "") {
         if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString || typeVal is BTypeBoolean
-                || typeVal is BTypeFloat || typeVal is BTypeAnyData || typeVal is BTypeNone
+                || typeVal is BTypeFloat || typeVal is BTypeByte || typeVal is BTypeAnyData || typeVal is BTypeNone
                 || typeVal is BServiceType) {
             print(tabs, typeVal);
         } else if (typeVal is BRecordType) {
