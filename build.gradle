@@ -6,9 +6,11 @@ plugins {
     id "com.github.johnrengelman.shadow" version "5.0.0"
 }
 
+// TODO: remove following, when moved to gradle release plugin
+def mvnVersion = new XmlSlurper().parse('pom.xml').version
 allprojects {
     group = 'org.ballerinalang'
-    version = '0.990.4-SNAPSHOT'
+    version = mvnVersion
 
     task printPath {
         doLast{
