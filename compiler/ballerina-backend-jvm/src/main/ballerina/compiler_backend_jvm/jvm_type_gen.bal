@@ -28,7 +28,8 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[]
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         fieldName = getTypeFieldName(typeDef.name.value);
         bir:BType bType = typeDef.typeValue;
-        if (bType is bir:BRecordType || bType is bir:BObjectType || bType is bir:BErrorType) {
+        if (bType is bir:BRecordType || bType is bir:BObjectType || bType is bir:BErrorType ||
+                bType is bir:BServiceType) {
             jvm:FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, fieldName, io:sprintf("L%s;", BTYPE));
             fv.visitEnd();
         } else {
@@ -59,6 +60,8 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             createRecordType(mv, bType, typeDef, typePkgName);
         } else if (bType is bir:BObjectType) {
             createObjectType(mv, bType, typeDef, typePkgName);
+        } else if (bType is bir:BServiceType) {
+            createObjectType(mv, bType.oType, typeDef, typePkgName);
         } else if (bType is bir:BErrorType) {
             createErrorType(mv, bType, typeDef.name.value, typePkgName);
         } else {
@@ -73,7 +76,7 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
     foreach var optionalTypeDef in typeDefs {
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         bir:BType bType = typeDef.typeValue;
-        if !(bType is bir:BRecordType || bType is bir:BObjectType) {
+        if !(bType is bir:BRecordType || bType is bir:BObjectType || bType is bir:BServiceType) {
             continue;
         }
 
@@ -90,6 +93,11 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             mv.visitInsn(DUP);
             addObjectFields(mv, bType.fields);
             addObjectAtatchedFunctions(mv, bType.attachedFunctions, bType, indexMap);
+        } else if (bType is bir:BServiceType) {
+            mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+            mv.visitInsn(DUP);
+            addObjectFields(mv, bType.oType.fields);
+            addObjectAtatchedFunctions(mv, bType.oType.attachedFunctions, bType.oType, indexMap);
         }
     }
 }
@@ -559,7 +567,12 @@ function loadExternalOrLocalType(jvm:MethodVisitor mv,  bir:TypeDef|bir:TypeRef 
         string externlTypeOwner =  typeRefToClassName(typeRef) + "/" + MODULE_INIT_CLASS_NAME;
         mv.visitFieldInsn(GETSTATIC, externlTypeOwner, fieldName, io:sprintf("L%s;", BTYPE));
     } else {
-        loadType(mv, typeRef.typeValue);
+        bir:BType bType = typeRef.typeValue;
+        if (bType is bir:BServiceType) {
+            loadType(mv, bType.oType);
+        } else {
+            loadType(mv, bType);
+        }
     }
 }
 

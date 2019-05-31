@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -241,6 +242,7 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.typeDefinitions.forEach(astTypeDef -> astTypeDef.accept(this));
         astPkg.globalVars.forEach(astGlobalVar -> astGlobalVar.accept(this));
         astPkg.initFunction.accept(this);
+        astPkg.startFunction.accept(this);
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
         astPkg.annotations.forEach(astAnn -> astAnn.accept(this));
         astPkg.constants.forEach(astConst -> astConst.accept(this));
@@ -320,7 +322,8 @@ public class BIRGen extends BLangNodeVisitor {
                     astFunc.sendsToThis.size(), taintTable);
         } else {
             Name funcName = getFuncName(astFunc.symbol);
-            birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type, null, workerName,
+            birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type,
+                    astFunc.receiver != null ? astFunc.receiver.type : null, workerName,
                     astFunc.sendsToThis.size(), taintTable);
         }
 
@@ -983,7 +986,20 @@ public class BIRGen extends BLangNodeVisitor {
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-        emit(new BIRNonTerminator.NewStructure(astStructLiteralExpr.pos, astStructLiteralExpr.type, toVarRef));
+
+        BIRNonTerminator.NewStructure instruction;
+
+        BTypeSymbol structTypeSymbol = getRecordTypeSymbol(astStructLiteralExpr.type);
+        if (isInSamePackage(structTypeSymbol, this.env.enclPkg)) {
+            instruction = new BIRNonTerminator.NewStructure(astStructLiteralExpr.pos, astStructLiteralExpr.type,
+                    toVarRef);
+        } else {
+            String recordName = ((BRecordTypeSymbol) astStructLiteralExpr.type.tsymbol).name.value;
+            instruction = new BIRNonTerminator.NewStructure(astStructLiteralExpr.pos, structTypeSymbol.pkgID,
+                    recordName, astStructLiteralExpr.type, toVarRef);
+        }
+        emit(instruction);
+
         this.env.targetOperand = toVarRef;
         this.env.targetOperandBB = env.enclBB;
 
@@ -1952,6 +1968,16 @@ public class BIRGen extends BLangNodeVisitor {
         if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
                     .filter(t -> t.tag == TypeTags.OBJECT)
+                    .findFirst()
+                    .orElse(symTable.noType).tsymbol;
+        }
+        return type.tsymbol;
+    }
+
+    private BTypeSymbol getRecordTypeSymbol(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .filter(t -> t.tag == TypeTags.RECORD)
                     .findFirst()
                     .orElse(symTable.noType).tsymbol;
         }

@@ -219,21 +219,17 @@ type TerminatorGenerator object {
             self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
             self.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
 
-            if (callIns.lhsOp.variableDcl is bir:VariableDcl) {
-                self.mv.visitVarInsn(ALOAD, localVarOffset);
-                self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "future",
-                                        "Ljava/util/concurrent/Future;");
-                self.mv.visitMethodInsn(INVOKEINTERFACE, "java/util/concurrent/Future", "get", "()Ljava/lang/Object;",
-                                            true);
-                addUnboxInsn(self.mv, callIns.lhsOp.typeValue);
-
-                // store return
-                self.storeReturnFromCallIns(callIns);
-            }
-
             self.mv.visitVarInsn(ALOAD, localVarOffset);
             self.mv.visitInsn(ICONST_0);
             self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+
+            if (callIns.lhsOp.variableDcl is bir:VariableDcl) {
+                self.mv.visitVarInsn(ALOAD, localVarOffset);
+                self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "returnValue", "Ljava/lang/Object;");
+                addUnboxInsn(self.mv, callIns.lhsOp.typeValue);
+                // store return
+                self.storeReturnFromCallIns(callIns);
+            }
 
             self.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
 

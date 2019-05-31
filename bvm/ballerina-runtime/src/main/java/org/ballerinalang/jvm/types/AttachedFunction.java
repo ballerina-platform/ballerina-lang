@@ -49,6 +49,11 @@ public class AttachedFunction extends BFunctionType {
         return sj.toString();
     }
 
+    @Override
+    public String getName() {
+        return this.funcName;
+    }
+
     public void addAnnotation(String key, MapValueImpl annotation) {
         this.type.addAnnotation(key, annotation);
     }

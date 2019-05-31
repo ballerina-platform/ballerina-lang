@@ -104,8 +104,9 @@ public type FuncBodyParser object {
         } else if (kindTag == INS_NEW_MAP) {
             var bType = self.reader.readTypeCpRef();
             kind = INS_KIND_NEW_MAP;
+            TypeRef? typeRef = self.parseRecordTypeRef();
             var lhsOp = self.parseVarRef();
-            NewMap newMap = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType};
+            NewMap newMap = {pos:pos, kind:kind, lhsOp:lhsOp, typeRef:typeRef, bType:bType};
             return newMap;
         } else if (kindTag == INS_NEW_STREAM) {
             var bType = self.reader.readTypeCpRef();
@@ -329,6 +330,17 @@ public type FuncBodyParser object {
         } else {
             return self.findTypeDef(self.reader.readInt32());
         }
+    }
+
+    public function parseRecordTypeRef() returns TypeRef? {
+        var isExternalDef = self.reader.readBoolean();
+        if (isExternalDef) {
+            TypeRef typeRef = {externalPkg: self.reader.readModuleIDCpRef(),
+                               name: {value: self.reader.readStringCpRef()}};
+            return typeRef;
+        }
+
+        return;
     }
 
     public function parseTerminator() returns Terminator {

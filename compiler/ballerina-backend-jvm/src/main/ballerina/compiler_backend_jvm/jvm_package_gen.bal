@@ -356,8 +356,17 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             jvmClassMap[initClass] = class;
             birFunctionMap[pkgName + functionName] = getFunctionWrapper(getFunction(initFunc), orgName, moduleName,
                                                                         versionValue, initClass);
-            count = 1;
+            count += 1;
+
+            bir:Function startFunc = <bir:Function>functions[1];
+            functionName = startFunc.name.value;
+
+            if (functionName == getModuleStartFuncName(module)) {
+                class.functions[1] = startFunc;
+                count += 1;
+            }
         }
+
         // Generate classes for other functions.
         while (count < funcSize) {
             bir:Function func = <bir:Function>functions[count];
@@ -401,10 +410,12 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         bir:BType bType = typeDef.typeValue;
 
-        if (bType is bir:BObjectType && !bType.isAbstract) {
+        if (bType is bir:BObjectType || bType is bir:BRecordType) {
             string key = orgName + "/" + moduleName + "/" + typeDef.name.value;
             typeDefMap[key] = typeDef;
+        }
 
+        if (bType is bir:BObjectType && !bType.isAbstract) {
             bir:Function?[] attachedFuncs = getFunctions(typeDef.attachedFuncs);
             foreach var func in attachedFuncs {
 
@@ -420,7 +431,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                 var result = jvm:lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
                 if (result is string) {
                     bir:BInvokableType functionTypeDesc = currentFunc.typeValue;
-                    bir:BType? attachedType = bType;
+                    bir:BType? attachedType = currentFunc.receiverType;
                     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
                                                                 attachedType = attachedType);
                     birFunctionMap[pkgName + lookupKey] = getFunctionWrapper(currentFunc, orgName, moduleName,
