@@ -335,7 +335,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (terminator is bir:FPCall) {
             termGen.genFPCallIns(terminator, funcName);
         } else if (terminator is bir:WorkerSend) {
-            // termGen.genWorkerSendIns(terminator, funcName);
+            termGen.genWorkerSendIns(terminator, funcName);
         } else if (terminator is bir:WorkerReceive) {
             termGen.genWorkerReceiveIns(terminator, funcName);
         } else if (terminator is bir:Flush) {
