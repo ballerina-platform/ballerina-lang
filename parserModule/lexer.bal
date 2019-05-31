@@ -1,79 +1,12 @@
 import ballerina/io;
 import ballerina/log;
 
-const int LBRACE = 0;
-const int RBRACE = 1;
-const int LPAREN = 2;
-const int RPAREN = 3;
-const int ADD = 4;
-const int ASSIGN = 5;
-const int SEMICOLON = 6;
-const int IDENTIFIER = 7;
-const int EQUALITY = 8;
-const int EOF = 9;
-const int NUMBER = 10;
-const int EQUAL = 11;
-const int REF_EQUAL = 12;
-const int QUOTED_STRING_LITERAL = 13;
-const int FINAL = 14;
-const int FUNCTION = 15;
-const int INT = 16;
-const int STRING = 17;
-const int SUB = 18;
-const int DIV = 19;
-const int MUL = 20;
-const int LEXER_ERROR_TOKEN = 21;
-const int COLON = 22;
-const int PARSER_ERROR_TOKEN = 23;
-const int COMMA = 24;
-const int DOT = 25;
-const int RANGE = 26;
-const int ELLIPSIS = 27;
-const int HALF_OPEN_RANGE = 28;
-const int LEFT_BRACKET = 29;
-const int RIGHT_BRACKET = 30;
-const int QUESTION_MARK = 31;
-const int ELVIS = 32;
-const int HASH = 33;
-const int EQUAL_GT = 34;
-const int COMPOUND_ADD = 35;
-const int RARROW = 36;
-const int COMPOUND_SUB = 37;
-const int SYNCRARROW = 38;
-const int COMPOUND_MUL = 39;
-const int COMPOUND_DIV = 40;
-const int MOD = 41;
-const int NOT = 42;
-const int REF_NOT_EQUAL = 43;
-const int GT = 44;
-const int GT_EQUAL = 45;
-const int COMPOUND_RIGHT_SHIFT = 46;
-const int COMPOUND_LOGICAL_SHIFT = 47;
-const int LT = 48;
-const int LT_EQUAL = 49;
-const int LARROW = 50;
-const int COMPOUND_LEFT_SHIFT = 51;
-const int NOT_EQUAL = 52;
-//sub and add tokens will be renamed as unaryMinus and unaryPlus,
-//in the parser during unary expressions
-const int UNARY_MINUS = 53;
-const int UNARY_PLUS = 54;
-
-const int BIT_COMPLEMENT = 55;
-const int UNTAINT = 56;
-const int CONTINUE = 57;
-
-string[] tokenNames = ["LBRACE", "RBRACE", "LPAREN", "RPAREN", "ADD", "ASSIGN", "SEMICOLON", "IDENTIFIER", "EQUALITY",
-"EOF", "NUMBER", "EQUAL", "REF_EQUAL", "QUOTED_STRING_LITERAL", "FINAL", "FUNCTION", "INT", "STRING",
-"SUB", "DIV", "MUL","LEXER_ERROR_TOKEN","COLON","PARSER_ERROR_TOKEN","COMMA",
-"DOT","RANGE","ELLIPSIS","HALF_OPEN_RANGE","LEFT_BRACKET","RIGHT_BRACKET","QUESTION_MARK","ELVIS","HASH",
-"EQUAL_GT","COMPOUND_ADD","RARROW","COMPOUND_SUB","SYNCRARROW","COMPOUND_MUL","COMPOUND_DIV","MOD",
-"NOT","REF_NOT_EQUAL","GT","GT_EQUAL","COMPOUND_RIGHT_SHIFT","COMPOUND_LOGICAL_SHIFT",
-"LT","LT_EQUAL","LARROW","COMPOUND_LEFT_SHIFT","NOT_EQUAL","UNARY_MINUS","UNARY_PLUS",
-"BIT_COMPLEMENT","UNTAINT","CONTINUE"];
-
-
+# Lexer tokenize the lexemes.
+# the characters pulled from the bufferReader is passed through
+# symbol recognizers, identifers, reesrved words and numeric recognizers
+# to build tokens
 public type Lexer object {
+	TokenMapper tknMapper = new ();
 	//token position relative to the line number
 	int position = 0;
 	//line number of the token in the source
@@ -123,189 +56,35 @@ public type Lexer object {
 				}
                 continue;
             }
-            if (currChar == "}") {
-				self.tokenIndex += 1;
-                return {tokenType: RBRACE, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
-            } else if (currChar == "(") {
-				self.tokenIndex += 1;
-                return {tokenType: LPAREN, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum , index: self.tokenIndex ,whiteSpace: self.getWhiteSpace()};
-            } else if (currChar == "{") {
-				self.tokenIndex += 1;
-                return {tokenType: LBRACE, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
-            } else if (currChar == ")") {
-				self.tokenIndex += 1;
-                return {tokenType: RPAREN, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
-            } else if (currChar == ":") {
-				self.tokenIndex += 1;
-				return {tokenType: COLON, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
-			} else if (currChar == ","){
-				self.tokenIndex += 1;
-				return {tokenType: COMMA, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
-			} else if (currChar == "=") {
-                if (self.buffer.lookAhead() == "=") {
-                    currChar = self.nextLexeme();
+
+			//build symbols based on a map lookup
+            var singleTokenSy = self.tknMapper.singleSymbol[currChar];
+			//single token symbols
+            if(singleTokenSy is int){
+				string doubleSymbol = currChar + self.buffer.lookAhead();
+				var doubleTokenSy = self.tknMapper.doubleSymbol[doubleSymbol];
+				//double token symbols
+				if(doubleTokenSy is int){
+					currChar = self.nextLexeme();
                     self.position += 1;
-                    if (self.buffer.lookAhead() == "=") {
-                        currChar = self.nextLexeme();
+					string tripleSymbol = doubleSymbol + self.buffer.lookAhead();
+					var tripleTokenSy = self.tknMapper.tripleSymbol[tripleSymbol];
+					//tripe token symbols
+					if(tripleTokenSy is int){
+						currChar = self.nextLexeme();
                         self.position += 1;
-						self.tokenIndex += 1;
-                        return {tokenType: REF_EQUAL, text: "===", startPos: self.position - 2 , endPos:self.position,
-                            lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-                    }
-					self.tokenIndex += 1;
-                    return {tokenType: EQUAL, text: "==", startPos: self.position - 1 , endPos:self.position,
-						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-                } else if (self.buffer.lookAhead() == ">"){
-					currChar = self.nextLexeme();
-					self.position += 1;
-					self.tokenIndex += 1;
-					return {tokenType: EQUAL_GT, text: "=>", startPos: self.position - 1 , endPos:self.position,
-						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				}
-				self.tokenIndex += 1;
-                return {tokenType: ASSIGN, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
-            } else if (currChar == ";") {
-				self.tokenIndex += 1;
-                return {tokenType: SEMICOLON, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
-            } else if (currChar == "+") {
-				if (self.buffer.lookAhead() == "=") {
-					currChar = self.nextLexeme();
-					self.position += 1;
-					self.tokenIndex += 1;
-					return {tokenType: COMPOUND_ADD, text: "+=", startPos: self.position - 1 , endPos:self.position,
-						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				}
-				self.tokenIndex += 1;
-                return {tokenType: ADD, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
-            } else if (currChar == "-") {
-				if (self.buffer.lookAhead() == "=") {
-					currChar = self.nextLexeme();
-					self.position += 1;
-					self.tokenIndex += 1;
-					return {tokenType: COMPOUND_SUB, text: "-=", startPos: self.position - 1 , endPos:self.position,
-						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				} else if (self.buffer.lookAhead() == ">"){
-					currChar = self.nextLexeme();
-					self.position += 1;
-					if (self.buffer.lookAhead() == ">") {
-						currChar = self.nextLexeme();
-						self.position += 1;
-						self.tokenIndex += 1;
-						return {tokenType: SYNCRARROW, text: "->>", startPos: self.position - 2 , endPos:self.position,
-							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+                        self.tokenIndex += 1;
+                        return {tokenType: tripleTokenSy, text: tripleSymbol, startPos: self.position - 2 , endPos:self.position,
+                              lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 					}
 					self.tokenIndex += 1;
-					return {tokenType: RARROW, text: "->", startPos: self.position - 1 , endPos:self.position,
+					return {tokenType: doubleTokenSy, text: doubleSymbol, startPos: self.position - 1 , endPos:self.position,
 						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
 				}
-				self.tokenIndex += 1;
-                return {tokenType: SUB, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-            } else if (currChar == "*") {
-				if (self.buffer.lookAhead() == "=") {
-					currChar = self.nextLexeme();
-					self.position += 1;
-					self.tokenIndex += 1;
-					return {tokenType: COMPOUND_MUL, text: "*=", startPos: self.position - 1 , endPos:self.position,
-						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				}
-				self.tokenIndex += 1;
-                return {tokenType: MUL, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
-            } else if(currChar == "."){
-				if (self.buffer.lookAhead() == ".") {
-					currChar = self.nextLexeme();
-					self.position += 1;
-					if (self.buffer.lookAhead() == ".") {
-						currChar = self.nextLexeme();
-						self.position += 1;
-						self.tokenIndex += 1;
-						return {tokenType: ELLIPSIS, text: "...", startPos: self.position - 2 , endPos:self.position,
-							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-					} else if (self.buffer.lookAhead() == "<"){
-						currChar = self.nextLexeme();
-						self.position += 1;
-						self.tokenIndex += 1;
-						return {tokenType: HALF_OPEN_RANGE, text: "..<", startPos: self.position - 2 , endPos:self.position,
-							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-					}
-					self.tokenIndex += 1;
-					return {tokenType: RANGE, text: "..", startPos: self.position - 1 , endPos:self.position,
-						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				}
-				self.tokenIndex += 1;
-				return {tokenType: DOT, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
-			} else if(currChar == "["){
-				self.tokenIndex += 1;
-				return {tokenType: LEFT_BRACKET, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-			} else if (currChar == "]"){
-				self.tokenIndex += 1;
-				return {tokenType: RIGHT_BRACKET, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-			} else if(currChar == "?"){
-				if (self.buffer.lookAhead() == ":") {
-					currChar = self.nextLexeme();
-					self.position += 1;
-					self.tokenIndex += 1;
-					return { tokenType: ELVIS, text: "?:", startPos: self.position - 1 , endPos:self.position,
-						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				}
-				self.tokenIndex += 1;
-				return {tokenType: QUESTION_MARK, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
-			} else if (currChar == "#"){
-				self.tokenIndex += 1;
-				return {tokenType: HASH, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-			} else if (currChar == "~"){
-				self.tokenIndex += 1;
-				return {tokenType: BIT_COMPLEMENT, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-			} else if (currChar == "/") {
-				if (self.buffer.lookAhead() == "=") {
-					currChar = self.nextLexeme();
-					self.position += 1;
-					self.tokenIndex += 1;
-					return {tokenType: COMPOUND_DIV, text: "/=", startPos: self.position - 1 , endPos:self.position,
-						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				}
-				self.tokenIndex += 1;
-                return { tokenType: DIV, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-            } else if(currChar == "%"){
-				self.tokenIndex += 1;
-				return { tokenType: MOD, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-			} else if (currChar == "!") {
-				if (self.buffer.lookAhead() == "=") {
-					currChar = self.nextLexeme();
-					self.position += 1;
-					if (self.buffer.lookAhead() == "=") {
-						currChar = self.nextLexeme();
-						self.position += 1;
-						self.tokenIndex += 1;
-						return {tokenType: REF_NOT_EQUAL, text: "!==", startPos: self.position - 2 , endPos:self.position,
-							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-					}
-					self.tokenIndex += 1;
-					return {tokenType: NOT_EQUAL, text: "!=", startPos: self.position - 1 , endPos:self.position,
-						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				}
-				self.tokenIndex += 1;
-				return {tokenType: NOT, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
-			} else if (currChar == ">") {
+            	self.tokenIndex += 1;
+            	return {tokenType: singleTokenSy, text: currChar, startPos: self.position, endPos: self.position,
+                					lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+            }else if (currChar == ">") {
 				if (self.buffer.lookAhead() == "=") {
 					currChar = self.nextLexeme();
 					self.position += 1;
@@ -478,6 +257,15 @@ public type Lexer object {
 };
 
 
+# Token record
+#
+# + tokenType - type of the Token 
+# + text - input text 
+# + startPos - starting column number of the token
+# + endPos - ending column number of the token
+# + lineNumber - lineNumber with respect to the source code
+# + index - index of the token with respect to the source code 
+# + whiteSpace - whiteSpace prior to the token is attached here
 public type Token record{
     int tokenType;
     string text;
