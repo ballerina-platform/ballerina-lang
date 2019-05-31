@@ -18,6 +18,7 @@ annotation map<string> v0 on var;
 const annotation Foo v1 on annotation;
 annotation Bar v2 on const, type;
 const annotation map<anydata> v3 on return, external;
+const annotation map<anydata> v4 on listener;
 
 type Foo record {
     string val1;

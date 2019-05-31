@@ -122,7 +122,6 @@ public class AnnotationDesugar {
 
         defineTypeAnnotations(pkgNode, env, initFunction);
         defineServiceAnnotations(pkgNode, env, initFunction);
-        defineListenerAnnotations(pkgNode, env, initFunction);
         defineFunctionAnnotations(pkgNode, env, initFunction);
 
         BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
@@ -149,22 +148,6 @@ public class AnnotationDesugar {
             BLangLambdaFunction lambdaFunction = defineAnnotations(service, service.pos, pkgNode, env, pkgID, owner);
             if (lambdaFunction != null) {
                 addInvocationToGlobalAnnotMap(service.name.value, lambdaFunction, target, pkgID, owner);
-            }
-        }
-    }
-
-    private void defineListenerAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction target) {
-        for (BLangSimpleVariable variable : pkgNode.globalVars) {
-            PackageID pkgID = variable.symbol.pkgID;
-            BSymbol owner = variable.symbol.owner;
-
-            if (!Symbols.isFlagOn(variable.symbol.flags, Flags.LISTENER)) {
-                continue;
-            }
-
-            BLangLambdaFunction lambdaFunction = defineAnnotations(variable, variable.pos, pkgNode, env, pkgID, owner);
-            if (lambdaFunction != null) {
-                addInvocationToGlobalAnnotMap(variable.name.value, lambdaFunction, target, pkgID, owner);
             }
         }
     }

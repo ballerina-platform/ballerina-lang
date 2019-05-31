@@ -26,8 +26,8 @@ public annotation Annot v5 on resource function;
 annotation Annot v6 on parameter;
 public annotation v7 on return;
 annotation Annot v8 on service;
-public annotation Annot[] v9 on listener;
 
+public const annotation map<string> v9 on source listener;
 const annotation map<string> v10 on source annotation;
 const annotation map<int> v11 on source var;
 public const annotation map<string> v12 on source const;

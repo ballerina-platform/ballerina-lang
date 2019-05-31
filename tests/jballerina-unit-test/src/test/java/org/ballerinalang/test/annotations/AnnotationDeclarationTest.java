@@ -33,26 +33,29 @@ public class AnnotationDeclarationTest {
     public void testSourceOnlyAnnotDeclWithoutSource() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/annotations/source_only_annot_without_source_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 5);
+        Assert.assertEquals(compileResult.getErrorCount(), 6);
         BAssertUtil.validateError(compileResult, 0,
                                   "mismatched input 'var'. expecting {'service', 'resource', 'function', " +
-                                          "'object', 'parameter', 'listener', 'source', 'type', 'return'}", 17, 30);
+                                          "'object', 'parameter', 'source', 'type', 'return'}", 17, 30);
         BAssertUtil.validateError(compileResult, 1,
                                   "mismatched input 'annotation'. expecting {'service', 'resource', 'function', " +
-                                          "'object', 'parameter', 'listener', 'source', 'type', 'return'}", 18, 28);
+                                          "'object', 'parameter', 'source', 'type', 'return'}", 18, 28);
         BAssertUtil.validateError(compileResult, 2,
                                   "mismatched input 'const'. expecting {'service', 'resource', 'function', " +
-                                          "'object', 'parameter', 'listener', 'source', 'type', 'return'}", 19, 22);
+                                          "'object', 'parameter', 'source', 'type', 'return'}", 19, 22);
         BAssertUtil.validateError(compileResult, 4,
                                   "mismatched input 'external'. expecting {'service', 'resource', 'function', " +
-                                          "'object', 'parameter', 'listener', 'source', 'type', 'return'}", 20, 45);
+                                          "'object', 'parameter', 'source', 'type', 'return'}", 20, 45);
+        BAssertUtil.validateError(compileResult, 5,
+                                  "mismatched input 'listener'. expecting {'service', 'resource', 'function', " +
+                                          "'object', 'parameter', 'source', 'type', 'return'}", 21, 37);
     }
 
     @Test
     public void testSourceAnnotDeclWithoutConst() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/annotations/source_annot_without_const_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 9);
+        Assert.assertEquals(compileResult.getErrorCount(), 10);
         String errorMessage = "annotation definition with 'source' attach point(s) should be a 'const' definition";
         for (int index = 0; index < 9; index++) {
             BAssertUtil.validateError(compileResult, index, errorMessage, index + 17, 1);

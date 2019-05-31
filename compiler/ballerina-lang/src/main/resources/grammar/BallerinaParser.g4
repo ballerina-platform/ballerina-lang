@@ -145,7 +145,6 @@ dualAttachPointIdent
     |   PARAMETER
     |   RETURN
     |   SERVICE
-    |   LISTENER
     ;
 
 sourceOnlyAttachPoint
@@ -157,6 +156,7 @@ sourceOnlyAttachPointIdent
     |   EXTERNAL
     |   VAR
     |   CONST
+    |   LISTENER
     ;
 
 workerDeclaration
