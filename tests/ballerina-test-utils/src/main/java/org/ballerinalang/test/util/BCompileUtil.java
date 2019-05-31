@@ -572,12 +572,16 @@ public class BCompileUtil {
         String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                 bLangPackage.packageID.name.value, MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
-        String funcName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).initFunction);
+        String initFuncName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).initFunction);
+        String startFuncName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).startFunction);
         try {
-            Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
+            Method method = initClazz.getDeclaredMethod(initFuncName, Strand.class);
+            method.invoke(null, new Strand(new Scheduler(4)));
+
+            method = initClazz.getDeclaredMethod(startFuncName, Strand.class);
             method.invoke(null, new Strand(new Scheduler(4)));
         } catch (Exception e) {
-            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
+            throw new RuntimeException("Error while invoking function '" + initFuncName + "'", e);
         }
         compileResult.setClassLoader(classLoader);
         return compileResult;
