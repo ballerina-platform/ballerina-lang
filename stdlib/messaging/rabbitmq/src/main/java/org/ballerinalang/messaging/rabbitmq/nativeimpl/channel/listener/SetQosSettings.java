@@ -33,7 +33,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.io.IOException;
 
 /**
+ * Request specific "quality of service" settings.
  *
+ * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = RabbitMQConstants.ORG_NAME,
@@ -54,19 +56,21 @@ public class SetQosSettings extends BlockingNativeCallableUnit {
                 (BMap<String, BValue>) channelListObject.get(RabbitMQConstants.CHANNEL_REFERENCE);
         Channel channel = (Channel) channelObj.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         BValue prefetchCount = context.getNullableRefArgument(1);
-        BValue prefetchSize = context.getNullableRefArgument(2);
         boolean isValidCount = prefetchCount instanceof BInteger;
-        boolean isValidSize = prefetchSize instanceof BInteger;
         try {
-            if (isValidCount && isValidSize) {
-                channel.basicQos(Math.toIntExact(((BInteger) prefetchSize).intValue()),
-                        Math.toIntExact(((BInteger) prefetchCount).intValue()),
-                        true);
-                channelObj.addNativeData(RabbitMQConstants.QOS_STATUS, true);
-            } else if (isValidCount) {
-                channel.basicQos(Math.toIntExact(((BInteger) prefetchCount).intValue()),
-                        true);
-                channelObj.addNativeData(RabbitMQConstants.QOS_STATUS, true);
+            if (isValidCount) {
+                BValue prefetchSize = context.getNullableRefArgument(2);
+                boolean isValidSize = prefetchSize instanceof BInteger;
+                if (isValidSize) {
+                    channel.basicQos(Math.toIntExact(((BInteger) prefetchSize).intValue()),
+                            Math.toIntExact(((BInteger) prefetchCount).intValue()),
+                            true);
+                    channelObj.addNativeData(RabbitMQConstants.QOS_STATUS, true);
+                } else {
+                    channel.basicQos(Math.toIntExact(((BInteger) prefetchCount).intValue()),
+                            true);
+                    channelObj.addNativeData(RabbitMQConstants.QOS_STATUS, true);
+                }
             }
         } catch (IOException exception) {
             RabbitMQUtils.returnError("I/O error occurred while setting the global " +

@@ -94,8 +94,8 @@ public class Start extends BlockingNativeCallableUnit {
                 default:
                     throw new BallerinaException("Unsupported acknowledgement mode");
             }
-            boolean qosStatus = channelObj.getNativeData(RabbitMQConstants.QOS_STATUS) != null;
-            if (!qosStatus) {
+            boolean isQosSet = channelObj.getNativeData(RabbitMQConstants.QOS_STATUS) != null;
+            if (!isQosSet) {
                 try {
                     handleBasicQos(channel, value);
                 } catch (RabbitMQConnectorException exception) {
@@ -167,9 +167,7 @@ public class Start extends BlockingNativeCallableUnit {
         messageObj.addNativeData(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
         messageObj.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
         messageObj.addNativeData(RabbitMQConstants.MESSAGE_CONTENT, message);
-        if (autoAck) {
-            messageObj.addNativeData(RabbitMQConstants.AUTO_ACK_STATUS, true);
-        }
+        messageObj.addNativeData(RabbitMQConstants.AUTO_ACK_STATUS, autoAck);
         return messageObj;
     }
 
@@ -185,14 +183,10 @@ public class Start extends BlockingNativeCallableUnit {
             prefetchCount = annotationValue.getIntField(RabbitMQConstants.PREFETCH_COUNT);
         }
         boolean isValidPrefetchSize = annotationValue.getRefField(RabbitMQConstants.PREFETCH_SIZE) != null;
-        boolean isValidGlobal = annotationValue.getRefField(RabbitMQConstants.PREFETCH_GLOBAL) != null;
         try {
-            if (isValidPrefetchSize && isValidGlobal) {
+            if (isValidPrefetchSize) {
                 channel.basicQos(Math.toIntExact(annotationValue.getIntField(RabbitMQConstants.PREFETCH_SIZE)),
                         Math.toIntExact(prefetchCount),
-                        annotationValue.getBooleanField(RabbitMQConstants.PREFETCH_GLOBAL));
-            } else if (isValidGlobal) {
-                channel.basicQos(Math.toIntExact(prefetchCount),
                         annotationValue.getBooleanField(RabbitMQConstants.PREFETCH_GLOBAL));
             } else {
                 channel.basicQos(Math.toIntExact(prefetchCount));

@@ -306,11 +306,7 @@ public class ChannelUtils {
      * @return True if the ack-mode is client acknowledgement mode, and false otherwise.
      */
     public static boolean validateAckMode(BMap<String, BValue> messageObject) {
-        boolean ackMode = false;
-        if (messageObject.getNativeData(RabbitMQConstants.AUTO_ACK_STATUS) == null) {
-            ackMode = true;
-        }
-        return ackMode;
+        return !(Boolean) messageObject.getNativeData(RabbitMQConstants.AUTO_ACK_STATUS);
     }
 
     private ChannelUtils() {

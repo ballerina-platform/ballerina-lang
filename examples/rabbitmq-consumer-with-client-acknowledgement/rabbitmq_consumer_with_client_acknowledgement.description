@@ -1,0 +1,5 @@
+// In this example, the messages are consumed from an
+// already existing queue using the Ballerina RabbitMQ message listener.
+// The received messages are acknowledged manually.
+// ackMode is by default rabbitmq:AUTO_ACK which will automatically acknowledge
+// all messages once consumed.
