@@ -34,6 +34,12 @@ body .ui.grid .navi-wrapper .logo {
   text-align: center;
   margin: 1em;
 }
+body .ui.grid .navi-wrapper .version {
+  float: right;
+  margin-right: 1.2em;
+  margin-top: -0.8em;
+  margin-bottom: 1em;
+}
 body .ui.grid .navi-wrapper:hover {
   overflow-y: scroll;
   position: inherit;
