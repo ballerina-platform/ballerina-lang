@@ -2404,10 +2404,42 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-        ternaryExpr.expr = rewriteExpr(ternaryExpr.expr);
-        ternaryExpr.thenExpr = rewriteExpr(ternaryExpr.thenExpr);
-        ternaryExpr.elseExpr = rewriteExpr(ternaryExpr.elseExpr);
-        result = ternaryExpr;
+        /*
+         * First desugar to if-else:
+         * 
+         * T $result$;
+         * if () {
+         *    $result$ = thenExpr;
+         * } else {
+         *    $result$ = elseExpr;
+         * }
+         * 
+         */
+        BLangSimpleVariableDef resultVarDef = createVarDef("$ternary_result$", ternaryExpr.type, null, ternaryExpr.pos);
+        BLangBlockStmt thenBody = ASTBuilderUtil.createBlockStmt(ternaryExpr.pos);
+        BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(ternaryExpr.pos);
+
+        // Create then assignment
+        BLangSimpleVarRef thenResultVarRef = ASTBuilderUtil.createVariableRef(ternaryExpr.pos, resultVarDef.var.symbol);
+        BLangAssignment thenAssignment =
+                ASTBuilderUtil.createAssignmentStmt(ternaryExpr.pos, thenResultVarRef, ternaryExpr.thenExpr);
+        thenBody.addStatement(thenAssignment);
+
+        // Create else assignment
+        BLangSimpleVarRef elseResultVarRef = ASTBuilderUtil.createVariableRef(ternaryExpr.pos, resultVarDef.var.symbol);
+        BLangAssignment elseAssignment =
+                ASTBuilderUtil.createAssignmentStmt(ternaryExpr.pos, elseResultVarRef, ternaryExpr.elseExpr);
+        elseBody.addStatement(elseAssignment);
+
+        // Then make it a expression-statement, with expression being the $result$
+        BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(ternaryExpr.pos, resultVarDef.var.symbol);
+        BLangIf ifElse = ASTBuilderUtil.createIfElseStmt(ternaryExpr.pos, ternaryExpr.expr, thenBody, elseBody);
+
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(ternaryExpr.pos, Lists.of(resultVarDef, ifElse));
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, resultVarRef);
+        stmtExpr.type = ternaryExpr.type;
+
+        result = rewriteExpr(stmtExpr);
     }
 
     @Override
@@ -4911,7 +4943,7 @@ public class Desugar extends BLangNodeVisitor {
                 return getFloatLiteral(0.0);
             case TypeTags.BYTE:
             case TypeTags.INT:
-                return getFloatLiteral(0);
+                return getIntLiteral(0);
             case TypeTags.DECIMAL:
                 return getDecimalLiteral("0.0");
             case TypeTags.FINITE:

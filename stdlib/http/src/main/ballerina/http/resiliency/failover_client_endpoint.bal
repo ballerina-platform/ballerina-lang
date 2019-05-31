@@ -436,37 +436,37 @@ function populateErrorsFromLastResponse (Response inResponse, error?[] failoverA
 
 # Provides a set of HTTP related configurations and failover related configurations.
 #
-# + circuitBreaker - Circuit Breaker behaviour configurations
+# + httpVersion - The HTTP version to be used to communicate with the endpoint
+# + http1Settings - Configurations related to HTTP/1.x protocol
+# + http2Settings - Configurations related to HTTP/2 protocol
 # + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
-# + httpVersion - The HTTP version supported by the endpoint
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
-# + keepAlive - Specifies whether to reuse a connection for multiple requests
-# + chunking - The chunking behaviour of the request
 # + followRedirects - Redirect related options
-# + retryConfig - Retry related options
 # + poolConfig - Configurations associated with request pooling
 # + proxy - Proxy related options
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
 # + cache - The configurations for controlling the caching behaviour
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication releated configurations
+# + circuitBreaker - Circuit Breaker behaviour configurations
+# + retryConfig - Retry related options
 # + failoverCodes - Array of HTTP response status codes for which the failover behaviour should be triggered
 # + intervalMillis - Failover delay interval in milliseconds
 public type FailoverClientEndpointConfiguration record {|
-    CircuitBreakerConfig? circuitBreaker = ();
+    string httpVersion = HTTP_1_1;
+    Http1Settings http1Settings = {};
+    Http2Settings http2Settings = {};
     int timeoutMillis = 60000;
-    string httpVersion = "1.1";
     string forwarded = "disable";
-    KeepAlive keepAlive = KEEPALIVE_AUTO;
-    Chunking chunking = "AUTO";
     FollowRedirects? followRedirects = ();
-    RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
     PoolConfiguration? poolConfig = ();
     TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
     OutboundAuthConfig? auth = ();
+    CircuitBreakerConfig? circuitBreaker = ();
+    RetryConfig? retryConfig = ();
     int[] failoverCodes = [501, 502, 503, 504];
     int intervalMillis = 0;
 |};
@@ -474,10 +474,10 @@ public type FailoverClientEndpointConfiguration record {|
 function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,
                                                   TargetService target) returns ClientEndpointConfig {
     ClientEndpointConfig clientEPConfig = {
+        http1Settings: foConfig.http1Settings,
+        http2Settings: foConfig.http2Settings,
         circuitBreaker:foConfig.circuitBreaker,
         timeoutMillis:foConfig.timeoutMillis,
-        keepAlive:foConfig.keepAlive,
-        chunking:foConfig.chunking,
         httpVersion:foConfig.httpVersion,
         forwarded:foConfig.forwarded,
         followRedirects:foConfig.followRedirects,

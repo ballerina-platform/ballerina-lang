@@ -219,14 +219,14 @@ public class BIRBinaryWriter {
         birbuf.writeBoolean(birFunction.returnVariable != null);
         if (birFunction.returnVariable != null) {
             birbuf.writeByte(birFunction.returnVariable.kind.getValue());
-            funcTypeWriter.visitType(birFunction.returnVariable.type);
+            writeType(birbuf, birFunction.returnVariable.type);
             birbuf.writeInt(addStringCPEntry(birFunction.returnVariable.name.value));
         }
 
         birbuf.writeInt(birFunction.parameters.size());
         for (BIRNode.BIRFunctionParameter param : birFunction.parameters.keySet()) {
             birbuf.writeByte(param.kind.getValue());
-            funcTypeWriter.visitType(param.type);
+            writeType(birbuf, param.type);
             birbuf.writeInt(addStringCPEntry(param.name.value));
             birbuf.writeBoolean(param.hasDefaultExpr);
         }

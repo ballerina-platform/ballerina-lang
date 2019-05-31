@@ -1108,25 +1108,6 @@ type InstructionGenerator object {
         self.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }
 
-    function generateTernaryIns(bir:Ternary ternary) {
-        jvm:Label label1 = new;
-        jvm:Label label2 = new;
-
-        self.loadVar(ternary.conditionOp.variableDcl);
-        self.mv.visitJumpInsn(IFNE, label1);
-
-        // if true
-        self.loadVar(ternary.thenOp.variableDcl);
-        self.mv.visitJumpInsn(GOTO, label2);
-
-        // else
-        self.mv.visitLabel(label1);
-        self.loadVar(ternary.elseOp.variableDcl);
-
-        self.mv.visitLabel(label2);
-        self.storeToVar(ternary.lhsOp.variableDcl);
-    }
-
     private function loadVar(bir:VariableDcl varDcl) {
         generateVarLoad(self.mv, varDcl, self.currentPackageName, self.getJVMIndexOfVarRef(varDcl));
     }

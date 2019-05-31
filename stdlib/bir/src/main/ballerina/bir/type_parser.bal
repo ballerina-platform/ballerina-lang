@@ -350,9 +350,9 @@ public type TypeParser object {
 
     private function getValue(BType valueType) returns (int | string | boolean | float | byte| ()) {
         if (valueType is BTypeInt) {
-            return self.reader.readIntCpRef();
+            return self.readIntCpRef();
         } else if (valueType is BTypeByte) {
-            return self.reader.readByteCpRef();
+            return self.readByteCpRef();
         } else if (valueType is BTypeString) {
             return self.readStringCpRef();
         } else if (valueType is BTypeBoolean) {
@@ -380,6 +380,11 @@ public type TypeParser object {
     private function readFloatCpRef() returns float {
         var floatCpIndex = self.readInt32();
         return self.cp.floats[floatCpIndex];
+    }
+
+    public function readByteCpRef() returns byte {
+        var byteCpIndex = self.readInt32();
+        return self.cp.bytes[byteCpIndex];
     }
 
     // TODO: remove duplicate function with the same name
@@ -426,5 +431,4 @@ public type TypeParser object {
         self.reader.pos = pos + 4;
         return b0 <<octave3|(b1 & ff) <<octave2|(b2 & ff) <<octave1|(b3 & ff);
     }
-
 };

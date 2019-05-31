@@ -58,7 +58,7 @@ public type PackageParser object {
 
     public function parseFunctionParam() returns FunctionParam {
         VarKind kind = parseVarKind(self.reader);
-        var typeValue = self.typeParser.parseType();
+        var typeValue = self.reader.readTypeCpRef();
         var name = self.reader.readStringCpRef();
         var hasDefaultExpr = self.reader.readBoolean();
         FunctionParam dcl = {
