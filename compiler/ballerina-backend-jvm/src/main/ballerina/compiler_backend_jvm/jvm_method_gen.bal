@@ -192,7 +192,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     jvm:Label yieldLable = labelGen.getLabel(funcName + "yield");
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
 
-    generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex, localVarOffset, false);
+    generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
+                            localVarOffset, false);
 
     string frameName = getFrameClassName(currentPackageName, funcName, attachedType);
     mv.visitLabel(resumeLable);
@@ -487,14 +488,9 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             } else if (inst is bir:NewArray) {
                 instGen.generateArrayNewIns(inst);
             } else if (inst is bir:NewMap) {
-                if (inst.kind == bir:INS_KIND_NEW_MAP) {
-                    instGen.generateMapNewIns(inst);
-                } else if (inst.kind == bir:INS_KIND_NEW_TYPEDESC) {
-                    instGen.generateNewTypedescIns(inst);
-                } else {
-                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
-                    panic err;
-                }
+                instGen.generateMapNewIns(inst);
+            } else if (inst is bir:NewTypeDesc) {
+                instGen.generateNewTypedescIns(inst);
             } else if (inst is bir:NewTable) {
                 instGen.generateTableNewIns(inst);
             } else if (inst is bir:NewStream) {
@@ -1109,19 +1105,28 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     mv.visitEnd();
 
     //need to generate lambda for package Init as well, if exist
-    if(hasInitFunction(pkg)) {
+    if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
             io:sprintf("$lambda$%s$", initFuncName),
             io:sprintf("([L%s;)V", OBJECT), (), ());
         mv.visitCode();
+
          //load strand as first arg
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND);
-
         mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)V", STRAND), false);
+
+        // call start function
+        string startFuncName = cleanupFunctionName(getModuleStartFuncName(pkg));
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, STRAND);
+        mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)V", STRAND), false);
+
         mv.visitInsn(RETURN);
         mv.visitMaxs(0,0);
         mv.visitEnd();
@@ -1190,6 +1195,26 @@ function getModuleInitFuncName(bir:Package module) returns string {
         funcName = moduleName + ".<init>";
     } else {
         funcName = moduleName + ":" + module.versionValue.value + ".<init>";
+    }
+
+    if (!orgName.equalsIgnoreCase("$anon")) {
+        funcName = orgName  + "/" + funcName;
+    }
+
+    return funcName;
+}
+
+function getModuleStartFuncName(bir:Package module) returns string {
+    string orgName = module.org.value;
+    string moduleName = module.name.value;
+
+    string funcName;
+    if (moduleName.equalsIgnoreCase(".")) {
+        funcName = "..<start>";
+    } else if ("".equalsIgnoreCase(module.versionValue.value)) {
+        funcName = moduleName + ".<start>";
+    } else {
+        funcName = moduleName + ":" + module.versionValue.value + ".<start>";
     }
 
     if (!orgName.equalsIgnoreCase("$anon")) {
