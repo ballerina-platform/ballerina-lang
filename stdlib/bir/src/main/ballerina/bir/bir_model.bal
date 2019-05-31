@@ -406,7 +406,7 @@ public type ConstantLoad record {|
     InstructionKind kind;
     VarRef lhsOp;
     BType typeValue;
-    int | string | boolean | float | () value;
+    int | string | boolean | float | byte | () value;
 |};
 
 public type NewMap record {|

@@ -20,6 +20,7 @@ package org.ballerinalang.test.expressions.builtinoperations;
 
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
@@ -94,9 +95,9 @@ public class CloneOperationTest {
     public void testCloneByte() {
         BValue[] results = BRunUtil.invoke(result, "cloneByte");
         Assert.assertNotNull(results);
-        Assert.assertEquals(((BInteger) results[0]).byteValue(), 234);
-        Assert.assertEquals(((BInteger) results[1]).byteValue(), 100);
-        Assert.assertEquals(((BInteger) results[2]).byteValue(), 133);
+        Assert.assertEquals(((BByte) results[0]).byteValue(), 234);
+        Assert.assertEquals(((BByte) results[1]).byteValue(), 100);
+        Assert.assertEquals(((BByte) results[2]).byteValue(), 133);
         Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 

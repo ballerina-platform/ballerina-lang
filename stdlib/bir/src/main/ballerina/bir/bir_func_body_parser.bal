@@ -159,9 +159,11 @@ public type FuncBodyParser object {
             kind = INS_KIND_CONST_LOAD;
             var lhsOp = self.parseVarRef();
 
-            int | string | boolean | float value = 0;
-            if (bType is BTypeInt || bType is BTypeByte) {
+            int | string | boolean | float | byte value = 0;
+            if (bType is BTypeInt) {
                 value = self.reader.readIntCpRef();
+            } else if (bType is BTypeByte) {
+                value = self.reader.readByteCpRef();
             } else if (bType is BTypeString) {
                 value = self.reader.readStringCpRef();
             } else if (bType is BTypeDecimal) {

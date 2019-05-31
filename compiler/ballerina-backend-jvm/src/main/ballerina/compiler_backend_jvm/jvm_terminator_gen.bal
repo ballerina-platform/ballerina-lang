@@ -108,9 +108,12 @@ type TerminatorGenerator object {
         bir:BType bType = func.typeValue.retType;
         if (bType is bir:BTypeNil) {
             self.mv.visitInsn(RETURN);
-        } else if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+        } else if (bType is bir:BTypeInt) {
             self.mv.visitVarInsn(LLOAD, returnVarRefIndex);
             self.mv.visitInsn(LRETURN);
+        } else if (bType is bir:BTypeByte) {
+            self.mv.visitVarInsn(ILOAD, returnVarRefIndex);
+            self.mv.visitInsn(IRETURN);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitVarInsn(DLOAD, returnVarRefIndex);
             self.mv.visitInsn(DRETURN);
@@ -271,8 +274,10 @@ type TerminatorGenerator object {
             int lhsLndex = self.getJVMIndexOfVarRef(lhsOpVarDcl);
             bir:BType? bType = callIns.lhsOp.typeValue;
 
-            if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+            if (bType is bir:BTypeInt) {
                 self.mv.visitVarInsn(LSTORE, lhsLndex);
+            } else if (bType is bir:BTypeByte) {
+                self.mv.visitVarInsn(ISTORE, lhsLndex);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DSTORE, lhsLndex);
             } else if (bType is bir:BTypeString) {
@@ -435,8 +440,10 @@ type TerminatorGenerator object {
 
         bir:BType bType = argRef.typeValue;
         int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(argRef.variableDcl));
-        if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+        if (bType is bir:BTypeInt) {
             self.mv.visitVarInsn(LLOAD, argIndex);
+        } else if (bType is bir:BTypeByte) {
+            self.mv.visitVarInsn(ILOAD, argIndex);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitVarInsn(DLOAD, argIndex);
         } else if (bType is bir:BTypeDecimal) {
@@ -793,7 +800,6 @@ type TerminatorGenerator object {
         self.mv.visitVarInsn(ALOAD, wrkResultIndex);
         addUnboxInsn(self.mv, ins.lhsOp.typeValue);
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
-        bir:VariableDcl? lhsVar = ins.lhsOp.variableDcl;
         generateVarStore(self.mv, ins.lhsOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(ins.lhsOp.variableDcl));
 
         // goto thenBB

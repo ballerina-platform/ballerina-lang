@@ -334,8 +334,10 @@ public type TypeParser object {
     }
 
     private function getValue(BType valueType) returns (int | string | boolean | float | byte| ()) {
-        if (valueType is BTypeInt || valueType is BTypeByte) {
+        if (valueType is BTypeInt) {
             return self.reader.readIntCpRef();
+        } else if (valueType is BTypeByte) {
+            return self.reader.readByteCpRef();
         } else if (valueType is BTypeString) {
             return self.reader.readStringCpRef();
         } else if (valueType is BTypeBoolean) {

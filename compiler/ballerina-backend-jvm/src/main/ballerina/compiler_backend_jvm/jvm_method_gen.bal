@@ -215,9 +215,12 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         bir:BType bType = localVar.typeValue;
         mv.visitInsn(DUP);
 
-        if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+        if (bType is bir:BTypeInt) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "J");
             mv.visitVarInsn(LSTORE, index);
+        } else if (bType is bir:BTypeByte) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "I");
+            mv.visitVarInsn(ISTORE, index);
         } else if (bType is bir:BTypeFloat) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "D");
             mv.visitVarInsn(DSTORE, index);
@@ -307,9 +310,12 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         mv.visitInsn(DUP);
 
         bir:BType bType = localVar.typeValue;
-        if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+        if (bType is bir:BTypeInt) {
             mv.visitVarInsn(LLOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "J");
+        } else if (bType is bir:BTypeByte) {
+            mv.visitVarInsn(ILOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "I");
         } else if (bType is bir:BTypeFloat) {
             mv.visitVarInsn(DLOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "D");
@@ -696,9 +702,12 @@ function addBooleanTypeToLambdaParamTypes(jvm:MethodVisitor mv, int arrayIndex, 
 }
 
 function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
-    if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+    if (bType is bir:BTypeInt) {
         mv.visitInsn(LCONST_0);
         mv.visitVarInsn(LSTORE, index);
+    } else if (bType is bir:BTypeByte) {
+        mv.visitInsn(ICONST_0);
+        mv.visitVarInsn(ISTORE, index);
     } else if (bType is bir:BTypeFloat) {
         mv.visitInsn(DCONST_0);
         mv.visitVarInsn(DSTORE, index);
@@ -810,8 +819,10 @@ function getLambdaMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, int cl
 }
 
 function getArgTypeSignature(bir:BType bType) returns string {
-    if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+    if (bType is bir:BTypeInt) {
         return "J";
+    } else if (bType is bir:BTypeByte) {
+        return "I";
     } else if (bType is bir:BTypeFloat) {
         return "D";
     } else if (bType is bir:BTypeString) {
@@ -857,8 +868,10 @@ function getArgTypeSignature(bir:BType bType) returns string {
 function generateReturnType(bir:BType? bType) returns string {
     if (bType is ()) {
         return ")V";
-    } else if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+    } else if (bType is bir:BTypeInt) {
         return ")J";
+    } else if (bType is bir:BTypeByte) {
+        return ")I";
     } else if (bType is bir:BTypeFloat) {
         return ")D";
     } else if (bType is bir:BTypeString) {
@@ -1028,14 +1041,16 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
         bir:BType returnType = userMainFunc.typeValue.retType;
         addUnboxInsn(mv, returnType);
-        if (returnType is bir:BTypeInt || returnType is bir:BTypeByte) {
+        if (returnType is bir:BTypeInt) {
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
+        } else if (returnType is bir:BTypeByte) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false);
         } else if (returnType is bir:BTypeFloat) {
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(D)V", false);
         } else if (returnType is bir:BTypeBoolean) {
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Z)V", false);
         } else {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", io:sprintf("(L%s;)V", OBJECT), false);
         }
     }
 
@@ -1120,12 +1135,14 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
 # + mv - method visitor
 function castFromString(bir:BType targetType, jvm:MethodVisitor mv) {
     mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-    if (targetType is bir:BTypeInt || targetType is bir:BTypeByte) {
-        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "parseLong", "(Ljava/lang/String;)J", false);
+    if (targetType is bir:BTypeInt) {
+        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "parseLong", io:sprintf("(L%s;)J", STRING_VALUE), false);
+    } else if (targetType is bir:BTypeByte) {
+        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "parseInt", io:sprintf("(L%s;)I", STRING_VALUE), false);
     } else if (targetType is bir:BTypeFloat) {
-        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "parseDouble", "(Ljava/lang/String;)D", false);
+        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "parseDouble", io:sprintf("(L%s;)D", STRING_VALUE), false);
     } else if (targetType is bir:BTypeBoolean) {
-        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", "(Ljava/lang/String;)Z", false);
+        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", io:sprintf("(L%s;)Z", STRING_VALUE), false);
     } else if (targetType is bir:BTypeDecimal) {
         mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", io:sprintf("(L%s;)V", STRING_VALUE), false);
     } else if (targetType is bir:BArrayType) {
@@ -1229,8 +1246,7 @@ type BalToJVMIndexMap object {
         bir:BType bType = varDcl.typeValue;
 
         if (bType is bir:BTypeInt ||
-            bType is bir:BTypeFloat ||
-            bType is bir:BTypeByte) {
+            bType is bir:BTypeFloat) {
             self.localVarIndex = self.localVarIndex + 2;
         } else {
             self.localVarIndex = self.localVarIndex + 1;
@@ -1320,8 +1336,10 @@ function cleanupBalExt(string name) returns string {
 
 function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, boolean isPackage) {
     string typeSig;
-    if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+    if (bType is bir:BTypeInt) {
         typeSig = "J";
+    } else if (bType is bir:BTypeByte) {
+        typeSig = "I";
     } else if (bType is bir:BTypeFloat) {
         typeSig = "D";
     } else if (bType is bir:BTypeString) {
