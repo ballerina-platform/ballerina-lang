@@ -18,12 +18,18 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
@@ -33,11 +39,19 @@ import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN
  * {@code DataContext} is the wrapper to hold {@code Context} and {@code CallableUnitCallback}.
  */
 public class DataContext {
-    private final Strand strand;
-    private final ObjectValue clientObj;
-    private final ObjectValue requestObj;
-    private final NonBlockingCallback callback;
+    private Strand strand = null;
+    private ObjectValue clientObj = null;
+    private ObjectValue requestObj = null;
+    private NonBlockingCallback callback = null;
+    private Context context = null;
+    private CallableUnitCallback bCallback = null;
     private HttpCarbonMessage correlatedMessage;
+
+    public DataContext(Context context, CallableUnitCallback callback, HttpCarbonMessage correlatedMessage) {
+        this.context = context;
+        this.bCallback = callback;
+        this.correlatedMessage = correlatedMessage;
+    }
 
     public DataContext(Strand strand, ObjectValue clientObj, ObjectValue requestObj,
                        HttpCarbonMessage outboundRequestMsg) {
@@ -52,11 +66,24 @@ public class DataContext {
                        ObjectValue requestObj,
                        HttpCarbonMessage outboundRequestMsg) {
         this.strand = strand;
-        //TODO : NonBlockingCallback is used to handle non blocking call
         this.callback = callback;
         this.clientObj = clientObj;
         this.requestObj = requestObj;
         this.correlatedMessage = outboundRequestMsg;
+    }
+
+    public void notifyInboundResponseStatus(BMap<String, BValue> inboundResponse, BError httpConnectorError) {
+        //Make the request associate with this response consumable again so that it can be reused.
+        if (inboundResponse != null) {
+            getContext().setReturnValues(inboundResponse);
+        } else if (httpConnectorError != null) {
+            getContext().setReturnValues(httpConnectorError);
+        } else {
+            BMap<String, BValue> err = BLangConnectorSPIUtil.createBStruct(getContext(), PACKAGE_BALLERINA_BUILTIN,
+                                                 HttpConstants.STRUCT_GENERIC_ERROR, "HttpClient failed");
+            getContext().setReturnValues(err);
+        }
+        bCallback.notifySuccess();
     }
 
     public void notifyInboundResponseStatus(ObjectValue inboundResponse, ErrorValue httpConnectorError) {
@@ -71,6 +98,15 @@ public class DataContext {
             getCallback().setReturnValues(err);
         }
         getCallback().notifySuccess();
+    }
+
+    public void notifyOutboundBResponseStatus(BError httpConnectorError) {
+        if (httpConnectorError == null) {
+            getContext().setReturnValues();
+        } else {
+            getContext().setReturnValues(httpConnectorError);
+        }
+        bCallback.notifySuccess();
     }
 
     public void notifyOutboundResponseStatus(ErrorValue httpConnectorError) {
@@ -100,5 +136,9 @@ public class DataContext {
 
     public NonBlockingCallback getCallback() {
         return callback;
+    }
+
+    public Context getContext() {
+        return context;
     }
 }

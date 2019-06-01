@@ -195,6 +195,7 @@ public class Utils {
      * @param input          Represent a BValue which can be of type blob, string or byte channel
      * @param charset        Represent the charset value to be used with string
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
+     * @return encoded value
      */
     @SuppressWarnings("unchecked")
     public static Object encode(Object input, String charset, boolean isMimeSpecific) {
@@ -249,6 +250,7 @@ public class Utils {
      * @param encodedInput   Represent an encoded BValue which can be of type blob, string or byte channel
      * @param charset        Represent the charset value to be used with string
      * @param isMimeSpecific A boolean indicating whether the decoder should be mime specific or not
+     * @return decoded value
      */
     public static Object decode(Object encodedInput, String charset, boolean isMimeSpecific) {
         switch (TypeChecker.getType(encodedInput).getTag()) {

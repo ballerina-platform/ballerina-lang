@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
@@ -45,8 +46,8 @@ public class SetEntity extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-//        HttpUtil.setEntity(context, , false);
-//        context.setReturnValues();
+        BHttpUtil.setEntity(context, false);
+        context.setReturnValues();
     }
 
     public static void setEntity(Strand strand, ObjectValue requestObj, ObjectValue entityObj) {

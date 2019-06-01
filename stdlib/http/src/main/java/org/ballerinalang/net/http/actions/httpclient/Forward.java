@@ -20,11 +20,15 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -47,9 +51,37 @@ public class Forward extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-//        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
-//        // Execute the operation
-//        executeNonBlockingAction(dataContext, false);
+        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
+        // Execute the operation
+        executeNonBlockingAction(dataContext, false);
+    }
+
+    @Override
+    protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
+        String path = context.getStringArgument(1);
+        BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getRefArgument(1));
+
+        if (requestStruct.getNativeData(HttpConstants.REQUEST) == null &&
+                !BHttpUtil.isEntityDataSourceAvailable(requestStruct)) {
+            throw new BallerinaException("invalid inbound request parameter");
+        }
+        HttpCarbonMessage outboundRequestMsg = BHttpUtil
+                .getCarbonMsg(requestStruct, BHttpUtil.createHttpCarbonMessage(true));
+
+        if (BHttpUtil.isEntityDataSourceAvailable(requestStruct)) {
+            BHttpUtil.enrichOutboundMessage(outboundRequestMsg, requestStruct);
+            prepareOutboundRequest(context, path, outboundRequestMsg,
+                                   !BHttpUtil.checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
+            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD,
+                                           BLangConnectorSPIUtil.toStruct(requestStruct)
+                                                   .getStringField(HttpConstants.HTTP_REQUEST_METHOD));
+        } else {
+            prepareOutboundRequest(context, path, outboundRequestMsg,
+                                   !BHttpUtil.checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
+            String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
+            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        }
+        return outboundRequestMsg;
     }
 
     public static void nativeForward(Strand strand, ObjectValue clientObj, String url, MapValue config, String path,
