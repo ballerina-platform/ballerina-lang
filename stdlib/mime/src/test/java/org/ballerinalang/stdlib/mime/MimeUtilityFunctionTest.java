@@ -18,9 +18,6 @@
 
 package org.ballerinalang.stdlib.mime;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
@@ -38,6 +35,9 @@ import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
 import org.ballerinalang.stdlib.io.utils.Base64Wrapper;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

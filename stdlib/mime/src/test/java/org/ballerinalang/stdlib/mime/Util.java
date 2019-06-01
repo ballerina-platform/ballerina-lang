@@ -19,8 +19,8 @@
 package org.ballerinalang.stdlib.mime;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
