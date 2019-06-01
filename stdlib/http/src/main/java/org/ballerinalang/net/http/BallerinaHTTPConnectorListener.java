@@ -98,7 +98,6 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         Map<String, Object> properties = collectRequestProperties(inboundMessage, isTransactionInfectable,
                 isInterruptible, httpResource.isTransactionAnnotated());
         Object[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
-//        Resource balResource = httpResource.getBalResource();
 
         ObserverContext observerContext = null;
         if (ObserveUtils.isObservabilityEnabled()) {
@@ -119,8 +118,6 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         }
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
-        //TODO handle BallerinaConnectorException and callback
-//        Executor.submit(balResource, callback, properties, observerContext, signatureParams);
         ObjectValue service = httpResource.getParentService().getBalService();
         Executor.submit(service, httpResource.getName(), callback, properties, signatureParams);
     }
@@ -156,5 +153,4 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         properties.put(Constants.IS_INTERRUPTIBLE, isInterruptible);
         return properties;
     }
-
 }

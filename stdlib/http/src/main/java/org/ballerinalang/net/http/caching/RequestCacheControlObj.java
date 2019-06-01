@@ -41,17 +41,6 @@ public class RequestCacheControlObj {
 
     private ObjectValue requestCacheControl;
 
-    //TODO fix for tests
-//    public RequestCacheControlObj(StructureTypeInfo structInfo) {
-//        requestCacheControl = BLangVMStructs.createBStruct(structInfo);
-//
-//        // Initialize the struct fields to default values we use
-//        requestCacheControl.put(REQ_CACHE_CONTROL_NO_TRANSFORM_FIELD, new BBoolean(TRUE));
-//        requestCacheControl.put(REQ_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(-1));
-//        requestCacheControl.put(REQ_CACHE_CONTROL_MAX_STALE_FIELD, new BInteger(-1));
-//        requestCacheControl.put(REQ_CACHE_CONTROL_MIN_FRESH_FIELD, new BInteger(-1));
-//    }
-
     public RequestCacheControlObj(ObjectValue requestCacheControl) {
         this.requestCacheControl = requestCacheControl;
 

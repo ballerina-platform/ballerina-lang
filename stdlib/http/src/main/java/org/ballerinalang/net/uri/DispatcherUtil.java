@@ -18,6 +18,8 @@
 
 package org.ballerinalang.net.uri;
 
+import org.ballerinalang.net.http.BHttpResource;
+import org.ballerinalang.net.http.BHttpService;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
@@ -35,6 +37,13 @@ public class DispatcherUtil {
     private static String[] allMethods = new String[]{HttpConstants.HTTP_METHOD_GET, HttpConstants.HTTP_METHOD_HEAD
             , HttpConstants.HTTP_METHOD_POST, HttpConstants.HTTP_METHOD_DELETE
             , HttpConstants.HTTP_METHOD_PUT, HttpConstants.HTTP_METHOD_OPTIONS};
+
+    public static boolean isMatchingMethodExist(BHttpResource resourceInfo, String method) {
+        if (resourceInfo.getMethods() == null) {
+            return false;
+        }
+        return resourceInfo.getMethods().contains(method);
+    }
 
     public static boolean isMatchingMethodExist(HttpResource resourceInfo, String method) {
         if (resourceInfo.getMethods() == null) {
@@ -85,6 +94,18 @@ public class DispatcherUtil {
 //        }
 //        return list;
 //    }
+
+    public static List<String> getAllResourceMethods(BHttpService service) {
+        List<String> cachedMethods = new ArrayList();
+        for (BHttpResource resource : service.getResources()) {
+            if (resource.getMethods() == null) {
+                cachedMethods.addAll(DispatcherUtil.addAllMethods());
+                break;
+            }
+            cachedMethods.addAll(resource.getMethods());
+        }
+        return validateAllowMethods(cachedMethods);
+    }
 
     public static List<String> getAllResourceMethods(HttpService service) {
         List<String> cachedMethods = new ArrayList();

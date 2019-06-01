@@ -587,6 +587,9 @@ public class BCompileUtil {
             if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
                 throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
             }
+            if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
+                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+            }
             if (t instanceof ErrorValue) {
                 throw new org.ballerinalang.util.exceptions
                         .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());

@@ -150,12 +150,8 @@ task createZip(type: Zip) {
     with copyResourceSpec
 }
 
-artifacts {
-    dist createZip
-}
-
-build {
-    dependsOn createZip
+artifacts.add('dist', createZip.archiveFile) {
+    builtBy createZip
 }
 
 test {
