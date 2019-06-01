@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.io.ByteArrayOutputStream;

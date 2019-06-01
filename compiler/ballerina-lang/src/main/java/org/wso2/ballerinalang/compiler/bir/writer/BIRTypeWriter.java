@@ -18,9 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
