@@ -132,8 +132,7 @@ public class Register extends BlockingNativeCallableUnit {
     }
 
     public static Object register(Strand strand, ObjectValue listener, ObjectValue service, Object name) {
-        MapValueImpl serviceEndpointConfig = listener.getMapValue(
-                DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG);
+        MapValueImpl serviceEndpointConfig = listener.getMapValue(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG);
         try {
             final Map<String, AttachedFunction> resourceRegistry = getResourceRegistry(service);
             final String events = String.join(",", resourceRegistry.keySet());

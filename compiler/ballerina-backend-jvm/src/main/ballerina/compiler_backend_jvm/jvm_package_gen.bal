@@ -202,11 +202,12 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
                 }
             }
             generateStaticInitializer(module.globalVars, cw, moduleClass);
+            generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
             if (mainFunc is bir:Function) {
-                generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
                 generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
-                manifestEntries["Main-Class"] = moduleClass;
             }
+            generateLambdaForPackageInits(cw, module, mainClass, moduleClass);
+            manifestEntries["Main-Class"] = moduleClass;
         } else {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
             generateDefaultConstructor(cw, OBJECT);
