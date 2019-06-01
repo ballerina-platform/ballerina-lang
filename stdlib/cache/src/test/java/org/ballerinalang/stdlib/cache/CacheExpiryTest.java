@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.stdlib.common.CommonTestUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -31,7 +32,6 @@ import org.testng.annotations.Test;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.ballerinalang.stdlib.common.CommonTestUtils.printDiagnostics;
 
 /**
  * Tests for cache expiry.
@@ -44,7 +44,7 @@ public class CacheExpiryTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/cache/cache-expiry-test.bal");
-        printDiagnostics(compileResult, log);
+        CommonTestUtils.printDiagnostics(compileResult, log);
     }
 
     @Test
