@@ -74,7 +74,7 @@ public class Stop extends BlockingNativeCallableUnit {
         }
     }
 
-    public static Object execute(Strand strand, ObjectValue taskListener) {
+    public static Object stop(Strand strand, ObjectValue taskListener) {
         Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
         TaskServerConnector serverConnector = new TaskServerConnectorImpl(task);
         try {

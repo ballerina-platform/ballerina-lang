@@ -61,6 +61,7 @@ public type TypeParser object {
     public int TYPE_TAG_FUNCTION_POINTER = TYPE_TAG_BYTE_ARRAY + 1;
     public int TYPE_TAG_CHANNEL = TYPE_TAG_FUNCTION_POINTER + 1;
     public int TYPE_TAG_SERVICE = TYPE_TAG_CHANNEL + 1;
+    public int TYPE_TAG_REFERENCE_TYPE = 52;
 
     public int TYPE_TAG_SELF = 50;
 
@@ -68,8 +69,10 @@ public type TypeParser object {
     ByteArrayReader reader;
     int cpI;
     byte[]?[] unparsedTypes;
+    BIRContext birContext;
 
-    public function __init(ConstPool cp, byte[]?[] unparsedTypes, int cpI) {
+    public function __init(ConstPool cp, byte[]?[] unparsedTypes, int cpI, BIRContext birContext) {
+        self.birContext = birContext;
         var unparsedBytes = unparsedTypes[cpI];
         if (unparsedBytes is byte[]){
             self.reader = {buf: unparsedBytes};
@@ -85,7 +88,7 @@ public type TypeParser object {
 
     public function parseTypeCpRef() returns BType{
         int cpI = self.readInt32();
-        TypeParser p = new (self.cp, self.unparsedTypes, cpI);
+        TypeParser p = new (self.cp, self.unparsedTypes, cpI, self.birContext);
         var x = p.parseTypeAndAddToCp();
         return x;
     }
@@ -154,7 +157,9 @@ public type TypeParser object {
             return TYPE_XML;
         } else if(typeTag == self.TYPE_TAG_FINITE) {
             return self.parseFiniteType();
-        }
+        } else if(typeTag == self.TYPE_TAG_REFERENCE_TYPE) {
+            return self.parseRefType();
+        }  
         error err = error("Unknown type tag :" + typeTag);
         panic err;
     }
@@ -250,8 +255,11 @@ public type TypeParser object {
     function parseObjectType() returns BType {
         // Below is a temp fix, need to fix this properly by using type tag
         boolean isService = self.readInt8() == 1;
-        BObjectType obj = { name: { value: self.readStringCpRef() },
-            isAbstract: self.readBoolean(),
+        string objName = self.readStringCpRef();
+        boolean isAbstract = self.readBoolean();
+        _ = self.readBoolean(); //Read and ignore client or not
+        BObjectType obj = { name: { value: objName },
+            isAbstract: isAbstract,
             fields: [],
             attachedFunctions: [] };
         self.cp.types[self.cpI] = obj;
@@ -346,6 +354,20 @@ public type TypeParser object {
             c = c + 1;
         }
         return finiteType;
+    }
+
+    function parseRefType() returns BType {
+        string org = self.readStringCpRef();
+        string pkg = self.readStringCpRef();
+        string ver = self.readStringCpRef();
+        string tName = self.readStringCpRef();
+        Package birPkg = self.birContext.lookupBIRModule({org:org, name:pkg, modVersion:ver});
+        foreach var tDef in birPkg.typeDefs {
+            if(tDef is  TypeDef && tDef.name.value == tName) {
+                return tDef.typeValue;
+            }
+        }
+        panic error("Cannot find type reference : " + org + "/" + pkg + ":" + ver + ":" + tName);
     }
 
     private function getValue(BType valueType) returns (int | string | boolean | float | byte| ()) {

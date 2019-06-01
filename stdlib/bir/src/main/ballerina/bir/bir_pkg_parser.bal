@@ -96,6 +96,7 @@ public type PackageParser object {
         var name = self.reader.readStringCpRef();
         var isDeclaration = self.reader.readBoolean();
         var isInterface = self.reader.readBoolean();
+        _ = self.reader.readBoolean(); //Read and ignore remote flag
         var visibility = parseVisibility(self.reader);
         var sig = self.parseInvokableType();
         // Read and ignore parameter details, not used in jvm gen
