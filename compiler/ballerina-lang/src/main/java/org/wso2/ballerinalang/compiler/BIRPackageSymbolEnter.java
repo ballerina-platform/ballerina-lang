@@ -706,9 +706,12 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.ANYDATA:
                     return symTable.anydataType;
                 case TypeTags.RECORD:
-                    String name = getStringCPEntryValue(inputStream);
+                    int pkgCpIndex = inputStream.readInt();
+                    PackageID pkgId = getPackageId(pkgCpIndex);
+
+                    String recordName = getStringCPEntryValue(inputStream);
                     BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                            names.fromString(name), env.pkgSymbol.pkgID, null, env.pkgSymbol);
+                            names.fromString(recordName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
                     recordSymbol.scope = new Scope(recordSymbol);
                     BRecordType recordType = new BRecordType(recordSymbol);
                     recordSymbol.type = recordType;
@@ -753,7 +756,14 @@ public class BIRPackageSymbolEnter {
 
                     Object poppedRecordType = compositeStack.pop();
                     assert poppedRecordType == recordType;
-                    return recordType;
+
+                    if (pkgId.equals(env.pkgSymbol.pkgID)) {
+                        return recordType;
+                    }
+
+                    BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
+                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+                    return symbolResolver.lookupSymbol(pkgEnv, names.fromString(recordName), SymTag.TYPE).type;
                 case TypeTags.TYPEDESC:
                     return symTable.typeDesc;
                 case TypeTags.STREAM:
@@ -871,8 +881,8 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.OBJECT:
                     boolean service = inputStream.readByte() == 1;
 
-                    int pkgCpIndex = inputStream.readInt();
-                    PackageID pkgId = getPackageId(pkgCpIndex);
+                    pkgCpIndex = inputStream.readInt();
+                    pkgId = getPackageId(pkgCpIndex);
 
                     String objName = getStringCPEntryValue(inputStream);
                     int objFlags = (inputStream.readBoolean() ? Flags.ABSTRACT : 0) | Flags.PUBLIC;
@@ -918,8 +928,8 @@ public class BIRPackageSymbolEnter {
                         return objectType;
                     }
 
-                    BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
-                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+                    pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
+                    pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
                     return symbolResolver.lookupSymbol(pkgEnv, names.fromString(objName), SymTag.TYPE).type;
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix

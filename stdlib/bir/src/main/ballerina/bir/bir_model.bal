@@ -303,6 +303,7 @@ public type BErrorType record {|
 |};
 
 public type BRecordType record {|
+    ModuleID moduleId = {};
     Name name = {};
     boolean sealed;
     BType restFieldType;

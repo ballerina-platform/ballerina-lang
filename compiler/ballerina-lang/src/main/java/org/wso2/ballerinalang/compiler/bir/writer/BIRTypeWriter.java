@@ -234,6 +234,13 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BRecordType bRecordType) {
         BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) bRecordType.tsymbol;
 
+        // Write the package details in the form of constant pool entry TODO find a better approach
+        int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
+        int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
+        int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
+        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buff.writeInt(pkgIndex);
+
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeBoolean(bRecordType.sealed);
         writeTypeCpIndex(bRecordType.restFieldType);
