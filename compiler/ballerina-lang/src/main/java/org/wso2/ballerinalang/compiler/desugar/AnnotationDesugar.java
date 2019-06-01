@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.AnnotatableNode;
@@ -67,6 +68,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -310,10 +312,27 @@ public class AnnotationDesugar {
 
         for (AnnotationAttachmentNode attachment : nodeAttachments) {
             BLangAnnotationAttachment annotationAttachment = (BLangAnnotationAttachment) attachment;
-            if (attachments.containsKey(annotationAttachment.annotationSymbol)) {
-                attachments.get(annotationAttachment.annotationSymbol).add(annotationAttachment);
+            BAnnotationSymbol annotationSymbol = annotationAttachment.annotationSymbol;
+            if (attachments.containsKey(annotationSymbol)) {
+                attachments.get(annotationSymbol).add(annotationAttachment);
             } else {
-                attachments.put(annotationAttachment.annotationSymbol,
+                AttachPoint attachPoint = null;
+                for (AttachPoint.Point point : annotationAttachment.attachPoints) {
+                    Optional<AttachPoint> attachPointOptional = annotationSymbol.points.stream()
+                            .filter(annotAttachPoint -> annotAttachPoint.point == point).findAny();
+
+                    if (attachPointOptional.isPresent()) {
+                        attachPoint = attachPointOptional.get();
+                        break;
+                    }
+                }
+
+                if (attachPoint.source) {
+                    // Avoid defining annotation values for source only annotations.
+                    continue;
+                }
+
+                attachments.put(annotationSymbol,
                                 new ArrayList<BLangAnnotationAttachment>() {{
                                     add(annotationAttachment);
                                 }});

@@ -59,97 +59,97 @@ public class AnnotationAttachmentPointTest {
     @Test
     public void testInvalidAttachmentOnObjectType() {
         int index = 12;
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on type, object", 74, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on type, object", 77, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on type, object", 80, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on type, object", 83, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on type, object", 86, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on type, object", 87, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on type, object", 90, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on type, object", 93, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on type, object", 96, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on type, object", 99, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on type, object", 102, 1);
+        validateError(compileResult, index++, "annotation 'v3' is not allowed on object, type", 74, 1);
+        validateError(compileResult, index++, "annotation 'v4' is not allowed on object, type", 77, 1);
+        validateError(compileResult, index++, "annotation 'v5' is not allowed on object, type", 80, 1);
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on object, type", 83, 1);
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on object, type", 86, 1);
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on object, type", 87, 1);
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on object, type", 90, 1);
+        validateError(compileResult, index++, "annotation 'v10' is not allowed on object, type", 93, 1);
+        validateError(compileResult, index++, "annotation 'v11' is not allowed on object, type", 96, 1);
+        validateError(compileResult, index++, "annotation 'v12' is not allowed on object, type", 99, 1);
+        validateError(compileResult, index, "annotation 'v13' is not allowed on object, type", 102, 1);
     }
 
     @Test
     public void testInvalidAttachmentOnObjectMethodDefinition() {
         int index = 23;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v1' is not allowed on object_method, function",
                       108, 5);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v2' is not allowed on object_method, function",
                       111, 5);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v5' is not allowed on object_method, function",
                       114, 5);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on object_method, function",
                       117, 5);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on object_method, function",
                       120, 5);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on object_method, function",
                       121, 5);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on object_method, function",
                       124, 5);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v10' is not allowed on object_method, function",
                       127, 5);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v11' is not allowed on object_method, function",
                       130, 5);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v12' is not allowed on object_method, function",
                       133, 5);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on function, object_method",
+        validateError(compileResult, index, "annotation 'v13' is not allowed on object_method, function",
                       136, 5);
     }
 
     @Test
     public void testInvalidAttachmentOnObjectMethodDeclaration() {
         int index = 34;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v1' is not allowed on object_method, function",
                       143, 5);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v2' is not allowed on object_method, function",
                       146, 5);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v5' is not allowed on object_method, function",
                       149, 5);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on object_method, function",
                       152, 5);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on object_method, function",
                       155, 5);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on object_method, function",
                       156, 5);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on object_method, function",
                       159, 5);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v10' is not allowed on object_method, function",
                       162, 5);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v11' is not allowed on object_method, function",
                       165, 5);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v12' is not allowed on object_method, function",
                       168, 5);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on function, object_method",
+        validateError(compileResult, index, "annotation 'v13' is not allowed on object_method, function",
                       171, 5);
     }
 
     @Test
     public void testInvalidAttachmentOnObjectOutsideMethodDefinition() {
         int index = 45;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v1' is not allowed on object_method, function",
                       177, 1);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v2' is not allowed on object_method, function",
                       180, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v5' is not allowed on object_method, function",
                       183, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on object_method, function",
                       186, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on object_method, function",
                       189, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on object_method, function",
                       190, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on object_method, function",
                       193, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v10' is not allowed on object_method, function",
                       196, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v11' is not allowed on object_method, function",
                       199, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on function, object_method",
+        validateError(compileResult, index++, "annotation 'v12' is not allowed on object_method, function",
                       202, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on function, object_method",
+        validateError(compileResult, index, "annotation 'v13' is not allowed on object_method, function",
                       205, 1);
     }
 

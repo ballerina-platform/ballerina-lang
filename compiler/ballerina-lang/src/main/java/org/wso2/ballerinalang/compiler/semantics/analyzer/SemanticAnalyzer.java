@@ -257,12 +257,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
         funcNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
             if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
             } else if (funcNode.attachedOuterFunction || funcNode.attachedFunction) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
             }
+            annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
             this.analyzeDef(annotationAttachment, funcEnv);
         });
         validateAnnotationAttachmentCount(funcNode, funcNode.annAttachments);
@@ -316,10 +316,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         typeDefinition.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
             if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT);
             }
+            annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
 
             annotationAttachment.accept(this);
         });
