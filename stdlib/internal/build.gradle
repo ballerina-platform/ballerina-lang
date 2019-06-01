@@ -17,10 +17,17 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 dependencies {
 //    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-time')
     implementation project(':ballerina-io')
@@ -42,7 +49,10 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-    
+
+    testCompile project(':ballerina-reflect')
+    testCompile project(':ballerina-jvm')
+    testCompile project(':ballerina-test-utils')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
@@ -54,3 +64,6 @@ createBalo {
 
 description = 'Ballerina - Internal'
 
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
