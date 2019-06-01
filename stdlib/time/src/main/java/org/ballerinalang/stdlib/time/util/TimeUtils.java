@@ -57,7 +57,7 @@ public class TimeUtils {
         ZoneId zoneId = getTimeZone(zoneIdValue);
         //Get offset in seconds
         TimeZone tz = TimeZone.getTimeZone(zoneId);
-        long offsetInMills = tz.getOffset(new Date().getTime());
+        int offsetInMills = tz.getOffset(new Date().getTime());
         long offset = offsetInMills / 1000;
         return BLangVMStructs.createBStruct(timezoneStructInfo, zoneIdValue, offset);
 
@@ -68,7 +68,7 @@ public class TimeUtils {
         ZoneId zoneId = getTimeZone(zoneIdValue);
         //Get offset in seconds
         TimeZone tz = TimeZone.getTimeZone(zoneId);
-        long offsetInMills = tz.getOffset(new Date().getTime());
+        int offsetInMills = tz.getOffset(new Date().getTime());
         long offset = offsetInMills / 1000;
         return BallerinaValues.createRecord(timeZoneRecord, zoneIdValue, offset);
 
