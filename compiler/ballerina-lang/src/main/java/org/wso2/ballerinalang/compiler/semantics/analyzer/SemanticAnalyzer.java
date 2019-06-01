@@ -2273,6 +2273,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void validateAnnotationAttachmentCount(BLangNode node, List<BLangAnnotationAttachment> attachments) {
         Map<BAnnotationSymbol, Integer> attachmentCounts = new HashMap<>();
         for (BLangAnnotationAttachment attachment : attachments) {
+            if (attachment.annotationSymbol == null) {
+                continue;
+            }
+
             attachmentCounts.merge(attachment.annotationSymbol, 1, Integer::sum);
         }
 
