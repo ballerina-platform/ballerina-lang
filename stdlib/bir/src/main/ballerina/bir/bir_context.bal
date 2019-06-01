@@ -20,10 +20,6 @@ import ballerina/io;
 public type BIRContext object {
 
     public function lookupBIRModule(ModuleID modId) returns Package {
-        var pkg = self.cachedPackages[modId.org + "/" + modId.name + ":" + modId.modVersion];
-        if (pkg is Package) {
-            return pkg;
-        }
         var modBinary = getBIRModuleBinary(self, modId);
         return populateBIRModuleFromBinary(modBinary);
     }
@@ -41,7 +37,6 @@ function populateBIRModuleFromBinary(byte[] modBinary) returns Package {
     BirChannelReader birReader = new(reader, cpParser.parse());
     PackageParser pkgParser = new(birReader);
     Package mod = pkgParser.parsePackage();
-    birContext.cachedPackages[mod.org.value + "/" + mod.name.value + ":" + mod.versionValue.value] = mod;
     return mod;
 }
 
