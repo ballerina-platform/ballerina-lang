@@ -107,15 +107,15 @@ public type LdapAuthStoreProvider object {
         string username;
         string password;
         (username, password) = check auth:extractUsernameAndPassword(credential);
-        boolean isAuthenticated = doAuthenticate(self, username, password);
-        if (isAuthenticated) {
+        boolean authenticated = doAuthenticate(self, username, password);
+        if (authenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;
             principal.userId = self.ldapAuthStoreProviderConfig.domainName + ":" + username;
             // By default set userId as username.
             principal.username = username;
             principal.scopes = getLdapScopes(self, username);
         }
-        return isAuthenticated;
+        return authenticated;
     }
 };
 

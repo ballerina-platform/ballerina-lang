@@ -38,31 +38,31 @@ public type ConfigAuthStoreProvider object {
         string password;
         (username, password) = check extractUsernameAndPassword(credential);
         string passwordFromConfig = readPassword(username);
-        boolean isAuthenticated = false;
+        boolean authenticated = false;
         // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
         if (passwordFromConfig.hasPrefix(CONFIG_PREFIX)) {
             if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA256)) {
-                isAuthenticated = encoding:encodeHex(crypto:hashSha256(password.toByteArray(DEFAULT_CHARSET)))
+                authenticated = encoding:encodeHex(crypto:hashSha256(password.toByteArray(DEFAULT_CHARSET)))
                                     .equalsIgnoreCase(extractHash(passwordFromConfig));
             } else if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA384)) {
-                isAuthenticated = encoding:encodeHex(crypto:hashSha384(password.toByteArray(DEFAULT_CHARSET)))
+                authenticated = encoding:encodeHex(crypto:hashSha384(password.toByteArray(DEFAULT_CHARSET)))
                                     .equalsIgnoreCase(extractHash(passwordFromConfig));
             } else if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA512)) {
-                isAuthenticated = encoding:encodeHex(crypto:hashSha512(password.toByteArray(DEFAULT_CHARSET)))
+                authenticated = encoding:encodeHex(crypto:hashSha512(password.toByteArray(DEFAULT_CHARSET)))
                                     .equalsIgnoreCase(extractHash(passwordFromConfig));
             } else {
-                isAuthenticated = password == passwordFromConfig;
+                authenticated = password == passwordFromConfig;
             }
         } else {
-            isAuthenticated = password == passwordFromConfig;
+            authenticated = password == passwordFromConfig;
         }
-        if (isAuthenticated) {
+        if (authenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;
             principal.userId = username;
             principal.username = username;
             principal.scopes = getScopes(username);
         }
-        return isAuthenticated;
+        return authenticated;
     }
 };
 
