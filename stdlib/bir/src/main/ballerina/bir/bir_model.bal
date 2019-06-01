@@ -311,6 +311,7 @@ public type BRecordType record {|
 |};
 
 public type BObjectType record {|
+    ModuleID moduleId = {};
     Name name = {};
     boolean isAbstract = false;
     BObjectField?[] fields = [];
