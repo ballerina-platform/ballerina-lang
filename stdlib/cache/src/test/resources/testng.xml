@@ -27,24 +27,8 @@ under the License.
     <!-- Ballerina cache Test Cases. -->
     <test name="ballerina-cache-test-suite" preserve-order="true" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
-        <!-- <packages>
+        <packages>
             <package name="org.ballerinalang.stdlib.cache"/>
-        </packages> -->
-        <classes>
-            <class name="org.ballerinalang.stdlib.cache.CacheExpiryTest" />
-            <class name="org.ballerinalang.stdlib.cache.CacheTest">
-                <methods>
-                    <exclude name="testCacheEviction1"/>
-                    <exclude name="testCacheEviction2"/>
-                    <exclude name="testCacheEviction3"/>
-                    <exclude name="testCacheEviction4"/>
-                    <exclude name="testExpiredCacheAccess"/>
-                    <exclude name="testGettingExistingValue"/>
-                    <exclude name="testPut"/>
-                    <exclude name="testRemove"/>
-                    <exclude name="initCache"/>
-                </methods>
-            </class>
-        </classes>
+        </packages>
     </test>
 </suite>

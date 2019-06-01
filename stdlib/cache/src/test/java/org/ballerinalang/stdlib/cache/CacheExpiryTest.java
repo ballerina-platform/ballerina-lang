@@ -53,15 +53,15 @@ public class CacheExpiryTest {
 
         // Check that the cache size gradually decreases due to cache expiry
         await().atMost(5, TimeUnit.SECONDS).until(() -> {
-            BValue[] cacheSizes = BRunUtil.invokeStateful(compileResult, "getCacheSize");
+            BValue[] cacheSizes = BRunUtil.invoke(compileResult, "getCacheSize");
             return ((BInteger) cacheSizes[0]).intValue() == 4;
         });
         await().atMost(20, TimeUnit.SECONDS).until(() -> {
-            BValue[] cacheSizes = BRunUtil.invokeStateful(compileResult, "getCacheSize");
+            BValue[] cacheSizes = BRunUtil.invoke(compileResult, "getCacheSize");
             return ((BInteger) cacheSizes[0]).intValue() < 4;
         });
         await().atMost(30, TimeUnit.SECONDS).until(() -> {
-            BValue[] cacheSizes = BRunUtil.invokeStateful(compileResult, "getCacheSize");
+            BValue[] cacheSizes = BRunUtil.invoke(compileResult, "getCacheSize");
             return ((BInteger) cacheSizes[0]).intValue() == 0;
         });
     }
