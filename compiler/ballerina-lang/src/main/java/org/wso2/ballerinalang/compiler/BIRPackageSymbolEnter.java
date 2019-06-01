@@ -666,7 +666,6 @@ public class BIRPackageSymbolEnter {
     }
 
     private class BIRTypeReader {
-        public static final int TYPE_TAG_REFERENCE_TYPE = 52;
         public static final int SERVICE_TYPE_TAG = 51;
         private DataInputStream inputStream;
 
@@ -871,6 +870,10 @@ public class BIRPackageSymbolEnter {
                     return finiteType;
                 case TypeTags.OBJECT:
                     boolean service = inputStream.readByte() == 1;
+
+                    int pkgCpIndex = inputStream.readInt();
+                    PackageID pkgId = getPackageId(pkgCpIndex);
+
                     String objName = getStringCPEntryValue(inputStream);
                     int objFlags = (inputStream.readBoolean() ? Flags.ABSTRACT : 0) | Flags.PUBLIC;
                     objFlags = inputStream.readBoolean() ? objFlags | Flags.CLIENT : objFlags;
@@ -910,7 +913,14 @@ public class BIRPackageSymbolEnter {
                     }
                     Object poppedObjType = compositeStack.pop();
                     assert poppedObjType == objectType;
-                    return objectType;
+
+                    if (pkgId.equals(env.pkgSymbol.pkgID)) {
+                        return objectType;
+                    }
+
+                    BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
+                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+                    return symbolResolver.lookupSymbol(pkgEnv, names.fromString(objName), SymTag.TYPE).type;
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix
                     break;
@@ -919,17 +929,6 @@ public class BIRPackageSymbolEnter {
                     break;
                 case SERVICE_TYPE_TAG:
                     return symTable.anyServiceType;
-                case TYPE_TAG_REFERENCE_TYPE:
-                    String org = getStringCPEntryValue(inputStream);
-                    String pkg = getStringCPEntryValue(inputStream);
-                    String version = getStringCPEntryValue(inputStream);
-                    String typeName = getStringCPEntryValue(inputStream);
-                    PackageID packageID = new PackageID(names.fromString(org),
-                            names.fromString(pkg), names.fromString(version));
-                    // At this point, package should be in the cache.
-                    BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(packageID, null, null);
-                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-                    return symbolResolver.lookupSymbol(pkgEnv, names.fromString(typeName), SymTag.TYPE).type;
 //                case TypeTags.CHANNEL:
 
 //                case TypeTags.SERVICE:
@@ -937,6 +936,15 @@ public class BIRPackageSymbolEnter {
             }
             return null;
         }
+    }
+
+    private PackageID getPackageId(int pkgCPIndex) {
+        PackageCPEntry pkgCpEntry = (PackageCPEntry) env.constantPool[pkgCPIndex];
+        String orgName = ((StringCPEntry) env.constantPool[pkgCpEntry.orgNameCPIndex]).value;
+        String pkgName = ((StringCPEntry) env.constantPool[pkgCpEntry.pkgNameCPIndex]).value;
+        String version = ((StringCPEntry) env.constantPool[pkgCpEntry.versionCPIndex]).value;
+        return new PackageID(names.fromString(orgName),
+                names.fromString(pkgName), names.fromString(version));
     }
 
     private void defineValueSpace(DataInputStream dataInStream, BFiniteType finiteType, BIRTypeReader typeReader)
