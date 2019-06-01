@@ -5,7 +5,6 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
-import com.google.gson.JsonElement;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -13,14 +12,10 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import io.ballerina.plugins.idea.extensions.editoreventmanager.BallerinaEditorEventManager;
-import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.wso2.lsp4intellij.editor.EditorEventManager;
-import org.wso2.lsp4intellij.editor.EditorEventManagerBase;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -41,15 +36,11 @@ public class BallerinaDiagramUtils {
 
     private static final String COMPOSER_LIB_RESOURCE_PATH = "/lib/tools/composer-library";
     private static final String TEMPLATES_CLASSPATH = "/fileTemplates/diagram";
-    private static final String LOADER_TEMPLATE_NAME = "load-spinner";
     private static final String WEBVIEW_TEMPLATE_NAME = "webview";
     private static final String STYLES_TEMPLATE_NAME = "styles";
     private static final String SCRIPT_TEMPLATE_NAME = "scripts";
     private static final String LANG_CLIENT_TEMPLATE_NAME = "lang-client";
     private static final String FIREBUG_TEMPLATE_NAME = "firebug";
-    private static final String DISABLE_EDITING_CSS =
-            "#diagram > div > div > div.diagram-controllers > div.ui.sticky > div > div > div:nth-child(1){\n"
-                    + "display: none;\n" + "}";
     private static final String BODY_CSS_CLASS = "diagram";
 
     public static String md5(String buffer, @NonNls String key) {
@@ -67,53 +58,10 @@ public class BallerinaDiagramUtils {
     }
 
     @NotNull
-    static String getLoadSpinner(Project project) {
-        try {
-            BallerinaSdk balSdk = BallerinaSdkUtil.getBallerinaSdkFor(project);
-            if (balSdk.getSdkPath() == null) {
-                LOG.debug("No Ballerina SDK is found for the project: " + project.getName());
-                return "";
-            }
-            if (!balSdk.hasWebviewSupport()) {
-                LOG.debug("Detected ballerina sdk version does not have diagram editor support" + project.getName());
-                return "";
-            }
-
-            Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(TEMPLATES_CLASSPATH));
-            Template loaderTemplate = handlebars.compile(LOADER_TEMPLATE_NAME);
-
-            HashMap<String, String> loaderContents = new HashMap<>();
-            loaderContents.put("resourceRoot", Paths.get(balSdk.getSdkPath(), COMPOSER_LIB_RESOURCE_PATH).toUri()
-                    .toString());
-            Context loaderContext = Context.newBuilder(loaderContents).resolver(MapValueResolver.INSTANCE)
-                    .build();
-            return loaderTemplate.apply(loaderContext);
-
-        } catch (IOException | RuntimeException e) {
-            LOG.warn("Error occurred when constructing webview content: ", e);
-            return "";
-        }
-    }
-
-
-    @NotNull
     static String generateDiagramHtml(@NotNull VirtualFile file, DiagramHtmlPanel panel, Project project) {
 
         // Requests the AST from the Ballerina language server.
         Editor editor = getEditorFor(file, project);
-        EditorEventManager manager = EditorEventManagerBase.forEditor(editor);
-        BallerinaEditorEventManager editorManager = (BallerinaEditorEventManager) manager;
-        if (editorManager == null) {
-            LOG.debug("Editor event manager is null for: " + editor.toString());
-            return "";
-        }
-
-        // Requests AST from the language server.
-        BallerinaASTResponse astResponse = editorManager.getAST();
-        if (astResponse == null) {
-            LOG.debug("Error occurred when fetching AST response.");
-            return "";
-        }
 
         // Retrieves attached ballerina SDk of the project.
         BallerinaSdk balSdk = BallerinaSdkUtil.getBallerinaSdkFor(project);
@@ -127,10 +75,10 @@ public class BallerinaDiagramUtils {
             return "";
         }
 
-        return getWebviewContent(editorToURIString(editor), astResponse, panel, balSdk.getSdkPath());
+        return getWebviewContent(editorToURIString(editor), panel, balSdk.getSdkPath());
     }
 
-    public static Editor getEditorFor(VirtualFile file, Project project) {
+    static Editor getEditorFor(VirtualFile file, Project project) {
         FileEditor[] allEditors = FileEditorManager.getInstance(project).getAllEditors(file);
         if (allEditors.length > 0 && allEditors[0] instanceof TextEditor) {
             return ((TextEditor) allEditors[0]).getEditor();
@@ -138,37 +86,23 @@ public class BallerinaDiagramUtils {
         return null;
     }
 
-    private static String getWebviewContent(String uri, BallerinaASTResponse astResponse, DiagramHtmlPanel myPanel,
+    private static String getWebviewContent(String uri, DiagramHtmlPanel myPanel,
                                             String sdkPath) {
         try {
             if (myPanel == null) {
                 return "";
             }
 
-            JsonElement ast = astResponse.getAst();
-            if (ast == null) {
-                LOG.debug("Received AST is null");
-                return "";
-            }
-
             Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(TEMPLATES_CLASSPATH));
             Template scriptTemplate = handlebars.compile(SCRIPT_TEMPLATE_NAME);
-            Template langClientTemplate = handlebars.compile(LANG_CLIENT_TEMPLATE_NAME);
             Template webviewTemplate = handlebars.compile(WEBVIEW_TEMPLATE_NAME);
-
-            // Injects ast response to the mocked language client template.
-            HashMap<String, String> langClientContents = new HashMap<>();
-            langClientContents.put("ast", astResponse.getAst().toString());
-            langClientContents.put("parseSuccess", Boolean.toString(astResponse.isParseSuccess()));
-            Context langClientContext = Context.newBuilder(langClientContents).resolver(MapValueResolver.INSTANCE)
-                    .build();
 
             // Constructs the script to be run when loaded.
             HashMap<String, String> scriptContents = new HashMap<>();
             scriptContents.put("docUri", uri);
             scriptContents.put("windowWidth", Integer.toString(myPanel.getComponent().getWidth()));
             scriptContents.put("windowHeight", Integer.toString(myPanel.getComponent().getHeight()));
-            scriptContents.put("getLangClient", langClientTemplate.apply(langClientContext));
+            scriptContents.put("getLangClient", handlebars.compile(LANG_CLIENT_TEMPLATE_NAME).text());
             Context scriptContext = Context.newBuilder(scriptContents).resolver(MapValueResolver.INSTANCE).build();
 
             // Constructs the final webview HTML template.
@@ -177,9 +111,7 @@ public class BallerinaDiagramUtils {
             webviewContents.put("bodyCssClass", BODY_CSS_CLASS);
             webviewContents.put("styles", handlebars.compile(STYLES_TEMPLATE_NAME).text());
             webviewContents.put("fireBug", handlebars.compile(FIREBUG_TEMPLATE_NAME).text());
-            webviewContents.put("loadedScript", scriptTemplate.apply(scriptContext));
-            //Todo - remove when the editing support is added.
-            webviewContents.put("disableEdit", DISABLE_EDITING_CSS);
+            webviewContents.put("scripts", scriptTemplate.apply(scriptContext));
             Context webviewContext = Context.newBuilder(webviewContents).resolver(MapValueResolver.INSTANCE).build();
             return webviewTemplate.apply(webviewContext);
         } catch (IOException | RuntimeException e) {

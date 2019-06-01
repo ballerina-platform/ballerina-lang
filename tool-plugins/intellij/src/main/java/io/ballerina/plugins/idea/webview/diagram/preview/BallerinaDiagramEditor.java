@@ -1,9 +1,11 @@
 package io.ballerina.plugins.idea.webview.diagram.preview;
 
+import com.google.common.base.Strings;
 import com.intellij.CommonBundle;
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
@@ -26,6 +28,8 @@ import io.ballerina.plugins.idea.webview.diagram.settings.DiagramApplicationSett
 import io.ballerina.plugins.idea.webview.diagram.settings.DiagramCssSettings;
 import io.ballerina.plugins.idea.webview.diagram.settings.DiagramPreviewSettings;
 import io.ballerina.plugins.idea.webview.diagram.split.SplitFileEditor;
+import netscape.javascript.JSException;
+import netscape.javascript.JSObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +46,9 @@ import javax.swing.JPanel;
  */
 public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEditor {
 
-    private static final long DEBOUNCE_DELAY_MS = 50L;
+    private static final Logger LOG = Logger.getInstance(BallerinaDiagramEditor.class);
+
+    private static final long DEBOUNCE_DELAY_MS = 200L;
     private static final long RENDERING_DELAY_MS = 20L;
 
     @NotNull
@@ -69,8 +75,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
     private Runnable myLastHtmlOrRefreshRequest = null;
     @NotNull
     private String myLastRenderedHtml = "";
-    @NotNull
-    private String myLoadingHtml = "";
+
     private boolean isHidden = true;
     private volatile int myLastScrollOffset;
 
@@ -89,12 +94,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
                 @Override
                 public void documentChanged(@NotNull final DocumentEvent e) {
                     if (!isHidden) {
-                        // Prevents re-rendering diagram for whitespace changes.
-                        String inserted = e.getNewFragment().toString().trim();
-                        String deleted = e.getOldFragment().toString().trim();
-                        if (!inserted.isEmpty() || !deleted.isEmpty()) {
-                            myPooledAlarm.addRequest(() -> updateHtml(false, false), DEBOUNCE_DELAY_MS);
-                        }
+                        myPooledAlarm.addRequest(() -> updateHtml(false), DEBOUNCE_DELAY_MS);
                     }
                 }
             }, this);
@@ -111,8 +111,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
                     attachHtmlPanel();
                 }, 0, ModalityState.stateForComponent(getComponent()));
                 myPooledAlarm.addRequest(() -> {
-                    updateHtml(false, true);
-                    updateHtml(false, false);
+                    updateHtml(false);
                 }, DEBOUNCE_DELAY_MS);
                 isHidden = false;
             }
@@ -126,6 +125,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
                     detachHtmlPanel();
                 }, 0, ModalityState.stateForComponent(getComponent()));
                 isHidden = true;
+                myLastRenderedHtml = "";
             }
         });
 
@@ -210,10 +210,8 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
         if (myPanel == null) {
             return;
         }
-
         myPooledAlarm.cancelAllRequests();
-        myPooledAlarm.addRequest(() -> updateHtml(true, false), DEBOUNCE_DELAY_MS);
-
+        myPooledAlarm.addRequest(() -> updateHtml(true), DEBOUNCE_DELAY_MS);
     }
 
     @Override
@@ -277,7 +275,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
     /**
      * Is always run from pooled thread.
      */
-    private void updateHtml(boolean preserveScrollOffset, boolean isLoading) {
+    private void updateHtml(boolean preserveScrollOffset) {
         if (myPanel == null) {
             return;
         }
@@ -286,15 +284,11 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
             return;
         }
 
-        final String html;
-        if (isLoading) {
-            if (myLoadingHtml.isEmpty()) {
-                myLoadingHtml = BallerinaDiagramUtils.getLoadSpinner(myProject);
-            }
-            html = myLoadingHtml;
-        } else {
+        String html = "";
+        if (Strings.isNullOrEmpty(myLastRenderedHtml)) {
             html = BallerinaDiagramUtils.generateDiagramHtml(myFile, myPanel, myProject);
         }
+
         // EA-75860: The lines to the top may be processed slowly;
         // Since we're in a pooled thread, we can be disposed already.
         if (!myFile.isValid() || Disposer.isDisposed(this)) {
@@ -305,25 +299,53 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
             if (myLastHtmlOrRefreshRequest != null) {
                 mySwingAlarm.cancelRequest(myLastHtmlOrRefreshRequest);
             }
-            myLastHtmlOrRefreshRequest = () -> {
-                if (myPanel == null) {
-                    return;
-                }
 
-                if (!html.equals(myLastRenderedHtml) && !html.isEmpty()) {
-                    myLastRenderedHtml = html;
-                    myPanel.setHtml(myLastRenderedHtml);
-
-                    if (preserveScrollOffset) {
-                        scrollToSrcOffset(myLastScrollOffset);
+            // If the diagram HTML is already loaded, just invoke "drawDiagram()" function to update the webview.
+            if (!Strings.isNullOrEmpty(myLastRenderedHtml)) {
+                myLastHtmlOrRefreshRequest = () -> {
+                    if (myPanel == null) {
+                        return;
                     }
-                }
-
-                myPanel.render();
-                synchronized (requestsLock) {
-                    myLastHtmlOrRefreshRequest = null;
-                }
-            };
+                    try {
+                        myPanel.runInPlatformWhenAvailable(() ->
+                                myPanel.getWebview().getEngine().executeScript("loadedScript();")
+                        );
+                    } catch (JSException e) {
+                        LOG.warn("Javascript error Occurred.", e);
+                    } finally {
+                        synchronized (requestsLock) {
+                            myLastHtmlOrRefreshRequest = null;
+                        }
+                    }
+                };
+            } else {
+                String finalHtml = html;
+                myLastHtmlOrRefreshRequest = () -> {
+                    if (myPanel == null) {
+                        return;
+                    }
+                    try {
+                        myPanel.runInPlatformWhenAvailable(() -> {
+                            JSObject win = (JSObject) myPanel.getWebview().getEngine().executeScript("window");
+                            win.setMember("DiagramPanelBridge", myPanel.getPanelBridge());
+                        });
+                        if (!finalHtml.equals(myLastRenderedHtml) && !finalHtml.isEmpty()) {
+                            myLastRenderedHtml = finalHtml;
+                            myPanel.setHtml(myLastRenderedHtml);
+                            if (preserveScrollOffset) {
+                                scrollToSrcOffset(myLastScrollOffset);
+                            }
+                            myPanel.render();
+                        }
+                    } catch (Exception e) {
+                        LOG.warn("Error occurred when HTML rendering.", e);
+                    } finally {
+                        synchronized (requestsLock) {
+                            myLastHtmlOrRefreshRequest = null;
+                        }
+                    }
+                };
+            }
             mySwingAlarm.addRequest(myLastHtmlOrRefreshRequest, RENDERING_DELAY_MS,
                     ModalityState.stateForComponent(getComponent()));
         }
