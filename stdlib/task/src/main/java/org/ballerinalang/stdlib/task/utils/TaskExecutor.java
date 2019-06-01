@@ -64,16 +64,15 @@ public class TaskExecutor {
 
         List<Object> onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceWithParameters);
         Executor.executeFunction(serviceWithParameters.getStrand(), serviceWithParameters.getServiceObj(),
-                                 onTriggerFunction, onTriggerFunctionArgs);
+                                 onTriggerFunction, onTriggerFunctionArgs.toArray());
     }
 
     private static List<Object> getParameterList(AttachedFunction function,
                                                  ServiceWithParameters serviceWithParameters) {
         List<Object> functionParameters = new ArrayList<>();
-        //TODO why we need service value here?
-        functionParameters.add(serviceWithParameters.getServiceObj());
-        if (function.getParameterType().length > 1 && Objects.nonNull(serviceWithParameters.getAttachmentObj())) {
+        if (function.type.paramTypes.length > 0 && Objects.nonNull(serviceWithParameters.getAttachmentObj())) {
             functionParameters.add(serviceWithParameters.getAttachmentObj());
+            functionParameters.add(Boolean.TRUE);
         }
         return functionParameters;
     }
