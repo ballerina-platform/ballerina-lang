@@ -428,7 +428,7 @@ public class BIRGen extends BLangNodeVisitor {
         BAnnotationSymbol annSymbol = (BAnnotationSymbol) astAnnotation.symbol;
 
         Visibility visibility = getVisibility(astAnnotation.symbol);
-        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, visibility, annSymbol.attachPoints,
+        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, visibility, annSymbol.points,
                 annSymbol.attachedType == null ? symTable.trueType : annSymbol.attachedType.type);
 
         this.env.enclPkg.annotations.add(birAnn);

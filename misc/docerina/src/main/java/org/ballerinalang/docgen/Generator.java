@@ -37,7 +37,6 @@ import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
 import org.ballerinalang.docgen.model.RecordDoc;
 import org.ballerinalang.docgen.model.StaticCaption;
 import org.ballerinalang.docgen.model.Variable;
-import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -300,8 +299,8 @@ public class Generator {
             dataType = getTypeName(annotationNode.typeNode);
             href = extractLink(annotationNode.typeNode);
         }
-        String attachments = annotationNode.getPoints().stream()
-                .map(AttachPoint.Point::getValue)
+        String attachments = annotationNode.getAttachPoints().stream()
+                .map(attachPoint -> attachPoint.point.getValue())
                 .collect(Collectors.joining(", "));
 
         return new AnnotationDoc(annotationName, description(annotationNode), dataType, href, attachments);

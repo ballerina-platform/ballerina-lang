@@ -33,7 +33,6 @@ import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
-import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
@@ -237,9 +236,9 @@ public class TextDocumentFormatUtil {
                     && node instanceof BLangAnnotation) {
                 JsonArray attachmentPoints = new JsonArray();
                 ((BLangAnnotation) node)
-                        .getPoints()
+                        .getAttachPoints()
                         .stream()
-                        .map(AttachPoint.Point::getValue)
+                        .map(attachPoint -> attachPoint.point.getValue())
                         .map(JsonPrimitive::new)
                         .forEach(attachmentPoints::add);
                 nodeJson.add("attachmentPoints", attachmentPoints);

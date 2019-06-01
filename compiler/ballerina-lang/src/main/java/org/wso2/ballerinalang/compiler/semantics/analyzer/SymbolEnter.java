@@ -108,12 +108,10 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -273,8 +271,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void visit(BLangAnnotation annotationNode) {
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
-                                                                            AttachPoints.asMask(new HashSet<>(
-                                                                                    annotationNode.getPoints())),
+                                                                            annotationNode.getAttachPoints(),
                                                                             names.fromIdNode(annotationNode.name),
                                                                             env.enclPkg.symbol.pkgID, null,
                                                                             env.scope.owner);

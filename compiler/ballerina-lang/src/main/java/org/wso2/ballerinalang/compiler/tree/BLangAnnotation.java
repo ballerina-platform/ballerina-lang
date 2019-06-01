@@ -56,18 +56,6 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
         attachPoints.add(attachmentPoint);
     }
 
-    public List<AttachPoint.Point> getPoints() {
-        Set<AttachPoint.Point> points = new HashSet<>();
-        if (!attachPoints.isEmpty()) {
-            for (AttachPoint attachPoint : attachPoints) {
-                points.add(attachPoint.point);
-            }
-        } else {
-            points = EnumSet.noneOf(AttachPoint.Point.class);
-        }
-        return new ArrayList<>(points);
-    }
-
     public Set<AttachPoint> getAttachPoints() {
         return attachPoints;
     }

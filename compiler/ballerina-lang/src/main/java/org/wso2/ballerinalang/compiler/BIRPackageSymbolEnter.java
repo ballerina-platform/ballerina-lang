@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
@@ -80,9 +81,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
@@ -413,7 +416,14 @@ public class BIRPackageSymbolEnter {
         int flags = 0;
         flags = visibilityAsMask(flags, dataInStream.readByte());
 
-        int attachPoints = dataInStream.readInt();
+        int attachPointCount = dataInStream.readInt();
+        Set<AttachPoint> attachPoints = new HashSet<>(attachPointCount);
+
+        for (int i = 0; i < attachPointCount; i++) {
+            attachPoints.add(AttachPoint.getAttachmentPoint(getStringCPEntryValue(dataInStream),
+                                                            dataInStream.readBoolean()));
+        }
+
         BType annotationType = typeReader.readType();
 
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, names.fromString(name),

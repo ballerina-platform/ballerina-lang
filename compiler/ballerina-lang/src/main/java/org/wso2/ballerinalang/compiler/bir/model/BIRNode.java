@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import org.ballerinalang.model.elements.AttachPoint;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Root class of Ballerina intermediate representation-BIR.
@@ -463,7 +465,7 @@ public abstract class BIRNode {
         /**
          * Attach points, this is needed only in compiled symbol enter as it is.
          */
-        public int attachPoints;
+        public Set<AttachPoint> attachPoints;
 
         /**
          * Type of the annotation body.
@@ -471,11 +473,11 @@ public abstract class BIRNode {
         public BType annotationType;
 
         public BIRAnnotation(DiagnosticPos pos, Name name, Visibility visibility,
-                             int attachPoints, BType annotationType) {
+                             Set<AttachPoint> points, BType annotationType) {
             super(pos);
             this.name = name;
             this.visibility = visibility;
-            this.attachPoints = attachPoints;
+            this.attachPoints = points;
             this.annotationType = annotationType;
         }
 

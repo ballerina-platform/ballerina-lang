@@ -438,8 +438,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Validate Attachment Point against the Annotation Definition.
         BAnnotationSymbol annotationSymbol = (BAnnotationSymbol) symbol;
         annAttachmentNode.annotationSymbol = annotationSymbol;
-        if (annotationSymbol.attachPoints > 0 && !Symbols.isAttachPointPresent(annotationSymbol.attachPoints,
-                AttachPoints.asMask(annAttachmentNode.attachPoints))) {
+        if (annotationSymbol.maskedPoints > 0 &&
+                !Symbols.isAttachPointPresent(annotationSymbol.maskedPoints,
+                                              AttachPoints.asMask(annAttachmentNode.attachPoints))) {
             String msg = annAttachmentNode.attachPoints.stream()
                     .map(point -> point.name().toLowerCase())
                     .collect(Collectors.joining(", "));
