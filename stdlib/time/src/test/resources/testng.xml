@@ -25,8 +25,8 @@
     </listeners>
     <test name="ballerina-lang-stdlib-time-test-suite" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.stdlib.time.TimeTest" />
-        </classes>
+        <packages>
+            <package name="org.ballerinalang.stdlib.time.*"/>
+        </packages>
     </test>
 </suite>
