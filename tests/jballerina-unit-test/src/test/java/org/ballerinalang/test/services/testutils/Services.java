@@ -20,8 +20,6 @@ package org.ballerinalang.test.services.testutils;
 
 import io.netty.handler.codec.http.HttpContent;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
@@ -38,8 +36,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
-
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -73,7 +69,7 @@ public class Services {
         try {
             resource = HttpDispatcher.findResource(httpServicesRegistry, request);
         } catch (BallerinaException ex) {
-            HttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
+//            HttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
         }
         if (resource == null) {
             return callback.getResponseMsg();
@@ -85,10 +81,10 @@ public class Services {
             Object srcHandler = request.getProperty(HttpConstants.SRC_HANDLER);
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, BLangConnectorSPIUtil
-                .toStruct((BMap<String, BValue>) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG)));
-        callback.setRequestStruct(signatureParams[0]);
-        Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
+//        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, BLangConnectorSPIUtil
+//                .toStruct((BMap<String, BValue>) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG)));
+//        callback.setRequestStruct(signatureParams[0]);
+//        Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
         callback.sync();
 
         HttpCarbonMessage originalMsg = callback.getResponseMsg();

@@ -19,10 +19,10 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-http:0.992.0-m1'
     baloCreat project(':lib-creator-milestone')
     implementation project(':ballerina-core')
 //    implementation project(':ballerina-lang')
-    implementation project(':ballerina-http')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-mime')
@@ -31,7 +31,6 @@ dependencies {
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-config-api')
-    implementation project(':ballerina-http')
     implementation project(':ballerina-sql')
     implementation project(':ballerina-h2')
     implementation project(":ballerina-launcher")
@@ -43,7 +42,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
+    baloImplementation group: 'org.ballerinalang', name: 'ballerina-http', version: '0.992.0-m1', ext: 'zip',
+            classifier: 'ballerina-binary-repo'
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
@@ -67,6 +67,14 @@ dependencies {
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
 }
+
+task copyHttp(type: Copy) {
+    from zipTree("$buildDir/lib/ballerina-http-0.992.0-m1-ballerina-binary-repo.zip")
+    into "$buildDir/lib/"
+}
+
+copyHttp.dependsOn createBalHome
+createBalo.dependsOn copyHttp
 
 test {
     doFirst {

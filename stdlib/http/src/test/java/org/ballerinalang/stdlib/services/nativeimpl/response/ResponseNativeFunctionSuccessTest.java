@@ -35,9 +35,11 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.stdlib.mime.Util;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.stdlib.utils.TestEntityUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -183,7 +185,7 @@ public class ResponseNativeFunctionSuccessTest {
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         BMap<String, BValue> cacheControl =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, resCacheControlStruct);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, result.getProgFile(), inResponseMsg);
+        TestEntityUtils.populateInboundResponse(inResponse, entity, mediaType, result.getProgFile(), inResponseMsg);
 
         BValue[] inputArg = { inResponse };
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetContentLength", inputArg);
@@ -207,7 +209,7 @@ public class ResponseNativeFunctionSuccessTest {
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         BMap<String, BValue> cacheControl =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, resCacheControlStruct);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, result.getProgFile(), inResponseMsg);
+        TestEntityUtils.populateInboundResponse(inResponse, entity, mediaType, result.getProgFile(), inResponseMsg);
 
         BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
         BValue[] inputArg = { inResponse, key };
@@ -246,7 +248,7 @@ public class ResponseNativeFunctionSuccessTest {
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         BMap<String, BValue> cacheControl =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, resCacheControlStruct);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, result.getProgFile(), inResponseMsg);
+        TestEntityUtils.populateInboundResponse(inResponse, entity, mediaType, result.getProgFile(), inResponseMsg);
 
         BString key = new BString("test-header");
         BValue[] inputArg = { inResponse, key };
@@ -571,7 +573,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
-        BValue bJson = EntityBodyHandler.getMessageDataSource(entity);
+        BValue bJson = Util.getMessageDataSource(entity);
         Assert.assertTrue(bJson instanceof BMap);
         Assert.assertEquals(((BMap) bJson).get("name").stringValue(), "wso2", "Payload is not set properly");
     }
@@ -607,7 +609,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
-        String stringValue = EntityBodyHandler.getMessageDataSource(entity).stringValue();
+        String stringValue = Util.getMessageDataSource(entity).stringValue();
         Assert.assertEquals(stringValue, "Ballerina", "Payload is not set properly");
     }
 
@@ -621,7 +623,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
-        BXML xmlValue = (BXML) EntityBodyHandler.getMessageDataSource(entity);
+        BXML xmlValue = (BXML) Util.getMessageDataSource(entity);
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina", "Payload is not set properly");
     }
 

@@ -20,6 +20,12 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -82,9 +88,48 @@ public class GetJson extends AbstractGetPayloadHandler {
         }
     }
 
+    public static void getJson(Strand strand, ObjectValue entityObj) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
+
+        try {
+            RefValue result;
+            Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
+            if (dataSource != null) {
+                // If the value is already a JSON, then return as it is.
+                if (isJSON(dataSource)) {
+                    result = (RefValue) dataSource;
+                } else {
+                    // Else, build the JSON from the string representation of the payload.
+                    String payload = MimeUtil.getMessageAsString(dataSource);
+                    result = (RefValue) JSONParser.parse(payload);
+                }
+                setReturnValuesAndNotify(callback, result);
+                return;
+            }
+
+            if (isStreamingRequired(entityObj)) {
+                result = (RefValue) EntityBodyHandler.constructJsonDataSource(entityObj);
+                updateDataSourceAndNotify(callback, entityObj, result);
+            } else {
+                constructNonBlockingDataSource(callback, entityObj, SourceType.JSON);
+            }
+        } catch (Exception ex) {
+            createErrorAndNotify(callback,
+                                 "Error occurred while extracting json data from entity: " + ex.getMessage());
+        }
+    }
+
     private boolean isJSON(BValue value) {
         // If the value is string, it could represent any type of payload.
         // Therefore it needs to be parsed as JSON.
         return value.getType().getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(value.getType());
+    }
+
+    private static boolean isJSON(Object value) {
+        // If the value is string, it could represent any type of payload.
+        // Therefore it needs to be parsed as JSON.
+        return TypeChecker.getType(value).getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(
+                TypeChecker.getType(value));
     }
 }

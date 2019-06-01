@@ -18,9 +18,8 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.DataContext;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -40,10 +39,9 @@ import static org.ballerinalang.net.http.nativeimpl.connection.ResponseWriter.se
  */
 public abstract class ConnectionAction implements NativeCallableUnit {
 
-    void sendOutboundResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
-                                    BMap<String, BValue> outboundResponseStruct,
-                                    HttpCarbonMessage responseMessage) {
-        sendResponseRobust(dataContext, requestMessage, outboundResponseStruct, responseMessage);
+    static void sendOutboundResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
+                                    ObjectValue outboundResponseObj, HttpCarbonMessage responseMessage) {
+        sendResponseRobust(dataContext, requestMessage, outboundResponseObj, responseMessage);
     }
 
     void setResponseConnectorListener(DataContext dataContext, HttpResponseFuture outResponseStatusFuture) {
@@ -52,12 +50,12 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         outResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
     }
 
-    void serializeMsgDataSource(BValue outboundMessageSource, BMap<String, BValue> entityStruct,
+    static void serializeMsgDataSource(Object outboundMessageSource, ObjectValue entityStruct,
                                 OutputStream messageOutputStream) {
         serializeDataSource(outboundMessageSource, entityStruct, messageOutputStream);
     }
 
-    HttpMessageDataStreamer getMessageDataStreamer(HttpCarbonMessage outboundResponse) {
+    static HttpMessageDataStreamer getMessageDataStreamer(HttpCarbonMessage outboundResponse) {
         return getResponseDataStreamer(outboundResponse);
     }
 

@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.types.BFutureType;
 import org.ballerinalang.jvm.types.BJSONType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -88,7 +89,7 @@ public class TypeChecker {
                                                                                                BTypes.typeBoolean));
     }
 
-    public static long anyToByte(Object sourceVal) {
+    public static int anyToByte(Object sourceVal) {
         return TypeConverter.anyToByte(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
                                                                                             BTypes.typeByte));
     }
@@ -157,7 +158,7 @@ public class TypeChecker {
     public static BType getType(Object value) {
         if (value == null) {
             return BTypes.typeNull;
-        } else if (value instanceof Long || value instanceof Integer) {
+        } else if (value instanceof Long) {
             return BTypes.typeInt;
         } else if (value instanceof Double) {
             return BTypes.typeFloat;
@@ -167,7 +168,7 @@ public class TypeChecker {
             return BTypes.typeString;
         } else if (value instanceof Boolean) {
             return BTypes.typeBoolean;
-        } else if (value instanceof Byte) {
+        } else if (value instanceof Byte || value instanceof Integer) {
             return BTypes.typeByte;
         } else {
             return ((RefValue) value).getType();
@@ -311,7 +312,7 @@ public class TypeChecker {
         }
 
         switch (targetType.getTag()) {
-            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
             case TypeTags.STRING_TAG:
@@ -324,7 +325,7 @@ public class TypeChecker {
                                                                 .allMatch(bValue -> checkIsType(bValue, targetType));
                 }
                 return sourceType.getTag() == targetType.getTag();
-            case TypeTags.BYTE_TAG:
+            case TypeTags.INT_TAG:
                 return sourceType.getTag() == TypeTags.BYTE_TAG || sourceType.getTag() == TypeTags.INT_TAG;
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
@@ -563,9 +564,9 @@ public class TypeChecker {
         for (BField lhsField : targetFields.values()) {
             BField rhsField = sourceFields.get(lhsField.name);
             if (rhsField == null ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackagePath()).orElse(""),
-                                              Optional.ofNullable(rhsField.type.getPackagePath()).orElse(""),
-                                              lhsField.flags, rhsField.flags) ||
+                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage().name).orElse(""),
+                            Optional.ofNullable(rhsField.type.getPackage().name).orElse(""),
+                            lhsField.flags, rhsField.flags) ||
                     !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
                 return false;
             }
@@ -578,9 +579,11 @@ public class TypeChecker {
 
             AttachedFunction rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackagePath()).orElse(""),
-                                              Optional.ofNullable(rhsFunc.type.getPackagePath()).orElse(""),
-                                              lhsFunc.flags, rhsFunc.flags)) {
+                    !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackage())
+                                    .map(BPackage::getName)
+                                    .orElse(""),
+                            Optional.ofNullable(rhsFunc.type.getPackage()).map(BPackage::getName).orElse(""),
+                            lhsFunc.flags, rhsFunc.flags)) {
                 return false;
             }
         }
@@ -1012,15 +1015,15 @@ public class TypeChecker {
             case TypeTags.BOOLEAN_TAG:
                 return lhsValue.equals(rhsValue);
             case TypeTags.INT_TAG:
-                if (rhsValTypeTag == TypeTags.BYTE_TAG) {
-                    return lhsValue.equals(((Byte) rhsValue).longValue());
+                if (rhsValTypeTag != TypeTags.BYTE_TAG && rhsValTypeTag != TypeTags.INT_TAG) {
+                    return false;
                 }
-                return lhsValue.equals(rhsValue);
+                return lhsValue.equals(((Number) rhsValue).longValue());
             case TypeTags.BYTE_TAG:
-                if (rhsValTypeTag == TypeTags.INT_TAG) {
-                    return lhsValue.equals(((Long) rhsValue).byteValue());
+                if (rhsValTypeTag != TypeTags.BYTE_TAG && rhsValTypeTag != TypeTags.INT_TAG) {
+                    return false;
                 }
-                return lhsValue.equals(rhsValue);
+                return ((Number) lhsValue).byteValue() == ((Number) rhsValue).byteValue();
             case TypeTags.XML_TAG:
                 return XMLFactory.isEqual((XMLValue) lhsValue, (XMLValue) rhsValue);
             case TypeTags.TABLE_TAG:

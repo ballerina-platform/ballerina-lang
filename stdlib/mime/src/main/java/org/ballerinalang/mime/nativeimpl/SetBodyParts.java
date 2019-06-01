@@ -20,6 +20,9 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -54,5 +57,10 @@ public class SetBodyParts extends BlockingNativeCallableUnit {
         entityStruct.addNativeData(BODY_PARTS, bodyParts);
         MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
         context.setReturnValues();
+    }
+
+    public static void setBodyParts(Strand strand, ObjectValue entityObj, ArrayValue bodyParts, String contentType) {
+        entityObj.addNativeData(BODY_PARTS, bodyParts);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType);
     }
 }

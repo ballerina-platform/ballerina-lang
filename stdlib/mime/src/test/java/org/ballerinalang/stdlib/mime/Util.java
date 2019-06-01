@@ -117,7 +117,7 @@ public class Util {
             return bodyPart;
         } catch (IOException e) {
             LOG.error("Error occurred while creating a temp file for json file part in getTextFilePart",
-                    e.getMessage());
+                      e.getMessage());
         }
         return null;
     }
@@ -131,7 +131,7 @@ public class Util {
      * @return A ballerina struct that represent a body part
      */
     public static BMap<String, BValue> getTextFilePartWithEncoding(String contentTransferEncoding, String message,
-                                                            CompileResult result) {
+                                                                   CompileResult result) {
         try {
             File file = getTemporaryFile("test", ".txt", message);
             BMap<String, BValue> bodyPart = getEntityStruct(result);
@@ -139,11 +139,11 @@ public class Util {
                     file.getAbsolutePath()));
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
             HeaderUtil.setHeaderToEntity(bodyPart, HttpHeaderNames.CONTENT_TRANSFER_ENCODING.toString(),
-                    contentTransferEncoding);
+                                         contentTransferEncoding);
             return bodyPart;
         } catch (IOException e) {
             LOG.error("Error occurred while creating a temp file for json file part in getTextFilePart",
-                    e.getMessage());
+                      e.getMessage());
         }
         return null;
     }
@@ -181,7 +181,7 @@ public class Util {
             return bodyPart;
         } catch (IOException e) {
             LOG.error("Error occurred while creating a temp file for json file part in getJsonFilePart",
-                    e.getMessage());
+                      e.getMessage());
         }
         return null;
     }
@@ -218,7 +218,7 @@ public class Util {
             return bodyPart;
         } catch (IOException e) {
             LOG.error("Error occurred while creating a temp file for xml file part in getXmlFilePart",
-                    e.getMessage());
+                      e.getMessage());
         }
         return null;
     }
@@ -253,7 +253,7 @@ public class Util {
             return bodyPart;
         } catch (IOException e) {
             LOG.error("Error occurred while creating a temp file for binary file part in getBinaryFilePart",
-                    e.getMessage());
+                      e.getMessage());
         }
         return null;
     }
@@ -323,7 +323,7 @@ public class Util {
 
     public static BMap<String, BValue> getMediaTypeStruct(CompileResult result) {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME,
-                MEDIA_TYPE_STRUCT);
+                                               MEDIA_TYPE_STRUCT);
     }
 
     public static BMap<String, BValue> getContentDispositionStruct(CompileResult result) {
@@ -380,6 +380,6 @@ public class Util {
     public static void verifyMimeError(BValue returnValue, String errMsg) {
         Assert.assertEquals(((BError) returnValue).getReason(), MimeConstants.MIME_ERROR_CODE);
         Assert.assertEquals(((BMap) ((BError) returnValue).getDetails()).get(MimeConstants.MIME_ERROR_MESSAGE)
-                .stringValue(), errMsg);
+                                    .stringValue(), errMsg);
     }
 }

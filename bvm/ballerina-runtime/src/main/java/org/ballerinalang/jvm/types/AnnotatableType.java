@@ -28,8 +28,8 @@ public abstract class AnnotatableType extends BType {
 
     protected MapValueImpl<String, MapValueImpl> annotations = new MapValueImpl<>();
 
-    AnnotatableType(String typeName, String pkgPath, Class<?> valueClass) {
-        super(typeName, pkgPath, valueClass);
+    AnnotatableType(String typeName, BPackage pkg, Class<?> valueClass) {
+        super(typeName, pkg, valueClass);
     }
 
     public abstract String getAnnotationKey();

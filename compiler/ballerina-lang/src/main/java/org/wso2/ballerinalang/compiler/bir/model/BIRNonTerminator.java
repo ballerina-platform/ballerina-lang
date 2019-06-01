@@ -171,11 +171,27 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     public static class NewStructure extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BType type;
+        public final boolean isExternalDef;
+        public final PackageID externalPackageId;
+        public final String recordName;
 
         public NewStructure(DiagnosticPos pos, BType type, BIROperand lhsOp) {
             super(pos, InstructionKind.NEW_STRUCTURE);
             this.type = type;
             this.lhsOp = lhsOp;
+            this.recordName = null;
+            this.externalPackageId = null;
+            this.isExternalDef = false;
+        }
+
+        public NewStructure(DiagnosticPos pos, PackageID externalPackageId, String recordName, BType type,
+                            BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_STRUCTURE);
+            this.recordName = recordName;
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.externalPackageId = externalPackageId;
+            this.isExternalDef = true;
         }
 
         @Override
@@ -192,13 +208,28 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      * @since 0.995.0
      */
     public static class NewInstance extends BIRNonTerminator {
+        public final boolean isExternalDef;
+        public final PackageID externalPackageId;
         public BIRTypeDefinition def;
+        public final String objectName;
         public BIROperand lhsOp;
 
         public NewInstance(DiagnosticPos pos, BIRTypeDefinition def, BIROperand lhsOp) {
             super(pos, InstructionKind.NEW_INSTANCE);
             this.lhsOp = lhsOp;
             this.def = def;
+            this.objectName = null;
+            this.externalPackageId = null;
+            this.isExternalDef = false;
+        }
+
+        public NewInstance(DiagnosticPos pos, PackageID externalPackageId, String objectName, BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_INSTANCE);
+            this.objectName = objectName;
+            this.lhsOp = lhsOp;
+            this.def = null;
+            this.externalPackageId = externalPackageId;
+            this.isExternalDef = true;
         }
 
         @Override
@@ -639,39 +670,6 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             this.type = type;
             this.lhsOp = lhsOp;
             this.nameOp = nameOp;
-        }
-
-        @Override
-        public void accept(BIRVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
-    /**
-     * A ternary operator instruction
-     * <p>
-     * e.g., a == null ? b : c
-     *
-     * @since 0.995.0
-     */
-    public static class TernaryOp extends BIRNonTerminator implements BIRAssignInstruction {
-        public BIROperand lhsOp;
-        public BIROperand conditionOp;
-        public BIROperand thenOp;
-        public BIROperand elseOp;
-
-        public TernaryOp(DiagnosticPos pos, BIROperand lhsOp, BIROperand conditionOp, BIROperand thenOp,
-                BIROperand elseOp) {
-            super(pos, InstructionKind.TERNARY);
-            this.lhsOp = lhsOp;
-            this.conditionOp = conditionOp;
-            this.thenOp = thenOp;
-            this.elseOp = elseOp;
-        }
-
-        @Override
-        public BIROperand getLhsOperand() {
-            return lhsOp;
         }
 
         @Override

@@ -31,8 +31,8 @@ public class BAnyType extends BType {
      *
      * @param typeName string name of the type
      */
-    BAnyType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, RefValue.class);
+    BAnyType(String typeName, BPackage pkg) {
+        super(typeName, pkg, RefValue.class);
     }
 
     @Override

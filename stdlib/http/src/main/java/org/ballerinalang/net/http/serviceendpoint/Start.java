@@ -19,8 +19,8 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -54,28 +54,36 @@ public class Start extends AbstractHttpNativeFunction {
 
     @Override
     public void execute(Context context) {
-        Struct listener = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+//        Struct listener = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+//        HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(listener);
+//        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(listener);
+//
+//        if (!isConnectorStarted(listener)) {
+//            startServerConnector(listener, httpServicesRegistry, webSocketServicesRegistry);
+//        }
+//        context.setReturnValues();
+    }
+
+    public static void start(Strand strand, ObjectValue listener) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(listener);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(listener);
 
         if (!isConnectorStarted(listener)) {
             startServerConnector(listener, httpServicesRegistry, webSocketServicesRegistry);
         }
-        context.setReturnValues();
     }
 
-    private void startServerConnector(Struct serviceEndpoint, HTTPServicesRegistry httpServicesRegistry,
+    private static void startServerConnector(ObjectValue serviceEndpoint, HTTPServicesRegistry httpServicesRegistry,
                                       WebSocketServicesRegistry webSocketServicesRegistry) {
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        HttpConnectorPortBindingListener portBindingListener = new HttpConnectorPortBindingListener();
         BallerinaHTTPConnectorListener httpListener =
                 new BallerinaHTTPConnectorListener(httpServicesRegistry,
-                                                   serviceEndpoint.getStructField(SERVICE_ENDPOINT_CONFIG));
+                                                   serviceEndpoint.getMapValue(SERVICE_ENDPOINT_CONFIG));
         WebSocketServerConnectorListener wsListener =
                 new WebSocketServerConnectorListener(webSocketServicesRegistry,
-                                                     serviceEndpoint.getStructField(SERVICE_ENDPOINT_CONFIG));
-
+                                                     serviceEndpoint.getMapValue(SERVICE_ENDPOINT_CONFIG));
+        HttpConnectorPortBindingListener portBindingListener = new HttpConnectorPortBindingListener();
         serverConnectorFuture.setHttpConnectorListener(httpListener);
         serverConnectorFuture.setWebSocketConnectorListener(wsListener);
         serverConnectorFuture.setPortBindingEventListener(portBindingListener);

@@ -20,6 +20,9 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -68,6 +71,31 @@ public class GetText extends AbstractGetPayloadHandler {
             }
         } catch (Exception ex) {
             createErrorAndNotify(context, callback,
+                                 "Error occurred while extracting text data from entity : " + ex.getMessage());
+        }
+    }
+
+    public static void getText(Strand strand, ObjectValue entityObj) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
+
+        try {
+            String result;
+            Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
+            if (dataSource != null) {
+                result = MimeUtil.getMessageAsString(dataSource);
+                setReturnValuesAndNotify(callback, result);
+                return;
+            }
+
+            if (isStreamingRequired(entityObj)) {
+                result = EntityBodyHandler.constructStringDataSource(entityObj);
+                updateDataSourceAndNotify(callback, entityObj, result);
+            } else {
+                constructNonBlockingDataSource(callback, entityObj, SourceType.TEXT);
+            }
+        } catch (Exception ex) {
+            createErrorAndNotify(callback,
                                  "Error occurred while extracting text data from entity : " + ex.getMessage());
         }
     }

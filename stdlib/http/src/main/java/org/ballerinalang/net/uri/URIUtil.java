@@ -18,10 +18,9 @@
 
 package org.ballerinalang.net.uri;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -35,7 +34,7 @@ import java.util.Map;
  */
 public class URIUtil {
 
-    public static final String URI_PATH_DELIMITER = "/";
+    private static final String URI_PATH_DELIMITER = "/";
 
     public static String[] getPathSegments(String path) {
         if (path.startsWith(URI_PATH_DELIMITER)) {
@@ -52,7 +51,7 @@ public class URIUtil {
         return path.substring(basePath.length());
     }
 
-    public static void populateQueryParamMap(String queryParamString, BMap<String, BString> queryParamsMap)
+    public static void populateQueryParamMap(String queryParamString, MapValue<String, String> queryParamsMap)
             throws UnsupportedEncodingException {
         String[] queryParamVals = queryParamString.split("&");
         for (String queryParam : queryParamVals) {
@@ -61,22 +60,23 @@ public class URIUtil {
                 String queryParamName = queryParam.substring(0, index).trim();
                 String queryParamValue = URLDecoder.decode(queryParam.substring(index + 1).trim(), "UTF-8");
                 if (queryParamValue.matches("")) {
-                    queryParamsMap.put(queryParamName, new BString(""));
+                    queryParamsMap.put(queryParamName, "");
                     continue;
                 }
-                queryParamsMap.put(queryParamName, new BString(queryParamValue));
+                queryParamsMap.put(queryParamName, queryParamValue);
             }
         }
     }
 
-    public static BMap<String, BValue> getMatrixParamsMap(String path, HttpCarbonMessage carbonMessage) {
-        BMap<String, BValue> matrixParamsBMap = new BMap<>();
+    @SuppressWarnings("unchecked")
+    public static MapValue<String, Object> getMatrixParamsMap(String path, HttpCarbonMessage carbonMessage) {
+        MapValue<String, Object> matrixParamsBMap = new MapValueImpl<>();
         Map<String, Map<String, String>> pathToMatrixParamMap =
                 (Map<String, Map<String, String>>) carbonMessage.getProperty(HttpConstants.MATRIX_PARAMS);
         Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
         if (matrixParamsMap != null) {
             for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {
-                matrixParamsBMap.put(matrixParamEntry.getKey(), new BString(matrixParamEntry.getValue()));
+                matrixParamsBMap.put(matrixParamEntry.getKey(), matrixParamEntry.getValue());
             }
         }
         return matrixParamsBMap;

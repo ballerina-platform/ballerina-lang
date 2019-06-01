@@ -69,8 +69,8 @@ public class Executor {
      */
     public static Object executeFunction(Strand strand, ObjectValue service, AttachedFunction resource,
                                          Object... args) {
-        int requiredArgNo = resource.getParameterType().length;
-        int providedArgNo = args.length;
+        int requiredArgNo = resource.type.paramTypes.length;
+        int providedArgNo = (args.length / 2); // due to additional boolean args being added for each arg
         if (requiredArgNo != providedArgNo) {
             throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
                                                providedArgNo + ".");

@@ -185,7 +185,7 @@ public class Utils {
     public static void validateService(ObjectValue service) throws
                               org.ballerinalang.jvm.util.exceptions.BLangRuntimeException {
         AttachedFunction[] resources = service.getType().getAttachedFunctions();
-        if (resources.length != 1) {
+        if (resources.length != 2) {
             throw new org.ballerinalang.jvm.util.exceptions.BLangRuntimeException(
                     "Invalid number of resources found in service \'" + service.getType().getName()
                             + "\'. Task service should include only one resource.");

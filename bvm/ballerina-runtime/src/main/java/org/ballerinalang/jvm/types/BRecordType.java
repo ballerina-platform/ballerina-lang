@@ -35,12 +35,12 @@ public class BRecordType extends BStructureType {
      * Create a {@code BRecordType} which represents the user defined record type.
      *
      * @param typeName string name of the record type
-     * @param pkgPath package of the record type
+     * @param pkg package of the record type
      * @param flags of the record type
      * @param sealed flag indicating the sealed status
      */
-    public BRecordType(String typeName, String pkgPath, int flags, boolean sealed) {
-        super(typeName, pkgPath, flags, MapValueImpl.class);
+    public BRecordType(String typeName, BPackage pkg, int flags, boolean sealed) {
+        super(typeName, pkg, flags, MapValueImpl.class);
         this.sealed = sealed;
     }
 
@@ -48,15 +48,15 @@ public class BRecordType extends BStructureType {
      * Create a {@code BRecordType} which represents the user defined record type.
      *
      * @param typeName string name of the record type
-     * @param pkgPath package of the record type
+     * @param pkg package of the record type
      * @param flags of the record type
      * @param fields record fields
      * @param restFieldType type of the rest field
      * @param sealed flag to indicate whether the record is sealed
      */
-    public BRecordType(String typeName, String pkgPath, int flags, Map<String, BField> fields, BType restFieldType,
+    public BRecordType(String typeName, BPackage pkg, int flags, Map<String, BField> fields, BType restFieldType,
             boolean sealed) {
-        super(typeName, pkgPath, flags, MapValueImpl.class, fields);
+        super(typeName, pkg, flags, MapValueImpl.class, fields);
         this.restFieldType = restFieldType;
         this.sealed = sealed;
     }

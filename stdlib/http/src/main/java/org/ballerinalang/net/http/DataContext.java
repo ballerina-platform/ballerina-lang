@@ -18,55 +18,87 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
-import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 
 /**
  * {@code DataContext} is the wrapper to hold {@code Context} and {@code CallableUnitCallback}.
  */
 public class DataContext {
-    public Context context;
-    public CallableUnitCallback callback;
+    private final Strand strand;
+    private final ObjectValue clientObj;
+    private final ObjectValue requestObj;
+    private final NonBlockingCallback callback;
     private HttpCarbonMessage correlatedMessage;
 
-    public DataContext(Context context, CallableUnitCallback callback, HttpCarbonMessage correlatedMessage) {
-        this.context = context;
-        this.callback = callback;
-        this.correlatedMessage = correlatedMessage;
+    public DataContext(Strand strand, ObjectValue clientObj, ObjectValue requestObj,
+                       HttpCarbonMessage outboundRequestMsg) {
+        this.strand = strand;
+        this.clientObj = clientObj;
+        this.requestObj = requestObj;
+        this.correlatedMessage = outboundRequestMsg;
+        this.callback = null;
     }
 
-    public void notifyInboundResponseStatus(BMap<String, BValue> inboundResponse, BError httpConnectorError) {
+    public DataContext(Strand strand, NonBlockingCallback callback, ObjectValue clientObj,
+                       ObjectValue requestObj,
+                       HttpCarbonMessage outboundRequestMsg) {
+        this.strand = strand;
+        //TODO : NonBlockingCallback is used to handle non blocking call
+        this.callback = callback;
+        this.clientObj = clientObj;
+        this.requestObj = requestObj;
+        this.correlatedMessage = outboundRequestMsg;
+    }
+
+    public void notifyInboundResponseStatus(ObjectValue inboundResponse, ErrorValue httpConnectorError) {
         //Make the request associate with this response consumable again so that it can be reused.
         if (inboundResponse != null) {
-            context.setReturnValues(inboundResponse);
+            getCallback().setReturnValues(inboundResponse);
         } else if (httpConnectorError != null) {
-            context.setReturnValues(httpConnectorError);
+            getCallback().setReturnValues(httpConnectorError);
         } else {
-            BMap<String, BValue> err = BLangConnectorSPIUtil.createBStruct(context, PACKAGE_BALLERINA_BUILTIN,
-                    STRUCT_GENERIC_ERROR, "HttpClient failed");
-            context.setReturnValues(err);
+            MapValue<String, Object> err = BallerinaValues.createRecordValue(PACKAGE_BALLERINA_BUILTIN,
+                                                                             STRUCT_GENERIC_ERROR);
+            getCallback().setReturnValues(err);
         }
-        callback.notifySuccess();
+        getCallback().notifySuccess();
     }
 
-    public void notifyOutboundResponseStatus(BError httpConnectorError) {
+    public void notifyOutboundResponseStatus(ErrorValue httpConnectorError) {
         if (httpConnectorError == null) {
-            context.setReturnValues();
+            getCallback().setReturnValues(null);
         } else {
-            context.setReturnValues(httpConnectorError);
+            getCallback().setReturnValues(httpConnectorError);
         }
-        callback.notifySuccess();
+        getCallback().notifySuccess();
     }
 
     public HttpCarbonMessage getOutboundRequest() {
         return correlatedMessage;
+    }
+
+    public ObjectValue getClientObj() {
+        return clientObj;
+    }
+
+    public ObjectValue getRequestObj() {
+        return requestObj;
+    }
+
+    public Strand getStrand() {
+        return strand;
+    }
+
+    public NonBlockingCallback getCallback() {
+        return callback;
     }
 }

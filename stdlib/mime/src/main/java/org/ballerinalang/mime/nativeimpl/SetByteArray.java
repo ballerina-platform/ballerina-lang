@@ -20,6 +20,9 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -54,5 +57,10 @@ public class SetByteArray extends BlockingNativeCallableUnit {
         EntityBodyHandler.addMessageDataSource(entityStruct, new BValueArray(payload));
         MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
         context.setReturnValues();
+    }
+
+    public static void setByteArray(Strand strand, ObjectValue entityObj, ArrayValue payload, String contentType) {
+        EntityBodyHandler.addMessageDataSource(entityObj, payload);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType);
     }
 }

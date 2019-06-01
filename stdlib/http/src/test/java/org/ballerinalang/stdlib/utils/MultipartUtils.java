@@ -43,6 +43,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.mime.FileUploadContentHolder;
+import org.ballerinalang.stdlib.mime.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -92,7 +93,7 @@ public class MultipartUtils {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessageForMultiparts(path, HttpConstants.HTTP_METHOD_POST);
         HttpUtil.addCarbonMsg(request, cMsg);
         BMap<String, BValue> entity = getEntityStruct(result);
-        MimeUtil.setContentType(getMediaTypeStruct(result), entity, topLevelContentType);
+        Util.setContentType(getMediaTypeStruct(result), entity, topLevelContentType);
         messageMap.put(CARBON_MESSAGE, cMsg);
         messageMap.put(BALLERINA_REQUEST, request);
         messageMap.put(MULTIPART_ENTITY, entity);
@@ -237,14 +238,14 @@ public class MultipartUtils {
             throws HttpPostRequestEncoder.ErrorDataEncoderException {
         try {
             InterfaceHttpData encodedData;
-            Channel byteChannel = EntityBodyHandler.getByteChannel(bodyPart);
+            Channel byteChannel = Util.getByteChannel(bodyPart);
             FileUploadContentHolder contentHolder = new FileUploadContentHolder();
             contentHolder.setRequest(httpRequest);
             contentHolder.setBodyPartName(getBodyPartName(bodyPart));
             contentHolder.setFileName(TEMP_FILE_NAME + TEMP_FILE_EXTENSION);
-            contentHolder.setContentType(MimeUtil.getBaseType(bodyPart));
+            contentHolder.setContentType(Util.getBaseType(bodyPart));
             contentHolder.setBodyPartFormat(MimeConstants.BodyPartForm.INPUTSTREAM);
-            String contentTransferHeaderValue = HeaderUtil.getHeaderValue(bodyPart,
+            String contentTransferHeaderValue = Util.getHeaderValue(bodyPart,
                     HttpHeaderNames.CONTENT_TRANSFER_ENCODING
                             .toString());
             if (contentTransferHeaderValue != null) {
@@ -301,9 +302,9 @@ public class MultipartUtils {
      * @return A string denoting the body part's name
      */
     private static String getBodyPartName(BMap<String, BValue> bodyPart) {
-        String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
+        String contentDisposition = Util.getContentDisposition(bodyPart);
         if (!contentDisposition.isEmpty()) {
-            BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentDisposition);
+            BMap<String, BValue> paramMap = Util.getParamMap(contentDisposition);
             if (paramMap != null) {
                 BString bodyPartName = paramMap.get(CONTENT_DISPOSITION_NAME) != null ?
                         (BString) paramMap.get(CONTENT_DISPOSITION_NAME) : null;

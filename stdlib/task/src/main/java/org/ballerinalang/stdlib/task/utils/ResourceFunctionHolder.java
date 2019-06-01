@@ -61,7 +61,7 @@ public class ResourceFunctionHolder {
         onTriggerResource = null;
         for (AttachedFunction resource : service.getType().getAttachedFunctions()) {
             //TODO test the name of resource
-            if (resource.getName().equals(onTriggerResourceFullName)) {
+            if (onTriggerResourceFullName.contains(resource.getName())) {
                 onTriggerResource = resource;
             }
         }

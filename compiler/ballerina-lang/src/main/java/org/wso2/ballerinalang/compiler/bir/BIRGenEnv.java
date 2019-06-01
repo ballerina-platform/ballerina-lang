@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,17 +41,22 @@ class BIRGenEnv {
     BIRPackage enclPkg;
 
     BIRFunction enclFunc;
+
+    List<BIRBasicBlock> enclBasicBlocks;
+
     // This is a cache which can be stored inside the BIRFunction
     Map<BSymbol, BIRVariableDcl> symbolVarMap = new HashMap<>();
     // This is a global variable cache
     Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
     private int currentBBId = -1;
     private int currentLocalVarId = -1;
+    private int currentLambdaVarId = -1;
     private int currentGlobalVarId = -1;
 
     BIRBasicBlock enclBB;
     BIRBasicBlock trapBB;
     BIROperand targetOperand;
+    BIRBasicBlock targetOperandBB;
     BIRBasicBlock enclLoopBB;
     BIRBasicBlock enclLoopEndBB;
 
@@ -72,6 +78,11 @@ class BIRGenEnv {
         return names.merge(Names.BIR_LOCAL_VAR_PREFIX, names.fromString(Integer.toString(currentLocalVarId)));
     }
 
+    Name nextLambdaVarId(Names names) {
+        currentLambdaVarId++;
+        return names.merge(Names.BIR_LOCAL_VAR_PREFIX, names.fromString(Integer.toString(currentLambdaVarId)));
+    }
+
     Name nextGlobalVarId(Names names) {
         currentGlobalVarId++;
         return names.merge(Names.BIR_GLOBAL_VAR_PREFIX, names.fromString(Integer.toString(currentGlobalVarId)));
@@ -82,6 +93,7 @@ class BIRGenEnv {
         this.currentLocalVarId = -1;
         this.currentBBId = -1;
         this.targetOperand = null;
+        this.targetOperandBB = null;
         this.enclBB = null;
         this.returnBB = null;
         this.enclFunc = null;

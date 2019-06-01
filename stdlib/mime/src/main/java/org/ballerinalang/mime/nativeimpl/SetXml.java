@@ -20,6 +20,9 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -54,5 +57,10 @@ public class SetXml extends BlockingNativeCallableUnit {
         EntityBodyHandler.addMessageDataSource(entityStruct, xmlContent);
         MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
         context.setReturnValues();
+    }
+
+    public static void setXml(Strand strand, ObjectValue entityObj, XMLValue xmlContent, String contentType) {
+        EntityBodyHandler.addMessageDataSource(entityObj, xmlContent);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType);
     }
 }

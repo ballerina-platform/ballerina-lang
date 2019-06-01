@@ -20,6 +20,11 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -76,6 +81,37 @@ public class GetXml extends AbstractGetPayloadHandler {
             }
         } catch (Exception ex) {
             createErrorAndNotify(context, callback,
+                                 "Error occurred while extracting xml data from entity : " + ex.getMessage());
+        }
+    }
+
+    public static void getXml(Strand strand, ObjectValue entityObj) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
+
+        try {
+            XMLValue result;
+            Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
+            if (dataSource != null) {
+                if (dataSource instanceof XMLValue) {
+                    result = (XMLValue) dataSource;
+                } else {
+                    // Build the XML from string representation of the payload.
+                    String payload = MimeUtil.getMessageAsString(dataSource);
+                    result = XMLFactory.parse(payload);
+                }
+                setReturnValuesAndNotify(callback, result);
+                return;
+            }
+
+            if (isStreamingRequired(entityObj)) {
+                result = EntityBodyHandler.constructXmlDataSource(entityObj);
+                updateDataSourceAndNotify(callback, entityObj, result);
+            } else {
+                constructNonBlockingDataSource(callback, entityObj, SourceType.XML);
+            }
+        } catch (Exception ex) {
+            createErrorAndNotify(callback,
                                  "Error occurred while extracting xml data from entity : " + ex.getMessage());
         }
     }

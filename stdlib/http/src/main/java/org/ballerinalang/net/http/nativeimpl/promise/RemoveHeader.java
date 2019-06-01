@@ -20,9 +20,9 @@ package org.ballerinalang.net.http.nativeimpl.promise;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -44,11 +44,17 @@ public class RemoveHeader extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(0);
+//        BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(0);
+//        Http2PushPromise http2PushPromise =
+//                HttpUtil.getPushPromise(pushPromiseStruct, HttpUtil.createHttpPushPromise(pushPromiseStruct));
+//        String headerName = context.getStringArgument(0);
+//        http2PushPromise.removeHeader(headerName);
+//        context.setReturnValues();
+    }
+
+    public static void removeHeader(Strand strand, ObjectValue pushPromiseObj, String headerName) {
         Http2PushPromise http2PushPromise =
-                HttpUtil.getPushPromise(pushPromiseStruct, HttpUtil.createHttpPushPromise(pushPromiseStruct));
-        String headerName = context.getStringArgument(0);
+                HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
         http2PushPromise.removeHeader(headerName);
-        context.setReturnValues();
     }
 }

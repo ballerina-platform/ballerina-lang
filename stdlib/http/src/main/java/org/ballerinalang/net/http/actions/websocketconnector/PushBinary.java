@@ -19,11 +19,11 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 import io.netty.channel.ChannelFuture;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -43,7 +43,6 @@ import java.nio.ByteBuffer;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
                              structPackage = "ballerina/http"),
         args = {
-                @Argument(name = "wsConnector", type = TypeKind.OBJECT),
                 @Argument(name = "data", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @Argument(name = "final", type = TypeKind.BOOLEAN)
         }
@@ -52,17 +51,33 @@ public class PushBinary implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
+//        try {
+//            BMap<String, BValue> wsConnection = (BMap<String, BValue>) context.getRefArgument(0);
+//            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
+//                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+//            byte[] binaryData = ((BValueArray) context.getRefArgument(1)).getBytes();
+//            boolean finalFrame = context.getBooleanArgument(0);
+//            ChannelFuture webSocketChannelFuture =
+//                    connectionInfo.getWebSocketConnection().pushBinary(ByteBuffer.wrap(binaryData), finalFrame);
+//            WebSocketUtil.handleWebSocketCallback(context, callback, webSocketChannelFuture);
+//        } catch (Exception e) {
+//            context.setReturnValues(HttpUtil.getError(context, e));
+//            callback.notifySuccess();
+//        }
+    }
+
+    public static void pushBinary(Strand strand, ObjectValue wsConnection, byte[] binaryData, boolean finalFrame) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
-            BMap<String, BValue> wsConnection = (BMap<String, BValue>) context.getRefArgument(0);
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            byte[] binaryData = ((BValueArray) context.getRefArgument(1)).getBytes();
-            boolean finalFrame = context.getBooleanArgument(0);
             ChannelFuture webSocketChannelFuture =
                     connectionInfo.getWebSocketConnection().pushBinary(ByteBuffer.wrap(binaryData), finalFrame);
-            WebSocketUtil.handleWebSocketCallback(context, callback, webSocketChannelFuture);
+            WebSocketUtil.handleWebSocketCallback(callback, webSocketChannelFuture);
         } catch (Exception e) {
-            context.setReturnValues(HttpUtil.getError(context, e));
+            //TODO remove this call back
+            callback.setReturnValues(HttpUtil.getError(e.getMessage()));
             callback.notifySuccess();
         }
     }

@@ -20,11 +20,12 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -52,12 +53,42 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 public class CancelWebSocketUpgrade implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
+//        try {
+//            BMap<String, BValue> httpConnection = (BMap<String, BValue>) context.getRefArgument(0);
+//            int statusCode = (int) context.getIntArgument(0);
+//            String reason = context.getStringArgument(0);
+//            WebSocketHandshaker webSocketHandshaker =
+//                    (WebSocketHandshaker) httpConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
+//            if (webSocketHandshaker == null) {
+//                throw new BallerinaConnectorException("Not a WebSocket upgrade request. Cannot cancel the request");
+//            }
+//            ChannelFuture future = webSocketHandshaker.cancelHandshake(statusCode, reason);
+//            future.addListener((ChannelFutureListener) channelFuture -> {
+//                Throwable cause = future.cause();
+//                if (!future.isSuccess() && cause != null) {
+//                    context.setReturnValues(HttpUtil.getError(context, cause));
+//                } else {
+//                    context.setReturnValues();
+//                }
+//                if (channelFuture.channel().isOpen()) {
+//                    channelFuture.channel().close();
+//                }
+//                callback.notifySuccess();
+//            });
+//        } catch (Exception e) {
+//            //Return this error.
+//            context.setReturnValues(HttpUtil.getError(context, e));
+//            callback.notifySuccess();
+//        }
+    }
+
+    public static void cancelWebSocketUpgrade(Strand strand, ObjectValue connectionObj, int statusCode, String reason) {
+        //TODO : NonBlockingCallback is used to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
+
         try {
-            BMap<String, BValue> httpConnection = (BMap<String, BValue>) context.getRefArgument(0);
-            int statusCode = (int) context.getIntArgument(0);
-            String reason = context.getStringArgument(0);
             WebSocketHandshaker webSocketHandshaker =
-                    (WebSocketHandshaker) httpConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
+                    (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
             if (webSocketHandshaker == null) {
                 throw new BallerinaConnectorException("Not a WebSocket upgrade request. Cannot cancel the request");
             }
@@ -65,9 +96,9 @@ public class CancelWebSocketUpgrade implements NativeCallableUnit {
             future.addListener((ChannelFutureListener) channelFuture -> {
                 Throwable cause = future.cause();
                 if (!future.isSuccess() && cause != null) {
-                    context.setReturnValues(HttpUtil.getError(context, cause));
+                    callback.setReturnValues(HttpUtil.getError(cause));
                 } else {
-                    context.setReturnValues();
+                    callback.setReturnValues(null);
                 }
                 if (channelFuture.channel().isOpen()) {
                     channelFuture.channel().close();
@@ -76,9 +107,11 @@ public class CancelWebSocketUpgrade implements NativeCallableUnit {
             });
         } catch (Exception e) {
             //Return this error.
-            context.setReturnValues(HttpUtil.getError(context, e));
+            callback.setReturnValues(HttpUtil.getError(e));
             callback.notifySuccess();
         }
+        //TODO : Temporary block the call. Remove this callback once the support is available
+        callback.sync();
     }
 
     @Override

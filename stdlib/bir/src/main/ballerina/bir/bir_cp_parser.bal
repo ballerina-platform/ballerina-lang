@@ -19,16 +19,21 @@ public type ConstPool record {
     string[] strings = [];
     int[] ints = [];
     float[] floats = [];
+    byte[] bytes = [];
+    BType?[] types = [];
 };
 
 public type ConstPoolParser object {
     ChannelReader reader;
     ConstPool cp = {};
     int i;
+    byte[]?[] unparsedTypes = [];
+    BIRContext birContext;
 
-    public function __init(ChannelReader reader) {
+    public function __init(ChannelReader reader, BIRContext birContext) {
         self.reader = reader;
         self.i = 0;
+        self.birContext = birContext;
     }
 
     public function parse() returns ConstPool {
@@ -37,6 +42,18 @@ public type ConstPoolParser object {
             self.parseConstPoolEntry();
             self.i += 1;
         }
+
+        int i = 0;
+        var unparsedTypeCount = self.unparsedTypes.length();
+        while(i <  unparsedTypeCount) {
+            var unparsedBytes = self.unparsedTypes[i];
+            if (unparsedBytes is byte[]){
+                TypeParser p  = new (self.cp, self.unparsedTypes, i, self.birContext);
+                var ignoreAlreadyInCp = p.parseTypeAndAddToCp();
+            }
+            i = i + 1;
+        }
+
         return self.cp;
     }
 
@@ -51,6 +68,10 @@ public type ConstPoolParser object {
             self.parseString();
         } else if (cpType == 5){
             self.parseModuleID();
+        } else if (cpType == 6){
+            self.parseByte();
+        } else if (cpType == 7){
+            self.parseType();
         } else {
             error err = error("cp type " + cpType + " not supported.:");
             panic err;
@@ -69,11 +90,21 @@ public type ConstPoolParser object {
         self.cp.strings[self.i] = self.reader.readString();
     }
 
+    function parseByte() {
+        self.cp.bytes[self.i] = self.reader.readByte();
+    }
+
     function parseModuleID() {
         ModuleID id = { org: self.cp.strings[self.reader.readInt32()],
             name: self.cp.strings[self.reader.readInt32()],
             modVersion: self.cp.strings[self.reader.readInt32()] };
         self.cp.packages[self.i] = id;
+    }
+
+    function parseType() {
+        var typeLen = self.reader.readInt32();
+        var unparsedType = self.reader.readByteArray(untaint typeLen);
+        self.unparsedTypes[self.i] = unparsedType;
     }
 
 };

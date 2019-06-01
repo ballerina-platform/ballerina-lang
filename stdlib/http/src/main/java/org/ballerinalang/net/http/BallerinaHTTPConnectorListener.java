@@ -17,14 +17,13 @@
  */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.runtime.Constants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
@@ -51,10 +50,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private final HTTPServicesRegistry httpServicesRegistry;
 
-    protected final Struct endpointConfig;
+    protected final MapValue endpointConfig;
 
-    public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry,
-                                          Struct endpointConfig) {
+    public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry, MapValue endpointConfig) {
         this.httpServicesRegistry = httpServicesRegistry;
         this.endpointConfig = endpointConfig;
     }
@@ -99,17 +97,18 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         boolean isInterruptible = httpResource.isInterruptible();
         Map<String, Object> properties = collectRequestProperties(inboundMessage, isTransactionInfectable,
                 isInterruptible, httpResource.isTransactionAnnotated());
-        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
-        Resource balResource = httpResource.getBalResource();
+        Object[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
+//        Resource balResource = httpResource.getBalResource();
 
         ObserverContext observerContext = null;
         if (ObserveUtils.isObservabilityEnabled()) {
             observerContext = new ObserverContext();
             observerContext.setConnectorName(SERVER_CONNECTOR_HTTP);
-            observerContext.setServiceName(ObserveUtils.getFullServiceName(httpResource.getParentService()
-                                                                                       .getBalService()
-                                                                                       .getServiceInfo()));
-            observerContext.setResourceName(balResource.getName());
+            //TODO migrate along with observability migration
+//            observerContext.setServiceName(ObserveUtils.getFullServiceName(httpResource.getParentService()
+//                                                                                       .getBalService()
+//                                                                                       .getServiceInfo()));
+//            observerContext.setResourceName(balResource.getName());
 
             Map<String, String> httpHeaders = new HashMap<>();
             inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
@@ -120,8 +119,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         }
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
-        //TODO handle BallerinaConnectorException
-        Executor.submit(balResource, callback, properties, observerContext, signatureParams);
+        //TODO handle BallerinaConnectorException and callback
+//        Executor.submit(balResource, callback, properties, observerContext, signatureParams);
+        ObjectValue service = httpResource.getParentService().getBalService();
+        Executor.submit(service, httpResource.getName(), callback, properties, signatureParams);
     }
 
     protected boolean accessed(HttpCarbonMessage inboundMessage) {
