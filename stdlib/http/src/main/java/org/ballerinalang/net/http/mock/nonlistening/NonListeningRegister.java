@@ -19,6 +19,10 @@
 package org.ballerinalang.net.http.mock.nonlistening;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.ParamDetail;
+import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
@@ -28,6 +32,9 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.BHTTPServicesRegistry;
+import org.ballerinalang.net.http.BWebSocketService;
+import org.ballerinalang.net.http.BWebSocketServicesRegistry;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
@@ -55,25 +62,25 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
 
     @Override
     public void execute(Context context) {
-//        Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-//        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-//
-//        HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
-//        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
-//
-//        ParamDetail param;
-//        if (service.getResources().length > 0 && (param = service.getResources()[0].getParamTypes().get(0)) != null) {
-//            String callerType = param.getVarType().toString();
-//            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
-//                httpServicesRegistry.registerService(service);
-//            } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
-//                WebSocketService webSocketService = new WebSocketService(service);
-//                webSocketServicesRegistry.registerService(webSocketService);
-//            }
-//        } else {
-//            httpServicesRegistry.registerService(service);
-//        }
-//        context.setReturnValues();
+        Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
+        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+
+        BHTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
+        BWebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
+
+        ParamDetail param;
+        if (service.getResources().length > 0 && (param = service.getResources()[0].getParamDetails().get(0)) != null) {
+            String callerType = param.getVarType().toString();
+            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
+                httpServicesRegistry.registerService(service);
+            } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
+                BWebSocketService webSocketService = new BWebSocketService(service);
+                webSocketServicesRegistry.registerService(webSocketService);
+            }
+        } else {
+            httpServicesRegistry.registerService(service);
+        }
+        context.setReturnValues();
     }
 
     public static void register(Strand strand, ObjectValue serviceEndpoint, ObjectValue service,

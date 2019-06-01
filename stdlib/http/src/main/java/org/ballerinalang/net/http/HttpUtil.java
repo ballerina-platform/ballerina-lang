@@ -1665,8 +1665,8 @@ public class HttpUtil {
             }
         }
 
-        List<String> ciphersValueList = Arrays.asList(sslConfig.getArrayValue(HttpConstants.SSL_CONFIG_CIPHERS)
-                                                              .getStringArray());
+        List<String> ciphersValueList = Arrays.asList(
+                sslConfig.getArrayValue(HttpConstants.SSL_CONFIG_CIPHERS).getStringArray());
         if (!ciphersValueList.isEmpty()) {
             String ciphers = ciphersValueList.stream().collect(Collectors.joining(",", "", ""));
             serverParameters = new Parameter(HttpConstants.CIPHERS, ciphers);

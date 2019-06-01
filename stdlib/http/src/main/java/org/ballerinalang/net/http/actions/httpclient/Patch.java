@@ -39,9 +39,16 @@ public class Patch extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-//        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
-        // Execute the operation
-//        executeNonBlockingAction(dataContext, false);
+        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
+//        Execute the operation
+        executeNonBlockingAction(dataContext, false);
+    }
+
+    @Override
+    protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
+        HttpCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
+        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_PATCH);
+        return outboundRequestMsg;
     }
 
     public static void nativePatch(Strand strand, ObjectValue clientObj, String url, MapValue config, String path,

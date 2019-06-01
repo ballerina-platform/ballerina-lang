@@ -20,6 +20,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply plugin: 'base'
 
 task npmInstall() {
+    dependsOn 'updateVersion'
     inputs.file("package-lock.json")
     outputs.dir("node_modules")
     doFirst {
@@ -40,4 +41,17 @@ task npmBuild() {
 
 assemble {
     dependsOn npmBuild
+}
+
+
+task updateVersion(type: Exec) {
+    inputs.file("package.json")
+    outputs.file("package.json")
+    doFirst {
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', 'npm', 'run', 'update-version', '--', project.version
+        } else {
+            commandLine 'npm', 'run', 'update-version', '--', project.version
+        }
+    }
 }

@@ -26,8 +26,13 @@ import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.BHttpUtil;
+import org.ballerinalang.net.http.BWebSocketOpenConnectionInfo;
+import org.ballerinalang.net.http.BWebSocketUtil;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
@@ -46,23 +51,23 @@ public class Ready implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-//        try {
-//            BMap<String, BValue> webSocketConnector = (BMap<String, BValue>) context.getRefArgument(0);
-//            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) webSocketConnector
-//                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-//            boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
-//                    .booleanValue();
-//            if (!isReady) {
-//                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), webSocketConnector);
-//                context.setReturnValues();
-//            } else {
-//                context.setReturnValues(HttpUtil.getError(context, "Already started reading frames"));
-//            }
-//            callback.notifySuccess();
-//        } catch (Exception e) {
-//            context.setReturnValues(HttpUtil.getError(context, e));
-//            callback.notifySuccess();
-//        }
+        try {
+            BMap<String, BValue> webSocketConnector = (BMap<String, BValue>) context.getRefArgument(0);
+            BWebSocketOpenConnectionInfo connectionInfo = (BWebSocketOpenConnectionInfo) webSocketConnector
+                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+            boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
+                    .booleanValue();
+            if (!isReady) {
+                BWebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), webSocketConnector);
+                context.setReturnValues();
+            } else {
+                context.setReturnValues(BHttpUtil.getError(context, "Already started reading frames"));
+            }
+            callback.notifySuccess();
+        } catch (Exception e) {
+            context.setReturnValues(BHttpUtil.getError(context, e));
+            callback.notifySuccess();
+        }
     }
 
     public static void ready(Strand strand, ObjectValue wsConnection) {
