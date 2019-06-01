@@ -940,7 +940,7 @@ function createFunctionPointer(jvm:MethodVisitor mv, string class, string lambda
     }
 }
 
-function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg,  string mainClass,
+function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:Package pkg,  string mainClass,
                             string initClass) {
 
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
@@ -949,7 +949,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     ErrorHandlerGenerator errorGen = new(mv, indexMap);
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
 
-    boolean isVoidFunction = userMainFunc.typeValue.retType is bir:BTypeNil;
+    boolean isVoidFunction = userMainFunc is bir:Function && userMainFunc.typeValue.retType is bir:BTypeNil;
 
     if (!isVoidFunction) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
@@ -980,72 +980,75 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         mv.visitInsn(POP);
     }
 
-    string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
-    bir:BType?[] paramTypes = userMainFunc.typeValue.paramTypes;
+    if (userMainFunc is bir:Function) {
+        string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
+        bir:BType?[] paramTypes = userMainFunc.typeValue.paramTypes;
 
-    mv.visitIntInsn(BIPUSH, paramTypes.length() + 1);
-    mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitIntInsn(BIPUSH, paramTypes.length() + 1);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
-    // first element of the args array will be set by the scheduler
-    // load and cast param values
-    int paramIndex = 0;
-    int paramTypeIndex = 0;
-    int argArrayIndex = 0;
-    while (paramTypeIndex < paramTypes.length()) {
-        var paramType = paramTypes[paramTypeIndex];
-        bir:BType pType = getType(paramType);
-        mv.visitInsn(DUP);
-        mv.visitIntInsn(BIPUSH, paramIndex + 1);
-        generateParamCast(argArrayIndex, pType, mv);
-        mv.visitInsn(AASTORE);
-        paramIndex += 1;
+        // first element of the args array will be set by the scheduler
+        // load and cast param values
+        int paramIndex = 0;
+        int paramTypeIndex = 0;
+        int argArrayIndex = 0;
+        while (paramTypeIndex < paramTypes.length()) {
+            var paramType = paramTypes[paramTypeIndex];
+            bir:BType pType = getType(paramType);
+            mv.visitInsn(DUP);
+            mv.visitIntInsn(BIPUSH, paramIndex + 1);
+            generateParamCast(argArrayIndex, pType, mv);
+            mv.visitInsn(AASTORE);
+            paramIndex += 1;
 
-        mv.visitInsn(DUP);
-        mv.visitIntInsn(BIPUSH, paramIndex + 1);
-        mv.visitLdcInsn("true");
-        mv.visitInsn(AASTORE);
-        paramIndex += 1;
-        argArrayIndex += 1;
-        paramTypeIndex += 2;
-    }
+            mv.visitInsn(DUP);
+            mv.visitIntInsn(BIPUSH, paramIndex + 1);
+            mv.visitLdcInsn("true");
+            mv.visitInsn(AASTORE);
+            paramIndex += 1;
+            argArrayIndex += 1;
+            paramTypeIndex += 2;
+        }
 
-    // invoke the user's main method
-    string lambdaName = "$lambda$main$";
-    createFunctionPointer(mv, initClass, lambdaName, isVoidFunction, 0);
+        // invoke the user's main method
+        string lambdaName = "$lambda$main$";
+        createFunctionPointer(mv, initClass, lambdaName, isVoidFunction, 0);
 
-    // no parent strand
-    mv.visitInsn(ACONST_NULL);
-    //submit to the scheduler
-    if (isVoidFunction) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_CONSUMER_METHOD,
-            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
-    } else {
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
-        mv.visitInsn(DUP);
-    }
-    mv.visitInsn(DUP);
-    mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
-    mv.visitIntInsn(BIPUSH, 100);
-    mv.visitTypeInsn(ANEWARRAY, OBJECT);
-    mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
-    errorGen.printStackTraceFromFutureValue(mv);
-    mv.visitInsn(POP);
-    // At this point we are done executing all the functions including asyncs
-    if (!isVoidFunction) {
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
-        bir:BType returnType = userMainFunc.typeValue.retType;
-        addUnboxInsn(mv, returnType);
-        if (returnType is bir:BTypeInt) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
-        } else if (returnType is bir:BTypeByte) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false);
-        } else if (returnType is bir:BTypeFloat) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(D)V", false);
-        } else if (returnType is bir:BTypeBoolean) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Z)V", false);
+        // no parent strand
+        mv.visitInsn(ACONST_NULL);
+        //submit to the scheduler
+        if (isVoidFunction) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_CONSUMER_METHOD,
+                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
         } else {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", io:sprintf("(L%s;)V", OBJECT), false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
+                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
+            mv.visitInsn(DUP);
+        }
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
+        mv.visitIntInsn(BIPUSH, 100);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
+        errorGen.printStackTraceFromFutureValue(mv);
+        mv.visitInsn(POP);
+    
+        // At this point we are done executing all the functions including asyncs
+        if (!isVoidFunction) {
+            mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
+            bir:BType returnType = userMainFunc.typeValue.retType;
+            addUnboxInsn(mv, returnType);
+            if (returnType is bir:BTypeInt) {
+                mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
+            } else if (returnType is bir:BTypeByte) {
+                mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false);
+            } else if (returnType is bir:BTypeFloat) {
+                mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(D)V", false);
+            } else if (returnType is bir:BTypeBoolean) {
+                mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Z)V", false);
+            } else {
+                mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", io:sprintf("(L%s;)V", OBJECT), false);
+            }
         }
     }
 
@@ -1103,11 +1106,19 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     }
     mv.visitMaxs(0,0);
     mv.visitEnd();
+}
 
+# Generate a lambda function to invoke ballerina main.
+#
+# + userMainFunc - ballerina main function
+# + cw - class visitor
+# + pkg - package
+function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
+                               string mainClass, string initClass) {
     //need to generate lambda for package Init as well, if exist
     if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
             io:sprintf("$lambda$%s$", initFuncName),
             io:sprintf("([L%s;)V", OBJECT), (), ());
         mv.visitCode();
