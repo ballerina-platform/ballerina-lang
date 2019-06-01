@@ -39,8 +39,15 @@ public class Get extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-//        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
-//        executeNonBlockingAction(dataContext, false);
+        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
+        executeNonBlockingAction(dataContext, false);
+    }
+
+    @Override
+    protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
+        HttpCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
+        outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_GET);
+        return outboundReqMsg;
     }
 
     public static void nativeGet(Strand strand, ObjectValue clientObj, String url, MapValue config, String path,

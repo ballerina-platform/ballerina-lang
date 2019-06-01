@@ -48,5 +48,13 @@ under the License.
             <package name="org.ballerinalang.stdlib.auth.*"/>
             <package name="org.ballerinalang.stdlib.connectionpool.*"/>
         </packages>
+        <classes>
+            <class name="org.ballerinalang.stdlib.services.basics.SignatureTest">
+                <methods>
+                    <include name="testSignatureWithBooleanParamAsThirdParam"/>
+                </methods>
+            </class>
+
+        </classes>
     </test>
 </suite>

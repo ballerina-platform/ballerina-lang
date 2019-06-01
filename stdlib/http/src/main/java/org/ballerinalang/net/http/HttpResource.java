@@ -19,9 +19,9 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.net.uri.DispatcherUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,8 +229,7 @@ public class HttpResource {
         }
 
         if (annotation.size() > 1) {
-            throw new BallerinaException(
-                    "multiple resource configuration annotations found in resource: " +
+            throw new BallerinaException("multiple resource configuration annotations found in resource: " +
                             resource.parent.getName() + "." + resource.getName());
         }
         return annotation.isEmpty() ? null : annotation;

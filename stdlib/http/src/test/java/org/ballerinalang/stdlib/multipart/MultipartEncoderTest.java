@@ -52,6 +52,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
 import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FIELD;
@@ -133,7 +134,8 @@ public class MultipartEncoderTest {
         BMap<String, BValue> nestedMultipartEntity = getNestedMultipartEntity(result);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        MultipartBDataSource multipartDataSource = new MultipartBDataSource(nestedMultipartEntity, multipartDataBoundary);
+        MultipartBDataSource multipartDataSource = new MultipartBDataSource(nestedMultipartEntity,
+                                                                            multipartDataBoundary);
         multipartDataSource.serialize(outputStream);
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {

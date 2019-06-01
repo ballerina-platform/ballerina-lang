@@ -185,7 +185,7 @@ public class TypeConverter {
                 throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
             }
             return ((DecimalValue) sourceVal).byteValue();
-        }else if (sourceVal instanceof String) {
+        } else if (sourceVal instanceof String) {
             try {
                 return Byte.parseByte((String) sourceVal);
             } catch (NumberFormatException e) {
