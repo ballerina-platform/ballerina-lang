@@ -22,11 +22,23 @@ configurations {
     baloImplementation {
         transitive false
     }
+    baloTestImplementation {
+        extendsFrom baloImplementation
+        transitive false
+    }
 }
 
 dependencies {
 //    baloCreat project(':lib-creator')
     annotationProcessor project(':ballerina-lang')
+
+    baloTestImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
 }
 
 compileJava {
@@ -44,11 +56,27 @@ compileJava {
 
 task createBalHome(type: org.gradle.api.tasks.Copy) {
     from configurations.baloImplementation
-    into "$buildDir/lib"
+    into "$buildDir/ballerina-home/main/lib"
+}
+
+task createTestBalHome(type: Copy) {
+    from configurations.baloTestImplementation
+    into "$buildDir/ballerina-home/test/lib/"
 }
 
 test {
+    dependsOn createTestBalHome
+
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
+    systemProperty "enableJBallerinaTests", "true"
+
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
     minHeapSize = "256m"
     maxHeapSize = "1024m"
-    dependsOn createBalHome
 }
+
