@@ -37,7 +37,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
-    testRuntimeOnly project(':ballerina-backend-jvm')
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-jvm')
@@ -60,10 +59,7 @@ task createTestBalHome(type: Copy) {
 }
 
 test {
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
     dependsOn createTestBalHome
-    systemProperty "enableJBallerinaTests", "true"
-
     doFirst {
         copy {
             from "$buildDir/generated-balo/repo/ballerina"
@@ -75,6 +71,8 @@ test {
     }
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
+    systemProperty "enableJBallerinaTests", "true"
 }
 
 description = 'Ballerina - System'
