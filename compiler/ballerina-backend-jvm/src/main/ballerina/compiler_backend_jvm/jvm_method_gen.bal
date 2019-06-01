@@ -1229,10 +1229,11 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
         bir:Package importedPkg = lookupModule(mod, currentBIRContext);
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
+            string startFuncName = cleanupFunctionName(getModuleStartFuncName(importedPkg));
 
             // skip the init function invocation is its already generated 
-            // by someother package
-            if(isInitInvoked(initFuncName)) {
+            // by some other package
+            if (isInitInvoked(initFuncName)) {
                 continue;
             }
 
@@ -1240,6 +1241,10 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
                                                                 MODULE_INIT_CLASS_NAME);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                    "(Lorg/ballerinalang/jvm/Strand;)V", false);
+
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
                     "(Lorg/ballerinalang/jvm/Strand;)V", false);
 
             generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
