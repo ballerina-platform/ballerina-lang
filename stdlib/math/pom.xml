@@ -81,6 +81,11 @@
             <artifactId>ballerina-stdlib-test-common</artifactId>
             <type>test-jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-test-utils</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
