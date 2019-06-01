@@ -35,6 +35,8 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -189,6 +191,28 @@ public class LSCompiler {
         }
         return bLangPackages.get(0);
     }
+
+    /**
+     * Get the all ballerina modules for a given project.
+     *
+     * @param context            Language Server Context
+     * @param docManager         Document manager
+     * @param preserveWS         Enable preserve whitespace
+     * @param errStrategy        Custom error strategy class
+     * @return {@link List}      A list of packages when compile full project
+     * @throws URISyntaxException when the uri of the source root is invalid
+     */
+    public List<BLangPackage> getBLangModules(LSContext context, WorkspaceDocumentManager docManager,
+                                              boolean preserveWS, Class<? extends ANTLRErrorStrategy> errStrategy)
+                                              throws URISyntaxException {
+        String sourceRoot = Paths.get(new URI(context.get(DocumentServiceKeys.SOURCE_ROOT_KEY))).toString();
+        PackageRepository pkgRepo = new WorkspacePackageRepository(sourceRoot, docManager);
+
+        CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, preserveWS, docManager);
+        Compiler compiler = LSCompilerUtil.getCompiler(context, "", compilerContext, errStrategy);
+        return compiler.compilePackages(false);
+    }
+
 
     /**
      * Get the BLangPackage for a given program.
