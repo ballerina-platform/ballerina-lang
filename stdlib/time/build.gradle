@@ -52,11 +52,6 @@ createBalo {
     jvmTarget = 'true'
 }
 
-task createTestBalHome(type: Copy) {
-    from configurations.localDependency
-    into "$buildDir/ballerina-home/test/lib"
-}
-
 description = 'Ballerina - Time'
 
 test {
