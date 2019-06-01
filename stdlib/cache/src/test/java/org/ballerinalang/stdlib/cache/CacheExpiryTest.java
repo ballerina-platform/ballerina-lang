@@ -49,7 +49,7 @@ public class CacheExpiryTest {
 
     @Test
     public void testCacheExpiry() {
-        BRunUtil.invokeStateful(compileResult, "initCache");
+        BRunUtil.invoke(compileResult, "initCache");
 
         // Check that the cache size gradually decreases due to cache expiry
         await().atMost(5, TimeUnit.SECONDS).until(() -> {
