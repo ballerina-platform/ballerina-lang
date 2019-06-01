@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.document;
+package org.ballerinalang.langserver.extensions;
 
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  * 
  * @since 0.985.0
  */
-class VisibleEndpointVisitor extends LSNodeVisitor {
+public class VisibleEndpointVisitor extends LSNodeVisitor {
 
     private SymbolEnv symbolEnv;
 
@@ -64,14 +64,14 @@ class VisibleEndpointVisitor extends LSNodeVisitor {
     
     private Map<PackageID, BLangImportPackage> packageMap;
 
-    VisibleEndpointVisitor(CompilerContext compilerContext) {
+    public VisibleEndpointVisitor(CompilerContext compilerContext) {
         this.symTable = SymbolTable.getInstance(compilerContext);
         this.symbolResolver = SymbolResolver.getInstance(compilerContext);
         this.visibleEPsByNode = new HashMap<>();
         this.packageMap = new HashMap<>();
     }
 
-    Map<BLangNode, List<SymbolMetaInfo>> getVisibleEPsByNode() {
+    public Map<BLangNode, List<SymbolMetaInfo>> getVisibleEPsByNode() {
         return visibleEPsByNode;
     }
 
