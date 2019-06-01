@@ -63,10 +63,6 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             Struct serviceEndpointConfig = serviceEndpoint.getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG);
             long port = serviceEndpoint.getIntField(ENDPOINT_CONFIG_PORT);
             ListenerConfiguration listenerConfiguration = getListenerConfig(port, serviceEndpointConfig);
-            String serverName = serviceEndpointConfig.getStringField(HttpConstants.SERVER_NAME);
-            if (!serverName.isEmpty()) {
-                listenerConfiguration.setServerHeader(serverName);
-            }
             ServerConnector httpServerConnector =
                     HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
             serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVER_CONNECTOR, httpServerConnector);

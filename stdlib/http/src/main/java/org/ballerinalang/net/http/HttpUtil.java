@@ -346,7 +346,7 @@ public class HttpUtil {
 
         HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
-        HttpUtil.setHeaderToResponseMsg(inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.setServerHeader(inboundRequestMsg, outboundResponseMsg);
         HttpUtil.setCompressionHeaders(context, inboundRequestMsg, outboundResponseMsg);
         HttpUtil.setChunkingHeader(context, outboundResponseMsg);
     }
@@ -896,13 +896,10 @@ public class HttpUtil {
      * @param outboundResponseMsg  outbound response message.
      * @return outbound response message with a header server name.
      */
-    private static void setHeaderToResponseMsg(HttpCarbonMessage requestMsg, HttpCarbonMessage outboundResponseMsg) {
-        if (requestMsg.getHeaders().contains(SERVER_NAME)) {
-            if ((outboundResponseMsg.getHeaders().contains(SERVER_NAME)
-                    && outboundResponseMsg.getHeader(SERVER_NAME).isEmpty())
-                    || !outboundResponseMsg.getHeaders().contains(SERVER_NAME)) {
-                outboundResponseMsg.setHeader(SERVER_NAME, requestMsg.getHeader(SERVER_NAME));
-            }
+    private static void setServerHeader(HttpCarbonMessage requestMsg, HttpCarbonMessage outboundResponseMsg) {
+        if (!outboundResponseMsg.getHeaders().contains(SERVER_NAME)
+                || outboundResponseMsg.getHeader(SERVER_NAME).isEmpty()) {
+            outboundResponseMsg.setHeader(SERVER_NAME, requestMsg.getHeader(SERVER_NAME));
         }
     }
 
@@ -1551,7 +1548,11 @@ public class HttpUtil {
             listenerConfiguration.setVersion(httpVersion);
         }
 
-        listenerConfiguration.setServerHeader(getServerName());
+        if (endpointConfig.getName().contains(SERVER_NAME)) {
+            listenerConfiguration.setServerHeader(endpointConfig.getStringField(HttpConstants.SERVER_NAME));
+        } else {
+            listenerConfiguration.setServerHeader(getServerName());
+        }
 
         if (sslConfig != null) {
             return setSslConfig(sslConfig, listenerConfiguration);
