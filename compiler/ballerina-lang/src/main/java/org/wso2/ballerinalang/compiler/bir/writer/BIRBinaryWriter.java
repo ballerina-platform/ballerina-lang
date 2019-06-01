@@ -47,17 +47,16 @@ import java.util.stream.Collectors;
  */
 public class BIRBinaryWriter {
 
-    private final ConstantPool cp;
+    private final ConstantPool cp = new ConstantPool();
     private final BIRNode.BIRPackage birPackage;
 
     public BIRBinaryWriter(BIRNode.BIRPackage birPackage) {
         this.birPackage = birPackage;
-        this.cp = new ConstantPool(this.birPackage);
     }
 
     public byte[] serialize() {
         ByteBuf birbuf = Unpooled.buffer();
-        BIRTypeWriter typeWriter = new BIRTypeWriter(birbuf, cp, this.birPackage);
+        BIRTypeWriter typeWriter = new BIRTypeWriter(birbuf, cp);
         BIRInstructionWriter insWriter = new BIRInstructionWriter(birbuf, typeWriter, cp);
 
 
@@ -211,7 +210,7 @@ public class BIRBinaryWriter {
         writeTaintTable(buf, birFunction.taintTable);
 
         ByteBuf birbuf = Unpooled.buffer();
-        BIRTypeWriter funcTypeWriter = new BIRTypeWriter(birbuf, cp, this.birPackage);
+        BIRTypeWriter funcTypeWriter = new BIRTypeWriter(birbuf, cp);
         BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, funcTypeWriter, cp);
 
         // Arg count
@@ -299,7 +298,7 @@ public class BIRBinaryWriter {
 
     private void writeConstants(ByteBuf buf, List<BIRNode.BIRConstant> birConstList) {
         ByteBuf birbuf = Unpooled.buffer();
-        BIRTypeWriter constTypeWriter = new BIRTypeWriter(birbuf, cp, this.birPackage);
+        BIRTypeWriter constTypeWriter = new BIRTypeWriter(birbuf, cp);
 
         birbuf.writeInt(birConstList.size());
         birConstList.forEach(constant -> writeConstant(birbuf, constTypeWriter, constant));

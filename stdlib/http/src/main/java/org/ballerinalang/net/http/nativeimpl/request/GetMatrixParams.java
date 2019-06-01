@@ -24,6 +24,8 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -49,10 +51,10 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 public class GetMatrixParams extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-//        BMap<String, BValue> requestStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
-//        String path = context.getStringArgument(0);
-//        HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
-//        context.setReturnValues(URIUtil.getMatrixParamsMap(path, httpCarbonMessage));
+        BMap<String, BValue> requestStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
+        String path = context.getStringArgument(0);
+        HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
+        context.setReturnValues(URIUtil.getMatrixParamsBMap(path, httpCarbonMessage));
     }
 
     public static MapValue<String, Object> getMatrixParams(Strand strand, ObjectValue requestObj, String path) {

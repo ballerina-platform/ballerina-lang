@@ -75,6 +75,11 @@
             <artifactId>ballerina-runtime-api</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-test-utils</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.ballerinalang</groupId>

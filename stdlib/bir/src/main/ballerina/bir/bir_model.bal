@@ -303,6 +303,7 @@ public type BErrorType record {|
 |};
 
 public type BRecordType record {|
+    ModuleID moduleId = {};
     Name name = {};
     boolean sealed;
     BType restFieldType;
@@ -311,6 +312,7 @@ public type BRecordType record {|
 |};
 
 public type BObjectType record {|
+    ModuleID moduleId = {};
     Name name = {};
     boolean isAbstract = false;
     BObjectField?[] fields = [];

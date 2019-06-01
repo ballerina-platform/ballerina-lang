@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.io.ByteArrayOutputStream;
@@ -43,13 +42,6 @@ public class ConstantPool {
     private static final int NULL_VALUE_FIELD_SIZE_TAG = -1;
 
     private final List<CPEntry> cpEntries = new ArrayList<>();
-
-    // To check if the object type is from the same package or not.
-    private final BIRNode.BIRPackage birPackage;
-
-    public ConstantPool(BIRNode.BIRPackage birPackage) {
-        this.birPackage = birPackage;
-    }
 
     public int addCPEntry(CPEntry cpEntry) {
         int i = cpEntries.indexOf(cpEntry);
@@ -127,7 +119,7 @@ public class ConstantPool {
                     CPEntry.ShapeCPEntry shapeCPEntry = (CPEntry.ShapeCPEntry) cpEntry;
 
                     ByteBuf typeBuf = Unpooled.buffer();
-                    BIRTypeWriter birTypeWriter = new BIRTypeWriter(typeBuf, this, this.birPackage);
+                    BIRTypeWriter birTypeWriter = new BIRTypeWriter(typeBuf, this);
                     birTypeWriter.visitType(shapeCPEntry.shape);
                     byte[] bytes = Arrays.copyOfRange(typeBuf.array(), 0, typeBuf.writerIndex());
 

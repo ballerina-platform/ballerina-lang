@@ -421,7 +421,7 @@ public class BRunUtil {
                 org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 BValueArray array = (BValueArray) value;
-                ArrayValue jvmArray = new ArrayValue(getJVMType(arrayType));
+                ArrayValue jvmArray = new ArrayValue(getJVMType(arrayType), array.size());
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.eType.tag) {
                         case TypeTags.INT_TAG:
@@ -674,9 +674,9 @@ public class BRunUtil {
                 ArrayValue array = (ArrayValue) value;
                 BValueArray bvmArray;
                 if (arrayType.getElementType().getTag() == org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG) {
-                    bvmArray = new BValueArray(getBVMType(arrayType));
+                    bvmArray = new BValueArray(getBVMType(arrayType), array.size());
                 } else {
-                    bvmArray = new BValueArray(getBVMType(arrayType.getElementType()));
+                    bvmArray = new BValueArray(getBVMType(arrayType.getElementType()), array.size());
                 }
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.getElementType().getTag()) {
@@ -804,7 +804,8 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
                 org.ballerinalang.jvm.types.BRecordType recordType = (org.ballerinalang.jvm.types.BRecordType) jvmType;
                 BRecordType bvmRecordType =
-                        new BRecordType(null, recordType.getName(), recordType.getPackage().getName(), recordType.flags);
+                        new BRecordType(null, recordType.getName(), recordType.getPackage().getName(),
+                                        recordType.flags);
                 Map<String, BField> recordFields =
                         recordType.getFields().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
                         entry -> new BField(getBVMType(entry.getValue().type), entry.getValue().getFieldName(),
@@ -827,7 +828,8 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
                 org.ballerinalang.jvm.types.BObjectType objectType = (org.ballerinalang.jvm.types.BObjectType) jvmType;
                 BObjectType bvmObjectType =
-                        new BObjectType(null, objectType.getName(), objectType.getPackage().getName(), objectType.flags);
+                        new BObjectType(null, objectType.getName(), objectType.getPackage().getName(),
+                                        objectType.flags);
                 Map<String, BField> objectFields = new HashMap<>();
                 for (org.ballerinalang.jvm.types.BField field : objectType.getFields().values()) {
                     objectFields.put(field.name, new BField(getBVMType(field.type), field.name, field.flags));

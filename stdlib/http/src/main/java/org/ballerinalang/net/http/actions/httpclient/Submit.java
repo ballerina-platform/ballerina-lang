@@ -37,9 +37,9 @@ public class Submit extends Execute {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-//        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
+        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
         // Execute the operation
-//        executeNonBlockingAction(dataContext, true);
+        executeNonBlockingAction(dataContext, true);
     }
 
     public static void nativeSubmit(Strand strand, ObjectValue clientObj, String url, MapValue config, String path,
