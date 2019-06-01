@@ -69,6 +69,8 @@ task createTestBalHome(type: Copy) {
 test {
     dependsOn createTestBalHome
 
+    inputs.files(configurations.baloTestImplementation);
+
     systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
     systemProperty "enableJBallerinaTests", "true"
 
