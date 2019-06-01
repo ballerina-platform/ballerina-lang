@@ -126,8 +126,5 @@ configurations {
 }
 
 configurations.all {
-    resolutionStrategy {
-        force "org.ballerinalang:ballerina-lang:${project.version}"
-        force "org.ballerinalang:ballerina-core:${project.version}"
-    }
+    resolutionStrategy.preferProjectModules()
 }
