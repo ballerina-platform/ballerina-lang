@@ -11,7 +11,8 @@
     "test-coverage": "lerna run test-coverage && node scripts/create-coverage-report.js",
     "fix-versions": "node scripts/fix-version.js",
     "reset-pkg-jsons": "node scripts/reset-pkg-json.js",
-    "bump-version": "lerna version --no-git-tag-version"
+    "bump-version": "lerna version --no-git-tag-version",
+    "update-version": "node ./scripts/update-version.js"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",
