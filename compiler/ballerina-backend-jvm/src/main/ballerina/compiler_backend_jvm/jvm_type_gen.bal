@@ -955,3 +955,14 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
     // initialize the finite type using the value space
     mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", STRING_VALUE, SET), false);
 }
+
+function isServiceDefAvailable(bir:TypeDef?[] typeDefs) returns boolean {
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        bir:BType bType = typeDef.typeValue;
+        if (bType is bir:BServiceType) {
+            return true;
+        }
+    }
+    return false;
+}
