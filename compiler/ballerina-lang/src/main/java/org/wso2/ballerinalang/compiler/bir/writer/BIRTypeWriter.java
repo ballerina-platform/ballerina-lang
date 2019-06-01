@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -78,48 +79,18 @@ import java.util.Set;
  * @since 0.995.0
  */
 public class BIRTypeWriter implements TypeVisitor {
-    public static final int TYPE_TAG_REFERENCE_TYPE = 52;
     private final ByteBuf buff;
 
     private final ConstantPool cp;
 
-    // To check if the object type is from the same package or not.
-    private final BIRNode.BIRPackage birPackage;
-
-    public BIRTypeWriter(ByteBuf buff, ConstantPool cp, BIRNode.BIRPackage birPackage) {
+    public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
         this.cp = cp;
-        this.birPackage = birPackage;
     }
 
     public void visitType(BType type) {
-        //TODO writing reference from the original package, only for object types. Find a better approach
-        if (type.tag == TypeTags.OBJECT && !(type instanceof BServiceType)) {
-            if (!isSamePackage(type.tsymbol)) {
-                buff.writeByte(TYPE_TAG_REFERENCE_TYPE);
-                buff.writeInt(addStringCPEntry(type.tsymbol.pkgID.orgName.value));
-                buff.writeInt(addStringCPEntry(type.tsymbol.pkgID.name.value));
-                buff.writeInt(addStringCPEntry(type.tsymbol.pkgID.version.value));
-                buff.writeInt(addStringCPEntry(type.tsymbol.name.value));
-                return;
-            }
-        }
         buff.writeByte(type.tag);
         type.accept(this);
-    }
-
-    private boolean isSamePackage(BSymbol tSymbol) {
-        PackageID packageID = tSymbol.pkgID;
-        if (!packageID.orgName.equals(this.birPackage.org)) {
-            return false;
-        }
-        if (!packageID.name.equals(this.birPackage.name)) {
-            return false;
-        }
-        if (!packageID.version.equals(this.birPackage.version)) {
-            return false;
-        }
-        return true;
     }
 
     private void writeTypeCpIndex(BType type) {
@@ -263,6 +234,13 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BRecordType bRecordType) {
         BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) bRecordType.tsymbol;
 
+        // Write the package details in the form of constant pool entry TODO find a better approach
+        int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
+        int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
+        int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
+        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buff.writeInt(pkgIndex);
+
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeBoolean(bRecordType.sealed);
         writeTypeCpIndex(bRecordType.restFieldType);
@@ -298,6 +276,13 @@ public class BIRTypeWriter implements TypeVisitor {
 
     private void writeObjectAndServiceTypes(BObjectType bObjectType) {
         BTypeSymbol tSymbol = bObjectType.tsymbol;
+
+        // Write the package details in the form of constant pool entry TODO find a better approach
+        int orgCPIndex = addStringCPEntry(tSymbol.pkgID.orgName.value);
+        int nameCPIndex = addStringCPEntry(tSymbol.pkgID.name.value);
+        int versionCPIndex = addStringCPEntry(tSymbol.pkgID.version.value);
+        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buff.writeInt(pkgIndex);
 
         buff.writeInt(addStringCPEntry(tSymbol.name.value));
         //TODO below two line are a temp solution, introduce a generic concept
