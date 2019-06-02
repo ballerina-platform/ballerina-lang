@@ -63,6 +63,7 @@ dependencies {
     implementation project(':ballerina-activemq-artemis')
     implementation project(':ballerina-jwt')
     implementation project(':ballerina-ldap')
+    implementation project(':ballerina-oauth2')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
@@ -104,6 +105,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-ldap', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-mime')
     testCompile 'org.slf4j:slf4j-jdk14'
