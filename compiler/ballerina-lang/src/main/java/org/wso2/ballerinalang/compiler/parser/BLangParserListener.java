@@ -865,9 +865,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         String reasonIdentifier = ctx.Identifier().getText();
         DiagnosticPos currentPos = getCurrentPos(ctx);
-        if (ctx.VAR() == null && !reasonIdentifier.equals("_")) {
-            dlog.error(currentPos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN, reasonIdentifier);
-        }
 
         String restIdentifier = null;
         if (ctx.errorRestBindingPattern() != null) {

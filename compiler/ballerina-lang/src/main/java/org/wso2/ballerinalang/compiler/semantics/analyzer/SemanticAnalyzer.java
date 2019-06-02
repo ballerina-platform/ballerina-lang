@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -1083,7 +1084,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BField entryField = fieldMap.get(entryName);
 
                 BLangVariable boundVar = errorDetailEntry.valueBindingPattern;
-                boundVar.type = entryField != null ? entryField.type : recordType.restFieldType;
+                if (entryField != null) {
+                    boundVar.type = entryField.type;
+                } else {
+                    if (recordType.sealed) {
+                        dlog.error(errorVariable.pos, DiagnosticCode.INVALID_ERROR_BINDING_PATTERN, errorVariable.type);
+                        boundVar.type = symTable.semanticError;
+                        return false;
+                    } else {
+                        boundVar.type = recordType.restFieldType;
+                    }
+                }
 
                 boolean isIgnoredVar = boundVar.getKind() == NodeKind.VARIABLE
                         && ((BLangSimpleVariable) boundVar).name.value.equals(Names.IGNORE.value);
@@ -1100,12 +1111,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         } else if (errorType.detailType.getKind() == TypeKind.MAP) {
             BType constraintType = ((BMapType) errorType.detailType).constraint;
+            BTypeSymbol memberTypeSym = new BTypeSymbol(SymTag.UNION_TYPE, constraintType.tsymbol.flags,
+                    constraintType.tsymbol.name, constraintType.tsymbol.pkgID, null, this.env.scope.owner);
+            BUnionType memberType = BUnionType.create(memberTypeSym, constraintType, symTable.nilType);
+            memberType.setNullable(true);
+            memberTypeSym.type = memberType;
+
             for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
-                errorDetailEntry.valueBindingPattern.type = constraintType;
+                errorDetailEntry.valueBindingPattern.type = memberType;
                 errorDetailEntry.valueBindingPattern.accept(this);
             }
         } else if (errorType.detailType.getKind() == TypeKind.UNION) {
-//            BType widenDetailType = getWiderMappingType((BUnionType) errorType.detailType);
             BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                     env.enclPkg.packageID, symTable.errorType, env.scope.owner);
             // todo: need to support string subtypes as reason type.

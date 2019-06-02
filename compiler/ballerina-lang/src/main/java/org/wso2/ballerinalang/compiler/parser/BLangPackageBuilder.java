@@ -744,17 +744,22 @@ public class BLangPackageBuilder {
         BLangIdentifier bLangIdentifier = (BLangIdentifier) this.createIdentifier(name);
         bLangIdentifier.pos = pos;
         bLangIdentifier.addWS(ws);
-        if (bindingVarName != null) {
-            BLangErrorVariable errorVariable = (BLangErrorVariable) this.varStack.peek();
-            BLangSimpleVariable simpleVariableNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-            simpleVariableNode.name = (BLangIdentifier) this.createIdentifier(bindingVarName);
-            BLangErrorVariable.BLangErrorDetailEntry detailEntry =
-                    new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, simpleVariableNode);
-            errorVariable.detail.add(detailEntry);
-        } else if (this.varStack.size() > 1) {
-            BLangVariable var = this.varStack.pop();
-            BLangErrorVariable errorVariable = (BLangErrorVariable) this.varStack.peek();
-            errorVariable.detail.add(new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, var));
+        if (!this.varStack.empty()) {
+            if (bindingVarName != null) {
+                BLangErrorVariable errorVariable = (BLangErrorVariable) this.varStack.peek();
+                BLangSimpleVariable simpleVariableNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+                simpleVariableNode.name = (BLangIdentifier) this.createIdentifier(bindingVarName);
+                BLangErrorVariable.BLangErrorDetailEntry detailEntry =
+                        new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, simpleVariableNode);
+                errorVariable.detail.add(detailEntry);
+            } else if (this.varStack.size() > 1) {
+                BLangVariable var = this.varStack.pop();
+                BLangVariable detailVar = this.varStack.peek();
+                if (detailVar.getKind() == NodeKind.ERROR_VARIABLE) {
+                    BLangErrorVariable errorVariable = (BLangErrorVariable) detailVar;
+                    errorVariable.detail.add(new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, var));
+                }
+            }
         }
     }
 

@@ -1509,7 +1509,9 @@ public class BIRGen extends BLangNodeVisitor {
             InstructionKind termiKind = thenBB.terminator.kind;
             if (termiKind == InstructionKind.CALL || termiKind == InstructionKind.ASYNC_CALL) {
                 BIRTerminator.Call terminator = (BIRTerminator.Call) thenBB.terminator;
-                errorTableEntry = new BIRNode.BIRErrorEntry(thenBB, terminator.lhsOp);
+                // todo: This is a solution to using wrong error variable entry in error table,
+                // but this break the bytecode verifier (local var index table something)
+                //errorTableEntry = new BIRNode.BIRErrorEntry(thenBB, terminator.lhsOp);
                 this.env.trapBB = terminator.thenBB;
             } else if (termiKind == InstructionKind.FP_CALL) {
                 this.env.trapBB = ((BIRTerminator.FPCall) thenBB.terminator).thenBB;
