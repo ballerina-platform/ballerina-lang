@@ -24,7 +24,7 @@ import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
 
 /**
- * Testing OAuth Client Authentication Configs.
+ * Testing OAuth2 Client Authentication Configs.
  */
 @Test(groups = "auth-test")
 public class OAuth2ConfigTest extends AuthBaseTest {
