@@ -54,8 +54,8 @@ public class DecryptAesGcm extends BlockingNativeCallableUnit {
                 ((BInteger) tagSize).intValue());
     }
 
-    public static Object decryptAesGcm(Strand strand, Object padding, ArrayValue inputValue, ArrayValue keyValue,
-                                       ArrayValue ivValue, Object tagSize) {
+    public static Object decryptAesGcm(Strand strand, ArrayValue inputValue, ArrayValue keyValue,
+                                       ArrayValue ivValue,  Object padding, Object tagSize) {
         byte[] input = inputValue.getBytes();
         byte[] key = keyValue.getBytes();
         byte[] iv = null;

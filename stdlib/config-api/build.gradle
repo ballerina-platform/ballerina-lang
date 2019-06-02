@@ -23,10 +23,6 @@ configurations.testCompileClasspath {
     }
 }
 
-configurations {
-    localDependency
-}
-
 dependencies {
     baloCreat project(':lib-creator')
 
@@ -55,14 +51,6 @@ dependencies {
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
-
-    localDependency project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-bir', configuration: 'baloImplementation')    
-    localDependency project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-jvm', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-system', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-cache', configuration: 'baloImplementation')
 }
 
 createBalo {
@@ -71,28 +59,7 @@ createBalo {
 
 description = 'Ballerina - Config API'
 
-task createTestBalHome(type: Copy) {
-    from configurations.localDependency
-    into "$buildDir/ballerina-home/test/lib/"
-}
-
 test {
-    systemProperty "enableJBallerinaTests", "true"
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
-    dependsOn createTestBalHome
-
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/ballerina-home/test/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-
     environment "testEnvironmentVariable", "EnvironmentVariable"
     environment "user_name", "b7auser"
     environment "password", "b7apw"

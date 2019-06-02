@@ -92,17 +92,3 @@ dependencies {
 
 description = 'Ballerina - Testerina - Core'
 
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo"
-            into "$buildDir/lib"
-        }
-    }
-
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
-}

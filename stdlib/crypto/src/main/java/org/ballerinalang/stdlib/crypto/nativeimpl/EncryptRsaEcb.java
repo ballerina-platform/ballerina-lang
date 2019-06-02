@@ -61,8 +61,11 @@ public class EncryptRsaEcb extends BlockingNativeCallableUnit {
                 -1);
     }
 
-    public static Object encryptRsaEcb(Strand strand, Object padding, ArrayValue inputValue, MapValue<?, ?> keyMap) {
+    public static Object encryptRsaEcb(Strand strand, ArrayValue inputValue, Object keyUnion, Object padding) {
         byte[] input = inputValue.getBytes();
+        // this is a union, but both a record types, so we can safely cast
+        // TODO: unify union types when same type is duplicated eg:record:record.
+        MapValue<?, ?> keyMap = (MapValue<?, ?>) keyUnion;
         Key key;
         if (keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY) != null) {
             key = (PrivateKey) keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);

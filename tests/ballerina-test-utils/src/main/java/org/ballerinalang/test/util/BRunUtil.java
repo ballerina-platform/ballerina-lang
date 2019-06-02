@@ -692,7 +692,7 @@ public class BRunUtil {
                 ArrayValue array = (ArrayValue) value;
                 BValueArray bvmArray;
                 if (arrayType.getElementType().getTag() == org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG) {
-                    bvmArray = new BValueArray(getBVMType(arrayType), array.size());
+                    bvmArray = new BValueArray(getBVMType(arrayType));
                 } else {
                     bvmArray = new BValueArray(getBVMType(arrayType.getElementType()), array.size());
                 }
