@@ -26,9 +26,9 @@ public type BasicAuthHeaderAuthnHandler object {
 
     *AuthnHandler;
 
-    public auth:AuthProvider authProvider;
+    public auth:InboundAuthProvider authProvider;
 
-    public function __init(auth:AuthProvider authProvider) {
+    public function __init(auth:InboundAuthProvider authProvider) {
         self.authProvider = authProvider;
     }
 

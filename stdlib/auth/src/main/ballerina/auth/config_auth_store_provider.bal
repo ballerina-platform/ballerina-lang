@@ -24,7 +24,7 @@ const string CONFIG_USER_SECTION = "b7a.users";
 # Represents Ballerina configuration file based auth store provider.
 public type ConfigAuthStoreProvider object {
 
-    *AuthProvider;
+    *InboundAuthProvider;
 
     # Attempts to authenticate with credential.
     #

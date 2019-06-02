@@ -16,7 +16,7 @@
 
 # Represents the auth provider. Any type of implementation, such as LDAP, JDBC, file based, etc.
 # should be object-wise similar
-public type AuthProvider abstract object {
+public type InboundAuthProvider abstract object {
 
     # Authenticate with credential value passed.
     #

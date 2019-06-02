@@ -81,7 +81,7 @@ public type SecureClientSocket record {|
 # + instanceId - Endpoint instance id
 public type LdapAuthStoreProvider object {
 
-    *auth:AuthProvider;
+    *auth:InboundAuthProvider;
 
     public LdapAuthStoreProviderConfig ldapAuthStoreProviderConfig;
     public string instanceId;

@@ -51,9 +51,9 @@ public type CustomAuthnHandler object {
 
     *http:AuthnHandler;
 
-    public auth:AuthProvider authProvider;
+    public auth:InboundAuthProvider authProvider;
 
-    public function __init(auth:AuthProvider authProvider) {
+    public function __init(auth:InboundAuthProvider authProvider) {
         self.authProvider = authProvider;
     }
 };
@@ -74,7 +74,7 @@ public function CustomAuthnHandler.canHandle(http:Request req) returns boolean {
 
 public type CustomAuthStoreProvider object {
 
-    *auth:AuthProvider;
+    *auth:InboundAuthProvider;
 
     public function authenticate(string credential) returns boolean|error {
         string actualUsername = "abc";

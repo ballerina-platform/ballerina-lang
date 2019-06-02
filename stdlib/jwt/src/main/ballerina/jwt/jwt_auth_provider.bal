@@ -58,7 +58,7 @@ public type JWTAuthProviderConfig record {|
 # + jwtAuthProviderConfig - JWT auth provider configurations
 public type JWTAuthProvider object {
 
-    *auth:AuthProvider;
+    *auth:InboundAuthProvider;
 
     public JWTAuthProviderConfig jwtAuthProviderConfig;
 
