@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -69,6 +70,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -294,17 +296,32 @@ public class BIRTypeWriter implements TypeVisitor {
             writeTypeCpIndex(field.type);
         }
         List<BAttachedFunction> attachedFuncs;
+        //TODO cleanup, there cannot be objects without attached function list and symbol kind other than object
         if (tSymbol.kind == SymbolKind.OBJECT) {
-            attachedFuncs = ((BObjectTypeSymbol) tSymbol).attachedFuncs;
+            Map<Boolean, List<BAttachedFunction>> partitions = ((BObjectTypeSymbol) tSymbol).attachedFuncs.stream()
+                    .collect(Collectors.partitioningBy(n -> n.funcName.equals(Names.OBJECT_INIT_SUFFIX)));
+            attachedFuncs = partitions.get(false);
+            List<BAttachedFunction> constructor = partitions.get(true);
+            if (constructor.size() != 0) {
+                buff.writeByte(1); // constructor present
+                writeAttachFunction(partitions.get(true).get(0));
+            } else {
+                buff.writeByte(0); // constructor not present
+            }
         } else {
             attachedFuncs = new ArrayList<>();
+            buff.writeByte(0); // constructor not present
         }
         buff.writeInt(attachedFuncs.size());
         for (BAttachedFunction attachedFunc : attachedFuncs) {
-            buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
-            buff.writeByte(getVisibility(attachedFunc.symbol).value());
-            writeTypeCpIndex(attachedFunc.type);
+            writeAttachFunction(attachedFunc);
         }
+    }
+
+    private void writeAttachFunction(BAttachedFunction attachedFunc) {
+        buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
+        buff.writeByte(getVisibility(attachedFunc.symbol).value());
+        writeTypeCpIndex(attachedFunc.type);
     }
 
     @Override

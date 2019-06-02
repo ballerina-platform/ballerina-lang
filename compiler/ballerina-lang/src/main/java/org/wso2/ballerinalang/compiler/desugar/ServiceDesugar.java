@@ -213,6 +213,6 @@ public class ServiceDesugar {
     }
 
     private void engageCustomResourceDesugar(BLangService service, BLangFunction functionNode, SymbolEnv env) {
-        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
+//        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env); // TODO fix - rajith
     }
 }

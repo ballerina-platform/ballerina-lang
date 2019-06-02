@@ -1358,6 +1358,8 @@ function getFrameClassName(string pkgName, string funcName, bir:BType? attachedT
     string frameClassName = pkgName;
     if (attachedType is bir:BObjectType) {
         frameClassName += cleanupTypeName(attachedType.name.value) + "_";
+    } else if (attachedType is bir:BServiceType) {
+        frameClassName += cleanupTypeName(attachedType.oType.name.value) + "_";
     } else if (attachedType is bir:BRecordType) {
         frameClassName += cleanupTypeName(attachedType.name.value) + "_";
     }

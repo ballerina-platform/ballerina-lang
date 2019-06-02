@@ -915,11 +915,13 @@ public class BIRPackageSymbolEnter {
                         objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
 //                        setDocumentation(varSymbol, attrData); // TODO fix
                     }
+                    boolean constructorPresent = inputStream.readBoolean();
+                    if (constructorPresent) {
+                        ignoreAttachedFunc();
+                    }
                     int funcCount = inputStream.readInt();
                     for (int i = 0; i < funcCount; i++) {
-                        getStringCPEntryValue(inputStream);
-                        inputStream.readByte();
-                        readTypeFromCp();
+                        ignoreAttachedFunc();
                     }
                     Object poppedObjType = compositeStack.pop();
                     assert poppedObjType == objectType;
@@ -945,6 +947,12 @@ public class BIRPackageSymbolEnter {
 
             }
             return null;
+        }
+
+        private void ignoreAttachedFunc() throws IOException {
+            getStringCPEntryValue(inputStream);
+            inputStream.readByte();
+            readTypeFromCp();
         }
     }
 

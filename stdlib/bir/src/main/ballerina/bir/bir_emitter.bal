@@ -565,7 +565,7 @@ type TypeEmitter object {
         } else if (typeVal is BFiniteType) {
             print(typeVal.name.value);
         } else if (typeVal is BErrorType) {
-            self.emitErrorType(typeVal, tabs);
+            //self.emitErrorType(typeVal, tabs);
         }
     }
 
