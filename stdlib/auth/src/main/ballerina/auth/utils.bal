@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/encoding;
+import ballerina/log;
 
 # Constant for the auth error code.
 public const AUTH_ERROR_CODE = "{ballerina/auth}AuthError";
@@ -41,7 +42,7 @@ public const string CONFIG_PREFIX_SHA512 = "@sha512:";
 #
 # + credential - Credential value
 # + return - A `string` tuple with the extracted username and password or `error` occurred while extracting credentials
-function extractUsernameAndPassword(string credential) returns (string, string)|error {
+public function extractUsernameAndPassword(string credential) returns (string, string)|error {
     string decodedHeaderValue = encoding:byteArrayToString(check encoding:decodeBase64(credential));
     string[] decodedCredentials = decodedHeaderValue.split(":");
     if (decodedCredentials.length() != 2) {
