@@ -20,17 +20,15 @@ apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 configurations {
     cliUtils 
     balx
-    generatedBalx
 }
-task genBalx(type: JavaExec) {
+task createBalx(type: JavaExec) {
     dependsOn createBalHome
     def targetDir = "$buildDir/generated-balx/prometheus/"
     inputs.files(configurations.baloImplementation)
-    outputs.dir("$buildDir/lib")
     outputs.dir(targetDir)
     outputs.cacheIf { true }
 
-    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/main/"
     classpath = configurations.cliUtils
     main = 'org.ballerinalang.cli.utils.GenerateBalx'
 
@@ -95,7 +93,7 @@ dependencies {
 }
 
 artifacts {
-    balx file: file("$buildDir/generated-balx"), builtBy: genBalx
+    balx file: file("$buildDir/generated-balx"), builtBy: createBalx
 }
 
 description = 'Ballerina - Prometheus Extension for Metrics'
