@@ -61,9 +61,9 @@ public class GetDate extends AbstractTimeFunction {
 
     public static ArrayValue getDate(Strand strand, MapValue<String, Object> timeRecord) {
         ArrayValue date = new ArrayValue(getDateTupleJvmType);
-        date.add(0, getYear(timeRecord));
-        date.add(1, getMonth(timeRecord));
-        date.add(2, getDay(timeRecord));
+        date.add(0, Long.valueOf(getYear(timeRecord)));
+        date.add(1, Long.valueOf(getMonth(timeRecord)));
+        date.add(2, Long.valueOf(getDay(timeRecord)));
         return date;
     }
 }
