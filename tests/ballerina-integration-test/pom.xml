@@ -208,6 +208,16 @@
             <artifactId>ballerina-log-api</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jwt</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-ldap</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- balo dependencies -->
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -337,6 +347,20 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-log-api</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jwt</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-ldap</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
             <scope>test</scope>

@@ -647,23 +647,23 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "BasicAuthnHandler",
+      "label": "BasicAuthHeaderAuthnHandler",
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Defines Basic Auth handler for HTTP traffic.\n"
+        "left": "Defines Basic auth header authn handler for HTTP traffic.\n"
       },
-      "insertText": "BasicAuthnHandler",
+      "insertText": "BasicAuthHeaderAuthnHandler",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "JwtAuthnHandler",
+      "label": "BearerAuthHeaderAuthnHandler",
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Representation of JWT Auth handler for HTTP traffic\n"
+        "left": "Representation of Bearer auth header authn handler for HTTP traffic.\n"
       },
-      "insertText": "JwtAuthnHandler",
+      "insertText": "BearerAuthHeaderAuthnHandler",
       "insertTextFormat": "Snippet"
     },
     {

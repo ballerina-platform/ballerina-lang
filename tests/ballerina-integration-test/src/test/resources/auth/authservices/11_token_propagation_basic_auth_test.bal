@@ -16,9 +16,10 @@
 
 import ballerina/auth;
 import ballerina/http;
+import ballerina/jwt;
 
 auth:ConfigAuthStoreProvider basicAuthProvider11 = new;
-http:BasicAuthnHandler basicAuthnHandler11 = new(basicAuthProvider11);
+http:BasicAuthHeaderAuthnHandler basicAuthnHandler11 = new(basicAuthProvider11);
 
 listener http:Listener listener11_1 = new(9103, config = {
     auth: {
@@ -71,7 +72,7 @@ service passthroughService11 on listener11_1 {
     }
 }
 
-auth:JWTAuthProvider jwtAuthProvider11 = new({
+jwt:JWTAuthProvider jwtAuthProvider11 = new({
     issuer: "ballerina",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -81,7 +82,7 @@ auth:JWTAuthProvider jwtAuthProvider11 = new({
     }
 });
 
-http:JwtAuthnHandler jwtAuthnHandler11 = new(jwtAuthProvider11);
+http:BearerAuthHeaderAuthnHandler jwtAuthnHandler11 = new(jwtAuthProvider11);
 
 listener http:Listener listener11_2 = new(9104, config = {
     auth: {
