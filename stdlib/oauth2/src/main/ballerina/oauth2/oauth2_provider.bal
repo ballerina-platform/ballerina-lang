@@ -44,7 +44,7 @@ public type OAuth2Provider object {
         if (credential == "") {
             return false;
         }
-        boolean isAuthenticated = false;
+        boolean authenticated = false;
         string username = "";
         string scopes = "";
 
@@ -62,7 +62,7 @@ public type OAuth2Provider object {
             json payload = check response.getJsonPayload();
             boolean active = <boolean>payload.active;
             if (active) {
-                isAuthenticated = true;
+                authenticated = true;
                 if (payload.username is string) {
                     username = <string>payload.username;
                 }
@@ -74,13 +74,13 @@ public type OAuth2Provider object {
             return response;
         }
 
-        if (isAuthenticated) {
+        if (authenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;
             principal.userId = username;
             principal.username = username;
             principal.scopes = self.getScopes(scopes);
         }
-        return isAuthenticated;
+        return authenticated;
     }
 
     # Reads the scope(s) for the user with the given username.
