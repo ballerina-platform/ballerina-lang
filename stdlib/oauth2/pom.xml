@@ -37,6 +37,15 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
+            <version>${ballerina.milestone.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>lib-creator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -48,7 +57,11 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-http</artifactId>
+            <artifactId>ballerina-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-log-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -100,32 +113,8 @@
                 </excludes>
             </resource>
         </resources>
+
         <plugins>
-            <plugin>
-                <groupId>org.bsc.maven</groupId>
-                <artifactId>maven-processor-plugin</artifactId>
-                <version>${mvn.processor.plugin.version}</version>
-                <configuration>
-                    <processors>
-                        <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
-                    </processors>
-                    <options>
-                        <nativeEntityProviderPackage>
-                            org.ballerinalang.stdlib.oauth2.generated.providers
-                        </nativeEntityProviderPackage>
-                        <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
-                    </options>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>process</id>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -154,6 +143,7 @@
                                 <argument>${project.build.directory}</argument>
                                 <!--not used-->
                                 <argument>${project.version}</argument>
+                                <argument>false</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -163,6 +153,7 @@
                     <classpathScope>test</classpathScope>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -196,13 +187,77 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- For ballerina annotation processing -->
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>${mvn.processor.plugin.version}</version>
+                <configuration>
+                    <processors>
+                        <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
+                    </processors>
+                    <options>
+                        <nativeEntityProviderPackage>org.ballerinalang.stdlib.oauth2.generated.providers</nativeEntityProviderPackage>
+                        <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
+                    </options>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
+                <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <compilerArgument>-proc:none</compilerArgument>
+                    <argLine>-Dfile.encoding=UTF-8 ${jacoco.agent.argLine}</argLine>
+                    <systemPropertyVariables>
+                        <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties
+                        </java.util.logging.config.file>
+                        <java.util.logging.manager>org.ballerinalang.logging.BLogManager</java.util.logging.manager>
+                        <ballerina.home>${project.build.directory}</ballerina.home>
+                    </systemPropertyVariables>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>prepare-it-test-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <append>true</append>
+                            <inclNoLocationClasses>true</inclNoLocationClasses>
+                            <propertyName>jacoco.agent.argLine</propertyName>
+                            <destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>it-report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                        <configuration>
+                            <dataFileIncludes>
+                                <dataFileInclude>**/coverage-reports/jacoco.exec</dataFileInclude>
+                            </dataFileIncludes>
+                            <outputDirectory>${project.build.directory}/coverage-reports/site</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -229,28 +284,21 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
                 <configuration>
-                    <skip>false</skip>
+                    <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
-                <!--<version>2.6</version>-->
-                <executions>
-                    <execution>
-                        <id>Jar Package</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
 
-
     <properties>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
-        <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
+        <maven.checkstyleplugin.excludes>
+            **/generated/**,
+            **/generated-sources/**
+        </maven.checkstyleplugin.excludes>
     </properties>
 
 </project>
