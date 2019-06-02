@@ -61,8 +61,9 @@ public class DecryptRsaEcb extends BlockingNativeCallableUnit {
                 -1);
     }
 
-    public static Object decryptRsaEcb(Strand strand, Object padding, ArrayValue inputValue, MapValue<?, ?> keyMap) {
+    public static Object decryptRsaEcb(Strand strand, ArrayValue inputValue, Object keys, Object padding) {
         byte[] input = inputValue.getBytes();
+        MapValue<?, ?> keyMap = (MapValue<?, ?>) keys;
         Key key;
         if (keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY) != null) {
             key = (PrivateKey) keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);
