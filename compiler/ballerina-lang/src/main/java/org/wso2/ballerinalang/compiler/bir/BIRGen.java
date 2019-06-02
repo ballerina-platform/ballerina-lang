@@ -1201,9 +1201,11 @@ public class BIRGen extends BLangNodeVisitor {
         }
         trapExpr.expr.accept(this);
         // When trapExpr.expr is a invocation returning nil, there is no target operand, hence set it up.
-        BIROperand errorTargetOperand = getTrappedErrorTargetOperand();
+        BIROperand errorTargetOperand;
         if (this.env.targetOperand == null) {
-            this.env.targetOperand = errorTargetOperand;
+            this.env.targetOperand = errorTargetOperand = createErrorTargetOperandForNilReturnInvocation();
+        } else {
+            errorTargetOperand = this.env.targetOperand;
         }
         if (this.env.trapBB.terminator != null) {
             // Once trap expression is visited,  we need to back track all basic blocks which is covered by the trap
@@ -1217,54 +1219,9 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, this.env.trapBB);
             this.env.enclBB = this.env.trapBB;
         }
-
-        // Create a BB for instructions after trap expr.
-        BIRBasicBlock afterTrapBB = new BIRBasicBlock(this.env.nextBBId(names));
-        this.env.enclFunc.basicBlocks.add(afterTrapBB);
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, afterTrapBB);
-        this.env.enclBB = afterTrapBB;
-
-
-        BIRVariableDcl nilConstVar = new BIRVariableDcl(symTable.nilType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(nilConstVar);
-        BIROperand nilConstOp = new BIROperand(nilConstVar);
-        emit(new BIRNonTerminator.ConstantLoad(trapExpr.pos, null, symTable.nilType, nilConstOp));
-
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.booleanType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand lhsOp = new BIROperand(tempVarDcl);
-
-        BinaryOp binaryIns = new BinaryOp(trapExpr.pos, getBinaryInstructionKind(OperatorKind.EQUAL),
-                symTable.booleanType, lhsOp, errorTargetOperand, nilConstOp);
-        emit(binaryIns);
-
-        BIRBasicBlock errorHandleBB = new BIRBasicBlock(this.env.nextBBId(names));
-        this.env.enclFunc.basicBlocks.add(errorHandleBB);
-        errorHandleBB.instructions.add(
-                new BIRNonTerminator.Move(trapExpr.pos, errorTargetOperand, this.env.targetOperand));
-
-        // Create a BB for instructions after trap expr.
-        BIRBasicBlock noErrorBB = new BIRBasicBlock(this.env.nextBBId(names));
-        this.env.enclFunc.basicBlocks.add(noErrorBB);
-        //this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, noErrorBB);
-        //this.env.enclBB = noErrorBB;
-        errorHandleBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, noErrorBB);
-
-
-
-        BIRTerminator.Branch branchIns = new BIRTerminator.Branch(trapExpr.pos, lhsOp, noErrorBB, errorHandleBB);
-        this.env.enclBB.terminator = branchIns;
-
-        // now check error target operand, if it's null no panic.
-        // if it's not null trapped expr panicked.
-
-        //this.env.enclBB = thenBB;
-        this.env.enclBB = noErrorBB;
     }
 
-    private BIROperand getTrappedErrorTargetOperand() {
+    private BIROperand createErrorTargetOperandForNilReturnInvocation() {
         BUnionType errorOrNil = BUnionType.create(symTable.errSymbol, symTable.errorType, symTable.nilType);
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(errorOrNil, this.env.nextLocalVarId(names),
                 VarScope.FUNCTION, VarKind.TEMP);
@@ -1548,23 +1505,26 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void genIntermediateErrorEntries(BIRBasicBlock thenBB, BIROperand errTargetOperand) {
         if (thenBB != this.env.enclBB) {
-            this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(thenBB, errTargetOperand));
-            if (thenBB.terminator.kind == InstructionKind.CALL
-                || thenBB.terminator.kind == InstructionKind.ASYNC_CALL) {
-                this.env.trapBB = ((BIRTerminator.Call) thenBB.terminator).thenBB;
-            } else if (thenBB.terminator.kind == InstructionKind.FP_CALL) {
+            BIRNode.BIRErrorEntry errorTableEntry = new BIRNode.BIRErrorEntry(thenBB, errTargetOperand);
+            InstructionKind termiKind = thenBB.terminator.kind;
+            if (termiKind == InstructionKind.CALL || termiKind == InstructionKind.ASYNC_CALL) {
+                BIRTerminator.Call terminator = (BIRTerminator.Call) thenBB.terminator;
+                errorTableEntry = new BIRNode.BIRErrorEntry(thenBB, terminator.lhsOp);
+                this.env.trapBB = terminator.thenBB;
+            } else if (termiKind == InstructionKind.FP_CALL) {
                 this.env.trapBB = ((BIRTerminator.FPCall) thenBB.terminator).thenBB;
-            } else if (thenBB.terminator.kind == InstructionKind.GOTO) {
+            } else if (termiKind == InstructionKind.GOTO) {
                 this.env.trapBB = ((BIRTerminator.GOTO) thenBB.terminator).targetBB;
-            } else if (thenBB.terminator.kind == InstructionKind.FLUSH) {
+            } else if (termiKind == InstructionKind.FLUSH) {
                 this.env.trapBB = ((BIRTerminator.Flush) thenBB.terminator).thenBB;
-            } else if (thenBB.terminator.kind == InstructionKind.WK_RECEIVE) {
+            } else if (termiKind == InstructionKind.WK_RECEIVE) {
                 this.env.trapBB = ((BIRTerminator.WorkerReceive) thenBB.terminator).thenBB;
-            } else if (thenBB.terminator.kind == InstructionKind.WK_SEND) {
+            } else if (termiKind == InstructionKind.WK_SEND) {
                 this.env.trapBB = ((BIRTerminator.WorkerSend) thenBB.terminator).thenBB;
             } else {
                 return;
             }
+            this.env.enclFunc.errorTable.add(errorTableEntry);
             genIntermediateErrorEntries(this.env.trapBB, errTargetOperand);
         }
     }

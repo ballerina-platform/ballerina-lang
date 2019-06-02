@@ -666,6 +666,9 @@ type InstructionGenerator object {
         self.loadVar(inst.rhsOp.variableDcl);
         self.loadVar(inst.keyOp.variableDcl);
         bir:BType bType = inst.rhsOp.variableDcl.typeValue;
+        if (bType is bir:BArrayType) {
+            bType = bType.eType;
+        }
 
         bir:BType varRefType = inst.rhsOp.variableDcl.typeValue;
         if (varRefType is bir:BJSONType ||
