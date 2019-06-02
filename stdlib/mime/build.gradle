@@ -24,7 +24,6 @@ configurations.testCompileClasspath {
 }
 
 configurations {
-    localDependency
     tests
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
@@ -64,31 +63,18 @@ dependencies {
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
 
-    localDependency project(path: ':ballerina-bir', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-jvm', configuration: 'baloImplementation')
-}
-
-task createTestBalHome(type: Copy) {
-    from configurations.localDependency
-    into "$buildDir/ballerina-home/test/lib"
+//    localDependency project(path: ':ballerina-bir', configuration: 'baloImplementation')
+//    localDependency project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+//    localDependency project(path: ':ballerina-jvm', configuration: 'baloImplementation')
 }
 
 test {
-    dependsOn createTestBalHome
     doFirst {
         copy {
             from "$buildDir/generated-balo/repo/ballerina"
             into "$buildDir/ballerina-home/test/lib/repo/ballerina"
         }
     }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "enableJBallerinaTests", "true"
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 }
 
 task testJar(type: Jar, dependsOn: testClasses) {
