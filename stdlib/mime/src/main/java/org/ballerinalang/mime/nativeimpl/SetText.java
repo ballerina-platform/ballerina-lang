@@ -59,7 +59,7 @@ public class SetText extends BlockingNativeCallableUnit {
     }
 
     public static void setText(Strand strand, ObjectValue entityObj, String textContent, String contentType) {
-        EntityBodyHandler.addMessageDataSource(entityObj, new BString(textContent));
+        EntityBodyHandler.addMessageDataSource(entityObj, textContent);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType);
     }
 }

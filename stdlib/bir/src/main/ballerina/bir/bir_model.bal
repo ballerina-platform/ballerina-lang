@@ -317,6 +317,7 @@ public type BObjectType record {|
     boolean isAbstract = false;
     BObjectField?[] fields = [];
     BAttachedFunction?[] attachedFunctions = [];
+    BAttachedFunction? constructor;
 |};
 
 public type Self record {|
