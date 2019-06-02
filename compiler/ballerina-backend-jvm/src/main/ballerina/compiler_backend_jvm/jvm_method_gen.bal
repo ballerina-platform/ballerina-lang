@@ -170,7 +170,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitJumpInsn(IFNE, paramNextLabel);
 
             bir:BasicBlock?[] bbArray = func.paramDefaultBBs[paramBBCounter];
-            generateBasicBlocks(mv, bbArray, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex, localVarOffset, true);
+            generateBasicBlocks(mv, bbArray, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
+                                stateVarIndex, localVarOffset, true, module, currentPackageName);
             mv.visitLabel(paramNextLabel);
             paramBBCounter += 1;
         }
@@ -193,7 +194,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
 
     generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
-                            localVarOffset, false);
+                            localVarOffset, false, module, currentPackageName);
 
     string frameName = getFrameClassName(currentPackageName, funcName, attachedType);
     mv.visitLabel(resumeLable);
@@ -422,7 +423,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
 function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks, LabelGenerator labelGen,
             ErrorHandlerGenerator errorGen, InstructionGenerator instGen, TerminatorGenerator termGen,
-            bir:Function func, int returnVarRefIndex, int stateVarIndex, int localVarOffset, boolean isArg) {
+            bir:Function func, int returnVarRefIndex, int stateVarIndex, int localVarOffset, boolean isArg,
+            bir:Package module, string currentPackageName) {
     int j = 0;
     string funcName = cleanupFunctionName(untaint func.name.value);
 
@@ -567,7 +569,11 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         // process terminator
         if (!isArg || (isArg && !(terminator is bir:Return))) {
             generateDiagnosticPos(terminator.pos, mv);
-            termGen.genTerminator(terminator, func, funcName, isTrapped, currentEE, endLabel, handlerLabel, jumpLabel, localVarOffset, returnVarRefIndex);
+            if (isModuleInitFunction(module, func) && terminator is bir:Return) {
+                processAnnotation(mv, module.typeDefs, currentPackageName);
+            }
+            termGen.genTerminator(terminator, func, funcName, isTrapped, currentEE, endLabel, handlerLabel, jumpLabel,
+                                    localVarOffset, returnVarRefIndex);
         }
 
         // set next error entry after visiting current error entry.
