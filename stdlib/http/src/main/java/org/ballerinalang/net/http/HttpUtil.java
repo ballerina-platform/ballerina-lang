@@ -85,6 +85,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -250,22 +251,17 @@ public class HttpUtil {
      * @param entityBodyRequired boolean representing whether the entity body is required
      * @return Entity of the request or response
      */
-    public static Object[] getEntity(ObjectValue messageObj, boolean isRequest, boolean entityBodyRequired) {
-        try {
-            ObjectValue entity = (ObjectValue) messageObj.get(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
-            boolean byteChannelAlreadySet = false;
+    public static ObjectValue getEntity(ObjectValue messageObj, boolean isRequest, boolean entityBodyRequired) {
+        ObjectValue entity = (ObjectValue) messageObj.get(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
+        boolean byteChannelAlreadySet = false;
 
-            if (messageObj.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
-                byteChannelAlreadySet = (Boolean) messageObj.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
-            }
-            if (entityBodyRequired && !byteChannelAlreadySet) {
-                populateEntityBody(messageObj, entity, isRequest, false);
-            }
-            return new Object[]{entity};
-        } catch (Throwable throwable) {
-            return new Object[]{MimeUtil.createError(
-                    "Error occurred during entity construction: " + throwable.getMessage())};
+        if (messageObj.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
+            byteChannelAlreadySet = (Boolean) messageObj.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
         }
+        if (entityBodyRequired && !byteChannelAlreadySet) {
+            populateEntityBody(messageObj, entity, isRequest, false);
+        }
+        return entity;
     }
 
     /**
@@ -327,7 +323,7 @@ public class HttpUtil {
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseObj);
         HttpService httpService = (HttpService) connectionObj.getNativeData(HttpConstants.HTTP_SERVICE);
         HttpUtil.setCompressionHeaders(httpService.getCompressionConfig(), inboundRequestMsg, outboundResponseMsg);
-        HttpUtil.setChunkingHeader(httpService.getChunkingConfig(), outboundResponseMsg);
+//        HttpUtil.setChunkingHeader(httpService.getChunkingConfig(), outboundResponseMsg); //TODO test with annotations - rajith
     }
 
     public static BMap<String, BValue> createSessionStruct(Context context, Session session) {
@@ -823,7 +819,7 @@ public class HttpUtil {
     private static void setPropertiesToTransportMessage(HttpCarbonMessage outboundResponseMsg, ObjectValue messageObj) {
         if (isResponse(messageObj)) {
             //TODO fix following logic
-            long statusCode = (Integer) messageObj.get(RESPONSE_STATUS_CODE_FIELD);
+            long statusCode = (Long) messageObj.get(RESPONSE_STATUS_CODE_FIELD);
             if (statusCode != 0) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, getIntValue(statusCode));
             }
@@ -872,6 +868,9 @@ public class HttpUtil {
 
     private static void setCompressionHeaders(MapValue<String, Object> compressionConfig, HttpCarbonMessage requestMsg,
                                               HttpCarbonMessage outboundResponseMsg) {
+        if (!checkConfigAnnotationAvailability(compressionConfig)) {
+            return;
+        }
         String contentEncoding = outboundResponseMsg.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING);
         if (contentEncoding != null) {
             return;
@@ -1450,7 +1449,7 @@ public class HttpUtil {
         }
     }
 
-    public static void serialize(Object value, OutputStream outputStream) {
+    public static void serialize(Object value, OutputStream outputStream) throws IOException {
         //TODO check the possibility of value being null
         if (value == null) {
             throw new BallerinaException("error occurred while serializing null data");
@@ -1466,6 +1465,9 @@ public class HttpUtil {
             ((XMLItem) value).serialize(outputStream);
         } else if (value instanceof XMLSequence) {
             ((XMLSequence) value).serialize(outputStream);
+        } else if (value instanceof Long || value instanceof String ||
+                value instanceof Double || value instanceof Integer || value instanceof Boolean) {
+            outputStream.write(value.toString().getBytes(Charset.defaultCharset()));
         } else {
             ((RefValue) value).serialize(outputStream);
         }

@@ -260,9 +260,14 @@ public type TypeParser object {
             name: { value: objName },
             isAbstract: isAbstract,
             fields: [],
-            attachedFunctions: [] };
+            attachedFunctions: [],
+            constructor: () };
         self.cp.types[self.cpI] = obj;
         obj.fields = self.parseObjectFields();
+        boolean constructorPresent = self.readBoolean();
+        if (constructorPresent) {
+            obj.constructor = self.readAttachFunction();
+        }
         obj.attachedFunctions = self.parseObjectAttachedFunctions();
         if (isService) {
             BServiceType bServiceType = {oType: obj};
@@ -277,20 +282,24 @@ public type TypeParser object {
         int c = 0;
         BAttachedFunction?[] attachedFunctions = [];
         while c < size {
-            var funcName = self.readStringCpRef();
-            var visibility = self.parseVisibility();
-
-            var funcType = self.parseTypeCpRef();
-            if (funcType is BInvokableType) {
-                attachedFunctions[c] = {name:{value:funcName},visibility:visibility,funcType: funcType};
-            } else {
-                error err = error("expected invokable type but found " + io:sprintf("%s", funcType));
-                panic err;
-            }
+            attachedFunctions[c] = self.readAttachFunction();
             c = c + 1;
         }
 
         return attachedFunctions;
+    }
+
+    function readAttachFunction() returns BAttachedFunction {
+        var funcName = self.readStringCpRef();
+        var visibility = self.parseVisibility();
+
+        var funcType = self.parseTypeCpRef();
+        if (funcType is BInvokableType) {
+            return {name:{value:funcName},visibility:visibility,funcType: funcType};
+        } else {
+            error err = error("expected invokable type but found " + io:sprintf("%s", funcType));
+            panic err;
+        }
     }
 
     function parseObjectFields() returns BObjectField?[] {

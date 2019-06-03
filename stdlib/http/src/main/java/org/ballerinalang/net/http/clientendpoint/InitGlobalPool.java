@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -61,7 +62,7 @@ public class InitGlobalPool extends BlockingNativeCallableUnit {
         globalPoolConfig.addNativeData(CONNECTION_MANAGER, connectionManager);
     }
 
-    public static void initGlobalPool(Strand strand, MapValue<String, Long> globalPoolConfig) {
+    public static void initGlobalPool(Strand strand, ObjectValue receiver, MapValue<String, Long> globalPoolConfig) {
         PoolConfiguration globalPool = new PoolConfiguration();
         populatePoolingConfig(globalPoolConfig, globalPool);
         ConnectionManager connectionManager = new ConnectionManager(globalPool);

@@ -46,7 +46,7 @@ public class GetEntityWithoutBody extends BlockingNativeCallableUnit {
         context.setReturnValues(BHttpUtil.getEntity(context, true, false));
     }
 
-    public static Object[] getEntityWithoutBody(Strand strand, ObjectValue requestObj) {
+    public static ObjectValue getEntityWithoutBody(Strand strand, ObjectValue requestObj) {
         return HttpUtil.getEntity(requestObj, true, false);
     }
 }

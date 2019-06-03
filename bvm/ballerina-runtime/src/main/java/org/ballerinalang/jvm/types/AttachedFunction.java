@@ -49,6 +49,10 @@ public class AttachedFunction extends BFunctionType {
         return sj.toString();
     }
 
+    public BType[] getParameterType() {
+        return type.paramTypes;
+    }
+
     @Override
     public String getName() {
         return this.funcName;

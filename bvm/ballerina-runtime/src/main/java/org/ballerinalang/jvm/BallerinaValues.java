@@ -20,6 +20,7 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.ValueCreator;
 
@@ -63,12 +64,13 @@ public class BallerinaValues {
      * @param values field values of the record.
      * @return value of the record.
      */
-    public static MapValue<String, Object> populateRecordFields(MapValue<String, Object> record, Object... values) {
+    public static MapValue<String, Object> createRecord(MapValue<String, Object> record, Object... values) {
         BRecordType recordType = (BRecordType) record.getType();
+        MapValue mapValue = new MapValueImpl(recordType);
         int i = 0;
         for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
-            record.put(fieldEntry.getKey(), values[i++]);
+            mapValue.put(fieldEntry.getKey(), values[i++]);
         }
-        return record;
+        return mapValue;
     }
 }

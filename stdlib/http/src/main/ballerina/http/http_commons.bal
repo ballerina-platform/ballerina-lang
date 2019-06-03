@@ -214,9 +214,7 @@ function buildRequest(RequestMessage message) returns Request {
 
 function buildResponse(ResponseMessage message) returns Response {
     Response response = new;
-    if (message is ()) {
-        return response;
-    } else if (message is Response) {
+    if (message is Response) {
         response = message;
     } else if (message is string) {
         response.setTextPayload(message);
