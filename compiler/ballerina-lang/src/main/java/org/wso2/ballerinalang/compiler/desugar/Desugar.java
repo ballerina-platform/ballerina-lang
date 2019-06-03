@@ -3297,7 +3297,7 @@ public class Desugar extends BLangNodeVisitor {
         args.add(getFromTableVarRef(tableQueryExpression));
         // BLangTypeofExpr
         BType retType = tableQueryExpression.type;
-        BLangSimpleVarRef joinTable = getJoinTableVarRef(tableQueryExpression);
+        BLangExpression joinTable = getJoinTableVarRef(tableQueryExpression);
         if (joinTable != null) {
             args.add(joinTable);
             functionName = QUERY_TABLE_WITH_JOIN_CLAUSE;
@@ -3371,18 +3371,18 @@ public class Desugar extends BLangNodeVisitor {
         return expr;
     }
 
-    private BLangSimpleVarRef getJoinTableVarRef(BLangTableQueryExpression tableQueryExpression) {
+    private BLangExpression getJoinTableVarRef(BLangTableQueryExpression tableQueryExpression) {
         JoinStreamingInput joinStreamingInput = tableQueryExpression.getTableQuery().getJoinStreamingInput();
-        BLangSimpleVarRef joinTable = null;
+        BLangExpression joinTable = null;
         if (joinStreamingInput != null) {
-            joinTable = (BLangSimpleVarRef) joinStreamingInput.getStreamingInput().getStreamReference();
+            joinTable = (BLangExpression) joinStreamingInput.getStreamingInput().getStreamReference();
             joinTable = rewrite(joinTable, env);
         }
         return joinTable;
     }
 
-    private BLangSimpleVarRef getFromTableVarRef(BLangTableQueryExpression tableQueryExpression) {
-        BLangSimpleVarRef fromTable = (BLangSimpleVarRef) tableQueryExpression.getTableQuery().getStreamingInput()
+    private BLangExpression getFromTableVarRef(BLangTableQueryExpression tableQueryExpression) {
+        BLangExpression fromTable = (BLangExpression) tableQueryExpression.getTableQuery().getStreamingInput()
                 .getStreamReference();
         return rewrite(fromTable, env);
     }

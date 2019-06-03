@@ -47,7 +47,7 @@ public class GetNext extends BlockingNativeCallableUnit {
         context.setReturnValues(table.getNext());
     }
 
-    public static MapValueImpl<?, ?> getNext(Strand strand, TableValue table) {
+    public static Object getNext(Strand strand, TableValue table) {
         return table.getNext();
     }
 }
