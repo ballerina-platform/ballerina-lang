@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableIterator;
 
 import java.io.ByteArrayInputStream;
