@@ -367,6 +367,10 @@ public class ArrayValue implements RefValue, CollectionValue {
         return size;
     }
 
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
     @Override
     public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
         if (type.getTag() == TypeTags.TUPLE_TAG) {
@@ -554,7 +558,7 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     public String[] getStringArray() {
-        return stringValues;
+        return Arrays.copyOf(stringValues, size);
     }
 
     @Override

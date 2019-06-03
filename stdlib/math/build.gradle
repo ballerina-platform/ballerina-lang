@@ -23,10 +23,6 @@ configurations.testCompileClasspath {
     }
 }
 
-configurations {
-    localDependency
-}
-
 dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
@@ -48,38 +44,13 @@ dependencies {
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-jvm')
-
-    localDependency project(path: ':ballerina-bir', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-jvm', configuration: 'baloImplementation')
 }
 
 createBalo {
     jvmTarget = 'true'
 }
 
-task createTestBalHome(type: Copy) {
-    from configurations.localDependency
-    into "$buildDir/ballerina-home/test/lib"
-}
-
 description = 'Ballerina - Math'
-
-test {
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
-    dependsOn createTestBalHome
-    systemProperty "enableJBallerinaTests", "true"
-
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/ballerina-home/test/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-}
 
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'

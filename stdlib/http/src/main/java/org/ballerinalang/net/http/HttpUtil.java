@@ -85,6 +85,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -250,22 +251,17 @@ public class HttpUtil {
      * @param entityBodyRequired boolean representing whether the entity body is required
      * @return Entity of the request or response
      */
-    public static Object[] getEntity(ObjectValue messageObj, boolean isRequest, boolean entityBodyRequired) {
-        try {
-            ObjectValue entity = (ObjectValue) messageObj.get(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
-            boolean byteChannelAlreadySet = false;
+    public static ObjectValue getEntity(ObjectValue messageObj, boolean isRequest, boolean entityBodyRequired) {
+        ObjectValue entity = (ObjectValue) messageObj.get(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
+        boolean byteChannelAlreadySet = false;
 
-            if (messageObj.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
-                byteChannelAlreadySet = (Boolean) messageObj.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
-            }
-            if (entityBodyRequired && !byteChannelAlreadySet) {
-                populateEntityBody(messageObj, entity, isRequest, false);
-            }
-            return new Object[]{entity};
-        } catch (Throwable throwable) {
-            return new Object[]{MimeUtil.createError(
-                    "Error occurred during entity construction: " + throwable.getMessage())};
+        if (messageObj.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
+            byteChannelAlreadySet = (Boolean) messageObj.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
         }
+        if (entityBodyRequired && !byteChannelAlreadySet) {
+            populateEntityBody(messageObj, entity, isRequest, false);
+        }
+        return entity;
     }
 
     /**
@@ -823,7 +819,7 @@ public class HttpUtil {
     private static void setPropertiesToTransportMessage(HttpCarbonMessage outboundResponseMsg, ObjectValue messageObj) {
         if (isResponse(messageObj)) {
             //TODO fix following logic
-            long statusCode = (Integer) messageObj.get(RESPONSE_STATUS_CODE_FIELD);
+            long statusCode = (Long) messageObj.get(RESPONSE_STATUS_CODE_FIELD);
             if (statusCode != 0) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, getIntValue(statusCode));
             }
@@ -872,6 +868,9 @@ public class HttpUtil {
 
     private static void setCompressionHeaders(MapValue<String, Object> compressionConfig, HttpCarbonMessage requestMsg,
                                               HttpCarbonMessage outboundResponseMsg) {
+        if (!checkConfigAnnotationAvailability(compressionConfig)) {
+            return;
+        }
         String contentEncoding = outboundResponseMsg.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING);
         if (contentEncoding != null) {
             return;
@@ -1063,7 +1062,7 @@ public class HttpUtil {
 //    }
 
     public static MapValue getResourceConfigAnnotation(AttachedFunction resource, String pkgPath) {
-        MapValue annotations = resource.getAnnotation(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
+        ArrayValue annotations = resource.getAnnotation(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
 
         if (annotations == null) {
             return null;
@@ -1075,11 +1074,11 @@ public class HttpUtil {
                             resource.parent.getName() + "." + resource.getName());
         }
 
-        return annotations.isEmpty() ? null : annotations;
+        return annotations.isEmpty() ? null : (MapValue) annotations.get(0);
     }
 
     public static MapValue getTransactionConfigAnnotation(AttachedFunction resource, String transactionPackagePath) {
-        MapValue annotation = resource.getAnnotation(transactionPackagePath,
+        ArrayValue annotation = resource.getAnnotation(transactionPackagePath,
                 TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
 
         if (annotation == null || annotation.isEmpty()) {
@@ -1090,7 +1089,7 @@ public class HttpUtil {
                     "multiple transaction configuration annotations found in resource: " +
                             resource.parent.getName() + "." + resource.getName());
         }
-        return annotation;
+        return (MapValue) annotation.get(0);
     }
 
     private static int getIntValue(long val) {
@@ -1185,7 +1184,10 @@ public class HttpUtil {
     }
 
     private static void setChunkingHeader(String transferValue, HttpCarbonMessage outboundResponseMsg) {
-            outboundResponseMsg.setProperty(CHUNKING_CONFIG, getChunkConfig(transferValue));
+        if (transferValue == null) { //TODO check this logic - chamil
+            return;
+        }
+        outboundResponseMsg.setProperty(CHUNKING_CONFIG, getChunkConfig(transferValue));
     }
 
     /**
@@ -1450,7 +1452,7 @@ public class HttpUtil {
         }
     }
 
-    public static void serialize(Object value, OutputStream outputStream) {
+    public static void serialize(Object value, OutputStream outputStream) throws IOException {
         //TODO check the possibility of value being null
         if (value == null) {
             throw new BallerinaException("error occurred while serializing null data");
@@ -1466,6 +1468,9 @@ public class HttpUtil {
             ((XMLItem) value).serialize(outputStream);
         } else if (value instanceof XMLSequence) {
             ((XMLSequence) value).serialize(outputStream);
+        } else if (value instanceof Long || value instanceof String ||
+                value instanceof Double || value instanceof Integer || value instanceof Boolean) {
+            outputStream.write(value.toString().getBytes(Charset.defaultCharset()));
         } else {
             ((RefValue) value).serialize(outputStream);
         }

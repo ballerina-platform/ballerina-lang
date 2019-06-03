@@ -820,19 +820,6 @@ type InstructionGenerator object {
         self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
         self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
         self.storeToVar(objectNewIns.lhsOp.variableDcl);
-
-        // todo : check if this is a new service object creation and process its annotation
-        boolean isServiceType = false;
-
-        if (isServiceType) {
-            string varName = "#0";
-            string pkgClassName = lookupGlobalVarClassName(self.currentPackageName + varName);
-            self.mv.visitFieldInsn(GETSTATIC, pkgClassName, varName, io:sprintf("L%s;", MAP_VALUE));
-            loadExternalOrLocalType(self.mv, typeDefRef);
-            self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
-            self.mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processObjectAnnotations",
-                                        io:sprintf("(L%s;L%s;)V", MAP_VALUE, OBJECT_TYPE), false);
-        }
     }
 
     function generateFPLoadIns(bir:FPLoad inst) {

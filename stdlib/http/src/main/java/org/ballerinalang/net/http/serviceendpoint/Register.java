@@ -26,7 +26,6 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -83,8 +82,8 @@ public class Register extends AbstractHttpNativeFunction {
         context.setReturnValues();
     }
 
-    public static void register(Strand strand, ObjectValue serviceEndpoint, ObjectValue service,
-                                MapValue annotationData) {
+    public static Object register(Strand strand, ObjectValue serviceEndpoint, ObjectValue service,
+                                Object annotationData) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
@@ -92,7 +91,7 @@ public class Register extends AbstractHttpNativeFunction {
         AttachedFunction[] resourceList = service.getType().getAttachedFunctions();
         if (resourceList.length > 0 && (param = resourceList[0].getParameterType()[0]) != null) {
             String callerType = param.getName();
-            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
+            if (HttpConstants.HTTP_CALLER_NAME.endsWith(callerType)) { // TODO fix should work with equals - rajith
                 httpServicesRegistry.registerService(service);
             } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
                 WebSocketService webSocketService = new WebSocketService(service);
@@ -101,5 +100,6 @@ public class Register extends AbstractHttpNativeFunction {
         } else {
             httpServicesRegistry.registerService(service);
         }
+        return null;
     }
 }

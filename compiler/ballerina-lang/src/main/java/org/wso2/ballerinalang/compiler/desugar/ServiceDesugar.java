@@ -122,7 +122,8 @@ public class ServiceDesugar {
     }
 
     void rewriteServiceAttachments(BLangBlockStmt serviceAttachments, SymbolEnv env) {
-        ASTBuilderUtil.appendStatements(serviceAttachments, env.enclPkg.initFunction.body);
+        // TODO check below with - hasitha
+        ASTBuilderUtil.appendStatements(serviceAttachments, env.enclPkg.startFunction.body);
     }
 
     BLangBlockStmt rewriteServiceVariables(List<BLangService> services, SymbolEnv env) {
@@ -213,6 +214,6 @@ public class ServiceDesugar {
     }
 
     private void engageCustomResourceDesugar(BLangService service, BLangFunction functionNode, SymbolEnv env) {
-        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
+//        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env); // TODO fix - rajith
     }
 }
