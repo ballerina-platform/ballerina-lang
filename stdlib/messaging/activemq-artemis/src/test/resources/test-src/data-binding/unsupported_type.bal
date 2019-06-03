@@ -16,12 +16,14 @@
 
 import ballerina/artemis;
 
+listener artemis:Listener artemisListener = new({host:"localhost", port:61616});
+
 @artemis:ServiceConfig {
     queueConfig: {
-        queueName: "my_queue"
+        queueName: "queue1"
     }
 }
-service artemisConsumer on new artemis:Listener({host:"localhost", port:61616}) {
-    resource function onMsg(artemis:Message message, string text, boolean val) returns error? {
+service artemisConsumer on artemisListener {
+    resource function xyz(artemis:Message message, int[] data) returns error? {
     }
 }
