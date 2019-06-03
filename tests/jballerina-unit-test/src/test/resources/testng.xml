@@ -35,10 +35,8 @@
             </run>
         </groups>
         <classes>
-            <class name="org.ballerinalang.test.types.stream.BStreamValueTest2">
-                <methods>
-                    <include name="testStreamPublishingAndSubscriptionForAssignableTupleTypeStream"/>
-                </methods>
+            <class name="org.ballerinalang.test.types.stream.BStreamValueTest">
+
             </class>
         </classes>
     </test>
