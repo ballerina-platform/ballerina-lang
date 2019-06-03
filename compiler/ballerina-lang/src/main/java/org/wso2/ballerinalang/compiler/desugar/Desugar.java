@@ -2493,6 +2493,11 @@ public class Desugar extends BLangNodeVisitor {
             binaryExpr.rhsExpr = getModifiedIntRangeEndExpr(binaryExpr.rhsExpr);
         }
 
+        if (binaryExpr.opKind == OperatorKind.AND || binaryExpr.opKind == OperatorKind.OR) {
+            visitBinaryLogicalExpr(binaryExpr);
+            return;
+        }
+
         binaryExpr.lhsExpr = rewriteExpr(binaryExpr.lhsExpr);
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
@@ -5070,4 +5075,67 @@ public class Desugar extends BLangNodeVisitor {
                 return null;
         }
     }
+
+    private void visitBinaryLogicalExpr(BLangBinaryExpr binaryExpr) {
+        /*
+         * Desugar (lhsExpr && rhsExpr) to following if-else:
+         * 
+         * logical AND:
+         * -------------
+         * T $result$;
+         * if (lhsExpr) {
+         *    $result$ = rhsExpr;
+         * } else {
+         *    $result$ = false;
+         * }
+         * 
+         * logical OR:
+         * -------------
+         * T $result$;
+         * if (lhsExpr) {
+         *    $result$ = true;
+         * } else {
+         *    $result$ = rhsExpr;
+         * }
+         * 
+         */
+        BLangSimpleVariableDef resultVarDef = createVarDef("$result$", binaryExpr.type, null, binaryExpr.pos);
+        BLangBlockStmt thenBody = ASTBuilderUtil.createBlockStmt(binaryExpr.pos);
+        BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(binaryExpr.pos);
+
+        // Create then assignment
+        BLangSimpleVarRef thenResultVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, resultVarDef.var.symbol);
+        BLangExpression thenResult;
+        if (binaryExpr.opKind == OperatorKind.AND) {
+            thenResult = binaryExpr.rhsExpr;
+        } else {
+            thenResult = getBooleanLiteral(true);
+        }
+        BLangAssignment thenAssignment =
+                ASTBuilderUtil.createAssignmentStmt(binaryExpr.pos, thenResultVarRef, thenResult);
+        thenBody.addStatement(thenAssignment);
+
+        // Create else assignment
+        BLangExpression elseResult;
+        BLangSimpleVarRef elseResultVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, resultVarDef.var.symbol);
+        if (binaryExpr.opKind == OperatorKind.AND) {
+            elseResult = getBooleanLiteral(false);
+        } else {
+            elseResult = binaryExpr.rhsExpr;
+        }
+        BLangAssignment elseAssignment =
+                ASTBuilderUtil.createAssignmentStmt(binaryExpr.pos, elseResultVarRef, elseResult);
+        elseBody.addStatement(elseAssignment);
+
+        // Then make it a expression-statement, with expression being the $result$
+        BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, resultVarDef.var.symbol);
+        BLangIf ifElse = ASTBuilderUtil.createIfElseStmt(binaryExpr.pos, binaryExpr.lhsExpr, thenBody, elseBody);
+
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(binaryExpr.pos, Lists.of(resultVarDef, ifElse));
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, resultVarRef);
+        stmtExpr.type = binaryExpr.type;
+
+        result = rewriteExpr(stmtExpr);
+    }
+
 }

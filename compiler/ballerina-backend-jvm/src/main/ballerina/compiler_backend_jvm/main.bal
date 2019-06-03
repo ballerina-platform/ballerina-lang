@@ -41,7 +41,7 @@ function generateJarBinary(boolean dumpBir, bir:BIRContext birContext, bir:Modul
     currentBIRContext = birContext;
     bir:Package entryMod = birContext.lookupBIRModule(entryModId);
 
-    if (dumpBir) {
+    if (true) {
        bir:BirEmitter emitter = new(entryMod);
        emitter.emitPackage();
     }
