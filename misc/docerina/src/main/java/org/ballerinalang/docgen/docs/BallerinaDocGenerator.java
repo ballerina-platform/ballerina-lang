@@ -317,6 +317,7 @@ public class BallerinaDocGenerator {
         }
         try {
             BallerinaDocUtils.copyResources("html-template-resources", output);
+            BallerinaDocUtils.copyResources("vs", output);
         } catch (IOException e) {
             out.println(String.format("docerina: failed to copy the docerina-theme resource. Cause: %s", e.getMessage
                     ()));

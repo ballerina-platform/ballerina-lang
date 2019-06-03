@@ -18,6 +18,7 @@
 package org.ballerinalang.docgen.model;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.commonmark.node.AbstractVisitor;
 import org.commonmark.node.Heading;
@@ -80,7 +81,7 @@ public class ModuleDoc {
         @Override
         public void visit(Heading heading) {
             if (heading.getFirstChild() instanceof Text
-                    && ((Text) heading.getFirstChild()).getLiteral().equals("Module overview")
+                    && StringUtils.equalsIgnoreCase(((Text) heading.getFirstChild()).getLiteral(), "module overview")
                     && heading.getNext() instanceof Paragraph
             ) {
                 summary = heading.getNext();

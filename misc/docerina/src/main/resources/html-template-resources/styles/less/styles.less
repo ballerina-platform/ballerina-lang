@@ -63,12 +63,17 @@ body {
             .navi-wrapper-content {
                 width: 185px;
             }
-
             .logo {
                 width: 150px;
                 height: auto;
                 text-align: center;
                 margin: 1em;
+            }
+            .version {
+                float: right;
+                margin-right: 1.2em;
+                margin-top: -0.8em;
+                margin-bottom: 1em;
             }
             &:hover {
                 overflow-y: scroll;
@@ -135,6 +140,15 @@ body {
             overflow-y: hidden;
             position: fixed;
             font-size: 16px;
+
+            pre.ballerina-snippet {
+                background-color: rgb(245, 247, 248);
+                padding: 20px;
+                overflow-x: auto;
+                code.language-ballerina {
+                    background: none;
+                }
+            }
 
             .main-wrapper {
                 width: 800px;

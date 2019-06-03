@@ -34,6 +34,12 @@ body .ui.grid .navi-wrapper .logo {
   text-align: center;
   margin: 1em;
 }
+body .ui.grid .navi-wrapper .version {
+  float: right;
+  margin-right: 1.2em;
+  margin-top: -0.8em;
+  margin-bottom: 1em;
+}
 body .ui.grid .navi-wrapper:hover {
   overflow-y: scroll;
   position: inherit;
@@ -91,6 +97,14 @@ body .ui.grid .content-wrapper {
   overflow-y: hidden;
   position: fixed;
   font-size: 16px;
+}
+body .ui.grid .content-wrapper pre.ballerina-snippet {
+  background-color: #f5f7f8;
+  padding: 20px;
+  overflow-x: auto;
+}
+body .ui.grid .content-wrapper pre.ballerina-snippet code.language-ballerina {
+  background: none;
 }
 body .ui.grid .content-wrapper .main-wrapper {
   width: 800px;

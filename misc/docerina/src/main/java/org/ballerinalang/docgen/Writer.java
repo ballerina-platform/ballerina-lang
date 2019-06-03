@@ -116,6 +116,17 @@ public class Writer {
                     .map(type1 -> getTypeLabel(type1, options))
                     .collect(Collectors.joining(", "))
                     + "<span>)</span>";
+        } else if (type.isLambda) {
+            label = "<code> <span>function(</span>" + type.paramTypes.stream()
+                    .map(type1 -> getTypeLabel(type1, options))
+                    .collect(Collectors.joining(", "))
+                    + "<span>) </span>";
+            if (type.returnType != null) {
+                label += "<span>returns (</span>" + getTypeLabel(type.returnType, options) + "<span>)</span>";
+            } else {
+                label += "<span>() </span>";
+            }
+            label += " </code>";
         } else {
             label = getHtmlLink(type, root);
         }
@@ -136,12 +147,12 @@ public class Writer {
         String orgName = BallerinaDocDataHolder.getInstance().getOrgName();
         Map<String, ModuleDoc> packageMap = BallerinaDocDataHolder.getInstance().getPackageMap();
         String link = root + type.moduleName + "/" + type.category + "/" + type.name + ".html";
-        if ("types".equals(type.category)) {
+        if ("types".equals(type.category) || "constants".equals(type.category) || "annotations".equals(type.category)
+                || "errors".equals(type.category)) {
             link = root + type.moduleName + "/" + type.category + ".html#" + type.name;
         }
-        // If this is a local module, generate relative link to the type
-        if (orgName.equals(type.orgName) && packageMap.containsKey(type.moduleName)) {
-            // TODO fix the orgName equals
+        if ("builtin".equals(type.moduleName)) {
+            link = "https://ballerina.io/learn/api-docs/ballerina/primitive-types.html#" + type.name;
         }
         String suffix = type.isArrayType ? "[]" : "";
         suffix += type.isNullable ? "?" : "";
