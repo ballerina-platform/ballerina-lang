@@ -1,7 +1,7 @@
 <div class="method-content">
     <div class="main-method-title">
         <h2 id="{{name}}">{{name}}</h2>
-        <p class="method-types">( {{{ paramSummary parameters }}} )</p>
+        <p class="method-types">({{{ paramSummary parameters }}})</p>
     </div>
     <p>{{{ description }}}</p>
      {{#if parameters}}
@@ -10,7 +10,7 @@
             {{#each parameters}}    
             <div class="params-listing">
                 <ul>
-                    <li> {{ name }}<span class="type">  {{{ typeName type }}}</span>{{ defaultValue }}</li>
+                    <li> {{ name }}<span class="type">  {{{ typeName type }}} </span>{{#if defaultValue}}- {{ defaultValue }}{{/if}}</li>
                     <li>
                         <p>{{{ description }}}</p>
                     </li>

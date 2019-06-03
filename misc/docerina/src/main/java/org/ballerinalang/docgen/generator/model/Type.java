@@ -22,6 +22,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -118,44 +119,43 @@ public class Type {
     }
 
     public static Type fromTypeNode(BLangType type) {
+        Type typeModel = null;
         if (type instanceof BLangFunctionTypeNode){
-            Type lambda = new Type();
-            lambda.isLambda = true;
-            lambda.paramTypes = ((BLangFunctionTypeNode) type).params.stream().map((p) ->Type.fromTypeNode(p.typeNode))
+            typeModel = new Type();
+            typeModel.isLambda = true;
+            typeModel.paramTypes = ((BLangFunctionTypeNode) type).params.stream().map((p) ->Type.fromTypeNode(p.typeNode))
                     .collect(Collectors.toList());
-            lambda.returnType = Type.fromTypeNode(((BLangFunctionTypeNode) type).returnTypeNode);
-            return lambda;
-        }
-        if (type.nullable && type.type instanceof BUnionType) {
-            BUnionType unionType = (BUnionType) type.type;
-            if (unionType.getMemberTypes().size() == 2) {
-                Type typeObj = new Type((BType) unionType.getMemberTypes().toArray()[0]);
-                typeObj.isNullable = true;
-                return typeObj;
-            }
-        }
-        if (type instanceof BLangFiniteTypeNode) {
+            typeModel.returnType = Type.fromTypeNode(((BLangFunctionTypeNode) type).returnTypeNode);
+        } else if (type instanceof BLangFiniteTypeNode) {
             List<BLangExpression> valueSpace = ((BLangFiniteTypeNode) type).valueSpace;
             if (valueSpace.size() == 1) {
-                return new Type(valueSpace.get(0).type);
+                typeModel = new Type(valueSpace.get(0).type);
             }
-        }
-        if (type instanceof BLangArrayType) {
+        } else if (type instanceof BLangArrayType) {
             BLangType elemtype = ((BLangArrayType) type).elemtype;
-            Type typeObj = fromTypeNode(elemtype);
-            typeObj.isArrayType = true;
-            return typeObj;
-        }
-        if (type instanceof BLangTupleTypeNode) {
+            typeModel = fromTypeNode(elemtype);
+            typeModel.isArrayType = true;
+        } else if (type instanceof BLangTupleTypeNode) {
             List<BLangType> memberTypeNodes = ((BLangTupleTypeNode) type).memberTypeNodes;
-            Type type1 = new Type(type);
-            type1.isTuple = true;
-            type1.memberTypes = memberTypeNodes.stream()
+            typeModel = new Type(type);
+            typeModel.isTuple = true;
+            typeModel.memberTypes = memberTypeNodes.stream()
                                     .map(Type::fromTypeNode)
                                     .collect(Collectors.toList());
-            return type1;
+        } else if (type.nullable && type.type instanceof BUnionType) {
+            BUnionType unionType = (BUnionType) type.type;
+            if (unionType.getMemberTypes().size() == 2) {
+                typeModel = new Type((BType) unionType.getMemberTypes().toArray()[0]);
+            }
         }
-        return new Type(type);
+        if (typeModel == null) {
+            typeModel = new Type(type);
+        }
+        typeModel.isNullable = type.nullable;
+        if (type.type instanceof BNilType) {
+            typeModel.name = "()";
+        }
+        return typeModel;
     }
 
     private void setCategory(BType type) {
