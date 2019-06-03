@@ -31,6 +31,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 
@@ -59,6 +60,6 @@ public class SetJson extends BlockingNativeCallableUnit {
 
     public static void setJson(Strand strand, ObjectValue entityObj, Object jsonContent, String contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, jsonContent);
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : APPLICATION_JSON);
     }
 }

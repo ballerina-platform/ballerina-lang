@@ -21,8 +21,8 @@ package org.ballerinalang.nativeimpl.builtin.tablelib;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
@@ -71,9 +71,10 @@ public class QueryTableWithJoinClause extends BlockingNativeCallableUnit {
     }
 
     public static TableValue queryTableWithJoinClause(Strand strand, String query, TableValue fromTable,
-                                                      TableValue joinTable, ArrayValue array,
-                                                      MapValueImpl<?, ?> tableType) {
+                                                      TableValue joinTable, Object array,
+                                                      Object tableLiteral) {
         return new TableValue(query, fromTable, joinTable,
-                (org.ballerinalang.jvm.types.BStructureType) tableType.getType(), array);
+                              (org.ballerinalang.jvm.types.BStructureType) TypeChecker.getType(tableLiteral),
+                              (ArrayValue) array);
     }
 }

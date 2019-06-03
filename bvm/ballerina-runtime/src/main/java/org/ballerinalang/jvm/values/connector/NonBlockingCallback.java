@@ -42,19 +42,17 @@ public class NonBlockingCallback {
         strand.blocked = true;
         strand.blockedOnExtern = true;
         this.strand = strand;
-        executionWaitSem = new Semaphore(0);
+//        executionWaitSem = new Semaphore(0);
     }
 
     public void notifySuccess() {
-        this.executionWaitSem.release();
-        //TODO : Replace following with callback.notifySuccess() once strand non-blocking support is given
+//        this.executionWaitSem.release();
         this.strand.scheduler.unblockStrand(strand);
     }
 
     public void notifyFailure(ErrorValue error) {
         this.returnValue = error;
-        this.executionWaitSem.release();
-        //TODO : Replace following with callback.notifyFailure() once strand non-blocking support is given
+//        this.executionWaitSem.release();
         strand.setReturnValues(getReturnValue());
         this.strand.scheduler.unblockStrand(strand);
     }
