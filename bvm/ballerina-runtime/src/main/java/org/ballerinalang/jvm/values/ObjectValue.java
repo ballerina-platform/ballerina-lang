@@ -20,6 +20,8 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BObjectType;
 
+import java.util.HashMap;
+
 /**
  * Interface to be implemented by all the ballerina objects.
  * 
@@ -52,6 +54,8 @@ public interface ObjectValue extends RefValue {
     void addNativeData(String key, Object data);
 
     Object getNativeData(String key);
+
+    HashMap<String, Object> getNativeData();
 
     void set(String fieldName, Object value);
 }

@@ -125,7 +125,7 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
             }
         });
         //TODO : Remove callback once strand non-blocking support is given
-        callback.sync();
+//        callback.sync();
     }
 
     //TODO Remove after migration : implemented using bvm values/types
@@ -146,9 +146,13 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         setReturnValuesAndNotify(context, callback, error);
     }
 
-    static void createErrorAndNotify(NonBlockingCallback callback, String errMsg) {
+    static Object createErrorAndNotify(NonBlockingCallback callback, String errMsg) {
         ErrorValue error = MimeUtil.createError(errMsg);
-        setReturnValuesAndNotify(callback, error);
+        if (callback != null) {
+            setReturnValuesAndNotify(callback, error);
+            return null;
+        }
+        return error;
     }
 
     //TODO Remove after migration : implemented using bvm values/types
@@ -160,11 +164,15 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         setReturnValuesAndNotify(context, callback, result);
     }
 
-    static void updateDataSourceAndNotify(NonBlockingCallback callback, ObjectValue entityObj,
-                                          Object result) {
+    static void updateDataSource(ObjectValue entityObj, Object result) {
         EntityBodyHandler.addMessageDataSource(entityObj, result);
         //Set byte channel to null, once the message data source has been constructed
         entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);
+    }
+
+    static void updateDataSourceAndNotify(NonBlockingCallback callback, ObjectValue entityObj,
+                                          Object result) {
+        updateDataSource(entityObj, result);
         setReturnValuesAndNotify(callback, result);
     }
 

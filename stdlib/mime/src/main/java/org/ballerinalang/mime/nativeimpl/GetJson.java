@@ -88,12 +88,10 @@ public class GetJson extends AbstractGetPayloadHandler {
         }
     }
 
-    public static void getJson(Strand strand, ObjectValue entityObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
+    public static Object getJson(Strand strand, ObjectValue entityObj) {
+        NonBlockingCallback callback = null;
+        RefValue result = null;
         try {
-            RefValue result;
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
                 // If the value is already a JSON, then return as it is.
@@ -104,20 +102,21 @@ public class GetJson extends AbstractGetPayloadHandler {
                     String payload = MimeUtil.getMessageAsString(dataSource);
                     result = (RefValue) JSONParser.parse(payload);
                 }
-                setReturnValuesAndNotify(callback, result);
-                return;
+                return result;
             }
 
             if (isStreamingRequired(entityObj)) {
                 result = (RefValue) EntityBodyHandler.constructJsonDataSource(entityObj);
-                updateDataSourceAndNotify(callback, entityObj, result);
+                updateDataSource(entityObj, result);
             } else {
+                callback = new NonBlockingCallback(strand);
                 constructNonBlockingDataSource(callback, entityObj, SourceType.JSON);
             }
         } catch (Exception ex) {
             createErrorAndNotify(callback,
                                  "Error occurred while extracting json data from entity: " + ex.getMessage());
         }
+        return result;
     }
 
     private boolean isJSON(BValue value) {

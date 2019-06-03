@@ -104,24 +104,18 @@ public class CloseWritableDataChannel implements NativeCallableUnit {
     }
 
     public static Object close(Strand strand, ObjectValue dataChannel) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
         DataChannel channel = (DataChannel) dataChannel.getNativeData(IOConstants.DATA_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(callback);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
         CloseDataChannelEvent dataChannelCloseEvt = new CloseDataChannelEvent(channel, eventContext);
         Register register = EventRegister.getFactory().register(dataChannelCloseEvt,
                                                                 CloseWritableDataChannel::closeChannel);
         eventContext.setRegister(register);
         register.submit();
-        //TODO : Remove callback once strand non-blocking support is given
-        callback.sync();
-        return callback.getReturnValue();
+        return null;
     }
 
     private static EventResult closeChannel(EventResult<Boolean, EventContext> result) {
         EventContext eventContext = result.getContext();
-        //TODO : Remove callback once strand non-blocking support is given
         NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         Throwable error = eventContext.getError();
         if (null != error) {

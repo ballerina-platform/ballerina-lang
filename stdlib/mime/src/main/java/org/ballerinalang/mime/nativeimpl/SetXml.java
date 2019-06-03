@@ -33,6 +33,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 
@@ -61,6 +62,6 @@ public class SetXml extends BlockingNativeCallableUnit {
 
     public static void setXml(Strand strand, ObjectValue entityObj, XMLValue xmlContent, String contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, xmlContent);
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : APPLICATION_XML);
     }
 }
