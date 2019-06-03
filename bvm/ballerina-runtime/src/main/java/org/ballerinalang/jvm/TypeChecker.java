@@ -628,7 +628,6 @@ public class TypeChecker {
         return true;
     }
 
-
     private static boolean checkUnionCast(Object rhsValue, BType lhsType, List<TypePair> unresolvedTypes) {
         BUnionType unionType = (BUnionType) lhsType;
         for (BType memberType : unionType.getMemberTypes()) {
