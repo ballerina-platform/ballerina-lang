@@ -34,6 +34,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 
 import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 
 /**
@@ -61,6 +62,6 @@ public class SetBodyParts extends BlockingNativeCallableUnit {
 
     public static void setBodyParts(Strand strand, ObjectValue entityObj, ArrayValue bodyParts, String contentType) {
         entityObj.addNativeData(BODY_PARTS, bodyParts);
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : MULTIPART_FORM_DATA);
     }
 }

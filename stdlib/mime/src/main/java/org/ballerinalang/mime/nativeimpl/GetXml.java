@@ -85,12 +85,10 @@ public class GetXml extends AbstractGetPayloadHandler {
         }
     }
 
-    public static void getXml(Strand strand, ObjectValue entityObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
+    public static Object getXml(Strand strand, ObjectValue entityObj) {
+        NonBlockingCallback callback = null;
+        XMLValue result = null;
         try {
-            XMLValue result;
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
                 if (dataSource instanceof XMLValue) {
@@ -100,19 +98,20 @@ public class GetXml extends AbstractGetPayloadHandler {
                     String payload = MimeUtil.getMessageAsString(dataSource);
                     result = XMLFactory.parse(payload);
                 }
-                setReturnValuesAndNotify(callback, result);
-                return;
+                return result;
             }
 
             if (isStreamingRequired(entityObj)) {
                 result = EntityBodyHandler.constructXmlDataSource(entityObj);
-                updateDataSourceAndNotify(callback, entityObj, result);
+                updateDataSource(entityObj, result);
             } else {
+                callback = new NonBlockingCallback(strand);
                 constructNonBlockingDataSource(callback, entityObj, SourceType.XML);
             }
         } catch (Exception ex) {
-            createErrorAndNotify(callback,
+            return createErrorAndNotify(callback,
                                  "Error occurred while extracting xml data from entity : " + ex.getMessage());
         }
+        return result;
     }
 }

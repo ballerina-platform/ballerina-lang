@@ -81,20 +81,17 @@ public class WriteXml implements NativeCallableUnit {
     }
 
     public static Object writeXml(Strand strand, ObjectValue characterChannelObj, XMLValue<?> content) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj.getNativeData(
                     IOConstants.CHARACTER_CHANNEL_NAME);
             EventContext eventContext = new EventContext(callback);
             IOUtils.writeFullContent(characterChannel, content.toString(), eventContext);
-            //TODO : Remove callback once strand non-blocking support is given
-            callback.sync();
         } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
             callback.setReturnValues(IOUtils.createError(e.getMessage()));
         } finally {
             callback.notifySuccess();
         }
-        return callback.getReturnValue();
+        return null;
     }
 }
