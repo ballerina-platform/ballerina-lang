@@ -39,12 +39,12 @@ function testErrorPattern2() returns string {
 
     match err {
         var error (var reason, ...var rest) => return "A";
-        var error (var reason, detail = detail) => return "A"; // unreachable
+        var error (var reason, s = s) => return "A"; // unreachable
     }
 
     match err {
-        var error (var reason, detail = detail) => return "A";
-        var error (var reason, detail = detail, ...var rest) => return "A"; // unknown field 'detail' in record type 'ClosedFoo'
+        var error (var reason, s = s) => return "A";
+        var error (var reason, s = s, ...var rest) => return "A"; // unknown field 'detail' in record type 'ClosedFoo'
         var error (var reason, s = s) => return "A"; // unreachable
     }
     return "Default";

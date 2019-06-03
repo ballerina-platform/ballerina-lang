@@ -897,12 +897,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        int numNamedArgs = ctx.ASSIGN().size();
-        boolean reasonAvailable = ctx.errorReasonMatchPattern() != null;
+        int numNamedArgs = ctx.namedArgs().size();
+        String reasonIdentifier = ctx.Identifier().getText();
+
         boolean restPatternAvailable = ctx.errorMatchRestPattern() != null;
 
         this.pkgBuilder.addErrorVariableReference(getCurrentPos(ctx), getWS(ctx),
-                numNamedArgs, reasonAvailable, restPatternAvailable);
+                numNamedArgs, reasonIdentifier, restPatternAvailable);
     }
 
     @Override

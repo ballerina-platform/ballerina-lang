@@ -414,7 +414,7 @@ errorBindingPattern
     ;
 
 errorRestBindingPattern
-    : ELLIPSIS VAR Identifier
+    : ELLIPSIS VAR? Identifier
     ;
 
 errorDetailBindingPattern
@@ -480,16 +480,11 @@ closedRecordRefBindingPattern
     ;
 
 errorRefBindingPattern
-    :   TYPE_ERROR LEFT_PARENTHESIS errorReasonMatchPattern (COMMA (Identifier ASSIGN Identifier))* (COMMA errorMatchRestPattern)? RIGHT_PARENTHESIS
-    ;
-
-errorReasonMatchPattern
-    : QuotedStringLiteral
-    | VAR? Identifier
+    :   TYPE_ERROR LEFT_PARENTHESIS ((Identifier (COMMA namedArgs)*) | namedArgs) (COMMA errorMatchRestPattern)? RIGHT_PARENTHESIS
     ;
 
 errorMatchRestPattern
-    : ELLIPSIS VAR Identifier
+    : ELLIPSIS Identifier
     ;
 
 entryRefBindingPattern

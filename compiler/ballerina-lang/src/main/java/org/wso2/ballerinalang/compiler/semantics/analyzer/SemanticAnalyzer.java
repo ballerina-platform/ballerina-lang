@@ -135,6 +135,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
+import sun.jvm.hotspot.debugger.cdbg.Sym;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -1066,7 +1067,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             errorVariable.reason.accept(this);
         }
 
-        if (errorVariable.detail == null || (errorVariable.detail.isEmpty() && errorVariable.restDetail == null)) {
+        if (errorVariable.detail == null || (errorVariable.detail.isEmpty()
+                && !isRestDetailBindingAvailable(errorVariable))) {
             if (isReasonIgnored) {
                 dlog.error(errorVariable.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
                 return false;
@@ -1103,16 +1105,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
             }
 
-            if (errorVariable.restDetail != null) {
-                errorVariable.restDetail.type = recordType.restFieldType;
+            if (isRestDetailBindingAvailable(errorVariable)) {
+                BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE);
+                BMapType restType = new BMapType(TypeTags.MAP, recordType.restFieldType, typeSymbol);
+                typeSymbol.type = restType;
+                errorVariable.restDetail.type = restType;
                 errorVariable.restDetail.accept(this);
             }
             return true;
 
         } else if (errorType.detailType.getKind() == TypeKind.MAP) {
             BType constraintType = ((BMapType) errorType.detailType).constraint;
-            BTypeSymbol memberTypeSym = new BTypeSymbol(SymTag.UNION_TYPE, constraintType.tsymbol.flags,
-                    constraintType.tsymbol.name, constraintType.tsymbol.pkgID, null, this.env.scope.owner);
+            BTypeSymbol memberTypeSym = this.createTypeSymbol(SymTag.UNION_TYPE);
             BUnionType memberType = BUnionType.create(memberTypeSym, constraintType, symTable.nilType);
             memberType.setNullable(true);
             memberTypeSym.type = memberType;
@@ -1129,11 +1133,29 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return validateErrorVariable(errorVariable);
         }
 
-        if (errorVariable.restDetail != null && !errorVariable.restDetail.name.value.equals(Names.IGNORE.value)) {
-            errorVariable.restDetail.type = symTable.pureTypeConstrainedMap;
+        if (isRestDetailBindingAvailable(errorVariable)) {
+            if (errorType.detailType.tag == TypeTags.MAP) {
+                BType constraint = ((BMapType) errorType.detailType).constraint;
+                BTypeSymbol tsymbol = createTypeSymbol(SymTag.TYPE);
+                BMapType restType = new BMapType(TypeTags.MAP, constraint, tsymbol);
+                tsymbol.type = restType;
+                errorVariable.restDetail.type = restType;
+            } else {
+                errorVariable.restDetail.type = symTable.pureTypeConstrainedMap;
+            }
             errorVariable.restDetail.accept(this);
         }
         return true;
+    }
+
+    private boolean isRestDetailBindingAvailable(BLangErrorVariable errorVariable) {
+        return errorVariable.restDetail != null &&
+                !errorVariable.restDetail.name.value.equals(Names.IGNORE.value);
+    }
+
+    private BTypeSymbol createTypeSymbol(int type) {
+        return new BTypeSymbol(type, Flags.PUBLIC, Names.EMPTY, env.enclPkg.packageID,
+                            null, env.scope.owner);
     }
 
     /**

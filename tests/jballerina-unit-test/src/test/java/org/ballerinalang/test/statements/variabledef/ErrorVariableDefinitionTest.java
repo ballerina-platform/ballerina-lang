@@ -18,14 +18,15 @@
  */
 package org.ballerinalang.test.statements.variabledef;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -217,7 +218,7 @@ public class ErrorVariableDefinitionTest {
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 9);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'error', found 'error'", 28, 86);
+                "incompatible types: expected 'error', found 'error'", 28, 85);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 30, 26);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -230,7 +231,7 @@ public class ErrorVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'int', found 'map<anydata|error>'", 54, 18);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid error variable; expecting an error type but found 'int' in type definition", 55, 38);
+                "invalid error variable; expecting an error type but found 'int' in type definition", 55, 47);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 61, 17);
         BAssertUtil.validateError(resultNegative, ++i,

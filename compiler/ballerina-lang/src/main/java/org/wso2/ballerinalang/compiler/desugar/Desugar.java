@@ -957,8 +957,16 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        BType detailMapType;
+        BType detailType = ((BErrorType) parentErrorVariable.type).detailType;
+        if (detailType.tag == TypeTags.MAP) {
+            detailMapType = ((BMapType) detailType).constraint;
+        } else {
+            detailMapType = symTable.pureTypeConstrainedMap;
+        }
+
         parentErrorVariable.detailExpr = generateErrorDetailBuiltinFunction(
-                parentErrorVariable.pos, symTable.pureTypeConstrainedMap, parentBlockStmt,
+                parentErrorVariable.pos, detailMapType, parentBlockStmt,
                 errorVariableSymbol, parentIndexBasedAccess);
 
         BLangSimpleVariableDef detailTempVarDef = createVarDef("$error$detail",

@@ -728,7 +728,7 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws, int numNamedArgs, boolean reasonAvailable,
+    void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws, int numNamedArgs, String reasonIdentifier,
                                    boolean restPatternAvailable) {
         BLangErrorVarRef errorVarRef = (BLangErrorVarRef) TreeBuilder.createErrorVariableReferenceNode();
         errorVarRef.pos = pos;
@@ -749,6 +749,7 @@ public class BLangPackageBuilder {
                 BLangErrorVariable errorVariable = (BLangErrorVariable) this.varStack.peek();
                 BLangSimpleVariable simpleVariableNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
                 simpleVariableNode.name = (BLangIdentifier) this.createIdentifier(bindingVarName);
+                simpleVariableNode.pos = pos;
                 BLangErrorVariable.BLangErrorDetailEntry detailEntry =
                         new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, simpleVariableNode);
                 errorVariable.detail.add(detailEntry);
