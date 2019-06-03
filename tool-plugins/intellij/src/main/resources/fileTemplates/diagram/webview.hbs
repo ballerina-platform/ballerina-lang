@@ -13,13 +13,6 @@
                 left: calc(50% - 20px);
                 top: calc(50% - 20px);
             }
-            .loader-container {
-                position: absolute;
-                left: calc(50% - 20px);
-                top: calc(50% - 20px);
-                background: black;
-                opacity: 0.3;
-            }
             {{{styles}}}
         </style>
 
@@ -32,9 +25,9 @@
         <div id="warning"></div>
         <div class="ballerina-editor design-view-container" id="diagram"></div>";
 
-        <script type = "text/JavaScript"> {{{loadedScript}}} </script>
+        <script type = "text/JavaScript"> {{{scripts}}} </script>
+        <script type = "text/JavaScript"> {{{fireBug}}} </script>
         <script charset="UTF-8" src="{{{resourceRoot}}}/font/codepoints.js"></script>
         <script charset="UTF-8" onload="loadedScript();" src="{{{resourceRoot}}}/composer.js"></script>
-        <script type = "text/JavaScript"> {{{fireBug}}} </script>
     </body>
 </html>
