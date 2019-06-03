@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS ComplexTypes(
   blob_type      BLOB(1024),
   clob_type      CLOB(1024),
   binary_type  BINARY(27),
+  bit_type  BIT(64),
   PRIMARY KEY (row_id)
 );
 /
