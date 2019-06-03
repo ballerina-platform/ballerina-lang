@@ -19,6 +19,7 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.uri.DispatcherUtil;
@@ -110,7 +111,7 @@ public class HttpService implements Cloneable {
     }
 
     public String getName() {
-        return balService.getType().getName();
+        return balService.getType().getAnnotationKey(); //TODO fix - rajith
     }
 
     public String getPackage() {
@@ -320,16 +321,16 @@ public class HttpService implements Cloneable {
 
     protected static MapValue getServiceConfigAnnotation(ObjectValue service, String packagePath,
                                                          String annotationName) {
-        MapValue annotation = service.getType().getAnnotation(packagePath, annotationName);
+        ArrayValue annotation = service.getType().getAnnotation(packagePath, annotationName);
 
         if (annotation == null || annotation.isEmpty()) {
             return null;
         }
-        return annotation;
+        return (MapValue) annotation.get(0);
     }
 
     private static boolean hasInterruptibleAnnotation(ObjectValue service) {
-        MapValue annotation = service.getType().getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
+        ArrayValue annotation = service.getType().getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
         return annotation != null && !annotation.isEmpty();
     }
 

@@ -323,8 +323,7 @@ public class HttpUtil {
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseObj);
         HttpService httpService = (HttpService) connectionObj.getNativeData(HttpConstants.HTTP_SERVICE);
         HttpUtil.setCompressionHeaders(httpService.getCompressionConfig(), inboundRequestMsg, outboundResponseMsg);
-        //TODO test with annotations - rajith
-//      HttpUtil.setChunkingHeader(httpService.getChunkingConfig(), outboundResponseMsg);
+        HttpUtil.setChunkingHeader(httpService.getChunkingConfig(), outboundResponseMsg);
     }
 
     public static BMap<String, BValue> createSessionStruct(Context context, Session session) {
@@ -1063,7 +1062,7 @@ public class HttpUtil {
 //    }
 
     public static MapValue getResourceConfigAnnotation(AttachedFunction resource, String pkgPath) {
-        MapValue annotations = resource.getAnnotation(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
+        ArrayValue annotations = resource.getAnnotation(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
 
         if (annotations == null) {
             return null;
@@ -1075,11 +1074,11 @@ public class HttpUtil {
                             resource.parent.getName() + "." + resource.getName());
         }
 
-        return annotations.isEmpty() ? null : annotations;
+        return annotations.isEmpty() ? null : (MapValue) annotations.get(0);
     }
 
     public static MapValue getTransactionConfigAnnotation(AttachedFunction resource, String transactionPackagePath) {
-        MapValue annotation = resource.getAnnotation(transactionPackagePath,
+        ArrayValue annotation = resource.getAnnotation(transactionPackagePath,
                 TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
 
         if (annotation == null || annotation.isEmpty()) {
@@ -1090,7 +1089,7 @@ public class HttpUtil {
                     "multiple transaction configuration annotations found in resource: " +
                             resource.parent.getName() + "." + resource.getName());
         }
-        return annotation;
+        return (MapValue) annotation.get(0);
     }
 
     private static int getIntValue(long val) {
@@ -1185,7 +1184,10 @@ public class HttpUtil {
     }
 
     private static void setChunkingHeader(String transferValue, HttpCarbonMessage outboundResponseMsg) {
-            outboundResponseMsg.setProperty(CHUNKING_CONFIG, getChunkConfig(transferValue));
+        if (transferValue == null) { //TODO check this logic - chamil
+            return;
+        }
+        outboundResponseMsg.setProperty(CHUNKING_CONFIG, getChunkConfig(transferValue));
     }
 
     /**

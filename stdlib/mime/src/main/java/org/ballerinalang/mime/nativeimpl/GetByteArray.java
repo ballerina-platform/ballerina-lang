@@ -99,12 +99,10 @@ public class GetByteArray extends AbstractGetPayloadHandler {
         }
     }
 
-    public static void getByteArray(Strand strand, ObjectValue entityObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
+    public static Object getByteArray(Strand strand, ObjectValue entityObj) {
+        NonBlockingCallback callback = null;
+        ArrayValue result = null;
         try {
-            ArrayValue result = null;
             Object messageDataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (messageDataSource != null) {
                 if (messageDataSource instanceof ArrayValue) {
@@ -122,20 +120,21 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                         }
                     }
                 }
-                setReturnValuesAndNotify(callback, result != null ? result : new BValueArray(new byte[0]));
-                return;
+                return result != null ? result : new BValueArray(new byte[0]);
             }
 
             Object transportMessage = entityObj.getNativeData(TRANSPORT_MESSAGE);
             if (isStreamingRequired(entityObj) || transportMessage == null) {
                 result = EntityBodyHandler.constructBlobDataSource(entityObj);
-                updateDataSourceAndNotify(callback, entityObj, result);
+                updateDataSource(entityObj, result);
             } else {
+                callback = new NonBlockingCallback(strand);
                 constructNonBlockingDataSource(callback, entityObj, SourceType.BLOB);
             }
         } catch (Exception ex) {
             createErrorAndNotify(callback,
                                  "Error occurred while extracting blob data from entity : " + ex.getMessage());
         }
+        return result;
     }
 }
