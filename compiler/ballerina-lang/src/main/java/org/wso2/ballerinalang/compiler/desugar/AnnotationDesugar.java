@@ -402,7 +402,8 @@ public class AnnotationDesugar {
                                                                           ASTBuilderUtil.createEmptyRecordLiteral(
                                                                                   pkgNode.pos, symTable.mapType), null);
         ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol, names);
-        pkgNode.addGlobalVariable(annotationMap);
+        pkgNode.globalVars.add(0, annotationMap); // TODO fix this
+        pkgNode.topLevelNodes.add(0, annotationMap);
         return annotationMap;
     }
 

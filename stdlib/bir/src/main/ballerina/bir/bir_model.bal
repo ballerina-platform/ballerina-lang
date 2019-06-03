@@ -39,6 +39,11 @@ public type TypeDef record {
     Function?[]? attachedFuncs = ();
 };
 
+public type TypeRef record {|
+    Name name = {};
+    ModuleID externalPkg;
+|};
+
 public type Function record {|
     DiagnosticPos pos;
     int argsCount = 0;
@@ -299,6 +304,7 @@ public type BErrorType record {|
 |};
 
 public type BRecordType record {|
+    ModuleID moduleId = {};
     Name name = {};
     boolean sealed;
     BType restFieldType;
@@ -307,10 +313,12 @@ public type BRecordType record {|
 |};
 
 public type BObjectType record {|
+    ModuleID moduleId = {};
     Name name = {};
     boolean isAbstract = false;
     BObjectField?[] fields = [];
     BAttachedFunction?[] attachedFunctions = [];
+    BAttachedFunction? constructor;
 |};
 
 public type Self record {|
@@ -351,6 +359,7 @@ public type BFutureType record {|
 
 public type BFiniteType record {|
     Name name = {};
+    Visibility visibility;
     (int | string | boolean | float | byte| ()) [] values;
 |};
 
@@ -412,7 +421,8 @@ public type NewMap record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
-    BType typeValue;
+    BType bType;
+    TypeRef? typeRef;
 |};
 
 public type NewTable record {|
@@ -437,7 +447,7 @@ public type NewStream record {|
 public type NewInstance record {|
     DiagnosticPos pos;
     InstructionKind kind;
-    TypeDef typeDef;
+    TypeDef|TypeRef typeDefRef;
     VarRef lhsOp;
 |};
 

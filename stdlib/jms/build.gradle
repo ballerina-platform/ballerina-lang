@@ -47,12 +47,3 @@ copyBuiltin.dependsOn createBalHome
 createBalo.dependsOn copyBuiltin
 
 description = 'Ballerina - JMS'
-
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-}

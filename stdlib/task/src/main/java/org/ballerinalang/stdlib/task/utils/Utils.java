@@ -62,6 +62,10 @@ import static org.quartz.CronExpression.isValidExpression;
  */
 public class Utils {
 
+    // valid resource count is set to to because the init function is also received as
+    // an attached function.
+    private static final int VALID_RESOURCE_COUNT = 2;
+
     private static BError createError(Context context, String message) {
         BMap<String, BValue> taskErrorRecord = createTaskErrorRecord(context);
         taskErrorRecord.put(TASK_ERROR_MESSAGE, new BString(message));
@@ -168,7 +172,7 @@ public class Utils {
     //TODO Remove after migration : implemented using bvm values/types
     public static void validateService(Service service) throws BLangRuntimeException {
         Resource[] resources = service.getResources();
-        if (resources.length != 1) {
+        if (resources.length != VALID_RESOURCE_COUNT) {
             throw new BLangRuntimeException("Invalid number of resources found in service \'" + service.getName()
                     + "\'. Task service should include only one resource.");
         }
@@ -185,7 +189,7 @@ public class Utils {
     public static void validateService(ObjectValue service) throws
                               org.ballerinalang.jvm.util.exceptions.BLangRuntimeException {
         AttachedFunction[] resources = service.getType().getAttachedFunctions();
-        if (resources.length != 1) {
+        if (resources.length != VALID_RESOURCE_COUNT) {
             throw new org.ballerinalang.jvm.util.exceptions.BLangRuntimeException(
                     "Invalid number of resources found in service \'" + service.getType().getName()
                             + "\'. Task service should include only one resource.");

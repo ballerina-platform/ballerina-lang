@@ -227,6 +227,11 @@ public abstract class BIRNode {
         public boolean isInterface;
 
         /**
+         * Indicate whether this is a remote function or not.
+         */
+        public boolean isRemote;
+
+        /**
          * Visibility of this function.
          * 0 - package_private
          * 1 - private

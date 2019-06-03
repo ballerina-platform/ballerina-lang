@@ -19,11 +19,11 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-http:0.992.0-m1'
     implementation 'org.ballerinalang:ballerina-builtin:0.992.0-m1'
     baloCreat project(':lib-creator-milestone')
     implementation project(':ballerina-core')
 //    implementation project(':ballerina-lang')
-    implementation project(':ballerina-http')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-crypto')
@@ -31,7 +31,6 @@ dependencies {
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-config-api')
-    implementation project(':ballerina-http')
     implementation project(':ballerina-sql')
     implementation project(':ballerina-h2')
     implementation project(":ballerina-launcher")
@@ -76,18 +75,5 @@ task copyBuiltin(type: Copy) {
 
 copyBuiltin.dependsOn createBalHome
 createBalo.dependsOn copyBuiltin
-
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
-}
 
 description = 'Ballerina - WebSub'

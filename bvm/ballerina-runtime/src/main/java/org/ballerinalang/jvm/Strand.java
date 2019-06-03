@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
@@ -42,6 +41,7 @@ public class Strand {
     public Object[] frames;
     public int resumeIndex;
     public Future future;
+    public Object returnValue;
     public boolean blocked;
     public List<Strand> blockedOn;
     public Scheduler scheduler;
@@ -89,7 +89,7 @@ public class Strand {
     }
 
     public void setReturnValues(Object returnValue) {
-        this.future = CompletableFuture.completedFuture(returnValue);
+        this.returnValue = returnValue;
     }
 
     public Object getProperty(String key) {

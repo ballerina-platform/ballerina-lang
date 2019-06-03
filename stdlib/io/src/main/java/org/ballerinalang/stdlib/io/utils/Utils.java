@@ -23,6 +23,8 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -36,7 +38,6 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -194,26 +195,25 @@ public class Utils {
      * @param input          Represent a BValue which can be of type blob, string or byte channel
      * @param charset        Represent the charset value to be used with string
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
+     * @return encoded value
      */
     @SuppressWarnings("unchecked")
-    public static void encode(BValue input, String charset, boolean isMimeSpecific) {
-        switch (input.getType().getTag()) {
-            case TypeTags.ARRAY_TAG:
-                encodeBlob(((BValueArray) input).getBytes(), isMimeSpecific);
-                break;
-            case TypeTags.OBJECT_TYPE_TAG:
-            case TypeTags.RECORD_TYPE_TAG:
+    public static Object encode(Object input, String charset, boolean isMimeSpecific) {
+        switch (TypeChecker.getType(input).getTag()) {
+            case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
+                return encodeBlob(((ArrayValue) input).getBytes(), isMimeSpecific);
+            case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
+            case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
                 //TODO : recheck following casing
                 ObjectValue byteChannel = (ObjectValue) input;
                 if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
-                    encodeByteChannel(byteChannel, isMimeSpecific);
+                    return encodeByteChannel(byteChannel, isMimeSpecific);
                 }
-                break;
-            case TypeTags.STRING_TAG:
-                encodeString(input.stringValue(), charset, isMimeSpecific);
-                break;
+                return Utils.createBase64Error("incompatible object", isMimeSpecific);
+            case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
+                return encodeString(input.toString(), charset, isMimeSpecific);
             default:
-                break;
+                return Utils.createBase64Error("incompatible input", isMimeSpecific);
         }
     }
 
@@ -250,21 +250,19 @@ public class Utils {
      * @param encodedInput   Represent an encoded BValue which can be of type blob, string or byte channel
      * @param charset        Represent the charset value to be used with string
      * @param isMimeSpecific A boolean indicating whether the decoder should be mime specific or not
+     * @return decoded value
      */
-    public static void decode(BValue encodedInput, String charset, boolean isMimeSpecific) {
-        switch (encodedInput.getType().getTag()) {
-            case TypeTags.ARRAY_TAG:
-                decodeBlob(((BValueArray) encodedInput).getBytes(), isMimeSpecific);
-                break;
-            case TypeTags.OBJECT_TYPE_TAG:
-            case TypeTags.RECORD_TYPE_TAG:
-                decodeByteChannel((ObjectValue) encodedInput, isMimeSpecific);
-                break;
-            case TypeTags.STRING_TAG:
-                decodeString(encodedInput, charset, isMimeSpecific);
-                break;
+    public static Object decode(Object encodedInput, String charset, boolean isMimeSpecific) {
+        switch (TypeChecker.getType(encodedInput).getTag()) {
+            case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
+                return decodeBlob(((ArrayValue) encodedInput).getBytes(), isMimeSpecific);
+            case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
+            case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
+                return decodeByteChannel((ObjectValue) encodedInput, isMimeSpecific);
+            case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
+                return decodeString(encodedInput, charset, isMimeSpecific);
             default:
-                break;
+                return Utils.createBase64Error("incompatible input", isMimeSpecific);
         }
     }
 
@@ -346,14 +344,14 @@ public class Utils {
      * @param charset           Represent the charset value to be used with string
      * @param isMimeSpecific    A boolean indicating whether the decoder should be mime specific or not
      */
-    private static Object decodeString(BValue stringToBeDecoded, String charset, boolean isMimeSpecific) {
+    private static Object decodeString(Object stringToBeDecoded, String charset, boolean isMimeSpecific) {
         try {
             byte[] decodedValue;
             if (isMimeSpecific) {
-                decodedValue = Base64.getMimeDecoder().decode(stringToBeDecoded.stringValue()
+                decodedValue = Base64.getMimeDecoder().decode(stringToBeDecoded.toString()
                                                                       .getBytes(StandardCharsets.ISO_8859_1));
             } else {
-                decodedValue = Base64.getDecoder().decode(stringToBeDecoded.stringValue()
+                decodedValue = Base64.getDecoder().decode(stringToBeDecoded.toString()
                                                                   .getBytes(StandardCharsets.ISO_8859_1));
             }
            return new String(decodedValue, charset);

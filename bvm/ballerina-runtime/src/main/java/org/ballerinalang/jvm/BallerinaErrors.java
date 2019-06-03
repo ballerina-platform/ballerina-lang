@@ -56,7 +56,7 @@ public class BallerinaErrors {
         return new ErrorValue(reason, detailMap);
     }
 
-    public static ErrorValue createError(String reason, MapValueImpl detailMap) {
+    public static ErrorValue createError(String reason, MapValue detailMap) {
         return new ErrorValue(reason, detailMap);
     }
 
@@ -104,7 +104,7 @@ public class BallerinaErrors {
         values[1] = stackTraceElement.getClassName();
         values[2] = stackTraceElement.getFileName();
         values[3] = stackTraceElement.getLineNumber();
-        return BallerinaValues.populateRecordFields(
+        return BallerinaValues.createRecord(
                 BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT), values);
     }
 }

@@ -19,13 +19,13 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    implementation 'org.ballerinalang:ballerina-http:0.992.0-m1'
     baloCreat project(':lib-creator-milestone')
     implementation project(':ballerina-core')
 //    implementation project(':ballerina-lang')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-config')
     implementation project(':ballerina-config-api')
-    implementation project(':ballerina-http')
 //    implementation project(':lib-creator')
     implementation 'org.apache.commons:commons-lang3'
     implementation 'com.google.protobuf:protobuf-java'
@@ -51,20 +51,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - gRPC Implementation'
 
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
-}

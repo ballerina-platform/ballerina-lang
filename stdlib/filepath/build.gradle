@@ -53,17 +53,3 @@ copyBuiltin.dependsOn createBalHome
 createBalo.dependsOn copyBuiltin
 
 description = 'Ballerina - File Path Implementation'
-
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "java.util.logging.config.file", "$buildDir/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
-}

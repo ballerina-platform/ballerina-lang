@@ -59,14 +59,5 @@ task copyBuiltin(type: Copy) {
 copyBuiltin.dependsOn createBalHome
 createBalo.dependsOn copyBuiltin
 
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-}
-
 description = 'Ballerina - ActiveMQ Artemis'
 

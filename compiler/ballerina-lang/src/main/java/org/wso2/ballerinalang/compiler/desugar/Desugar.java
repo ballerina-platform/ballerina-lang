@@ -4961,7 +4961,7 @@ public class Desugar extends BLangNodeVisitor {
                 return getFloatLiteral(0.0);
             case TypeTags.BYTE:
             case TypeTags.INT:
-                return getFloatLiteral(0);
+                return getIntLiteral(0);
             case TypeTags.DECIMAL:
                 return getDecimalLiteral("0.0");
             case TypeTags.FINITE:

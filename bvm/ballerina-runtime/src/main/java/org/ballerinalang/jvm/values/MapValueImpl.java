@@ -132,6 +132,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return (ArrayValue) get(key);
     }
 
+    public long getDefaultableIntValue(String key) {
+        if (get(key) != null) {
+            return getIntValue(key);
+        }
+        return 0;
+    }
+
     /**
      * Retrieve the value for the given key from map.
      * A {@link BallerinaException} will be thrown if the key does not exists.

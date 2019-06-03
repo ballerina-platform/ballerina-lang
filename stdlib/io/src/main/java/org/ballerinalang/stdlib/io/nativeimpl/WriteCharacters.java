@@ -121,20 +121,15 @@ public class WriteCharacters implements NativeCallableUnit {
     }
 
     public static Object write(Strand strand, ObjectValue channel, String content, long startOffset) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
         CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(
                 IOConstants.CHARACTER_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(callback);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
         WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, content, (int) startOffset,
                                                               eventContext);
         Register register = EventRegister.getFactory().register(event, WriteCharacters::writeCharResponse);
         eventContext.setRegister(register);
         register.submit();
-        //TODO : Remove callback once strand non-blocking support is given
-        callback.sync();
-        return callback.getReturnValue();
+        return null;
     }
 
     /**
@@ -145,7 +140,6 @@ public class WriteCharacters implements NativeCallableUnit {
      */
     private static EventResult writeCharResponse(EventResult<Integer, EventContext> result) {
         EventContext eventContext = result.getContext();
-        //TODO : Remove callback once strand non-blocking support is given
         NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         Throwable error = eventContext.getError();
         if (null != error) {

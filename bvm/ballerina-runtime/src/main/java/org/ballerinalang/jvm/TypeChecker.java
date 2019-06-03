@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.types.BFutureType;
 import org.ballerinalang.jvm.types.BJSONType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -547,6 +548,9 @@ public class TypeChecker {
 
     private static boolean checkObjectEquivalency(BType sourceType, BObjectType targetType,
                                                   List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
+            return false;
+        }
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(sourceType, targetType);
@@ -579,9 +583,9 @@ public class TypeChecker {
         for (BField lhsField : targetFields.values()) {
             BField rhsField = sourceFields.get(lhsField.name);
             if (rhsField == null ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackagePath()).orElse(""),
-                                              Optional.ofNullable(rhsField.type.getPackagePath()).orElse(""),
-                                              lhsField.flags, rhsField.flags) ||
+                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage().name).orElse(""),
+                            Optional.ofNullable(rhsField.type.getPackage().name).orElse(""),
+                            lhsField.flags, rhsField.flags) ||
                     !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
                 return false;
             }
@@ -594,9 +598,11 @@ public class TypeChecker {
 
             AttachedFunction rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackagePath()).orElse(""),
-                                              Optional.ofNullable(rhsFunc.type.getPackagePath()).orElse(""),
-                                              lhsFunc.flags, rhsFunc.flags)) {
+                    !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackage())
+                                    .map(BPackage::getName)
+                                    .orElse(""),
+                            Optional.ofNullable(rhsFunc.type.getPackage()).map(BPackage::getName).orElse(""),
+                            lhsFunc.flags, rhsFunc.flags)) {
                 return false;
             }
         }

@@ -647,17 +647,29 @@ type InstructionGenerator object {
     }
 
     function generateMapNewIns(bir:NewMap mapNewIns) {
-        bir:BType typeOfMapNewIns = mapNewIns.typeValue;
+        bir:BType typeOfMapNewIns = mapNewIns.bType;
 
         string className = MAP_VALUE_IMPL;
 
         if (typeOfMapNewIns is bir:BRecordType) {
-            className = self.currentPackageName + cleanupTypeName(typeOfMapNewIns.name.value);
+            var typeRef = mapNewIns.typeRef;
+            className = self.currentPackageName;
+            if (typeRef is bir:TypeRef) {
+                className = typeRefToClassName(typeRef) + "/";
+            }
+            className = className + cleanupTypeName(typeOfMapNewIns.name.value);
+            self.mv.visitTypeInsn(NEW, className);
+            self.mv.visitInsn(DUP);
+            if (typeRef is bir:TypeRef) {
+                loadExternalOrLocalType(self.mv, typeRef);
+            } else {
+                loadType(self.mv, mapNewIns.bType);
+            }
+        } else {
+            self.mv.visitTypeInsn(NEW, className);
+            self.mv.visitInsn(DUP);
+            loadType(self.mv, mapNewIns.bType);
         }
-
-        self.mv.visitTypeInsn(NEW, className);
-        self.mv.visitInsn(DUP);
-        loadType(self.mv, mapNewIns.typeValue);
         self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(mapNewIns.lhsOp.variableDcl);
     }
@@ -720,6 +732,9 @@ type InstructionGenerator object {
             self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
                     io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
+        } else if (varRefType is bir:BRecordType) {
+            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
+                    io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
         } else {
             self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "getOrThrow",
                     io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
@@ -882,10 +897,16 @@ type InstructionGenerator object {
     }
 
     function generateObjectNewIns(bir:NewInstance objectNewIns) {
-        string className = self.currentPackageName + cleanupTypeName(objectNewIns.typeDef.name.value);
+        var typeDefRef = objectNewIns.typeDefRef;
+        bir:TypeDef typeDef = lookupTypeDef(typeDefRef);
+        string className = self.currentPackageName;
+        if (typeDefRef is bir:TypeRef) {
+            className = typeRefToClassName(typeDefRef) + "/";
+        }
+        className = className + cleanupTypeName(typeDef.name.value);
         self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
-        loadType(self.mv, objectNewIns.typeDef.typeValue);
+        loadExternalOrLocalType(self.mv, typeDefRef);
         self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
         self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
         self.storeToVar(objectNewIns.lhsOp.variableDcl);
@@ -1161,6 +1182,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BJSONType ||
                 bType is bir:BFutureType ||
                 bType is bir:BObjectType ||
+                bType is bir:BServiceType ||
                 bType is bir:BTypeDecimal ||
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
@@ -1208,6 +1230,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BJSONType ||
                     bType is bir:BFutureType ||
                     bType is bir:BObjectType ||
+                    bType is bir:BServiceType ||
                     bType is bir:BXMLType ||
                     bType is bir:BInvokableType ||
                     bType is bir:BFiniteType ||

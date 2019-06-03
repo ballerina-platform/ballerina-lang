@@ -18,6 +18,9 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
@@ -54,15 +57,30 @@ public class HasPromise extends AbstractHTTPAction {
         HttpClientConnector clientConnector = (HttpClientConnector) ((BMap<String, BValue>) bConnector.values()[0])
                 .getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.hasPushPromise(responseHandle).
-                setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(context, callback));
+                setPromiseAvailabilityListener(new BPromiseAvailabilityCheckListener(context, callback));
     }
 
-    private static class PromiseAvailabilityCheckListener implements HttpClientConnectorListener {
+    public static void hasPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
+
+        ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
+        if (responseHandle == null) {
+            throw new BallerinaException("invalid http handle");
+        }
+        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
+        clientConnector.hasPushPromise(responseHandle).
+                setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(callback));
+        //TODO This is temporary fix to handle non blocking call
+        callback.sync();
+    }
+
+    private static class BPromiseAvailabilityCheckListener implements HttpClientConnectorListener {
 
         private Context context;
         private CallableUnitCallback callback;
 
-        PromiseAvailabilityCheckListener(Context context, CallableUnitCallback callback) {
+        BPromiseAvailabilityCheckListener(Context context, CallableUnitCallback callback) {
             this.context = context;
             this.callback = callback;
         }
@@ -70,6 +88,22 @@ public class HasPromise extends AbstractHTTPAction {
         @Override
         public void onPushPromiseAvailability(boolean isPromiseAvailable) {
             context.setReturnValues(new BBoolean(isPromiseAvailable));
+            callback.notifySuccess();
+        }
+    }
+
+    private static class PromiseAvailabilityCheckListener implements HttpClientConnectorListener {
+
+        private NonBlockingCallback callback;
+
+        PromiseAvailabilityCheckListener(NonBlockingCallback callback) {
+            this.callback = callback;
+        }
+
+        @Override
+        public void onPushPromiseAvailability(boolean isPromiseAvailable) {
+            //TODO remove this call back
+            callback.setReturnValues(isPromiseAvailable);
             callback.notifySuccess();
         }
     }

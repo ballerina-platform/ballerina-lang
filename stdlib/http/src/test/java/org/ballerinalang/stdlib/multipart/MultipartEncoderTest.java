@@ -24,7 +24,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.mime.util.MultipartDataSource;
+import org.ballerinalang.mime.util.MultipartBDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
@@ -92,7 +92,7 @@ public class MultipartEncoderTest {
         BMap<String, BValue> multipartEntity = getMultipartEntity(result);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        MultipartDataSource multipartDataSource = new MultipartDataSource(multipartEntity, multipartDataBoundary);
+        MultipartBDataSource multipartDataSource = new MultipartBDataSource(multipartEntity, multipartDataBoundary);
         multipartDataSource.serialize(outputStream);
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
@@ -113,7 +113,7 @@ public class MultipartEncoderTest {
         BMap<String, BValue> multipartEntity = getMultipartEntity(result);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        MultipartDataSource multipartDataSource = new MultipartDataSource(multipartEntity, multipartDataBoundary);
+        MultipartBDataSource multipartDataSource = new MultipartBDataSource(multipartEntity, multipartDataBoundary);
         multipartDataSource.serialize(outputStream);
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
@@ -134,7 +134,8 @@ public class MultipartEncoderTest {
         BMap<String, BValue> nestedMultipartEntity = getNestedMultipartEntity(result);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        MultipartDataSource multipartDataSource = new MultipartDataSource(nestedMultipartEntity, multipartDataBoundary);
+        MultipartBDataSource multipartDataSource = new MultipartBDataSource(nestedMultipartEntity,
+                                                                            multipartDataBoundary);
         multipartDataSource.serialize(outputStream);
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
@@ -170,7 +171,7 @@ public class MultipartEncoderTest {
         BMap<String, BValue> bodyPart = getEntityStruct(result);
         BMap<String, BValue> contentDispositionStruct = getContentDispositionStruct(result);
         MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
-                "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
+                                   "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
         BMap<String, BValue> contentDisposition =
                 (BMap<String, BValue>) bodyPart.get(CONTENT_DISPOSITION_FIELD);
         Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_FILENAME_FIELD).stringValue(),

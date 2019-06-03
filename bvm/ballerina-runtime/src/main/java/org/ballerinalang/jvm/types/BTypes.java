@@ -26,27 +26,29 @@ import java.util.Arrays;
  * @since 0.995.0
  */
 public class BTypes {
-    public static BType typeInt = new BIntegerType(TypeConstants.INT_TNAME, null);
-    public static BType typeByte = new BByteType(TypeConstants.BYTE_TNAME, null);
-    public static BType typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, null);
-    public static BType typeDecimal = new BDecimalType(TypeConstants.DECIMAL_TNAME, null);
-    public static BType typeString = new BStringType(TypeConstants.STRING_TNAME, null);
-    public static BType typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, null);
-    public static BType typeXML = new BXMLType(TypeConstants.XML_TNAME, null);
-    public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, null);
-    public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, null);
-    public static BType typeAnydata = new BAnydataType(TypeConstants.ANYDATA_TNAME, null);
-    // public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, typeAny, null);
-    public static BType typeTypedesc = new BTypedescType(TypeConstants.TYPEDESC_TNAME, null);
-    public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null);
-    public static BType typeTable = new BTableType(TypeConstants.TABLE_TNAME, typeAnydata, null);
-    public static BType typeFuture = new BFutureType(TypeConstants.FUTURE_TNAME, null);
-    public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, null);
-    public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null);
-    public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, null);
+    public static BType typeInt = new BIntegerType(TypeConstants.INT_TNAME, new BPackage(null, null));
+    public static BType typeByte = new BByteType(TypeConstants.BYTE_TNAME, new BPackage(null, null));
+    public static BType typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, new BPackage(null, null));
+    public static BType typeDecimal = new BDecimalType(TypeConstants.DECIMAL_TNAME, new BPackage(null, null));
+    public static BType typeString = new BStringType(TypeConstants.STRING_TNAME, new BPackage(null, null));
+    public static BType typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, new BPackage(null, null));
+    public static BType typeXML = new BXMLType(TypeConstants.XML_TNAME, new BPackage(null, null));
+    public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, new BPackage(null, null));
+    public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, new BPackage(null, null));
+    public static BType typeAnydata = new BAnydataType(TypeConstants.ANYDATA_TNAME, new BPackage(null, null));
+//     public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, typeAny, new BPackage(null, null));
+    public static BType typeTypedesc = new BTypedescType(TypeConstants.TYPEDESC_TNAME, new BPackage(null, null));
+    public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, new BPackage(null, null));
+    public static BType typeTable = new BTableType(TypeConstants.TABLE_TNAME, typeAnydata, new BPackage(null, null));
+    public static BType typeFuture = new BFutureType(TypeConstants.FUTURE_TNAME, new BPackage(null, null));
+    public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, new BPackage(null, null));
+    public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME,
+                                                                   new BPackage(null, null));
+    public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, new BPackage(null, null));
     // public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
-    public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, null, typeString, typeMap);
-    public static BType typeAnyService = new BServiceType(TypeConstants.SERVICE, null);
+    public static BType typeAnyService = new BServiceType(TypeConstants.SERVICE, new BPackage(null, null));
+    public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null, null), typeString,
+                                                        typeMap);
     public static BType typePureType = new BUnionType(new ArrayList<>(Arrays.asList(typeAnydata, typeError)));
 
     private BTypes() {
