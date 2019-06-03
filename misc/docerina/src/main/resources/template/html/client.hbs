@@ -62,14 +62,12 @@
                 {{/if}}
 
                 {{#if client.remoteMethods }}
-                    <h2>Remote Methods</h2>
                     {{#each client.remoteMethods }}
                         {{> method }}
                     {{/each}}
                 {{/if}}
 
                 {{#if client.otherMethods }}
-                    <h2>Methods</h2>
                     {{#each client.otherMethods }}
                         {{> method }}
                     {{/each}}
