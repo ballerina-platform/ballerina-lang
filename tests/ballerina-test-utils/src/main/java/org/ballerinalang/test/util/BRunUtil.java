@@ -20,6 +20,7 @@ package org.ballerinalang.test.util;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
@@ -342,6 +343,9 @@ public class BRunUtil {
                 case TypeTags.MAP_TAG:
                     typeClazz = MapValue.class;
                     break;
+                case TypeTags.OBJECT_TYPE_TAG:
+                    typeClazz = ObjectValue.class;
+                    break;
                 default:
                     throw new RuntimeException("Function signature type '" + type + "' is not supported");
             }
@@ -470,6 +474,19 @@ public class BRunUtil {
                     jvmRecord.put(entry.getKey(), jvmVal);
                 }
                 return jvmRecord;
+            case TypeTags.OBJECT_TYPE_TAG:
+                String ObjPackagePath = type.tsymbol.pkgID.toString();
+                String ObjName = type.tsymbol.getName().getValue();
+
+                ObjectValue jvmObject = BallerinaValues.createObjectValue(ObjPackagePath, ObjName);
+                HashMap<String, Object> nativeData = ((BMap) value).getNativeData();
+                if (nativeData == null) {
+                    return jvmObject;
+                }
+                for (String key : nativeData.keySet()) {
+                    jvmObject.addNativeData(key, nativeData.get(key));
+                }
+                return jvmObject;
             default:
                 throw new RuntimeException("Function signature type '" + type + "' is not supported");
         }
@@ -794,6 +811,14 @@ public class BRunUtil {
                 bvmValueMap.put(String.valueOf(value.hashCode()), bvmObject);
                 for (String key : jvmObjectType.getFields().keySet()) {
                     bvmObject.put(key, getBVMValue(jvmObject.get(key), bvmValueMap));
+                }
+
+                HashMap<String, Object> nativeData = jvmObject.getNativeData();
+                if (nativeData == null) {
+                    return bvmObject;
+                }
+                for (String key : nativeData.keySet()) {
+                    bvmObject.addNativeData(key, nativeData.get(key));
                 }
                 return bvmObject;
             case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
