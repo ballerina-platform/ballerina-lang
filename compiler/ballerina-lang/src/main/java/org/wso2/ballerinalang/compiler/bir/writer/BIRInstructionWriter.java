@@ -286,13 +286,7 @@ public class BIRInstructionWriter extends BIRVisitor {
                 break;
             case TypeTags.BYTE:
                 // TODO: birConstantLoad.value should return an Integer. This is a temporary fix
-                int byteValue;
-                if (birConstantLoad.value instanceof Long) {
-                    byteValue = ((Long) birConstantLoad.value).intValue();
-                } else {
-                    byteValue = ((Byte) birConstantLoad.value).intValue();
-                }
-
+                int byteValue = ((Number) birConstantLoad.value).intValue();
                 buf.writeInt(cp.addCPEntry(new ByteCPEntry(byteValue)));
                 break;
             case TypeTags.BOOLEAN:
