@@ -47,56 +47,48 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
     }
 
     @Override
-    public CompletableFuture<BallerinaASTResponse> modules (BallerinaASTRequest request) {
+    public CompletableFuture<ModulesResponse> modules (ModulesRequest request) {
 
-        BallerinaASTResponse reply = new BallerinaASTResponse();
-        String sourceRoot = request.getDocumentIdentifier().getUri();
-        Optional<Lock> lock = documentManager.lockFile(Paths.get(sourceRoot));
+        ModulesResponse reply = new ModulesResponse();
+        String sourceRoot = request.getSourceRoot();
         try {
             LSContext astContext = new LSServiceOperationContext();
             astContext.put(DocumentServiceKeys.SOURCE_ROOT_KEY, sourceRoot);
             List<BLangPackage> modules = lsCompiler.getBLangModules(astContext, this.documentManager, true,
                     LSCustomErrorStrategy.class);
             JsonObject jsonModulesInfo = getJsonReply(astContext, modules);
-            reply.setAst(jsonModulesInfo);
+            reply.setModules(jsonModulesInfo);
             reply.setParseSuccess(true);
         } catch (JSONGenerationException | URISyntaxException e) {
             reply.setParseSuccess(false);
-        } finally {
-            lock.ifPresent(Lock::unlock);
         }
         return CompletableFuture.supplyAsync(() -> reply);
     }
 
     private JsonObject getJsonReply(LSContext astContext, List<BLangPackage> modules) throws JSONGenerationException {
-        JsonObject jsonModulesInfo = new JsonObject();
         JsonObject jsonModules = new JsonObject();
 
         for (BLangPackage module : modules) {
             JsonObject jsonModule = new JsonObject();
+            jsonModule.addProperty("name", module.symbol.name.value);
             CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
 
             VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
             visibleEndpointVisitor.visit(module);
             Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
 
-            JsonArray topLevelNodes = new JsonArray();
-
+            JsonObject jsonCUnits = new JsonObject();
             for (BLangCompilationUnit cUnit: module.getCompilationUnits()) {
                 JsonObject jsonCUnit = new JsonObject();
-                for (TopLevelNode node : cUnit.topLevelNodes) {
-                    JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(
-                            node, new HashMap<>(), visibleEPsByNode);
-                    topLevelNodes.add(jsonAST);
-                }
-                jsonCUnit.add("topLevelNodes", topLevelNodes);
-                jsonModule.add(cUnit.name, topLevelNodes);
+                jsonCUnit.addProperty("name", cUnit.name);
+                JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(cUnit, new HashMap<>(), visibleEPsByNode);
+                jsonCUnit.add("ast", jsonAST);
+                jsonCUnits.add(cUnit.name, jsonCUnit);
             }
+            jsonModule.add("compilationUnits", jsonCUnits);
             jsonModules.add(module.symbol.name.value, jsonModule);
         }
 
-
-        jsonModulesInfo.add("modules", jsonModules);
-        return jsonModulesInfo;
+        return jsonModules;
     }
 }

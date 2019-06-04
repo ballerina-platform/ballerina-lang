@@ -100,7 +100,8 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     let context = <ExtensionContext> ballerinaExtInstance.context;
-    let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+	let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
 		return ballerinaExtInstance.onReady()
 		.then(() => {

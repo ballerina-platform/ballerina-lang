@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "0.990.4",
+    "version": "0.992.0",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -224,7 +224,17 @@
             },
             {
                 "command": "ballerina.showTraces",
-                "title": "Ballerina: Show Network logs"
+                "title": "Show Network logs",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.showProjectOverview",
+                "title": "Show Project Overview",
+                "icon": {
+                    "dark": "./resources/images/icons/design-view-inverse.svg",
+                    "light": "./resources/images/icons/design-view.svg"
+                },
+                "category": "Ballerina"
             }
         ],
         "menus": {

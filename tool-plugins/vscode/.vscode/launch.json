@@ -13,9 +13,9 @@
             "--extensionDevelopmentPath=${workspaceFolder}"
         ],
         "env": {
-            "LS_CUSTOM_CLASSPATH": "", 
-            "LSDEBUG": "false",
-            "COMPOSER_DEBUG": "false",
+            "LS_CUSTOM_CLASSPATH": "/Users/aruna/projects/ballerina-lang/language-server/modules/langserver-core/target/*:/Users/aruna/projects/ballerina-lang/language-server/modules/langserver-compiler/target/*",
+            "LSDEBUG": "true",
+            "COMPOSER_DEBUG": "true",
             "COMPOSER_DEV_HOST": "http://localhost:9000"
         },
         "outFiles": [

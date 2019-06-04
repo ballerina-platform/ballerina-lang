@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 // tslint:disable-next-line:no-submodule-imports
 import { renderToStaticMarkup } from "react-dom/server";
 import { Diagram, DiagramProps, EditableDiagram,
-    EditableDiagramProps } from "./diagram";
+    EditableDiagramProps, Overview } from "./diagram";
 
 export interface EditableDiagramArgs {
     target: HTMLElement;
@@ -24,4 +24,14 @@ export const renderStaticDiagram = (args: StaticDiagramArgs) => {
     const BalDiagramElement = createElement(Diagram, args.diagramProps);
     // render static markup to target element
     args.target.innerHTML = renderToStaticMarkup(BalDiagramElement);
+};
+
+export const renderOverview = (args: EditableDiagramArgs) => {
+    console.log("crasfd")
+    args.editorProps.langClient.getProjectAST({sourceRoot: args.editorProps.docUri}).then((result) => {
+        console.log(result, "<--->");
+        const { modules } = result;
+        const BalDiagramElement = createElement(Overview, { modules });
+        return ReactDOM.render(BalDiagramElement, args.target);
+    });
 };

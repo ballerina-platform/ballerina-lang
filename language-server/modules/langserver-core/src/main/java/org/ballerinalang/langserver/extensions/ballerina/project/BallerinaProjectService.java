@@ -15,5 +15,5 @@ import java.util.concurrent.CompletableFuture;
 @JsonSegment("ballerinaProject")
 public interface BallerinaProjectService {
     @JsonRequest
-    CompletableFuture<BallerinaASTResponse> modules(BallerinaASTRequest request);
+    CompletableFuture<ModulesResponse> modules(ModulesRequest request);
 }
