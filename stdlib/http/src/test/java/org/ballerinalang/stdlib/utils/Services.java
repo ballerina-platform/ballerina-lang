@@ -40,10 +40,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
-import static org.ballerinalang.net.http.HttpConstants.SERVER_NAME;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
-import static org.ballerinalang.net.http.HttpUtil.getServerName;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -71,14 +68,6 @@ public class Services {
 
         HTTPServicesRegistry httpServicesRegistry =
                 (HTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
-        if (connectorEndpoint.getMap().get(CLIENT_ENDPOINT_CONFIG).toString().contains(SERVER_NAME)) {
-            BMap config = (BMap) connectorEndpoint.getMap().get(CLIENT_ENDPOINT_CONFIG);
-            if (config.get(SERVER_NAME).stringValue().isEmpty()) {
-                request.setHeader(SERVER_NAME, getServerName());
-            } else {
-                request.setHeader(SERVER_NAME, config.get(SERVER_NAME).stringValue());
-            }
-        }
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
         HttpResource resource = null;

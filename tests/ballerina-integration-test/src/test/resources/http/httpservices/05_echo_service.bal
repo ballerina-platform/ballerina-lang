@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/log;
 
-listener http:Listener echoEP1 = new(9094);
+listener http:Listener echoEP1 = new(9094, config = {server: "Mysql"});
 
 @http:ServiceConfig {
     basePath:"/echo"

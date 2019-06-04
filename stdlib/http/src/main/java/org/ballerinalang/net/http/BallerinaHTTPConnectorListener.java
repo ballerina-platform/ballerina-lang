@@ -35,8 +35,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.net.http.HttpConstants.SERVER_NAME;
-import static org.ballerinalang.net.http.HttpUtil.getServerName;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
@@ -54,22 +52,15 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
     private final HTTPServicesRegistry httpServicesRegistry;
 
     protected final Struct endpointConfig;
-    protected final String serverName;
 
     public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry,
                                           Struct endpointConfig) {
         this.httpServicesRegistry = httpServicesRegistry;
         this.endpointConfig = endpointConfig;
-        if (!endpointConfig.getStringField(SERVER_NAME).isEmpty()) {
-            this.serverName = endpointConfig.getStringField(SERVER_NAME);
-        } else {
-            this.serverName = getServerName();
-        }
     }
 
     @Override
     public void onMessage(HttpCarbonMessage inboundMessage) {
-        inboundMessage.setHeader(SERVER_NAME, serverName);
         try {
             HttpResource httpResource;
             if (accessed(inboundMessage)) {

@@ -9,7 +9,7 @@ type Person record {
     int age;
 };
 
-listener http:MockListener echoEP  = new(9090, config= {server:"Apache"});
+listener http:MockListener echoEP  = new(9090);
 
 @http:ServiceConfig {basePath:"/echo"}
 service echo on echoEP {

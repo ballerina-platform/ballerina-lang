@@ -346,7 +346,6 @@ public class HttpUtil {
 
         HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
-        HttpUtil.setServerHeader(inboundRequestMsg, outboundResponseMsg);
         HttpUtil.setCompressionHeaders(context, inboundRequestMsg, outboundResponseMsg);
         HttpUtil.setChunkingHeader(context, outboundResponseMsg);
     }
@@ -887,20 +886,6 @@ public class HttpUtil {
         BMap<String, BValue> entityStruct = (BMap<String, BValue>) struct
                 .get(isRequestStruct(struct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
         return (entityStruct != null && EntityBodyHandler.getMessageDataSource(entityStruct) != null);
-    }
-
-    /**
-     * Set the server name in the output response header.
-     *
-     * @param requestMsg  request message.
-     * @param outboundResponseMsg  outbound response message.
-     * @return outbound response message with a header server name.
-     */
-    private static void setServerHeader(HttpCarbonMessage requestMsg, HttpCarbonMessage outboundResponseMsg) {
-        if (!outboundResponseMsg.getHeaders().contains(SERVER_NAME)
-                || outboundResponseMsg.getHeader(SERVER_NAME).isEmpty()) {
-            outboundResponseMsg.setHeader(SERVER_NAME, requestMsg.getHeader(SERVER_NAME));
-        }
     }
 
     private static void setCompressionHeaders(Context context, HttpCarbonMessage requestMsg, HttpCarbonMessage
@@ -1548,10 +1533,13 @@ public class HttpUtil {
             listenerConfiguration.setVersion(httpVersion);
         }
 
-        if (endpointConfig.getName().contains(SERVER_NAME)) {
-            listenerConfiguration.setServerHeader(endpointConfig.getStringField(HttpConstants.SERVER_NAME));
-        } else {
-            listenerConfiguration.setServerHeader(getServerName());
+        listenerConfiguration.setServerHeader(getServerName());
+
+        //check whether http configuration or grpc configuration
+        if (endpointConfig.getFields().length > 7) {
+            if (!endpointConfig.getStringField(SERVER_NAME).isEmpty()) {
+                listenerConfiguration.setServerHeader(endpointConfig.getStringField(SERVER_NAME));
+            }
         }
 
         if (sslConfig != null) {
@@ -1604,7 +1592,7 @@ public class HttpUtil {
         String userAgent;
         String version = System.getProperty(BALLERINA_VERSION);
         if (version != null) {
-            userAgent = "ballerina/" + version;
+            userAgent = "ballerina" + version;
         } else {
             userAgent = "ballerina";
         }

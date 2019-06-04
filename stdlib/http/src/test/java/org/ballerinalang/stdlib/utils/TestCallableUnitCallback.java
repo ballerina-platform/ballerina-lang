@@ -29,8 +29,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.net.http.HttpConstants.SERVER_NAME;
-
 /**
  * Test callback implementation for service tests.
  */
@@ -60,9 +58,6 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
         String errorMsg = getAggregatedRootErrorMessages(error);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         this.responseMsg = HttpUtil.createErrorMessage(errorMsg, statusCode);
-        if (requestMessage.getHeaders().contains(SERVER_NAME)) {
-            responseMsg.setHeader(SERVER_NAME, requestMessage.getHeader(SERVER_NAME));
-        }
         this.executionWaitSem.release();
     }
 
