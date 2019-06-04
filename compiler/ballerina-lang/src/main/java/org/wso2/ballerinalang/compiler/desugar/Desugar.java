@@ -584,6 +584,7 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol dupFuncSymbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
         funcNode.symbol = dupFuncSymbol;
 
+        funcNode.defaultableParams = rewrite(funcNode.defaultableParams, fucEnv);
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
 
@@ -2127,6 +2128,7 @@ public class Desugar extends BLangNodeVisitor {
         // to unbox or box a narrowed type.
         BType targetType = genVarRefExpr.type;
         genVarRefExpr.type = genVarRefExpr.symbol.type;
+        genVarRefExpr.ignoreExpression = varRefExpr.ignoreExpression;
         BLangExpression expression = addConversionExprIfRequired(genVarRefExpr, targetType);
         result = expression.impConversionExpr != null ? expression.impConversionExpr : expression;
     }
@@ -2402,10 +2404,42 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-        ternaryExpr.expr = rewriteExpr(ternaryExpr.expr);
-        ternaryExpr.thenExpr = rewriteExpr(ternaryExpr.thenExpr);
-        ternaryExpr.elseExpr = rewriteExpr(ternaryExpr.elseExpr);
-        result = ternaryExpr;
+        /*
+         * First desugar to if-else:
+         * 
+         * T $result$;
+         * if () {
+         *    $result$ = thenExpr;
+         * } else {
+         *    $result$ = elseExpr;
+         * }
+         * 
+         */
+        BLangSimpleVariableDef resultVarDef = createVarDef("$ternary_result$", ternaryExpr.type, null, ternaryExpr.pos);
+        BLangBlockStmt thenBody = ASTBuilderUtil.createBlockStmt(ternaryExpr.pos);
+        BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(ternaryExpr.pos);
+
+        // Create then assignment
+        BLangSimpleVarRef thenResultVarRef = ASTBuilderUtil.createVariableRef(ternaryExpr.pos, resultVarDef.var.symbol);
+        BLangAssignment thenAssignment =
+                ASTBuilderUtil.createAssignmentStmt(ternaryExpr.pos, thenResultVarRef, ternaryExpr.thenExpr);
+        thenBody.addStatement(thenAssignment);
+
+        // Create else assignment
+        BLangSimpleVarRef elseResultVarRef = ASTBuilderUtil.createVariableRef(ternaryExpr.pos, resultVarDef.var.symbol);
+        BLangAssignment elseAssignment =
+                ASTBuilderUtil.createAssignmentStmt(ternaryExpr.pos, elseResultVarRef, ternaryExpr.elseExpr);
+        elseBody.addStatement(elseAssignment);
+
+        // Then make it a expression-statement, with expression being the $result$
+        BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(ternaryExpr.pos, resultVarDef.var.symbol);
+        BLangIf ifElse = ASTBuilderUtil.createIfElseStmt(ternaryExpr.pos, ternaryExpr.expr, thenBody, elseBody);
+
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(ternaryExpr.pos, Lists.of(resultVarDef, ifElse));
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, resultVarRef);
+        stmtExpr.type = ternaryExpr.type;
+
+        result = rewriteExpr(stmtExpr);
     }
 
     @Override
@@ -2459,19 +2493,17 @@ public class Desugar extends BLangNodeVisitor {
             binaryExpr.rhsExpr = getModifiedIntRangeEndExpr(binaryExpr.rhsExpr);
         }
 
+        if (binaryExpr.opKind == OperatorKind.AND || binaryExpr.opKind == OperatorKind.OR) {
+            visitBinaryLogicalExpr(binaryExpr);
+            return;
+        }
+
         binaryExpr.lhsExpr = rewriteExpr(binaryExpr.lhsExpr);
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
 
         int rhsExprTypeTag = binaryExpr.rhsExpr.type.tag;
         int lhsExprTypeTag = binaryExpr.lhsExpr.type.tag;
-
-        // Check for bitwise shift operator and add type conversion to int
-        if (isBitwiseShiftOperation(binaryExpr) && TypeTags.BYTE == rhsExprTypeTag) {
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
-                                                    symTable.intType);
-            return;
-        }
 
         // Check for int and byte ==, != or === comparison and add type conversion to int for byte
         if (rhsExprTypeTag != lhsExprTypeTag && (binaryExpr.opKind == OperatorKind.EQUAL ||
@@ -3270,7 +3302,7 @@ public class Desugar extends BLangNodeVisitor {
         args.add(getFromTableVarRef(tableQueryExpression));
         // BLangTypeofExpr
         BType retType = tableQueryExpression.type;
-        BLangSimpleVarRef joinTable = getJoinTableVarRef(tableQueryExpression);
+        BLangExpression joinTable = getJoinTableVarRef(tableQueryExpression);
         if (joinTable != null) {
             args.add(joinTable);
             functionName = QUERY_TABLE_WITH_JOIN_CLAUSE;
@@ -3344,18 +3376,18 @@ public class Desugar extends BLangNodeVisitor {
         return expr;
     }
 
-    private BLangSimpleVarRef getJoinTableVarRef(BLangTableQueryExpression tableQueryExpression) {
+    private BLangExpression getJoinTableVarRef(BLangTableQueryExpression tableQueryExpression) {
         JoinStreamingInput joinStreamingInput = tableQueryExpression.getTableQuery().getJoinStreamingInput();
-        BLangSimpleVarRef joinTable = null;
+        BLangExpression joinTable = null;
         if (joinStreamingInput != null) {
-            joinTable = (BLangSimpleVarRef) joinStreamingInput.getStreamingInput().getStreamReference();
+            joinTable = (BLangExpression) joinStreamingInput.getStreamingInput().getStreamReference();
             joinTable = rewrite(joinTable, env);
         }
         return joinTable;
     }
 
-    private BLangSimpleVarRef getFromTableVarRef(BLangTableQueryExpression tableQueryExpression) {
-        BLangSimpleVarRef fromTable = (BLangSimpleVarRef) tableQueryExpression.getTableQuery().getStreamingInput()
+    private BLangExpression getFromTableVarRef(BLangTableQueryExpression tableQueryExpression) {
+        BLangExpression fromTable = (BLangExpression) tableQueryExpression.getTableQuery().getStreamingInput()
                 .getStreamReference();
         return rewrite(fromTable, env);
     }
@@ -3870,18 +3902,21 @@ public class Desugar extends BLangNodeVisitor {
 
         // Re-order the named arguments
         List<BLangExpression> args = new ArrayList<>();
-        for (BVarSymbol param : invokableSymbol.defaultableParams) {
-            // If some named parameter is not passed when invoking the function, get the 
-            // default value for that parameter from the parameter symbol.
-            BLangExpression expr;
-            if (namedArgs.containsKey(param.name.value)) {
-                expr = namedArgs.get(param.name.value);
+        for (BVarSymbol defaultableParam : invokableSymbol.defaultableParams) {
+            if (namedArgs.containsKey(defaultableParam.name.value)) {
+                args.add(namedArgs.get(defaultableParam.name.value));
             } else {
-                int paramTypeTag = param.type.tag;
-                expr = getDefaultValueLiteral(param.defaultValue, paramTypeTag);
-                expr = addConversionExprIfRequired(expr, param.type);
+                BLangExpression expr;
+                int paramTypeTag = defaultableParam.type.tag;
+                if (defaultableParam.defaultExpression != null) {
+                    expr = defaultableParam.defaultExpression;
+                    expr = addConversionExprIfRequired(expr, defaultableParam.type);
+                } else {
+                    expr = getDefaultValue(paramTypeTag);
+                }
+                expr.ignoreExpression = true; // flag to indicate BIRGen to ignore
+                args.add(expr);
             }
-            args.add(expr);
         }
         iExpr.namedArgs = args;
     }
@@ -4900,7 +4935,29 @@ public class Desugar extends BLangNodeVisitor {
         if (value instanceof Boolean) {
             return getBooleanLiteral((Boolean) value);
         }
-        throw new IllegalStateException("Unsupported default value type");
+        throw new IllegalStateException("Unsupported default value type " + paramTypeTag);
+    }
+
+    private BLangExpression getDefaultValue(int paramTypeTag) {
+        switch (paramTypeTag) {
+            case TypeTags.STRING:
+                return getStringLiteral("");
+            case TypeTags.BOOLEAN:
+                return getBooleanLiteral(false);
+            case TypeTags.FLOAT:
+                return getFloatLiteral(0.0);
+            case TypeTags.BYTE:
+            case TypeTags.INT:
+                return getIntLiteral(0);
+            case TypeTags.DECIMAL:
+                return getDecimalLiteral("0.0");
+            case TypeTags.FINITE:
+            case TypeTags.RECORD:
+            case TypeTags.OBJECT:
+            case TypeTags.UNION:
+            default:
+                return getNullLiteral();
+        }
     }
 
     private BLangLiteral getStringLiteral(String value) {
@@ -5018,4 +5075,67 @@ public class Desugar extends BLangNodeVisitor {
                 return null;
         }
     }
+
+    private void visitBinaryLogicalExpr(BLangBinaryExpr binaryExpr) {
+        /*
+         * Desugar (lhsExpr && rhsExpr) to following if-else:
+         * 
+         * logical AND:
+         * -------------
+         * T $result$;
+         * if (lhsExpr) {
+         *    $result$ = rhsExpr;
+         * } else {
+         *    $result$ = false;
+         * }
+         * 
+         * logical OR:
+         * -------------
+         * T $result$;
+         * if (lhsExpr) {
+         *    $result$ = true;
+         * } else {
+         *    $result$ = rhsExpr;
+         * }
+         * 
+         */
+        BLangSimpleVariableDef resultVarDef = createVarDef("$result$", binaryExpr.type, null, binaryExpr.pos);
+        BLangBlockStmt thenBody = ASTBuilderUtil.createBlockStmt(binaryExpr.pos);
+        BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(binaryExpr.pos);
+
+        // Create then assignment
+        BLangSimpleVarRef thenResultVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, resultVarDef.var.symbol);
+        BLangExpression thenResult;
+        if (binaryExpr.opKind == OperatorKind.AND) {
+            thenResult = binaryExpr.rhsExpr;
+        } else {
+            thenResult = getBooleanLiteral(true);
+        }
+        BLangAssignment thenAssignment =
+                ASTBuilderUtil.createAssignmentStmt(binaryExpr.pos, thenResultVarRef, thenResult);
+        thenBody.addStatement(thenAssignment);
+
+        // Create else assignment
+        BLangExpression elseResult;
+        BLangSimpleVarRef elseResultVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, resultVarDef.var.symbol);
+        if (binaryExpr.opKind == OperatorKind.AND) {
+            elseResult = getBooleanLiteral(false);
+        } else {
+            elseResult = binaryExpr.rhsExpr;
+        }
+        BLangAssignment elseAssignment =
+                ASTBuilderUtil.createAssignmentStmt(binaryExpr.pos, elseResultVarRef, elseResult);
+        elseBody.addStatement(elseAssignment);
+
+        // Then make it a expression-statement, with expression being the $result$
+        BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, resultVarDef.var.symbol);
+        BLangIf ifElse = ASTBuilderUtil.createIfElseStmt(binaryExpr.pos, binaryExpr.lhsExpr, thenBody, elseBody);
+
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(binaryExpr.pos, Lists.of(resultVarDef, ifElse));
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, resultVarRef);
+        stmtExpr.type = binaryExpr.type;
+
+        result = rewriteExpr(stmtExpr);
+    }
+
 }

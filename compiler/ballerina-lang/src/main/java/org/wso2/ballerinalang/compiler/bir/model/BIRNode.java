@@ -117,6 +117,7 @@ public abstract class BIRNode {
         public Name name;
         public VarKind kind;
         public VarScope scope;
+        public boolean ignoreVariable;
 
         public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope, VarKind kind) {
             super(pos);
@@ -182,6 +183,26 @@ public abstract class BIRNode {
     }
 
     /**
+     * A function parameter declaration.
+     *
+     * @since 0.995.0
+     */
+    public static class BIRFunctionParameter extends BIRVariableDcl {
+        public final boolean hasDefaultExpr;
+
+        public BIRFunctionParameter(DiagnosticPos pos, BType type, Name name,
+                                    VarScope scope, VarKind kind, boolean hasDefaultExpr) {
+            super(pos, type, name, scope, kind);
+            this.hasDefaultExpr = hasDefaultExpr;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * A function definition.
      *
      * @since 0.980.0
@@ -202,6 +223,11 @@ public abstract class BIRNode {
          * Indicate whether this is a function definition or an interface.
          */
         public boolean isInterface;
+
+        /**
+         * Indicate whether this is a remote function or not.
+         */
+        public boolean isRemote;
 
         /**
          * Visibility of this function.
@@ -250,6 +276,13 @@ public abstract class BIRNode {
          */
         public List<BIRVariableDcl> localVars;
 
+        public BIRVariableDcl returnVariable;
+
+        /**
+         * Variable used for parameters of this function.
+         */
+        public Map<BIRFunctionParameter, List<BIRBasicBlock>>  parameters;
+
         /**
          * List of basic blocks in this function.
          */
@@ -282,6 +315,7 @@ public abstract class BIRNode {
             this.visibility = visibility;
             this.type = type;
             this.localVars = new ArrayList<>();
+            this.parameters = new LinkedHashMap<>();
             this.requiredParams = new ArrayList<>();
             this.defaultParams = new ArrayList<>();
             this.receiverType = receiverType;

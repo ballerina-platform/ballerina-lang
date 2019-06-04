@@ -19,6 +19,7 @@
 package org.ballerinalang.test.jvm;
 
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -252,8 +253,8 @@ public class FiniteTypeTest {
     @Test
     public void testAssigningIntLiteralToByteFiniteType() {
         BValue[] returns = BRunUtil.invoke(result, "testAssigningIntLiteralToByteFiniteType");
-        Assert.assertTrue(returns[0] instanceof BInteger, "Type mismatch");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5, "Value mismatch");
+        Assert.assertTrue(returns[0] instanceof BByte, "Type mismatch");
+        Assert.assertEquals(((BByte) returns[0]).intValue(), 5, "Value mismatch");
     }
 
     @Test

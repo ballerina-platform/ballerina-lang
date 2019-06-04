@@ -20,8 +20,11 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -54,7 +57,8 @@ public class GetQueryParams extends BlockingNativeCallableUnit {
             BMap<String, BValue> requestStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
             HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) requestStruct
                     .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
-            BMapType mapType = new BMapType(BTypes.typeString);
+            org.ballerinalang.model.types.BMapType mapType = new org.ballerinalang.model.types.BMapType(
+                    org.ballerinalang.model.types.BTypes.typeString);
             if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
                 String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
                 BMap<String, BString> params = new BMap<>(mapType);
@@ -63,6 +67,22 @@ public class GetQueryParams extends BlockingNativeCallableUnit {
             } else {
                 context.setReturnValues(new BMap<>(mapType));
             }
+        } catch (Exception e) {
+            throw new BallerinaException("Error while retrieving query param from message: " + e.getMessage());
+        }
+    }
+
+    public static MapValueImpl<String, String> getQueryParams(Strand strand, ObjectValue requestObj) {
+        try {
+            HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) requestObj
+                    .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
+            BMapType mapType = new BMapType(BTypes.typeString);
+            MapValueImpl<String, String> params = new MapValueImpl<>(mapType);
+            if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
+                String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
+                URIUtil.populateQueryParamMap(queryString, params);
+            }
+            return params;
         } catch (Exception e) {
             throw new BallerinaException("Error while retrieving query param from message: " + e.getMessage());
         }

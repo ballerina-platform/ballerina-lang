@@ -324,37 +324,37 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 
 # The configurations related to the load balance client endpoint.
 #
-# + circuitBreaker - Circuit Breaker configuration
-# + timeoutMillis - The maximum time to wait (in milli seconds) for a response before closing the connection
 # + httpVersion - The HTTP version to be used to communicate with the endpoint
+# + http1Settings - Configurations related to HTTP/1.x protocol
+# + http2Settings - Configurations related to HTTP/2 protocol
+# + timeoutMillis - The maximum time to wait (in milli seconds) for a response before closing the connection
 # + forwarded - The choice of setting forwarded/x-forwarded header
-# + keepAlive - Specifies whether to keep the connection alive (or not) for multiple request/response pairs
-# + chunking - The chunking behaviour of the request
 # + followRedirects - Redirect related options
-# + retryConfig - Retry related options
 # + poolConfig - Configurations associated with request pooling
 # + proxy - Proxy related options
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be distributed
 # + cache - The configurations for controlling the caching behaviour
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication releated configurations
+# + circuitBreaker - Circuit Breaker configuration
+# + retryConfig - Retry related options
 # + lbRule - LoadBalancing rule
 # + failover - Configuration for load balancer whether to fail over in case of a failure
 public type LoadBalanceClientEndpointConfiguration record {|
-    CircuitBreakerConfig? circuitBreaker = ();
+    string httpVersion = HTTP_1_1;
+    Http1Settings http1Settings = {};
+    Http2Settings http2Settings = {};
     int timeoutMillis = 60000;
-    string httpVersion = "1.1";
     string forwarded = "disable";
-    KeepAlive keepAlive = KEEPALIVE_AUTO;
-    Chunking chunking = "AUTO";
     FollowRedirects? followRedirects = ();
-    RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
     PoolConfiguration? poolConfig = ();
     TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
     OutboundAuthConfig? auth = ();
+    CircuitBreakerConfig? circuitBreaker = ();
+    RetryConfig? retryConfig = ();
     LoadBalancerRule? lbRule = ();
     boolean failover = true;
 |};
@@ -362,10 +362,10 @@ public type LoadBalanceClientEndpointConfiguration record {|
 function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
                                                      TargetService target) returns ClientEndpointConfig {
     ClientEndpointConfig clientEPConfig = {
+        http1Settings: lbConfig.http1Settings,
+        http2Settings: lbConfig.http2Settings,
         circuitBreaker:lbConfig.circuitBreaker,
         timeoutMillis:lbConfig.timeoutMillis,
-        keepAlive:lbConfig.keepAlive,
-        chunking:lbConfig.chunking,
         httpVersion:lbConfig.httpVersion,
         forwarded:lbConfig.forwarded,
         followRedirects:lbConfig.followRedirects,

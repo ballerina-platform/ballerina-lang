@@ -20,12 +20,15 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
 
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
-//    implementation project(':ballerina-lang')
+    baloCreat project(':lib-creator')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-builtin')
+}
+
+createBalo {
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - Reflect'

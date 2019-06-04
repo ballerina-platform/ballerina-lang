@@ -116,7 +116,24 @@ public type BirEmitter object {
         print(tabs, visibility.toLower(), " function ", bFunction.name.value, " ");
         self.typeEmitter.emitType(bFunction.typeValue);
         println(" {", bFunction.isDeclaration ? "\t// extern" : bFunction.isInterface ? "\t// interface" : "");
+        int i = 0;
         foreach var v in bFunction.localVars {
+            if v is FunctionParam {
+                self.typeEmitter.emitType(v.typeValue, tabs = tabs + "\t");
+                print(" ");
+                print(v.name.value);
+                print("\t ", v.kind);
+                if (v.hasDefaultExpr) {
+                    print("\t// defaultable -> ");
+                    var bb = bFunction.paramDefaultBBs[i][0];
+                    if (bb is BasicBlock) {
+                        print(bb.id.value);
+                    }
+                    i = i + 1;
+                }
+                println();
+                continue;
+            }
             VariableDcl varDecl = getVariableDcl(v);
             self.typeEmitter.emitType(varDecl.typeValue, tabs = tabs + "\t");
             print(" ");
@@ -128,6 +145,21 @@ public type BirEmitter object {
             println("\t// ", varDecl.kind);
         }
         println();// empty line
+        i = 0;
+        foreach var v in bFunction.localVars {
+            if v is FunctionParam {
+                if (v.hasDefaultExpr) {
+                    var bb = bFunction.paramDefaultBBs[i];
+                    foreach var b in bb {
+                        if (b is BasicBlock) {
+                            self.emitBasicBlock(b, tabs + "\t");
+                            println();// empty line
+                        }
+                    }
+                    i = i + 1;
+                }
+            }
+        }
         foreach var b in bFunction.basicBlocks {
             if (b is BasicBlock) {
                 self.emitBasicBlock(b, tabs + "\t");
@@ -244,7 +276,7 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
-            self.typeEmitter.emitType(ins.typeValue);
+            self.typeEmitter.emitType(ins.bType);
             println(";");
         } else if (ins is NewStream) {
             print(tabs);
@@ -272,7 +304,17 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
-            print(ins.typeDef.name.value);
+            var typeDefRef = ins.typeDefRef;
+            if (typeDefRef is TypeDef) {
+                print(typeDefRef.name.value);
+            } else {
+                print(typeDefRef.externalPkg.org);
+                print("/");
+                print(typeDefRef.externalPkg.name);
+                print(" ");
+
+                print(typeDefRef.name.value);
+            }
             println(";");
         } else if (ins is NewError) {
             print(tabs);
@@ -497,7 +539,7 @@ type TypeEmitter object {
 
     function emitType(BType typeVal, string tabs = "") {
         if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString || typeVal is BTypeBoolean
-                || typeVal is BTypeFloat || typeVal is BTypeAnyData || typeVal is BTypeNone
+                || typeVal is BTypeFloat || typeVal is BTypeByte || typeVal is BTypeAnyData || typeVal is BTypeNone
                 || typeVal is BServiceType) {
             print(tabs, typeVal);
         } else if (typeVal is BRecordType) {
@@ -523,7 +565,7 @@ type TypeEmitter object {
         } else if (typeVal is BFiniteType) {
             print(typeVal.name.value);
         } else if (typeVal is BErrorType) {
-            self.emitErrorType(typeVal, tabs);
+            //self.emitErrorType(typeVal, tabs);
         }
     }
 

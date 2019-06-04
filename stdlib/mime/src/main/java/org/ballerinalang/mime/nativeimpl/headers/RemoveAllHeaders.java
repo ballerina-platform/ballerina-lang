@@ -21,6 +21,8 @@ package org.ballerinalang.mime.nativeimpl.headers;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -52,5 +54,12 @@ public class RemoveAllHeaders extends BlockingNativeCallableUnit {
             httpHeaders.clear();
         }
         context.setReturnValues();
+    }
+
+    public static void removeAllHeaders(Strand strand, ObjectValue entityObj) {
+        if (entityObj.getNativeData(ENTITY_HEADERS) != null) {
+            HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
+            httpHeaders.clear();
+        }
     }
 }

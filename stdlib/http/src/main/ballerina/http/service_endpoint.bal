@@ -66,10 +66,12 @@ public type Listener object {
     function register(service s, string? name) returns error? = external;
 
     # Starts the registered service.
-    function start() = external;
+    # + return - An `error` if there is any error occurred during the service start process or else nil
+    function start() returns error? = external;
 
     # Stops the registered service.
-    function stop() = external;
+    # + return - An `error` if there is any error occurred during the service stop process or else nil
+    function stop() returns error? = external;
 };
 
 public function Listener.init(ServiceEndpointConfiguration c) {

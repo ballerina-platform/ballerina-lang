@@ -41,7 +41,7 @@ class CreateBaloTask extends JavaExec {
         args << isBuiltin
         args << "src/main/ballerina/"
         args << "${project.buildDir}/generated-balo/repo/ballerina"
-        args << "${project.buildDir}"
+        args << "${project.buildDir}/ballerina-home/main"
         args << skipWarnings
         args << jvmTarget
         super.setArgs(args)
@@ -75,3 +75,13 @@ artifacts.add('baloImplementation', file("$buildDir/generated-balo/")) {
 }
 
 artifacts.add('balSource', file("src/main/ballerina/"))
+
+task copySelfToTestBalHome(type: Copy) {
+    dependsOn createBalo
+    from "$buildDir/generated-balo"
+    into "$buildDir/ballerina-home/test/lib"
+}
+
+test {
+    dependsOn copySelfToTestBalHome
+}
