@@ -361,8 +361,6 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
                                             boolean async) {
         try {
             send(dataContext, outboundRequestMsg, async);
-            //TODO NonBlockingCallback is temporary fix to handle non blocking call
-            dataContext.getCallback().sync();
         } catch (BallerinaConnectorException e) {
             dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(e));
         } catch (Exception e) {

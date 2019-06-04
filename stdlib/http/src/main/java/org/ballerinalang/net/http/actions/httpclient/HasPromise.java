@@ -71,8 +71,6 @@ public class HasPromise extends AbstractHTTPAction {
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.hasPushPromise(responseHandle).
                 setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(callback));
-        //TODO This is temporary fix to handle non blocking call
-        callback.sync();
     }
 
     private static class BPromiseAvailabilityCheckListener implements HttpClientConnectorListener {
