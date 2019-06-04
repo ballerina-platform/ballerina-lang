@@ -64,20 +64,6 @@ public class Services {
         return invokeNew(compileResult, pkgName, Names.DEFAULT_VERSION.value, endpointName, request);
     }
 
-    private static MapValue getListner(CompileResult compileResult, String pkgName, String version,
-                                       String endpointName) {
-        BIRNode.BIRPackage birPackage = ((BLangPackage) compileResult.getAST()).symbol.bir;
-        String funcClassName =
-                BFileUtil.getQualifiedClassName(birPackage.org.value, birPackage.name.value, MODULE_INIT_CLASS_NAME);
-        Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
-        try {
-            Method method = funcClass.getDeclaredMethod("getListener", String.class);
-            return (MapValue) method.invoke(null, endpointName);
-        } catch (Exception e) {
-            throw new IllegalStateException("Cannot find endpoint: " + endpointName);
-        }
-    }
-
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
                                               String endpointName, HTTPTestRequest request) {
         MapValue connectorEndpoint = getListner(compileResult, pkgName, version, endpointName);
@@ -121,5 +107,10 @@ public class Services {
         }
         request.getTestHttpResponseStatusFuture().notifyHttpListener(HttpUtil.createHttpCarbonMessage(false));
         return callback.getResponseMsg();
+    }
+
+    private static MapValue getListner(CompileResult compileResult, String pkgName, String version,
+                                       String endpointName) {
+        throw new IllegalStateException("Cannot find endpoint: " + endpointName);
     }
 }

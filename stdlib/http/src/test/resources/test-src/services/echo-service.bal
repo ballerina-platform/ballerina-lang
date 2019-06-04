@@ -1,6 +1,4 @@
-import ballerina/mime;
 import ballerina/http;
-import ballerina/io;
 
 final string constPath = getConstPath();
 
