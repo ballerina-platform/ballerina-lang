@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/auth;
 import ballerina/cache;
 import ballerina/reflect;
 
@@ -25,9 +24,9 @@ import ballerina/reflect;
 public type AuthzFilter object {
 
     public AuthzHandler authzHandler;
-    public string[]? scopes;
+    public string[]|string[][]? scopes;
 
-    public function __init(AuthzHandler authzHandler, string[]? scopes) {
+    public function __init(AuthzHandler authzHandler, string[]|string[][]? scopes) {
         self.authzHandler = authzHandler;
         self.scopes = scopes;
     }
@@ -39,14 +38,14 @@ public type AuthzFilter object {
     # + context - `FilterContext` instance
     # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        boolean|error authorized;
+        boolean|error authorized = true;
         var scopes = getScopes(context);
-        if (scopes is string[]) {
+        if (scopes is string[]|string[][]) {
             authorized = handleAuthzRequest(self.authzHandler, request, context, scopes);
         } else {
             if (scopes) {
                 var selfScopes = self.scopes;
-                if (selfScopes is string[]) {
+                if (selfScopes is string[]|string[][]) {
                     authorized = handleAuthzRequest(self.authzHandler, request, context, selfScopes);
                 } else {
                     authorized = true;
@@ -63,19 +62,32 @@ public type AuthzFilter object {
     }
 };
 
-function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterContext context, string[] scopes) returns boolean|error {
-    boolean|error authorized;
-    if (scopes.length() > 0) {
-        var canHandleResponse = authzHandler.canHandle(request);
-        if (canHandleResponse is boolean && canHandleResponse) {
-            authorized = authzHandler.handle(runtime:getInvocationContext().principal.username,
-                context.serviceName, context.resourceName, request.method, scopes);
+function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterContext context,
+        string[]|string[][] scopes) returns boolean|error {
+    boolean|error authorized = true;
+    if (scopes is string[]) {
+        if (scopes.length() > 0) {
+            var canHandleResponse = authzHandler.canHandle(request);
+            if (canHandleResponse is boolean && canHandleResponse) {
+                authorized = authzHandler.handle(runtime:getInvocationContext().principal.username,
+                    context.serviceName, context.resourceName, request.method, scopes);
+            } else {
+                authorized = canHandleResponse;
+            }
         } else {
-            authorized = canHandleResponse;
+            // scopes are not defined, no need to authorize
+            authorized = true;
         }
     } else {
-        // scopes are not defined, no need to authorize
-        authorized = true;
+        if (scopes[0].length() > 0) {
+            var canHandleResponse = authzHandler.canHandle(request);
+            if (canHandleResponse is boolean && canHandleResponse) {
+                authorized = authzHandler.handle(runtime:getInvocationContext().principal.username,
+                    context.serviceName, context.resourceName, request.method, scopes);
+            } else {
+                authorized = canHandleResponse;
+            }
+        }
     }
     return authorized;
 }

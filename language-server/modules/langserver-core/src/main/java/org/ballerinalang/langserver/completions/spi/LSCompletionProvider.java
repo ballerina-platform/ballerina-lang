@@ -207,6 +207,35 @@ public abstract class LSCompletionProvider {
     }
 
     /**
+     * Get all the types in the Package with given name.
+     *
+     * @param visibleSymbols Visible Symbols
+     * @param pkgName package name
+     * @param ctx language server context
+     * @return {@link List} list of Type completion items
+     */
+    protected List<CompletionItem> getTypesInPackage(List<SymbolInfo> visibleSymbols, String pkgName, LSContext ctx) {
+        List<SymbolInfo> filteredList = new ArrayList<>();
+        Optional<SymbolInfo> pkgSymbolInfo = visibleSymbols.stream()
+                .filter(symbolInfo -> {
+                    BSymbol symbol = symbolInfo.getScopeEntry().symbol;
+                    return symbol instanceof BPackageSymbol && symbolInfo.getSymbolName().equals(pkgName); 
+                })
+                .findAny();
+        pkgSymbolInfo.ifPresent(symbolInfo -> {
+            BSymbol pkgSymbol = symbolInfo.getScopeEntry().symbol;
+            pkgSymbol.scope.entries
+                    .forEach((name, scopeEntry) -> {
+                        if (scopeEntry.symbol instanceof BTypeSymbol) {
+                            filteredList.add(new SymbolInfo(name.getValue(), scopeEntry));
+                        }
+                    });
+        });
+        
+        return this.getCompletionItemList(filteredList, ctx);
+    }
+
+    /**
      * Add top level items to the given completionItems List.
      *
      * @param context LS Context
@@ -330,7 +359,7 @@ public abstract class LSCompletionProvider {
         };
     }
 
-    protected Optional<String> getSubrule(List<CommonToken> tokenList) {
+    protected Optional<String> getSubRule(List<CommonToken> tokenList) {
         if (tokenList == null || tokenList.isEmpty()) {
             return Optional.empty();
         }
@@ -364,7 +393,7 @@ public abstract class LSCompletionProvider {
      */
     protected List<CompletionItem> getVarDefExpressionCompletions(LSContext context) {
         List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
-        List<CompletionItem> completionItems = new ArrayList<>(this.getVarDefExpressionKeywords(context));
+        List<CompletionItem> completionItems = new ArrayList<>(this.getVarDefCompletions(context));
         int counter = 0;
         StringBuilder subRule = new StringBuilder("function testFunction () {" + CommonUtil.LINE_SEPARATOR + "\t");
         while (counter < lhsTokens.size()) {
@@ -644,7 +673,7 @@ public abstract class LSCompletionProvider {
      * @param context Completion context
      * @return {@link List}     List of resolved completion items
      */
-    private List<CompletionItem> getVarDefExpressionKeywords(LSContext context) {
+    private List<CompletionItem> getVarDefCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
@@ -665,7 +694,7 @@ public abstract class LSCompletionProvider {
         CompletionItem checkKeyword = Snippet.KW_CHECK.get().build(context);
         completionItems.add(checkKeyword);
         // Add the wait keyword
-        CompletionItem waitKeyword = Snippet.KW_CHECK.get().build(context);
+        CompletionItem waitKeyword = Snippet.KW_WAIT.get().build(context);
         completionItems.add(waitKeyword);
         // Add But keyword item
         CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(context);

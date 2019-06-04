@@ -18,8 +18,9 @@ import ballerina/auth;
 import ballerina/http;
 
 auth:ConfigAuthStoreProvider basicAuthProvider02 = new;
-http:BasicAuthnHandler basicAuthnHandler02 = new(basicAuthProvider02);
+http:BasicAuthHeaderAuthnHandler basicAuthnHandler02 = new(basicAuthProvider02);
 
+// Listener with valid scope
 listener http:Listener listener02_1 = new(9091, config = {
     auth: {
         authnHandlers: [basicAuthnHandler02],
@@ -33,10 +34,11 @@ listener http:Listener listener02_1 = new(9091, config = {
     }
 });
 
+// Listener with invalid scope
 listener http:Listener listener02_2 = new(9092, config = {
     auth: {
         authnHandlers: [basicAuthnHandler02],
-        scopes: ["scope4"]
+        scopes: ["scope10"]
     },
     secureSocket: {
         keyStore: {
@@ -46,6 +48,7 @@ listener http:Listener listener02_2 = new(9092, config = {
     }
 });
 
+// Listener with scope not given
 listener http:Listener listener02_3 = new(9093, config = {
     auth: {
         authnHandlers: [basicAuthnHandler02]
@@ -58,15 +61,17 @@ listener http:Listener listener02_3 = new(9093, config = {
     }
 });
 
+// Service with valid scope
 @http:ServiceConfig {
     basePath: "/echo1",
     auth: {
         enabled: true,
-        scopes: ["scope3"]
+        scopes: ["scope1"]
     }
 }
 service echo02_1 on listener02_1, listener02_2, listener02_3 {
 
+    // Resource with valid scope
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
@@ -78,18 +83,19 @@ service echo02_1 on listener02_1, listener02_2, listener02_3 {
         checkpanic caller->respond(());
     }
 
+    // Resource with invalid scope
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
             enabled: true,
-            scopes: ["scope3", "scope4"]
+            scopes: ["scope10", "scope11"]
         }
     }
     resource function test2(http:Caller caller, http:Request req) {
         checkpanic caller->respond(());
     }
 
-
+    // Resource with scope not given
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
@@ -101,15 +107,17 @@ service echo02_1 on listener02_1, listener02_2, listener02_3 {
     }
 }
 
+// Service with invalid scope
 @http:ServiceConfig {
     basePath: "/echo2",
     auth: {
         enabled: true,
-        scopes: ["scope4"]
+        scopes: ["scope10"]
     }
 }
 service echo02_2 on listener02_1, listener02_2, listener02_3 {
 
+    // Resource with valid scope
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
@@ -121,18 +129,19 @@ service echo02_2 on listener02_1, listener02_2, listener02_3 {
         checkpanic caller->respond(());
     }
 
+    // Resource with invalid scope
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
             enabled: true,
-            scopes: ["scope3", "scope4"]
+            scopes: ["scope10", "scope11"]
         }
     }
     resource function test2(http:Caller caller, http:Request req) {
         checkpanic caller->respond(());
     }
 
-
+    // Resource with scope not given
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
@@ -144,6 +153,7 @@ service echo02_2 on listener02_1, listener02_2, listener02_3 {
     }
 }
 
+// Service with scope not given
 @http:ServiceConfig {
     basePath: "/echo3",
     auth: {
@@ -152,6 +162,7 @@ service echo02_2 on listener02_1, listener02_2, listener02_3 {
 }
 service echo02_3 on listener02_1, listener02_2, listener02_3 {
 
+    // Resource with valid scope
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
@@ -163,18 +174,19 @@ service echo02_3 on listener02_1, listener02_2, listener02_3 {
         checkpanic caller->respond(());
     }
 
+    // Resource with invalid scope
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
             enabled: true,
-            scopes: ["scope3", "scope4"]
+            scopes: ["scope10", "scope11"]
         }
     }
     resource function test2(http:Caller caller, http:Request req) {
         checkpanic caller->respond(());
     }
 
-
+    // Resource with scope not given
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {

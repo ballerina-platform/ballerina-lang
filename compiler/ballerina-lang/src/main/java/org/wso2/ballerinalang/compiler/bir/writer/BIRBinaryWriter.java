@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.ConstValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.TaintTable;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
@@ -213,12 +214,31 @@ public class BIRBinaryWriter {
         // Arg count
         birbuf.writeInt(birFunction.argsCount);
         // Local variables
+
+        birbuf.writeBoolean(birFunction.returnVariable != null);
+        if (birFunction.returnVariable != null) {
+            birbuf.writeByte(birFunction.returnVariable.kind.getValue());
+            funcTypeWriter.visitType(birFunction.returnVariable.type);
+            birbuf.writeInt(addStringCPEntry(birFunction.returnVariable.name.value));
+        }
+
+        birbuf.writeInt(birFunction.parameters.size());
+        for (BIRNode.BIRFunctionParameter param : birFunction.parameters.keySet()) {
+            birbuf.writeByte(param.kind.getValue());
+            funcTypeWriter.visitType(param.type);
+            birbuf.writeInt(addStringCPEntry(param.name.value));
+            birbuf.writeBoolean(param.hasDefaultExpr);
+        }
+
         birbuf.writeInt(birFunction.localVars.size());
         for (BIRNode.BIRVariableDcl localVar : birFunction.localVars) {
             birbuf.writeByte(localVar.kind.getValue());
             funcTypeWriter.visitType(localVar.type);
             birbuf.writeInt(addStringCPEntry(localVar.name.value));
         }
+
+        // Write basic blocks related to parameter default values
+        birFunction.parameters.values().stream().filter(bbList -> !bbList.isEmpty()).forEach(funcInsWriter::writeBBs);
 
         // Write basic blocks
         funcInsWriter.writeBBs(birFunction.basicBlocks);
@@ -299,8 +319,11 @@ public class BIRBinaryWriter {
         typeWriter.visitType(constValue.valueType);
         switch (constValue.valueType.tag) {
             case TypeTags.INT:
-            case TypeTags.BYTE:
                 buf.writeInt(addIntCPEntry((Long) constValue.literalValue));
+                break;
+            case TypeTags.BYTE:
+                int byteValue = ((Number) constValue.literalValue).intValue();
+                buf.writeByte(addByteCPEntry(byteValue));
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
@@ -335,5 +358,9 @@ public class BIRBinaryWriter {
 
     private int addStringCPEntry(String value) {
         return cp.addCPEntry(new StringCPEntry(value));
+    }
+
+    private int addByteCPEntry(int value) {
+        return cp.addCPEntry(new ByteCPEntry(value));
     }
 }

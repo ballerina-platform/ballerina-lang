@@ -59,6 +59,7 @@
             <class name="org.ballerinalang.test.service.http.sample.CipherStrengthSSLTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.ResourceFunctionReturnTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerActionsTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.MultipleHTTPClientsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPHeaderServerTestCase"/>
         </classes>
     </test>
@@ -115,6 +116,8 @@
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
             <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
             <class name="org.ballerinalang.test.auth.AuthnWithCustomHandlersTest"/>
+            <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnConfigPatternTest"/>
         </classes>
     </test>
 
@@ -279,6 +282,7 @@
             <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest"/>
             <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/>
             <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>
+            <class name="org.ballerinalang.test.messaging.artemis.DataBindingTest"/>
         </classes>
     </test>
 </suite>

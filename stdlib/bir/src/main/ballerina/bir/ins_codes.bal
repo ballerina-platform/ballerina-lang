@@ -26,6 +26,7 @@ public const int INS_WK_SEND = 9;
 public const int INS_FLUSH = 10;
 public const int INS_LOCK = 11;
 public const int INS_UNLOCK = 12;
+public const int INS_WAIT_ALL = 13;
 
 // Non-terminating instructions
 public const int INS_MOVE = 20;
@@ -63,7 +64,6 @@ public const int INS_XML_ATTRIBUTE_STORE = 49;
 public const int INS_NEW_TABLE = 50;
 public const int INS_NEW_TYPEDESC = 51;
 public const int INS_NEW_STREAM = 52;
-public const int INS_TERNARY = 53;
 
 // Binary expression related instructions.
 public const int INS_ADD = 61;
@@ -81,8 +81,18 @@ public const int INS_AND = 72;
 public const int INS_OR = 73;
 public const int INS_REF_EQUAL = 74;
 public const int INS_REF_NOT_EQUAL = 75;
+public const int INS_CLOSED_RANGE = 76;
+public const int INS_HALF_OPEN_RANGE = 77;
 
 // Unary expression related instructions.
 public const int INS_TYPEOF = 80;
 public const int INS_NOT = 81;
 public const int INS_NEGATE = 82;
+
+// Bitwise operation related instructions
+public const int INS_BITWISE_AND = 83;
+public const int INS_BITWISE_OR = 84;
+public const int INS_BITWISE_XOR = 85;
+public const int INS_BITWISE_LEFT_SHIFT = 86;
+public const int INS_BITWISE_RIGHT_SHIFT = 87;
+public const int INS_BITWISE_UNSIGNED_RIGHT_SHIFT = 88;

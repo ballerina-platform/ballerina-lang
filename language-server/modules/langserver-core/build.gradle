@@ -92,6 +92,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-activemq-artemis', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 
     dependency 'com.h2database:h2:1.4.199'
@@ -150,12 +151,8 @@ task createZip(type: Zip) {
     with copyResourceSpec
 }
 
-artifacts {
-    dist createZip
-}
-
-build {
-    dependsOn createZip
+artifacts.add('dist', createZip.archiveFile) {
+    builtBy createZip
 }
 
 test {

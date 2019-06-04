@@ -85,8 +85,8 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
         scheme = url.getProtocol();
         Map<String, Object> properties =
                 HttpConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
-        SenderConfiguration senderConfiguration =
-                HttpConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setScheme(scheme);
 
         if (connectionManager.isHTTPTraceLoggerEnabled()) {
             senderConfiguration.setHttpTraceLogEnabled(true);
@@ -98,6 +98,12 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
             BMap<String, BValue> http2Settings = (BMap<String, BValue>) configBStruct.get(HttpConstants.HTTP2_SETTINGS);
             boolean http2PriorKnowledge = ((BBoolean) http2Settings.get(HTTP2_PRIOR_KNOWLEDGE)).booleanValue();
             senderConfiguration.setForceHttp2(http2PriorKnowledge);
+        } else {
+            BMap<String, BValue> http1Settings = (BMap<String, BValue>) configBStruct.get(HttpConstants.HTTP1_SETTINGS);
+            String chunking = http1Settings.get(HttpConstants.CLIENT_EP_CHUNKING).stringValue();
+            senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
+            String keepAliveConfig = http1Settings.get(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE).stringValue();
+            senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
         }
 
         populateSenderConfigurations(senderConfiguration, clientEndpointConfig);

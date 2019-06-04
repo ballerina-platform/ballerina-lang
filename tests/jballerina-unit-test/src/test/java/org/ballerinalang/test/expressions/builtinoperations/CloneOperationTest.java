@@ -108,7 +108,7 @@ public class CloneOperationTest {
         Assert.assertFalse(((BBoolean) results[0]).booleanValue());
         Assert.assertTrue(((BBoolean) results[1]).booleanValue());
         Assert.assertTrue(((BBoolean) results[2]).booleanValue());
-        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] == results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     @Test

@@ -18,7 +18,7 @@ jms:Session jmsSession = new(conn, {
     });
 
 // This initializes a durable topic subscriber using the created session.
-listener jms:DurableTopicSubscriber subscriberEndpoint = new(jmsSession,
+listener jms:DurableTopicListener subscriberEndpoint = new(jmsSession,
     "BallerinaTopic", "sub1");
 
 // This binds the created consumer to the listener service.

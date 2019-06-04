@@ -119,6 +119,11 @@
             <classifier>ballerina-binary-repo</classifier>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-stdlib-test-common</artifactId>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
