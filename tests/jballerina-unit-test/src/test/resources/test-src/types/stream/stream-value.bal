@@ -112,6 +112,7 @@ function testGlobalStream() returns (Employee, Employee, Employee) {
 }
 
 function testStreamPublishingAndSubscriptionForRecord() returns (Employee, Employee, Employee) {
+    globalEmployee = {};
     Employee origEmployee = globalEmployee;
     stream<Employee> s1 = new;
     s1.subscribe(assignGlobalEmployee);

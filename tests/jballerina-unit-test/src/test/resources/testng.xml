@@ -207,6 +207,7 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
+            <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
         </classes>
     </test>
 </suite>
