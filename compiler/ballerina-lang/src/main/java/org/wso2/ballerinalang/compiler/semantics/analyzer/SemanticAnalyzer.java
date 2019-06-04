@@ -1389,8 +1389,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // set reason var refs type to no type if the variable name is '_'
             errorDeStmt.varRef.reason.type = symTable.noType;
         }
-        // todo: migrate to new error constructor syntax
-        if (errorDeStmt.expr.getKind() == NodeKind.ERROR_CONSTRUCTOR) {
+        if (errorDeStmt.expr.getKind() == NodeKind.INVOCATION
+                && ((BLangInvocation) errorDeStmt.expr).name.value.equals(Names.ERROR.value)) {
             dlog.error(errorDeStmt.expr.pos, DiagnosticCode.INVALID_ERROR_LITERAL_BINDING_PATTERN);
             return;
         }
@@ -1591,16 +1591,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         typeChecker.checkExpr(lhsRef, env);
+        if (lhsRef.type == symTable.semanticError) {
+            return;
+        }
+
         BErrorType expErrorType = (BErrorType) lhsRef.type;
 
         BErrorType rhsErrorType = (BErrorType) rhsType;
         if (lhsRef.reason.type.tag != TypeTags.NONE) {
             if (!types.isAssignable(rhsErrorType.reasonType, expErrorType.reasonType)) {
-                dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, expErrorType.reasonType, rhsErrorType.reasonType);
+                dlog.error(lhsRef.reason.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expErrorType.reasonType,
+                        rhsErrorType.reasonType);
             }
         }
 
-        // rhs type, could be a map or record, need to handle both cases
+        // rhs type, could be a map or record
         if (rhsErrorType.detailType.tag == TypeTags.MAP ) {
             BMapType detailMapType = (BMapType) rhsErrorType.detailType;
             for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
@@ -1617,7 +1622,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (lhsRef.restVar != null) {
                 if (!types.isAssignable(detailMapType, lhsRef.restVar.type)) {
                     dlog.error(lhsRef.restVar.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsRef.restVar.type,
-                            detailMapType.constraint);
+                            detailMapType);
                 }
             }
         } else {
@@ -1631,7 +1636,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     dlog.error(detailItem.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN, detailItem.name);
                     return;
                 }
-                typeChecker.checkExpr(detailItem, env, matchedDetailItem.type);
+
+                if (!types.isAssignable(matchedDetailItem.type, detailItem.expr.type)) {
+                    dlog.error(detailItem.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                            detailItem.expr.type, matchedDetailItem.type);
+                }
                 checkErrorDetailRefItem(matchedDetailItem.pos, rhsPos, detailItem, matchedDetailItem.type);
             }
             if (lhsRef.restVar != null) {

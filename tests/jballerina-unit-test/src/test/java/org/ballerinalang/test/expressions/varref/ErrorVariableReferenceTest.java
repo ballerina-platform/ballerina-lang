@@ -213,32 +213,28 @@ public class ErrorVariableReferenceTest {
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 12);
+        Assert.assertEquals(resultNegative.getErrorCount(), 10);
         int i = -1;
         String incompatibleTypes = "incompatible types: ";
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'boolean', found 'string'", 31, 34);
+                incompatibleTypes + "expected 'boolean', found 'string'", 31, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'map<int>', found 'map<string>'", 31, 34);
+                incompatibleTypes + "expected 'map<int>', found 'map<string>'", 31, 26);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'string', found 'string?'", 32, 52);
-        BAssertUtil.validateError(resultNegative, ++i,
-                                  incompatibleTypes + "expected 'map<string>', found 'map<anydata>'", 41, 34);
+                                  incompatibleTypes + "expected 'map<string>', found 'map<anydata>'", 41, 25);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'string', found 'anydata'", 42, 52);
         BAssertUtil.validateError(resultNegative, ++i,
-                "error constructor expression is not supported for error binding pattern", 43, 82);
+                "error constructor expression is not supported for error binding pattern", 43, 81);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'map', found 'Foo'", 63, 25);
-        BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'boolean', found 'string'", 64, 20);
+                incompatibleTypes + "expected 'boolean', found 'string'", 64, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
                 "expected '(any,string,map,(error,any))', found '(int,string,error,(error,Foo))'", 78, 58);
-        BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'boolean', found 'string'", 91, 40);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes + "expected 'Bar', found 'map<anydata|error>'",
-                                  91, 40);
+                                  92, 32);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  incompatibleTypes + "expected 'string?', found 'anydata|error'", 100, 30);
+                incompatibleTypes + "expected 'boolean', found 'string'", 93, 20);
+        BAssertUtil.validateError(resultNegative, ++i,
+                                  incompatibleTypes + "expected 'string?', found 'anydata|error'", 102, 38);
     }
 }

@@ -1127,8 +1127,13 @@ public class TypeChecker extends BLangNodeVisitor {
             restFieldType = symTable.pureType;
         } else if (((BLangSimpleVarRef) varRefExpr.restVar).variableName.value.equals(Names.IGNORE.value)) {
             restFieldType = symTable.pureType;
-        } else {
+        } else if (varRefExpr.restVar.type.tag == TypeTags.MAP){
             restFieldType = ((BMapType) varRefExpr.restVar.type).constraint;
+        } else {
+            dlog.error(varRefExpr.restVar.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                    varRefExpr.restVar.type, symTable.pureTypeConstrainedMap);
+            resultType = symTable.semanticError;
+            return;
         }
 
         BRecordType detailRecType = new BRecordType(detailRecordSym);
@@ -1139,41 +1144,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BErrorType errorType = new BErrorType(errorTSymbol, varRefExpr.reason.type, detailRecType);
         resultType = errorType;
-//
-//
-//        BType reasonType = checkExpr(varRefExpr.reason, env);
-//
-//        if (varRefExpr.detailType != null &&varRefExpr.detailType.getKind() == TypeKind.MAP) {
-//            BMapType mapType = (BMapType) varRefExpr.detailType;
-//            for (BLangNamedArgsExpression namedArgsExpression : varRefExpr.detail) {
-//                checkExpr(namedArgsExpression, env, mapType.constraint);
-//            }
-//        } else {
-//            BRecordType recordType = (BRecordType) varRefExpr.detailType;
-//            Map<String, BField> fields = recordType.fields.stream()
-//                    .collect(Collectors.toMap(field -> field.name.value, field -> field));
-//            for (BLangNamedArgsExpression detailItem : varRefExpr.detail) {
-//                BField matchedField = fields.get(detailItem.name.value);
-//                if (matchedField != null) {
-//                    checkExpr(detailItem, env, matchedField.type);
-//                } else if (recordType.sealed) {
-//                    // todo:
-//                    // error extracting statically unknown field from seald record
-//                } else {
-//                    LinkedHashSet<BType> restBindingType = new LinkedHashSet<>();
-//                    restBindingType.add(recordType.restFieldType);
-//                    restBindingType.add(symTable.nilType);
-//
-//                    BTypeSymbol bTypeSymbol = new BTypeSymbol(SymTag.UNION_TYPE, Flags.PUBLIC, Names.EMPTY,
-//                            env.enclPkg.packageID, null, env.scope.owner);
-//                    BUnionType unionType = BUnionType.create(bTypeSymbol, restBindingType);
-//                    bTypeSymbol.type = unionType;
-//                    checkExpr(detailItem, env, unionType);
-//                }
-//            }
-//        }
-//        BErrorType actualType = new BErrorType(null, reasonType, varRefExpr.detailType);
-//        resultType = types.checkType(varRefExpr, actualType, expType);
     }
 
     private boolean checkIndexBasedAccessExpr(BRecordTypeSymbol detailRecordSym, List<BField> fields,
