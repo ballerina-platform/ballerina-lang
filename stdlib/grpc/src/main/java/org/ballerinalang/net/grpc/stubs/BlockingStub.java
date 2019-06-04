@@ -61,7 +61,7 @@ public class BlockingStub extends AbstractStub {
     public void executeUnary(Message request, MethodDescriptor methodDescriptor,
                                            DataContext dataContext) {
         ClientCall call = new ClientCall(getConnector(), createOutboundRequest(request
-                .getHeaders()), methodDescriptor);
+                .getHeaders()), methodDescriptor, dataContext.context);
         call.start(new CallBlockingListener(dataContext));
         try {
             call.sendMessage(request);

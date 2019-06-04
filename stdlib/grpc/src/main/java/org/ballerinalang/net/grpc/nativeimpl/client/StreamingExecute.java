@@ -126,11 +126,11 @@ public class StreamingExecute extends AbstractExecute {
                 StreamObserver requestSender;
                 if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
                     requestSender = nonBlockingStub.executeClientStreaming(headers, responseObserver,
-                            methodDescriptors.get(methodName));
+                            methodDescriptors.get(methodName), context);
                     
                 } else if (methodType.equals(MethodDescriptor.MethodType.BIDI_STREAMING)) {
                     requestSender = nonBlockingStub.executeBidiStreaming(headers, responseObserver, methodDescriptors
-                            .get(methodName));
+                            .get(methodName), context);
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");

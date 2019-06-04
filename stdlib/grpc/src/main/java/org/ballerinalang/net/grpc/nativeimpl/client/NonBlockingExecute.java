@@ -125,10 +125,10 @@ public class NonBlockingExecute extends AbstractExecute {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
                     nonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(callbackService),
-                            methodDescriptors.get(methodName));
+                            methodDescriptors.get(methodName), context);
                 } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
                     nonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(callbackService),
-                            methodDescriptors.get(methodName));
+                            methodDescriptors.get(methodName), context);
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");

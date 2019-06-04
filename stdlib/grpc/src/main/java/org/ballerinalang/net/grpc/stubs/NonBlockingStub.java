@@ -18,6 +18,7 @@
 package org.ballerinalang.net.grpc.stubs;
 
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.net.grpc.CallStreamObserver;
 import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.Message;
@@ -45,8 +46,9 @@ public class NonBlockingStub extends AbstractStub {
      * @param methodDescriptor method descriptor
      */
     public void executeServerStreaming(Message request, StreamObserver responseObserver,
-                                       MethodDescriptor methodDescriptor) {
-        ClientCall call = new ClientCall(getConnector(), createOutboundRequest(request.getHeaders()), methodDescriptor);
+                                       MethodDescriptor methodDescriptor, Context context) {
+        ClientCall call = new ClientCall(getConnector(), createOutboundRequest(request.getHeaders()),
+                methodDescriptor, context);
         call.start(new NonblockingCallListener(responseObserver, true));
         try {
             call.sendMessage(request);
@@ -66,9 +68,11 @@ public class NonBlockingStub extends AbstractStub {
      * @return streaming observer
      */
     public StreamObserver executeClientStreaming(HttpHeaders requestHeaders,
-                                                                     StreamObserver responseObserver,
-                                                                     MethodDescriptor methodDescriptor) {
-        ClientCall call = new ClientCall(getConnector(), createOutboundRequest(requestHeaders), methodDescriptor);
+                                                 StreamObserver responseObserver,
+                                                 MethodDescriptor methodDescriptor,
+                                                 Context context) {
+        ClientCall call = new ClientCall(getConnector(), createOutboundRequest(requestHeaders), methodDescriptor,
+                context);
         ClientCallStreamObserver streamObserver = new ClientCallStreamObserver(call);
         call.start(new NonblockingCallListener(responseObserver, false));
         return streamObserver;
@@ -82,8 +86,9 @@ public class NonBlockingStub extends AbstractStub {
      * @param methodDescriptor method descriptor
      */
     public void executeUnary(Message request, StreamObserver responseObserver,
-                                           MethodDescriptor methodDescriptor) {
-        ClientCall call = new ClientCall(getConnector(), createOutboundRequest(request.getHeaders()), methodDescriptor);
+                             MethodDescriptor methodDescriptor, Context context) {
+        ClientCall call = new ClientCall(getConnector(), createOutboundRequest(request.getHeaders()),
+                methodDescriptor, context);
         call.start(new NonblockingCallListener(responseObserver, false));
         try {
             call.sendMessage(request);
@@ -103,8 +108,9 @@ public class NonBlockingStub extends AbstractStub {
      * @return streaming observer
      */
     public StreamObserver executeBidiStreaming(HttpHeaders requestHeaders, StreamObserver responseObserver,
-                                               MethodDescriptor methodDescriptor) {
-        ClientCall call = new ClientCall(getConnector(), createOutboundRequest(requestHeaders), methodDescriptor);
+                                               MethodDescriptor methodDescriptor, Context context) {
+        ClientCall call = new ClientCall(getConnector(), createOutboundRequest(requestHeaders), methodDescriptor,
+                context);
         ClientCallStreamObserver streamObserver = new ClientCallStreamObserver(call);
         call.start(new NonblockingCallListener(responseObserver, true));
         return streamObserver;
