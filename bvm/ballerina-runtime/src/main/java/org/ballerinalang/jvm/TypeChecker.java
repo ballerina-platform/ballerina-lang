@@ -309,8 +309,6 @@ public class TypeChecker {
         return new TypedescValue(type);
     }
 
-    // Private methods
-
     public static boolean checkIsType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         // First check whether both types are the same.
         if (sourceType == targetType || sourceType.equals(targetType)) {
@@ -372,6 +370,8 @@ public class TypeChecker {
                 return false;
         }
     }
+
+    // Private methods
 
     private static boolean checkIsUnionType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() == TypeTags.UNION_TAG) {
