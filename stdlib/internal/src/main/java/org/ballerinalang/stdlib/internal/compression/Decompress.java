@@ -123,9 +123,6 @@ public class Decompress extends BlockingNativeCallableUnit {
                     destPath);
         } else {
             return decompress(srcPath, destPath);
-//            if (context.getReturnValues() == null) {
-//                context.setReturnValues();
-//            }
         }
 
     }
