@@ -1671,21 +1671,21 @@ public class Desugar extends BLangNodeVisitor {
         if (parentErrorVarRef.detail == null) {
             return;
         }
-        if (parentErrorVarRef.detail.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                names.fromIdNode(((BLangSimpleVarRef) parentErrorVarRef.detail).variableName) == Names.IGNORE) {
-            return;
-        }
-        BLangInvocation errorDetailBuiltinFunction = generateErrorDetailBuiltinFunction(parentErrorVarRef.detail.pos,
-                parentErrorVarRef.detail.type, parentBlockStmt, errorVarySymbol, parentIndexAccessExpr);
-        if (parentErrorVarRef.detail.getKind() == NodeKind.RECORD_VARIABLE_REF) {
-            ASTBuilderUtil.createRecordDestructureStmt(parentErrorVarRef.pos,
-                    errorDetailBuiltinFunction, (BLangRecordVarRef) parentErrorVarRef.detail, parentBlockStmt);
-            return;
-        }
-        BLangAssignment detailAssignment = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos,
-                parentBlockStmt);
-        detailAssignment.varRef = parentErrorVarRef.detail;
-        detailAssignment.expr = errorDetailBuiltinFunction;
+//        if (parentErrorVarRef.detail.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+//                names.fromIdNode(((BLangSimpleVarRef) parentErrorVarRef.detail).variableName) == Names.IGNORE) {
+//            return;
+//        }
+//        BLangInvocation errorDetailBuiltinFunction = generateErrorDetailBuiltinFunction(parentErrorVarRef.detail.pos,
+//                parentErrorVarRef.detail.type, parentBlockStmt, errorVarySymbol, parentIndexAccessExpr);
+//        if (parentErrorVarRef.detail.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+//            ASTBuilderUtil.createRecordDestructureStmt(parentErrorVarRef.pos,
+//                    errorDetailBuiltinFunction, (BLangRecordVarRef) parentErrorVarRef.detail, parentBlockStmt);
+//            return;
+//        }
+//        BLangAssignment detailAssignment = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos,
+//                parentBlockStmt);
+//        detailAssignment.varRef = parentErrorVarRef.detail;
+//        detailAssignment.expr = errorDetailBuiltinFunction;
     }
 
     @Override

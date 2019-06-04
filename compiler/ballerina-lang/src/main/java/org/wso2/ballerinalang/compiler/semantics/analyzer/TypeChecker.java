@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -1063,10 +1064,135 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        BType reasonType = checkExpr(varRefExpr.reason, env);
-        BType detailType = checkExpr(varRefExpr.detail, env);
-        BErrorType actualType = new BErrorType(null, reasonType, detailType);
-        resultType = types.checkType(varRefExpr, actualType, expType);
+        if (varRefExpr.reason != null) {
+            varRefExpr.reason.lhsVar = true;
+            checkExpr(varRefExpr.reason, env);
+        }
+
+        BErrorTypeSymbol errorTSymbol = Symbols.createErrorSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
+                null, env.scope.owner);
+
+        BRecordTypeSymbol detailRecordSym = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
+                null, errorTSymbol);
+
+        List<BField> fields = new ArrayList<>();
+        boolean unresolvedReference = false;
+        for (BLangNamedArgsExpression detailItem : varRefExpr.detail) {
+            BLangVariableReference refItem = (BLangVariableReference) detailItem.expr;
+            refItem.lhsVar = true;
+            checkExpr(refItem, env);
+
+            if (!isValidVariableReference(refItem)) {
+                unresolvedReference = true;
+                continue;
+            }
+
+            if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                if (checkIndexBasedAccessExpr(detailRecordSym, fields, detailItem, (BLangFieldBasedAccess) refItem)) {
+                    unresolvedReference = true;
+                }
+                continue;
+            } else if (refItem.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                if (checkIndexBasedAccessExpr(detailRecordSym, fields, detailItem, (BLangIndexBasedAccess) refItem)) {
+                    unresolvedReference = true;
+                }
+                continue;
+            }
+
+            if (refItem.symbol == null) {
+                unresolvedReference = true;
+                continue;
+            }
+            BVarSymbol refSymbol = (BVarSymbol) refItem.symbol;
+            BVarSymbol fieldVarSymbol = new BVarSymbol(0, names.fromIdNode(detailItem.name),
+                    env.enclPkg.symbol.pkgID, refSymbol.type, detailRecordSym);
+            fields.add(new BField(names.fromIdNode(detailItem.name), detailItem.pos, fieldVarSymbol));
+        }
+
+        if (varRefExpr.restVar != null) {
+            varRefExpr.restVar.lhsVar = true;
+            checkExpr(varRefExpr.restVar, env);
+            unresolvedReference = unresolvedReference
+                    || varRefExpr.restVar.symbol == null
+                    || !isValidVariableReference(varRefExpr.restVar);
+        }
+
+        if (unresolvedReference) {
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        BType restFieldType;
+        if (varRefExpr.restVar == null) {
+            restFieldType = symTable.pureType;
+        } else if (((BLangSimpleVarRef) varRefExpr.restVar).variableName.value.equals(Names.IGNORE.value)) {
+            restFieldType = symTable.pureType;
+        } else {
+            restFieldType = ((BMapType) varRefExpr.restVar.type).constraint;
+        }
+
+        BRecordType detailRecType = new BRecordType(detailRecordSym);
+        detailRecType.fields = fields;
+        detailRecType.sealed = false;
+        detailRecType.restFieldType = restFieldType;
+        detailRecordSym.type = detailRecType;
+
+        BErrorType errorType = new BErrorType(errorTSymbol, varRefExpr.reason.type, detailRecType);
+        resultType = errorType;
+//
+//
+//        BType reasonType = checkExpr(varRefExpr.reason, env);
+//
+//        if (varRefExpr.detailType != null &&varRefExpr.detailType.getKind() == TypeKind.MAP) {
+//            BMapType mapType = (BMapType) varRefExpr.detailType;
+//            for (BLangNamedArgsExpression namedArgsExpression : varRefExpr.detail) {
+//                checkExpr(namedArgsExpression, env, mapType.constraint);
+//            }
+//        } else {
+//            BRecordType recordType = (BRecordType) varRefExpr.detailType;
+//            Map<String, BField> fields = recordType.fields.stream()
+//                    .collect(Collectors.toMap(field -> field.name.value, field -> field));
+//            for (BLangNamedArgsExpression detailItem : varRefExpr.detail) {
+//                BField matchedField = fields.get(detailItem.name.value);
+//                if (matchedField != null) {
+//                    checkExpr(detailItem, env, matchedField.type);
+//                } else if (recordType.sealed) {
+//                    // todo:
+//                    // error extracting statically unknown field from seald record
+//                } else {
+//                    LinkedHashSet<BType> restBindingType = new LinkedHashSet<>();
+//                    restBindingType.add(recordType.restFieldType);
+//                    restBindingType.add(symTable.nilType);
+//
+//                    BTypeSymbol bTypeSymbol = new BTypeSymbol(SymTag.UNION_TYPE, Flags.PUBLIC, Names.EMPTY,
+//                            env.enclPkg.packageID, null, env.scope.owner);
+//                    BUnionType unionType = BUnionType.create(bTypeSymbol, restBindingType);
+//                    bTypeSymbol.type = unionType;
+//                    checkExpr(detailItem, env, unionType);
+//                }
+//            }
+//        }
+//        BErrorType actualType = new BErrorType(null, reasonType, varRefExpr.detailType);
+//        resultType = types.checkType(varRefExpr, actualType, expType);
+    }
+
+    private boolean checkIndexBasedAccessExpr(BRecordTypeSymbol detailRecordSym, List<BField> fields,
+                                              BLangNamedArgsExpression detailItem, BLangAccessExpression refItem) {
+        Name exprName = names.fromIdNode(((BLangSimpleVarRef) refItem.expr).variableName);
+        BSymbol fSym = symResolver.lookupSymbol(env, exprName, SymTag.VARIABLE);
+        if (fSym != null) {
+            if (fSym.type.getKind() == TypeKind.MAP) {
+                BType constraint = ((BMapType) fSym.type).constraint;
+                BVarSymbol fieldVarSymbol = new BVarSymbol(0, names.fromIdNode(detailItem.name),
+                        env.enclPkg.symbol.pkgID, constraint, detailRecordSym);
+                fields.add(new BField(names.fromIdNode(detailItem.name), detailItem.pos, fieldVarSymbol));
+                return false;
+            } else {
+                throw new UnsupportedOperationException("rec field base access");
+            }
+        } else {
+            return true;
+        }
     }
 
     @Override

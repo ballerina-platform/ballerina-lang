@@ -1276,13 +1276,25 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterErrorMatchRestPattern(BallerinaParser.ErrorMatchRestPatternContext ctx) { }
+	@Override public void enterErrorNamedArgRefPattern(BallerinaParser.ErrorNamedArgRefPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitErrorMatchRestPattern(BallerinaParser.ErrorMatchRestPatternContext ctx) { }
+	@Override public void exitErrorNamedArgRefPattern(BallerinaParser.ErrorNamedArgRefPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterErrorRefRestPattern(BallerinaParser.ErrorRefRestPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitErrorRefRestPattern(BallerinaParser.ErrorRefRestPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

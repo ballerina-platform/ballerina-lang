@@ -728,15 +728,39 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws, int numNamedArgs, String reasonIdentifier,
+    void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws, int numNamedArgs, boolean reasonRefAvailable,
                                    boolean restPatternAvailable) {
         BLangErrorVarRef errorVarRef = (BLangErrorVarRef) TreeBuilder.createErrorVariableReferenceNode();
         errorVarRef.pos = pos;
         errorVarRef.addWS(ws);
-        if (/*hasDetailExpr*/true) {
-            errorVarRef.detail = (BLangVariableReference) this.exprNodeStack.pop();
+
+        if (restPatternAvailable) {
+            BLangVariableReference restVarRef = (BLangVariableReference) this.exprNodeStack.pop();
+            errorVarRef.restVar = restVarRef;
         }
-        errorVarRef.reason = (BLangVariableReference) this.exprNodeStack.pop();
+
+        List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
+        for(int i = 0; i < numNamedArgs; i++) {
+            BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) this.exprNodeStack.pop();
+            namedArgs.add(namedArg);
+        }
+
+        if (reasonRefAvailable) {
+            ExpressionNode reasonRef = this.exprNodeStack.pop();
+            errorVarRef.reason = (BLangVariableReference) reasonRef;
+        } else {
+            int lastItemIndex = namedArgs.size() - 1;
+            BLangNamedArgsExpression reason = namedArgs.get(lastItemIndex);
+            namedArgs.remove(lastItemIndex);
+            if (reason.name.value.equals("reason")) {
+                errorVarRef.reason = (BLangVariableReference) reason.expr;
+            } else {
+                dlog.error(pos, DiagnosticCode.INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN);
+            }
+        }
+        Collections.reverse(namedArgs);
+        errorVarRef.detail.addAll(namedArgs);
+
         this.exprNodeStack.push(errorVarRef);
     }
 

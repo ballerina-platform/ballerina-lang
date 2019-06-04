@@ -452,9 +452,9 @@ restBindingPattern
     ;
 
 bindingRefPattern
-    :   variableReference
+    :   errorRefBindingPattern
+    |   variableReference
     |   structuredRefBindingPattern
-    |   errorRefBindingPattern
     ;
 
 structuredRefBindingPattern
@@ -480,11 +480,15 @@ closedRecordRefBindingPattern
     ;
 
 errorRefBindingPattern
-    :   TYPE_ERROR LEFT_PARENTHESIS ((Identifier (COMMA namedArgs)*) | namedArgs) (COMMA errorMatchRestPattern)? RIGHT_PARENTHESIS
+    :   TYPE_ERROR LEFT_PARENTHESIS ((variableReference (COMMA errorNamedArgRefPattern)*) | errorNamedArgRefPattern+) (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
     ;
 
-errorMatchRestPattern
-    : ELLIPSIS Identifier
+errorNamedArgRefPattern
+    : Identifier ASSIGN bindingRefPattern
+    ;
+
+errorRefRestPattern
+    : ELLIPSIS variableReference
     ;
 
 entryRefBindingPattern

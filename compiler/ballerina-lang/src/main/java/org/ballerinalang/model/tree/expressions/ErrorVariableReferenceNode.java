@@ -19,6 +19,9 @@
 package org.ballerinalang.model.tree.expressions;
 
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+
+import java.util.List;
 
 /**
  * Represents a tuple variable reference node.
@@ -37,5 +40,5 @@ public interface ErrorVariableReferenceNode extends VariableReferenceNode {
 
     ExpressionNode getReason();
 
-    ExpressionNode getDetail();
+    List<BLangNamedArgsExpression> getDetail();
 }

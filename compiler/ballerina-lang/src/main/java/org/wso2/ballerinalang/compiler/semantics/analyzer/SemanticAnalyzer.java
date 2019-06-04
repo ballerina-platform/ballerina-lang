@@ -24,6 +24,8 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.expressions.RecordVariableReferenceNode;
+import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -57,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -81,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
@@ -135,9 +139,9 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
-import sun.jvm.hotspot.debugger.cdbg.Sym;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -1580,36 +1584,76 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void checkErrorVarRefEquivalency(DiagnosticPos pos, BLangErrorVarRef varRef, BType rhsType,
+    private void checkErrorVarRefEquivalency(DiagnosticPos pos, BLangErrorVarRef lhsRef, BType rhsType,
                                              DiagnosticPos rhsPos) {
         if (rhsType.tag != TypeTags.ERROR) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, rhsType);
             return;
         }
+        typeChecker.checkExpr(lhsRef, env);
+        BErrorType expErrorType = (BErrorType) lhsRef.type;
 
         BErrorType rhsErrorType = (BErrorType) rhsType;
-        if (varRef.reason.type.tag != TypeTags.NONE) {
-            if (!types.isAssignable(rhsErrorType.reasonType, varRef.reason.type)) {
-                dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.reason.type, rhsErrorType.reasonType);
+        if (lhsRef.reason.type.tag != TypeTags.NONE) {
+            if (!types.isAssignable(rhsErrorType.reasonType, expErrorType.reasonType)) {
+                dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, expErrorType.reasonType, rhsErrorType.reasonType);
             }
         }
-        if (varRef.detail.getKind() == NodeKind.RECORD_VARIABLE_REF) {
-            typeChecker.checkExpr(varRef.detail, env);
-            checkRecordVarRefEquivalency(pos, (BLangRecordVarRef) varRef.detail, ((BErrorType) rhsType).detailType,
-                                         rhsPos);
+
+        // rhs type, could be a map or record, need to handle both cases
+        if (rhsErrorType.detailType.tag == TypeTags.MAP ) {
+            BMapType detailMapType = (BMapType) rhsErrorType.detailType;
+            for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
+                checkErrorDetailRefItem(pos, rhsPos, detailItem, detailMapType.constraint);
+            }
+
+            for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
+                if (!types.isAssignable(detailMapType.constraint, detailItem.expr.type)) {
+                    dlog.error(detailItem.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, detailItem.expr.type,
+                            detailMapType.constraint);
+                }
+            }
+
+            if (lhsRef.restVar != null) {
+                if (!types.isAssignable(detailMapType, lhsRef.restVar.type)) {
+                    dlog.error(lhsRef.restVar.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsRef.restVar.type,
+                            detailMapType.constraint);
+                }
+            }
+        } else {
+            // reason is a record
+            BRecordType rhsDetailType = (BRecordType) rhsErrorType.detailType;
+            Map<String, BField> fields = rhsDetailType.fields.stream()
+                    .collect(Collectors.toMap(field -> field.name.value, field -> field));
+            for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
+                BField matchedDetailItem = fields.get(detailItem.name.value);
+                if (matchedDetailItem == null) {
+                    dlog.error(detailItem.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN, detailItem.name);
+                    return;
+                }
+                typeChecker.checkExpr(detailItem, env, matchedDetailItem.type);
+                checkErrorDetailRefItem(matchedDetailItem.pos, rhsPos, detailItem, matchedDetailItem.type);
+            }
+            if (lhsRef.restVar != null) {
+                lhsRef.restVar.type = rhsDetailType.restFieldType;
+                typeChecker.checkExpr(lhsRef.restVar, env);
+            }
+        }
+    }
+
+    private void checkErrorDetailRefItem(DiagnosticPos pos, DiagnosticPos rhsPos, BLangNamedArgsExpression detailItem,
+                                         BType expectedType) {
+        if (detailItem.expr.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+            typeChecker.checkExpr(detailItem.expr, env);
+            checkRecordVarRefEquivalency(pos, (BLangRecordVarRef) detailItem.expr, expectedType,
+                    rhsPos);
             return;
         }
 
-        if (varRef.detail.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                names.fromIdNode(((BLangSimpleVarRef) varRef.detail).variableName) == Names.IGNORE) {
+        if (detailItem.getKind() == NodeKind.SIMPLE_VARIABLE_REF && detailItem.name.value.equals(Names.IGNORE.value) ) {
             return;
         }
-        setTypeOfVarReferenceInAssignment(varRef.detail);
-        // TODO: Once detail var is frozen, do the is like check instead of is Assignable
-        BType detailType = rhsErrorType.detailType;
-        if (!types.isAssignable(detailType, varRef.detail.type)) {
-            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.detail.type, detailType);
-        }
+        setTypeOfVarReferenceInAssignment(detailItem.expr);
     }
 
     private void checkConstantAssignment(BLangExpression varRef) {
