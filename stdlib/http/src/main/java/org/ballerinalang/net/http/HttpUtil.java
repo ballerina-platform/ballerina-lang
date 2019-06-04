@@ -323,7 +323,8 @@ public class HttpUtil {
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseObj);
         HttpService httpService = (HttpService) connectionObj.getNativeData(HttpConstants.HTTP_SERVICE);
         HttpUtil.setCompressionHeaders(httpService.getCompressionConfig(), inboundRequestMsg, outboundResponseMsg);
-//        HttpUtil.setChunkingHeader(httpService.getChunkingConfig(), outboundResponseMsg); //TODO test with annotations - rajith
+        //TODO test with annotations - rajith
+//        HttpUtil.setChunkingHeader(httpService.getChunkingConfig(), outboundResponseMsg);
     }
 
     public static BMap<String, BValue> createSessionStruct(Context context, Session session) {

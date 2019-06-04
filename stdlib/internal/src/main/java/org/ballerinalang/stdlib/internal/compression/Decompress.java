@@ -18,6 +18,9 @@ package org.ballerinalang.stdlib.internal.compression;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -77,6 +80,15 @@ public class Decompress extends BlockingNativeCallableUnit {
         }
     }
 
+    private static ErrorValue decompress(Path dirPath, Path outputFolder) {
+        try {
+            InputStream inputStream = new FileInputStream(dirPath.toFile());
+            return DecompressFromByteArray.decompress(inputStream, outputFolder);
+        } catch (IOException e) {
+            throw new BLangRuntimeException("Error occurred when decompressing");
+        }
+    }
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> srcPathStruct = (BMap) context.getRefArgument(SRC_PATH_FIELD_INDEX);
@@ -97,5 +109,24 @@ public class Decompress extends BlockingNativeCallableUnit {
 //                context.setReturnValues();
 //            }
         }
+    }
+
+    public static Object decompress(Strand strand, ObjectValue dirPath, ObjectValue destDir) {
+        Path srcPath = (Path) dirPath.getNativeData(Constants.PATH_DEFINITION_NAME);
+        Path destPath = (Path) destDir.getNativeData(Constants.PATH_DEFINITION_NAME);
+
+        if (!srcPath.toFile().exists()) {
+            return CompressionUtils.createCompressionError("Path of the folder to be " +
+                    "decompressed is not available: " + srcPath);
+        } else if (!destPath.toFile().exists()) {
+            return CompressionUtils.createCompressionError("Path to place the decompressed file is not available: " +
+                    destPath);
+        } else {
+            return decompress(srcPath, destPath);
+//            if (context.getReturnValues() == null) {
+//                context.setReturnValues();
+//            }
+        }
+
     }
 }
