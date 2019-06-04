@@ -175,7 +175,6 @@ public class WebSocketUtil {
             //TODO remove this call back
             callback.notifySuccess();
         });
-        callback.sync();
     }
 
     public static void readFirstFrame(WebSocketConnection webSocketConnection, ObjectValue webSocketConnector) {

@@ -34,7 +34,6 @@ public class NonBlockingCallback {
 
     private static final Logger log = LoggerFactory.getLogger(NonBlockingCallback.class);
     private final Strand strand;
-    private volatile Semaphore executionWaitSem;
     private Object returnValue = null;
 
     public NonBlockingCallback(Strand strand) {
@@ -42,30 +41,27 @@ public class NonBlockingCallback {
         strand.blocked = true;
         strand.blockedOnExtern = true;
         this.strand = strand;
-//        executionWaitSem = new Semaphore(0);
     }
 
     public void notifySuccess() {
-//        this.executionWaitSem.release();
         this.strand.scheduler.unblockStrand(strand);
     }
 
     public void notifyFailure(ErrorValue error) {
         this.returnValue = error;
-//        this.executionWaitSem.release();
         strand.setReturnValues(getReturnValue());
         this.strand.scheduler.unblockStrand(strand);
     }
 
-    public void sync() {
-        try {
-            if (!executionWaitSem.tryAcquire(120, TimeUnit.SECONDS)) {
-                log.debug("Failed to acquire");
-            }
-        } catch (InterruptedException e) {
-            //ignore
-        }
-    }
+//    public void sync() {
+////        try {
+////            if (!executionWaitSem.tryAcquire(120, TimeUnit.SECONDS)) {
+////                log.debug("Failed to acquire");
+////            }
+////        } catch (InterruptedException e) {
+////            //ignore
+////        }
+//    }
 
     public void setReturnValues(Object returnValue) {
         this.returnValue = returnValue;

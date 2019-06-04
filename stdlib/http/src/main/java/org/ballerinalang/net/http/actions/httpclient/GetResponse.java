@@ -79,8 +79,6 @@ public class GetResponse extends AbstractHTTPAction {
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.getResponse(responseHandle).
                 setHttpConnectorListener(new ResponseListener(dataContext));
-        //TODO This is temporary fix to handle non blocking call
-        callback.sync();
     }
 
     private static class BResponseListener implements HttpConnectorListener {
