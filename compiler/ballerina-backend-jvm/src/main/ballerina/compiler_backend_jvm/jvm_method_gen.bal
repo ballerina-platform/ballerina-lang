@@ -569,9 +569,6 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         // process terminator
         if (!isArg || (isArg && !(terminator is bir:Return))) {
             generateDiagnosticPos(terminator.pos, mv);
-            if (isModuleInitFunction(module, func) && terminator is bir:Return) {
-                processAnnotation(mv, module.typeDefs, currentPackageName);
-            }
             termGen.genTerminator(terminator, func, funcName, isTrapped, currentEE, endLabel, handlerLabel, jumpLabel,
                                     localVarOffset, returnVarRefIndex);
         }

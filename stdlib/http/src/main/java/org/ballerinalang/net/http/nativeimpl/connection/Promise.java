@@ -81,7 +81,5 @@ public class Promise extends ConnectionAction {
                 HttpUtil.createHttpPushPromise(pushPromiseObj));
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.pushPromise(inboundRequestMsg, http2PushPromise);
         setResponseConnectorListener(dataContext, outboundRespStatusFuture);
-        //TODO : Temporary block the call. Remove this callback once the support is available
-        callback.sync();
     }
 }
