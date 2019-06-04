@@ -21,6 +21,8 @@ package org.ballerinalang.docgen.docs;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.Generator;
+import org.ballerinalang.docgen.generator.model.Function;
+import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.model.ActionDoc;
 import org.ballerinalang.docgen.model.AnnotationDoc;
 import org.ballerinalang.docgen.model.Documentable;
@@ -29,14 +31,13 @@ import org.ballerinalang.docgen.model.EnumDoc;
 import org.ballerinalang.docgen.model.Field;
 import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
-import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.ObjectDoc;
-import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.RecordDoc;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.bouncycastle.math.raw.Mod;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -57,42 +58,33 @@ public class HtmlDocTest {
     public void setup() {
     }
 
-    @Test(description = "Multiple modules should be shown even when one page is generated")
-    public void testMultiPackage() {
-        List<Link> packages = new ArrayList<>();
-        packages.add(new Link(new PackageName("a.b.c", ""), "", false));
-        packages.add(new Link(new PackageName("x.y", ""), "", false));
-        packages.add(new Link(new PackageName("x.y.z", ""), "", false));
-
-        BLangPackage bLangPackage = createPackage("");
-        Page page = Generator.generateModuleConstructs(bLangPackage, packages, null, null);
-
-        Assert.assertEquals(page.links.size(), 3);
-        Assert.assertFalse(page.links.get(0).active);
-        //        Assert.assertTrue(page.links.get(1).active);
-    }
-
-
     @Test(description = "Empty module should give an empty page")
     public void testEmptyPackage() {
         BLangPackage bLangPackage = createPackage("");
-        Page page = generatePage(bLangPackage);
-        Assert.assertTrue(page.constructs.isEmpty());
+        Module module = generateModule(bLangPackage);
+        Assert.assertTrue(module.unionTypes.isEmpty());
+        Assert.assertTrue(module.finiteTypes.isEmpty());
+        Assert.assertTrue(module.errors.isEmpty());
+        Assert.assertTrue(module.annotations.isEmpty());
+        Assert.assertTrue(module.constants.isEmpty());
+        Assert.assertTrue(module.functions.isEmpty());
+        Assert.assertTrue(module.listeners.isEmpty());
+        Assert.assertTrue(module.clients.isEmpty());
+        Assert.assertTrue(module.objects.isEmpty());
+        Assert.assertTrue(module.records.isEmpty());
     }
 
     @Test(description = "Functions in a module should be shown in the constructs")
     public void testFunctions() {
         BLangPackage bLangPackage = createPackage("public function hello(string name) returns (string)" +
                 "{return \"a\";}");
-        Page page = generatePage(bLangPackage);
-        Assert.assertEquals(page.constructs.size(), 1);
-        Assert.assertEquals(page.constructs.get(0).name, "hello");
-        Assert.assertTrue(page.constructs.get(0) instanceof FunctionDoc, "Invalid documentable type");
-        FunctionDoc functionDoc = (FunctionDoc) page.constructs.get(0);
-        Assert.assertEquals(functionDoc.parameters.get(0).toString(), "string name", "Invalid parameter string value");
-        Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "string", "Invalid return type");
-        Assert.assertEquals(functionDoc.returnParams.get(0).href, "primitive-types.html#string", "Invalid link " +
-                "to return type");
+        Module module = generateModule(bLangPackage);
+        Assert.assertEquals(module.functions.size(), 1);
+        Assert.assertEquals(module.functions.get(0).name, "hello");
+        Function function = module.functions.get(0);
+        Assert.assertEquals(function.parameters.get(0).type.name, "string", "Invalid parameter type");
+        Assert.assertEquals(function.parameters.get(0).name, "name", "Invalid parameter name");
+        Assert.assertEquals(function.returnParameters.get(0).type.name, "string", "Invalid return type");
     }
 
     @Test(description = "Param links should be generated correctly")
@@ -100,12 +92,9 @@ public class HtmlDocTest {
         BLangPackage bLangPackage = createPackage("public function hello(string name) returns ((string[],int) | " +
                                                   "error)"
                 + "{return ([\"a\"], 2);}");
-        Page page = generatePage(bLangPackage);
-        Assert.assertEquals(page.constructs.size(), 1);
-        Assert.assertEquals(page.constructs.get(0).name, "hello");
-        Assert.assertTrue(page.constructs.get(0) instanceof FunctionDoc, "Invalid documentable type");
-        FunctionDoc functionDoc = (FunctionDoc) page.constructs.get(0);
-        Assert.assertEquals(functionDoc.parameters.get(0).toString(), "string name", "Invalid parameter string value");
+        Module module = generateModule(bLangPackage);
+        Assert.assertEquals(module.functions.size(), 1);
+        Function function = module.functions.get(0);
         Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "(string[],int)|error<>", "Invalid return " +
                 "type");
         Assert.assertEquals(functionDoc.returnParams.get(0).href, "primitive-types.html#string,primitive-types" + "" +
@@ -128,7 +117,7 @@ public class HtmlDocTest {
                 "    public function testSend(string ep) returns boolean;\n" +
                 "};";
         BLangPackage bLangPackage = createPackage(source);
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "TestConnector");
         Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
@@ -160,7 +149,7 @@ public class HtmlDocTest {
                 "github_test_client.bal").toString();
 
         BLangPackage bLangPackage = createPackage(FileUtils.readFileToString(new File(testClientBalPath)));
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
 
         Assert.assertEquals(page.constructs.get(0).getClass(), RecordDoc.class, "Invalid documentable type");
@@ -205,7 +194,7 @@ public class HtmlDocTest {
                 "    string name;\n" +
                 "    int age;\n" +
                 "};");
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
 
         Assert.assertEquals(page.constructs.get(0).getClass(), RecordDoc.class, "Invalid documentable type");
@@ -244,7 +233,7 @@ public class HtmlDocTest {
                 "    public function test2(string ep) returns boolean;\n" +
                 "};";
         BLangPackage bLangPackage = createPackage(source);
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).getClass(), ObjectDoc.class, "Invalid documentable type");
         ObjectDoc endpointDoc = (ObjectDoc) page.constructs.get(0);
@@ -282,7 +271,7 @@ public class HtmlDocTest {
                 "\n" +
                 "# user description.\n" +
                 "public type User Person;\n");
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
 
         Documentable construct = page.constructs.get(0);
@@ -311,7 +300,7 @@ public class HtmlDocTest {
         String testClientBalPath = Paths.get("src", "test", "resources", "balFiles", "objects", 
                                            "test_object.bal").toString();
         BLangPackage bLangPackage = createPackage(FileUtils.readFileToString(new File(testClientBalPath)));
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Test");
         Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
@@ -354,7 +343,7 @@ public class HtmlDocTest {
         BLangPackage bLangPackage = createPackage(" " +
                 "public annotation ParameterInfo;" +
                 "public annotation ReturnInfo;");
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
         Assert.assertEquals(page.constructs.get(0).name, "ParameterInfo");
         Assert.assertEquals(page.constructs.get(1).name, "ReturnInfo");
@@ -364,7 +353,7 @@ public class HtmlDocTest {
     public void testConstants() {
         BLangPackage bLangPackage = createPackage("public const string name = \"Ballerina\";" +
                 "public const age = 10;");
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
         Assert.assertEquals(page.constructs.get(0).name, "name");
         Assert.assertEquals(page.constructs.get(1).name, "age");
@@ -373,7 +362,7 @@ public class HtmlDocTest {
     @Test(description = "Structs in a module should be shown in the constructs")
     public void testStructs() {
         BLangPackage bLangPackage = createPackage("public type Message record {string message; error? cause;};");
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Message");
     }
@@ -383,7 +372,7 @@ public class HtmlDocTest {
     public void testFunctionsWithStructBindings() {
         BLangPackage bLangPackage = createPackage("public function <Message m>hello(){} " +
                 "public struct Message { string message; int id;}");
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Message");
         Assert.assertEquals(page.constructs.get(0).children.get(0).name, "hello");
@@ -394,7 +383,7 @@ public class HtmlDocTest {
     public void testFunctionsWithoutStructBindings() {
         BLangPackage bLangPackage = createPackage("public function hello(){} " +
                 "public struct Message { string message; int id;}");
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
         Assert.assertEquals(page.constructs.get(0).name, "Message");
         Assert.assertEquals(page.constructs.get(1).name, "hello");
@@ -407,7 +396,7 @@ public class HtmlDocTest {
                 "public struct Message { string message; int id;} " +
                 "public function sayBye(){}");
 
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
         Assert.assertEquals(page.constructs.get(0).name, "Message");
         Assert.assertEquals(page.constructs.get(0).children.get(0).name, "hello");
@@ -476,7 +465,7 @@ public class HtmlDocTest {
                 "action post(string path, string req) (string, int) { return \"value within filter\"; }}";
         BLangPackage bLangPackage = createPackage(source);
 
-        EndpointDoc endpointDoc = null; //Generator.createDocForFunction(bLangPackage.getObjects().get(0), true);
+        EndpointDoc endpointDoc = null; //Generator.createDocForAnnotation(bLangPackage.getObjects().get(0), true);
         Assert.assertEquals(endpointDoc.name, "HttpClient", "Connector name should be extracted");
         Assert.assertEquals(endpointDoc.description, "Http client connector for outbound HTTP requests",
                 "Description of the connector should be extracted");
@@ -507,7 +496,7 @@ public class HtmlDocTest {
                 "@Field {value:\"interval: Retry interval in millisecond\"}" +
                 "struct Message {int interval;int count;}");
 
-        RecordDoc recordDoc = null; // Generator.createDocForFunction(bLangPackage.getRecords().get(0));
+        RecordDoc recordDoc = null; // Generator.createDocForAnnotation(bLangPackage.getRecords().get(0));
         Assert.assertEquals(recordDoc.name, "Message", "Struct name should be extracted");
         Assert.assertEquals(recordDoc.description, "Message sent by the client", "Description of the " +
                 "struct should be extracted");
@@ -565,7 +554,7 @@ public class HtmlDocTest {
                 "}";
         BLangPackage bLangPackage = createPackage(source);
 
-        AnnotationDoc annotationDoc = Generator.createDocForFunction(bLangPackage.getAnnotations().get(0));
+        AnnotationDoc annotationDoc = Generator.createDocForAnnotation(bLangPackage.getAnnotations().get(0));
         Assert.assertEquals(annotationDoc.name, "webSocket", "Annotation name should be extracted");
         Assert.assertEquals(annotationDoc.description, "AnnotationDoc to upgrade connection from HTTP to WS " +
                 "in the same base path", "Description of the annotation should be extracted");
@@ -593,7 +582,7 @@ public class HtmlDocTest {
                 "string content = \"Name\";" +
                 "struct Message {}" +
                 "struct Response {}");
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 0);
     }
 
@@ -620,7 +609,7 @@ public class HtmlDocTest {
                 "  string id;" +
                 "  string address = \"20,Palm Grove\";" +
                 "}");
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertTrue(page.constructs.get(0) instanceof RecordDoc, "Documentable of type RecordDoc expected.");
         RecordDoc personRecordDoc = (RecordDoc) page.constructs.get(0);
@@ -644,7 +633,7 @@ public class HtmlDocTest {
                 "     string state = \"MN\";" +
                 "  } address;" +
                 "}");
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertTrue(page.constructs.get(0) instanceof RecordDoc, "Documentable of type RecordDoc expected.");
         RecordDoc personRecordDoc = (RecordDoc) page.constructs.get(0);
@@ -664,7 +653,7 @@ public class HtmlDocTest {
                 "        return \"\"\n;" +
                 "    }\n" +
                 "};");
-        Page page = generatePage(bLangPackage);
+        Page page = generateModule(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Test");
     }
@@ -699,9 +688,10 @@ public class HtmlDocTest {
      * @param balPackage bal package
      * @return page generated
      */
-    private Page generatePage(BLangPackage balPackage) {
-        List<Link> packages = new ArrayList<>();
-        packages.add(new Link(new PackageName(balPackage.packageID.name.value, ""), "", false));
-        return Generator.generateModuleConstructs(balPackage, packages, null, null);
+    private Module generateModule(BLangPackage balPackage) {
+        Module module = new Module();
+        module.id = balPackage.packageID.name.toString();
+        Generator.generateModuleConstructs(module, balPackage);
+        return module;
     }
 }
