@@ -17,7 +17,7 @@
 import ballerina/artemis;
 
 public function createSimpleConsumer() returns artemis:Consumer|error {
-    artemis:Listener lis = new artemis:Listener({host:"localhost", port:61616});
+    artemis:Listener lis = new artemis:Listener({host: "localhost", port: 61616});
     return lis.createAndGetConsumer({queueName: "example"});
 }
 
@@ -46,7 +46,12 @@ public function transactionConsumerReceive(artemis:Consumer consumer) returns st
     return msgTxt;
 }
 
-function receiveAndGetText(artemis:Consumer consumer) returns string {
+public function createErringConsumer() returns artemis:Consumer|error {
+    artemis:Listener lis = new artemis:Listener({host: "localhost", port: 61616});
+    return lis.createAndGetConsumer({queueName: "example3"});
+}
+
+public function receiveAndGetText(artemis:Consumer consumer) returns string {
     string msgTxt = "";
     var msg = consumer->receive();
     if(msg is artemis:Message) {
