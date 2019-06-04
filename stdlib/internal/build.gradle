@@ -62,6 +62,21 @@ createBalo {
     jvmTarget = 'true'
 }
 
+test {
+    dependsOn createTestBalHome
+    doFirst {
+        copy {
+            from "$buildDir/generated-balo/repo/ballerina"
+            into "$buildDir/ballerina-home/test/lib/repo/ballerina"
+        }
+    }
+//    systemProperty "experimental", "true"
+    systemProperty "enableJBallerinaTests", "true"
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+}
+
 description = 'Ballerina - Internal'
 
 configurations.all {

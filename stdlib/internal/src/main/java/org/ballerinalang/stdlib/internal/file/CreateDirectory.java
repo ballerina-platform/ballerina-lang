@@ -21,6 +21,9 @@ package org.ballerinalang.stdlib.internal.file;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -80,4 +83,25 @@ public class CreateDirectory extends BlockingNativeCallableUnit {
                     "Could not create the requested directory structure: " + path));
         }
     }
+
+    public static Object createDirectory(Strand strand, ObjectValue self) {
+        Path path = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
+        File dir = path.toFile();
+        try {
+            if (Files.exists(path)) {
+                String msg = "Directory already exists: " + path;
+                log.error(msg);
+                return BallerinaErrors.createError(msg);
+            } else if (!dir.mkdirs()) {
+                String msg = "Permission denied to create the requested directory structure: " + path;
+                log.error(msg);
+                return BallerinaErrors.createError(msg);
+            }
+        } catch (SecurityException e) {
+            log.error("Could not create directory structure: " + path, e);
+            return BallerinaErrors.createError("Could not create the requested directory structure: " + path);
+        }
+        return null;
+    }
+
 }
