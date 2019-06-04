@@ -111,7 +111,7 @@ public class StreamValue implements RefValue {
      * @param data the data to publish to the stream
      */
     public void publish(Strand strand, Object data) {
-        if (!TypeChecker.checkCast(data, constraintType, new ArrayList<>())) {
+        if (!TypeChecker.checkIsType(data, constraintType)) {
             throw BallerinaErrors.createError("incompatible types: value of type:" +
                     TypeChecker.getType(data).getName() + " cannot be added to a stream of type:" +
                     this.constraintType.getName());
@@ -128,7 +128,7 @@ public class StreamValue implements RefValue {
     public void subscribe(FPValue<Object[], Object> functionPointer) {
         BType[] parameters = ((BFunctionType) functionPointer.type).paramTypes;
         int lastArrayIndex = parameters.length - 1;
-        if (!TypeChecker.isAssignable(constraintType, ((BFunctionType) functionPointer.getType())
+        if (!TypeChecker.checkIsType(constraintType, ((BFunctionType) functionPointer.getType())
                                                  .paramTypes[lastArrayIndex],
                                       new ArrayList<>())) {
             throw BallerinaErrors.createError("incompatible function: subscription function needs to be a function"
