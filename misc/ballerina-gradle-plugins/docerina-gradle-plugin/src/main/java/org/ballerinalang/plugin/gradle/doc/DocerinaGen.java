@@ -18,7 +18,6 @@
 
 package org.ballerinalang.plugin.gradle.doc;
 
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.launcher.LauncherUtils;
@@ -43,8 +42,6 @@ public class DocerinaGen {
 
         System.setProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS, "true");
 
-        ConfigRegistry.getInstance().addConfiguration(BallerinaDocConstants.GENERATE_TOC, false);
-
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         List<String> sources;
 
@@ -61,7 +58,6 @@ public class DocerinaGen {
             System.clearProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY);
             System.clearProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH);
             System.clearProperty(BallerinaDocConstants.ORG_NAME);
-            ConfigRegistry.getInstance().removeConfiguration(BallerinaDocConstants.GENERATE_TOC);
         }
     }
 }

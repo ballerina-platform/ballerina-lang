@@ -86,7 +86,7 @@ public class BallerinaDocUtils {
     }
 
     /**
-     * Parse a given markdown
+     * Parse a given markdown.
      *
      * @param mdContent content
      * @return Node parse tree

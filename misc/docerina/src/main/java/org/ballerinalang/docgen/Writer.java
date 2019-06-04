@@ -28,20 +28,16 @@ import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
-import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.docgen.generator.model.DefaultableVarible;
 import org.ballerinalang.docgen.generator.model.PageContext;
 import org.ballerinalang.docgen.generator.model.Type;
-import org.ballerinalang.docgen.generator.model.UnionType;
 import org.ballerinalang.docgen.generator.model.Variable;
-import org.ballerinalang.docgen.model.ModuleDoc;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -144,8 +140,9 @@ public class Writer {
     }
 
     private static String getHtmlLink(Type type, String root) {
-        String orgName = BallerinaDocDataHolder.getInstance().getOrgName();
-        Map<String, ModuleDoc> packageMap = BallerinaDocDataHolder.getInstance().getPackageMap();
+        // TODO: Create links to other modules on central if they are not available locally
+        // String orgName = BallerinaDocDataHolder.getInstance().getOrgName();
+        // Map<String, ModuleDoc> packageMap = BallerinaDocDataHolder.getInstance().getPackageMap();
         String link = root + type.moduleName + "/" + type.category + "/" + type.name + ".html";
         if ("types".equals(type.category) || "constants".equals(type.category) || "annotations".equals(type.category)
                 || "errors".equals(type.category)) {

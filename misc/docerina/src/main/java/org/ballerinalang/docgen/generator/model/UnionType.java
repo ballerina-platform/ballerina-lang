@@ -15,16 +15,12 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Represents a union type.
  */
 public class UnionType extends Type {
-
-    // public List<Type> memberTypes = new ArrayList<>();
-
     public UnionType(String name, String description, List<Type> memberTypes) {
         super(name, description);
         this.memberTypes = memberTypes;

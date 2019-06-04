@@ -19,18 +19,14 @@ import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.model.elements.Flag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -103,8 +99,6 @@ public class Type {
                         this.orgName = typeSymbol.pkgID.orgName.value;
                         this.moduleName = typeSymbol.pkgID.name.value;
                     }
-                } else if (type instanceof BLangErrorType) {
-                    this.name = type.type.toString();
                 } else {
                     this.name = type.type.toString();
                 }
@@ -120,10 +114,11 @@ public class Type {
 
     public static Type fromTypeNode(BLangType type) {
         Type typeModel = null;
-        if (type instanceof BLangFunctionTypeNode){
+        if (type instanceof BLangFunctionTypeNode) {
             typeModel = new Type();
             typeModel.isLambda = true;
-            typeModel.paramTypes = ((BLangFunctionTypeNode) type).params.stream().map((p) ->Type.fromTypeNode(p.typeNode))
+            typeModel.paramTypes = ((BLangFunctionTypeNode) type).params.stream()
+                    .map((p) -> Type.fromTypeNode(p.typeNode))
                     .collect(Collectors.toList());
             typeModel.returnType = Type.fromTypeNode(((BLangFunctionTypeNode) type).returnTypeNode);
         } else if (type instanceof BLangFiniteTypeNode) {
@@ -159,7 +154,7 @@ public class Type {
     }
 
     private void setCategory(BType type) {
-        if(type.getClass().equals(BObjectType.class)) {
+        if (type.getClass().equals(BObjectType.class)) {
             BObjectTypeSymbol objSymbol = (BObjectTypeSymbol) type.tsymbol;
             if (objSymbol.getFlags().contains(Flag.CLIENT)) {
                 this.category = "clients";
@@ -171,9 +166,9 @@ public class Type {
         } else {
             switch (type.tag) {
                 case TypeTags
-                        .ANNOTATION: this.category = "annotations";break;
+                        .ANNOTATION: this.category = "annotations"; break;
                 case TypeTags
-                        .RECORD: this.category = "records";break;
+                        .RECORD: this.category = "records"; break;
                 case TypeTags
                         .UNION:
                 case TypeTags
@@ -188,9 +183,9 @@ public class Type {
                                 }
                             }
                         }
-                        this.category = "types";break;
+                        this.category = "types"; break;
                 case TypeTags
-                        .ERROR: this.category = "errors";break;
+                        .ERROR: this.category = "errors"; break;
                 default:
                     this.category = "UNKOWN";
             }
