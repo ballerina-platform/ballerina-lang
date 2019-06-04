@@ -117,28 +117,46 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     public ArrayValue(BType type) {
-        this.arrayType = type;
-        if (type.getTag() == TypeTags.ARRAY_TAG) {
-            BArrayType arrayType = (BArrayType) type;
-            this.elementType = arrayType.getElementType();
-            if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
-                this.size = maxArraySize = arrayType.getSize();
-            }
-            initArrayValues(this.elementType);
-        } else if (type.getTag() == TypeTags.TUPLE_TAG) {
-            BTupleType tupleType = (BTupleType) type;
-            this.size = maxArraySize = tupleType.getTupleTypes().size();
-            refValues = (Object[]) newArrayInstance(Object.class);
-            AtomicInteger counter = new AtomicInteger(0);
-            tupleType.getTupleTypes()
-                    .forEach(memType -> refValues[counter.getAndIncrement()] = memType.getEmptyValue());
-        } else if (type.getTag() == TypeTags.UNION_TAG) {
-            BUnionType unionType = (BUnionType) type;
-            this.size = maxArraySize = unionType.getMemberTypes().size();
-            unionType.getMemberTypes().forEach(this::initArrayValues);
+        if (type.getTag() == TypeTags.INT_TAG) {
+            intValues = (long[]) newArrayInstance(Long.TYPE);
+            setArrayElementType(type);
+        } else if (type.getTag() == TypeTags.BOOLEAN_TAG) {
+            booleanValues = (boolean[]) newArrayInstance(Boolean.TYPE);
+            setArrayElementType(type);
+        } else if (type.getTag() == TypeTags.BYTE_TAG) {
+            byteValues = (byte[]) newArrayInstance(Byte.TYPE);
+            setArrayElementType(type);
+        } else if (type.getTag() == TypeTags.FLOAT_TAG) {
+            floatValues = (double[]) newArrayInstance(Double.TYPE);
+            setArrayElementType(type);
+        } else if (type.getTag() == TypeTags.STRING_TAG) {
+            stringValues = (String[]) newArrayInstance(String.class);
+            Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
+            setArrayElementType(type);
         } else {
-            refValues = (Object[]) newArrayInstance(Object.class);
-            Arrays.fill(refValues, type.getEmptyValue());
+            this.arrayType = type;
+            if (type.getTag() == TypeTags.ARRAY_TAG) {
+                BArrayType arrayType = (BArrayType) type;
+                this.elementType = arrayType.getElementType();
+                if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
+                    this.size = maxArraySize = arrayType.getSize();
+                }
+                initArrayValues(this.elementType);
+            } else if (type.getTag() == TypeTags.TUPLE_TAG) {
+                BTupleType tupleType = (BTupleType) type;
+                this.size = maxArraySize = tupleType.getTupleTypes().size();
+                refValues = (Object[]) newArrayInstance(Object.class);
+                AtomicInteger counter = new AtomicInteger(0);
+                tupleType.getTupleTypes()
+                        .forEach(memType -> refValues[counter.getAndIncrement()] = memType.getEmptyValue());
+            } else if (type.getTag() == TypeTags.UNION_TAG) {
+                BUnionType unionType = (BUnionType) type;
+                this.size = maxArraySize = unionType.getMemberTypes().size();
+                unionType.getMemberTypes().forEach(this::initArrayValues);
+            } else {
+                refValues = (Object[]) newArrayInstance(Object.class);
+                Arrays.fill(refValues, type.getEmptyValue());
+            }
         }
     }
 
@@ -367,6 +385,10 @@ public class ArrayValue implements RefValue, CollectionValue {
         return size;
     }
 
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
     @Override
     public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
         if (type.getTag() == TypeTags.TUPLE_TAG) {
@@ -556,7 +578,7 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     public String[] getStringArray() {
-        return stringValues;
+        return Arrays.copyOf(stringValues, size);
     }
 
     @Override

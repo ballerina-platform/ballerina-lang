@@ -136,6 +136,16 @@ public class BCompileUtil {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
+    /**
+     * Compile and return the semantic errors for tests.
+     *
+     * @param sourceFilePath Path to source module/file
+     * @return Semantic errors
+     */
+    public static CompileResult compileOnBVM(String sourceFilePath) {
+        return compile(sourceFilePath, CompilerPhase.CODE_GEN);
+    }
+
     public static CompileResult compileWithoutExperimentalFeatures(String sourceFilePath) {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN, false);
     }

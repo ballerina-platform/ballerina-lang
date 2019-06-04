@@ -206,6 +206,7 @@
                     <exclude name="simpleWorkerMessagePassingTest"/>
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
         </classes>
     </test>
 </suite>
