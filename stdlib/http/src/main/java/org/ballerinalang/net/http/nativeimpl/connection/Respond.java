@@ -163,8 +163,6 @@ public class Respond extends ConnectionAction {
             } else {
                 sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseObj, outboundResponseMsg);
             }
-            //TODO : Temporary block the call. Remove this callback once the support is available
-            callback.sync();
         } catch (EncoderException e) {
             //Exception is already notified by http transport.
             log.debug("Couldn't complete outbound response", e);

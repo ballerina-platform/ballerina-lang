@@ -21,6 +21,10 @@ package org.ballerinalang.stdlib.internal.file;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -75,5 +79,19 @@ public class Resolve extends BlockingNativeCallableUnit {
         BMap<String, BValue> parentPath = BLangConnectorSPIUtil.createObject(context, Constants.PACKAGE_PATH, Constants
                 .PATH_STRUCT, new BString(newPath.toString()));
         context.setReturnValues(parentPath);
+    }
+
+    public static ObjectValue resolve(Strand strand, ObjectValue self, ArrayValue paths) {
+        Path path = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
+
+        Path newPath = Paths.get(path.toString());
+        for (int i = 0; i < paths.size(); i++) {
+            newPath = newPath.resolve(paths.getString(i));
+        }
+
+        ObjectValue parentPathStruct = BallerinaValues.createObjectValue(Constants.PACKAGE_PATH, Constants
+                .PATH_STRUCT);
+        parentPathStruct.call(strand, Constants.INIT_FUNCTION_NAME, newPath.toString(), true);
+        return parentPathStruct;
     }
 }
