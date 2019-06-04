@@ -81,6 +81,11 @@ public class BObjectType extends BStructureType {
     public String toString() {
         String name = (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ?
                 typeName : pkg.getName() + ":" + typeName;
+        
+        if (!typeName.contains("$anon")) {
+            return name;
+        }
+
         StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");
 
         for (Entry<String, BField> field : getFields().entrySet()) {
