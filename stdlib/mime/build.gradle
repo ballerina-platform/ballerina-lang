@@ -63,9 +63,7 @@ dependencies {
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
 
-//    localDependency project(path: ':ballerina-bir', configuration: 'baloImplementation')
-//    localDependency project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-//    localDependency project(path: ':ballerina-jvm', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 }
 
 test {
