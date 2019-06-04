@@ -561,9 +561,9 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         jvm:Label bbEndLable = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
         mv.visitLabel(bbEndLable);
 
-        if (loadAnnots && j == basicBlocks.length() - 1) {
-            generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
-        }
+        //if (loadAnnots && j == basicBlocks.length() - 1) {
+        //    generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
+        //}
 
         if (!isArg) {
             mv.visitIntInsn(BIPUSH, j);
@@ -574,7 +574,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         if (!isArg || (isArg && !(terminator is bir:Return))) {
             generateDiagnosticPos(terminator.pos, mv);
             if (isModuleInitFunction(module, func) && terminator is bir:Return) {
-                processAnnotation(mv, module.typeDefs, currentPackageName);
+                //processAnnotation(mv, module.typeDefs, currentPackageName);
+                generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
             }
             termGen.genTerminator(terminator, func, funcName, isTrapped, currentEE, endLabel, handlerLabel, jumpLabel,
                                     localVarOffset, returnVarRefIndex);

@@ -97,7 +97,7 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             mv.visitInsn(DUP);
             addObjectFields(mv, bType.oType.fields);
-            addObjectAtatchedFunctions(mv, bType.oType.attachedFunctions, bType.oType, indexMap);
+            addObjectAttachedFunctions(mv, bType.oType.attachedFunctions, bType.oType, indexMap, typePkgName);
         }
     }
 }
@@ -606,7 +606,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BTypeDesc) {
         typeFieldName = "typeTypedesc";
     }  else if (bType is bir:BServiceType) {
-        typeFieldName = "typeAnyService";
+        loadUserDefinedType(mv, bType);
+        return;
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
@@ -811,13 +812,16 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
 #
 # + mv - method visitor
 # + typeName - type to be loaded
-function loadUserDefinedType(jvm:MethodVisitor mv, bir:BObjectType|bir:BRecordType bType) {
+function loadUserDefinedType(jvm:MethodVisitor mv, bir:BObjectType|bir:BRecordType|bir:BServiceType bType) {
     string fieldName = "";
     string typeOwner = "";
 
     if (bType is bir:BObjectType) {
         typeOwner = getPackageName(bType.moduleId.org, bType.moduleId.name) + MODULE_INIT_CLASS_NAME;
         fieldName = getTypeFieldName(bType.name.value);
+    } else if (bType is bir:BServiceType) {
+        typeOwner = getPackageName(bType.oType.moduleId.org, bType.oType.moduleId.name) + MODULE_INIT_CLASS_NAME;
+        fieldName = getTypeFieldName(bType.oType.name.value);
     } else {
         typeOwner = getPackageName(bType.moduleId.org, bType.moduleId.name) + MODULE_INIT_CLASS_NAME;
         fieldName = getTypeFieldName(bType.name.value);
