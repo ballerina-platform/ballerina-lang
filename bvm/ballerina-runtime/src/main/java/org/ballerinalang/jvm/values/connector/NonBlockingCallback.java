@@ -53,16 +53,6 @@ public class NonBlockingCallback {
         this.strand.scheduler.unblockStrand(strand);
     }
 
-//    public void sync() {
-////        try {
-////            if (!executionWaitSem.tryAcquire(120, TimeUnit.SECONDS)) {
-////                log.debug("Failed to acquire");
-////            }
-////        } catch (InterruptedException e) {
-////            //ignore
-////        }
-//    }
-
     public void setReturnValues(Object returnValue) {
         this.returnValue = returnValue;
         //TODO : Replace following with callback.setReturnValues() once strand non-blocking support is given
