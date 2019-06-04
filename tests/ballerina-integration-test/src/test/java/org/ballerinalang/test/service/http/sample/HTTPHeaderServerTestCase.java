@@ -31,13 +31,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Testing the header server for HTTP methods.
+ * Testing the header server name for HTTP methods.
  */
 @Test(groups = "http-test")
 public class HTTPHeaderServerTestCase extends HttpBaseTest {
     private final String requestMessage = "{\"exchange\":\"nyse\",\"name\":\"WSO2\",\"value\":\"127.50\"}";
 
-    @Test(description = "Test echo service sample test case invoking base path")
+    @Test(description = "Test header server name in the successful response")
     public void testHeaderServerFromSuccessResponse() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
@@ -48,7 +48,7 @@ public class HTTPHeaderServerTestCase extends HttpBaseTest {
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.SERVER.toString()), "Mysql");
     }
 
-    @Test(description = "Test echo service sample test case invoking base path")
+    @Test(description = "Test header server name in the successful response")
     public void testsetHeaderServerManuallyFromSuccessResponse() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
@@ -60,7 +60,7 @@ public class HTTPHeaderServerTestCase extends HttpBaseTest {
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.SERVER.toString()), "Mysql");
     }
 
-    @Test(description = "Test echo service sample test case invoking base path")
+    @Test(description = "Test header server name in the unsuccessful response")
     public void testDefaultHeaderServerFromSuccessResponse() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
@@ -71,7 +71,7 @@ public class HTTPHeaderServerTestCase extends HttpBaseTest {
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.SERVER.toString()).contains("ballerina"));
     }
 
-    @Test(description = "Test echo service sample test case invoking base path")
+    @Test(description = "Test header server name in the unsuccessful response")
     public void testHeaderServerFromUnSuccessResponse() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
@@ -81,7 +81,7 @@ public class HTTPHeaderServerTestCase extends HttpBaseTest {
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.SERVER.toString()), "Mysql");
     }
 
-    @Test(description = "Test echo service sample test case invoking base path")
+    @Test(description = "Test default header server name in the unsuccessful response")
     public void testDefaultHeaderServerFromUnSuccessResponse() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
@@ -91,7 +91,7 @@ public class HTTPHeaderServerTestCase extends HttpBaseTest {
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.SERVER.toString()).contains("ballerina"));
     }
 
-    @Test(description = "Test echo service sample test case invoking base path")
+    @Test(description = "Test header server name in the unsuccessful response")
     public void testHeaderServerFromUnSuccessResponse1() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
@@ -102,7 +102,7 @@ public class HTTPHeaderServerTestCase extends HttpBaseTest {
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.SERVER.toString()), "Mysql");
     }
 
-    @Test(description = "Test echo service sample test case invoking base path")
+    @Test(description = "Test default header server name in the unsuccessful response")
     public void testDefaultHeaderServerFromUnSuccessResponse1() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
@@ -113,7 +113,7 @@ public class HTTPHeaderServerTestCase extends HttpBaseTest {
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.SERVER.toString()).contains("ballerina"));
     }
 
-    @Test(description = "Returning error from a resource function generate 500")
+    @Test(description = "Test header server name from a resource function generate 500")
     public void testHeaderServernameReturnedFromAErrorResourceFunction() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9228,
                 "manualErrorReturn"));

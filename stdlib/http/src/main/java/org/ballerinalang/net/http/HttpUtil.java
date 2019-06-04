@@ -1592,7 +1592,7 @@ public class HttpUtil {
         String userAgent;
         String version = System.getProperty(BALLERINA_VERSION);
         if (version != null) {
-            userAgent = "ballerina" + version;
+            userAgent = "ballerina/" + version;
         } else {
             userAgent = "ballerina";
         }
