@@ -2108,20 +2108,20 @@ public class BIRGen extends BLangNodeVisitor {
         List<BIRVariableDcl> params = new ArrayList<>();
 
         funcSymbol.params.forEach(param -> {
-            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, param.type, this.env.nextLocalVarId(names),
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, param.type, this.env.nextLambdaVarId(names),
                     VarScope.FUNCTION, VarKind.ARG);
             params.add(birVarDcl);
         });
 
         funcSymbol.defaultableParams.forEach(param -> {
-            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, param.type, this.env.nextLocalVarId(names),
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, param.type, this.env.nextLambdaVarId(names),
                     VarScope.FUNCTION, VarKind.ARG);
             params.add(birVarDcl);
         });
 
         BVarSymbol restParam = funcSymbol.restParam;
         if (restParam != null) {
-            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, restParam.type, this.env.nextLocalVarId(names),
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, restParam.type, this.env.nextLambdaVarId(names),
                     VarScope.FUNCTION, VarKind.ARG);
             params.add(birVarDcl);
         }
