@@ -492,12 +492,12 @@ public class BIRGen extends BLangNodeVisitor {
         return closureMaps;
     }
 
-    private Name getFuncName(BInvokableSymbol symbol) {
-        if (symbol.receiverSymbol == null) {
+    private Name getFuncName(BSymbol symbol) {
+        if (symbol.tag != SymTag.INVOKABLE) {
             return symbol.name;
         }
-
-        int offset = symbol.receiverSymbol.type.tsymbol.name.value.length() + 1;
+        BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
+        int offset = invokableSymbol.receiverSymbol.type.tsymbol.name.value.length() + 1;
         String attachedFuncName = symbol.name.value;
         return names.fromString(attachedFuncName.substring(offset, attachedFuncName.length()));
     }
@@ -805,7 +805,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         // TODO: make vCall a new instruction to avoid package id in vCall
-        Name funcName = getFuncName((BInvokableSymbol) invocationExpr.symbol);
+        Name funcName = getFuncName(invocationExpr.symbol);
         if (invocationExpr.functionPointerInvocation) {
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
                     fp, args, lhsOp, invocationExpr.async, thenBB);
