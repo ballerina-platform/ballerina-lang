@@ -51,7 +51,7 @@ public class Sleep implements NativeCallableUnit {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         AsyncTimer.schedule(callback::notifySuccess, delayMillis);
         //TODO : Remove callback once strand non-blocking support is given
-        callback.sync();
+//        callback.sync();
     }
 
     @Override
