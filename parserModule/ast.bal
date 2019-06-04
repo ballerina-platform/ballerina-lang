@@ -9,7 +9,7 @@ const EXPRESSION_NODE = "expression";
 const BINARY_EXP_NODE = "binaryExpression";
 const IDENTIFIER_NODE = "identifier";
 const VAR_REF_NODE = "variableReferenceIdentifier";
-const FN_SIGNATURE_NODE = "functionSignatureNode";
+const FN_SIGNATURE_NODE = "functionSignature";
 const BLOCK_NODE = "blockNode";
 const INTEGER_LITERAL = "integerLiteral";
 const QUO_STRING_LITERAL = "quotedStringLiteral";
@@ -73,16 +73,18 @@ type DefinitionNode FunctionNode | ErrorNode;
 
 type FunctionNode record {
     *Node;
-    FunctionSignatureNode? fnSignature;
-    BlockNode? blockNode;
+    FunctionUnitSignatureNode fnSignature;
+    FunctionBodyNode blockNode;
 };
 
-//function identifier ()
+type FunctionUnitSignatureNode FunctionSignatureNode | ErrorNode;
+
 type FunctionSignatureNode record{
     *Node;
-    IdentifierNode functionIdentifier;
+    IdentifierNodeKind functionIdentifier;
 };
 
+type FunctionBodyNode BlockNode | ErrorNode;
 //{ <statement*> }
 type BlockNode record{
     *Node;
@@ -95,12 +97,17 @@ type ErrorNode record{
 	*Node;
     StatementNode errorStatement?;
     FunctionNode errorFunction?;
+    IdentifierNode errorIdentifier?;
+    FunctionSignatureNode errorFunctionSignature?;
+    BlockNode errorBlockNode?;
+    VarRefIdentifier errorVarRef?;
+    ExpressionNode errorExpression?;
 };
 
 type VariableDefinitionStatementNode record{
     *Node;
     ValueKind valueKind;
-    VarRefIdentifier? varIdentifier;
+    VariableReferenceNode varIdentifier;
     ExpressionNode? expression;
 };
 
@@ -118,21 +125,23 @@ type BinaryExpressionNode record {
     ExpressionNode rightExpr;
 };
 
-//as untaint unary expression - Valuekind is also added
 type UnaryExpressionNode record {
    *Node;
     OperatorKind operatorKind;
     ExpressionNode uExpression;
 };
+type IdentifierNodeKind IdentifierNode | ErrorNode;
 
 type IdentifierNode record {
     *Node;
-    string identifier;
+    string? identifier;
 };
+
+type VariableReferenceNode VarRefIdentifier | ErrorNode;
 
 type VarRefIdentifier record {
     *Node;
-    string varIdentifier;
+    string? varIdentifier;
 };
 //LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
 type RecordLiteralNode record {

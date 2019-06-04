@@ -56,5 +56,10 @@ public type ParserBufferReader object {
         int a = (self.readPointer - 1 + lookAheadCount) % self.capacity;
         return self.tokenArray[a];
     }
+    function printTokenBuffer() {
+            foreach Token item in self.tokenArray {
+                io:println(item);
+            }
+    }
 
 };

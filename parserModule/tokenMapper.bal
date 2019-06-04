@@ -42,10 +42,11 @@ const int REF_EQUAL = 24;
 const int NOT = 25;
 //sub and add tokens will be renamed as unaryMinus and unaryPlus,
 //in the parser during unary expressions
-const int UNARY_MINUS = 26;
-const int UNARY_PLUS = 27;
-const int BIT_COMPLEMENT = 28;
-const int UNTAINT = 29;
+
+const int BIT_COMPLEMENT = 26;
+const int UNTAINT = 27;
+const int UNARY_MINUS = 28;
+const int UNARY_PLUS = 29;
 
 // Integer Range Operators.
 const int HALF_OPEN_RANGE = 30;
@@ -87,7 +88,7 @@ const int LEFT_CLOSED_RECORD_DELIMITER = 57;
 
 string[] tokenNames = ["LBRACE", "RBRACE", "SEMICOLON", "COMMA", "DOT", "COLON", "LPAREN", "RPAREN", "QUESTION_MARK",
 "LEFT_BRACKET", "RIGHT_BRACKET", "HASH", "ADD", "SUB", "DIV", "MUL", "MOD", "GT", "GT_EQUAL", "LT", "LT_EQUAL",
-"EQUAL", "NOT_EQUAL", "REF_NOT_EQUAL", "NOT", "UNARY_MINUS", "UNARY_PLUS", "BIT_COMPLEMENT", "UNTAINT",
+"EQUAL", "NOT_EQUAL", "REF_NOT_EQUAL", "REF_EQUAL", "NOT", "BIT_COMPLEMENT", "UNTAINT", "UNARY_MINUS", "UNARY_PLUS",
 "HALF_OPEN_RANGE", "COMPOUND_ADD", "COMPOUND_SUB", "COMPOUND_DIV", "COMPOUND_MUL", "COMPOUND_RIGHT_SHIFT",
 "COMPOUND_LEFT_SHIFT", "COMPOUND_LOGICAL_SHIFT", "RANGE", "ELLIPSIS", "ELVIS", "EQUAL_GT", "RARROW", "SYNCRARROW",
 "LARROW", "ASSIGN", "IDENTIFIER", "NUMBER", "QUOTED_STRING_LITERAL", "LEXER_ERROR_TOKEN", "PARSER_ERROR_TOKEN",
@@ -117,6 +118,10 @@ const string assignSym = "=";
 const string dotSym = ".";
 const string notSym = "!";
 
+const string gtSymbol = ">";
+const string ltSymbol = "<";
+const string singleQuoteSym = "\"";
+
 //double token symbols
 const string lCosedRecordSy = "{|";
 const string compAddSy = "+=";
@@ -131,12 +136,25 @@ const string rarrowSym = "->";
 const string rangeSym = "..";
 const string notEqSym = "!=";
 
+const string gtEqSym = ">=";
+const string ltEqSym = "<=";
+const string larrowSym = "<-";
+const string quotesStringSym = "\"\"";
+
 //triple token Symbols
 const string refEqSym = "===";
 const string syncRarrowSym = "->>";
 const string ellipsisSym = "...";
 const string halfOpenRangeSym = "..<";
 const string refNotEqSym = "!==";
+
+const string compRShiftSym = ">>=";
+const string comLShiftSym = "<<=";
+const string eofSym = "EOF";
+
+//quadruple token symbol
+const string compLogicalSym = ">>>=";
+
 
 
 #object which fills tokens into separate maps based on the size of the symbol
@@ -197,7 +215,5 @@ type TokenMapper object {
         self.tripleSymbol[ellipsisSym] = ELLIPSIS;
         self.tripleSymbol[halfOpenRangeSym] = HALF_OPEN_RANGE;
         self.tripleSymbol[refNotEqSym] = REF_NOT_EQUAL;
-        
     }
-
 };

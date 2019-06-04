@@ -33,3 +33,74 @@ ERROR [sachini/parserModule] - 1:8: expected IDENTIFIER; found 'EOF'
 		}
 	}]
 }
+
+Updated AST:
+
+ERROR [sachini/parserModule] - 1:8: expected IDENTIFIER; found 'EOF'
+ERROR [sachini/parserModule] - 1:8: expected LBRACE; found 'EOF'
+ERROR [sachini/parserModule] - LBRACE inserted
+ERROR [sachini/parserModule] - 1:8: expected RBRACE; found 'EOF'
+ERROR [sachini/parserModule] - RBRACE inserted
+
+{
+	"nodeKind": "package",
+	"tokenList": [{
+		"tokenType": 51,
+		"text": "EOF",
+		"startPos": 8,
+		"endPos": 8,
+		"lineNumber": 1,
+		"index": 2,
+		"whiteSpace": null
+	}],
+	"definitionList": [{
+		"nodeKind": "function",
+		"tokenList": [{
+			"tokenType": 53,
+			"text": "function",
+			"startPos": 1,
+			"endPos": 8,
+			"lineNumber": 1,
+			"index": 1,
+			"whiteSpace": null
+		}],
+		"fnSignature": {
+			"nodeKind": "functionSignature",
+			"tokenList": [],
+			"functionIdentifier": {
+				"nodeKind": "errorNode",
+				"tokenList": [],
+				"errorIdentifier": {
+					"nodeKind": "identifier",
+					"tokenList": [],
+					"identifier": null
+				}
+			}
+		},
+		"blockNode": {
+			"nodeKind": "errorNode",
+			"tokenList": [],
+			"errorBlockNode": {
+				"nodeKind": "blockNode",
+				"tokenList": [{
+					"tokenType": 0,
+					"text": "{",
+					"startPos": -1,
+					"endPos": -1,
+					"lineNumber": 0,
+					"index": -1,
+					"whiteSpace": ""
+				}, {
+					"tokenType": 1,
+					"text": "}",
+					"startPos": -1,
+					"endPos": -1,
+					"lineNumber": 0,
+					"index": -1,
+					"whiteSpace": ""
+				}],
+				"statementList": []
+			}
+		}
+	}]
+}

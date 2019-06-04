@@ -75,79 +75,79 @@ public type Lexer object {
                         self.position += 1;
                         self.tokenIndex += 1;
                         return {tokenType: tripleTokenSy, text: tripleSymbol, startPos: self.position - 2 , endPos:self.position,
-                              lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+                              lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace() };
 					}
 					self.tokenIndex += 1;
 					return {tokenType: doubleTokenSy, text: doubleSymbol, startPos: self.position - 1 , endPos:self.position,
-						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace() };
 				}
             	self.tokenIndex += 1;
             	return {tokenType: singleTokenSy, text: currChar, startPos: self.position, endPos: self.position,
-                					lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
-            }else if (currChar == ">") {
-				if (self.buffer.lookAhead() == "=") {
+                					lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace()};
+            } else if (currChar == gtSymbol) {
+				if (self.buffer.lookAhead() == assignSym) {
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
-					return {tokenType: GT_EQUAL, text: ">=", startPos: self.position - 1 , endPos:self.position,
-						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				} else if (self.buffer.lookAhead() == ">"){
-					if (self.buffer.lookAhead() == "=") {
+					return {tokenType: GT_EQUAL, text: gtEqSym, startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace() };
+				} else if (self.buffer.lookAhead() == gtSymbol){
+					if (self.buffer.lookAhead() == assignSym) {
 						currChar = self.nextLexeme();
 						self.position += 1;
 						self.tokenIndex += 1;
-						return {tokenType: COMPOUND_RIGHT_SHIFT, text: ">>=", startPos: self.position - 2 , endPos:self.position,
-							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-					} else if (self.buffer.lookAhead() == ">"){
-						if (self.buffer.lookAhead() == "=") {
+						return {tokenType: COMPOUND_RIGHT_SHIFT, text: compRShiftSym, startPos: self.position - 2 , endPos:self.position,
+							lineNumber: self.lineNum, index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace() };
+					} else if (self.buffer.lookAhead() == gtSymbol){
+						if (self.buffer.lookAhead() == assignSym) {
 							currChar = self.nextLexeme();
 							self.position += 1;
 							self.tokenIndex += 1;
-							return {tokenType: COMPOUND_LOGICAL_SHIFT, text: ">>>=", startPos: self.position - 1 ,
+							return {tokenType: COMPOUND_LOGICAL_SHIFT, text: compLogicalSym, startPos: self.position - 1 ,
 								endPos:self.position, lineNumber: self.lineNum , index: self.tokenIndex,
-								whiteSpace: self.getWhiteSpace() };
+								whiteSpace: self.wpStack.getWhiteSpace() };
 						}
 					}
 				}
 				self.tokenIndex += 1;
-				return {tokenType: GT, text: currChar, startPos: self.position, endPos: self.position,
-					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace() };
-			} else if (currChar == "<") {
-				if (self.buffer.lookAhead() == "=") {
+				return {tokenType: GT, text: gtSymbol, startPos: self.position, endPos: self.position,
+					lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.wpStack.getWhiteSpace() };
+			} else if (currChar == ltSymbol) {
+				if (self.buffer.lookAhead() == assignSym) {
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
-					return {tokenType: LT_EQUAL, text: "<=", startPos: self.position - 1 , endPos:self.position,
-						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				} else if (self.buffer.lookAhead() == "-"){
+					return {tokenType: LT_EQUAL, text: ltEqSym, startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace() };
+				} else if (self.buffer.lookAhead() == subSymbol){
 					currChar = self.nextLexeme();
 					self.position += 1;
 					self.tokenIndex += 1;
-					return {tokenType: LARROW, text: "<-", startPos: self.position - 1 , endPos:self.position,
-						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-				} else if(self.buffer.lookAhead() == "<"){
-					if (self.buffer.lookAhead() == "=") {
+					return {tokenType: LARROW, text: larrowSym, startPos: self.position - 1 , endPos:self.position,
+						lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace() };
+				} else if(self.buffer.lookAhead() == ltSymbol){
+					if (self.buffer.lookAhead() == assignSym) {
 						currChar = self.nextLexeme();
 						self.position += 1;
 						self.tokenIndex += 1;
-						return {tokenType: COMPOUND_LEFT_SHIFT, text: "<<=", startPos: self.position - 1 , endPos:self.position,
-							lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+						return {tokenType: COMPOUND_LEFT_SHIFT, text: comLShiftSym, startPos: self.position - 1 , endPos:self.position,
+							lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace() };
 					}
 				}
 				self.tokenIndex += 1;
-				return {tokenType: LT, text: currChar, startPos: self.position, endPos: self.position, lineNumber:
-				self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
-			} else if (currChar == "\"") {
+				return {tokenType: LT, text: ltSymbol, startPos: self.position, endPos: self.position, lineNumber:
+				self.lineNum , index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace() };
+			} else if (currChar == singleQuoteSym) {
                 string str = currChar;
 				//empty string literal - ex:""
-                if (self.buffer.lookAhead() == "\"") {
+                if (self.buffer.lookAhead() == singleQuoteSym) {
                     currChar = self.nextLexeme();
                     self.position += 1;
 					self.tokenIndex += 1;
-                    return {tokenType: QUOTED_STRING_LITERAL, text: "\"\"", startPos: self.position - 1 , endPos: self.position,
-                        lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.getWhiteSpace()} ;
+                    return {tokenType: QUOTED_STRING_LITERAL, text: quotesStringSym, startPos: self.position - 1 , endPos: self.position,
+                        lineNumber: self.lineNum, index: self.tokenIndex , whiteSpace: self.wpStack.getWhiteSpace()} ;
                 }
-				//keeps track whether the string literal is incompelete
+				//keeps track whether the string literal is incomplete
                 boolean incompleteStr = true;
 				//length of the string
                 int strPos = 0;
@@ -159,7 +159,7 @@ public type Lexer object {
                     strPos += 1;
 					//append the string with the current character
                     str = str + currChar;
-                    if (self.buffer.lookAhead() == "\"") {
+                    if (self.buffer.lookAhead() == singleQuoteSym) {
                         currChar = self.nextLexeme();
 						self.position += 1;
 						strPos += 1;
@@ -168,7 +168,7 @@ public type Lexer object {
 						self.tokenIndex += 1;
                         return {tokenType: QUOTED_STRING_LITERAL, text: str, startPos: self.position - strPos ,
 							endPos: self.position, lineNumber: self.lineNum  , index: self.tokenIndex,
-							whiteSpace: self.getWhiteSpace()};
+							whiteSpace: self.wpStack.getWhiteSpace()};
                     }
 					//loop until Eof
                     if (self.buffer.lookAhead() == "") {
@@ -176,7 +176,7 @@ public type Lexer object {
                         //if no inverted comma is found,all the characters until Eof is captured and returned as an Lexer Error Token
 						return {tokenType: LEXER_ERROR_TOKEN, text: str, startPos: self.position - strPos ,
 							endPos: self.position, lineNumber: self.lineNum  , index: self.tokenIndex,
-							whiteSpace: self.getWhiteSpace()};
+							whiteSpace: self.wpStack.getWhiteSpace()};
 
                     }
                 }
@@ -204,12 +204,12 @@ public type Lexer object {
 					}
 					self.tokenIndex += 1;
 					return {tokenType: LEXER_ERROR_TOKEN, text: numb, startPos: self.position - digitPos ,
-						endPos:self.position, lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+						endPos:self.position, lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace()};
 				}
 				if(validNum){
 					self.tokenIndex += 1;
 					return {tokenType: NUMBER, text: numb, startPos: self.position - digitPos , endPos:self.position,
-						lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+						lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace()};
 				}
             } else if (isLetter(currChar)) {
                 string word = currChar;
@@ -226,34 +226,18 @@ public type Lexer object {
                 if (checkReserved != EOF) {
 					self.tokenIndex += 1;
                     return {tokenType: checkReserved, text: word, startPos: self.position - wordLength , endPos:self.position,
-                        lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+                        lineNumber: self.lineNum  , index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace()};
                 } else {
 					self.tokenIndex += 1;
                     return {tokenType: IDENTIFIER, text: word, startPos: self.position - wordLength , endPos:self.position,
-                        lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.getWhiteSpace() };
+                        lineNumber: self.lineNum , index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace() };
                 }
             }
         }
 		self.tokenIndex += 1;
-        return {tokenType: EOF, text: "EOF", startPos: self.position, endPos: self.position, lineNumber: self.lineNum,
-			index: self.tokenIndex, whiteSpace: self.getWhiteSpace()};
+        return {tokenType: EOF, text: eofSym, startPos: self.position, endPos: self.position, lineNumber: self.lineNum,
+			index: self.tokenIndex, whiteSpace: self.wpStack.getWhiteSpace()};
     }
-
-	#if the whitespace stack is not empty, pop the stack and return the whitespace characters else return null
- 	# + return - whitespace string or null
-	function getWhiteSpace() returns string?{
-		string space= "";
-
-		if(self.wpStack.top != 0){
-			while(self.wpStack.top > 0){
-				space = self.wpStack.pop();
-				//space = self.wpStack.pop() + space;
-			}
-			return space;
-		}
-		return ();
-
-	}
 };
 
 
@@ -346,8 +330,8 @@ function isReserved(string word) returns int {
     int resWord = EOF;
 
     match word {
-        "function" => resWord = FUNCTION;
-        "int" => resWord = INT;
+        "function" =>resWord = FUNCTION;
+        "int" =>resWord = INT;
         "string" => resWord = STRING;
 		"untaint" => resWord = UNTAINT;
 		"final" => resWord = FINAL;
@@ -378,4 +362,20 @@ type WhiteSpaceStack object{
         string spaceSaved = self.spaceStack[self.top];
         return spaceSaved;
    }
+
+   #if the whitespace stack is not empty, pop the stack and return the whitespace characters else return null
+   # + return - whitespace string or null
+   	function getWhiteSpace() returns string?{
+   		string space= "";
+   
+   		if(self.top != 0){
+   			while(self.top > 0){
+   				space = self.pop();
+   				//space = self.wpStack.pop() + space;
+   			}
+   			return space;
+   		}
+   		return ();
+   
+   	}
 };

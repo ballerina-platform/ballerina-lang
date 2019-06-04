@@ -4,14 +4,14 @@ import ballerina/log;
 public function main() {
 	PackageNode? parsedFile = parseFile("inputFile.txt");
 	if(parsedFile is PackageNode){
-		io:println("here");
 		json|error j = json.convert(parsedFile);
 		   if (j is json) {
 		       io:println(j);
-		   }else{
-		   		       io:println(j);
-
 		   }
+		   //if (j is error){
+		   //		io:println(j);
+		   //
+		   //}
 		//io:println(parsedFile);
 	}
 }
@@ -30,6 +30,7 @@ function parseFile(string fileLocation) returns PackageNode? {
 	}else{
 		Lexer lex = new(bReader);
 		ParserBufferReader pBuffer = new(lex, capacity = 5);
+		//pBuffer.printTokenBuffer();
 		Parser parser = new(pBuffer);
 		PackageNode pkgNode = parser.parse();
 		closeRc(sourceChannel);
