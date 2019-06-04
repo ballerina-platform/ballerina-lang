@@ -20,28 +20,31 @@ package org.ballerinalang.stdlib.utils;
 
 
 import io.netty.handler.codec.http.HttpContent;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.BHTTPServicesRegistry;
-import org.ballerinalang.net.http.BHttpDispatcher;
-import org.ballerinalang.net.http.BHttpResource;
-import org.ballerinalang.net.http.BHttpUtil;
+
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.Executor;
+import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpDispatcher;
+import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.test.util.BFileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
+import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -61,21 +64,32 @@ public class Services {
         return invokeNew(compileResult, pkgName, Names.DEFAULT_VERSION.value, endpointName, request);
     }
 
+    private static MapValue getListner(CompileResult compileResult, String pkgName, String version,
+                                       String endpointName) {
+        BIRNode.BIRPackage birPackage = ((BLangPackage) compileResult.getAST()).symbol.bir;
+        String funcClassName =
+                BFileUtil.getQualifiedClassName(birPackage.org.value, birPackage.name.value, MODULE_INIT_CLASS_NAME);
+        Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
+        try {
+            Method method = funcClass.getDeclaredMethod("getListener", String.class);
+            return (MapValue) method.invoke(null, endpointName);
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot find endpoint: " + endpointName);
+        }
+    }
+
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
                                               String endpointName, HTTPTestRequest request) {
-        ProgramFile programFile = compileResult.getProgFile();
-        BMap<String, BValue> connectorEndpoint =
-                BLangConnectorSPIUtil.getPackageEndpoint(programFile, pkgName, version, endpointName);
-
-        BHTTPServicesRegistry httpServicesRegistry =
-                (BHTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
+        MapValue connectorEndpoint = getListner(compileResult, pkgName, version, endpointName);
+        HTTPServicesRegistry httpServicesRegistry =
+                (HTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
-        BHttpResource resource = null;
+        HttpResource resource = null;
         try {
-            resource = BHttpDispatcher.findResource(httpServicesRegistry, request);
+            resource = HttpDispatcher.findResource(httpServicesRegistry, request);
         } catch (BallerinaException ex) {
-            BHttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
+            HttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
         }
         if (resource == null) {
             return callback.getResponseMsg();
@@ -87,10 +101,13 @@ public class Services {
             Object srcHandler = request.getProperty(HttpConstants.SRC_HANDLER);
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        BValue[] signatureParams = BHttpDispatcher.getSignatureParameters(resource, request, BLangConnectorSPIUtil
-                .toStruct((BMap<String, BValue>) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG)));
+
+        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request,
+                (MapValue) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG));
         callback.setRequestStruct(signatureParams[0]);
-        Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
+
+        ObjectValue service = resource.getParentService().getBalService();
+        Executor.submit(service, resource.getName(), callback, properties, signatureParams);
         callback.sync();
 
         HttpCarbonMessage originalMsg = callback.getResponseMsg();
