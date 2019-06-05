@@ -22,7 +22,9 @@ function testAuthSuccess() {
     jwt:OutboundJWTAuthProvider outboundJwtAuthProvider = new({});
     http:BearerAuthHeaderAuthnHandler outboundJwtAuthnHandler = new(outboundJwtAuthProvider);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
-        authnHandler: outboundJwtAuthnHandler
+        auth: {
+            authnHandler: outboundJwtAuthnHandler
+        }
     });
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
@@ -39,7 +41,9 @@ function testAuthnFailure() {
     jwt:OutboundJWTAuthProvider outboundJwtAuthProvider = new({});
     http:BearerAuthHeaderAuthnHandler outboundJwtAuthnHandler = new(outboundJwtAuthProvider);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
-        authnHandler: outboundJwtAuthnHandler
+        auth: {
+            authnHandler: outboundJwtAuthnHandler
+        }
     });
     // Send a `GET` request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
@@ -53,8 +57,12 @@ function testAuthnFailure() {
 
 function testAuthzFailure() {
     // Create a client.
+    jwt:OutboundJWTAuthProvider outboundJwtAuthProvider = new({});
+    http:BearerAuthHeaderAuthnHandler outboundJwtAuthnHandler = new(outboundJwtAuthProvider);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
-        auth: { scheme: http:JWT_AUTH }
+        auth: {
+            authnHandler: outboundJwtAuthnHandler
+        }
     });
     // Send a `GET` request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");

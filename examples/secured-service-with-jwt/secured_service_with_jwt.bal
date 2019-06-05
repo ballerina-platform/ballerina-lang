@@ -3,7 +3,7 @@ import ballerina/jwt;
 import ballerina/log;
 
 // Create a JWT authentication provider with the relevant configurations.
-jwt:JWTAuthProvider jwtAuthProvider = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider = new({
     issuer: "ballerina",
     audience: ["ballerina.io"],
     certificateAlias: "ballerina",

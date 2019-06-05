@@ -22,6 +22,8 @@ import ballerina/log;
 # + outboundBasicAuthConfig - Outbound Basic auth provider configurations
 public type OutboundBasicAuthProvider object {
 
+    *OutboundAuthProvider;
+
     public OutboundBasicAuthConfig outboundBasicAuthConfig;
 
     # Provides authentication based on the provided basic auth configuration.

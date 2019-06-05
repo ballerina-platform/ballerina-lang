@@ -1,3 +1,4 @@
+import ballerina/auth;
 import ballerina/config;
 import ballerina/http;
 import ballerina/test;
@@ -19,14 +20,12 @@ function testFunc() {
 }
 
 function testAuthSuccess() {
-    // Create client. 
+    // Create client.
+    auth:OutboundBasicAuthProvider outboundBasicAuthProvider1 = new({ username: "tom", password: "password1" });
+    http:BasicAuthHeaderAuthnHandler outboundBasicAuthnHandler1 = new(outboundBasicAuthProvider1);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
-            scheme: http:BASIC_AUTH,
-            config: {
-                username: "tom",
-                password: "password1"
-            }
+            authnHandler: outboundBasicAuthnHandler1
         }
     });
     // Send a `GET` request to the specified endpoint.
@@ -41,13 +40,11 @@ function testAuthSuccess() {
 
 function testAuthnFailure() {
     // Create client.
+    auth:OutboundBasicAuthProvider outboundBasicAuthProvider2 = new({ username: "tom", password: "password" });
+    http:BasicAuthHeaderAuthnHandler outboundBasicAuthnHandler2 = new(outboundBasicAuthProvider2);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
-            scheme: http:BASIC_AUTH,
-            config: {
-                username: "tom",
-                password: "password"
-            }
+            authnHandler: outboundBasicAuthnHandler2
         }
     });
     // Send a `GET` request to the specified endpoint.
@@ -62,13 +59,11 @@ function testAuthnFailure() {
 
 function testAuthzFailure() {
     // Create client.
+    auth:OutboundBasicAuthProvider outboundBasicAuthProvider3 = new({ username: "dick", password: "password2" });
+    http:BasicAuthHeaderAuthnHandler outboundBasicAuthnHandler3 = new(outboundBasicAuthProvider3);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
-            scheme: http:BASIC_AUTH,
-            config: {
-                username: "dick",
-                password: "password2"
-            }
+            authnHandler: outboundBasicAuthnHandler3
         }
     });
     // Send a `GET` request to the specified endpoint
