@@ -97,7 +97,7 @@ public class WebSubPersistenceTestCase extends WebSubAdvancedBaseTest {
         requestUpdateWithContent(PUBLISHER_NOTIFY_URL_TWO, PUBLISHER_TWO_BEFORE_CONTENT);
     }
 
-    @Test(dependsOnMethods = "testDiscoveryAndIntentVerification")
+    @Test(dependsOnMethods = "testDiscoveryAndIntentVerification", enabled = false)
     public void testContentReceiptBeforeRestart() throws BallerinaTestException, IOException {
         notificationBeforeLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
         notificationBeforeLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
@@ -112,7 +112,7 @@ public class WebSubPersistenceTestCase extends WebSubAdvancedBaseTest {
         requestUpdateWithContent(PUBLISHER_NOTIFY_URL_TWO, PUBLISHER_TWO_AFTER_CONTENT);
     }
 
-    @Test(dependsOnMethods = "testContentReceiptBeforeRestart")
+    @Test(dependsOnMethods = "testContentReceiptBeforeRestart", enabled = false)
     public void testContentReceiptAfterRestart() throws BallerinaTestException {
         notificationAfterLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
         notificationAfterLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
