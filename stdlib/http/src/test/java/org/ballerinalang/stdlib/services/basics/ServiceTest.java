@@ -313,6 +313,5 @@ public class ServiceTest {
 
         Assert.assertNotNull(responseMsg);
         Assert.assertEquals(responseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE), 500);
-        //Assert.assertEquals(responseMsg.getHeader("server"), "Apache");
     }
 }

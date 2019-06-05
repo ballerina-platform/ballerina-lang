@@ -151,7 +151,7 @@ public type RequestLimits record {|
 #                          connection. By default 10 requests can be pipelined on a single connection and user can
 #                          change this limit appropriately. This will be applicable only for HTTP 1.1
 # + auth - Listener authentication configurations
-# + server - The server header
+# + server - The server name which should appear as a response header
 public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
     KeepAlive keepAlive = KEEPALIVE_AUTO;
@@ -163,7 +163,7 @@ public type ServiceEndpointConfiguration record {|
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
     ListenerAuth auth?;
-    string? server = "";
+    string? server = ();
 |};
 
 # Authentication configurations for the listener.

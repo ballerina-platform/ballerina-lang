@@ -1533,13 +1533,11 @@ public class HttpUtil {
             listenerConfiguration.setVersion(httpVersion);
         }
 
-        listenerConfiguration.setServerHeader(getServerName());
-
-        //check whether http configuration or grpc configuration
-        if (endpointConfig.getFields().length > 7) {
-            if (!endpointConfig.getStringField(SERVER_NAME).isEmpty()) {
-                listenerConfiguration.setServerHeader(endpointConfig.getStringField(SERVER_NAME));
-            }
+   g     if (Arrays.asList(endpointConfig.getFields()).contains(SERVER_NAME)) {
+            Value serverName = endpointConfig.getRefField(SERVER_NAME);
+            listenerConfiguration.setServerHeader(serverName != null ? serverName.getStringValue() : getServerName());
+        } else {
+            listenerConfiguration.setServerHeader(getServerName());
         }
 
         if (sslConfig != null) {
@@ -1588,7 +1586,7 @@ public class HttpUtil {
         }
     }
 
-    public static String getServerName() {
+    private static String getServerName() {
         String userAgent;
         String version = System.getProperty(BALLERINA_VERSION);
         if (version != null) {
