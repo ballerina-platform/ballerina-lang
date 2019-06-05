@@ -355,6 +355,8 @@ public class TypeChecker {
                 return checkIsFiniteType(sourceType, (BFiniteType) targetType, unresolvedTypes);
             case TypeTags.FUTURE_TAG:
                 return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
+            case TypeTags.ERROR_TAG:
+                return checkIsErrorType(sourceType, (BErrorType) targetType, unresolvedTypes);
             default:
                 return false;
         }
@@ -932,6 +934,21 @@ public class TypeChecker {
             }
         }
         return false;
+    }
+
+    private static boolean checkIsErrorType(BType sourceType, BErrorType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.ERROR_TAG) {
+            return false;
+        }
+        // Handle recursive error types.
+        TypePair pair = new TypePair(sourceType, targetType);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+        BErrorType bErrorType = (BErrorType) sourceType;
+        return checkIsType(bErrorType.reasonType, targetType.reasonType, unresolvedTypes) &&
+                checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
     }
 
     private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
