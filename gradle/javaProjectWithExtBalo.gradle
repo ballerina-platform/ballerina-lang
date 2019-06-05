@@ -38,7 +38,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
 }

@@ -18,7 +18,7 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
@@ -29,7 +29,7 @@ dependencies {
     implementation project(':ballerina-core')
 //    implementation project(':ballerina-lang')
     implementation project(':ballerina-time')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
 
     implementation 'com.zaxxer:HikariCP'
 }

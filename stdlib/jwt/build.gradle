@@ -33,7 +33,7 @@ dependencies {
 
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-auth')
     implementation project(':ballerina-cache')
     implementation project(':ballerina-log-api')
@@ -44,7 +44,7 @@ dependencies {
     implementation project(':ballerina-io')
     implementation project(':ballerina-utils')
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
@@ -61,7 +61,7 @@ dependencies {
     testCompile project(':ballerina-config')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
-    testCompile project(':ballerina-builtin')
+    testCompile project(':ballerina-lang:annotations')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-system')
