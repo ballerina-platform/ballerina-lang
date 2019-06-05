@@ -749,17 +749,6 @@ public class ASTBuilderUtil {
         return dupVarSymbol;
     }
 
-    static BLangRecordDestructure createRecordDestructureStmt(DiagnosticPos pos, BLangExpression expr,
-                                                              BLangRecordVarRef detail, BLangBlockStmt target) {
-        BLangRecordDestructure destructureStatementNode =
-                (BLangRecordDestructure) TreeBuilder.createRecordDestructureStatementNode();
-        destructureStatementNode.pos = pos;
-        destructureStatementNode.expr = expr;
-        destructureStatementNode.varRef = detail;
-        target.addStatement(destructureStatementNode);
-        return destructureStatementNode;
-    }
-
     private static IdentifierNode createIdentifier(String value) {
         IdentifierNode node = TreeBuilder.createIdentifierNode();
         if (value != null) {
