@@ -805,16 +805,17 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         // TODO: make vCall a new instruction to avoid package id in vCall
-        Name funcName = getFuncName((BInvokableSymbol) invocationExpr.symbol);
         if (invocationExpr.functionPointerInvocation) {
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
                     fp, args, lhsOp, invocationExpr.async, thenBB);
         } else if (invocationExpr.async) {
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
-                    isVirtual, invocationExpr.symbol.pkgID, funcName, args, lhsOp, thenBB);
+                    isVirtual, invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
+                    args, lhsOp, thenBB);
         } else {
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
-                    invocationExpr.symbol.pkgID, funcName, args, lhsOp, thenBB);
+                    invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
+                    thenBB);
         }
 
         this.env.enclBB = thenBB;
@@ -2108,20 +2109,20 @@ public class BIRGen extends BLangNodeVisitor {
         List<BIRVariableDcl> params = new ArrayList<>();
 
         funcSymbol.params.forEach(param -> {
-            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, param.type, this.env.nextLocalVarId(names),
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, param.type, this.env.nextLambdaVarId(names),
                     VarScope.FUNCTION, VarKind.ARG);
             params.add(birVarDcl);
         });
 
         funcSymbol.defaultableParams.forEach(param -> {
-            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, param.type, this.env.nextLocalVarId(names),
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, param.type, this.env.nextLambdaVarId(names),
                     VarScope.FUNCTION, VarKind.ARG);
             params.add(birVarDcl);
         });
 
         BVarSymbol restParam = funcSymbol.restParam;
         if (restParam != null) {
-            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, restParam.type, this.env.nextLocalVarId(names),
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, restParam.type, this.env.nextLambdaVarId(names),
                     VarScope.FUNCTION, VarKind.ARG);
             params.add(birVarDcl);
         }
