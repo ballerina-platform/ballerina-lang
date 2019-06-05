@@ -64,4 +64,18 @@ public class BErrorType extends BType {
     public void setDetailType(BType detailType) {
         this.detailType = detailType;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BErrorType)) {
+            return false;
+        }
+
+        BErrorType other = (BErrorType) obj;
+        if (reasonType == other.reasonType && detailType == other.detailType) {
+            return true;
+        }
+
+        return reasonType.equals(other.reasonType) && detailType.equals(other.detailType);
+    }
 }
