@@ -26,8 +26,8 @@ import org.ballerinalang.jvm.values.ErrorValue;
  */
 public class BErrorType extends BType {
 
-    private BType reasonType;
-    private BType detailType;
+    public BType reasonType;
+    public BType detailType;
 
     public BErrorType(String typeName, BPackage pkg, BType reasonType, BType detailType) {
         super(typeName, pkg, ErrorValue.class);
@@ -35,7 +35,12 @@ public class BErrorType extends BType {
         this.detailType = detailType;
     }
 
-    public BErrorType(BType reasonType, BType detailType) {
+    public BErrorType(String typeName, BPackage pkg, BType reasonType) {
+        super(typeName, pkg, ErrorValue.class);
+        this.reasonType = reasonType;
+    }
+
+    public BErrorType(BType reasonType) {
         super(TypeConstants.ERROR, null, ErrorValue.class);
         this.reasonType = reasonType;
         this.detailType = detailType;
@@ -54,5 +59,9 @@ public class BErrorType extends BType {
     @Override
     public int getTag() {
         return TypeTags.ERROR_TAG;
+    }
+
+    public void setDetailType(BType detailType) {
+        this.detailType = detailType;
     }
 }
