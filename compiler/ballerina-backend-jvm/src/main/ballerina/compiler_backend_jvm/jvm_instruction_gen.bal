@@ -645,6 +645,9 @@ type InstructionGenerator object {
         } else if (varRefType is bir:BRecordType) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
                     io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+        } else if (varRefType is bir:BMapType && !mapLoadIns.except) {
+            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
+            io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
         } else {
             self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "getOrThrow",
                     io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
@@ -756,6 +759,9 @@ type InstructionGenerator object {
                 (varRefType is bir:BArrayType && varRefType.eType  is bir:BJSONType)) {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getArrayElement",
                         io:sprintf("(L%s;J)L%s;", OBJECT, OBJECT), false);
+        } else if (varRefType is bir:BTupleType) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
+            addUnboxInsn(self.mv, bType);
         } else if (bType is bir:BTypeInt) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getInt", "(J)J", false);
         } else if (bType is bir:BTypeString) {

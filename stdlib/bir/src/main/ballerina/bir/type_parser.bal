@@ -370,7 +370,7 @@ public type TypeParser object {
             return self.readIntCpRef();
         } else if (valueType is BTypeByte) {
             return self.readByteCpRef();
-        } else if (valueType is BTypeString) {
+        } else if (valueType is BTypeString || valueType is BTypeDecimal) {
             return self.readStringCpRef();
         } else if (valueType is BTypeBoolean) {
             return self.readInt8() == 1;

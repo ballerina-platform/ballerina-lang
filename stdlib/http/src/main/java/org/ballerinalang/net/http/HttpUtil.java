@@ -1236,9 +1236,6 @@ public class HttpUtil {
             senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
         }
 
-        String chunking = clientEndpointConfig.get(HttpConstants.CLIENT_EP_CHUNKING).toString();
-        senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
-
         long timeoutMillis = clientEndpointConfig.getIntValue(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
         if (timeoutMillis < 0) {
             senderConfiguration.setSocketIdleTimeout(0);
@@ -1246,8 +1243,6 @@ public class HttpUtil {
             senderConfiguration.setSocketIdleTimeout(
                     validateConfig(timeoutMillis, HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT));
         }
-        String keepAliveConfig = clientEndpointConfig.get(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE).toString();
-        senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
 
         String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (httpVersion != null) {

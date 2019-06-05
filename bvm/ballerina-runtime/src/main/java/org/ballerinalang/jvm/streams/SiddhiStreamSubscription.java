@@ -71,13 +71,20 @@ public class SiddhiStreamSubscription extends StreamSubscription {
         }
     }
 
-    public void execute(RefValue data) {
-        Object[] event = createEvent(data);
+    public void execute(Object[] fpParams) {
         try {
-            inputHandler.send(event);
+            //fpParam[0] is always a strand
+            if (fpParams.length == 2 && fpParams[1] instanceof RefValue) {
+                RefValue data = (RefValue) fpParams[1];
+                Object[] event = createEvent(data);
+                inputHandler.send(event);
+            } else {
+                throw new BallerinaException("Data being published is incompatible with Ballerina record types, " +
+                                             "expected: " + stream.getConstraintType());
+            }
         } catch (InterruptedException e) {
             throw new BallerinaException("Error while sending events to stream: " + stream.getStreamId() + ": " +
-                    e.getMessage(), e);
+                                         e.getMessage(), e);
         }
     }
 

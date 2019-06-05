@@ -68,10 +68,11 @@ public type FuncBodyParser object {
             return mapStore;
         } else if (kindTag == INS_MAP_LOAD) {
             kind = INS_KIND_MAP_LOAD;
+            boolean except = self.reader.readBoolean();
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess mapLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess mapLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp, except:except};
             return mapLoad;
         } else if (kindTag == INS_OBJECT_STORE) {
             kind = INS_KIND_OBJECT_STORE;

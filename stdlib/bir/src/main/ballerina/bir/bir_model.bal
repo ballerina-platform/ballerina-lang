@@ -482,6 +482,7 @@ public type FieldAccess record {|
     VarRef lhsOp;
     VarRef keyOp;
     VarRef rhsOp;
+    boolean except = true;
 |};
 
 public type TypeCast record {|
