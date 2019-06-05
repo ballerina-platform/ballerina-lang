@@ -23,25 +23,9 @@ const string ANN_MODULE = "ballerina/http";
 const string RESOURCE_ANN_NAME = "ResourceConfig";
 # Service level annotation name.
 const string SERVICE_ANN_NAME = "ServiceConfig";
-# Authentication header name.
+
+# Authorization header name.
 public const string AUTH_HEADER = "Authorization";
-# Basic authentication scheme.
-public const string AUTH_SCHEME_BASIC = "Basic";
-# Bearer authentication scheme.
-public const string AUTH_SCHEME_BEARER = "Bearer";
-
-# Inbound authentication schemes.
-public type InboundAuthScheme BASIC_AUTH|JWT_AUTH;
-
-# Outbound authentication schemes.
-public type OutboundAuthScheme BASIC_AUTH|OAUTH2|JWT_AUTH;
-
-# Basic authentication scheme.
-public const BASIC_AUTH = "BASIC_AUTH";
-# OAuth2 authentication scheme.
-public const OAUTH2 = "OAUTH2";
-# JWT authentication scheme.
-public const JWT_AUTH = "JWT_AUTH";
 
 # Extracts the Authorization header value from the request.
 #
@@ -52,12 +36,12 @@ public function extractAuthorizationHeaderValue(Request req) returns string {
     return req.getHeader(AUTH_HEADER);
 }
 
-# Tries to retrieve the authentication handlers hierarchically - first from the resource level and then
+# Tries to retrieve the inbound authentication handlers hierarchically - first from the resource level and then
 # from the service level, if it is not there in the resource level.
 #
 # + context - `FilterContext` instance
 # + return - Authentication handlers or whether it is needed to engage listener level handlers or not
-function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|AuthnHandler[][]|boolean {
+function getAuthnHandlers(FilterContext context) returns InboundAuthnHandler[]|InboundAuthnHandler[][]|boolean {
     ServiceResourceAuth? resourceLevelAuthAnn;
     ServiceResourceAuth? serviceLevelAuthAnn;
     (resourceLevelAuthAnn, serviceLevelAuthAnn) = getServiceResourceAuthConfig(context);
@@ -74,11 +58,11 @@ function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|AuthnHan
     // check if auth providers are given at resource level
     if (resourceLevelAuthAnn is ServiceResourceAuth) {
         var resourceAuthHandlers = resourceLevelAuthAnn["authnHandlers"];
-        if (resourceAuthHandlers is AuthnHandler[]) {
+        if (resourceAuthHandlers is InboundAuthnHandler[]) {
             if (resourceAuthHandlers.length() > 0) {
                 return resourceAuthHandlers;
             }
-        } else if (resourceAuthHandlers is AuthnHandler[][]) {
+        } else if (resourceAuthHandlers is InboundAuthnHandler[][]) {
             if (resourceAuthHandlers[0].length() > 0) {
                 return resourceAuthHandlers;
             }
@@ -93,11 +77,11 @@ function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|AuthnHan
     // no auth providers found in resource level, try in service level
     if (serviceLevelAuthAnn is ServiceResourceAuth) {
         var serviceAuthHandlers = serviceLevelAuthAnn["authnHandlers"];
-        if (serviceAuthHandlers is AuthnHandler[]) {
+        if (serviceAuthHandlers is InboundAuthnHandler[]) {
             if (serviceAuthHandlers.length() > 0) {
                 return serviceAuthHandlers;
             }
-        } else if (serviceAuthHandlers is AuthnHandler[][]) {
+        } else if (serviceAuthHandlers is InboundAuthnHandler[][]) {
             if (serviceAuthHandlers[0].length() > 0) {
                 return serviceAuthHandlers;
             }

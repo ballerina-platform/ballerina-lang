@@ -38,6 +38,12 @@ public const string CONFIG_PREFIX_SHA384 = "@sha384:";
 # Prefix used to denote that the config value is a SHA-512 hash.
 public const string CONFIG_PREFIX_SHA512 = "@sha512:";
 
+# Basic authentication scheme.
+public const string AUTH_SCHEME_BASIC = "Basic ";
+
+# Bearer authentication scheme.
+public const string AUTH_SCHEME_BEARER = "Bearer ";
+
 # Extracts the username and password from credential value.
 #
 # + credential - Credential value
