@@ -17,16 +17,17 @@
 import ballerina/auth;
 import ballerina/log;
 
-# Representation of Bearer auth header authn handler for HTTP traffic.
+# Representation of Bearer auth header authn handler for both inbound and outbound HTTP traffic.
 #
-# + authProvider - `JWTAuthProvider` instance
+# + authProvider - `InboundAuthProvider` instance or `OutboundAuthProvider` instance
 public type BearerAuthHeaderAuthnHandler object {
 
-    *AuthnHandler;
+    *InboundAuthnHandler;
+    *OutboundAuthnHandler;
 
-    public auth:InboundAuthProvider authProvider;
+    public auth:InboundAuthProvider|auth:OutboundAuthProvider authProvider;
 
-    public function __init(auth:InboundAuthProvider authProvider) {
+    public function __init(auth:InboundAuthProvider|auth:OutboundAuthProvider authProvider) {
         self.authProvider = authProvider;
     }
 
@@ -37,7 +38,7 @@ public type BearerAuthHeaderAuthnHandler object {
     public function canHandle(Request req) returns boolean {
         if (req.hasHeader(AUTH_HEADER)) {
             string headerValue = extractAuthorizationHeaderValue(req);
-            return headerValue.hasPrefix(AUTH_SCHEME_BEARER);
+            return headerValue.hasPrefix(auth:AUTH_SCHEME_BEARER);
         }
         return false;
     }
@@ -49,7 +50,25 @@ public type BearerAuthHeaderAuthnHandler object {
     public function handle(Request req) returns boolean|error {
         string headerValue = extractAuthorizationHeaderValue(req);
         string credential = headerValue.substring(6, headerValue.length()).trim();
-        return self.authProvider.authenticate(credential);
+        var authProvider = self.authProvider;
+        if (authProvider is auth:InboundAuthProvider) {
+            return authProvider.authenticate(credential);
+        } else {
+            return prepareError("Outbound auth provider is configured for inbound authentication.");
+        }
+    }
+
+    # Prepare the request with Bearer auth header.
+    #
+    # + req - `Request` instance
+    # + return - `Request` instance or `error` in case of errors
+    public function prepare(Request req) returns error? {
+        var authProvider = self.authProvider;
+        if (authProvider is auth:OutboundAuthProvider) {
+            string token = check authProvider.generateToken();
+            req.setHeader(AUTH_HEADER, auth:AUTH_SCHEME_BEARER + token);
+        } else {
+            return prepareError("Inbound auth provider is configured for outbound authentication.");
+        }
     }
 };
-
