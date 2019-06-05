@@ -16,53 +16,39 @@
  * under the License.
  */
 
-package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
+package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
 
-import com.rabbitmq.client.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
-import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
-import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Deletes an exchange.
+ * Retrieves the byte array content of the RabbitMQ message.
  *
  * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = RabbitMQConstants.ORG_NAME,
         packageName = RabbitMQConstants.RABBITMQ,
-        functionName = "exchangeDelete",
+        functionName = "getByteArrayContent",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = RabbitMQConstants.CHANNEL_OBJECT,
+                structType = RabbitMQConstants.MESSAGE_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class ExchangeDelete extends BlockingNativeCallableUnit {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExchangeDelete.class);
+public class GetByteArrayContent extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> channelObject = (BMap<String, BValue>) context.getRefArgument(0);
-        String exchangeName = context.getStringArgument(0);
-        Channel channel = RabbitMQUtils.getNativeObject(channelObject, RabbitMQConstants.CHANNEL_NATIVE_OBJECT,
-                Channel.class, context);
-        try {
-            ChannelUtils.exchangeDelete(channel, exchangeName);
-        } catch (BallerinaException exception) {
-            LOGGER.error("I/O exception while declaring the exchange", exception);
-            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
-        }
+        BMap<String, BValue> messageObject = (BMap<String, BValue>) context.getRefArgument(0);
+        byte[] messageContent = (byte[]) messageObject.getNativeData(RabbitMQConstants.MESSAGE_CONTENT);
+        context.setReturnValues(new BValueArray(messageContent));
     }
 }
