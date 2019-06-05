@@ -1533,7 +1533,7 @@ public class HttpUtil {
             listenerConfiguration.setVersion(httpVersion);
         }
 
-   g     if (Arrays.asList(endpointConfig.getFields()).contains(SERVER_NAME)) {
+        if (Arrays.asList(endpointConfig.getFields()).contains(SERVER_NAME)) {
             Value serverName = endpointConfig.getRefField(SERVER_NAME);
             listenerConfiguration.setServerHeader(serverName != null ? serverName.getStringValue() : getServerName());
         } else {
