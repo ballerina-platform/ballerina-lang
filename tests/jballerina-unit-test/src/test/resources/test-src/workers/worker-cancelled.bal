@@ -1,37 +1,35 @@
 import ballerina/io;
-
-channel<string> strChn = new;
-channel<int> intChn = new;
-boolean waiting = true;
+import ballerina/runtime;
 
 // Test if worker actions are panicked if the worker is cancelled before sending
 function workerCancelledBeforeSend() {
-    io:println("**start**");
-    // Start the future
-    future<()> f1 = start testFunc();
-    io:println("**going**");
-    string strResult = <- strChn, 66;
-    io:println("**going**");
-    boolean cancel_w1 = f1.cancel();
-    io:println("**going**");
-    100 -> intChn, 88;
-    io:println("**end**");
-    while(waiting){}
+    io:println("**insideFuture**");
+        io:println("**f-going**");
+        worker wy {
+            runtime:sleep(100);
+            "message" -> default;
+        }
+        boolean bb = wy.cancel();
+        runtime:sleep(10000);
+        string|error result = <- wy;
+        io:println("**f-going**");
+        io:println("**endFuture**");
 }
 
-function testFunc() {
+function futureActions() returns boolean {
     io:println("**insideFuture**");
-    "message" -> strChn, 66;
-     io:println("**f-going**");
-    worker wy {
-        string|error result = trap <- default;
-        if (result is error) {
-            io:println(result.reason());
+        io:println("**f-going**");
+        worker w {
+            string|error result = <- default;
         }
-        waiting = false;
-    }
-    int intResult = <- intChn, 88;
-    "message" -> wy;
-    io:println("**f-going**");
-    io:println("**endFuture**");
+        boolean cancelled = w.isCancelled();
+        boolean isDone = w.isDone();
+        if (!cancelled) {
+            boolean bb = w.cancel();
+        }
+        "message" -> w;
+        runtime:sleep(100);
+        io:println("**f-going**");
+        io:println("**endFuture**");
+        return w.isCancelled();
 }

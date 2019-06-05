@@ -44,8 +44,8 @@ public class Cancel extends BlockingNativeCallableUnit {
         context.setReturnValues(new BBoolean(future.cancel()));
     }
 
-    public static void cancel(Strand strand, FutureValue futureValue) {
-        futureValue.cancel();
+    public static boolean cancel(Strand strand, FutureValue futureValue) {
+        return futureValue.cancel();
     }
     
 }

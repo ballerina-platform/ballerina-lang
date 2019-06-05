@@ -82,6 +82,10 @@ public class BallerinaErrors {
                                   TypeChecker.getType(inputValue), inputValue, targetType));
     }
 
+    public static ErrorValue createCancelledFutureError() {
+        return createError(BallerinaErrorReasons.FUTURE_CANCELLED);
+    }
+
     public static ArrayValue generateCallStack() {
         List<MapValue<String, Object>> sfList = new ArrayList<>();
         for (StackTraceElement frame : Thread.currentThread().getStackTrace()) {

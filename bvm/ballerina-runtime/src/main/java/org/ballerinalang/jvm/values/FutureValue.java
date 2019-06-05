@@ -43,8 +43,6 @@
 
      public boolean isCancelled;
 
-     public boolean doCancel;
-
      public FutureValue(Strand strand) {
          this.strand = strand;
      }
@@ -53,6 +51,7 @@
      public String stringValue() {
          StringJoiner sj = new StringJoiner(",", "{", "}");
          sj.add("isDone:" + isDone);
+         sj.add("cancelled:" + isCancelled);
          if (isDone) {
              sj.add("result:" + result.toString());
          }
@@ -86,7 +85,8 @@
      }
 
      public boolean cancel() {
-         this.doCancel = true;
-         return this.isCancelled;
+         this.strand.doCancel = true;
+         this.isCancelled = true;
+         return true;
      }
  }

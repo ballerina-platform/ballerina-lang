@@ -123,7 +123,7 @@ public class WorkerDataChannel {
             if (this.panic != null && this.channel.peek() != null && this.channel.peek().isSync) {
                 Throwable e = this.panic;
                 this.panic = null;
-                throw new RuntimeException(e);
+                throw e;
             } else if (this.error != null && this.channel.peek() != null && this.channel.peek().isSync) {
                 // should make sure this error happened before sending the sync message
                 ErrorValue ret = this.error;
@@ -140,7 +140,7 @@ public class WorkerDataChannel {
     }
     
     @SuppressWarnings("rawtypes")
-    public Object tryTakeData(Strand strand) {
+    public Object tryTakeData(Strand strand) throws Throwable {
         try {
             acquireChannelLock();
             WorkerResult result = this.channel.peek();
@@ -170,7 +170,7 @@ public class WorkerDataChannel {
                 return result.value;
             } else if (this.panic != null && this.senderCounter == this.receiverCounter + 1) {
                 this.receiverCounter++;
-                throw new RuntimeException(this.panic);
+                throw this.panic;
             } else if (this.error != null && this.senderCounter == this.receiverCounter + 1) {
                 this.receiverCounter++;
                 return error;

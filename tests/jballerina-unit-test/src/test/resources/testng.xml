@@ -187,6 +187,7 @@
             <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
             <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
             <class name="org.ballerinalang.test.worker.BasicForkNegativeTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
             <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
                 <methods>

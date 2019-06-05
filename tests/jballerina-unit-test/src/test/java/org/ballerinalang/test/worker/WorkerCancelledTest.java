@@ -16,6 +16,8 @@
  */
 package org.ballerinalang.test.worker;
 
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -40,7 +42,7 @@ public class WorkerCancelledTest {
         Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
     }
 
-    @Test(enabled = false)
+    @Test()
     public void workerCancelledBeforeSend() {
         PrintStream defaultOut = System.out;
         try {
@@ -49,8 +51,16 @@ public class WorkerCancelledTest {
             BRunUtil.invoke(result, "workerCancelledBeforeSend");
             String msg = new String(tempOutStream.toByteArray());
             Assert.assertTrue(msg.contains("future is already cancelled"));
+        } catch (RuntimeException e) {
+            //ignore
         } finally {
             System.setOut(defaultOut);
         }
+    }
+
+    @Test
+    public void futureActionsTest() {
+        BValue[] result = BRunUtil.invoke(this.result, "futureActions");
+        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
     }
 }

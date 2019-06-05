@@ -122,12 +122,13 @@ public class ErrorValue extends RuntimeException implements RefValue {
     public String getPrintableStackTrace() {
         String errorMsg = getErrorMessage();
         StringBuilder sb = new StringBuilder();
-        sb.append(errorMsg).append("\n\tat ");
+        sb.append(errorMsg);
         // Append function/action/resource name with package path (if any)
         StackTraceElement[] stackTrace = this.getStackTrace();
         if (stackTrace.length == 0) {
             return sb.toString();
         }
+        sb.append("\n\tat ");
         // print first element
         printStackElement(sb, stackTrace[0], "");
         for (int i = 1; i < stackTrace.length; i++) {

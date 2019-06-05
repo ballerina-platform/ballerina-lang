@@ -17,6 +17,7 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.values.ChannelDetails;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.slf4j.Logger;
@@ -178,12 +179,6 @@ public class Scheduler {
             Throwable panic = null;
             try {
                 item = runnableList.take();
-                if (item.future.doCancel) {
-                    item.future.isCancelled = true;
-                    // TODO:CREATE A proper error
-                    panic = new Throwable("Future already cancelled");
-                    notifyChannels(item, panic);
-                }
             } catch (InterruptedException ignored) {
                 continue;
             }
@@ -194,23 +189,14 @@ public class Scheduler {
 
             Object result = null;
             try {
-                if (!item.future.isCancelled) {
-                    if (DEBUG) {
-                        debugLog(item + " executing");
-                    }
-                    result = item.execute();
+                if (DEBUG) {
+                    debugLog(item + " executing");
                 }
+                result = item.execute();
             } catch (Throwable e) {
                 panic = e;
                 notifyChannels(item, panic);
                 logger.error("Strand died", e);
-            }
-
-            if (item.future.doCancel) {
-                item.future.isCancelled = true;
-                // TODO:CREATE A proper error
-                panic = new Throwable("Future already cancelled");
-                notifyChannels(item, panic);
             }
 
             switch (item.getState()) {
