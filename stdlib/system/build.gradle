@@ -23,10 +23,6 @@ configurations.testCompileClasspath {
     }
 }
 
-configurations {
-    localDependency
-}
-
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
@@ -43,10 +39,7 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-simple'
 
-    localDependency project(path: ':ballerina-bir', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-jvm', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 }
 
 createBalo {
