@@ -21,9 +21,9 @@ import ballerina/reflect;
 # + authnHandlers - Array of authentication handlers
 public type AuthnFilter object {
 
-    public AuthnHandler?[]|AuthnHandler?[][] authnHandlers;
+    public InboundAuthnHandler?[]|InboundAuthnHandler?[][] authnHandlers;
 
-    public function __init(AuthnHandler?[]|AuthnHandler?[][] authnHandlers) {
+    public function __init(InboundAuthnHandler?[]|InboundAuthnHandler?[][] authnHandlers) {
         self.authnHandlers = authnHandlers;
     }
 
@@ -36,7 +36,7 @@ public type AuthnFilter object {
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         boolean|error authenticated;
         var authnHandlers = getAuthnHandlers(context);
-        if (authnHandlers is AuthnHandler?[]|AuthnHandler?[][]) {
+        if (authnHandlers is InboundAuthnHandler?[]|InboundAuthnHandler?[][]) {
             authenticated = handleAuthnRequest(authnHandlers, request);
         } else {
             if (authnHandlers) {
@@ -53,11 +53,11 @@ public type AuthnFilter object {
     }
 };
 
-function handleAuthnRequest(AuthnHandler?[]|AuthnHandler?[][] authnHandlers, Request request) returns boolean|error {
-    if (authnHandlers is AuthnHandler?[]) {
+function handleAuthnRequest(InboundAuthnHandler?[]|InboundAuthnHandler?[][] authnHandlers, Request request) returns boolean|error {
+    if (authnHandlers is InboundAuthnHandler?[]) {
         return checkForAuthnHandlers(authnHandlers, request);
     } else {
-        foreach AuthnHandler?[] authnHandler in authnHandlers {
+        foreach InboundAuthnHandler?[] authnHandler in authnHandlers {
             var response = checkForAuthnHandlers(authnHandler, request);
             if (response is boolean) {
                 if (!response) {
@@ -71,10 +71,10 @@ function handleAuthnRequest(AuthnHandler?[]|AuthnHandler?[][] authnHandlers, Req
     }
 }
 
-function checkForAuthnHandlers(AuthnHandler?[] authnHandlers, Request request) returns boolean|error {
+function checkForAuthnHandlers(InboundAuthnHandler?[] authnHandlers, Request request) returns boolean|error {
     error? err = ();
-    foreach AuthnHandler? authnHandler in authnHandlers {
-        if (authnHandler is AuthnHandler) {
+    foreach InboundAuthnHandler? authnHandler in authnHandlers {
+        if (authnHandler is InboundAuthnHandler) {
             boolean canHandleResponse = authnHandler.canHandle(request);
             if (canHandleResponse) {
                 var handleResponse = authnHandler.handle(request);
