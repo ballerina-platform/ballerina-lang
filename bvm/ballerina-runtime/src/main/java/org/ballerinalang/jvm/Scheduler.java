@@ -17,7 +17,6 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.values.ChannelDetails;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.slf4j.Logger;
@@ -176,7 +175,6 @@ public class Scheduler {
     private void run() {
         while (true) {
             SchedulerItem item;
-            Throwable panic = null;
             try {
                 item = runnableList.take();
             } catch (InterruptedException ignored) {
@@ -188,6 +186,7 @@ public class Scheduler {
             }
 
             Object result = null;
+            Throwable panic = null;
             try {
                 if (DEBUG) {
                     debugLog(item + " executing");
@@ -321,12 +320,6 @@ public class Scheduler {
                 runnableList.add(item);
             }
         }
-    }
-
-    private void rescheduleBlocked(Strand blockedOn) {
-        blockedList.get(blockedOn).forEach(schedulerItem -> {
-            reschedule(schedulerItem);
-        });
     }
 
     private FutureValue createFuture(Strand parent) {
