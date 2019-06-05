@@ -1,4 +1,3 @@
-//import ballerina/io;
 
 //separators
 const int LBRACE = 0;
@@ -165,7 +164,7 @@ type TokenMapper object {
 
     public function __init() {
         self.fillSingleSymbolMap();
-		self.fillDoubleSymbolMap();
+        self.fillDoubleSymbolMap();
         self.fillTripleSymbolMap();
     }
 

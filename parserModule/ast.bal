@@ -13,7 +13,6 @@ const FN_SIGNATURE_NODE = "functionSignature";
 const BLOCK_NODE = "blockNode";
 const INTEGER_LITERAL = "integerLiteral";
 const QUO_STRING_LITERAL = "quotedStringLiteral";
-const ERROR_NODE = "errorNode";
 const RECORD_LITERAL_NODE = "recordLiteralNode";
 const RECORD_KEY_VALUE_NODE = "recordKeyValueNode";
 const RECORD_KEY_NODE = "recordKeyNode";
@@ -22,10 +21,22 @@ const EMPTY_TUPLE_LITERAL_NODE = "emptyTupleLiteralNode";
 const UNARY_EXPRESSION_NODE = "unaryExpressionNode";
 const CONTINUE_STATEMENT_NODE = "continueStatement";
 
+//error nodes
+const ER_FN_SIGNATURE_NODE = "errorFunctionSignature";
+const ER_BLOCK_NODE = "errorFunctionBody";
+const ER_VAR_DEF_STATEMENT_NODE = "errorVariableDefinitionStatement";
+const ER_VAR_DEF_IDENTIFIER_NODE = "errorVariableDefinitionIdentifier";
+const ER_CONTIUE_STATEMENT_NODE = "errorContinueStatement";
+const ER_STATEMENT_NODE = "errorStatement";
+const ER_IDENTIFIER_NODE = "errorIdentifier";
+
+const ER_EXPRESSION_NODE = "failedExpression";
+
 type NodeKind PACKAGE_NODE | FUNCTION_NODE | STATEMENT_NODE | VAR_DEF_STATEMENT_NODE | VAR_DEC_STATEMENT_NODE | EXPRESSION_NODE |
  BINARY_EXP_NODE | IDENTIFIER_NODE | VAR_REF_NODE | FN_SIGNATURE_NODE | BLOCK_NODE | INTEGER_LITERAL | QUO_STRING_LITERAL |
- ERROR_NODE | RECORD_LITERAL_NODE | RECORD_KEY_VALUE_NODE | RECORD_KEY_NODE | TUPLE_LITERAL_NODE |
- EMPTY_TUPLE_LITERAL_NODE | UNARY_EXPRESSION_NODE | CONTINUE_STATEMENT_NODE;
+ RECORD_LITERAL_NODE | RECORD_KEY_VALUE_NODE | RECORD_KEY_NODE | TUPLE_LITERAL_NODE |
+ EMPTY_TUPLE_LITERAL_NODE | UNARY_EXPRESSION_NODE | CONTINUE_STATEMENT_NODE | ER_FN_SIGNATURE_NODE | ER_BLOCK_NODE |
+ ER_VAR_DEF_STATEMENT_NODE | ER_VAR_DEF_IDENTIFIER_NODE | ER_CONTIUE_STATEMENT_NODE | ER_STATEMENT_NODE | ER_IDENTIFIER_NODE | ER_EXPRESSION_NODE;
 
 const INT_TYPE = "int";
 const STRING_TYPE = "string";
@@ -69,7 +80,7 @@ public type PackageNode record {
     DefinitionNode[] definitionList;
 };
 
-type DefinitionNode FunctionNode | ErrorNode;
+type DefinitionNode FunctionNode;
 
 type FunctionNode record {
     *Node;
@@ -77,33 +88,32 @@ type FunctionNode record {
     FunctionBodyNode blockNode;
 };
 
-type FunctionUnitSignatureNode FunctionSignatureNode | ErrorNode;
+type FunctionUnitSignatureNode FunctionSignatureNode | ErrorFunctionSignatureNode;
 
 type FunctionSignatureNode record{
     *Node;
     IdentifierNodeKind functionIdentifier;
 };
 
-type FunctionBodyNode BlockNode | ErrorNode;
-//{ <statement*> }
+type ErrorFunctionSignatureNode record{
+	*FunctionSignatureNode;
+};
+
+type FunctionBodyNode BlockNode | ErrorBlockNode;
+
 type BlockNode record{
     *Node;
     StatementNode[] statementList;
 };
 
-type StatementNode VariableDefinitionStatementNode | ContinueStatementNode | ErrorNode;
-
-type ErrorNode record{
-	*Node;
-    StatementNode errorStatement?;
-    FunctionNode errorFunction?;
-    IdentifierNode errorIdentifier?;
-    FunctionSignatureNode errorFunctionSignature?;
-    BlockNode errorBlockNode?;
-    VarRefIdentifier errorVarRef?;
-    ExpressionNode errorExpression?;
+type ErrorBlockNode record{
+	*BlockNode;
 };
 
+type StatementNode VariableDefStNode | ContinueStNode | ErrorStatementNode ;
+
+
+type VariableDefStNode VariableDefinitionStatementNode | ErrorVarDefStatementNode;
 type VariableDefinitionStatementNode record{
     *Node;
     ValueKind valueKind;
@@ -111,12 +121,29 @@ type VariableDefinitionStatementNode record{
     ExpressionNode? expression;
 };
 
+type ErrorVarDefStatementNode record{
+	*VariableDefinitionStatementNode;
+};
+
+type ContinueStNode ContinueStatementNode | ErrorContinueStatementNode;
 type ContinueStatementNode record{
     *Node;
     ValueKind valueKind;
 };
+type ErrorContinueStatementNode record {
+	*ContinueStatementNode;
+};
+//if a token doesnt match to any of the statements
+type ErrorStatementNode record {
+	*Node;
+};
 
-type ExpressionNode BinaryExpressionNode | SimpleLiteral | VarRefIdentifier | RecordLiteralNode | TupleLiteralNode | UnaryExpressionNode ;
+type ExpressionNode BinaryExpressionNode | SimpleLiteral | VarRefIdentifier | TupleLiteralNode | UnaryExpressionNode | ErrorExpressionNode;
+
+type ErrorExpressionNode record {
+	*Node;
+	ExpressionNode errorExpression?;
+};
 
 type BinaryExpressionNode record {
     *Node;
@@ -130,39 +157,28 @@ type UnaryExpressionNode record {
     OperatorKind operatorKind;
     ExpressionNode uExpression;
 };
-type IdentifierNodeKind IdentifierNode | ErrorNode;
+type IdentifierNodeKind IdentifierNode | ErrorIdentifierNode;
 
 type IdentifierNode record {
     *Node;
-    string? identifier;
+    string identifier;
+};
+type ErrorIdentifierNode record {
+	*Node;
+	string? identifier;
 };
 
-type VariableReferenceNode VarRefIdentifier | ErrorNode;
+type VariableReferenceNode VarRefIdentifier | ErrorVarRefIdentifierNode;
 
 type VarRefIdentifier record {
     *Node;
-    string? varIdentifier;
+    string varIdentifier;
 };
-//LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
-type RecordLiteralNode record {
-    *Node;
-     RecordKeyValueNode[] recordkeyValueList;
+type ErrorVarRefIdentifierNode record {
+	*Node;
+	string? varIdentifier;
 };
-//recordKey COLON expression
-type RecordKeyValueNode record {
-    *Node;
-    RecordKeyNode recordKeyNode;
-    ExpressionNode? recordValueExpression;
 
-};
-//Identifier |   expression
-type RecordKeyNode record {
-    *Node;
-    IdentifierNode recordKey?;
-    ExpressionNode recordExpression?;
-
-};
-//LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS
 type TupleLiteralNode record{
     *Node;
     ExpressionNode[] tupleExprList?;
