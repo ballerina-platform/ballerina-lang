@@ -51,6 +51,10 @@ public class BTypes {
                                                         typeMap);
     public static BType typePureType = new BUnionType(new ArrayList<>(Arrays.asList(typeAnydata, typeError)));
 
+    static {
+        typeError.detailType = new BMapType(typePureType);
+    }
+    
     private BTypes() {
     }
 
