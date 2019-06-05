@@ -834,6 +834,12 @@ type InstructionGenerator object {
         self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
         self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
         self.storeToVar(objectNewIns.lhsOp.variableDcl);
+
+        if (typeDef.typeValue is bir:BServiceType) {
+            // For services, load annots here since annots maybe processed before the completion of init
+            //  (e.g., __attach for global service variables)
+            loadAnnots(self.mv, self.currentPackageName, typeDef);
+        }
     }
 
     function generateFPLoadIns(bir:FPLoad inst) {
