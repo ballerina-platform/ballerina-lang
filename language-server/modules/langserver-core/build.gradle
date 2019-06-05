@@ -24,6 +24,9 @@ configurations {
     dependency {
         transitive false
     }
+    index
+    libs
+    langserverResources
 }
 
 dependencies {
@@ -92,7 +95,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-activemq-artemis', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 
     dependency 'com.h2database:h2:1.4.199'
@@ -151,8 +153,10 @@ task createZip(type: Zip) {
     with copyResourceSpec
 }
 
-artifacts.add('dist', createZip.archiveFile) {
-    builtBy createZip
+artifacts {
+    dist file: file(createZip.archiveFile), builtBy: createZip
+    libs configurations.dependency.files
+    langserverResources file: file("$buildDir/lib/tools/lang-server/resources/lang-server-index.sql"), builtBy: generateIndex
 }
 
 test {

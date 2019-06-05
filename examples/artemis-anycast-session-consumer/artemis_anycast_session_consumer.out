@@ -1,7 +1,7 @@
 # Make sure to have the ActiveMQ Artemis broker running.
 
-# Navigate to the directory that contains the 'artemis_multicast_consumer.bal' file and issue the
+# Navigate to the directory that contains the 'artemis_anycast_session_consumer.bal' file and execute the
 # 'ballerina run' command as follows.
-$ ballerina run artemis_multicast_consumer.bal
-# The ActiveMQ Artemis consumer runs as a Ballerina service and listens to the subscribed queue.
+$ ballerina run artemis_anycast_session_consumer.bal
+[ballerina/artemis] Client Consumer created for queue queue1
 
