@@ -63,7 +63,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
 
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'

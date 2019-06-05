@@ -47,6 +47,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Bearer header authentication handler testcase.
  */
+@Test(groups = "broken")
 public class BearerAuthHeaderAuthnHandlerTest {
 
     /**
