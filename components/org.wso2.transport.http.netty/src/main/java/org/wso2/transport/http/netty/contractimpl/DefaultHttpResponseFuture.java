@@ -127,6 +127,11 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
                 HttpConnectorListener listener = httpConnectorListener;
                 removeHttpListener();
                 listener.onError(throwable);
+            } else if (responseHandleListener != null) {
+                HttpClientConnectorListener listener = responseHandleListener;
+                removeResponseHandleListener();
+                responseHandleError = null;
+                listener.onError(throwable);
             }
         } finally {
             responseLock.unlock();
@@ -170,7 +175,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
                 responseHandle = null;
             }
             if (responseHandleError != null) {
-                notifyHttpListener(responseHandleError);
+                notifyResponseHandle(responseHandleError);
                 this.responseHandleError = null;
             }
         } finally {
@@ -205,7 +210,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
         try {
             responseHandleError = throwable;
             if (responseHandleListener != null) {
-                HttpConnectorListener listener = responseHandleListener;
+                HttpClientConnectorListener listener = responseHandleListener;
                 removeResponseHandleListener();
                 responseHandleError = null;
                 listener.onError(throwable);
