@@ -50,8 +50,12 @@ import static org.ballerinalang.model.elements.PackageID.FLOAT;
 import static org.ballerinalang.model.elements.PackageID.FUTURE;
 import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.MAP;
+import static org.ballerinalang.model.elements.PackageID.OBJECT;
+import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
+import static org.ballerinalang.model.elements.PackageID.TABLE;
 import static org.ballerinalang.model.elements.PackageID.VALUE;
+import static org.ballerinalang.model.elements.PackageID.XML;
 import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE;
 
 /**
@@ -129,8 +133,12 @@ public class CompilerDriver {
             symbolTable.langFutureModuleSymbol = pkgLoader.loadPackageSymbol(FUTURE, null, null);
             symbolTable.langIntModuleSymbol = pkgLoader.loadPackageSymbol(INT, null, null);
             symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
+            symbolTable.langObjectModuleSymbol = pkgLoader.loadPackageSymbol(OBJECT, null, null);
+            symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
+            symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
+            symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             return;
         }
 
@@ -173,12 +181,27 @@ public class CompilerDriver {
             symbolTable.langMapModuleSymbol = getLangModuleFromSource(MAP);
             return;
         }
+        if (langLib.equals(OBJECT)) {
+            symbolTable.langObjectModuleSymbol = getLangModuleFromSource(OBJECT);
+            return;
+        }
+        if (langLib.equals(STREAM)) {
+            symbolTable.langStreamModuleSymbol = getLangModuleFromSource(STREAM);
+            return;
+        }
         if (langLib.equals(STRING)) {
             symbolTable.langStringModuleSymbol = getLangModuleFromSource(STRING);
             return;
         }
+        if (langLib.equals(TABLE)) {
+            symbolTable.langTableModuleSymbol = getLangModuleFromSource(TABLE);
+            return;
+        }
         if (langLib.equals(VALUE)) {
             symbolTable.langValueModuleSymbol = getLangModuleFromSource(VALUE);
+        }
+        if (langLib.equals(XML)) {
+            symbolTable.langXmlModuleSymbol = getLangModuleFromSource(XML);
         }
     }
     // Private methods

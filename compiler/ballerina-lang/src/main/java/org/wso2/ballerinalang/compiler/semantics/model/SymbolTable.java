@@ -127,8 +127,12 @@ public class SymbolTable {
     public BPackageSymbol langFutureModuleSymbol;
     public BPackageSymbol langIntModuleSymbol;
     public BPackageSymbol langMapModuleSymbol;
+    public BPackageSymbol langObjectModuleSymbol;
+    public BPackageSymbol langStreamModuleSymbol;
     public BPackageSymbol langStringModuleSymbol;
+    public BPackageSymbol langTableModuleSymbol;
     public BPackageSymbol langValueModuleSymbol;
+    public BPackageSymbol langXmlModuleSymbol;
     public BPackageSymbol utilsPackageSymbol;
 
     private Names names;

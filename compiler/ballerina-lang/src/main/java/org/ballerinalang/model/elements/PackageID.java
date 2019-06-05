@@ -37,15 +37,32 @@ public class PackageID {
 
     // Lang.* Modules IDs
     public static final PackageID ANNOTATIONS = new PackageID(Names.BALLERINA_ORG, Names.LANG_ANNOTATIONS, Names.EMPTY);
-    public static final PackageID ARRAY = new PackageID(Names.BALLERINA_ORG, Names.LANG_ARRAY, Names.EMPTY);
-    public static final PackageID DECIMAL = new PackageID(Names.BALLERINA_ORG, Names.LANG_DECIMAL, Names.EMPTY);
-    public static final PackageID ERROR = new PackageID(Names.BALLERINA_ORG, Names.LANG_ERROR, Names.EMPTY);
-    public static final PackageID FLOAT = new PackageID(Names.BALLERINA_ORG, Names.LANG_FLOAT, Names.EMPTY);
-    public static final PackageID FUTURE = new PackageID(Names.BALLERINA_ORG, Names.LANG_FUTURE, Names.EMPTY);
-    public static final PackageID INT = new PackageID(Names.BALLERINA_ORG, Names.LANG_INT, Names.EMPTY);
-    public static final PackageID MAP = new PackageID(Names.BALLERINA_ORG, Names.LANG_MAP, Names.EMPTY);
-    public static final PackageID STRING = new PackageID(Names.BALLERINA_ORG, Names.LANG_STRING, Names.EMPTY);
-    public static final PackageID VALUE = new PackageID(Names.BALLERINA_ORG, Names.LANG_VALUE, Names.EMPTY);
+    public static final PackageID ARRAY = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.ARRAY), Names.EMPTY);
+    public static final PackageID DECIMAL = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.DECIMAL), Names.EMPTY);
+    public static final PackageID ERROR = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.ERROR), Names.EMPTY);
+    public static final PackageID FLOAT = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.FLOAT), Names.EMPTY);
+    public static final PackageID FUTURE = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.FUTURE), Names.EMPTY);
+    public static final PackageID INT = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.INT), Names.EMPTY);
+    public static final PackageID MAP = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.MAP), Names.EMPTY);
+    public static final PackageID OBJECT = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.OBJECT), Names.EMPTY);
+    public static final PackageID STREAM = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.STREAM), Names.EMPTY);
+    public static final PackageID STRING = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.STRING), Names.EMPTY);
+    public static final PackageID TABLE = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.TABLE), Names.EMPTY);
+    public static final PackageID VALUE = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.VALUE), Names.EMPTY);
+    public static final PackageID XML = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.XML), Names.EMPTY);
 
     public final Name orgName;
     public Name name;
@@ -174,5 +191,13 @@ public class PackageID {
 
     public Name getOrgName() {
         return orgName;
+    }
+
+    public static boolean isLangLibPackageID(PackageID packageID) {
+
+        if (!packageID.getOrgName().equals(Names.BALLERINA_ORG)) {
+            return false;
+        }
+        return packageID.nameComps.size() > 1 && packageID.nameComps.get(0).equals(Names.LANG);
     }
 }

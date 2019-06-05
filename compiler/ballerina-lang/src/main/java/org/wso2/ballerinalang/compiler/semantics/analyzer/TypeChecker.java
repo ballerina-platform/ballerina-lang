@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -30,7 +31,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -148,7 +148,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -1329,12 +1328,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Find the variable reference expression type
         final BType exprType = checkExpr(iExpr.expr, this.env, symTable.noType);
-        if (isIterableOperationInvocation(iExpr)) {
-            iExpr.iterableOperationInvocation = true;
-            iterableAnalyzer.handlerIterableOperation(iExpr, expType, env);
-            resultType = iExpr.iContext.operations.getLast().resultType;
-            return;
-        }
 
         if (iExpr.actionInvocation) {
             checkActionInvocationExpr(iExpr, exprType);
@@ -1347,13 +1340,6 @@ public class TypeChecker extends BLangNodeVisitor {
             varRefType = getSafeType(varRefType, iExpr);
         }
 
-        BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
-        // Returns if the function is a builtin function
-        if (BLangBuiltInMethod.UNDEFINED != builtInFunction && builtInFunction.isExternal() &&
-                checkBuiltinFunctionInvocation(iExpr, builtInFunction, varRefType) != symTable.notFoundSymbol) {
-            return;
-        }
-
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
                 // Invoking a function bound to an object
@@ -1361,44 +1347,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 // Then perform arg and param matching
                 checkObjectFunctionInvocationExpr(iExpr, (BObjectType) varRefType);
                 break;
-            case TypeTags.RECORD:
-            case TypeTags.BOOLEAN:
-            case TypeTags.STRING:
-            case TypeTags.INT:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.XML:
-                checkFunctionInvocationExpr(iExpr, varRefType);
-                break;
-            case TypeTags.JSON:
-                checkFunctionInvocationExpr(iExpr, symTable.jsonType);
-                break;
-            case TypeTags.TABLE:
-                checkFunctionInvocationExpr(iExpr, symTable.tableType);
-                break;
-            case TypeTags.STREAM:
-                checkFunctionInvocationExpr(iExpr, symTable.streamType);
-                break;
-            case TypeTags.FUTURE:
-                checkFunctionInvocationExpr(iExpr, symTable.futureType);
-                break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
                 break;
-            case TypeTags.MAP:
-                // allow map function for both constrained / un constrained maps
-                checkFunctionInvocationExpr(iExpr, this.symTable.mapType);
-                break;
             case TypeTags.SEMANTIC_ERROR:
                 break;
-            case TypeTags.INTERMEDIATE_COLLECTION:
-                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION_WITH_NAME, iExpr.name,
-                        iExpr.expr.type);
-                resultType = symTable.semanticError;
-                break;
             default:
-                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
-                resultType = symTable.semanticError;
+                checkLangLibMethodInvocationExpr(iExpr, varRefType);
                 break;
         }
 
@@ -2592,12 +2547,10 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
-    private void checkFunctionInvocationExpr(BLangInvocation iExpr, BType bType) {
-        Name funcName = names.fromString(
-                Symbols.getAttachedFuncSymbolName(bType.toString(), iExpr.name.value));
-        BPackageSymbol packageSymbol = (BPackageSymbol) bType.tsymbol.owner;
-        BSymbol funcSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
-                funcName, SymTag.FUNCTION);
+    private void checkLangLibMethodInvocationExpr(BLangInvocation iExpr, BType bType) {
+
+        Name funcName = names.fromString(iExpr.name.value);
+        BSymbol funcSymbol = symResolver.lookupLangLibMethod(bType, names.fromString(iExpr.name.value));
         if (funcSymbol == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
             resultType = symTable.semanticError;
@@ -2605,29 +2558,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
-    }
-
-    private boolean isIterableOperationInvocation(BLangInvocation iExpr) {
-        final IterableKind iterableKind = IterableKind.getFromString(iExpr.name.value);
-        switch (iExpr.expr.type.tag) {
-            case TypeTags.ARRAY:
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-            case TypeTags.STREAM:
-            case TypeTags.TABLE:
-            case TypeTags.INTERMEDIATE_COLLECTION:
-                return iterableKind != IterableKind.UNDEFINED;
-            case TypeTags.XML: {
-                // This has been done as there are an iterable operation and a function both named "select"
-                // "select" function is applicable over XML type and select iterable operation is applicable over
-                // Table type. In order to avoid XML.select being confused for iterable function select at
-                // TypeChecker#visit(BLangInvocation iExpr) following condition is checked.
-                // TODO: There should be a proper way to resolve the conflict
-                return iterableKind != IterableKind.SELECT
-                        && iterableKind != IterableKind.UNDEFINED;
-            }
-        }
-        return false;
     }
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
@@ -2640,8 +2570,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkInvocationParam(BLangInvocation iExpr) {
-        BType safeType = getSafeType(iExpr.symbol.type, iExpr);
-        List<BType> paramTypes = ((BInvokableType) safeType).getParameterTypes();
+
+        List<BType> paramTypes = ((BInvokableType) iExpr.symbol.type).getParameterTypes();
         int requiredParamsCount;
         if (iExpr.symbol.tag == SymTag.VARIABLE) {
             // Here we assume function pointers can have only required params.
@@ -2652,6 +2582,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         iExpr.requiredArgs = new ArrayList<>();
+
+        if (PackageID.isLangLibPackageID(iExpr.symbol.pkgID)) {
+            iExpr.requiredArgs.add(iExpr.expr);
+        }
 
         // Split the different argument types: required args, named args and rest args
         int i = 0;
