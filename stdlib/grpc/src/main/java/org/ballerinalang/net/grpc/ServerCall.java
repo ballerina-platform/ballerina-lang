@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 
 import java.io.IOException;
@@ -62,6 +63,7 @@ public final class ServerCall {
     private boolean messageSent;
     private Compressor compressor;
     private final String messageAcceptEncoding;
+    private ObserverContext context = null;
 
     private DecompressorRegistry decompressorRegistry;
     private CompressorRegistry compressorRegistry;
@@ -151,6 +153,10 @@ public final class ServerCall {
         if (compressor == null) {
             throw new IllegalArgumentException("Unable to find compressor by name " + compressorName);
         }
+    }
+
+    public void setObserverContext(ObserverContext context) {
+        this.context = context;
     }
 
     public void setMessageCompression(boolean enable) {

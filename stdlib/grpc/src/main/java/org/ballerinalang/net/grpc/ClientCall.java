@@ -125,7 +125,7 @@ public final class ClientCall {
      */
     public void start(final AbstractStub.Listener observer) {
         if (connectorListener != null) {
-            throw new IllegalStateException("Client connection us already setup.");
+            throw new IllegalStateException("Client connection is already setup.");
         }
         if (cancelCalled) {
             throw new IllegalStateException("Client call was cancelled.");
@@ -149,7 +149,9 @@ public final class ClientCall {
         prepareHeaders(compressor);
         checkAndObserveHttpRequest();
         ClientStreamListener clientStreamListener = new ClientStreamListener(observer);
-        connectorListener = new ClientConnectorListener(clientStreamListener);
+        connectorListener = ObserveUtils.isObservabilityEnabled() ?
+                new ObservableClientConnectorListener(clientStreamListener, context) :
+                new ClientConnectorListener(clientStreamListener);
         outboundMessage.framer().setCompressor(compressor);
         connectorListener.setDecompressorRegistry(decompressorRegistry);
         HttpResponseFuture responseFuture = connector.send(outboundMessage.getResponseMessage());
