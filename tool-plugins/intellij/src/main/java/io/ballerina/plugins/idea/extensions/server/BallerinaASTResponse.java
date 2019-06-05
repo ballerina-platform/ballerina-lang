@@ -23,9 +23,14 @@ import com.google.gson.JsonElement;
  * @since 0.981.2
  */
 public class BallerinaASTResponse {
-    private JsonElement ast;
 
+    private JsonElement ast;
     private boolean parseSuccess;
+
+    public BallerinaASTResponse(JsonElement ast, boolean parseSuccess) {
+        this.ast = ast;
+        this.parseSuccess = parseSuccess;
+    }
 
     public JsonElement getAst() {
         return ast;

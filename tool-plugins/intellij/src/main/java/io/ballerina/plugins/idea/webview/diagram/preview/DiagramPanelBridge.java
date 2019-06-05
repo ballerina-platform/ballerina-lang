@@ -31,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.editor.EditorEventManager;
 import org.wso2.lsp4intellij.editor.EditorEventManagerBase;
 
+import java.util.Objects;
+
 /**
  * DiagramPanelBridge.
  */
@@ -51,26 +53,15 @@ public class DiagramPanelBridge {
 
     public String getAst() {
         try {
-            // Requests the AST from the Ballerina language server.
-            Editor editor = BallerinaDiagramUtils.getEditorFor(myFile, myProject);
-            EditorEventManager manager = EditorEventManagerBase.forEditor(editor);
-            BallerinaEditorEventManager editorManager = (BallerinaEditorEventManager) manager;
-            if (editorManager == null) {
-                LOG.debug("Editor event manager is null for: " + editor.toString());
-                return "";
-            }
-
             // Requests AST from the language server.
+            BallerinaEditorEventManager editorManager = getEditorManagerFor(myProject, myFile);
             BallerinaASTResponse astResponse = editorManager.getAST();
-            if (astResponse == null) {
-                LOG.debug("Error occurred when fetching AST response.");
-                return "";
-            }
-            Gson gson = new Gson();
-            return gson.toJson(astResponse);
+
+            // Returns BallerinaASTResponse as a JSON string.
+            return new Gson().toJson(astResponse);
         } catch (Exception e) {
             LOG.warn("Error occurred when handling diagram update.", e);
-            return "";
+            return new Gson().toJson(new BallerinaASTResponse(null, false));
         }
     }
 
@@ -81,23 +72,22 @@ public class DiagramPanelBridge {
             String uri = didChangeParams.get("textDocumentIdentifier").getAsJsonObject().get("uri").getAsString();
             JsonObject ast = didChangeParams.get("ast").getAsJsonObject();
 
-            // Requests the AST from the Ballerina language server.
-            Editor editor = BallerinaDiagramUtils.getEditorFor(myFile, myProject);
-            EditorEventManager manager = EditorEventManagerBase.forEditor(editor);
-            BallerinaEditorEventManager editorManager = (BallerinaEditorEventManager) manager;
-            if (editorManager == null) {
-                LOG.debug(String.format("Editor event manager is null for: %s", editor.toString()));
-                return;
-            }
-
             // Notify AST change to the language server.
+            BallerinaEditorEventManager editorManager = getEditorManagerFor(myProject, myFile);
             BallerinaASTDidChangeResponse astDidChangeResponse = editorManager.astDidChange(ast, uri);
-            if (astDidChangeResponse == null) {
-                LOG.debug("Error occurred when fetching astDidChange response.");
-            }
         } catch (Exception e) {
             LOG.warn("Error occurred when handling diagram edit event.", e);
         }
+    }
+
+    private BallerinaEditorEventManager getEditorManagerFor(Project project, VirtualFile file) {
+        Editor editor = BallerinaDiagramUtils.getEditorFor(file, project);
+        EditorEventManager manager = EditorEventManagerBase.forEditor(editor);
+        BallerinaEditorEventManager editorEventManager = (BallerinaEditorEventManager) manager;
+        if (editorEventManager == null) {
+            LOG.warn("Editor event manager is null for: " + Objects.requireNonNull(editor).toString());
+        }
+        return editorEventManager;
     }
 
     public void log(@Nullable String text) {

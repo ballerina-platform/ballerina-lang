@@ -66,11 +66,11 @@ public class BallerinaDiagramUtils {
         // Retrieves attached ballerina SDk of the project.
         BallerinaSdk balSdk = BallerinaSdkUtil.getBallerinaSdkFor(project);
         if (balSdk.getSdkPath() == null) {
-            LOG.debug("No Ballerina SDK is found for the project: " + project.getName());
+            LOG.warn(String.format("No Ballerina SDK is found for the project: %s", project.getName()));
             return "";
         }
         if (!balSdk.hasWebviewSupport()) {
-            LOG.debug(String.format("Detected ballerina sdk version for %s does not have diagram editor support",
+            LOG.warn(String.format("Detected ballerina sdk version for %s does not have diagram editor support",
                     project.getName()));
             return "";
         }

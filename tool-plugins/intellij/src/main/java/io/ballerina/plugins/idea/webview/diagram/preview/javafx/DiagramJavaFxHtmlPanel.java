@@ -31,8 +31,6 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
     @NotNull
     private String myCSP = "";
     @NotNull
-    private String myLastRawHtml = "";
-    @NotNull
     private final ScrollPreservingListener myScrollPreservingListener = new ScrollPreservingListener();
     @NotNull
     private final BridgeSettingListener myBridgeSettingListener = new BridgeSettingListener();
@@ -105,7 +103,6 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
 
     @Override
     public void setHtml(@NotNull String html) {
-        myLastRawHtml = html;
         super.setHtml(html);
     }
 

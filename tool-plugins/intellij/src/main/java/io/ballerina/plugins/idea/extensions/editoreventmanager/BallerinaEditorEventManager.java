@@ -57,7 +57,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
     }
 
     @Nullable
-    public BallerinaASTResponse getAST() {
+    public BallerinaASTResponse getAST() throws TimeoutException, ExecutionException, InterruptedException {
         BallerinaRequestManager ballerinaRequestManager = (BallerinaRequestManager) getRequestManager();
         BallerinaASTRequest astRequest = new BallerinaASTRequest();
         astRequest.setDocumentIdentifier(getIdentifier());
@@ -66,20 +66,20 @@ public class BallerinaEditorEventManager extends EditorEventManager {
             try {
                 return future.get(TIMEOUT_AST, TimeUnit.MILLISECONDS);
             } catch (TimeoutException e) {
-                LOG.warn(e);
-                return null;
+                throw e;
             } catch (InterruptedException | JsonRpcException | ExecutionException e) {
-                LOG.warn(e);
                 // Todo - Enable after fixing
                 // wrapper.crashed(e);
-                return null;
+                throw e;
             }
         }
         return null;
     }
 
     @Nullable
-    public BallerinaASTDidChangeResponse astDidChange(JsonObject ast, String uri) {
+    public BallerinaASTDidChangeResponse astDidChange(JsonObject ast, String uri) throws
+            TimeoutException, ExecutionException, InterruptedException {
+
         BallerinaRequestManager ballerinaRequestManager = (BallerinaRequestManager) getRequestManager();
         BallerinaASTDidChange didChangeNotification = new BallerinaASTDidChange();
         didChangeNotification.setTextDocumentIdentifier(new VersionedTextDocumentIdentifier(uri, Integer.MAX_VALUE));
@@ -90,13 +90,11 @@ public class BallerinaEditorEventManager extends EditorEventManager {
             try {
                 return future.get(TIMEOUT_AST, TimeUnit.MILLISECONDS);
             } catch (TimeoutException e) {
-                LOG.warn(e);
-                return null;
+                throw e;
             } catch (InterruptedException | JsonRpcException | ExecutionException e) {
-                LOG.warn(e);
                 // Todo - Enable after fixing
                 // wrapper.crashed(e);
-                return null;
+                throw e;
             }
         }
         return null;
