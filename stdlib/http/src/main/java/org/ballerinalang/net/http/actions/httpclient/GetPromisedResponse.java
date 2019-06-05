@@ -78,8 +78,6 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.getPushResponse(http2PushPromise).
                 setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
-        //TODO This is temporary fix to handle non blocking call
-        callback.sync();
     }
 
     private static class BPushResponseListener implements HttpClientConnectorListener {

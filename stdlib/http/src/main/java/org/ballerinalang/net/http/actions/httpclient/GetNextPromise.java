@@ -78,8 +78,6 @@ public class GetNextPromise extends AbstractHTTPAction {
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.getNextPushPromise(responseHandle).
                 setPushPromiseListener(new PromiseListener(dataContext));
-        //TODO This is temporary fix to handle non blocking call
-        callback.sync();
     }
 
     private static class BPromiseListener implements HttpClientConnectorListener {

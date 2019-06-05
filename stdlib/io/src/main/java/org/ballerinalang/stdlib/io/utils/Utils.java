@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
@@ -86,10 +87,31 @@ public class Utils {
         }
     }
 
+    public static MapValue<String, BValue> createTimeZone(MapValue timezoneStructInfo, String zoneIdValue) {
+        String zoneIdName;
+        try {
+            ZoneId zoneId = ZoneId.of(zoneIdValue);
+            zoneIdName = zoneId.toString();
+            //Get offset in seconds
+            TimeZone tz = TimeZone.getTimeZone(zoneId);
+            int offsetInMills = tz.getOffset(new Date().getTime());
+            int offset = offsetInMills / 1000;
+            return BallerinaValues.createRecord(timezoneStructInfo, zoneIdName, offset);
+        } catch (ZoneRulesException e) {
+            throw new BallerinaException("invalid timezone id: " + zoneIdValue);
+        }
+    }
+
     public static BMap<String, BValue> createTimeStruct(StructureTypeInfo timezoneStructInfo,
                                            StructureTypeInfo timeStructInfo, long millis, String zoneIdName) {
         BMap<String, BValue> timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
         return BLangVMStructs.createBStruct(timeStructInfo, millis, timezone);
+    }
+
+    public static MapValue<String, BValue> createTimeStruct(MapValue timezoneStructInfo,
+                                                        MapValue timeStructInfo, long millis, String zoneIdName) {
+        MapValue<String, BValue> timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
+        return BallerinaValues.createRecord(timeStructInfo, millis, timezone);
     }
 
     public static StructureTypeInfo getTimeZoneStructInfo(Context context) {
@@ -100,12 +122,20 @@ public class Utils {
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIMEZONE);
     }
 
+    public static MapValue<String, Object> getTimeZoneStructInfo() {
+        return BallerinaValues.createRecordValue(PACKAGE_TIME, STRUCT_TYPE_TIMEZONE);
+    }
+
     public static StructureTypeInfo getTimeStructInfo(Context context) {
         PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
         if (timePackageInfo == null) {
             return null;
         }
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
+    }
+
+    public static MapValue<String, Object> getTimeStructInfo() {
+        return BallerinaValues.createRecordValue(PACKAGE_TIME, STRUCT_TYPE_TIME);
     }
 
     /**
