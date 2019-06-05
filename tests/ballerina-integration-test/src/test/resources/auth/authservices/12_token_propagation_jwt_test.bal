@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/jwt;
 
-jwt:JWTAuthProvider jwtAuthProvider12_1 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider12_1 = new({
     issuer: "example1",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -26,7 +26,6 @@ jwt:JWTAuthProvider jwtAuthProvider12_1 = new({
         password: "ballerina"
     }
 });
-
 http:BearerAuthHeaderAuthnHandler jwtAuthnHandler12_1 = new(jwtAuthProvider12_1);
 
 listener http:Listener listener12_1 = new(9105, config = {
@@ -41,9 +40,12 @@ listener http:Listener listener12_1 = new(9105, config = {
     }
 });
 
+jwt:OutboundJWTAuthProvider outboundJwtAuthProvider12_2 = new({});
+http:BearerAuthHeaderAuthnHandler bearerAuthnHandler12_2 = new(outboundJwtAuthProvider12_2);
+
 http:Client nyseEP12 = new("https://localhost:9106", config = {
     auth: {
-        scheme: http:JWT_AUTH
+        authnHandler: bearerAuthnHandler12_2
     }
 });
 
@@ -68,7 +70,7 @@ service passthroughService12 on listener12_1 {
     }
 }
 
-jwt:JWTAuthProvider jwtAuthProvider12_2 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider12_3 = new({
     issuer: "example1",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -77,12 +79,11 @@ jwt:JWTAuthProvider jwtAuthProvider12_2 = new({
         password: "ballerina"
     }
 });
-
-http:BearerAuthHeaderAuthnHandler jwtAuthnHandler12_2 = new(jwtAuthProvider12_2);
+http:BearerAuthHeaderAuthnHandler jwtAuthnHandler12_3 = new(jwtAuthProvider12_3);
 
 listener http:Listener listener12_2 = new(9106, config = {
     auth: {
-        authnHandlers: [jwtAuthnHandler12_2]
+        authnHandlers: [jwtAuthnHandler12_3]
     },
     secureSocket: {
         keyStore: {

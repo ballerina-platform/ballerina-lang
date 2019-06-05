@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/jwt;
 
-jwt:JWTAuthProvider jwtAuthProvider14_1 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider14_1 = new({
     issuer: "example1",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -26,7 +26,6 @@ jwt:JWTAuthProvider jwtAuthProvider14_1 = new({
         password: "ballerina"
     }
 });
-
 http:BearerAuthHeaderAuthnHandler jwtAuthnHandler14_1 = new(jwtAuthProvider14_1);
 
 listener http:Listener listener14_1 = new(9109, config = {
@@ -41,21 +40,23 @@ listener http:Listener listener14_1 = new(9109, config = {
     }
 });
 
+jwt:OutboundJWTAuthProvider outboundJwtAuthProvider14_2 = new({
+    inferredJwtIssuerConfig: {
+        issuer: "ballerina",
+        audience: ["ballerina"],
+        keyAlias: "ballerina",
+        keyPassword: "ballerina",
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
+});
+http:BearerAuthHeaderAuthnHandler bearerAuthnHandler14_2 = new(outboundJwtAuthProvider14_2);
+
 http:Client nyseEP14 = new("https://localhost:9110", config = {
     auth: {
-        scheme: http:JWT_AUTH,
-        config: {
-            inferredJwtIssuerConfig: {
-                issuer: "ballerina",
-                audience: ["ballerina"],
-                keyAlias: "ballerina",
-                keyPassword: "ballerina",
-                keyStore: {
-                    path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-                    password: "ballerina"
-                }
-            }
-        }
+        authnHandler: bearerAuthnHandler14_2
     }
 });
 
@@ -80,7 +81,7 @@ service passthroughService14 on listener14_1 {
     }
 }
 
-jwt:JWTAuthProvider jwtAuthProvider14_2 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider14_3 = new({
     issuer: "example2aaaaaaaaaaaaaa",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -89,12 +90,11 @@ jwt:JWTAuthProvider jwtAuthProvider14_2 = new({
         password: "ballerina"
     }
 });
-
-http:BearerAuthHeaderAuthnHandler jwtAuthnHandler14_2 = new(jwtAuthProvider14_2);
+http:BearerAuthHeaderAuthnHandler jwtAuthnHandler14_3 = new(jwtAuthProvider14_3);
 
 listener http:Listener listener14_2 = new(9110, config = {
         auth: {
-            authnHandlers: [jwtAuthnHandler14_2]
+            authnHandlers: [jwtAuthnHandler14_3]
         },
         secureSocket: {
             keyStore: {

@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/jwt;
 
-jwt:JWTAuthProvider jwtAuthProvider13_1 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider13_1 = new({
     issuer: "example1",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -26,7 +26,6 @@ jwt:JWTAuthProvider jwtAuthProvider13_1 = new({
         password: "ballerina"
     }
 });
-
 http:BearerAuthHeaderAuthnHandler jwtAuthnHandler13_1 = new(jwtAuthProvider13_1);
 
 listener http:Listener listener13_1 = new(9107, config = {
@@ -41,21 +40,23 @@ listener http:Listener listener13_1 = new(9107, config = {
     }
 });
 
+jwt:OutboundJWTAuthProvider outboundJwtAuthProvider13_2 = new({
+    inferredJwtIssuerConfig: {
+        issuer: "example2",
+        audience: ["ballerina"],
+        keyAlias: "ballerina",
+        keyPassword: "ballerina",
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
+});
+http:BearerAuthHeaderAuthnHandler bearerAuthnHandler13_2 = new(outboundJwtAuthProvider13_2);
+
 http:Client nyseEP13 = new("https://localhost:9108", config = {
     auth: {
-        scheme: http:JWT_AUTH,
-        config: {
-            inferredJwtIssuerConfig: {
-                issuer: "example2",
-                audience: ["ballerina"],
-                keyAlias: "ballerina",
-                keyPassword: "ballerina",
-                keyStore: {
-                    path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-                    password: "ballerina"
-                }
-            }
-        }
+        authnHandler: bearerAuthnHandler13_2
     }
 });
 
@@ -80,7 +81,7 @@ service passthroughService13 on listener13_1 {
     }
 }
 
-jwt:JWTAuthProvider jwtAuthProvider13_2 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider13_3 = new({
     issuer: "example2",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -89,12 +90,11 @@ jwt:JWTAuthProvider jwtAuthProvider13_2 = new({
         password: "ballerina"
     }
 });
-
-http:BearerAuthHeaderAuthnHandler jwtAuthnHandler13_2 = new(jwtAuthProvider13_2);
+http:BearerAuthHeaderAuthnHandler jwtAuthnHandler13_3 = new(jwtAuthProvider13_3);
 
 listener http:Listener listener13_2 = new(9108, config = {
     auth: {
-        authnHandlers: [jwtAuthnHandler13_2]
+        authnHandlers: [jwtAuthnHandler13_3]
     },
     secureSocket: {
         keyStore: {
