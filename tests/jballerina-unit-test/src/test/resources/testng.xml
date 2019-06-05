@@ -145,7 +145,7 @@
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
             <class name="org.ballerinalang.test.types.constant.ConstantAccessNegativeTest" />
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
-            <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest"/> 
+            <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest"/>
             <class name="org.ballerinalang.test.types.constant.ConstantInTypeDefinitionTest" />
             <class name="org.ballerinalang.test.types.constant.SimpleConstantNegativeTest" />
             <class name="org.ballerinalang.test.types.constant.SimpleConstantTest" />
@@ -228,6 +228,8 @@
             </class>
             <class name="org.ballerinalang.test.types.xml.XMLNativeFunctionTest"/>
             <class name="org.ballerinalang.test.types.xml.XMLSecurityTest"/>
+            <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingTest"/>
+            <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingNegativeTest"/>
         </classes>
     </test>
 </suite>
