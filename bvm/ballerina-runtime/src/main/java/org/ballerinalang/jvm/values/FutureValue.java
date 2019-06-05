@@ -85,7 +85,7 @@
      }
 
      public boolean cancel() {
-         this.strand.doCancel = true;
+         this.strand.cancel = true;
          this.isCancelled = true;
          return true;
      }

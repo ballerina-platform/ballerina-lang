@@ -1581,7 +1581,7 @@ function getFunctions(bir:Function?[]? functions) returns bir:Function?[] {
 
 function checkStrandCancelled(jvm:MethodVisitor mv, int localVarOffset) {
     mv.visitVarInsn(ALOAD, localVarOffset);
-    mv.visitFieldInsn(GETFIELD, STRAND, "doCancel", "Z");
+    mv.visitFieldInsn(GETFIELD, STRAND, "cancel", "Z");
     jvm:Label notCancelledLabel = new;
     mv.visitJumpInsn(IFEQ, notCancelledLabel);
     mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createCancelledFutureError", io:sprintf("()L%s;", ERROR_VALUE), false);
