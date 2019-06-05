@@ -212,6 +212,7 @@
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionTest"/>
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionWithPkgTest"/>
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
+            <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
         </classes>
     </test>
 </suite>
