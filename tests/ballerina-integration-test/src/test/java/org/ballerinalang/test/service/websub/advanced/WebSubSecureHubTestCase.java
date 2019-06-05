@@ -99,7 +99,7 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
         requestUpdate(PUBLISHER_NOTIFY_URL_THREE, HUB_MODE_REMOTE, CONTENT_TYPE_XML);
     }
 
-    @Test(dependsOnMethods = "testDiscoveryAndIntentVerification")
+    @Test(dependsOnMethods = "testDiscoveryAndIntentVerification", enabled = false)
     public void testContentReceipt() throws BallerinaTestException {
         internalHubNotificationLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
         internalHubNotificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);

@@ -19,7 +19,7 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
@@ -45,26 +45,29 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
         returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetBodyAsString extends BlockingNativeCallableUnit {
+public class GetBodyAsString extends AbstractGetPayloadHandler {
 
     @Override
-    public void execute(Context context) {
-        BString result;
+    @SuppressWarnings("unchecked")
+    public void execute(Context context, CallableUnitCallback callback) {
         try {
-            BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            BString result;
+            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
-                result = MimeUtil.getMessageAsString(dataSource);
-            } else {
-                result = EntityBodyHandler.constructStringDataSource(entityStruct);
-                EntityBodyHandler.addMessageDataSource(entityStruct, result);
-                // Set byte channel to null, once the message data source has been constructed
-                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                setReturnValuesAndNotify(context, callback, MimeUtil.getMessageAsString(dataSource));
+                return;
             }
-            context.setReturnValues(result);
-        } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context, "Error occurred while retrieving text " +
-                    "data from entity : " + e.getMessage()));
+
+            if (isStreamingRequired(entityObj)) {
+                result = EntityBodyHandler.constructStringDataSource(entityObj);
+                updateDataSourceAndNotify(context, callback, entityObj, result);
+            } else {
+                constructNonBlockingDataSource(context, callback, entityObj, SourceType.TEXT);
+            }
+        } catch (Exception ex) {
+            createErrorAndNotify(context, callback,
+                                 "Error occurred while extracting text data from entity : " + ex.getMessage());
         }
     }
 }

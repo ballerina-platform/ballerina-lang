@@ -101,9 +101,7 @@ import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALR
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.MimeConstants.ONE_BYTE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
@@ -272,7 +270,7 @@ public class HttpUtil {
                 byteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
             }
             if (entityBodyRequired && !byteChannelAlreadySet) {
-                populateEntityBody(context, httpMessageStruct, entity, isRequest);
+                populateEntityBody(context, httpMessageStruct, entity, isRequest, false);
             }
             return new BValue[]{entity};
         } catch (Throwable throwable) {
@@ -287,35 +285,30 @@ public class HttpUtil {
      * @param context           Represent ballerina context
      * @param httpMessageStruct Represent ballerina request/response
      * @param entity            Represent an entity
-     * @param isRequest         boolean representing whether the message is a request or a response
+     * @param request           boolean representing whether the message is a request or a response
+     * @param streaming         boolean representing whether the entity requires byte channel or message as native data
      */
     public static void populateEntityBody(Context context, BMap<String, BValue> httpMessageStruct,
-                                          BMap<String, BValue> entity, boolean isRequest) {
+                                          BMap<String, BValue> entity, boolean request, boolean streaming) {
         HttpCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
+                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(request));
         String contentType = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
         if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
                 && context != null) {
-            MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream());
+            MultipartDecoder.parseBody(context, entity, contentType,
+                                       new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
         } else {
-            long contentLength = NO_CONTENT_LENGTH_FOUND;
-            String lengthStr = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
-            try {
-                contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
-                if (contentLength == NO_CONTENT_LENGTH_FOUND) {
-                    //Read one byte to make sure the incoming stream has data
-                    contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
-                }
-            } catch (NumberFormatException e) {
-                throw new BallerinaException("Invalid content length");
-            }
+            long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
             if (contentLength > 0) {
-                entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
-                        new EntityBodyChannel(httpMessageDataStreamer.getInputStream())));
+                if (streaming) {
+                    entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
+                            new EntityBodyChannel(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream())));
+                } else {
+                    entity.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
+                }
             }
         }
-        httpMessageStruct.put(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entity);
+        httpMessageStruct.put(request ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
     }
 
