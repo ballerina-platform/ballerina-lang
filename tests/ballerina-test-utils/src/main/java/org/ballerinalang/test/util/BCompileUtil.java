@@ -136,6 +136,16 @@ public class BCompileUtil {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
+    /**
+     * Compile and return the semantic errors for tests.
+     *
+     * @param sourceFilePath Path to source module/file
+     * @return Semantic errors
+     */
+    public static CompileResult compileOnBVM(String sourceFilePath) {
+        return compile(sourceFilePath, CompilerPhase.CODE_GEN);
+    }
+
     public static CompileResult compileWithoutExperimentalFeatures(String sourceFilePath) {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN, false);
     }
@@ -585,6 +595,9 @@ public class BCompileUtil {
         } catch (InvocationTargetException e) {
             Throwable t = e.getTargetException();
             if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
+                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+            }
+            if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
                 throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
             }
             if (t instanceof ErrorValue) {

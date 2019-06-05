@@ -26,10 +26,11 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.HTTPServicesRegistry;
+import org.ballerinalang.net.http.BHTTPServicesRegistry;
+import org.ballerinalang.net.http.BHttpDispatcher;
+import org.ballerinalang.net.http.BHttpResource;
+import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpDispatcher;
-import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -66,16 +67,15 @@ public class Services {
         BMap<String, BValue> connectorEndpoint =
                 BLangConnectorSPIUtil.getPackageEndpoint(programFile, pkgName, version, endpointName);
 
-        HTTPServicesRegistry httpServicesRegistry =
-                (HTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
+        BHTTPServicesRegistry httpServicesRegistry =
+                (BHTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
-        HttpResource resource = null;
+        BHttpResource resource = null;
         try {
-            resource = HttpDispatcher.findResource(httpServicesRegistry, request);
+            resource = BHttpDispatcher.findResource(httpServicesRegistry, request);
         } catch (BallerinaException ex) {
-            //TODO fix following with bvm values
-//            HttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
+            BHttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
         }
         if (resource == null) {
             return callback.getResponseMsg();
@@ -87,11 +87,10 @@ public class Services {
             Object srcHandler = request.getProperty(HttpConstants.SRC_HANDLER);
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        //TODO fix following with bvm values
-//        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, BLangConnectorSPIUtil
-//                .toStruct((BMap<String, BValue>) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG)));
-//        callback.setRequestStruct(signatureParams[0]);
-//        Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
+        BValue[] signatureParams = BHttpDispatcher.getSignatureParameters(resource, request, BLangConnectorSPIUtil
+                .toStruct((BMap<String, BValue>) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG)));
+        callback.setRequestStruct(signatureParams[0]);
+        Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
         callback.sync();
 
         HttpCarbonMessage originalMsg = callback.getResponseMsg();

@@ -75,28 +75,26 @@ public class GetText extends AbstractGetPayloadHandler {
         }
     }
 
-    public static void getText(Strand strand, ObjectValue entityObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
+    public static Object getText(Strand strand, ObjectValue entityObj) {
+        NonBlockingCallback callback = null;
+        String result = null;
         try {
-            String result;
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
-                result = MimeUtil.getMessageAsString(dataSource);
-                setReturnValuesAndNotify(callback, result);
-                return;
+                return MimeUtil.getMessageAsString(dataSource);
             }
 
             if (isStreamingRequired(entityObj)) {
                 result = EntityBodyHandler.constructStringDataSource(entityObj);
-                updateDataSourceAndNotify(callback, entityObj, result);
+                updateDataSource(entityObj, result);
             } else {
+                callback = new NonBlockingCallback(strand);
                 constructNonBlockingDataSource(callback, entityObj, SourceType.TEXT);
             }
         } catch (Exception ex) {
-            createErrorAndNotify(callback,
-                                 "Error occurred while extracting text data from entity : " + ex.getMessage());
+            return createErrorAndNotify(callback,
+                                        "Error occurred while extracting text data from entity : " + ex.getMessage());
         }
+        return result;
     }
 }

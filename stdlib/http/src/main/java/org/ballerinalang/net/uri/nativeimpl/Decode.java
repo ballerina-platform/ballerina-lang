@@ -22,9 +22,11 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.HttpUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -47,14 +49,14 @@ public class Decode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-//        String url = context.getStringArgument(0);
-//        String charset = context.getStringArgument(1);
-//        try {
-//            context.setReturnValues(new BString(URLDecoder.decode(url, charset)));
-//        } catch (UnsupportedEncodingException e) {
-//            context.setReturnValues(HttpUtil.getError(context, "Error occurred while decoding the url. " + e
-//                    .getMessage()));
-//        }
+        String url = context.getStringArgument(0);
+        String charset = context.getStringArgument(1);
+        try {
+            context.setReturnValues(new BString(URLDecoder.decode(url, charset)));
+        } catch (UnsupportedEncodingException e) {
+            context.setReturnValues(BHttpUtil.getError(context, "Error occurred while decoding the url. " + e
+                    .getMessage()));
+        }
     }
 
     public static Object decode(Strand strand, String url, String charset) {

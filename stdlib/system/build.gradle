@@ -53,28 +53,6 @@ createBalo {
     jvmTarget = 'true'
 }
 
-task createTestBalHome(type: Copy) {
-    from configurations.localDependency
-    into "$buildDir/ballerina-home/test/lib"
-}
-
-test {
-    dependsOn createTestBalHome
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/ballerina-home/test/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
-    systemProperty "enableJBallerinaTests", "true"
-}
-
 description = 'Ballerina - System'
 
 configurations.all {

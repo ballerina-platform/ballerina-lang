@@ -21,6 +21,8 @@ package org.ballerinalang.stdlib.internal.file;
 import org.apache.commons.io.FilenameUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -58,5 +60,12 @@ public class GetExtension extends BlockingNativeCallableUnit {
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         String extension = FilenameUtils.getExtension(path.toAbsolutePath().toString());
         context.setReturnValues(new BString(extension == null ? "" : extension));
+    }
+
+    public static String getExtension(Strand strand, ObjectValue self) {
+        Path path = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
+        String extension = FilenameUtils.getExtension(path.toAbsolutePath().toString());
+        return extension == null ? "" : extension;
+
     }
 }

@@ -25,13 +25,13 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.net.uri.URIUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
@@ -161,16 +161,18 @@ public class HttpDispatcher {
         HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
-        Object[] paramValues = new Object[signatureParams.getParamCount()];
+        Object[] paramValues = new Object[signatureParams.getParamCount() * 2];
         paramValues[0] = httpCaller;
-        paramValues[1] = inRequest;
+        paramValues[1] = true;
+        paramValues[2] = inRequest;
+        paramValues[3] = true;
         if (signatureParams.getParamCount() == 2) {
             return paramValues;
         }
 
         HttpResourceArguments resourceArgumentValues =
                 (HttpResourceArguments) httpCarbonMessage.getProperty(HttpConstants.RESOURCE_ARGS);
-        for (int i = 0; i < signatureParams.getPathParams().size(); i++) {
+        for (int i = 0; i < signatureParams.getPathParams().size(); i = i + 2) {
             //No need for validation as validation already happened at deployment time,
             //only string parameters can be found here.
             //TODO : fix argumentValue order issue
@@ -183,15 +185,17 @@ public class HttpDispatcher {
                     // application deal with the value.
                 }
             }
-            paramValues[i + 2] = argumentValue;
+            paramValues[i + 4] = argumentValue;
+            paramValues[i + 5] = true;
         }
 
         if (signatureParams.getEntityBody() == null) {
             return paramValues;
         }
         try {
-            paramValues[paramValues.length - 1] = populateAndGetEntityBody(inRequest, inRequestEntity,
+            paramValues[paramValues.length - 2] = populateAndGetEntityBody(inRequest, inRequestEntity,
                                                                    signatureParams.getEntityBody());
+            paramValues[paramValues.length - 1] = true;
         } catch (BallerinaException ex) {
             httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_BAD_REQUEST);
             throw new BallerinaConnectorException("data binding failed: " + ex.getMessage());

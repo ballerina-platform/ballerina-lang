@@ -41,9 +41,16 @@ public class Head extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-//        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
+        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
         // Execute the operation
-//        executeNonBlockingAction(dataContext, false);
+        executeNonBlockingAction(dataContext, false);
+    }
+
+    @Override
+    protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
+        HttpCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
+        outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_HEAD);
+        return outboundReqMsg;
     }
 
     public static void nativeHead(Strand strand, ObjectValue clientObj, String url, MapValue config, String path,

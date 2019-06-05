@@ -21,7 +21,7 @@ package org.ballerinalang.nativeimpl.builtin.maplib;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -52,7 +52,7 @@ public class Clear extends BlockingNativeCallableUnit {
         }
     }
 
-    public static void clear(Strand strand, MapValueImpl<?, ?> map) {
+    public static void clear(Strand strand, MapValue<?, ?> map) {
         try {
             map.clear();
         } catch (BLangFreezeException e) {

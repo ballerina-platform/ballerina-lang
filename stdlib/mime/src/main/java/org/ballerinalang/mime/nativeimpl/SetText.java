@@ -34,6 +34,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 
 /**
  * Set the entity body with text data.
@@ -59,7 +60,7 @@ public class SetText extends BlockingNativeCallableUnit {
     }
 
     public static void setText(Strand strand, ObjectValue entityObj, String textContent, String contentType) {
-        EntityBodyHandler.addMessageDataSource(entityObj, new BString(textContent));
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType);
+        EntityBodyHandler.addMessageDataSource(entityObj, textContent);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : TEXT_PLAIN);
     }
 }

@@ -43,7 +43,6 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.mime.FileUploadContentHolder;
-import org.ballerinalang.stdlib.mime.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -87,13 +86,13 @@ public class MultipartUtils {
      * @return A map of relevant messages
      */
     public static Map<String, Object> createPrerequisiteMessages(String path, String topLevelContentType,
-                                                          CompileResult result) {
+                                                                 CompileResult result) {
         Map<String, Object> messageMap = new HashMap<>();
         BMap<String, BValue> request = getRequestStruct(result);
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessageForMultiparts(path, HttpConstants.HTTP_METHOD_POST);
         HttpUtil.addCarbonMsg(request, cMsg);
         BMap<String, BValue> entity = getEntityStruct(result);
-        Util.setContentType(getMediaTypeStruct(result), entity, topLevelContentType);
+        MimeUtil.setContentType(getMediaTypeStruct(result), entity, topLevelContentType);
         messageMap.put(CARBON_MESSAGE, cMsg);
         messageMap.put(BALLERINA_REQUEST, request);
         messageMap.put(MULTIPART_ENTITY, entity);
@@ -130,7 +129,7 @@ public class MultipartUtils {
             addMultipartsToCarbonMessage(cMsg, nettyEncoder);
         } catch (Exception e) {
             LOG.error("Error occurred while adding multiparts to carbon message in setCarbonMessageWithMultiparts",
-                    e.getMessage());
+                      e.getMessage());
         }
     }
 
@@ -142,7 +141,7 @@ public class MultipartUtils {
      * @throws Exception In case content cannot be read from netty encoder
      */
     private static void addMultipartsToCarbonMessage(HttpCarbonMessage httpRequestMsg,
-            HttpPostRequestEncoder nettyEncoder) throws Exception {
+                                                     HttpPostRequestEncoder nettyEncoder) throws Exception {
         while (!nettyEncoder.isEndOfInput()) {
             httpRequestMsg.addHttpContent(nettyEncoder.readChunk(ByteBufAllocator.DEFAULT));
         }
@@ -156,7 +155,7 @@ public class MultipartUtils {
      * @param requestStruct   Ballerina request struct which contains multipart data
      */
     private static void prepareRequestWithMultiparts(HttpCarbonMessage outboundRequest,
-            BMap<String, BValue> requestStruct) {
+                                                     BMap<String, BValue> requestStruct) {
         BMap<String, BValue> entityStruct = requestStruct.get(REQUEST_ENTITY_FIELD) != null ?
                 (BMap<String, BValue>) requestStruct.get(REQUEST_ENTITY_FIELD) : null;
         if (entityStruct != null) {
@@ -167,23 +166,23 @@ public class MultipartUtils {
                 setDataFactory(dataFactory);
                 try {
                     HttpPostRequestEncoder nettyEncoder = new HttpPostRequestEncoder(dataFactory,
-                            outboundRequest.getNettyHttpRequest(), true);
+                                                              outboundRequest.getNettyHttpRequest(), true);
                     for (int i = 0; i < bodyParts.size(); i++) {
                         BMap<String, BValue> bodyPart = (BMap<String, BValue>) bodyParts.getRefValue(i);
                         encodeBodyPart(nettyEncoder, outboundRequest.getNettyHttpRequest(),
-                                bodyPart);
+                                       bodyPart);
                     }
                     nettyEncoder.finalizeRequest();
                     requestStruct.addNativeData(MULTIPART_ENCODER, nettyEncoder);
                 } catch (HttpPostRequestEncoder.ErrorDataEncoderException e) {
                     LOG.error("Error occurred while creating netty request encoder for multipart data binding",
-                            e.getMessage());
+                              e.getMessage());
                 }
             }
         }
     }
 
-     /**
+    /**
      * Two body parts have been wrapped inside multipart/mixed which in turn acts as the child part for the parent
      * multipart/form-data.
      *
@@ -222,7 +221,7 @@ public class MultipartUtils {
                 "--" + multipartMixedBoundary + "--" + "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
         return MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
-                multipartBodyWithNestedParts);
+                                                multipartBodyWithNestedParts);
     }
 
     /**
@@ -234,20 +233,20 @@ public class MultipartUtils {
      * @throws HttpPostRequestEncoder.ErrorDataEncoderException when an error occurs while encoding
      */
     private static void encodeBodyPart(HttpPostRequestEncoder nettyEncoder, HttpRequest httpRequest,
-            BMap<String, BValue> bodyPart)
+                                       BMap<String, BValue> bodyPart)
             throws HttpPostRequestEncoder.ErrorDataEncoderException {
         try {
             InterfaceHttpData encodedData;
-            Channel byteChannel = Util.getByteChannel(bodyPart);
+            Channel byteChannel = EntityBodyHandler.getByteChannel(bodyPart);
             FileUploadContentHolder contentHolder = new FileUploadContentHolder();
             contentHolder.setRequest(httpRequest);
             contentHolder.setBodyPartName(getBodyPartName(bodyPart));
             contentHolder.setFileName(TEMP_FILE_NAME + TEMP_FILE_EXTENSION);
-            contentHolder.setContentType(Util.getBaseType(bodyPart));
+            contentHolder.setContentType(MimeUtil.getBaseType(bodyPart));
             contentHolder.setBodyPartFormat(MimeConstants.BodyPartForm.INPUTSTREAM);
-            String contentTransferHeaderValue = Util.getHeaderValue(bodyPart,
-                    HttpHeaderNames.CONTENT_TRANSFER_ENCODING
-                            .toString());
+            String contentTransferHeaderValue = HeaderUtil.getHeaderValue(bodyPart,
+                                                                          HttpHeaderNames.CONTENT_TRANSFER_ENCODING
+                                                                                  .toString());
             if (contentTransferHeaderValue != null) {
                 contentHolder.setContentTransferEncoding(contentTransferHeaderValue);
             }
@@ -276,12 +275,12 @@ public class MultipartUtils {
                 , contentHolder.getFileName(), contentHolder.getContentType(),
                 contentHolder.getContentTransferEncoding(), contentHolder.getCharset(), contentHolder.getFileSize());
         switch (contentHolder.getBodyPartFormat()) {
-        case INPUTSTREAM:
-            fileUpload.setContent(contentHolder.getContentStream());
-            break;
-        case FILE:
-            fileUpload.setContent(contentHolder.getFile());
-            break;
+            case INPUTSTREAM:
+                fileUpload.setContent(contentHolder.getContentStream());
+                break;
+            case FILE:
+                fileUpload.setContent(contentHolder.getFile());
+                break;
         }
         return fileUpload;
     }
@@ -302,9 +301,9 @@ public class MultipartUtils {
      * @return A string denoting the body part's name
      */
     private static String getBodyPartName(BMap<String, BValue> bodyPart) {
-        String contentDisposition = Util.getContentDisposition(bodyPart);
+        String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
         if (!contentDisposition.isEmpty()) {
-            BMap<String, BValue> paramMap = Util.getParamMap(contentDisposition);
+            BMap<String, BValue> paramMap = HeaderUtil.getParamBMap(contentDisposition);
             if (paramMap != null) {
                 BString bodyPartName = paramMap.get(CONTENT_DISPOSITION_NAME) != null ?
                         (BString) paramMap.get(CONTENT_DISPOSITION_NAME) : null;

@@ -79,10 +79,6 @@ type InstructionGenerator object {
             self.generateMulIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_MOD) {
             self.generateRemIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_AND) {
-            self.generateAndIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_OR) {
-            self.generateOrIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_LESS_EQUAL) {
             self.generateLessEqualIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_NOT_EQUAL) {
@@ -556,78 +552,6 @@ type InstructionGenerator object {
         self.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
-    function generateAndIns(bir:BinaryOp binaryIns) {
-        // ILOAD
-        // ICONST_1
-        // IF_ICMPNE L0
-        // ILOAD
-        // ICONST_1
-        // IF_ICMPNE L0
-        // ICONST_1
-        // ISTORE
-
-        //io:println("AND ins : " + io:sprintf("%s", binaryIns));
-
-        jvm:Label label1 = new;
-        jvm:Label label2 = new;
-
-        self.loadVar(binaryIns.rhsOp1.variableDcl);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(IF_ICMPNE, label1);
-
-        self.loadVar(binaryIns.rhsOp2.variableDcl);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(IF_ICMPNE, label1);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(GOTO, label2);
-
-        self.mv.visitLabel(label1);
-        self.mv.visitInsn(ICONST_0);
-
-        self.mv.visitLabel(label2);
-
-        self.storeToVar(binaryIns.lhsOp.variableDcl);
-    }
-
-    function generateOrIns(bir:BinaryOp binaryIns) {
-        // ILOAD
-        // ICONST_1
-        // IF_ICMPNE L0
-        // ILOAD
-        // ICONST_1
-        // IF_ICMPNE L0
-        // ICONST_1
-        // ISTORE
-
-        //io:println("OR ins : " + io:sprintf("%s", binaryIns));
-
-        jvm:Label label1 = new;
-        jvm:Label label2 = new;
-
-        self.loadVar(binaryIns.rhsOp1.variableDcl);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(IF_ICMPEQ, label1);
-
-        self.loadVar(binaryIns.rhsOp2.variableDcl);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(IF_ICMPEQ, label1);
-
-        self.mv.visitInsn(ICONST_0);
-        self.mv.visitJumpInsn(GOTO, label2);
-
-        self.mv.visitLabel(label1);
-        self.mv.visitInsn(ICONST_1);
-
-        self.mv.visitLabel(label2);
-
-        self.storeToVar(binaryIns.lhsOp.variableDcl);
-    }
-
     function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {
         return self.indexMap.getIndex(varDcl);
     }
@@ -897,14 +821,11 @@ type InstructionGenerator object {
         self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
         self.storeToVar(objectNewIns.lhsOp.variableDcl);
 
-        // todo : check if this is a new service object creation and process its annotation
-        boolean isServiceType = false;
-
-        if (isServiceType) {
-            string varName = "#0";
+        if (typeDef.typeValue is bir:BServiceType) {
+            string varName = "#0"; // assuming #0 is the annotation data map
             string pkgClassName = lookupGlobalVarClassName(self.currentPackageName + varName);
             self.mv.visitFieldInsn(GETSTATIC, pkgClassName, varName, io:sprintf("L%s;", MAP_VALUE));
-            loadExternalOrLocalType(self.mv, typeDefRef);
+            loadExternalOrLocalType(self.mv, typeDef);
             self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             self.mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processObjectAnnotations",
                                         io:sprintf("(L%s;L%s;)V", MAP_VALUE, OBJECT_TYPE), false);

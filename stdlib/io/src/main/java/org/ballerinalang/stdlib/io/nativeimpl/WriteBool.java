@@ -100,18 +100,13 @@ public class WriteBool implements NativeCallableUnit {
     }
 
     public static Object writeBool(Strand strand, ObjectValue dataChannelObj, boolean value) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
         DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(callback);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
         WriteBoolEvent writeBoolEvent = new WriteBoolEvent(channel, value, eventContext);
         Register register = EventRegister.getFactory().register(writeBoolEvent, WriteBool::writeResponse);
         eventContext.setRegister(register);
         register.submit();
-        //TODO : Remove callback once strand non-blocking support is given
-        callback.sync();
-        return callback.getReturnValue();
+        return null;
     }
 
     /**
@@ -121,7 +116,6 @@ public class WriteBool implements NativeCallableUnit {
      */
     private static EventResult writeResponse(EventResult<Integer, EventContext> result) {
         EventContext eventContext = result.getContext();
-        //TODO : Remove callback once strand non-blocking support is given
         NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         Throwable error = eventContext.getError();
         if (null != error) {

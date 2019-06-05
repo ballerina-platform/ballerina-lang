@@ -35,6 +35,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
+import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 
 /**
@@ -72,6 +73,6 @@ public class SetByteChannel extends BlockingNativeCallableUnit {
         if (dataSource != null) { //Clear message data source when the user set a byte channel to entity
             entityObj.addNativeData(MESSAGE_DATA_SOURCE, null);
         }
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : OCTET_STREAM);
     }
 }

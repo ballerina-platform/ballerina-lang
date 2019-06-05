@@ -120,7 +120,7 @@ public class LauncherUtils {
 
         if (srcPathStr.endsWith(BLANG_COMPILED_JAR_EXT)) {
             runJar(sourcePath, args);
-            Runtime.getRuntime().exit(0);
+            return;
         }
         runBal(sourceRootPath, sourcePath, args, offline, siddhiRuntimeFlag, experimentalFlag, srcPathStr, fullPath);
     }
@@ -457,6 +457,9 @@ public class LauncherUtils {
             mainMethod.invoke(null, (Object) args);
             listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
 
+            if (!initClazz.getField("serviceEPAvailable").getBoolean(initClazz)) {
+                Runtime.getRuntime().exit(0);
+            }
         } catch (MalformedURLException e) {
             throw createLauncherException("loading jar file failed with given source path " + sourcePath);
         } catch (ClassNotFoundException e) {
@@ -465,7 +468,7 @@ public class LauncherUtils {
             throw createLauncherException("main method cannot be found for init class " + initClassName);
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw createLauncherException("invoking main method failed due to " + e.getMessage());
-        } catch (InvocationTargetException e) {
+        } catch (InvocationTargetException | NoSuchFieldException e) {
             throw createLauncherException("invoking main method failed due to " + e.getCause());
         }
     }

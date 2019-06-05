@@ -18,13 +18,12 @@
 package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -63,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -70,6 +70,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -78,48 +79,18 @@ import java.util.Set;
  * @since 0.995.0
  */
 public class BIRTypeWriter implements TypeVisitor {
-    public static final int TYPE_TAG_REFERENCE_TYPE = 52;
     private final ByteBuf buff;
 
     private final ConstantPool cp;
 
-    // To check if the object type is from the same package or not.
-    private final BIRNode.BIRPackage birPackage;
-
-    public BIRTypeWriter(ByteBuf buff, ConstantPool cp, BIRNode.BIRPackage birPackage) {
+    public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
         this.cp = cp;
-        this.birPackage = birPackage;
     }
 
     public void visitType(BType type) {
-        //TODO writing reference from the original package, only for object types. Find a better approach
-        if (type.tag == TypeTags.OBJECT && !(type instanceof BServiceType)) {
-            if (!isSamePackage(type.tsymbol)) {
-                buff.writeByte(TYPE_TAG_REFERENCE_TYPE);
-                buff.writeInt(addStringCPEntry(type.tsymbol.pkgID.orgName.value));
-                buff.writeInt(addStringCPEntry(type.tsymbol.pkgID.name.value));
-                buff.writeInt(addStringCPEntry(type.tsymbol.pkgID.version.value));
-                buff.writeInt(addStringCPEntry(type.tsymbol.name.value));
-                return;
-            }
-        }
         buff.writeByte(type.tag);
         type.accept(this);
-    }
-
-    private boolean isSamePackage(BSymbol tSymbol) {
-        PackageID packageID = tSymbol.pkgID;
-        if (!packageID.orgName.equals(this.birPackage.org)) {
-            return false;
-        }
-        if (!packageID.name.equals(this.birPackage.name)) {
-            return false;
-        }
-        if (!packageID.version.equals(this.birPackage.version)) {
-            return false;
-        }
-        return true;
     }
 
     private void writeTypeCpIndex(BType type) {
@@ -263,6 +234,13 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BRecordType bRecordType) {
         BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) bRecordType.tsymbol;
 
+        // Write the package details in the form of constant pool entry TODO find a better approach
+        int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
+        int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
+        int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
+        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buff.writeInt(pkgIndex);
+
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeBoolean(bRecordType.sealed);
         writeTypeCpIndex(bRecordType.restFieldType);
@@ -299,6 +277,13 @@ public class BIRTypeWriter implements TypeVisitor {
     private void writeObjectAndServiceTypes(BObjectType bObjectType) {
         BTypeSymbol tSymbol = bObjectType.tsymbol;
 
+        // Write the package details in the form of constant pool entry TODO find a better approach
+        int orgCPIndex = addStringCPEntry(tSymbol.pkgID.orgName.value);
+        int nameCPIndex = addStringCPEntry(tSymbol.pkgID.name.value);
+        int versionCPIndex = addStringCPEntry(tSymbol.pkgID.version.value);
+        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buff.writeInt(pkgIndex);
+
         buff.writeInt(addStringCPEntry(tSymbol.name.value));
         //TODO below two line are a temp solution, introduce a generic concept
         buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.ABSTRACT)); // Abstract object or not
@@ -311,17 +296,32 @@ public class BIRTypeWriter implements TypeVisitor {
             writeTypeCpIndex(field.type);
         }
         List<BAttachedFunction> attachedFuncs;
+        //TODO cleanup, there cannot be objects without attached function list and symbol kind other than object
         if (tSymbol.kind == SymbolKind.OBJECT) {
-            attachedFuncs = ((BObjectTypeSymbol) tSymbol).attachedFuncs;
+            Map<Boolean, List<BAttachedFunction>> partitions = ((BObjectTypeSymbol) tSymbol).attachedFuncs.stream()
+                    .collect(Collectors.partitioningBy(n -> n.funcName.equals(Names.OBJECT_INIT_SUFFIX)));
+            attachedFuncs = partitions.get(false);
+            List<BAttachedFunction> constructor = partitions.get(true);
+            if (constructor.size() != 0) {
+                buff.writeByte(1); // constructor present
+                writeAttachFunction(partitions.get(true).get(0));
+            } else {
+                buff.writeByte(0); // constructor not present
+            }
         } else {
             attachedFuncs = new ArrayList<>();
+            buff.writeByte(0); // constructor not present
         }
         buff.writeInt(attachedFuncs.size());
         for (BAttachedFunction attachedFunc : attachedFuncs) {
-            buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
-            buff.writeByte(getVisibility(attachedFunc.symbol).value());
-            writeTypeCpIndex(attachedFunc.type);
+            writeAttachFunction(attachedFunc);
         }
+    }
+
+    private void writeAttachFunction(BAttachedFunction attachedFunc) {
+        buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
+        buff.writeByte(getVisibility(attachedFunc.symbol).value());
+        writeTypeCpIndex(attachedFunc.type);
     }
 
     @Override
