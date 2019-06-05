@@ -67,7 +67,7 @@ dependencies {
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
     dist 'org.apache.james:apache-mime4j-core:0.7.2'
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
-    dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.11-wso2v11'
+    dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
     dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.2'
     dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.20'
     dist 'io.ballerina.messaging:broker-auth:0.970.0'
