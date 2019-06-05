@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BFiniteType;
 import org.ballerinalang.jvm.types.BFunctionType;
@@ -709,6 +710,8 @@ public class TypeChecker {
                 return checkIsLikeArrayType(sourceValue, (BArrayType) targetType, unresolvedValues);
             case TypeTags.TUPLE_TAG:
                 return checkIsLikeTupleType(sourceValue, (BTupleType) targetType, unresolvedValues);
+            case TypeTags.ERROR_TAG:
+                return checkIsLikeErrorType(sourceValue, (BErrorType) targetType, unresolvedValues);
             case TypeTags.ANYDATA_TAG:
                 return checkIsLikeAnydataType(sourceValue, sourceType, unresolvedValues);
             case TypeTags.FINITE_TYPE_TAG:
@@ -929,6 +932,17 @@ public class TypeChecker {
             }
         }
         return false;
+    }
+
+    private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
+                                                List<TypeValuePair> unresolvedValues) {
+        BType sourceType = getType(sourceValue);
+        if (sourceValue == null || sourceType.getTag() != TypeTags.ERROR_TAG) {
+            return false;
+        }
+        return checkIsLikeType(((ErrorValue) sourceValue).getReason(),
+                               targetType.reasonType, unresolvedValues) &&
+                checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues);
     }
 
     private static boolean isAnydata(BType type) {
