@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.utils;
 
 
 import io.netty.handler.codec.http.HttpContent;
-
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -30,21 +29,17 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.test.util.BFileUtil;
+import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
-import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -67,8 +62,7 @@ public class Services {
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
                                               String endpointName, HTTPTestRequest request) {
         MapValue connectorEndpoint = getListner(compileResult, pkgName, version, endpointName);
-        HTTPServicesRegistry httpServicesRegistry =
-                (HTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
+        HTTPServicesRegistry httpServicesRegistry = MockHTTPConnectorListener.getInstance().getHttpServicesRegistry();
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
         HttpResource resource = null;
