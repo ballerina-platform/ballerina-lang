@@ -64,6 +64,7 @@ public class MessageUtils {
         } else {
             carbonMessage.addHttpContent(new DefaultLastHttpContent());
         }
+        carbonMessage.setLastHttpContentArrived();
         return carbonMessage;
     }
 

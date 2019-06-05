@@ -129,12 +129,12 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_REMOTE, CONTENT_TYPE_JSON);
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification", enabled = false)
     public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
         internalHubNotificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification", enabled = false)
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
         remoteHubNotificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }

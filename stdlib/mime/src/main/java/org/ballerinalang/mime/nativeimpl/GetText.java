@@ -19,7 +19,7 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -33,8 +33,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Locale;
 
+import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_FORM;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_AS_PRIMARY_TYPE;
 
@@ -50,33 +50,42 @@ import static org.ballerinalang.mime.util.MimeConstants.TEXT_AS_PRIMARY_TYPE;
         returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetText extends BlockingNativeCallableUnit {
+public class GetText extends AbstractGetPayloadHandler {
 
     @Override
-    public void execute(Context context) {
-        BString result;
+    @SuppressWarnings("unchecked")
+    public void execute(Context context, CallableUnitCallback callback) {
         try {
-            BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).startsWith(TEXT_AS_PRIMARY_TYPE) ||
-                    baseType.equalsIgnoreCase(APPLICATION_FORM))) {
-                BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-                if (dataSource != null) {
-                    result = MimeUtil.getMessageAsString(dataSource);
-                } else {
-                    result = EntityBodyHandler.constructStringDataSource(entityStruct);
-                    EntityBodyHandler.addMessageDataSource(entityStruct, result);
-                    //Set byte channel to null, once the message data source has been constructed
-                    entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
-                }
-                context.setReturnValues(result);
-            } else {
-                context.setReturnValues(MimeUtil.createError(context, "Entity body is not text compatible " +
-                        "since the received content-type is : " + baseType));
+            BString result;
+            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+            String baseType = HeaderUtil.getBaseType(entityObj);
+            if (!isTextContentType(baseType)) {
+                createErrorAndNotify(context, callback, "Entity body is not text " + COMPATIBLE_SINCE_CONTENT_TYPE +
+                        baseType);
+                return;
             }
-        } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context,
-                    "Error occurred while retrieving text data from entity : " + e.getMessage()));
+
+            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
+            if (dataSource != null) {
+                result = MimeUtil.getMessageAsString(dataSource);
+                setReturnValuesAndNotify(context, callback, result);
+                return;
+            }
+
+            if (isStreamingRequired(entityObj)) {
+                result = EntityBodyHandler.constructStringDataSource(entityObj);
+                updateDataSourceAndNotify(context, callback, entityObj, result);
+            } else {
+                constructNonBlockingDataSource(context, callback, entityObj, SourceType.TEXT);
+            }
+        } catch (Exception ex) {
+            createErrorAndNotify(context, callback,
+                                 "Error occurred while extracting text data from entity : " + ex.getMessage());
         }
+    }
+
+    private boolean isTextContentType(String baseType) {
+        return baseType != null && (baseType.toLowerCase(Locale.getDefault()).startsWith(TEXT_AS_PRIMARY_TYPE) ||
+                baseType.equalsIgnoreCase(APPLICATION_FORM));
     }
 }

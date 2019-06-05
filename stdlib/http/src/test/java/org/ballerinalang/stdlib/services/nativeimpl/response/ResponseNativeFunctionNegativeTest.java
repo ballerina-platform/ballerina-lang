@@ -88,7 +88,9 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.put(RESPONSE_ENTITY_FIELD, entity);
         BValue[] inputArg = { inResponse };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        Assert.assertNull(returnVals[0]);
+        Assert.assertNotNull(returnVals[0]);
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
+                            "{message:\"Error occurred while extracting json data from entity: Empty content\"}");
     }
 
     @Test(description = "Test method with string payload")
@@ -122,7 +124,7 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0].stringValue()
-                .contains("Error occurred while retrieving text" + " data from entity : String payload is null"));
+                .contains("Error occurred while extracting text data from entity : Empty content"));
     }
 
     @Test
@@ -136,7 +138,7 @@ public class ResponseNativeFunctionNegativeTest {
         BValue[] inputArg = { inResponse };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
-                "{message:\"Error occurred while retrieving xml data from entity : Empty xml payload\"}");
+                "{message:\"Error occurred while extracting xml data from entity : Empty content\"}");
     }
 
     @Test(description = "Test getEntity method on a response without a entity")
