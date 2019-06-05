@@ -1,10 +1,10 @@
 ## Module Overview
 
-This module provides an OAuth2 authentication provider, which can be used to authenticate using the credentials against an introspection endpoint.
+This module provides an OAuth2 authentication provider, which can be used to authenticate the provided credentials against an introspection endpoint.
 
-The `oauth2:OAuth2Provider` is another implementation of the `auth:AuthProvider` interface. This calls to an introspection endpoint and validate the token, and performs authentication and authorization.
+The `oauth2:OAuth2Provider` is another implementation of the `auth:AuthProvider` interface. This calls an introspection endpoint, validate the token, and performs authentication and authorization.
 
-#### Sample for securing service with OAuth2
+#### Sample for securing a service with OAuth2
 
 ```ballerina
 import ballerina/oauth2;
