@@ -451,11 +451,13 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         int m = 0;
         int insCount = bb.instructions.length();
         boolean isTrapped = currentEE is bir:ErrorEntry  && currentEE.trapBB.id.value == currentBBName;
-        // start a try block if current block is trapped
+        // Cases will be generate between instructions and terminator of the basic block. So if basic block is 
+        // trapped we need to generate two try catches as for instructions and terminator. 
         if (isTrapped && insCount > 0) {
             endLabel = new;
             handlerLabel = new;
             jumpLabel = new;
+            // start try for instructions.
             errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
         }
         while (m < insCount) {
@@ -552,8 +554,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             m += 1;
         }
 
-        // close the started try block with a catch statement if current block is trapped.
-        // if we have a call terminator, we need to generate the catch during call code.gen hence skipping that.
+        // close the started try block with a catch statement for instructions.
         if (isTrapped && insCount > 0) {
             errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
         }
@@ -574,14 +575,13 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 endLabel = new;
                 handlerLabel = new;
                 jumpLabel = new;
+                // start try for terminator if current block is trapped.
                 errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
             }
             generateDiagnosticPos(terminator.pos, mv);
-            if (isModuleInitFunction(module, func) && terminator is bir:Return) {
-                processAnnotation(mv, module.typeDefs, currentPackageName);
-            }
             termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex);
             if (isTerminatorTrapped) {
+                // close the started try block with a catch statement for terminator.
                 errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
             }
         }
