@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.utils;
 
 import io.netty.handler.codec.http.HttpContent;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
@@ -31,15 +31,12 @@ import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
-
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -61,7 +58,6 @@ public class Services {
 
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
                                               String endpointName, HTTPTestRequest request) {
-        MapValue connectorEndpoint = getListner(compileResult, pkgName, version, endpointName);
         HTTPServicesRegistry httpServicesRegistry = MockHTTPConnectorListener.getInstance().getHttpServicesRegistry();
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
@@ -82,8 +78,9 @@ public class Services {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
 
-        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request,
-                (MapValue) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG));
+        // Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request,
+        // (MapValue) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG));
+        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, null);
         callback.setRequestStruct(signatureParams[0]);
 
         ObjectValue service = resource.getParentService().getBalService();
@@ -101,10 +98,5 @@ public class Services {
         }
         request.getTestHttpResponseStatusFuture().notifyHttpListener(HttpUtil.createHttpCarbonMessage(false));
         return callback.getResponseMsg();
-    }
-
-    private static MapValue getListner(CompileResult compileResult, String pkgName, String version,
-                                       String endpointName) {
-        throw new IllegalStateException("Cannot find endpoint: " + endpointName);
     }
 }
