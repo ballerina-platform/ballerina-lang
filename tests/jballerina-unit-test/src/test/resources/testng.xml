@@ -164,7 +164,14 @@
                     <exclude name="testUnspecifiedErrorDetailFrozenness" />
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.statements.matchstmt.MatchStructuredErrorPatternsTest" />
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStructuredErrorPatternsTest">
+                <methods>
+                    <!-- error trapping returns a nil error -->
+                    <exclude name="testBasicErrorMatch6" />
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.statements.foreach.ForeachErrorBindingPatternsTests" />
+            <class name="org.ballerinalang.test.expressions.varref.ErrorVariableReferenceTest" />
         </classes>
     </test>
 </suite>

@@ -960,7 +960,7 @@ public class Desugar extends BLangNodeVisitor {
         BType detailMapType;
         BType detailType = ((BErrorType) parentErrorVariable.type).detailType;
         if (detailType.tag == TypeTags.MAP) {
-            detailMapType = ((BMapType) detailType).constraint;
+            detailMapType = detailType;
         } else {
             detailMapType = symTable.pureTypeConstrainedMap;
         }
@@ -1082,12 +1082,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression createErrorDetailVar(BLangErrorVariable.BLangErrorDetailEntry detailEntry,
-                                                 BVarSymbol teampDetailVarSymbol) {
+                                                 BVarSymbol tempDetailVarSymbol) {
         BLangExpression detailEntryVar = createIndexBasedAccessExpr(
                 detailEntry.valueBindingPattern.type,
                 detailEntry.valueBindingPattern.pos,
                 createStringLiteral(detailEntry.key.pos, detailEntry.key.value),
-                teampDetailVarSymbol, null);
+                tempDetailVarSymbol, null);
         if (detailEntryVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             BLangIndexBasedAccess bLangIndexBasedAccess = (BLangIndexBasedAccess) detailEntryVar;
             bLangIndexBasedAccess.originalType = symTable.pureType;
@@ -1588,7 +1588,7 @@ public class Desugar extends BLangNodeVisitor {
 
             if (NodeKind.ERROR_VARIABLE_REF == variableReference.getKind()) {
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(variableReference.pos,
-                        new BArrayType(symTable.anyType), recordVarSymbol, indexExpr);
+                        symTable.errorType, recordVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
@@ -1668,9 +1668,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // When no detail nor rest detail are to be destructured, we don't need to generate the detail invocation.
-        if (parentErrorVarRef.detail.isEmpty()
-                && (parentErrorVarRef.restVar == null
-                    || ((BLangSimpleVarRef) parentErrorVarRef.restVar).variableName.value.equals(IGNORE.value))) {
+        if (parentErrorVarRef.detail.isEmpty() && isIgnoredErrorRefRestVar(parentErrorVarRef)) {
             return;
         }
 
@@ -1703,8 +1701,7 @@ public class Desugar extends BLangNodeVisitor {
             detailAssignment.expr = detailEntryVar;
         }
 
-        if (parentErrorVarRef.restVar != null
-                && !((BLangSimpleVarRef) parentErrorVarRef.restVar).variableName.value.equals(IGNORE.value)) {
+        if (!isIgnoredErrorRefRestVar(parentErrorVarRef)) {
 
             BLangSimpleVarRef detailVarRef = ASTBuilderUtil.createVariableRef(
                     parentErrorVarRef.restVar.pos, detailTempVarDef.var.symbol);
@@ -1731,6 +1728,16 @@ public class Desugar extends BLangNodeVisitor {
             // Create empty record init attached func
             ((BRecordTypeSymbol) errorType.detailType.tsymbol).initializerFunc = createRecordInitFunc();
         }
+    }
+
+    private boolean isIgnoredErrorRefRestVar(BLangErrorVarRef parentErrorVarRef) {
+        if (parentErrorVarRef.restVar == null) {
+            return true;
+        }
+        if (parentErrorVarRef.restVar.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            return (((BLangSimpleVarRef) parentErrorVarRef.restVar).variableName.value.equals(IGNORE.value));
+        }
+        return false;
     }
 
     @Override

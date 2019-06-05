@@ -1061,6 +1061,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(errorVariable.pos, DiagnosticCode.INVALID_ERROR_BINDING_PATTERN, errorVariable.type);
                 return false;
         }
+        errorVariable.type = errorType;
         boolean isReasonIgnored = false;
         BLangSimpleVariable reasonVariable = errorVariable.reason;
         if (Names.IGNORE == names.fromIdNode(reasonVariable.name)) {

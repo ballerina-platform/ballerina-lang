@@ -29,6 +29,7 @@ type ReasonRecTup record {
     Message message;
     (string, int) x;
 };
+
 function testBasicErrorMatch() returns string {
     error <string, map<string>> err1 = error("Error Code", message = "Msg");
     match err1 {
@@ -210,7 +211,7 @@ function testFiniteTypedReasonVariable() returns string[] {
 
 function matching(error<Fin2, map<string|boolean>>|error<Fin1, map<string|boolean>> a) returns string {
     match a {
-        var error(var reason, message = message, fatal = fatal) => return "reason = " + reason + ", message = " + <string>message + ", fatal = " + <string>fatal;
+        var error(var reason, message = message, fatal = fatal) => return "reason = " + reason + ", message = " + <string>message + ", fatal = " + (<boolean>fatal ? "true" : "false");
         var x => return "Failed";
     }
 }

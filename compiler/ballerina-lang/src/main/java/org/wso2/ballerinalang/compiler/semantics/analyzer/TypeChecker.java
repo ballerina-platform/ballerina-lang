@@ -1111,10 +1111,16 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (varRefExpr.restVar != null) {
             varRefExpr.restVar.lhsVar = true;
-            checkExpr(varRefExpr.restVar, env);
-            unresolvedReference = unresolvedReference
-                    || varRefExpr.restVar.symbol == null
-                    || !isValidVariableReference(varRefExpr.restVar);
+            if (varRefExpr.restVar.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                checkExpr(varRefExpr.restVar, env);
+                unresolvedReference = unresolvedReference
+                        || varRefExpr.restVar.symbol == null
+                        || !isValidVariableReference(varRefExpr.restVar);
+
+            } else if (varRefExpr.restVar.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
+                    || varRefExpr.restVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                unresolvedReference = checkErrorRestParamVarRef(varRefExpr, unresolvedReference);
+            }
         }
 
         if (unresolvedReference) {
@@ -1125,8 +1131,12 @@ public class TypeChecker extends BLangNodeVisitor {
         BType restFieldType;
         if (varRefExpr.restVar == null) {
             restFieldType = symTable.pureType;
-        } else if (((BLangSimpleVarRef) varRefExpr.restVar).variableName.value.equals(Names.IGNORE.value)) {
+        } else if (varRefExpr.restVar.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                && ((BLangSimpleVarRef) varRefExpr.restVar).variableName.value.equals(Names.IGNORE.value)) {
             restFieldType = symTable.pureType;
+        } else if (varRefExpr.restVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
+            || varRefExpr.restVar.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            restFieldType = varRefExpr.restVar.type;
         } else if (varRefExpr.restVar.type.tag == TypeTags.MAP){
             restFieldType = ((BMapType) varRefExpr.restVar.type).constraint;
         } else {
@@ -1144,6 +1154,27 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BErrorType errorType = new BErrorType(errorTSymbol, varRefExpr.reason.type, detailRecType);
         resultType = errorType;
+    }
+
+    private boolean checkErrorRestParamVarRef(BLangErrorVarRef varRefExpr, boolean unresolvedReference) {
+        BLangAccessExpression accessExpression = (BLangAccessExpression) varRefExpr.restVar;
+        Name exprName = names.fromIdNode(((BLangSimpleVarRef) accessExpression.expr).variableName);
+        BSymbol fSym = symResolver.lookupSymbol(env, exprName, SymTag.VARIABLE);
+        if (fSym != null) {
+            if (fSym.type.getKind() == TypeKind.MAP) {
+                BType constraint = ((BMapType) fSym.type).constraint;
+                if (types.isAssignable(constraint, symTable.pureType)) {
+                    varRefExpr.restVar.type = constraint;
+                } else {
+                    varRefExpr.restVar.type = symTable.pureType;
+                }
+            } else {
+                throw new UnsupportedOperationException("rec field base access");
+            }
+        } else {
+            unresolvedReference = true;
+        }
+        return unresolvedReference;
     }
 
     private boolean checkIndexBasedAccessExpr(BRecordTypeSymbol detailRecordSym, List<BField> fields,

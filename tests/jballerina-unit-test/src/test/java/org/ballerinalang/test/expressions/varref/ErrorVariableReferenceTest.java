@@ -28,6 +28,7 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.util.Map;
@@ -96,6 +97,8 @@ public class ErrorVariableReferenceTest {
     }
 
     @Test(description = "Test simple error var def inside tuple")
+    @Ignore // todo: enable when tuple ref var is added to jBallerina
+    // (issue: https://github.com/ballerina-platform/ballerina-lang/issues/15520)
     public void testErrorInTuple() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTuple");
         Assert.assertEquals(returns.length, 5);
@@ -107,6 +110,7 @@ public class ErrorVariableReferenceTest {
     }
 
     @Test(description = "Test simple error var def inside tuple with destructuring error")
+    @Ignore // enable when tuple ref var is added to jBallerina
     public void testErrorInTupleWithDestructure() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure");
         Assert.assertEquals(returns.length, 5);
@@ -118,6 +122,7 @@ public class ErrorVariableReferenceTest {
     }
 
     @Test(description = "Test simple error var def inside tuple with destructuring error")
+    @Ignore // enable when tuple ref var is added to jBallerina
     public void testErrorInTupleWithDestructure2() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
         Assert.assertEquals(returns.length, 5);
@@ -153,7 +158,7 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns.length, 1);
         Map<String, BValue> results = ((BMap) returns[0]).getMap();
         Assert.assertEquals(results.get("res1").stringValue(), "Error One");
-        Assert.assertEquals(results.get("rec").stringValue(), "{message:\"Something Wrong\", fatal:true}");
+        Assert.assertEquals(results.get("rec").stringValue(), "{\"message\":\"Something Wrong\", \"fatal\":true}");
         Assert.assertEquals(results.get("res2").stringValue(), "Error One");
         Assert.assertEquals(results.get("message").stringValue(), "Something Wrong");
         Assert.assertTrue(((BBoolean) results.get("fatal")).booleanValue());
@@ -165,7 +170,7 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns.length, 1);
         Map<String, BValue> results = ((BMap) returns[0]).getMap();
         Assert.assertEquals(results.get("res1").stringValue(), "Error One");
-        Assert.assertEquals(results.get("rec").stringValue(), "{message:\"Something Wrong\", fatal:true}");
+        Assert.assertEquals(results.get("rec").stringValue(), "{\"message\":\"Something Wrong\", \"fatal\":true}");
         Assert.assertEquals(results.get("res2").stringValue(), "Error One");
         Assert.assertEquals(results.get("message").stringValue(), "Something Wrong");
         Assert.assertTrue(((BBoolean) results.get("fatal")).booleanValue());
