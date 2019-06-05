@@ -79,10 +79,6 @@ type InstructionGenerator object {
             self.generateMulIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_MOD) {
             self.generateRemIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_AND) {
-            self.generateAndIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_OR) {
-            self.generateOrIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_LESS_EQUAL) {
             self.generateLessEqualIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_NOT_EQUAL) {
@@ -566,78 +562,6 @@ type InstructionGenerator object {
         } else {
             self.mv.visitInsn(IUSHR);
         }
-
-        self.storeToVar(binaryIns.lhsOp.variableDcl);
-    }
-
-    function generateAndIns(bir:BinaryOp binaryIns) {
-        // ILOAD
-        // ICONST_1
-        // IF_ICMPNE L0
-        // ILOAD
-        // ICONST_1
-        // IF_ICMPNE L0
-        // ICONST_1
-        // ISTORE
-
-        //io:println("AND ins : " + io:sprintf("%s", binaryIns));
-
-        jvm:Label label1 = new;
-        jvm:Label label2 = new;
-
-        self.loadVar(binaryIns.rhsOp1.variableDcl);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(IF_ICMPNE, label1);
-
-        self.loadVar(binaryIns.rhsOp2.variableDcl);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(IF_ICMPNE, label1);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(GOTO, label2);
-
-        self.mv.visitLabel(label1);
-        self.mv.visitInsn(ICONST_0);
-
-        self.mv.visitLabel(label2);
-
-        self.storeToVar(binaryIns.lhsOp.variableDcl);
-    }
-
-    function generateOrIns(bir:BinaryOp binaryIns) {
-        // ILOAD
-        // ICONST_1
-        // IF_ICMPNE L0
-        // ILOAD
-        // ICONST_1
-        // IF_ICMPNE L0
-        // ICONST_1
-        // ISTORE
-
-        //io:println("OR ins : " + io:sprintf("%s", binaryIns));
-
-        jvm:Label label1 = new;
-        jvm:Label label2 = new;
-
-        self.loadVar(binaryIns.rhsOp1.variableDcl);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(IF_ICMPEQ, label1);
-
-        self.loadVar(binaryIns.rhsOp2.variableDcl);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(IF_ICMPEQ, label1);
-
-        self.mv.visitInsn(ICONST_0);
-        self.mv.visitJumpInsn(GOTO, label2);
-
-        self.mv.visitLabel(label1);
-        self.mv.visitInsn(ICONST_1);
-
-        self.mv.visitLabel(label2);
 
         self.storeToVar(binaryIns.lhsOp.variableDcl);
     }

@@ -606,8 +606,11 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BTypeDesc) {
         typeFieldName = "typeTypedesc";
     }  else if (bType is bir:BServiceType) {
-        loadUserDefinedType(mv, bType);
-        return;
+        if (getTypeFieldName(bType.oType.name.value) != "$type$service") {
+            loadUserDefinedType(mv, bType);
+            return;
+        }
+        typeFieldName = "typeAnyService";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
@@ -968,18 +971,4 @@ function isServiceDefAvailable(bir:TypeDef?[] typeDefs) returns boolean {
         }
     }
     return false;
-}
-
-function processAnnotation(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs, string packageName) {
-    foreach var typeDef in typeDefs {
-        if (typeDef is bir:TypeDef && typeDef.typeValue is bir:BServiceType) {
-            string varName = "#0"; // assuming #0 is the annotation data map
-            string pkgClassName = lookupGlobalVarClassName(packageName + varName);
-            mv.visitFieldInsn(GETSTATIC, pkgClassName, varName, io:sprintf("L%s;", MAP_VALUE));
-            loadExternalOrLocalType(mv, typeDef);
-            mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
-            mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processObjectAnnotations",
-                                        io:sprintf("(L%s;L%s;)V", MAP_VALUE, OBJECT_TYPE), false);
-        }
-    }
 }

@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
@@ -53,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -121,16 +123,24 @@ public class AnnotationDesugar {
 
     void rewritePackageAnnotations(BLangPackage pkgNode, SymbolEnv env) {
         BLangFunction initFunction = pkgNode.initFunction;
+        BLangBlockStmt blockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        blockStmt.pos = initFunction.body.pos;
 
-        defineTypeAnnotations(pkgNode, env, initFunction);
-        defineServiceAnnotations(pkgNode, env, initFunction);
-        defineFunctionAnnotations(pkgNode, env, initFunction);
+        defineTypeAnnotations(pkgNode, env, blockStmt);
+        defineServiceAnnotations(pkgNode, env, blockStmt);
+        defineFunctionAnnotations(pkgNode, env, blockStmt);
+
+        int index = calculateIndex(initFunction.body.stmts);
+
+        for (BLangStatement stmt : blockStmt.stmts) {
+            initFunction.body.stmts.add(index++, stmt);
+        }
 
         BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
         pkgNode.initFunction.body.stmts.add(returnStmt);
     }
 
-    private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction target) {
+    private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangBlockStmt target) {
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
             PackageID pkgID = typeDef.symbol.pkgID;
             BSymbol owner = typeDef.symbol.owner;
@@ -142,7 +152,7 @@ public class AnnotationDesugar {
         }
     }
 
-    private void defineServiceAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction target) {
+    private void defineServiceAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangBlockStmt target) {
         for (BLangService service : pkgNode.services) {
             PackageID pkgID = service.symbol.pkgID;
             BSymbol owner = service.symbol.owner;
@@ -154,16 +164,22 @@ public class AnnotationDesugar {
         }
     }
 
-    private void defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction target) {
+    private void defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangBlockStmt target) {
         BLangFunction[] functions = pkgNode.functions.toArray(new BLangFunction[pkgNode.functions.size()]);
         for (BLangFunction function : functions) {
             PackageID pkgID = function.symbol.pkgID;
             BSymbol owner = function.symbol.owner;
 
+            if (!(function.attachedFunction || function.attachedOuterFunction)) {
+                // Temporarily avoid sending module level function annotations to the runtime
+                continue;
+            }
+
             BLangLambdaFunction lambdaFunction = defineAnnotations(function, pkgNode, env, pkgID, owner);
             if (lambdaFunction != null) {
-                String identifier = (function.attachedFunction || function.attachedOuterFunction) ?
-                        function.symbol.name.value : function.name.value;
+//                String identifier = (function.attachedFunction || function.attachedOuterFunction) ?
+//                        function.symbol.name.value : function.name.value;
+                String identifier = function.symbol.name.value;
                 addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target, pkgID, owner);
             }
         }
@@ -214,7 +230,7 @@ public class AnnotationDesugar {
                     annotFunctionDefined = true;
                 }
                 addInvocationToMap(localAnnotMap, bLangFunction.name.value + DOT + param.name.value,
-                                   paramAnnotLambda, function, pkgID, owner);
+                                   paramAnnotLambda, function.body, pkgID, owner);
             }
         }
 
@@ -231,7 +247,7 @@ public class AnnotationDesugar {
             BLangLambdaFunction returnAnnotLambda = addReturnAndDefineLambda(retFunction, retLocalAnnotMap, pkgNode,
                                                                              env, pkgID, owner);
             addInvocationToMap(localAnnotMap, bLangFunction.name.value + DOT + RETURNS,
-                               returnAnnotLambda, function, pkgID, owner);
+                               returnAnnotLambda, function.body, pkgID, owner);
         }
 
         if (annotFunctionDefined) {
@@ -483,16 +499,15 @@ public class AnnotationDesugar {
     }
 
     private void addInvocationToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
-                                               BLangFunction initFunction, PackageID packageID, BSymbol owner) {
-        addInvocationToMap(annotationMap, identifier, lambdaFunction, initFunction, packageID, owner);
+                                               BLangBlockStmt target, PackageID packageID, BSymbol owner) {
+        addInvocationToMap(annotationMap, identifier, lambdaFunction, target, packageID, owner);
     }
 
     private void addInvocationToMap(BLangSimpleVariable map, String identifier, BLangLambdaFunction lambdaFunction,
-                                    BLangFunction targetFunction, PackageID packageID, BSymbol owner) {
+                                    BLangBlockStmt target, PackageID packageID, BSymbol owner) {
         // create: $annotation_data["identifier"] = $annot_func$.call();
         BLangInvocation annotFuncInvocation = getInvocation(lambdaFunction, packageID, owner);
-        addAnnotValueAssignmentToMap(map, identifier, targetFunction.body, annotFuncInvocation,
-                                     annotFuncInvocation.type);
+        addAnnotValueAssignmentToMap(map, identifier, target, annotFuncInvocation, annotFuncInvocation.type);
     }
 
     private void addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier, BLangBlockStmt target,
@@ -520,5 +535,16 @@ public class AnnotationDesugar {
         funcInvocation.symbol = varSymbol;
         funcInvocation.name = ASTBuilderUtil.createIdentifier(lambdaFunction.pos, BLangBuiltInMethod.CALL.getName());
         return funcInvocation;
+    }
+
+    private int calculateIndex(List<BLangStatement> stmts) {
+        for (int i = 0; i < stmts.size(); i++) {
+            BLangStatement stmt = stmts.get(i);
+            if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
+                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR)) {
+                return i;
+            }
+        }
+        return stmts.size();
     }
 }

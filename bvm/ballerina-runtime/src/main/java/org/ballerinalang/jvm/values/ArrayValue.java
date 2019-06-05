@@ -572,7 +572,9 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     public byte[] getBytes() {
-        return byteValues.clone();
+        byte[] bytes = new byte[this.size];
+        System.arraycopy(byteValues, 0, bytes, 0, this.size);
+        return bytes;
     }
 
     public String[] getStringArray() {

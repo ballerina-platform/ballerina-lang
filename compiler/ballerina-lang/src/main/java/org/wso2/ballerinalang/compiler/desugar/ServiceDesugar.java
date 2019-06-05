@@ -122,8 +122,7 @@ public class ServiceDesugar {
     }
 
     void rewriteServiceAttachments(BLangBlockStmt serviceAttachments, SymbolEnv env) {
-        // TODO check below with - hasitha
-        ASTBuilderUtil.appendStatements(serviceAttachments, env.enclPkg.startFunction.body);
+        ASTBuilderUtil.appendStatements(serviceAttachments, env.enclPkg.initFunction.body);
     }
 
     BLangBlockStmt rewriteServiceVariables(List<BLangService> services, SymbolEnv env) {

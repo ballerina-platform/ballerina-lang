@@ -1296,6 +1296,11 @@ function generateAnnotLoad(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs, string
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         string name = typeDef.name.value;
         bir:BType bType = typeDef.typeValue;
+
+        if (bType is bir:BFiniteType) {
+            continue;
+        }
+
         loadAnnots(mv, typePkgName, name, bType);
     }
 }

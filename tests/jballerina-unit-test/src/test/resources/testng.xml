@@ -128,7 +128,7 @@
             </class>
             <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
-            <class name="org.ballerinalang.test.types.constant.MapConstantTest" />
+<!--            <class name="org.ballerinalang.test.types.constant.MapConstantTest" />-->
 
             <class name="org.ballerinalang.test.worker.BasicForkTest"/>
             <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
@@ -169,7 +169,6 @@
                 <methods><exclude name="waitTest9"/></methods>
             </class>
             <class name="org.ballerinalang.test.worker.WaitActionsNegativeTest"/>
-            <class name="org.ballerinalang.test.worker.VarMutabilityWithWorkersTest"/>
             <class name="org.ballerinalang.test.worker.StackOverflowTest">
                 <methods>
                     <!--TODO:Need to improve error detail transformation, java errors get returned-->
@@ -199,7 +198,7 @@
                     <include name="simpleLock"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.types.bytetype.BByteOperationsTest" />
+<!--            <class name="org.ballerinalang.test.types.bytetype.BByteOperationsTest" />-->
             <class name="org.ballerinalang.test.types.bytetype.BByteArrayValueNegativeTest" />
             <class name="org.ballerinalang.test.types.bytetype.BByteValueNegativeTest" />
             <class name="org.ballerinalang.test.types.bytetype.BByteValueTest">
@@ -207,6 +206,7 @@
                     <exclude name="simpleWorkerMessagePassingTest"/>
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
         </classes>
     </test>
 </suite>

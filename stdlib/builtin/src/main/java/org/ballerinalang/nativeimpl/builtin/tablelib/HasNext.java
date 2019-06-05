@@ -47,7 +47,7 @@ public class HasNext extends BlockingNativeCallableUnit {
         context.setReturnValues(new BBoolean(table.hasNext()));
     }
 
-    public static void hasNext(Strand strand, TableValue table) {
-        table.hasNext();
+    public static boolean hasNext(Strand strand, TableValue table) {
+       return table.hasNext();
     }
 }

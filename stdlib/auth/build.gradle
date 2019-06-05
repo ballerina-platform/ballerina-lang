@@ -17,6 +17,14 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+description = 'Ballerina - Auth'
+
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 dependencies {
     baloImplementation project(path: ":ballerina-internal", configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-builtin", configuration: 'baloImplementation')
@@ -59,10 +67,28 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testCompile project(':ballerina-builtin')
+    testCompile project(':ballerina-core')
+    testCompile project(':ballerina-launcher')
+    testCompile project(':ballerina-system')
+    testCompile project(':ballerina-runtime-api')
+    testCompile project(':ballerina-task')
+    testCompile project(':ballerina-time')
+    testCompile project(':ballerina-utils')
+    testCompile project(':ballerina-encoding')
+    testCompile project(':ballerina-internal')
+    testCompile project(':ballerina-reflect')
+    testCompile project(':ballerina-jvm')
+    testCompile project(':ballerina-crypto')
 }
 
 createBalo {
     jvmTarget = 'true'
+}
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
 }
 
 configurations {
@@ -70,5 +96,3 @@ configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
-
-description = 'Ballerina - Auth'

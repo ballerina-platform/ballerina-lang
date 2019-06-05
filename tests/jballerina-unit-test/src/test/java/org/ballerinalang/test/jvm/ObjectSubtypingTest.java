@@ -50,8 +50,7 @@ public class ObjectSubtypingTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*incompatible types: 'Person1 \\{.*\\n.*\\n.*\\n.*\\n.*\\n.*\\n.*" +
-                  "cannot be cast to 'Employee1 \\{.*\\n.*\\n.*\\n.*\\n.*\\n.*\\n.*\\n.*\\n.*'.*")
+          expectedExceptionsMessageRegExp = ".*incompatible types: 'Person1' cannot be cast to 'Employee1'.*")
     public void testCastingRuntimeError() {
         BRunUtil.invoke(compileResult, "testCastingRuntimeError");
     }
