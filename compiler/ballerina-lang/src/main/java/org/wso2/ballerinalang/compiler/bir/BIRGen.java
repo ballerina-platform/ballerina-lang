@@ -492,12 +492,12 @@ public class BIRGen extends BLangNodeVisitor {
         return closureMaps;
     }
 
-    private Name getFuncName(BSymbol symbol) {
-        if (symbol.tag != SymTag.INVOKABLE) {
+    private Name getFuncName(BInvokableSymbol symbol) {
+        if (symbol.receiverSymbol == null) {
             return symbol.name;
         }
-        BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
-        int offset = invokableSymbol.receiverSymbol.type.tsymbol.name.value.length() + 1;
+
+        int offset = symbol.receiverSymbol.type.tsymbol.name.value.length() + 1;
         String attachedFuncName = symbol.name.value;
         return names.fromString(attachedFuncName.substring(offset, attachedFuncName.length()));
     }
@@ -805,16 +805,17 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         // TODO: make vCall a new instruction to avoid package id in vCall
-        Name funcName = getFuncName(invocationExpr.symbol);
         if (invocationExpr.functionPointerInvocation) {
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
                     fp, args, lhsOp, invocationExpr.async, thenBB);
         } else if (invocationExpr.async) {
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
-                    isVirtual, invocationExpr.symbol.pkgID, funcName, args, lhsOp, thenBB);
+                    isVirtual, invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
+                    args, lhsOp, thenBB);
         } else {
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
-                    invocationExpr.symbol.pkgID, funcName, args, lhsOp, thenBB);
+                    invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
+                    thenBB);
         }
 
         this.env.enclBB = thenBB;
