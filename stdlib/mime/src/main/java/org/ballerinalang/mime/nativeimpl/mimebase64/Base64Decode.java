@@ -26,6 +26,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.utils.Utils;
 
+import static org.ballerinalang.mime.util.MimeConstants.UTF_8;
+
 /**
  * Extern function 'mime:base64Decode' that can decode a a given mime base64 encoded string, blob or a
  * byte channel.
@@ -49,7 +51,7 @@ public class Base64Decode extends BlockingNativeCallableUnit {
         Utils.decode(context, result, charset, true);
     }
 
-    public static Object base64Decode(Strand strand,  Object contentToBeDecoded, String charset) {
-        return Utils.decode(contentToBeDecoded, charset, true);
+    public static Object base64Decode(Strand strand, Object contentToBeDecoded, String charset) {
+        return Utils.decode(contentToBeDecoded, charset != null ? charset : UTF_8, true);
     }
 }

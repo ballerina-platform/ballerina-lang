@@ -112,18 +112,13 @@ public class ReadString implements NativeCallableUnit {
     }
 
     public static Object readString(Strand strand, ObjectValue dataChannelObj, long nBytes, String encoding) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
         DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(callback);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
         ReadStringEvent event = new ReadStringEvent(channel, eventContext, (int) nBytes, encoding);
         Register register = EventRegister.getFactory().register(event, ReadString::readChannelResponse);
         eventContext.setRegister(register);
         register.submit();
-        //TODO : Remove callback once strand non-blocking support is given
-        callback.sync();
-        return callback.getReturnValue();
+        return null;
     }
 
     /**
@@ -135,7 +130,6 @@ public class ReadString implements NativeCallableUnit {
     private static EventResult readChannelResponse(EventResult<String, EventContext> result) {
         EventContext eventContext = result.getContext();
         Throwable error = eventContext.getError();
-        //TODO : Remove callback once strand non-blocking support is given
         NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         if (null != error) {
             callback.setReturnValues(IOUtils.createError(error.getMessage()));

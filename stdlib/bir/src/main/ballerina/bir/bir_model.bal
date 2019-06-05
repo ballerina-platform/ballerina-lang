@@ -93,8 +93,6 @@ public const BINARY_GREATER_THAN = "GREATER_THAN";
 public const BINARY_GREATER_EQUAL = "GREATER_EQUAL";
 public const BINARY_LESS_THAN = "LESS_THAN";
 public const BINARY_LESS_EQUAL = "LESS_EQUAL";
-public const BINARY_AND = "AND";
-public const BINARY_OR = "OR";
 public const BINARY_REF_EQUAL = "REF_EQUAL";
 public const BINARY_REF_NOT_EQUAL = "REF_NOT_EQUAL";
 public const BINARY_CLOSED_RANGE = "CLOSED_RANGE";
@@ -109,10 +107,9 @@ public const BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT = "BITWISE_UNSIGNED_RIGHT_SHIFT
 public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|BINARY_MOD
                                         |BINARY_EQUAL|BINARY_NOT_EQUAL|BINARY_REF_EQUAL|BINARY_REF_NOT_EQUAL
                                         |BINARY_GREATER_THAN|BINARY_GREATER_EQUAL|BINARY_LESS_THAN|BINARY_LESS_EQUAL
-                                        |BINARY_AND|BINARY_OR|BINARY_CLOSED_RANGE|BINARY_HALF_OPEN_RANGE
-                                        |BINARY_BITWISE_AND|BINARY_BITWISE_OR|BINARY_BITWISE_XOR
-                                        |BINARY_BITWISE_LEFT_SHIFT|BINARY_BITWISE_RIGHT_SHIFT
-                                        |BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT;
+                                        |BINARY_CLOSED_RANGE|BINARY_HALF_OPEN_RANGE|BINARY_BITWISE_AND
+                                        |BINARY_BITWISE_OR|BINARY_BITWISE_XOR|BINARY_BITWISE_LEFT_SHIFT
+                                        |BINARY_BITWISE_RIGHT_SHIFT|BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT;
 
 public const INS_KIND_MOVE = "MOVE";
 public const INS_KIND_CONST_LOAD = "CONST_LOAD";

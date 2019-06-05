@@ -740,7 +740,7 @@ public class MimeUtil {
      * @return Ballerina error value
      */
     public static ErrorValue createError(String errMsg) {
-        return BallerinaErrors.createError(MIME_ERROR_MESSAGE, errMsg);
+        return BallerinaErrors.createError(MIME_ERROR_CODE, errMsg);
     }
 
     public static boolean isJSONContentType(BMap<String, BValue> entityStruct) {
@@ -820,6 +820,7 @@ public class MimeUtil {
 
     public static String getMessageAsString(Object dataSource) {
         org.ballerinalang.jvm.types.BType type = TypeChecker.getType(dataSource);
+//        if (TypeChecker.checkIsType(dataSource, BTypes.typeString)) {
         if (type.getTag() == TypeTags.STRING_TAG) {
             return (String) dataSource;
         } else if (type.getTag() == TypeTags.ARRAY_TAG &&

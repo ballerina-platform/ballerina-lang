@@ -110,8 +110,6 @@ public class AcceptWebSocketUpgrade implements NativeCallableUnit {
         }
 
         WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, webSocketHandshaker, callback);
-        //TODO : Temporary block the call. Remove this callback once the support is available
-        callback.sync();
     }
 
     @Override

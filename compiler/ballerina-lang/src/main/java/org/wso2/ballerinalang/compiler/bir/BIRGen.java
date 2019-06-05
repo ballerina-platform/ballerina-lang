@@ -925,7 +925,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock whileEndBB = new BIRBasicBlock(this.env.nextBBId(names));
 
         // Add the branch instruction to the while expression basic block.
-        this.env.targetOperandBB.terminator =
+        this.env.enclBB.terminator =
                 new BIRTerminator.Branch(astWhileStmt.pos, whileExprResult, whileBodyBB, whileEndBB);
 
         // Visit while body
