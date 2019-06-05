@@ -61,7 +61,6 @@ public type TypeParser object {
     public int TYPE_TAG_FUNCTION_POINTER = TYPE_TAG_BYTE_ARRAY + 1;
     public int TYPE_TAG_CHANNEL = TYPE_TAG_FUNCTION_POINTER + 1;
     public int TYPE_TAG_SERVICE = TYPE_TAG_CHANNEL + 1;
-    public int TYPE_TAG_REFERENCE_TYPE = 52;
 
     public int TYPE_TAG_SELF = 50;
 
@@ -69,10 +68,8 @@ public type TypeParser object {
     ByteArrayReader reader;
     int cpI;
     byte[]?[] unparsedTypes;
-    BIRContext birContext;
-
-    public function __init(ConstPool cp, byte[]?[] unparsedTypes, int cpI, BIRContext birContext) {
-        self.birContext = birContext;
+    
+    public function __init(ConstPool cp, byte[]?[] unparsedTypes, int cpI) {
         var unparsedBytes = unparsedTypes[cpI];
         if (unparsedBytes is byte[]){
             self.reader = {buf: unparsedBytes};
@@ -88,7 +85,7 @@ public type TypeParser object {
 
     public function parseTypeCpRef() returns BType{
         int cpI = self.readInt32();
-        TypeParser p = new (self.cp, self.unparsedTypes, cpI, self.birContext);
+        TypeParser p = new (self.cp, self.unparsedTypes, cpI);
         var x = p.parseTypeAndAddToCp();
         return x;
     }
@@ -157,9 +154,7 @@ public type TypeParser object {
             return TYPE_XML;
         } else if(typeTag == self.TYPE_TAG_FINITE) {
             return self.parseFiniteType();
-        } else if(typeTag == self.TYPE_TAG_REFERENCE_TYPE) {
-            return self.parseRefType();
-        }  
+        } 
         error err = error("Unknown type tag :" + typeTag);
         panic err;
     }
@@ -214,7 +209,8 @@ public type TypeParser object {
     }
 
     function parseRecordType() returns BRecordType {
-        BRecordType obj = { name:{value:self.readStringCpRef()}, sealed:self.readBoolean(),
+        BRecordType obj = { moduleId:self.cp.packages[self.readInt32()], name:{value:self.readStringCpRef()},
+                                sealed:self.readBoolean(),
                     restFieldType: TYPE_NIL, fields: [],
                     initFunction: {funcType: {}, visibility: VISIBILITY_PRIVATE } };
         self.cp.types[self.cpI] = obj;
@@ -255,15 +251,23 @@ public type TypeParser object {
     function parseObjectType() returns BType {
         // Below is a temp fix, need to fix this properly by using type tag
         boolean isService = self.readInt8() == 1;
+        int pkgCpIndex = self.readInt32();
+        ModuleID moduleId = self.cp.packages[pkgCpIndex];
         string objName = self.readStringCpRef();
         boolean isAbstract = self.readBoolean();
         _ = self.readBoolean(); //Read and ignore client or not
-        BObjectType obj = { name: { value: objName },
+        BObjectType obj = { moduleId: moduleId, 
+            name: { value: objName },
             isAbstract: isAbstract,
             fields: [],
-            attachedFunctions: [] };
+            attachedFunctions: [],
+            constructor: () };
         self.cp.types[self.cpI] = obj;
         obj.fields = self.parseObjectFields();
+        boolean constructorPresent = self.readBoolean();
+        if (constructorPresent) {
+            obj.constructor = self.readAttachFunction();
+        }
         obj.attachedFunctions = self.parseObjectAttachedFunctions();
         if (isService) {
             BServiceType bServiceType = {oType: obj};
@@ -278,20 +282,24 @@ public type TypeParser object {
         int c = 0;
         BAttachedFunction?[] attachedFunctions = [];
         while c < size {
-            var funcName = self.readStringCpRef();
-            var visibility = self.parseVisibility();
-
-            var funcType = self.parseTypeCpRef();
-            if (funcType is BInvokableType) {
-                attachedFunctions[c] = {name:{value:funcName},visibility:visibility,funcType: funcType};
-            } else {
-                error err = error("expected invokable type but found " + io:sprintf("%s", funcType));
-                panic err;
-            }
+            attachedFunctions[c] = self.readAttachFunction();
             c = c + 1;
         }
 
         return attachedFunctions;
+    }
+
+    function readAttachFunction() returns BAttachedFunction {
+        var funcName = self.readStringCpRef();
+        var visibility = self.parseVisibility();
+
+        var funcType = self.parseTypeCpRef();
+        if (funcType is BInvokableType) {
+            return {name:{value:funcName},visibility:visibility,funcType: funcType};
+        } else {
+            error err = error("expected invokable type but found " + io:sprintf("%s", funcType));
+            panic err;
+        }
     }
 
     function parseObjectFields() returns BObjectField?[] {
@@ -356,26 +364,12 @@ public type TypeParser object {
         return finiteType;
     }
 
-    function parseRefType() returns BType {
-        string org = self.readStringCpRef();
-        string pkg = self.readStringCpRef();
-        string ver = self.readStringCpRef();
-        string tName = self.readStringCpRef();
-        Package birPkg = self.birContext.lookupBIRModule({org:org, name:pkg, modVersion:ver});
-        foreach var tDef in birPkg.typeDefs {
-            if(tDef is  TypeDef && tDef.name.value == tName) {
-                return tDef.typeValue;
-            }
-        }
-        panic error("Cannot find type reference : " + org + "/" + pkg + ":" + ver + ":" + tName);
-    }
-
     private function getValue(BType valueType) returns (int | string | boolean | float | byte| ()) {
         if (valueType is BTypeInt) {
             return self.readIntCpRef();
         } else if (valueType is BTypeByte) {
             return self.readByteCpRef();
-        } else if (valueType is BTypeString) {
+        } else if (valueType is BTypeString || valueType is BTypeDecimal) {
             return self.readStringCpRef();
         } else if (valueType is BTypeBoolean) {
             return self.readInt8() == 1;

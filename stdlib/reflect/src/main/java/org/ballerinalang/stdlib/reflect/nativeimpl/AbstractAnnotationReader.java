@@ -53,8 +53,7 @@ abstract class AbstractAnnotationReader extends BlockingNativeCallableUnit {
 
     static ArrayValue getAnnotationValue(org.ballerinalang.jvm.types.BType bType, String key) {
         //TODO recheck following logic : test and verify
-        MapValueImpl annotationMap = ((AnnotatableType) bType).getAnnotation(bType.getPackage().getName(), key);
-        return createAnnotationRecordArray(annotationMap);
+        return ((AnnotatableType) bType).getAnnotation(bType.getPackage().getName(), key);
     }
 
     //TODO Remove after migration : implemented using bvm values/types
@@ -98,8 +97,8 @@ abstract class AbstractAnnotationReader extends BlockingNativeCallableUnit {
             final String[] pkgQNameParts = pkgQName.split(":");
             final String pkgVersion = pkgQNameParts.length > 1 ? pkgQNameParts[1] : "";
             final MapValue<String, Object> annotation =
-                    BallerinaValues.populateRecordFields(annotationRecord, annotationName, pkgQNameParts[0], pkgVersion,
-                            annotationMap.get(key));
+                    BallerinaValues.createRecord(annotationRecord, annotationName, pkgQNameParts[0], pkgVersion,
+                                                 annotationMap.get(key));
             annotationArray.add(index++, annotation);
         }
         return annotationArray;

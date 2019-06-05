@@ -34,15 +34,3 @@ createBalo {
 }
 
 description = 'Ballerina - Log API'
-
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-}

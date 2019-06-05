@@ -49,7 +49,11 @@ public class BObjectType extends BStructureType {
 
     @Override
     public String getAnnotationKey() {
-        return this.typeName;
+        int serviceIndex = this.typeName.lastIndexOf("$$service$");
+        if (serviceIndex < 0) {
+            return this.typeName;
+        }
+        return this.typeName.substring(0, serviceIndex); //TODO Fix - rajith
     }
 
     @Override
@@ -77,6 +81,11 @@ public class BObjectType extends BStructureType {
     public String toString() {
         String name = (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ?
                 typeName : pkg.getName() + ":" + typeName;
+        
+        if (!typeName.contains("$anon")) {
+            return name;
+        }
+
         StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");
 
         for (Entry<String, BField> field : getFields().entrySet()) {

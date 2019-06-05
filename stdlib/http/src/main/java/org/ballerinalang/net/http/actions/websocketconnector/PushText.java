@@ -24,9 +24,14 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.BHttpUtil;
+import org.ballerinalang.net.http.BWebSocketOpenConnectionInfo;
+import org.ballerinalang.net.http.BWebSocketUtil;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
@@ -49,18 +54,18 @@ public class PushText implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-//        try {
-//            BMap<String, BValue> wsConnection = (BMap<String, BValue>) context.getRefArgument(0);
-//            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
-//                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-//            String text = context.getStringArgument(0);
-//            boolean finalFrame = context.getBooleanArgument(0);
-//            ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);
-//            WebSocketUtil.handleWebSocketCallback(context, callback, future);
-//        } catch (Exception e) {
-//            context.setReturnValues(HttpUtil.getError(context, e));
-//            callback.notifySuccess();
-//        }
+        try {
+            BMap<String, BValue> wsConnection = (BMap<String, BValue>) context.getRefArgument(0);
+            BWebSocketOpenConnectionInfo connectionInfo = (BWebSocketOpenConnectionInfo) wsConnection
+                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+            String text = context.getStringArgument(0);
+            boolean finalFrame = context.getBooleanArgument(0);
+            ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);
+            BWebSocketUtil.handleWebSocketCallback(context, callback, future);
+        } catch (Exception e) {
+            context.setReturnValues(BHttpUtil.getError(context, e));
+            callback.notifySuccess();
+        }
     }
 
     public static void externPushText(Strand strand, ObjectValue wsConnection, String text, boolean finalFrame) {

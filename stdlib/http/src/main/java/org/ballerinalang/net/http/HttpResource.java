@@ -19,9 +19,10 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.net.uri.DispatcherUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -193,9 +194,9 @@ public class HttpResource {
         if (checkConfigAnnotationAvailability(resourceConfigAnnotation)) {
             MapValue resourceConfig = resourceConfigAnnotation;
             httpResource.setPath(resourceConfig.getStringValue(PATH_FIELD));
-            httpResource.setMethods(getAsStringList(resourceConfig.getArrayValue(METHODS_FIELD).getValues()));
-            httpResource.setConsumes(getAsStringList(resourceConfig.getArrayValue(CONSUMES_FIELD).getValues()));
-            httpResource.setProduces(getAsStringList(resourceConfig.getArrayValue(PRODUCES_FIELD).getValues()));
+            httpResource.setMethods(getAsStringList(resourceConfig.getArrayValue(METHODS_FIELD).getStringArray()));
+            httpResource.setConsumes(getAsStringList(resourceConfig.getArrayValue(CONSUMES_FIELD).getStringArray()));
+            httpResource.setProduces(getAsStringList(resourceConfig.getArrayValue(PRODUCES_FIELD).getStringArray()));
             httpResource.setEntityBodyAttributeValue(resourceConfig.getStringValue(BODY_FIELD));
             httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfig.getMapValue(CORS_FIELD)));
             httpResource.setTransactionInfectable(resourceConfig.getBooleanValue(TRANSACTION_INFECTABLE_FIELD));
@@ -222,22 +223,21 @@ public class HttpResource {
     }
 
     protected static MapValue getResourceConfigAnnotation(AttachedFunction resource) {
-        MapValue annotation = resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
+        ArrayValue annotation = resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
 
         if (annotation == null) {
             return null;
         }
 
         if (annotation.size() > 1) {
-            throw new BallerinaException(
-                    "multiple resource configuration annotations found in resource: " +
+            throw new BallerinaException("multiple resource configuration annotations found in resource: " +
                             resource.parent.getName() + "." + resource.getName());
         }
-        return annotation.isEmpty() ? null : annotation;
+        return annotation.isEmpty() ? null : (MapValue) annotation.get(0);
     }
 
     private static boolean hasInterruptibleAnnotation(AttachedFunction resource) {
-        MapValue annotation = resource.getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
+        ArrayValue annotation = resource.getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
         return annotation != null && !annotation.isEmpty();
     }
 

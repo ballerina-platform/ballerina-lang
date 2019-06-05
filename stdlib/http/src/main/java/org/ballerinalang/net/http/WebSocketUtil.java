@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -58,12 +59,12 @@ public class WebSocketUtil {
 //    }
 
     static MapValue getServiceConfigAnnotation(ObjectValue service) {
-        MapValue annotation = service.getType().getAnnotation(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+        ArrayValue annotation = service.getType().getAnnotation(HttpConstants.PROTOCOL_PACKAGE_HTTP,
                                    WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
         if (annotation == null || annotation.isEmpty()) {
             return null;
         }
-        return annotation;
+        return (MapValue) annotation.get(0);
     }
 
     public static void handleHandshake(WebSocketService wsService, WebSocketConnectionManager connectionManager,
@@ -174,7 +175,6 @@ public class WebSocketUtil {
             //TODO remove this call back
             callback.notifySuccess();
         });
-        callback.sync();
     }
 
     public static void readFirstFrame(WebSocketConnection webSocketConnection, ObjectValue webSocketConnector) {

@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.ArrayList;
@@ -120,6 +122,24 @@ public class CorsHeaders {
         this.exposeHeaders = exposeHeaders;
     }
 
+    //TODO Remove after migration : implemented using bvm values/types
+    public static CorsHeaders buildCorsHeaders(Struct corsConfig) {
+        CorsHeaders corsHeaders = new CorsHeaders();
+
+        if (corsConfig == null) {
+            return corsHeaders;
+        }
+
+        corsHeaders.setAllowHeaders(getAsStringList(corsConfig.getArrayField(ALLOW_HEADERS_FIELD)));
+        corsHeaders.setAllowMethods(getAsStringList(corsConfig.getArrayField(ALLOW_METHODS_FIELD)));
+        corsHeaders.setAllowOrigins(getAsStringList(corsConfig.getArrayField(ALLOWS_ORIGINS_FIELD)));
+        corsHeaders.setExposeHeaders(getAsStringList(corsConfig.getArrayField(EXPOSE_HEADERS_FIELD)));
+        corsHeaders.setAllowCredentials(corsConfig.getBooleanField(ALLOW_CREDENTIALS_FIELD) ? 1 : 0);
+        corsHeaders.setMaxAge(corsConfig.getIntField(MAX_AGE_FIELD));
+
+        return corsHeaders;
+    }
+
     public static CorsHeaders buildCorsHeaders(MapValue corsConfig) {
         CorsHeaders corsHeaders = new CorsHeaders();
 
@@ -135,6 +155,18 @@ public class CorsHeaders {
         corsHeaders.setMaxAge(corsConfig.getIntValue(MAX_AGE_FIELD));
 
         return corsHeaders;
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
+    private static List<String> getAsStringList(Value[] values) {
+        if (values == null) {
+            return null;
+        }
+        List<String> valuesList = new ArrayList<>();
+        for (Value val : values) {
+            valuesList.add(val.getStringValue().trim());
+        }
+        return !valuesList.isEmpty() ? valuesList : null;
     }
 
     private static List<String> getAsStringList(Object[] values) {

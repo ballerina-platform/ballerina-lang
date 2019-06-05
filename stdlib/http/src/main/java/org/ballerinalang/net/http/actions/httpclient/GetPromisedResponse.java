@@ -23,8 +23,12 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -49,18 +53,17 @@ public class GetPromisedResponse extends AbstractHTTPAction {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
 
-//        DataContext dataContext = new DataContext(context, callback, null);
-//        BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(1);
-//        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct, null);
-//        if (http2PushPromise == null) {
-//            throw new BallerinaException("invalid push promise");
-//        }
-//        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
-//        HttpClientConnector clientConnector = (HttpClientConnector) ((BMap<String, BValue>) bConnector.values()[0])
-//                .getNativeData(HttpConstants.HTTP_CLIENT);
-//        clientConnector.getPushResponse(http2PushPromise).
-//                setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise
-//                        .getPromisedStreamId());
+        DataContext dataContext = new DataContext(context, callback, null);
+        BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(1);
+        Http2PushPromise http2PushPromise = BHttpUtil.getPushPromise(pushPromiseStruct, null);
+        if (http2PushPromise == null) {
+            throw new BallerinaException("invalid push promise");
+        }
+        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
+        HttpClientConnector clientConnector = (HttpClientConnector) ((BMap<String, BValue>) bConnector.values()[0])
+                .getNativeData(HttpConstants.HTTP_CLIENT);
+        clientConnector.getPushResponse(http2PushPromise).
+                setPushResponseListener(new BPushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
     }
 
     public static void getPromisedResponse(Strand strand, ObjectValue clientObj, ObjectValue pushPromiseObj) {
@@ -75,8 +78,27 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.getPushResponse(http2PushPromise).
                 setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
-        //TODO This is temporary fix to handle non blocking call
-        callback.sync();
+    }
+
+    private static class BPushResponseListener implements HttpClientConnectorListener {
+
+        private DataContext dataContext;
+
+        BPushResponseListener(DataContext dataContext) {
+            this.dataContext = dataContext;
+        }
+
+        @Override
+        public void onPushResponse(int promisedId, HttpCarbonMessage httpCarbonMessage) {
+            dataContext.notifyInboundResponseStatus(
+                    BHttpUtil.createResponseStruct(this.dataContext.getContext(), httpCarbonMessage), null);
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            BError httpConnectorError = BHttpUtil.getError(dataContext.getContext(), throwable);
+            dataContext.notifyInboundResponseStatus(null, httpConnectorError);
+        }
     }
 
     private static class PushResponseListener implements HttpClientConnectorListener {

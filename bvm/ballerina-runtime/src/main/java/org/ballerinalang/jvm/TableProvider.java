@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableIterator;
 
 import java.io.ByteArrayInputStream;
@@ -246,26 +245,27 @@ public class TableProvider {
         try {
             stmt = conn.prepareStatement(queryStatement);
             for (int index = 1; index <= params.size(); index++) {
-                RefValue param = (RefValue) params.getRefValue(index - 1);
-                switch (param.getType().getTag()) {
+                Object param = params.getRefValue(index - 1);
+                BType paramType = TypeChecker.getType(param);
+                switch (paramType.getTag()) {
                     case TypeTags.INT_TAG:
-                        stmt.setLong(index, params.getInt(index - 1));
+                        stmt.setLong(index, (Long) params.getRefValue(index - 1));
                         break;
                     case TypeTags.STRING_TAG:
-                        stmt.setString(index, params.getString(index - 1));
+                        stmt.setString(index, (String) params.getRefValue(index - 1));
                         break;
                     case TypeTags.FLOAT_TAG:
-                        stmt.setDouble(index, params.getFloat(index - 1));
+                        stmt.setDouble(index, (Double) params.getRefValue(index - 1));
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        stmt.setBoolean(index, params.getBoolean(index - 1));
+                        stmt.setBoolean(index, (Boolean) params.getRefValue(index - 1));
                         break;
                     case TypeTags.XML_TAG:
                     case TypeTags.JSON_TAG:
                         stmt.setString(index, params.getString(index - 1));
                         break;
                     case TypeTags.ARRAY_TAG:
-                        BType elementType = ((BArrayType) param.getType()).getElementType();
+                        BType elementType = ((BArrayType) paramType).getElementType();
                         if (elementType.getTag() == TypeTags.BYTE_TAG) {
                             byte[] blobData = params.getBytes();
                             stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);

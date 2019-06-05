@@ -22,6 +22,9 @@ import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -33,12 +36,17 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.InterruptibleNativeCallableUnit;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.CompressionConfigState;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -90,6 +98,26 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         return false;
     }
 
+    protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
+
+        // Extract Argument values
+        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
+        String path = context.getStringArgument(1);
+
+        BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getNullableRefArgument(1));
+        if (requestStruct == null) {
+            requestStruct = BLangConnectorSPIUtil.createBStruct(context, HTTP_PACKAGE_PATH, REQUEST);
+        }
+
+        HttpCarbonMessage requestMsg = HttpUtil
+                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+        BHttpUtil.checkEntityAvailability(context, requestStruct);
+        BHttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
+        prepareOutboundRequest(context, path, requestMsg, isNoEntityBodyRequest(requestStruct));
+        handleAcceptEncodingHeader(requestMsg, getCompressionConfigFromEndpointConfig(bConnector));
+        return requestMsg;
+    }
+
     protected static HttpCarbonMessage createOutboundRequestMsg(ObjectValue clientObj, String path,
                                                                 ObjectValue request) {
         if (request == null) {
@@ -103,6 +131,11 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         prepareOutboundRequest(serviceUri, path, requestMsg, isNoEntityBodyRequest(request));
         handleAcceptEncodingHeader(requestMsg, getCompressionConfigFromEndpointConfig(clientObj));
         return requestMsg;
+    }
+
+    String getCompressionConfigFromEndpointConfig(BMap<String, BValue> httpClientStruct) {
+        Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(httpClientStruct);
+        return clientEndpointConfig.getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
     }
 
     static String getCompressionConfigFromEndpointConfig(ObjectValue httpClientObj) {
@@ -119,6 +152,32 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         } else if (compressionState == CompressionConfigState.NEVER && (outboundRequest.getHeader(
                 ACCEPT_ENCODING.toString()) != null)) {
             outboundRequest.removeHeader(ACCEPT_ENCODING.toString());
+        }
+    }
+
+    protected void prepareOutboundRequest(Context context, String path, HttpCarbonMessage outboundRequest,
+                                          Boolean nonEntityBodyReq) {
+        if (context.isInTransaction()) {
+            TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, transactionLocalContext.getGlobalTransactionId());
+            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, transactionLocalContext.getURL());
+        }
+        try {
+            String uri = getServiceUri(context) + path;
+            URL url = new URL(uri);
+
+            int port = getOutboundReqPort(url);
+            String host = url.getHost();
+
+            setOutboundReqProperties(outboundRequest, url, port, host, nonEntityBodyReq);
+            setOutboundReqHeaders(outboundRequest, port, host);
+
+        } catch (MalformedURLException e) {
+            throw new org.ballerinalang.util.exceptions.BallerinaException(
+                    "Malformed url specified. " + e.getMessage());
+        } catch (Exception e) {
+            throw new org.ballerinalang.util.exceptions.BallerinaException(
+                    "Failed to prepare request. " + e.getMessage());
         }
     }
 
@@ -145,6 +204,14 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         } catch (Exception e) {
             throw new BallerinaException("Failed to prepare request. " + e.getMessage());
         }
+    }
+
+    private String getServiceUri(Context context) {
+        String serviceUri = context.getStringArgument(0);
+        if (serviceUri.isEmpty()) {
+            throw new org.ballerinalang.util.exceptions.BallerinaException("Service uri is not defined correctly.");
+        }
+        return serviceUri;
     }
 
     private static String getServiceUri(String serviceUri) {
@@ -277,6 +344,11 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
     }
 
+    static boolean isNoEntityBodyRequest(BMap<String, BValue> requestStruct) {
+        BValue noEntityBodyReq = requestStruct.get(HttpConstants.REQUEST_NO_ENTITY_BODY_FIELD);
+        return ((BBoolean) noEntityBodyReq).booleanValue();
+    }
+
     static boolean isNoEntityBodyRequest(ObjectValue request) {
         return (Boolean) request.get(HttpConstants.REQUEST_NO_ENTITY_BODY_FIELD);
     }
@@ -289,8 +361,6 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
                                             boolean async) {
         try {
             send(dataContext, outboundRequestMsg, async);
-            //TODO NonBlockingCallback is temporary fix to handle non blocking call
-            dataContext.getCallback().sync();
         } catch (BallerinaConnectorException e) {
             dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(e));
         } catch (Exception e) {

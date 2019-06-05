@@ -36,41 +36,12 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile project(':ballerina-test-utils')
-    testCompile project(':ballerina-builtin')
-    testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-jvm')
-
-    localDependency project(path: ':ballerina-bir', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    localDependency project(path: ':ballerina-jvm', configuration: 'baloImplementation')
 }
 
 createBalo {
     jvmTarget = 'true'
-}
-
-task createTestBalHome(type: Copy) {
-    from configurations.localDependency
-    into "$buildDir/ballerina-home/test/lib"
-}
-
-test {
-    dependsOn createTestBalHome
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/ballerina-home/test/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "enableJBallerinaTests", "true"
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
-    systemProperty "experimental", "true"
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 }
 
 description = 'Ballerina - Crypto'

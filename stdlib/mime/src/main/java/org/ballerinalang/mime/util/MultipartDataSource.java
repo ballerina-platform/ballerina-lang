@@ -206,7 +206,14 @@ public class MultipartDataSource implements RefValue {
     private void writeBodyContent(OutputStream outputStream, ObjectValue bodyPart) throws IOException {
         Object messageDataSource = EntityBodyHandler.getMessageDataSource(bodyPart);
         if (messageDataSource != null) {
-            ((RefValue) messageDataSource).serialize(outputStream);
+            //TODO Recheck following logic
+            if (messageDataSource instanceof String || messageDataSource instanceof Long ||
+                    messageDataSource instanceof Double || messageDataSource instanceof Integer ||
+                    messageDataSource instanceof Boolean) {
+                outputStream.write(messageDataSource.toString().getBytes(Charset.defaultCharset()));
+            } else {
+                ((RefValue) messageDataSource).serialize(outputStream);
+            }
         } else {
             EntityBodyHandler.writeByteChannelToOutputStream(bodyPart, outputStream);
         }

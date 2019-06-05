@@ -23,9 +23,9 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
@@ -58,6 +58,7 @@ public class Strand {
         this.wdChannels = new WDChannels();
         this.blockedOn = new CopyOnWriteArrayList();
         this.channelDetails = new ChannelDetails[0];
+        this.globalProps = new HashMap<>();
     }
 
     public Strand(Scheduler scheduler, Strand parent) {
@@ -66,6 +67,7 @@ public class Strand {
         this.wdChannels = new WDChannels();
         this.blockedOn = new CopyOnWriteArrayList();
         this.channelDetails = new ChannelDetails[0];
+        this.globalProps = new HashMap<>();
     }
 
     public Strand(Scheduler scheduler, Map<String, Object> properties) {

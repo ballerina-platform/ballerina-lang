@@ -50,6 +50,10 @@ public class URITemplate<DataType, InboundMsgType> {
         if (dataReturnAgent.getError() != null) {
             throw dataReturnAgent.getError();
         }
+        //TODO Remove after migration : implemented using bvm values/types
+        if (dataReturnAgent.getBError() != null) {
+            throw dataReturnAgent.getBError();
+        }
         return null;
     }
 

@@ -141,7 +141,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
                     generateLockForVariable(globalVar, cw);
                 }
             }
-            generateStaticInitializer(module.globalVars, cw, moduleClass);
+            generateStaticInitializer(module.globalVars, cw, moduleClass, false);
         } else {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
             generateDefaultConstructor(cw, OBJECT);
@@ -201,12 +201,14 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
                     generateLockForVariable(globalVar, cw);
                 }
             }
-            generateStaticInitializer(module.globalVars, cw, moduleClass);
+            boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
+            generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
+            generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
             if (mainFunc is bir:Function) {
-                generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
                 generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
-                manifestEntries["Main-Class"] = moduleClass;
             }
+            generateLambdaForPackageInits(cw, module, mainClass, moduleClass);
+            manifestEntries["Main-Class"] = moduleClass;
         } else {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
             generateDefaultConstructor(cw, OBJECT);
@@ -242,7 +244,8 @@ function generateLockForVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWrite
     fv.visitEnd();
 }
 
-function generateStaticInitializer(bir:GlobalVariableDcl?[] globalVars, jvm:ClassWriter cw, string className) {
+function generateStaticInitializer(bir:GlobalVariableDcl?[] globalVars, jvm:ClassWriter cw, string className,
+                                    boolean serviceEPAvailable) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", (), ());
 
     foreach var globalVar in globalVars {
@@ -254,9 +257,25 @@ function generateStaticInitializer(bir:GlobalVariableDcl?[] globalVars, jvm:Clas
         }
     }
 
+    setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
+
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
+}
+
+function setServiceEPAvailableField(jvm:ClassWriter cw, jvm:MethodVisitor mv, boolean serviceEPAvailable,
+                                        string initClass) {
+    jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "serviceEPAvailable", "Z");
+    fv.visitEnd();
+
+    if (serviceEPAvailable) {
+        mv.visitInsn(ICONST_1);
+        mv.visitFieldInsn(PUTSTATIC, initClass, "serviceEPAvailable", "Z");
+    } else {
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, "serviceEPAvailable", "Z");
+    }
 }
 
 function computeLockName(bir:GlobalVariableDcl globalVar) returns string {

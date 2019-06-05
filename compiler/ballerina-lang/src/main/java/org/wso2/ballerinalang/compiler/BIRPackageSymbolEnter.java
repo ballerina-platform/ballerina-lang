@@ -666,7 +666,6 @@ public class BIRPackageSymbolEnter {
     }
 
     private class BIRTypeReader {
-        public static final int TYPE_TAG_REFERENCE_TYPE = 52;
         public static final int SERVICE_TYPE_TAG = 51;
         private DataInputStream inputStream;
 
@@ -707,9 +706,12 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.ANYDATA:
                     return symTable.anydataType;
                 case TypeTags.RECORD:
-                    String name = getStringCPEntryValue(inputStream);
+                    int pkgCpIndex = inputStream.readInt();
+                    PackageID pkgId = getPackageId(pkgCpIndex);
+
+                    String recordName = getStringCPEntryValue(inputStream);
                     BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                            names.fromString(name), env.pkgSymbol.pkgID, null, env.pkgSymbol);
+                            names.fromString(recordName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
                     recordSymbol.scope = new Scope(recordSymbol);
                     BRecordType recordType = new BRecordType(recordSymbol);
                     recordSymbol.type = recordType;
@@ -754,7 +756,14 @@ public class BIRPackageSymbolEnter {
 
                     Object poppedRecordType = compositeStack.pop();
                     assert poppedRecordType == recordType;
-                    return recordType;
+
+                    if (pkgId.equals(env.pkgSymbol.pkgID)) {
+                        return recordType;
+                    }
+
+                    BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
+                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+                    return symbolResolver.lookupSymbol(pkgEnv, names.fromString(recordName), SymTag.TYPE).type;
                 case TypeTags.TYPEDESC:
                     return symTable.typeDesc;
                 case TypeTags.STREAM:
@@ -871,6 +880,10 @@ public class BIRPackageSymbolEnter {
                     return finiteType;
                 case TypeTags.OBJECT:
                     boolean service = inputStream.readByte() == 1;
+
+                    pkgCpIndex = inputStream.readInt();
+                    pkgId = getPackageId(pkgCpIndex);
+
                     String objName = getStringCPEntryValue(inputStream);
                     int objFlags = (inputStream.readBoolean() ? Flags.ABSTRACT : 0) | Flags.PUBLIC;
                     objFlags = inputStream.readBoolean() ? objFlags | Flags.CLIENT : objFlags;
@@ -902,15 +915,24 @@ public class BIRPackageSymbolEnter {
                         objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
 //                        setDocumentation(varSymbol, attrData); // TODO fix
                     }
+                    boolean constructorPresent = inputStream.readBoolean();
+                    if (constructorPresent) {
+                        ignoreAttachedFunc();
+                    }
                     int funcCount = inputStream.readInt();
                     for (int i = 0; i < funcCount; i++) {
-                        getStringCPEntryValue(inputStream);
-                        inputStream.readByte();
-                        readTypeFromCp();
+                        ignoreAttachedFunc();
                     }
                     Object poppedObjType = compositeStack.pop();
                     assert poppedObjType == objectType;
-                    return objectType;
+
+                    if (pkgId.equals(env.pkgSymbol.pkgID)) {
+                        return objectType;
+                    }
+
+                    pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
+                    pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+                    return symbolResolver.lookupSymbol(pkgEnv, names.fromString(objName), SymTag.TYPE).type;
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix
                     break;
@@ -919,17 +941,6 @@ public class BIRPackageSymbolEnter {
                     break;
                 case SERVICE_TYPE_TAG:
                     return symTable.anyServiceType;
-                case TYPE_TAG_REFERENCE_TYPE:
-                    String org = getStringCPEntryValue(inputStream);
-                    String pkg = getStringCPEntryValue(inputStream);
-                    String version = getStringCPEntryValue(inputStream);
-                    String typeName = getStringCPEntryValue(inputStream);
-                    PackageID packageID = new PackageID(names.fromString(org),
-                            names.fromString(pkg), names.fromString(version));
-                    // At this point, package should be in the cache.
-                    BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(packageID, null, null);
-                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-                    return symbolResolver.lookupSymbol(pkgEnv, names.fromString(typeName), SymTag.TYPE).type;
 //                case TypeTags.CHANNEL:
 
 //                case TypeTags.SERVICE:
@@ -937,6 +948,21 @@ public class BIRPackageSymbolEnter {
             }
             return null;
         }
+
+        private void ignoreAttachedFunc() throws IOException {
+            getStringCPEntryValue(inputStream);
+            inputStream.readByte();
+            readTypeFromCp();
+        }
+    }
+
+    private PackageID getPackageId(int pkgCPIndex) {
+        PackageCPEntry pkgCpEntry = (PackageCPEntry) env.constantPool[pkgCPIndex];
+        String orgName = ((StringCPEntry) env.constantPool[pkgCpEntry.orgNameCPIndex]).value;
+        String pkgName = ((StringCPEntry) env.constantPool[pkgCpEntry.pkgNameCPIndex]).value;
+        String version = ((StringCPEntry) env.constantPool[pkgCpEntry.versionCPIndex]).value;
+        return new PackageID(names.fromString(orgName),
+                names.fromString(pkgName), names.fromString(version));
     }
 
     private void defineValueSpace(DataInputStream dataInStream, BFiniteType finiteType, BIRTypeReader typeReader)

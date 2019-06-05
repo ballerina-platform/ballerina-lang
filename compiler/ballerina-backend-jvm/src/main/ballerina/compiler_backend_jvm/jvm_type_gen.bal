@@ -627,10 +627,10 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         loadUnionType(mv, bType);
         return;
     } else if (bType is bir:BRecordType) {
-        loadUserDefinedType(mv, bType.name);
+        loadUserDefinedType(mv, bType);
         return;
     } else if (bType is bir:BObjectType) {
-        loadUserDefinedType(mv, bType.name);
+        loadUserDefinedType(mv, bType);
         return;
     } else if (bType is bir:BInvokableType) {
         loadInvokableType(mv, bType);
@@ -812,9 +812,19 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
 #
 # + mv - method visitor
 # + typeName - type to be loaded
-function loadUserDefinedType(jvm:MethodVisitor mv, bir:Name typeName) {
-    string fieldName = getTypeFieldName(typeName.value);
-    mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
+function loadUserDefinedType(jvm:MethodVisitor mv, bir:BObjectType|bir:BRecordType bType) {
+    string fieldName = "";
+    string typeOwner = "";
+
+    if (bType is bir:BObjectType) {
+        typeOwner = getPackageName(bType.moduleId.org, bType.moduleId.name) + MODULE_INIT_CLASS_NAME;
+        fieldName = getTypeFieldName(bType.name.value);
+    } else {
+        typeOwner = getPackageName(bType.moduleId.org, bType.moduleId.name) + MODULE_INIT_CLASS_NAME;
+        fieldName = getTypeFieldName(bType.name.value);
+    }
+
+    mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, io:sprintf("L%s;", BTYPE));
 }
 
 # Return the name of the field that holds the instance of a given type.
@@ -944,4 +954,15 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
 
     // initialize the finite type using the value space
     mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", STRING_VALUE, SET), false);
+}
+
+function isServiceDefAvailable(bir:TypeDef?[] typeDefs) returns boolean {
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        bir:BType bType = typeDef.typeValue;
+        if (bType is bir:BServiceType) {
+            return true;
+        }
+    }
+    return false;
 }

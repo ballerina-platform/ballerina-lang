@@ -51,30 +51,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation group: 'org.ballerinalang', name: 'ballerina-http', version: '0.992.0-m1', ext: 'zip',
-            classifier: 'ballerina-binary-repo'
+    baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - gRPC Implementation'
 
-task copyHttp(type: Copy) {
-    from zipTree("$buildDir/lib/ballerina-http-0.992.0-m1-ballerina-binary-repo.zip")
-    into "$buildDir/lib/"
-}
-
-copyHttp.dependsOn createBalHome
-createBalo.dependsOn copyHttp
-
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
-}

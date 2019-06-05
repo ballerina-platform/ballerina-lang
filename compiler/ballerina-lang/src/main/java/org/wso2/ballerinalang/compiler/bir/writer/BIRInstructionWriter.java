@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -286,7 +287,7 @@ public class BIRInstructionWriter extends BIRVisitor {
                 break;
             case TypeTags.BYTE:
                 // TODO: birConstantLoad.value should return an Integer. This is a temporary fix
-                int byteValue = ((Long) birConstantLoad.value).intValue();
+                int byteValue = ((Number) birConstantLoad.value).intValue();
                 buf.writeInt(cp.addCPEntry(new ByteCPEntry(byteValue)));
                 break;
             case TypeTags.BOOLEAN:
@@ -347,6 +348,9 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.FieldAccess birFieldAccess) {
         writePosition(birFieldAccess.pos);
         buf.writeByte(birFieldAccess.kind.getValue());
+        if (birFieldAccess.kind == InstructionKind.MAP_LOAD) {
+            buf.writeBoolean(birFieldAccess.except);
+        }
         birFieldAccess.lhsOp.accept(this);
         birFieldAccess.keyOp.accept(this);
         birFieldAccess.rhsOp.accept(this);

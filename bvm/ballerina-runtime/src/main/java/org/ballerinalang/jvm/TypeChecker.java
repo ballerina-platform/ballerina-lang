@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
@@ -42,6 +43,7 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -149,6 +151,10 @@ public class TypeChecker {
         }
 
         if (sourceType.getTag() == TypeTags.TABLE_TAG && targetType.getTag() == TypeTags.TABLE_TAG) {
+            return targetType.equals(sourceType);
+        }
+
+        if (sourceType.getTag() == TypeTags.STREAM_TAG && targetType.getTag() == TypeTags.STREAM_TAG) {
             return targetType.equals(sourceType);
         }
 
@@ -303,9 +309,7 @@ public class TypeChecker {
         return new TypedescValue(type);
     }
 
-    // Private methods
-
-    private static boolean checkIsType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
+    public static boolean checkIsType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         // First check whether both types are the same.
         if (sourceType == targetType || sourceType.equals(targetType)) {
             return true;
@@ -314,7 +318,14 @@ public class TypeChecker {
         switch (targetType.getTag()) {
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
+                if (sourceType.getTag() == TypeTags.INT_TAG) {
+                    return true;
+                }
             case TypeTags.DECIMAL_TAG:
+                if (sourceType.getTag() == TypeTags.INT_TAG || sourceType.getTag() == TypeTags.BYTE_TAG ||
+                    sourceType.getTag() == TypeTags.FLOAT_TAG) {
+                    return true;
+                }
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
@@ -331,6 +342,8 @@ public class TypeChecker {
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
             case TypeTags.TABLE_TAG:
                 return checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
+            case TypeTags.STREAM_TAG:
+                return checkIsStreamType(sourceType, (BStreamType) targetType, unresolvedTypes);
             case TypeTags.JSON_TAG:
                 return checkIsJSONType(sourceType, (BJSONType) targetType, unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
@@ -342,8 +355,7 @@ public class TypeChecker {
             case TypeTags.TUPLE_TAG:
                 return checkIsTupleType(sourceType, (BTupleType) targetType, unresolvedTypes);
             case TypeTags.UNION_TAG:
-                return ((BUnionType) targetType).getMemberTypes().stream()
-                        .anyMatch(type -> checkIsType(sourceType, type, unresolvedTypes));
+                return checkIsUnionType(sourceType, targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
                 return checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG:
@@ -356,6 +368,27 @@ public class TypeChecker {
                 return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
             default:
                 return false;
+        }
+    }
+
+    // Private methods
+
+    private static boolean checkIsUnionType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() == TypeTags.UNION_TAG) {
+            for (BType sourceMemberType : ((BUnionType) sourceType).getMemberTypes()) {
+                if (!checkIsUnionType(sourceMemberType, targetType, unresolvedTypes)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            BUnionType targetUnionType = (BUnionType) targetType;
+            for (BType memberType : targetUnionType.getMemberTypes()) {
+                if (checkIsType(sourceType, memberType, unresolvedTypes)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
@@ -372,6 +405,14 @@ public class TypeChecker {
             return false;
         }
         return checkContraints(((BTableType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                               unresolvedTypes);
+    }
+
+    private static boolean checkIsStreamType(BType sourceType, BStreamType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.STREAM_TAG) {
+            return false;
+        }
+        return checkContraints(((BStreamType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
                                unresolvedTypes);
     }
 
@@ -532,6 +573,9 @@ public class TypeChecker {
 
     private static boolean checkObjectEquivalency(BType sourceType, BObjectType targetType,
                                                   List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
+            return false;
+        }
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(sourceType, targetType);
@@ -702,6 +746,8 @@ public class TypeChecker {
                 return checkIsLikeMapType(sourceValue, (BMapType) targetType, unresolvedValues);
             case TypeTags.TABLE_TAG:
                 return checkIsLikeTableType(sourceValue, (BTableType) targetType, unresolvedValues);
+            case TypeTags.STREAM_TAG:
+                return checkIsLikeStreamType(sourceValue, (BStreamType) targetType);
             case TypeTags.ARRAY_TAG:
                 return checkIsLikeArrayType(sourceValue, (BArrayType) targetType, unresolvedValues);
             case TypeTags.TUPLE_TAG:
@@ -829,6 +875,16 @@ public class TypeChecker {
         BTableType tableType = (BTableType) ((TableValue) sourceValue).getType();
 
         return tableType.getConstrainedType() == targetType.getConstrainedType();
+    }
+
+    private static boolean checkIsLikeStreamType(Object sourceValue, BStreamType targetType) {
+        if (!(sourceValue instanceof StreamValue)) {
+            return false;
+        }
+
+        BStreamType streamType = (BStreamType) ((StreamValue) sourceValue).getType();
+
+        return streamType.getConstrainedType() == targetType.getConstrainedType();
     }
 
     private static boolean checkIsLikeJSONType(Object sourceValue, BType sourceType, BJSONType targetType,
