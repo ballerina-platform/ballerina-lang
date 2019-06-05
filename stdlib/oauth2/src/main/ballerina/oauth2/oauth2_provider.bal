@@ -97,8 +97,8 @@ public type OAuth2Provider object {
 # + url - URL of the introspection server
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
 # + clientConfig - HTTP client configurations which calls the introspection server
-public type IntrospectionServerConfig record {
+public type IntrospectionServerConfig record {|
     string url;
     string tokenTypeHint?;
     http:ClientEndpointConfig clientConfig;
-};
+|};
