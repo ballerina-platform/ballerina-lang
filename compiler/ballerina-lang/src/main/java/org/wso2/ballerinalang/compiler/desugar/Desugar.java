@@ -3736,6 +3736,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitCallBuiltInMethodInvocation(BLangInvocation iExpr) {
+        BLangExpression expr = iExpr.expr;
         if (iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             iExpr.symbol = ((BLangVariableReference) iExpr.expr).symbol;
             iExpr.expr = null;
@@ -3751,7 +3752,7 @@ public class Desugar extends BLangNodeVisitor {
         iExpr.builtinMethodInvocation = false;
         iExpr.functionPointerInvocation = true;
 
-        visitFunctionPointerInvocation(iExpr);
+        result = new BFunctionPointerInvocation(iExpr, expr);
     }
 
     private void visitIterableOperationInvocation(BLangInvocation iExpr) {
