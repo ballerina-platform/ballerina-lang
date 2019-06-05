@@ -965,10 +965,11 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean isFinal,
-                                       boolean isExpressionAvailable, boolean isDeclaredWithVar) {
-        BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, ws, identifier, isFinal,
-                isExpressionAvailable, isDeclaredWithVar);
+    void addSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                       DiagnosticPos identifierPos, boolean isFinal, boolean isExpressionAvailable,
+                                       boolean isDeclaredWithVar) {
+        BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, ws, identifier, identifierPos, isFinal,
+                                                                    isExpressionAvailable, isDeclaredWithVar);
         if (this.bindingPatternIdentifierWS.size() > 0) {
             varDefNode.addWS(this.bindingPatternIdentifierWS.pop());
         }
@@ -980,13 +981,14 @@ public class BLangPackageBuilder {
     }
 
     private BLangSimpleVariableDef createSimpleVariableDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                                           boolean isFinal, boolean isExpressionAvailable,
-                                                           boolean isDeclaredWithVar) {
+                                                           DiagnosticPos identifierPos, boolean isFinal,
+                                                           boolean isExpressionAvailable, boolean isDeclaredWithVar) {
         BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         BLangSimpleVariableDef varDefNode = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         var.pos = pos;
         var.addWS(ws);
         var.setName(this.createIdentifier(identifier));
+        var.name.pos = identifierPos;
 
         if (isFinal) {
             markVariableAsFinal(var);
@@ -1630,7 +1632,7 @@ public class BLangPackageBuilder {
         ((BLangFunction) this.invokableNodeStack.peek()).defaultWorkerName.value = workerName;
         addLambdaFunctionDef(pos, ws, false, retParamsAvail, false);
         String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
-        addSimpleVariableDefStatement(pos, null, workerLambdaName, true, true, true);
+        addSimpleVariableDefStatement(pos, null, workerLambdaName, null, true, true, true);
 
         // Check if the worker is in a fork. If so add the lambda function to the worker list in fork, else ignore.
         if (!this.forkJoinNodesStack.empty()) {
@@ -1644,7 +1646,7 @@ public class BLangPackageBuilder {
         startInvocationNode(null);
         createInvocationNode(pos, null, BLangBuiltInMethod.CALL.toString(), false, false);
         markLastInvocationAsAsync(pos);
-        addSimpleVariableDefStatement(pos, null, workerName, true, true, true);
+        addSimpleVariableDefStatement(pos, null, workerName, null, true, true, true);
     }
 
     void attachWorkerWS(Set<Whitespace> ws) {
@@ -2282,9 +2284,9 @@ public class BLangPackageBuilder {
     }
 
     void addForeachStatementWithSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                                           boolean isDeclaredWithVar) {
-        BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, ws, identifier, false,
-                false, isDeclaredWithVar);
+                                                           DiagnosticPos identifierPos, boolean isDeclaredWithVar) {
+        BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, ws, identifier, identifierPos,
+                                                                                false, false, isDeclaredWithVar);
         if (this.bindingPatternIdentifierWS.size() > 0) {
             variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
         }
@@ -2821,10 +2823,11 @@ public class BLangPackageBuilder {
                              Set<Whitespace> ws,
                              String namespaceUri,
                              String prefix,
+                             DiagnosticPos prefixPos,
                              boolean isTopLevel) {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifer = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        prefixIdentifer.pos = pos;
+        prefixIdentifer.pos = prefixPos;
         prefixIdentifer.value = prefix;
 
         addLiteralValue(pos, removeNthFromStart(ws, 1), TypeTags.STRING, namespaceUri);

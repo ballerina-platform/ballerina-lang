@@ -1047,10 +1047,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         if (ctx.Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                    isFinal, isExpressionAvailable, isDeclaredWithVar);
+                                                          getCurrentPos(ctx.Identifier().getSymbol()),
+                                                          isFinal, isExpressionAvailable, isDeclaredWithVar);
         } else if (ctx.bindingPattern().Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    ctx.bindingPattern().Identifier().getText(), isFinal, isExpressionAvailable, isDeclaredWithVar);
+                                                          ctx.bindingPattern().Identifier().getText(),
+                                                          getCurrentPos(ctx.bindingPattern().Identifier().getSymbol()),
+                                                          isFinal, isExpressionAvailable, isDeclaredWithVar);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
             this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
@@ -1456,8 +1459,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isDeclaredWithVar = ctx.VAR() != null;
 
         if (ctx.bindingPattern().Identifier() != null) {
+            String identifier = ctx.bindingPattern().Identifier().getText();
+            DiagnosticPos identifierPos = getCurrentPos(ctx.bindingPattern().Identifier().getSymbol());
             this.pkgBuilder.addForeachStatementWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    ctx.bindingPattern().Identifier().getText(), isDeclaredWithVar);
+                                                                              identifier, identifierPos,
+                                                                              isDeclaredWithVar);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
             this.pkgBuilder.addForeachStatementWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     isDeclaredWithVar);
@@ -2099,8 +2105,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         namespaceUri = namespaceUri.substring(1, namespaceUri.length() - 1);
         namespaceUri = StringEscapeUtils.unescapeJava(namespaceUri);
         String prefix = (ctx.Identifier() != null) ? ctx.Identifier().getText() : null;
+        DiagnosticPos prefixPos = (ctx.Identifier() != null) ? getCurrentPos(ctx.Identifier().getSymbol()) : null;
 
-        this.pkgBuilder.addXMLNSDeclaration(getCurrentPos(ctx), getWS(ctx), namespaceUri, prefix, isTopLevel);
+        this.pkgBuilder.addXMLNSDeclaration(getCurrentPos(ctx), getWS(ctx), namespaceUri, prefix, prefixPos,
+                                            isTopLevel);
     }
 
     @Override
@@ -3322,6 +3330,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         return new DiagnosticPos(diagnosticSrc, startLine, endLine, startCol, endCol);
+    }
+
+    private DiagnosticPos getCurrentPos(Token symbol) {
+        int startLine = symbol.getLine();
+        int startCol = symbol.getCharPositionInLine() + 1;
+        int endCol = startCol + (symbol.getStopIndex() - symbol.getStartIndex() + 1) + 1;
+        return new DiagnosticPos(diagnosticSrc, startLine, startLine, startCol, endCol);
     }
 
     private DiagnosticPos getCurrentPosFromIdentifier(TerminalNode node) {
