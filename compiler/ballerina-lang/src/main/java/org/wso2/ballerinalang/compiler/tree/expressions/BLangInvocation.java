@@ -132,7 +132,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
      */
     public static class BFunctionPointerInvocation extends BLangInvocation {
 
-        public BFunctionPointerInvocation(BLangInvocation parent, BLangVariableReference varRef) {
+        public BFunctionPointerInvocation(BLangInvocation parent, BLangExpression varRef) {
             this.pos = parent.pos;
             this.name = parent.name;
             this.requiredArgs = parent.requiredArgs;
