@@ -543,7 +543,7 @@ public class Types {
         }
 
         if (source.tag == TypeTags.ERROR && target.tag == TypeTags.ERROR) {
-            return isErrorTypeAssignable((BErrorType) source, (BErrorType) target);
+            return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
         } else if (source.tag == TypeTags.ERROR && target.tag == TypeTags.ANY) {
             return false;
         }
@@ -630,11 +630,17 @@ public class Types {
                 isArrayTypesAssignable(source, target, unresolvedTypes);
     }
 
-    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target) {
+    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, List<TypePair> unresolvedTypes) {
         if (target == symTable.errorType) {
             return true;
         }
-        return isAssignable(source.reasonType, target.reasonType) && isAssignable(source.detailType, target.detailType);
+        TypePair pair = new TypePair(source, target);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+        return isAssignable(source.reasonType, target.reasonType, unresolvedTypes) && 
+                isAssignable(source.detailType, target.detailType, unresolvedTypes);
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
