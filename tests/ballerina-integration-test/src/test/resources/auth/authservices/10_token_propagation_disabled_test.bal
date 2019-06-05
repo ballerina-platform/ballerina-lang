@@ -58,7 +58,7 @@ service passthroughService10 on listener10_1 {
     }
 }
 
-jwt:JWTAuthProvider jwtAuthProvider10 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider10 = new({
     issuer: "ballerina",
     audience: ["ballerina"],
     certificateAlias: "ballerina",

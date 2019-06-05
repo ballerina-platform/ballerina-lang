@@ -21,7 +21,7 @@ import ballerina/jwt;
 auth:ConfigAuthStoreProvider basicAuthProvider19 = new;
 http:BasicAuthHeaderAuthnHandler basicAuthnHandler19 = new(basicAuthProvider19);
 
-jwt:JWTAuthProvider jwtAuthProvider19_1 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider19_1 = new({
     issuer: "example1",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -32,7 +32,7 @@ jwt:JWTAuthProvider jwtAuthProvider19_1 = new({
 });
 http:BearerAuthHeaderAuthnHandler jwtAuthnHandler19_1 = new(jwtAuthProvider19_1);
 
-jwt:JWTAuthProvider jwtAuthProvider19_2 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider19_2 = new({
     issuer: "example2",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -43,7 +43,7 @@ jwt:JWTAuthProvider jwtAuthProvider19_2 = new({
 });
 http:BearerAuthHeaderAuthnHandler jwtAuthnHandler19_2 = new(jwtAuthProvider19_2);
 
-jwt:JWTAuthProvider jwtAuthProvider19_3 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider19_3 = new({
     issuer: "example3",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -54,7 +54,7 @@ jwt:JWTAuthProvider jwtAuthProvider19_3 = new({
 });
 http:BearerAuthHeaderAuthnHandler jwtAuthnHandler19_3 = new(jwtAuthProvider19_3);
 
-jwt:JWTAuthProvider jwtAuthProvider19_4 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider19_4 = new({
     issuer: "example4",
     audience: ["ballerina"],
     certificateAlias: "ballerina",

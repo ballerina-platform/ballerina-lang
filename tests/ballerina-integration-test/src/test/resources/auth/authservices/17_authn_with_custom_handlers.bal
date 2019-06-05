@@ -49,7 +49,7 @@ service echo17 on listener17 {
 
 public type CustomAuthnHandler object {
 
-    *http:AuthnHandler;
+    *http:InboundAuthnHandler;
 
     public auth:InboundAuthProvider authProvider;
 

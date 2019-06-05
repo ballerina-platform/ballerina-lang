@@ -17,7 +17,7 @@
 import ballerina/auth;
 import ballerina/http;
 
-jwt:JWTAuthProvider jwtAuthProvider08 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider08 = new({
     issuer:"ballerina",
     audience: ["ballerina.io"],
     certificateAlias: "cert",

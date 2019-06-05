@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/jwt;
 
-jwt:JWTAuthProvider jwtAuthProvider06_1 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider06_1 = new({
     issuer: "example1",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -27,7 +27,7 @@ jwt:JWTAuthProvider jwtAuthProvider06_1 = new({
     }
 });
 
-jwt:JWTAuthProvider jwtAuthProvider06_2 = new({
+jwt:InboundJWTAuthProvider jwtAuthProvider06_2 = new({
     issuer: "example2",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
