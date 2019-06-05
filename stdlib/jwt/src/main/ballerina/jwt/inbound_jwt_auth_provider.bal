@@ -34,7 +34,7 @@ public type CachedJwt record {|
     int expiryTime;
 |};
 
-# Represents JWT validator configurations.
+# Represents inbound JWT validator configurations.
 #
 # + issuer - Identifier of the token issuer
 # + audience - Identifier of the token recipients
@@ -43,7 +43,7 @@ public type CachedJwt record {|
 # + certificateAlias - Token signed key alias
 # + validateCertificate - Validate public key certificate notBefore and notAfter periods
 # + jwtCache - Cache used to store parsed JWT information as CachedJwt
-public type JWTAuthProviderConfig record {|
+public type InboundJWTAuthProviderConfig record {|
     string issuer?;
     string[] audience?;
     int clockSkew = 0;
@@ -53,19 +53,19 @@ public type JWTAuthProviderConfig record {|
     cache:Cache jwtCache = new(capacity = 1000);
 |};
 
-# Represents a JWT Authenticator.
+# Represents inbound JWT Authenticator.
 #
-# + jwtAuthProviderConfig - JWT auth provider configurations
-public type JWTAuthProvider object {
+# + jwtAuthProviderConfig - Inbound JWT auth provider configurations
+public type InboundJWTAuthProvider object {
 
     *auth:InboundAuthProvider;
 
-    public JWTAuthProviderConfig jwtAuthProviderConfig;
+    public InboundJWTAuthProviderConfig jwtAuthProviderConfig;
 
     # Provides authentication based on the provided jwt token.
     #
-    # + jwtAuthProviderConfig - JWT authentication provider configurations
-    public function __init(JWTAuthProviderConfig jwtAuthProviderConfig) {
+    # + jwtAuthProviderConfig - Inbound JWT authentication provider configurations
+    public function __init(InboundJWTAuthProviderConfig jwtAuthProviderConfig) {
         self.jwtAuthProviderConfig = jwtAuthProviderConfig;
     }
 
@@ -101,7 +101,7 @@ public type JWTAuthProvider object {
     }
 };
 
-function populateJWTValidatorConfig(JWTAuthProviderConfig jwtAuthProviderConfig) returns JWTValidatorConfig {
+function populateJWTValidatorConfig(InboundJWTAuthProviderConfig jwtAuthProviderConfig) returns JWTValidatorConfig {
     JWTValidatorConfig jwtValidatorConfig = { clockSkew: jwtAuthProviderConfig.clockSkew };
     var issuer = jwtAuthProviderConfig["issuer"];
     if (issuer is string) {
@@ -126,7 +126,7 @@ function populateJWTValidatorConfig(JWTAuthProviderConfig jwtAuthProviderConfig)
     return jwtValidatorConfig;
 }
 
-function authenticateFromCache(JWTAuthProviderConfig jwtAuthProviderConfig, string jwtToken) returns JwtPayload? {
+function authenticateFromCache(InboundJWTAuthProviderConfig jwtAuthProviderConfig, string jwtToken) returns JwtPayload? {
     var cachedJwt = trap <CachedJwt>jwtAuthProviderConfig.jwtCache.get(jwtToken);
     if (cachedJwt is CachedJwt) {
         // convert to current time and check the expiry time
@@ -142,7 +142,7 @@ function authenticateFromCache(JWTAuthProviderConfig jwtAuthProviderConfig, stri
     }
 }
 
-function addToAuthenticationCache(JWTAuthProviderConfig jwtAuthProviderConfig, string jwtToken, int exp, JwtPayload payload) {
+function addToAuthenticationCache(InboundJWTAuthProviderConfig jwtAuthProviderConfig, string jwtToken, int exp, JwtPayload payload) {
     CachedJwt cachedJwt = {jwtPayload : payload, expiryTime : exp};
     jwtAuthProviderConfig.jwtCache.put(jwtToken, cachedJwt);
     log:printDebug(function() returns string {
