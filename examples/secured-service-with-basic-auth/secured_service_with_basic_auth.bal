@@ -2,7 +2,7 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/log;
 
-// Create a Basic authentication handler with the relevant configurations.
+// Create a Basic auth header authentication handler with the relevant configurations.
 auth:ConfigAuthStoreProvider basicAuthProvider = new;
 http:BasicAuthHeaderAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 

@@ -4,15 +4,16 @@ import ballerina/http;
 import ballerina/log;
 
 // Define the basic auth client endpoint to call the backend services.
-// Basic authentication is enabled by setting the `scheme: http:BASIC_AUTH`
-// The `username` and `password` should be specified as needed.
+// Basic authentication is enabled by creating `OutboundBasicAuthProvider` with the `username` and `password`
+// passed as a record.
+jwt:OutboundBasicAuthProvider outboundBasicAuthProvider = new({ username: "tom", password: "1234" });
+
+// Create a Basic auth header authentication handler with the created Basic auth provider.
+http:BasicAuthHeaderAuthnHandler basicAuthnHandler = new(outboundBasicAuthProvider);
+
 http:Client httpEndpoint = new("https://localhost:9090", config = {
     auth: {
-        scheme: http:BASIC_AUTH,
-        config: {
-            username: "tom",
-            password: "1234"
-        }
+        authnHandler: basicAuthnHandler
     }
 });
 
