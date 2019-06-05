@@ -18,6 +18,7 @@ import ballerina/io;
 
 io:ReadableCharacterChannel? rch = ();
 io:WritableCharacterChannel? wch = ();
+io:WritableCharacterChannel? wca = ();
 
 function initReadableChannel(string filePath, string encoding) {
     io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
@@ -27,6 +28,11 @@ function initReadableChannel(string filePath, string encoding) {
 function initWritableChannel(string filePath, string encoding) {
     io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
     wch = untaint new io:WritableCharacterChannel(byteChannel, encoding);
+}
+
+function initWritableChannelToAppend(string filePath, string encoding) {
+    io:WritableByteChannel byteChannel = io:openWritableFile(filePath, append = true);
+    wca = untaint new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
 function readCharacters(int numberOfCharacters) returns string|error {
@@ -62,6 +68,18 @@ function readAllCharacters() returns string|error? {
 
 function writeCharacters(string content, int startOffset) returns int|error? {
     var result = wch.write(content, startOffset);
+    if (result is int) {
+        return result;
+    } else if (result is error) {
+        return result;
+    } else {
+        error e = error("Character channel not initialized properly");
+        return e;
+    }
+}
+
+function appendCharacters(string content, int startOffset) returns int|error? {
+    var result = wca.write(content, startOffset);
     if (result is int) {
         return result;
     } else if (result is error) {
@@ -110,4 +128,8 @@ function closeReadableChannel() {
 
 function closeWritableChannel() {
     var err = wch.close();
+}
+
+function closeWritableChannelToAppend() {
+    var err = wca.close();
 }
