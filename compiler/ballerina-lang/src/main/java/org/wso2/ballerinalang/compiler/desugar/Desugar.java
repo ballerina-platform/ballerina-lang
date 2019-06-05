@@ -2506,6 +2506,15 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        OperatorKind binaryOpKind = binaryExpr.opKind;
+
+        if (binaryOpKind == OperatorKind.ADD || binaryOpKind == OperatorKind.SUB ||
+                binaryOpKind == OperatorKind.MUL || binaryOpKind == OperatorKind.DIV ||
+                binaryOpKind == OperatorKind.MOD || binaryOpKind == OperatorKind.BITWISE_AND ||
+                binaryOpKind == OperatorKind.BITWISE_OR || binaryOpKind == OperatorKind.BITWISE_XOR) {
+            checkByteTypeIncompatibleOperations(binaryExpr);
+        }
+
         binaryExpr.lhsExpr = rewriteExpr(binaryExpr.lhsExpr);
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
@@ -2581,6 +2590,32 @@ public class Desugar extends BLangNodeVisitor {
         if (rhsExprTypeTag == TypeTags.FLOAT) {
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
                                                     binaryExpr.rhsExpr.type);
+        }
+    }
+
+    private void checkByteTypeIncompatibleOperations(BLangBinaryExpr binaryExpr) {
+
+        if (binaryExpr.parent == null || binaryExpr.parent.type == null) {
+            return;
+        }
+
+        int rhsExprTypeTag = binaryExpr.rhsExpr.type.tag;
+        int lhsExprTypeTag = binaryExpr.lhsExpr.type.tag;
+
+        if (rhsExprTypeTag != TypeTags.BYTE && lhsExprTypeTag != TypeTags.BYTE) {
+            return;
+        }
+
+        int parentTypeTag = binaryExpr.parent.type.tag;
+
+        if (parentTypeTag == TypeTags.INT) {
+            if (rhsExprTypeTag == TypeTags.BYTE) {
+                binaryExpr.rhsExpr = addConversionExprIfRequired(binaryExpr.rhsExpr, symTable.intType);
+            }
+
+            if (lhsExprTypeTag == TypeTags.BYTE) {
+                binaryExpr.lhsExpr = addConversionExprIfRequired(binaryExpr.lhsExpr, symTable.intType);
+            }
         }
     }
 
