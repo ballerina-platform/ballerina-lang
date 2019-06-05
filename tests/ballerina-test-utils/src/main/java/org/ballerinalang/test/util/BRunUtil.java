@@ -383,8 +383,8 @@ public class BRunUtil {
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null);
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
-                throw new org.ballerinalang.util.exceptions
-                        .BLangRuntimeException(futureValue.panic.getMessage(), futureValue.panic);
+                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
+                        futureValue.panic);
             }
             jvmResult = futureValue.result;
         } catch (NoSuchMethodException e) {
@@ -539,6 +539,9 @@ public class BRunUtil {
                         case TypeTags.FLOAT_TAG:
                             jvmArray.add(i, array.getFloat(i));
                             break;
+                        case TypeTags.JSON_TAG:
+                            jvmArray.add(i, array.getRefValue(i));
+                            break;
                         default:
                             throw new RuntimeException("Function signature type '" + type + "' is not supported");
                     }
@@ -547,7 +550,7 @@ public class BRunUtil {
             case TypeTags.MAP_TAG:
                 BMapType mapType = (BMapType) type;
                 BMap bMap = (BMap) value;
-                MapValueImpl<Object, Object> jvmMap = new MapValueImpl<Object, Object>(getJVMType(mapType));
+                MapValueImpl<Object, Object> jvmMap = new MapValueImpl<>(getJVMType(mapType));
                 bMap.getMap().forEach((k, v) -> {
                     BValue bValue = bMap.get(k);
                     jvmMap.put(k, getJVMValue(bValue.getType(), bValue));
@@ -559,10 +562,10 @@ public class BRunUtil {
                 return getJVMValue(value.getType(), value);
             case TypeTags.JSON_TAG:
                 bMap = (BMap) value;
-                jvmMap = new MapValueImpl<Object, Object>(getJVMType(type));
+                jvmMap = new MapValueImpl<>(getJVMType(type));
                 bMap.getMap().forEach((k, v) -> {
                     BValue bValue = bMap.get(k);
-                    jvmMap.put(k, getJVMValue(bValue.getType(), bValue));
+                    jvmMap.put(k, bValue != null ? getJVMValue(bValue.getType(), bValue) : null);
                 });
                 return jvmMap;
             default:

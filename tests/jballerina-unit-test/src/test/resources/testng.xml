@@ -44,6 +44,8 @@
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
+            <package name="org.ballerinalang.test.types.finaltypes.*"/>
+            <package name="org.ballerinalang.test.types.finite.*"/>
         </packages>
 
         <classes>
@@ -206,6 +208,9 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
+            <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionTest"/>
+            <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionWithPkgTest"/>
+            <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
         </classes>
     </test>
 </suite>
