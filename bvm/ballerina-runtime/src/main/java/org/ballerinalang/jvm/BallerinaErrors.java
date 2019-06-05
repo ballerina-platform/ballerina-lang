@@ -26,7 +26,9 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import java.lang.annotation.Annotation;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -97,9 +99,8 @@ public class BallerinaErrors {
         }
         BType recordType = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT).getType();
         ArrayValue callStack = new ArrayValue(new BArrayType(recordType));
-        callStack.add(0, getRuntimeModuleStackFrame());
         for (int i = 0; i < filteredStack.size(); i++) {
-            callStack.add(i + 1, getStackFrame(filteredStack.get(i)));
+            callStack.add(i, getStackFrame(filteredStack.get(i)));
         }
         return callStack;
     }
@@ -122,8 +123,20 @@ public class BallerinaErrors {
 
             return null;
         }
-        // Remove java sources for bal stacktrace.
+
         if (!fileName.equals(pkgName.concat(BLANG_SRC_FILE_SUFFIX))) {
+            try {
+                // Handle stacktrace for extern functions.
+                Annotation[] annotations = Class.forName(pkgName).getAnnotations();
+                if (annotations != null && annotations.length > 0 && annotations[0] instanceof BallerinaFunction) {
+                    BallerinaFunction balAnnotation = (BallerinaFunction) annotations[0];
+                    return new StackTraceElement(balAnnotation.orgName() + "/" + balAnnotation.packageName(),
+                                                 balAnnotation.functionName(), "<native>", 0);
+                }
+            } catch (ClassNotFoundException e) {
+                throw createError(e.getMessage());
+            }
+            // Remove java sources for bal stacktrace if they are not extern functions.
             return null;
         }
         return stackFrame;
@@ -136,16 +149,6 @@ public class BallerinaErrors {
         values[1] = stackTraceElement.getClassName();
         values[2] = stackTraceElement.getFileName();
         values[3] = stackTraceElement.getLineNumber();
-        return BallerinaValues.createRecord(
-                BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT), values);
-    }
-
-    private static MapValue<String, Object> getRuntimeModuleStackFrame() {
-        Object[] values = new Object[4];
-        values[0] = "getCallStack";
-        values[1] = "ballerina/runtime";
-        values[2] = "<native>";
-        values[3] = 0;
         return BallerinaValues.createRecord(
                 BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT), values);
     }
