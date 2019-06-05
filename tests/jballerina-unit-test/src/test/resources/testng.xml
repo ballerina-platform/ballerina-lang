@@ -46,6 +46,7 @@
             <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
             <package name="org.ballerinalang.test.types.finite.*"/>
+            <package name="org.ballerinalang.test.types.map.*"/>
         </packages>
 
         <classes>
