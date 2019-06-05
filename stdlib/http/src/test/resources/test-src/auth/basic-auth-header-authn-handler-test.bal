@@ -66,6 +66,6 @@ public type CustomAuthProvider object {
     *auth:InboundAuthProvider;
 
     public function authenticate(string credential) returns boolean|error {
-        return crdential == "aXN1cnU6eHh4";
+        return credential == "aXN1cnU6eHh4";
     }
 };
