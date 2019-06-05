@@ -33,6 +33,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -179,6 +180,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 handleInvalidUpdate(freezeStatus.getState());
             }
             return super.put(key, value);
+        } catch (BLangFreezeException e) {
+            throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
         } finally {
             writeLock.unlock();
         }
