@@ -56,10 +56,6 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>siddhi-annotations</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-lang</artifactId>
-        </dependency>
     </dependencies>
 
     <properties>

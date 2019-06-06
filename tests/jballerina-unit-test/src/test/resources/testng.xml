@@ -49,6 +49,7 @@
             <package name="org.ballerinalang.test.types.finite.*"/>
             <package name="org.ballerinalang.test.types.map.*"/>
             <package name="org.ballerinalang.test.types.string.*"/>
+            <package name="org.ballerinalang.test.types.errors.*"/>
         </packages>
 
         <classes>
@@ -134,63 +135,63 @@
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
 <!--            <class name="org.ballerinalang.test.types.constant.MapConstantTest" />-->
 
-            <class name="org.ballerinalang.test.worker.BasicForkTest"/>
-            <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
-            <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest">
-                <methods>
-                    <exclude name="waitTest13"/>
-                    <exclude name="waitTest23"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.WaitForAllActionsTest">
-                <methods>
-                    <exclude name="waitTest16"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.WorkerTest">
-                <methods>
-                    <!--TODO:Fix trap and future.cancel()-->
-                    <exclude name="receiveWithTrap"/>
-                    <exclude name="receiveWithCheckAndTrap"/>
-                    <exclude name="receiveWithTrapForDefault"/>
-                    <exclude name="receiveDefaultWithCheckAndTrap"/>
-                    <exclude name="workerWithFutureTest1"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.WorkerSyncSendTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerInActionTest">
-                <methods>
-                    <exclude name="testConnectorAction1"/>
-                    <exclude name="testConnectorAction2"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.WorkerInFunctionTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerFlushTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerFailTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
-            <class name="org.ballerinalang.test.worker.WaitForOneActionsTest">
-                <methods><exclude name="waitTest9"/></methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.WaitActionsNegativeTest"/>
-            <class name="org.ballerinalang.test.worker.StackOverflowTest">
-                <methods>
-                    <!--TODO:Need to improve error detail transformation, java errors get returned-->
-                    <exclude name="recursiveFunction"/>
-                    <exclude name="testStackOverflowInFunction"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">
-                <methods>
+            <!--<class name="org.ballerinalang.test.worker.BasicForkTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.BasicWorkerTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.WaitForAnyActionsTest">-->
+                <!--<methods>-->
+                    <!--<exclude name="waitTest13"/>-->
+                    <!--<exclude name="waitTest23"/>-->
+                <!--</methods>-->
+            <!--</class>-->
+            <!--<class name="org.ballerinalang.test.worker.WaitForAllActionsTest">-->
+                <!--<methods>-->
+                    <!--<exclude name="waitTest16"/>-->
+                <!--</methods>-->
+            <!--</class>-->
+            <!--<class name="org.ballerinalang.test.worker.WorkerTest">-->
+                <!--<methods>-->
+                    <!--&lt;!&ndash;TODO:Fix trap and future.cancel()&ndash;&gt;-->
+                    <!--<exclude name="receiveWithTrap"/>-->
+                    <!--<exclude name="receiveWithCheckAndTrap"/>-->
+                    <!--<exclude name="receiveWithTrapForDefault"/>-->
+                    <!--<exclude name="receiveDefaultWithCheckAndTrap"/>-->
+                    <!--<exclude name="workerWithFutureTest1"/>-->
+                <!--</methods>-->
+            <!--</class>-->
+            <!--<class name="org.ballerinalang.test.worker.WorkerSyncSendTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.WorkerInActionTest">-->
+                <!--<methods>-->
+                    <!--<exclude name="testConnectorAction1"/>-->
+                    <!--<exclude name="testConnectorAction2"/>-->
+                <!--</methods>-->
+            <!--</class>-->
+            <!--<class name="org.ballerinalang.test.worker.WorkerInFunctionTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.WorkerFlushTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.WorkerFailTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>-->
+            <!--<class name="org.ballerinalang.test.worker.WaitForOneActionsTest">-->
+                <!--<methods><exclude name="waitTest9"/></methods>-->
+            <!--</class>-->
+            <!--<class name="org.ballerinalang.test.worker.WaitActionsNegativeTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.StackOverflowTest">-->
+                <!--<methods>-->
+                    <!--&lt;!&ndash;TODO:Need to improve error detail transformation, java errors get returned&ndash;&gt;-->
+                    <!--<exclude name="recursiveFunction"/>-->
+                    <!--<exclude name="testStackOverflowInFunction"/>-->
+                <!--</methods>-->
+            <!--</class>-->
+            <!--<class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">-->
+                <!--<methods>-->
                     <!--TODO:convert within while returns empty-->
-                    <exclude name="largeForkCreationTest"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.ForkReturnAnyTest"/>
-            <class name="org.ballerinalang.test.worker.ForkInFunctionTest"/>
-            <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
-            <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
-            <class name="org.ballerinalang.test.worker.BasicForkNegativeTest"/>
+                    <!--<exclude name="largeForkCreationTest"/>-->
+                <!--</methods>-->
+            <!--</class>-->
+            <!--<class name="org.ballerinalang.test.worker.ForkReturnAnyTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.ForkInFunctionTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.BasicForkNegativeTest"/>-->
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
             <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
                 <methods>
