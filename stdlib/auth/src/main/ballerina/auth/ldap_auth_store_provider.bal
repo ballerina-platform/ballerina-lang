@@ -105,7 +105,7 @@ public type LdapAuthStoreProvider object {
         }
         string username;
         string password;
-        (username, password) = check extractUsernameAndPassword(credential);
+        [username, password] = check extractUsernameAndPassword(credential);
         boolean isAuthenticated = doAuthenticate(self, username, password);
         if (isAuthenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;
