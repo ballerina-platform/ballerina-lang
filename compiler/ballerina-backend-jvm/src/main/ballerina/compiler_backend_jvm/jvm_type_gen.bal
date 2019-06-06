@@ -76,7 +76,8 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
     foreach var optionalTypeDef in typeDefs {
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         bir:BType bType = typeDef.typeValue;
-        if !(bType is bir:BRecordType || bType is bir:BObjectType || bType is bir:BServiceType) {
+        if !(bType is bir:BRecordType || bType is bir:BObjectType ||
+                bType is bir:BServiceType || bType is bir:BErrorType) {
             continue;
         }
 
@@ -98,6 +99,13 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             mv.visitInsn(DUP);
             addObjectFields(mv, bType.oType.fields);
             addObjectAtatchedFunctions(mv, bType.oType.attachedFunctions, bType.oType, indexMap);
+        } else if (bType is bir:BErrorType) {
+            // populate detail field
+            mv.visitTypeInsn(CHECKCAST, ERROR_TYPE);
+            mv.visitInsn(DUP);
+            mv.visitInsn(DUP);
+            loadType(mv, bType.detailType);
+            mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE, SET_DETAIL_TYPE_METHOD, io:sprintf("(L%s;)V", BTYPE), false);
         }
     }
 }
@@ -541,17 +549,15 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
     mv.visitLdcInsn(pkgName);
     // TODO : Load package version properly
     mv.visitLdcInsn("0.0.0");
-    mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
-                            "(Ljava/lang/String;Ljava/lang/String;)V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>", 
+                        io:sprintf("(L%s;L%s;)V", STRING_VALUE, STRING_VALUE), false);
 
-    
     // Load reason and details type
     loadType(mv, errorType.reasonType);
-    loadType(mv, errorType.detailType);
 
     // initialize the error type
-    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, 
-            PACKAGE_TYPE, BTYPE, BTYPE), false);
+    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", 
+                            io:sprintf("(L%s;L%s;L%s;)V", STRING_VALUE, PACKAGE_TYPE, BTYPE), false);
 }
 
 function typeRefToClassName(bir:TypeRef typeRef) returns string{
@@ -642,12 +648,7 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         loadTupleType(mv, bType);
         return;
     } else if (bType is bir:Self) {
-        if (bType.bType is bir:BErrorType) {
-            // Todo: Handle for recursive user defined error types.
-            mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
-        } else {
-            loadType(mv, bType.bType);
-        }
+        loadType(mv, bType.bType);
         return;
     } else if (bType is bir:BFiniteType) {
         loadFiniteType(mv, bType);
@@ -733,16 +734,14 @@ function loadStreamType(jvm:MethodVisitor mv, bir:BStreamType bType) {
 #
 # + errorType - error type to load
 function loadErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType) {
-    // Create an new error type
-    mv.visitTypeInsn(NEW, ERROR_TYPE);
-    mv.visitInsn(DUP);
-
-    // Load reason and details type
-    loadType(mv, errorType.reasonType);
-    loadType(mv, errorType.detailType);
-    
-    // invoke the constructor
-    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", BTYPE, BTYPE), false);
+    // TODO: Builtin error type will be loaded from BTypes java class. Need to handle this properly.
+    if (errorType.moduleId.org == BALLERINA && errorType.moduleId.name ==  BUILT_IN_PACKAGE_NAME) {
+        mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
+        return;
+    }
+    string typeOwner = getPackageName(errorType.moduleId.org, errorType.moduleId.name) + MODULE_INIT_CLASS_NAME;
+    string fieldName = getTypeFieldName(errorType.name.value);
+    mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, io:sprintf("L%s;", BTYPE));
 }
 
 # Generate code to load an instance of the given union type
@@ -767,12 +766,7 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
         mv.visitInsn(L2I);
 
         // Load the member type
-        if (mType is bir:BErrorType) {
-            // Todo: Handle for recursive user defined error types.
-            mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
-        } else {
-            loadType(mv, mType);
-        }
+        loadType(mv, mType);
 
         // Add the member to the array
         mv.visitInsn(AASTORE);

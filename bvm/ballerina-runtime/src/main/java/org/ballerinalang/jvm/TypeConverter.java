@@ -133,11 +133,23 @@ public class TypeConverter {
 
     static boolean anyToBoolean(Object sourceVal, Supplier<ErrorValue> errorFunc) {
         if (sourceVal instanceof Long) {
-            return (Long) sourceVal != 0;
+            long val = (Long) sourceVal;
+            if (val != 1 && val != 0) {
+                throw errorFunc.get();
+            }
+            return val != 0;
         } else if (sourceVal instanceof Double) {
+            double val = (Double) sourceVal;
+            if (val != 1.0 && val != 0.0) {
+                throw errorFunc.get();
+            }
             return (Double) sourceVal != 0.0;
         } else if (sourceVal instanceof Byte) {
-            return (Byte) sourceVal != 0;
+            byte val = (Byte) sourceVal;
+            if (val != 1 && val != 0) {
+                throw errorFunc.get();
+            }
+            return val != 0;
         } else if (sourceVal instanceof Boolean) {
             return (boolean) sourceVal;
         } else if (sourceVal instanceof DecimalValue) {

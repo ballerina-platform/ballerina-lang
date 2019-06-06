@@ -56,7 +56,6 @@ class BIRGenEnv {
     BIRBasicBlock enclBB;
     BIRBasicBlock trapBB;
     BIROperand targetOperand;
-    BIRBasicBlock targetOperandBB;
     BIRBasicBlock enclLoopBB;
     BIRBasicBlock enclLoopEndBB;
 
@@ -93,7 +92,6 @@ class BIRGenEnv {
         this.currentLocalVarId = -1;
         this.currentBBId = -1;
         this.targetOperand = null;
-        this.targetOperandBB = null;
         this.enclBB = null;
         this.returnBB = null;
         this.enclFunc = null;

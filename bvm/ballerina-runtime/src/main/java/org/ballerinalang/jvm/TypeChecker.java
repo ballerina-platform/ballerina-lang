@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BFiniteType;
 import org.ballerinalang.jvm.types.BFunctionType;
@@ -60,6 +61,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
+import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
 
 /**
  * Responsible for performing runtime type checking.
@@ -323,7 +327,7 @@ public class TypeChecker {
                 }
             case TypeTags.DECIMAL_TAG:
                 if (sourceType.getTag() == TypeTags.INT_TAG || sourceType.getTag() == TypeTags.BYTE_TAG ||
-                    sourceType.getTag() == TypeTags.FLOAT_TAG) {
+                        sourceType.getTag() == TypeTags.FLOAT_TAG) {
                     return true;
                 }
             case TypeTags.STRING_TAG:
@@ -366,6 +370,8 @@ public class TypeChecker {
                 return checkIsFiniteType(sourceType, (BFiniteType) targetType, unresolvedTypes);
             case TypeTags.FUTURE_TAG:
                 return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
+            case TypeTags.ERROR_TAG:
+                return checkIsErrorType(sourceType, (BErrorType) targetType, unresolvedTypes);
             default:
                 return false;
         }
@@ -517,6 +523,10 @@ public class TypeChecker {
                 break;
         }
 
+        //If element type is a value type, then check same type
+        if (targetType.getElementType().getTag() <= TypeTags.BOOLEAN_TAG) {
+            return sourceArrayType.getElementType().getTag() == targetType.getElementType().getTag();
+        }
         return checkIsType(sourceArrayType.getElementType(), targetType.getElementType(), unresolvedTypes);
     }
 
@@ -733,6 +743,11 @@ public class TypeChecker {
 
     public static boolean checkIsLikeType(Object sourceValue, BType targetType, List<TypeValuePair> unresolvedValues) {
         BType sourceType = getType(sourceValue);
+
+        if (sourceType.getTag() == TypeTags.INT_TAG && targetType.getTag() == TypeTags.BYTE_TAG) { // check byte literal
+            return isByteLiteral((Long) sourceValue);
+        }
+
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
         }
@@ -752,6 +767,8 @@ public class TypeChecker {
                 return checkIsLikeArrayType(sourceValue, (BArrayType) targetType, unresolvedValues);
             case TypeTags.TUPLE_TAG:
                 return checkIsLikeTupleType(sourceValue, (BTupleType) targetType, unresolvedValues);
+            case TypeTags.ERROR_TAG:
+                return checkIsLikeErrorType(sourceValue, (BErrorType) targetType, unresolvedValues);
             case TypeTags.ANYDATA_TAG:
                 return checkIsLikeAnydataType(sourceValue, sourceType, unresolvedValues);
             case TypeTags.FINITE_TYPE_TAG:
@@ -829,6 +846,10 @@ public class TypeChecker {
             }
         }
         return true;
+    }
+
+    private static boolean isByteLiteral(long longValue) {
+        return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 
     private static boolean checkIsLikeArrayType(Object sourceValue, BArrayType targetType,
@@ -982,6 +1003,32 @@ public class TypeChecker {
             }
         }
         return false;
+    }
+
+    private static boolean checkIsErrorType(BType sourceType, BErrorType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.ERROR_TAG) {
+            return false;
+        }
+        // Handle recursive error types.
+        TypePair pair = new TypePair(sourceType, targetType);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+        BErrorType bErrorType = (BErrorType) sourceType;
+        return checkIsType(bErrorType.reasonType, targetType.reasonType, unresolvedTypes) &&
+                checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+    }
+
+    private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
+                                                List<TypeValuePair> unresolvedValues) {
+        BType sourceType = getType(sourceValue);
+        if (sourceValue == null || sourceType.getTag() != TypeTags.ERROR_TAG) {
+            return false;
+        }
+        return checkIsLikeType(((ErrorValue) sourceValue).getReason(),
+                               targetType.reasonType, unresolvedValues) &&
+                checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues);
     }
 
     private static boolean isAnydata(BType type) {

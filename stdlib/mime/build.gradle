@@ -66,15 +66,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 }
 
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/ballerina-home/test/lib/repo/ballerina"
-        }
-    }
-}
-
 task testJar(type: Jar, dependsOn: testClasses) {
     baseName = "test-${project.archivesBaseName}"
     from sourceSets.test.output

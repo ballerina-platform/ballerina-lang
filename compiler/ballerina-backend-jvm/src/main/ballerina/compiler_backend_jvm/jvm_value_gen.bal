@@ -121,13 +121,14 @@ public type ObjectGenerator object {
 
         int funcNameRegIndex = 2;
 
-       // mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-       // mv.visitLdcInsn(objClassName + " - ");
-       // mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);
+        // Uncomment to get some debug information at runtime
+        // mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+        // mv.visitLdcInsn(objClassName + " - ");
+        // mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);
 
-       // mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-       // mv.visitVarInsn(ALOAD, funcNameRegIndex);
-       // mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+        // mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+        // mv.visitVarInsn(ALOAD, funcNameRegIndex);
+        // mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
 
         jvm:Label defaultCaseLabel = new jvm:Label();
 
