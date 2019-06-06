@@ -236,7 +236,7 @@ public class BByteOperationsTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger value = (BInteger) returns[0];
-        Assert.assertEquals(value.intValue(), -164, "Invalid int value returned.");
+        Assert.assertEquals(value.intValue(), 45, "Invalid int value returned.");
     }
 
     @Test(description = "Test bitwise AND between bytes")
@@ -252,8 +252,8 @@ public class BByteOperationsTest {
     public void testIntByteBitwiseAnd() {
         BValue[] returns = BRunUtil.invoke(result, "testIntByteBitwiseAnd");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BByte.class);
-        BByte value = (BByte) returns[0];
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger value = (BInteger) returns[0];
         Assert.assertEquals(value.byteValue(), 24, "Invalid byte value returned.");
     }
 
@@ -261,8 +261,8 @@ public class BByteOperationsTest {
     public void testByteIntBitwiseAnd() {
         BValue[] returns = BRunUtil.invoke(result, "testByteIntBitwiseAnd");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BByte.class);
-        BByte value = (BByte) returns[0];
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger value = (BInteger) returns[0];
         Assert.assertEquals(value.byteValue(), 88, "Invalid byte value returned.");
     }
 

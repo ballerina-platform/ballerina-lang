@@ -805,16 +805,17 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         // TODO: make vCall a new instruction to avoid package id in vCall
-        Name funcName = getFuncName((BInvokableSymbol) invocationExpr.symbol);
         if (invocationExpr.functionPointerInvocation) {
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
                     fp, args, lhsOp, invocationExpr.async, thenBB);
         } else if (invocationExpr.async) {
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
-                    isVirtual, invocationExpr.symbol.pkgID, funcName, args, lhsOp, thenBB);
+                    isVirtual, invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
+                    args, lhsOp, thenBB);
         } else {
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
-                    invocationExpr.symbol.pkgID, funcName, args, lhsOp, thenBB);
+                    invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
+                    thenBB);
         }
 
         this.env.enclBB = thenBB;
@@ -1080,7 +1081,37 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMapAccessExpr astMapAccessExpr) {
-        generateMappingAccess(astMapAccessExpr);
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+        if (variableStore) {
+            BIROperand rhsOp = this.env.targetOperand;
+
+            astMapAccessExpr.expr.accept(this);
+            BIROperand varRefRegIndex = this.env.targetOperand;
+
+            astMapAccessExpr.indexExpr.accept(this);
+            BIROperand keyRegIndex = this.env.targetOperand;
+
+            emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_STORE, varRefRegIndex,
+                    keyRegIndex, rhsOp));
+        } else {
+            BIRVariableDcl tempVarDcl = new BIRVariableDcl(astMapAccessExpr.type, this.env.nextLocalVarId(names),
+                    VarScope.FUNCTION, VarKind.TEMP);
+            this.env.enclFunc.localVars.add(tempVarDcl);
+            BIROperand tempVarRef = new BIROperand(tempVarDcl);
+
+            astMapAccessExpr.expr.accept(this);
+            BIROperand varRefRegIndex = this.env.targetOperand;
+
+            astMapAccessExpr.indexExpr.accept(this);
+            BIROperand keyRegIndex = this.env.targetOperand;
+
+            emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_LOAD, tempVarRef,
+                    keyRegIndex, varRefRegIndex, astMapAccessExpr.except));
+            this.env.targetOperand = tempVarRef;
+            this.env.targetOperandBB = env.enclBB;
+        }
+        this.varAssignment = variableStore;
     }
 
     @Override
@@ -2108,20 +2139,20 @@ public class BIRGen extends BLangNodeVisitor {
         List<BIRVariableDcl> params = new ArrayList<>();
 
         funcSymbol.params.forEach(param -> {
-            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, param.type, this.env.nextLocalVarId(names),
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, param.type, this.env.nextLambdaVarId(names),
                     VarScope.FUNCTION, VarKind.ARG);
             params.add(birVarDcl);
         });
 
         funcSymbol.defaultableParams.forEach(param -> {
-            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, param.type, this.env.nextLocalVarId(names),
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, param.type, this.env.nextLambdaVarId(names),
                     VarScope.FUNCTION, VarKind.ARG);
             params.add(birVarDcl);
         });
 
         BVarSymbol restParam = funcSymbol.restParam;
         if (restParam != null) {
-            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, restParam.type, this.env.nextLocalVarId(names),
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, restParam.type, this.env.nextLambdaVarId(names),
                     VarScope.FUNCTION, VarKind.ARG);
             params.add(birVarDcl);
         }
