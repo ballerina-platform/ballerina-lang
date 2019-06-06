@@ -159,7 +159,8 @@ public class AnnotationDesugar {
 
             BLangLambdaFunction lambdaFunction = defineAnnotations(service, service.pos, pkgNode, env, pkgID, owner);
             if (lambdaFunction != null) {
-                addInvocationToGlobalAnnotMap(service.name.value, lambdaFunction, target, pkgID, owner);
+                addInvocationToGlobalAnnotMap(service.serviceTypeDefinition.name.value, lambdaFunction, target, pkgID,
+                                              owner);
             }
         }
     }
