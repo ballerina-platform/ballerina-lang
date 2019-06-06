@@ -176,12 +176,24 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public V put(K key, V value) {
         writeLock.lock();
         try {
-            if (freezeStatus.getState() != State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
+            try {
+                if (freezeStatus.getState() != State.UNFROZEN) {
+                    handleInvalidUpdate(freezeStatus.getState());
+                }
+                return super.put(key, value);
+            } catch (BLangFreezeException e) {
+                // we would only reach here for record or map, not for object
+                String errMessage = "";
+                switch (getType().getTag()) {
+                    case TypeTags.RECORD_TYPE_TAG:
+                        errMessage = "Invalid update of record field: ";
+                        break;
+                    case TypeTags.MAP_TAG:
+                        errMessage = "Invalid map insertion: ";
+                        break;
+                }
+                throw BallerinaErrors.createError(e.getMessage(), errMessage + e.getDetail());
             }
-            return super.put(key, value);
-        } catch (BLangFreezeException e) {
-            throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
         } finally {
             writeLock.unlock();
         }
@@ -441,6 +453,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     @Override
     public synchronized void attemptFreeze(Status freezeStatus) {
+        if (this.type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            throw new BLangFreezeException("'freeze()' not allowed on '" + getType() + "'");
+        }
+
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
             super.values().forEach(val -> {
