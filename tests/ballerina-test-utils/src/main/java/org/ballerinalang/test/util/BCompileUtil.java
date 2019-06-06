@@ -209,17 +209,16 @@ public class BCompileUtil {
             }
 
             return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
-        } else {
-            effectiveSource = packageName;
+        }
 
-            if (jBallerinaTestsEnabled()) {
-                return compileOnJBallerina(rootPath.toString(), effectiveSource,
-                        new FileSystemProjectDirectory(rootPath));
-            }
-
-            return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN,
+        effectiveSource = packageName;
+        if (jBallerinaTestsEnabled()) {
+            return compileOnJBallerina(rootPath.toString(), effectiveSource,
                     new FileSystemProjectDirectory(rootPath));
         }
+
+        return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN,
+                new FileSystemProjectDirectory(rootPath));
     }
 
     /**

@@ -17,6 +17,18 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
+configurations.testRuntimeClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 dependencies {
 //    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     baloCreat project(':lib-creator')
@@ -73,9 +85,11 @@ dependencies {
     implementation 'org.jvnet.mimepull:mimepull'
     testCompile project(path: ':ballerina-mime', configuration: 'tests')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-http')
     testCompile 'org.apache.ws.commons.axiom:axiom-api'
     testCompile 'org.testng:testng'
+    testCompile project(':ballerina-jvm')
 }
 
 createBalo {

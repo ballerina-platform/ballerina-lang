@@ -60,6 +60,7 @@ public class Matches extends AbstractRegexFunction {
     }
 
     public static Object matches(Strand strand, String value, String regex, String replaceWith) {
+        StringUtils.checkForNull(value, regex);
         try {
             Pattern pattern = validatePattern(regex);
             Matcher matcher = pattern.matcher(value);

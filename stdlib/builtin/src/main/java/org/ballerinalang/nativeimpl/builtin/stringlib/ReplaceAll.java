@@ -54,6 +54,7 @@ public class ReplaceAll extends BlockingNativeCallableUnit {
     }
 
     public static String replaceAll(Strand strand, String value, String regex, String replaceWith) {
+        StringUtils.checkForNull(value, regex, replaceWith);
         return value.replaceAll(regex, replaceWith);
     }
 }

@@ -62,6 +62,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
+import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
+
 /**
  * Responsible for performing runtime type checking.
  *
@@ -324,7 +327,7 @@ public class TypeChecker {
                 }
             case TypeTags.DECIMAL_TAG:
                 if (sourceType.getTag() == TypeTags.INT_TAG || sourceType.getTag() == TypeTags.BYTE_TAG ||
-                    sourceType.getTag() == TypeTags.FLOAT_TAG) {
+                        sourceType.getTag() == TypeTags.FLOAT_TAG) {
                     return true;
                 }
             case TypeTags.STRING_TAG:
@@ -520,6 +523,10 @@ public class TypeChecker {
                 break;
         }
 
+        //If element type is a value type, then check same type
+        if (targetType.getElementType().getTag() <= TypeTags.BOOLEAN_TAG) {
+            return sourceArrayType.getElementType().getTag() == targetType.getElementType().getTag();
+        }
         return checkIsType(sourceArrayType.getElementType(), targetType.getElementType(), unresolvedTypes);
     }
 
@@ -736,6 +743,11 @@ public class TypeChecker {
 
     public static boolean checkIsLikeType(Object sourceValue, BType targetType, List<TypeValuePair> unresolvedValues) {
         BType sourceType = getType(sourceValue);
+
+        if (sourceType.getTag() == TypeTags.INT_TAG && targetType.getTag() == TypeTags.BYTE_TAG) { // check byte literal
+            return isByteLiteral((Long) sourceValue);
+        }
+
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
         }
@@ -834,6 +846,10 @@ public class TypeChecker {
             }
         }
         return true;
+    }
+
+    private static boolean isByteLiteral(long longValue) {
+        return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 
     private static boolean checkIsLikeArrayType(Object sourceValue, BArrayType targetType,
