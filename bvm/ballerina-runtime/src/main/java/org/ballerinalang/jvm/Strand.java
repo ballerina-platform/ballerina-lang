@@ -41,7 +41,6 @@ public class Strand {
     public boolean yield;
     public Object[] frames;
     public int resumeIndex;
-    public Future future;
     public Object returnValue;
     public boolean blocked;
     public List<Strand> blockedOn;
