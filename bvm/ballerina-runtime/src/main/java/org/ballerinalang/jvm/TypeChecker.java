@@ -324,7 +324,7 @@ public class TypeChecker {
                 }
             case TypeTags.DECIMAL_TAG:
                 if (sourceType.getTag() == TypeTags.INT_TAG || sourceType.getTag() == TypeTags.BYTE_TAG ||
-                    sourceType.getTag() == TypeTags.FLOAT_TAG) {
+                        sourceType.getTag() == TypeTags.FLOAT_TAG) {
                     return true;
                 }
             case TypeTags.STRING_TAG:
@@ -520,6 +520,10 @@ public class TypeChecker {
                 break;
         }
 
+        //If element type is a value type, then check same type
+        if (targetType.getElementType().getTag() <= TypeTags.BOOLEAN_TAG) {
+            return sourceArrayType.getElementType().getTag() == targetType.getElementType().getTag();
+        }
         return checkIsType(sourceArrayType.getElementType(), targetType.getElementType(), unresolvedTypes);
     }
 
