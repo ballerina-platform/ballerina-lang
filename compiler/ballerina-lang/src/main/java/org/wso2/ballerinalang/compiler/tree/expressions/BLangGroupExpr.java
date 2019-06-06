@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * Implementation of {@link GroupExpressionNode}.
  *
- * @since 0.966.0
+ * @since 1.0
  */
 public class BLangGroupExpr extends BLangExpression implements GroupExpressionNode {
 

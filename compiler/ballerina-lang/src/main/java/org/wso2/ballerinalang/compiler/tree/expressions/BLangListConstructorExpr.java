@@ -32,7 +32,7 @@ import java.util.List;
  * @see BLangListConstructorExpr
  * @see BLangArrayLiteral
  * @see BLangJSONArrayLiteral
- * @since 0.995
+ * @since 1.0
  */
 public class BLangListConstructorExpr extends BLangExpression implements ListConstructorExprNode {
 
@@ -92,7 +92,7 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
     /**
      * Implementation of Tuple literal.
      *
-     * @since 0.94
+     * @since 1.0
      */
     public static class BLangTupleLiteral extends BLangListConstructorExpr {
 
