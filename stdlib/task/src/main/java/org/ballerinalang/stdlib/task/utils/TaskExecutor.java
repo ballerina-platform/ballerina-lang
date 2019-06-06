@@ -18,6 +18,8 @@
 package org.ballerinalang.stdlib.task.utils;
 
 import org.ballerinalang.bre.bvm.BVMExecutor;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.task.objects.ServiceWithParameters;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -49,6 +51,28 @@ public class TaskExecutor {
         functionParameters.add(serviceWithParameters.getService().getBValue());
         if (function.getParamTypes().length > 1 && Objects.nonNull(serviceWithParameters.getAttachment())) {
             functionParameters.add(serviceWithParameters.getAttachment());
+        }
+        return functionParameters;
+    }
+
+    //TODO test the logic here
+    public static void executeFunction(ServiceWithParameters serviceWithParameters) {
+        // Get resource functions from service
+        ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(
+                serviceWithParameters.getServiceObj());
+        AttachedFunction onTriggerFunction = resourceFunctionHolder.getOnTriggerResource();
+
+        List<Object> onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceWithParameters);
+        Executor.executeFunction(serviceWithParameters.getStrand(), serviceWithParameters.getServiceObj(),
+                                 onTriggerFunction, onTriggerFunctionArgs.toArray());
+    }
+
+    private static List<Object> getParameterList(AttachedFunction function,
+                                                 ServiceWithParameters serviceWithParameters) {
+        List<Object> functionParameters = new ArrayList<>();
+        if (function.type.paramTypes.length > 0 && Objects.nonNull(serviceWithParameters.getAttachmentObj())) {
+            functionParameters.add(serviceWithParameters.getAttachmentObj());
+            functionParameters.add(Boolean.TRUE);
         }
         return functionParameters;
     }

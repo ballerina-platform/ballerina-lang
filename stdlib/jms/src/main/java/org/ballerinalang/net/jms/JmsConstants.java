@@ -44,13 +44,13 @@ public class JmsConstants {
     public static final String COUNTDOWN_LATCH = "countdown-latch";
 
     // The object types
-    public static final String QUEUE_RECEIVER_OBJ_NAME = "QueueReceiver";
+    public static final String QUEUE_RECEIVER_OBJ_NAME = "QueueListener";
     public static final String QUEUE_RECEIVER_CALLER_OBJ_NAME = "QueueReceiverCaller";
     public static final String MESSAGE_OBJ_NAME = "Message";
     public static final String MESSAGE_OBJ_FULL_NAME = PROTOCOL_PACKAGE_JMS + COLON + MESSAGE_OBJ_NAME;
     public static final String QUEUE_RECEIVER_CALLER_FULL_NAME = PROTOCOL_PACKAGE_JMS + COLON +
             QUEUE_RECEIVER_CALLER_OBJ_NAME;
-    public static final String TOPIC_SUBSCRIBER_OBJ_NAME = "TopicSubscriber";
+    public static final String TOPIC_SUBSCRIBER_OBJ_NAME = "TopicListener";
     public static final String TOPIC_SUBSCRIBER_CALLER_OBJ_NAME = "TopicSubscriberCaller";
     public static final String TOPIC_SUBSCRIBER_CALLER_FULL_NAME =
             PROTOCOL_PACKAGE_JMS + COLON + TOPIC_SUBSCRIBER_CALLER_OBJ_NAME;
@@ -59,7 +59,7 @@ public class JmsConstants {
     public static final String QUEUE_SENDER_OBJ_NAME = "QueueSender";
     public static final String DESTINATION_OBJ_NAME = "Destination";
     public static final String DURABLE_TOPIC_SUBSCRIBER_CALLER_OBJ_NAME = "DurableTopicSubscriberCaller";
-    public static final String DURABLE_TOPIC_SUBSCRIBER = "DurableTopicSubscriber";
+    public static final String DURABLE_TOPIC_SUBSCRIBER = "DurableTopicListener";
     public static final String TOPIC_PUBLISHER_OBJ_NAME = "TopicPublisher";
     public static final String ERROR_OBJ_NAME = "Error";
 

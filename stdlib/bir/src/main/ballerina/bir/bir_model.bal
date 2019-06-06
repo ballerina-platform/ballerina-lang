@@ -39,10 +39,17 @@ public type TypeDef record {
     Function?[]? attachedFuncs = ();
 };
 
+public type TypeRef record {|
+    Name name = {};
+    ModuleID externalPkg;
+|};
+
 public type Function record {|
     DiagnosticPos pos;
     int argsCount = 0;
     BasicBlock?[] basicBlocks = [];
+    FunctionParam?[] params = [];
+    BasicBlock?[][] paramDefaultBBs = [];
     ErrorEntry?[] errorEntries = [];
     boolean isDeclaration = false;
     boolean isInterface = false;
@@ -86,15 +93,23 @@ public const BINARY_GREATER_THAN = "GREATER_THAN";
 public const BINARY_GREATER_EQUAL = "GREATER_EQUAL";
 public const BINARY_LESS_THAN = "LESS_THAN";
 public const BINARY_LESS_EQUAL = "LESS_EQUAL";
-public const BINARY_AND = "AND";
-public const BINARY_OR = "OR";
 public const BINARY_REF_EQUAL = "REF_EQUAL";
 public const BINARY_REF_NOT_EQUAL = "REF_NOT_EQUAL";
+public const BINARY_CLOSED_RANGE = "CLOSED_RANGE";
+public const BINARY_HALF_OPEN_RANGE = "HALF_OPEN_RANGE";
+public const BINARY_BITWISE_AND = "BITWISE_AND";
+public const BINARY_BITWISE_OR = "BITWISE_OR";
+public const BINARY_BITWISE_XOR = "BITWISE_XOR";
+public const BINARY_BITWISE_LEFT_SHIFT = "BITWISE_LEFT_SHIFT";
+public const BINARY_BITWISE_RIGHT_SHIFT = "BITWISE_RIGHT_SHIFT";
+public const BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT = "BITWISE_UNSIGNED_RIGHT_SHIFT";
 
 public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|BINARY_MOD
                                         |BINARY_EQUAL|BINARY_NOT_EQUAL|BINARY_REF_EQUAL|BINARY_REF_NOT_EQUAL
                                         |BINARY_GREATER_THAN|BINARY_GREATER_EQUAL|BINARY_LESS_THAN|BINARY_LESS_EQUAL
-                                        |BINARY_AND|BINARY_OR;
+                                        |BINARY_CLOSED_RANGE|BINARY_HALF_OPEN_RANGE|BINARY_BITWISE_AND
+                                        |BINARY_BITWISE_OR|BINARY_BITWISE_XOR|BINARY_BITWISE_LEFT_SHIFT
+                                        |BINARY_BITWISE_RIGHT_SHIFT|BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT;
 
 public const INS_KIND_MOVE = "MOVE";
 public const INS_KIND_CONST_LOAD = "CONST_LOAD";
@@ -129,7 +144,6 @@ public const INS_KIND_NEW_STREAM = "NEW_STREAM";
 public const INS_KIND_TYPEOF = "TYPEOF";
 public const INS_KIND_NOT = "NOT";
 public const INS_KIND_NEW_TYPEDESC = "NEW_TYPEDESC";
-public const INS_KIND_TERNARY = "TERNARY";
 public const INS_KIND_NEGATE = "NEGATE";
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
@@ -141,8 +155,7 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
                                 INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
                                 INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_NEW_TABLE | INS_KIND_TYPEOF |
-                                INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM | INS_KIND_TERNARY |
-                                INS_KIND_NEGATE;
+                                INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM | INS_KIND_NEGATE;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -151,14 +164,18 @@ public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
 public const TERMINATOR_PANIC = "PANIC";
 public const TERMINATOR_WAIT = "WAIT";
+public const TERMINATOR_WAIT_ALL = "WAIT_ALL";
 public const TERMINATOR_FP_CALL = "FP_CALL";
 public const TERMINATOR_WK_RECEIVE = "WK_RECEIVE";
 public const TERMINATOR_WK_SEND = "WK_SEND";
 public const TERMINATOR_FLUSH = "FLUSH";
+public const TERMINATOR_LOCK = "LOCK";
+public const TERMINATOR_UNLOCK = "UNLOCK";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
                                 |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL|TERMINATOR_WK_RECEIVE
-                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH;
+                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH|TERMINATOR_LOCK|TERMINATOR_UNLOCK
+                                |TERMINATOR_WAIT_ALL;
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -200,6 +217,11 @@ public type VariableDcl record {|
     Name name = {};
     BType typeValue = "()";
     anydata...; // This is to type match with Object type fields in subtypes
+|};
+
+public type FunctionParam record {|
+    *VariableDcl;
+    boolean hasDefaultExpr;
 |};
 
 public type GlobalVariableDcl record {|
@@ -273,11 +295,14 @@ public type BStreamType record {|
 
 
 public type BErrorType record {|
+    ModuleID moduleId = {};
+    Name name = {};
     BType reasonType;
     BType detailType;
 |};
 
 public type BRecordType record {|
+    ModuleID moduleId = {};
     Name name = {};
     boolean sealed;
     BType restFieldType;
@@ -286,10 +311,12 @@ public type BRecordType record {|
 |};
 
 public type BObjectType record {|
+    ModuleID moduleId = {};
     Name name = {};
     boolean isAbstract = false;
     BObjectField?[] fields = [];
     BAttachedFunction?[] attachedFunctions = [];
+    BAttachedFunction? constructor;
 |};
 
 public type Self record {|
@@ -304,6 +331,7 @@ public type BAttachedFunction record {|
 
 public type BRecordField record {
     Name name;
+    Visibility visibility;
     BType typeValue;
     //TODO add position
 };
@@ -329,6 +357,7 @@ public type BFutureType record {|
 
 public type BFiniteType record {|
     Name name = {};
+    Visibility visibility;
     (int | string | boolean | float | byte| ()) [] values;
 |};
 
@@ -353,8 +382,9 @@ public type BInvokableType record {
 public const VISIBILITY_PACKAGE_PRIVATE = "PACKAGE_PRIVATE";
 public const VISIBILITY_PRIVATE = "PRIVATE";
 public const VISIBILITY_PUBLIC = "PUBLIC";
+public const VISIBILITY_OPTIONAL = "OPTIONAL";
 
-public type Visibility VISIBILITY_PACKAGE_PRIVATE|VISIBILITY_PRIVATE|VISIBILITY_PUBLIC;
+public type Visibility VISIBILITY_PACKAGE_PRIVATE|VISIBILITY_PRIVATE|VISIBILITY_PUBLIC|VISIBILITY_OPTIONAL;
 
 
 // Instructions
@@ -382,14 +412,15 @@ public type ConstantLoad record {|
     InstructionKind kind;
     VarRef lhsOp;
     BType typeValue;
-    int | string | boolean | float | () value;
+    int | string | boolean | float | byte | () value;
 |};
 
 public type NewMap record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
-    BType typeValue;
+    BType bType;
+    TypeRef? typeRef;
 |};
 
 public type NewTable record {|
@@ -414,7 +445,7 @@ public type NewStream record {|
 public type NewInstance record {|
     DiagnosticPos pos;
     InstructionKind kind;
-    TypeDef typeDef;
+    TypeDef|TypeRef typeDefRef;
     VarRef lhsOp;
 |};
 
@@ -429,6 +460,7 @@ public type NewArray record {|
 public type NewError record {|
     DiagnosticPos pos;
     InstructionKind kind;
+    BType typeValue;
     VarRef lhsOp;
     VarRef reasonOp;
     VarRef detailsOp;
@@ -450,6 +482,7 @@ public type FieldAccess record {|
     VarRef lhsOp;
     VarRef keyOp;
     VarRef rhsOp;
+    boolean except = true;
 |};
 
 public type TypeCast record {|
@@ -500,6 +533,7 @@ public type Wait record {|
     TerminatorKind kind;
     VarRef lhsOp;
     VarRef?[] exprList;
+    BasicBlock thenBB;
 |};
 
 public type Flush record {|
@@ -563,6 +597,20 @@ public type GOTO record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     BasicBlock targetBB;
+|};
+
+public type Lock record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    string[] globleVars;
+    BasicBlock lockBB;
+|};
+
+public type Unlock record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    string[] globleVars;
+    BasicBlock unlockBB;
 |};
 
 public type Return record {|
@@ -655,11 +703,11 @@ public type NewTypeDesc record {|
     BType typeValue;
 |};
 
-public type Ternary record {|
+public type WaitAll record {|
     DiagnosticPos pos;
-    InstructionKind kind;
+    TerminatorKind kind;
     VarRef lhsOp;
-    VarRef conditionOp;
-    VarRef thenOp;
-    VarRef elseOp;
+    VarRef?[] futures;
+    string[] keys;
+    BasicBlock thenBB;
 |};

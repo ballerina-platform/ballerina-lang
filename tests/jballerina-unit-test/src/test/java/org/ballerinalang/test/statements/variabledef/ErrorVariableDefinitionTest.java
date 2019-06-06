@@ -18,7 +18,6 @@
  */
 package org.ballerinalang.test.statements.variabledef;
 
-
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -29,7 +28,6 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 /**
@@ -136,7 +134,6 @@ public class ErrorVariableDefinitionTest {
     }
 
     @Test(description = "Test simple error var def inside tuple")
-    @Ignore
     public void testErrorInTuple() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTuple");
         Assert.assertEquals(returns.length, 5);
@@ -148,7 +145,6 @@ public class ErrorVariableDefinitionTest {
     }
 
     @Test(description = "Test simple error var def inside tuple with var")
-    @Ignore
     public void testErrorInTupleWithVar() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithVar");
         Assert.assertEquals(returns.length, 5);
@@ -160,7 +156,6 @@ public class ErrorVariableDefinitionTest {
     }
 
     @Test(description = "Test simple error var def inside tuple with destructuring error")
-    @Ignore
     public void testErrorInTupleWithDestructure() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure");
         Assert.assertEquals(returns.length, 5);
@@ -172,7 +167,6 @@ public class ErrorVariableDefinitionTest {
     }
 
     @Test(description = "Test simple error var def inside tuple with destructuring error")
-    @Ignore
     public void testErrorInTupleWithDestructure2() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
         Assert.assertEquals(returns.length, 5);

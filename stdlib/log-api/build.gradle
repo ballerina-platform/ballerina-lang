@@ -20,25 +20,17 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
 
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
-//    implementation project(':ballerina-lang')
+    baloCreat project(':lib-creator')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-builtin')
     testCompile 'org.testng:testng'
 }
 
-description = 'Ballerina - Log API'
-
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
+createBalo {
+    jvmTarget = 'true'
 }
+
+description = 'Ballerina - Log API'

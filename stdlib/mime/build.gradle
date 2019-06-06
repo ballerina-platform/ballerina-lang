@@ -14,8 +14,21 @@
  * limitations under the License.
  *
  */
- 
+
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
+configurations {
+    tests
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
 
 dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
@@ -25,39 +38,32 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
 
-//    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-io')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-file')
-    implementation project(':ballerina-launcher')
 
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
     implementation 'org.apache.ws.commons.axiom:axiom-dom'
     implementation 'org.jvnet.mimepull:mimepull'
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testImplementation project(':ballerina-encoding')
+    testImplementation project(':ballerina-time')
+    testImplementation project(':ballerina-internal')
+    testImplementation project(':ballerina-reflect')
+    testImplementation project(':ballerina-jvm')
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
-}
 
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 }
 
 task testJar(type: Jar, dependsOn: testClasses) {
@@ -69,12 +75,12 @@ createBalo {
     jvmTarget = 'true'
 }
 
-configurations {
-    tests
-}
-
 artifacts {
     tests testJar
 }
 
 description = 'Ballerina - MIME Implementation'
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}

@@ -364,7 +364,7 @@ public class ObjectTest {
     @Test(description = "Test object self reference with defaultable")
     public void testObjectSelfreferenceWithDefaultable() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_cyclic_" +
-                "self_reference_with_default.bal");
+                                                                   "self_reference_with_default.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testCyclicReferenceWithDefaultable");
 
         Assert.assertEquals(returns.length, 1);
@@ -566,33 +566,36 @@ public class ObjectTest {
         BAssertUtil.validateError(result, index++, "external function 'func2' cannot have a body", 14
                 , 1);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 46, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'mod:0.0.0:Employee'", 46, 17);
-        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'", 50,
-                14);
-        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'mod:0.0.0:Employee'", 50,
-                14);
+        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/mod:0.0.0:Employee'",
+                                  46, 17);
+        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
+                                  50, 14);
+        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'testorg/mod:0.0.0:Employee'",
+                                  50, 14);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 57, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'pkg1:Employee'", 57, 17);
+        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/pkg1:Employee'", 57, 17);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'email'", 58, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'email' in object 'pkg1:Employee'", 58, 17);
-        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'", 61,
-                14);
-        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'pkg1:Employee'", 61, 14);
+        BAssertUtil.validateError(result, index++, "undefined field 'email' in object 'testorg/pkg1:Employee'", 58, 17);
+        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
+                                  61, 14);
+        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'testorg/pkg1:Employee'",
+                                  61, 14);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol " + "'Employee" +
                 ".getEmail'", 62, 17);
-        BAssertUtil.validateError(result, index++, "undefined function 'getEmail' in object 'pkg1:Employee'", 62, 17);
+        BAssertUtil.validateError(result, index++, "undefined function 'getEmail' in object 'testorg/pkg1:Employee'",
+                                  62, 17);
         BAssertUtil.validateError(result, index++, "no implementation found for the function 'getName' of non" +
-                "-abstract object 'mod:0.0.0:Employee2'", 70, 5);
+                "-abstract object 'testorg/mod:0.0.0:Employee2'", 70, 5);
         BAssertUtil.validateError(result, index++, "no implementation found for the function 'getAge' of non-abstract" +
-                " object 'mod:0.0.0:Employee2'", 72, 5);
+                " object 'testorg/mod:0.0.0:Employee2'", 72, 5);
         BAssertUtil.validateError(result, index++, "no implementation found for the function 'getEmail' of " +
-                "non-abstract object 'mod:0.0.0:Employee2'", 74, 5);
+                "non-abstract object 'testorg/mod:0.0.0:Employee2'", 74, 5);
         BAssertUtil.validateError(result, index++, "interface and implementation of function 'getName' of " +
-                "non-abstract object 'mod:0.0.0:Employee2' should have same visibility", 77, 1);
+                "non-abstract object 'testorg/mod:0.0.0:Employee2' should have same visibility", 77, 1);
         BAssertUtil.validateError(result, index++, "interface and implementation of function 'getAge' of non-abstract" +
-                " object 'mod:0.0.0:Employee2' should have same visibility", 81, 1);
+                " object 'testorg/mod:0.0.0:Employee2' should have same visibility", 81, 1);
         BAssertUtil.validateError(result, index++, "interface and implementation of function 'getEmail' of " +
-                "non-abstract object 'mod:0.0.0:Employee2' should have same visibility", 85, 1);
+                "non-abstract object 'testorg/mod:0.0.0:Employee2' should have same visibility", 85, 1);
     }
 
     @Test(description = "Negative test to test unknown object field type")
@@ -605,7 +608,7 @@ public class ObjectTest {
     @Test
     public void testAttachFunctionsWithIdenticalRestParams() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/attach_func_with_identical_rest_params" +
-                ".bal");
+                                                                   ".bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testAttachFunctionsWithIdenticalRestParams");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -651,13 +654,14 @@ public class ObjectTest {
         Assert.assertEquals(result.getErrorCount(), 4);
         int i = 0;
         BAssertUtil.validateError(result, i++,
-                "attempt to refer to non-accessible symbol 'Person.incrementSalary'", 53, 5);
+                                  "attempt to refer to non-accessible symbol 'Person.incrementSalary'", 53, 5);
         BAssertUtil.validateError(result, i++,
-                "undefined function 'incrementSalary' in object 'Person'", 53, 5);
+                                  "undefined function 'incrementSalary' in object 'Person'", 53, 5);
         BAssertUtil.validateError(result, i++,
-                "attempt to refer to non-accessible symbol 'Person.decrementAndUpdateSalary'", 54, 13);
+                                  "attempt to refer to non-accessible symbol 'Person.decrementAndUpdateSalary'", 54,
+                                  13);
         BAssertUtil.validateError(result, i,
-                "undefined function 'decrementAndUpdateSalary' in object 'Person'", 54, 13);
+                                  "undefined function 'decrementAndUpdateSalary' in object 'Person'", 54, 13);
     }
 
     @Test

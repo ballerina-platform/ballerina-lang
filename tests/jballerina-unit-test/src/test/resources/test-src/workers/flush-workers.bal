@@ -23,6 +23,7 @@ function singleFlush () returns string {
     return append;
 }
 
+string append1 = "";
 function flushReturn() returns error? {
     worker w1 returns error? {
             int a = 10;
@@ -30,14 +31,14 @@ function flushReturn() returns error? {
             a -> w2;
             error? result = flush w2;
             foreach var i in 1 ... 5 {
-                append = append + "w1";
+                append1 = append1 + "w1";
             }
             return result;
         }
 
         worker w2 {
             foreach var i in 1 ... 5 {
-                append = append + "w2";
+                append1 = append1 + "w2";
             }
             int b;
             b = <- w1;

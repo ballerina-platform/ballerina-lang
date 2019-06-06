@@ -18,7 +18,6 @@
  */
 package org.ballerinalang.test.statements.foreach;
 
-
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;

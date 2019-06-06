@@ -22,6 +22,8 @@ package org.ballerinalang.mime.nativeimpl.headers;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
@@ -66,5 +68,17 @@ public class HasHeader extends BlockingNativeCallableUnit {
         } else {
             context.setReturnValues(new BBoolean(true));
         }
+    }
+
+    public static boolean hasHeader(Strand strand, ObjectValue entityObj, String headerName) {
+        if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
+            return false;
+        }
+        HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
+        List<String> headerValueList = httpHeaders.getAll(headerName);
+        if (headerValueList == null || headerValueList.isEmpty()) {
+            return false;
+        }
+        return true;
     }
 }

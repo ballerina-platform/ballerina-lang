@@ -31,7 +31,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.time.ZoneId;
 import java.time.zone.ZoneRulesException;
@@ -59,7 +58,7 @@ public class TimeUtils {
         //Get offset in seconds
         TimeZone tz = TimeZone.getTimeZone(zoneId);
         int offsetInMills = tz.getOffset(new Date().getTime());
-        int offset = offsetInMills / 1000;
+        long offset = offsetInMills / 1000;
         return BLangVMStructs.createBStruct(timezoneStructInfo, zoneIdValue, offset);
 
     }
@@ -70,17 +69,16 @@ public class TimeUtils {
         //Get offset in seconds
         TimeZone tz = TimeZone.getTimeZone(zoneId);
         int offsetInMills = tz.getOffset(new Date().getTime());
-        int offset = offsetInMills / 1000;
-        return BallerinaValues.populateRecordFields(timeZoneRecord, zoneIdValue, offset);
+        long offset = offsetInMills / 1000;
+        return BallerinaValues.createRecord(timeZoneRecord, zoneIdValue, offset);
 
     }
-
 
     public static ZoneId getTimeZone(String zoneIdValue) {
         try {
             return ZoneId.of(zoneIdValue);
         } catch (ZoneRulesException e) {
-            throw new BallerinaException("invalid timezone id: " + zoneIdValue);
+            throw TimeUtils.getTimeError("invalid timezone id: " + zoneIdValue);
         }
     }
 
@@ -97,7 +95,7 @@ public class TimeUtils {
                                                             MapValue<String, Object> timeRecord, long millis,
                                                             String zoneIdName) {
         MapValue<String, Object> timezone = createTimeZone(timeZoneRecord, zoneIdName);
-        return BallerinaValues.populateRecordFields(timeRecord, millis, timezone);
+        return BallerinaValues.createRecord(timeRecord, millis, timezone);
     }
 
     //TODO Remove after migration : implemented using bvm values/types

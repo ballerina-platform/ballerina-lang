@@ -21,6 +21,8 @@ package org.ballerinalang.net.http.serviceendpoint;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -50,5 +52,11 @@ public class Stop extends AbstractHttpNativeFunction {
         serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);
         resetRegistry(serverEndpoint);
         context.setReturnValues();
+    }
+
+    public static void stop(Strand strand, ObjectValue serverEndpoint) {
+        getServerConnector(serverEndpoint).stop();
+        serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);
+        resetRegistry(serverEndpoint);
     }
 }

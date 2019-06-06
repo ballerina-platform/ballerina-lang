@@ -30,8 +30,8 @@ class BByteType extends BType {
      *
      * @param typeName string name of the type
      */
-    BByteType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, Byte.class);
+    BByteType(String typeName, BPackage pkg) {
+        super(typeName, pkg, Byte.class);
     }
 
     @Override

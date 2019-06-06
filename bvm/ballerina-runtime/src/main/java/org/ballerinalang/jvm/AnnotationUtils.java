@@ -20,6 +20,7 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.types.AnnotatableType;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.util.Arrays;
@@ -31,14 +32,14 @@ import java.util.Arrays;
  */
 public class AnnotationUtils {
 
-    public static void processObjectAnnotations(MapValueImpl globalValueMap, BObjectType objectType) {
+    public static void processObjectAnnotations(MapValue globalValueMap, BObjectType objectType) {
         processAnnotations(globalValueMap, objectType);
         Arrays.stream(objectType.getAttachedFunctions()).forEach(function -> {
             processAnnotations(globalValueMap, function);
         });
     }
 
-    private static void processAnnotations(MapValueImpl globalValueMap, AnnotatableType annotatableType) {
+    private static void processAnnotations(MapValue globalValueMap, AnnotatableType annotatableType) {
         if (!globalValueMap.containsKey(annotatableType.getAnnotationKey())) {
             return;
         }

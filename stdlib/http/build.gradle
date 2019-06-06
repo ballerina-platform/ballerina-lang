@@ -18,10 +18,11 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
+//    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
-//    implementation project(':ballerina-lang')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-auth')
     implementation project(':ballerina-file')
     implementation project(':ballerina-io')
@@ -77,18 +78,8 @@ dependencies {
     testCompile 'org.testng:testng'
 }
 
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+createBalo {
+    jvmTarget = 'true'
 }
 
 configurations {

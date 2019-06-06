@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.jsonlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -67,7 +68,7 @@ public class GetKeys extends BlockingNativeCallableUnit {
         ctx.setReturnValues(keys);
     }
 
-    public static ArrayValue getKeys(Object json) {
+    public static ArrayValue getKeys(Strand strand, Object json) {
         try {
             if (json == null) {
                 return new ArrayValue(new BArrayType(org.ballerinalang.jvm.types.BTypes.typeString));

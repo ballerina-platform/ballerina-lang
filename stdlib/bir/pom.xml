@@ -56,12 +56,14 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-io</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-internal</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -96,6 +98,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-cli-utils</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <!--<scope>test</scope>-->
         </dependency>
         <dependency>
@@ -143,7 +146,7 @@
                         </configuration>
                     </execution>
 
-                    <execution>
+                    <!-- <execution>
                         <id>gen-balx-for-test</id>
                         <goals>
                             <goal>java</goal>
@@ -163,7 +166,7 @@
                             </arguments>
                             <mainClass>org.ballerinalang.cli.utils.GenerateBalx</mainClass>
                         </configuration>
-                    </execution>
+                    </execution> -->
                 </executions>
             </plugin>
 

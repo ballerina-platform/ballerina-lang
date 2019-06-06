@@ -22,6 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -65,5 +67,21 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             return;
         }
         context.setReturnValues();
+    }
+
+    public static Object initEndpoint(Strand strand, ObjectValue listener) {
+        final String path = listener.getMapValue(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG).
+                getStringValue(DirectoryListenerConstants.ANNOTATION_PATH);
+        if (path == null || path.isEmpty()) {
+            return FileUtils.createError("'path' field is empty");
+        }
+        final Path dirPath = Paths.get(path);
+        if (Files.notExists(dirPath)) {
+            return FileUtils.createError("Folder does not exist: " + path);
+        }
+        if (!Files.isDirectory(dirPath)) {
+            return FileUtils.createError("Unable to find a directory: " + path);
+        }
+        return null;
     }
 }

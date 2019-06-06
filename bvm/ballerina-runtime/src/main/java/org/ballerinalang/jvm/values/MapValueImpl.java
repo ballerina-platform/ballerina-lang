@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
@@ -32,6 +33,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -131,6 +133,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return (ArrayValue) get(key);
     }
 
+    public long getDefaultableIntValue(String key) {
+        if (get(key) != null) {
+            return getIntValue(key);
+        }
+        return 0;
+    }
+
     /**
      * Retrieve the value for the given key from map.
      * A {@link BallerinaException} will be thrown if the key does not exists.
@@ -142,8 +151,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         readLock.lock();
         try {
             if (!containsKey(key)) {
-                throw new BallerinaException(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
-                        "cannot find key '" + key + "'");
+                throw BallerinaErrors.createError(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR, "cannot find key '" +
+                        key + "'");
             }
             return super.get(key);
         } finally {
@@ -171,6 +180,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 handleInvalidUpdate(freezeStatus.getState());
             }
             return super.put(key, value);
+        } catch (BLangFreezeException e) {
+            throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
         } finally {
             writeLock.unlock();
         }
@@ -207,6 +218,16 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
     }
 
+    /**
+     * Returns the hash code value for map value object.
+     *
+     * @return returns hashcode value.
+     */
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+    
     /**
      * Remove an item from the map.
      *

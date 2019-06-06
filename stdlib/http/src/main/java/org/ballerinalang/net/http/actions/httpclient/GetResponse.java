@@ -18,12 +18,17 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -61,6 +66,41 @@ public class GetResponse extends AbstractHTTPAction {
                 setHttpConnectorListener(new ResponseListener(dataContext));
     }
 
+    public static void getResponse(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
+
+        DataContext dataContext = new DataContext(strand, callback, clientObj, handleObj, null);
+
+        ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
+        if (responseHandle == null) {
+            throw new BallerinaException("invalid http handle");
+        }
+        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
+        clientConnector.getResponse(responseHandle).
+                setHttpConnectorListener(new ResponseListener(dataContext));
+    }
+
+    private static class BResponseListener implements HttpConnectorListener {
+
+        private DataContext dataContext;
+
+        BResponseListener(DataContext dataContext) {
+            this.dataContext = dataContext;
+        }
+
+        @Override
+        public void onMessage(HttpCarbonMessage httpCarbonMessage) {
+            dataContext.notifyInboundResponseStatus(
+                    BHttpUtil.createResponseStruct(this.dataContext.getContext(), httpCarbonMessage), null);
+        }
+
+        public void onError(Throwable throwable) {
+            BError httpConnectorError = BHttpUtil.getError(dataContext.getContext(), throwable);
+            dataContext.notifyInboundResponseStatus(null, httpConnectorError);
+        }
+    }
+
     private static class ResponseListener implements HttpConnectorListener {
 
         private DataContext dataContext;
@@ -72,11 +112,11 @@ public class GetResponse extends AbstractHTTPAction {
         @Override
         public void onMessage(HttpCarbonMessage httpCarbonMessage) {
             dataContext.notifyInboundResponseStatus(
-                    HttpUtil.createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
+                    HttpUtil.createResponseStruct(httpCarbonMessage), null);
         }
 
         public void onError(Throwable throwable) {
-            BError httpConnectorError = HttpUtil.getError(dataContext.context, throwable);
+            ErrorValue httpConnectorError = HttpUtil.getError(throwable);
             dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }

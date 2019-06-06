@@ -23,8 +23,7 @@ dependencies {
 }
 
 dependencies {
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-//    implementation project(':ballerina-lang')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-bir')
 
@@ -46,7 +45,7 @@ task createBalx(type: JavaExec) {
     dependsOn createBalHome
     main 'org.ballerinalang.compiler.backend.jvm.GenerateBalx'
     classpath = sourceSets.main.runtimeClasspath
-    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/main/"
 
     args(balFiles, "compiler_backend_jvm", "$buildDir/generated-balx/compiler_backend_jvm.balx")
 
