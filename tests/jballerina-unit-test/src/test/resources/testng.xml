@@ -50,6 +50,9 @@
             <package name="org.ballerinalang.test.types.map.*"/>
             <package name="org.ballerinalang.test.types.string.*"/>
             <package name="org.ballerinalang.test.types.errors.*"/>
+            <package name="org.ballerinalang.test.types.var.*"/>
+            <package name="org.ballerinalang.test.types.uniontypes.*"/>
+            <package name="org.ballerinalang.test.types.typedesc.*"/>
         </packages>
 
         <classes>
@@ -216,6 +219,7 @@
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionWithPkgTest"/>
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
+            <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
         </classes>
     </test>
 </suite>
