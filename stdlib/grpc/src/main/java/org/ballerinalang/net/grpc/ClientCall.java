@@ -44,6 +44,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION;
 
 /**
  * This class handles a call to a remote method.
@@ -89,7 +90,7 @@ public final class ClientCall {
         outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
         outboundMessage.setProperty(Constants.HTTP_METHOD, GrpcConstants.HTTP_METHOD);
-        outboundMessage.setProperty(Constants.HTTP_VERSION, "2.0");
+        outboundMessage.setProperty(HTTP_VERSION, "2.0");
         outboundMessage.setHeader(CONTENT_TYPE_KEY, GrpcConstants.CONTENT_TYPE_GRPC);
         outboundMessage.setHeader(TE_KEY, GrpcConstants.TE_TRAILERS);
     }
@@ -103,6 +104,9 @@ public final class ClientCall {
             ctx.addTag(TAG_KEY_PEER_ADDRESS,
                     outboundMessage.getProperty(Constants.HTTP_HOST) + ":"
                             + outboundMessage.getProperty(Constants.HTTP_PORT));
+            ctx.addTag(TE_KEY, GrpcConstants.TE_TRAILERS);
+            ctx.addTag(CONTENT_TYPE_KEY, GrpcConstants.CONTENT_TYPE_GRPC);
+            ctx.addTag(HTTP_VERSION, "2.0");
             // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
             // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
             // some value to HTTP Status Code to make sure that tags will not change depending on various

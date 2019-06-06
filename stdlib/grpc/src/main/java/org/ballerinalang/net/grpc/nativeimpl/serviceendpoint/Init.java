@@ -16,7 +16,6 @@
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
@@ -52,8 +51,7 @@ import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
         isPublic = true
 )
 public class Init extends AbstractGrpcNativeFunction {
-    private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    
+
     @Override
     public void execute(Context context) {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);

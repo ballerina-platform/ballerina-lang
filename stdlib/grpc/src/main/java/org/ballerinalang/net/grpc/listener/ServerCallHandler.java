@@ -41,6 +41,8 @@ import org.ballerinalang.net.grpc.callback.StreamingCallableUnitCallBack;
 import org.ballerinalang.net.grpc.callback.UnaryCallableUnitCallBack;
 import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.observability.ObserveUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 
 import java.util.List;
 
@@ -162,7 +164,8 @@ public abstract class ServerCallHandler {
         return methodDescriptor != null && MessageUtils.isEmptyResponse(methodDescriptor.getOutputType());
     }
 
-    void onErrorInvoke(ServiceResource resource, StreamObserver responseObserver, Message error) {
+    void onErrorInvoke(ServiceResource resource, StreamObserver responseObserver, Message error,
+                       ObserverContext context) {
         if (resource == null || resource.getParamDetailList() == null) {
             throw new ServerRuntimeException("Error in listener service definition. onError resource does not exists");
         }
@@ -181,13 +184,16 @@ public abstract class ServerCallHandler {
         if (headerStruct != null && signatureParams.length == 3) {
             signatureParams[2] = headerStruct;
         }
-        CallableUnitCallback callback = new StreamingCallableUnitCallBack(null);
-        Executor.submit(resource.getResource(), callback, null, null, signatureParams);
+        CallableUnitCallback callback = new StreamingCallableUnitCallBack(responseObserver, context);
+        Executor.submit(resource.getResource(), callback, null, context, signatureParams);
     }
 
-    void onMessageInvoke(ServiceResource resource, Message request, StreamObserver responseObserver) {
-        CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, isEmptyResponse());
-        Executor.submit(resource.getResource(), callback, null, null, computeMessageParams(resource, request,
+    void onMessageInvoke(ServiceResource resource, Message request, StreamObserver responseObserver,
+                         ObserverContext context) {
+        CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, isEmptyResponse(), context);
+        context.setServiceName(ObserveUtils.getFullServiceName(resource.getResource().getService()
+                    .getServiceInfo()));
+        Executor.submit(resource.getResource(), callback, null, context, computeMessageParams(resource, request,
                 responseObserver));
     }
 

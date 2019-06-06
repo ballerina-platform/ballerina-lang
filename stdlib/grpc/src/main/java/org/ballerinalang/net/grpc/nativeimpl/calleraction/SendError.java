@@ -29,8 +29,12 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
+import org.ballerinalang.util.observability.ObserveUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER_REF_INDEX;
@@ -38,6 +42,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageUtils.getMappingHttpStatusCode;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 
 /**
  * Extern function to send server error the caller.
@@ -62,6 +68,7 @@ public class SendError extends BlockingNativeCallableUnit {
         BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
         long statusCode = context.getIntArgument(0);
         String errorMsg = context.getStringArgument(0);
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
 
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         if (responseObserver == null) {
@@ -80,6 +87,8 @@ public class SendError extends BlockingNativeCallableUnit {
                 if (headers != null) {
                     errorMessage.setHeaders(headers);
                 }
+                observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE,
+                        String.valueOf(getMappingHttpStatusCode((int) statusCode))));
                 responseObserver.onError(errorMessage);
             } catch (Exception e) {
                 LOG.error("Error while sending error to caller.", e);

@@ -18,14 +18,8 @@ package org.ballerinalang.net.grpc;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.HttpCallableUnitCallback;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpDispatcher;
-import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -44,7 +38,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.DEFAULT_MAX_MESSAGE_SIZE;
 import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_MESSAGE_KEY;
 import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_STATUS_KEY;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
@@ -139,20 +132,16 @@ public class ServerConnectorListener implements HttpConnectorListener {
         ServerCall call = new ServerCall(inboundMessage, outboundMessage, methodDefinition
                 .getMethodDescriptor(), DecompressorRegistry.getDefaultInstance(), CompressorRegistry
                 .getDefaultInstance());
-        ObserverContext context = null;
         if (ObserveUtils.isObservabilityEnabled()) {
-            context = getObserverContext(fullMethodName, inboundMessage);
+            call.setObserverContext(getObserverContext(fullMethodName, inboundMessage));
         }
-        return call.newServerStreamListener(methodDefinition.getServerCallHandler().startCall(call, context));
+        return call.newServerStreamListener(methodDefinition.getServerCallHandler().startCall(call));
     }
 
-    protected ObserverContext getObserverContext(String method, InboundMessage inboundMessage) {
+    private ObserverContext getObserverContext(String method, InboundMessage inboundMessage) {
 
         ObserverContext observerContext = new ObserverContext();
         observerContext.setConnectorName(SERVER_CONNECTOR_GRPC);
-//            observerContext.setServiceName(ObserveUtils.getFullServiceName(httpResource.getParentService()
-//                    .getBalService()
-//                    .getServiceInfo()));
         observerContext.setResourceName(method);
 
         Map<String, String> httpHeaders = new HashMap<>();
