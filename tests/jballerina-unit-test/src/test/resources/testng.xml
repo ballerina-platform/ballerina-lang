@@ -48,6 +48,7 @@
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
             <package name="org.ballerinalang.test.types.finite.*"/>
             <package name="org.ballerinalang.test.types.map.*"/>
+            <package name="org.ballerinalang.test.types.errors.*"/>
         </packages>
 
         <classes>
