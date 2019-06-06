@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -204,9 +203,9 @@ public class JSONUtils {
 
         try {
             return Lists.get((ArrayValue) jsonArray, index);
-        } catch (BallerinaException e) {
-            if (e.getDetail() != null) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetail());
+        } catch (ErrorValue e) {
+            if (e.getDetails() != null) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetails());
             }
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
         } catch (Throwable t) {
