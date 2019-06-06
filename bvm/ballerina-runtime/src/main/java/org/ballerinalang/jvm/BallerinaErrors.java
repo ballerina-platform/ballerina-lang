@@ -26,9 +26,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
-import java.lang.annotation.Annotation;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -125,17 +123,6 @@ public class BallerinaErrors {
         }
 
         if (!fileName.equals(pkgName.concat(BLANG_SRC_FILE_SUFFIX))) {
-            try {
-                // Handle stacktrace for extern functions.
-                Annotation[] annotations = Class.forName(pkgName).getAnnotations();
-                if (annotations != null && annotations.length > 0 && annotations[0] instanceof BallerinaFunction) {
-                    BallerinaFunction balAnnotation = (BallerinaFunction) annotations[0];
-                    return new StackTraceElement(balAnnotation.orgName() + "/" + balAnnotation.packageName(),
-                                                 balAnnotation.functionName(), "<native>", 0);
-                }
-            } catch (ClassNotFoundException e) {
-                throw createError(e.getMessage());
-            }
             // Remove java sources for bal stacktrace if they are not extern functions.
             return null;
         }
