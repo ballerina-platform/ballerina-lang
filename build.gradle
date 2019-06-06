@@ -8,9 +8,11 @@ plugins {
     id 'net.researchgate.release' version '2.6.0'
 }
 
+def proVersion = project.version
+
 allprojects {
     group = 'org.ballerinalang'
-    version = project.version
+    version = proVersion
 
     task printPath {
         doLast{
@@ -20,11 +22,14 @@ allprojects {
 }
 
 subprojects {
+    apply plugin: 'maven-publish'
     publishing {
         publications {
             mavenJava(MavenPublication) {
-                groupId 'org.ballerinalang'
+                groupId project.group
                 artifactId project.name
+                version = proVersion
+
             }
         }
         repositories {
@@ -34,7 +39,6 @@ subprojects {
                 } else {
                     url "http://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
                 }
-
                 credentials {
                     username project.sonatypeUsername
                     password project.sonatypePassword
