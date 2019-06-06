@@ -170,7 +170,7 @@ function testReadFile(string pathValue) returns boolean {
         log:printError("Error occurred while reading content: " + pathValue, err = readResult);
         return false;
     } else {
-        var (bytes, numberOfBytes) = readResult;
+        var [bytes, numberOfBytes] = readResult;
         return bytes.length() == TEST_CONTENT.toByteArray("UTF-8").length();
     }
 }
