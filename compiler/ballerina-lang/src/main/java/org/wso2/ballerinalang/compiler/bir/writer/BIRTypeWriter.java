@@ -120,6 +120,14 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BErrorType bErrorType) {
+        // Write the error package and type name
+        int orgCPIndex = addStringCPEntry(bErrorType.tsymbol.pkgID.orgName.value);
+        int nameCPIndex = addStringCPEntry(bErrorType.tsymbol.pkgID.name.value);
+        int versionCPIndex = addStringCPEntry(bErrorType.tsymbol.pkgID.version.value);
+        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buff.writeInt(pkgIndex);
+        buff.writeInt(addStringCPEntry(bErrorType.tsymbol.name.value));
+        // Write reason and detail types.
         writeTypeCpIndex(bErrorType.reasonType);
         writeTypeCpIndex(bErrorType.detailType);
     }

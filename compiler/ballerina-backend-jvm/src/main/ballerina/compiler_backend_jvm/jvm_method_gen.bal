@@ -444,11 +444,13 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         int m = 0;
         int insCount = bb.instructions.length();
         boolean isTrapped = currentEE is bir:ErrorEntry  && currentEE.trapBB.id.value == currentBBName;
-        // start a try block if current block is trapped
-        if (isTrapped) {
+        // Cases will be generate between instructions and terminator of the basic block. So if basic block is 
+        // trapped we need to generate two try catches as for instructions and terminator. 
+        if (isTrapped && insCount > 0) {
             endLabel = new;
             handlerLabel = new;
             jumpLabel = new;
+            // start try for instructions.
             errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
         }
         while (m < insCount) {
@@ -545,27 +547,38 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             m += 1;
         }
 
-        bir:Terminator terminator = bb.terminator;
-        // close the started try block with a catch statement if current block is trapped.
-        // if we have a call terminator, we need to generate the catch during call code.gen hence skipping that.
-        if (isTrapped && !(terminator is bir:Call)) {
+        // close the started try block with a catch statement for instructions.
+        if (isTrapped && insCount > 0) {
             errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
         }
         jvm:Label bbEndLable = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
         mv.visitLabel(bbEndLable);
 
+        bir:Terminator terminator = bb.terminator;
         if (!isArg) {
             mv.visitIntInsn(BIPUSH, j);
             mv.visitVarInsn(ISTORE, stateVarIndex);
         }
 
         // process terminator
+        boolean isTerminatorTrapped = false;
         if (!isArg || (isArg && !(terminator is bir:Return))) {
+            if (isTrapped && !(terminator is bir:GOTO)) {
+                isTerminatorTrapped = true;
+                endLabel = new;
+                handlerLabel = new;
+                jumpLabel = new;
+                // start try for terminator if current block is trapped.
+                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
+            }
             generateDiagnosticPos(terminator.pos, mv);
-            termGen.genTerminator(terminator, func, funcName, isTrapped, currentEE, endLabel, handlerLabel, jumpLabel,
-                                    localVarOffset, returnVarRefIndex);
+            termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex);
+            if (isTerminatorTrapped) {
+                // close the started try block with a catch statement for terminator.
+                errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
+            }
         }
-
+        
         // set next error entry after visiting current error entry.
         if (isTrapped) {
             errorEntryCnt = errorEntryCnt + 1;
@@ -573,8 +586,25 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 currentEE = errorEntries[errorEntryCnt];
             }
         }
+        
+        var thenBB = terminator["thenBB"];
+        if (thenBB is bir:BasicBlock) {
+            genYieldCheck(mv, termGen.labelGen, thenBB, funcName, localVarOffset);
+        }
         j += 1;
     }
+}
+
+function genYieldCheck(jvm:MethodVisitor mv, LabelGenerator labelGen, bir:BasicBlock thenBB, string funcName, 
+                        int localVarOffset) {
+    mv.visitVarInsn(ALOAD, localVarOffset);
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
+    jvm:Label yieldLabel = labelGen.getLabel(funcName + "yield");
+    mv.visitJumpInsn(IFNE, yieldLabel);
+
+    // goto thenBB
+    jvm:Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
+    mv.visitJumpInsn(GOTO, gotoLabel);
 }
 
 function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, string className, string lambdaName) {

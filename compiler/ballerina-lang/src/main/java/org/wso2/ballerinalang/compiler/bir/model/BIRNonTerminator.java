@@ -310,19 +310,20 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      */
     public static class NewError extends BIRNonTerminator {
 
+        public BType type;
+        
         public BIROperand lhsOp;
 
         public BIROperand reasonOp;
 
         public BIROperand detailOp;
-
-        public NewError(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp,
-                        BIROperand reasonOp, BIROperand detailOp) {
-            super(pos, kind);
+        
+        public NewError(DiagnosticPos pos,  BType type, BIROperand lhsOp, BIROperand reasonOp, BIROperand detailOp) {
+            super(pos, InstructionKind.NEW_ERROR);
+            this.type = type;
             this.lhsOp = lhsOp;
             this.reasonOp = reasonOp;
             this.detailOp = detailOp;
-                        
         }
 
         @Override
