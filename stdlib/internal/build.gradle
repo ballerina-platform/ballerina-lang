@@ -24,7 +24,6 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-//    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
@@ -32,7 +31,6 @@ dependencies {
     implementation project(':ballerina-time')
     implementation project(':ballerina-io')
 	implementation project(':ballerina-encoding')
-//	implementation project(':lib-creator')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-file')
 	implementation project(':ballerina-log-api')
@@ -60,21 +58,6 @@ dependencies {
 
 createBalo {
     jvmTarget = 'true'
-}
-
-test {
-    dependsOn createTestBalHome
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/ballerina-home/test/lib/repo/ballerina"
-        }
-    }
-//    systemProperty "experimental", "true"
-    systemProperty "enableJBallerinaTests", "true"
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 }
 
 description = 'Ballerina - Internal'

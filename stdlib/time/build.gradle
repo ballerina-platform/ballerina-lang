@@ -23,10 +23,6 @@ configurations.testCompileClasspath {
     }
 }
 
-configurations {
-    localDependency
-}
-
 dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
