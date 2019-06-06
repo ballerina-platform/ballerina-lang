@@ -52,6 +52,7 @@ public class Split extends BlockingNativeCallableUnit {
     }
 
     public static ArrayValue split(Strand strand, String value, String regex) {
+        StringUtils.checkForNull(value, regex);
         String[] splitArray = value.split(regex);
         return new ArrayValue(splitArray);
     }
