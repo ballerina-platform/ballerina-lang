@@ -7,8 +7,8 @@ The `oauth2:OAuth2Provider` is another implementation of the `auth:AuthProvider`
 #### Sample for securing a service with OAuth2
 
 ```ballerina
-import ballerina/oauth2;
 import ballerina/http;
+import ballerina/oauth2;
 
 oauth2:IntrospectionServerConfig introspectionServerConfig = {
     url: "https://localhost:9196/oauth2/token/introspect",
