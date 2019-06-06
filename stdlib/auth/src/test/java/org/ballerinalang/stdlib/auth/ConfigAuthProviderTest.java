@@ -49,19 +49,19 @@ public class ConfigAuthProviderTest {
     public void setup() throws IOException {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
-        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", BALLERINA_CONF);
+        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", BALLERINA_CONF);
 
         compileResult = BCompileUtil.compile(sourceRoot.resolve("config_auth_provider_test.bal").toString());
 
         String secretFile = "secret.txt";
-        Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);
+        Path secretFilePath = Paths.get(resourceRoot, "datafiles", secretFile);
         String secretCopyFile = "secret-copy.txt";
-        secretCopyFilePath = Paths.get(resourceRoot, "datafiles", "config", secretCopyFile);
+        secretCopyFilePath = Paths.get(resourceRoot, "datafiles", secretCopyFile);
         copySecretFile(secretFilePath.toString(), secretCopyFilePath.toString());
 
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(Collections.singletonMap("b7a.config.secret", secretFilePath.toString()),
+        registry.initRegistry(Collections.singletonMap("b7a.config.secret", secretCopyFilePath.toString()),
                 ballerinaConfPath.toString(), null);
     }
 
