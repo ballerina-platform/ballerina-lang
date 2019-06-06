@@ -925,7 +925,6 @@ public class BRunUtil {
                                                 entry.getValue().getFieldName(), entry.getValue().flags),
                                         (a, b) -> b, LinkedHashMap::new));
                 bvmRecordType.setFields(recordFields);
-                selfTypeStack.clear();
                 return bvmRecordType;
             case org.ballerinalang.jvm.types.TypeTags.JSON_TAG:
                 return BTypes.typeJSON;
@@ -959,7 +958,6 @@ public class BRunUtil {
                     objectFields.put(field.name, new BField(getBVMType(field.type), field.name, field.flags));
                 }
                 bvmObjectType.setFields(objectFields);
-                selfTypeStack.clear();
                 return bvmObjectType;
             case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
                 return BTypes.typeXML;
