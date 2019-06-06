@@ -54,7 +54,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
 
     private static final Logger LOG = Logger.getInstance(BallerinaEditorEventManager.class);
     private static final int TIMEOUT_AST = 3000;
-    private static final int TIMEOUT_ENDPOINtS = 2000;
+    private static final int TIMEOUT_ENDPOINTS = 2000;
 
     public BallerinaEditorEventManager(Editor editor, DocumentListener documentListener,
                                        EditorMouseListener mouseListener, EditorMouseMotionListener mouseMotionListener,
@@ -113,7 +113,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
                 .endpoints();
         if (future != null) {
             try {
-                return future.get(TIMEOUT_ENDPOINtS, TimeUnit.MILLISECONDS);
+                return future.get(TIMEOUT_ENDPOINTS, TimeUnit.MILLISECONDS);
             } catch (TimeoutException e) {
                 LOG.warn(e);
                 return null;

@@ -58,12 +58,12 @@ public class BallerinaIcons {
      * Contains icons used for the ballerina diagram editor(referred by plugin.xml).
      */
     public static class Layout {
-        public static final Icon EDITOR_ONLY = IconLoader
-                .getIcon("/icons/layout/code.svg", BallerinaIcons.class); // 16x16
-        public static final Icon EDITOR_PREVIEW = IconLoader
-                .getIcon("/icons/layout/split-view.svg", BallerinaIcons.class); // 16x16
-        public static final Icon PREVIEW_ONLY = IconLoader
-                .getIcon("/icons/layout/design-view.svg", BallerinaIcons.class); // 16x16
+        public static final Icon EDITOR_ONLY =
+                IconLoader.getIcon("/icons/layout/code.svg", BallerinaIcons.class);
+        public static final Icon EDITOR_PREVIEW =
+                IconLoader.getIcon("/icons/layout/split-view.svg", BallerinaIcons.class);
+        public static final Icon PREVIEW_ONLY =
+                IconLoader.getIcon("/icons/layout/design-view.svg", BallerinaIcons.class);
     }
 
     private BallerinaIcons() {

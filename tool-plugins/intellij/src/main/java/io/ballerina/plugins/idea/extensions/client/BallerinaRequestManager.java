@@ -91,6 +91,4 @@ public class BallerinaRequestManager extends DefaultRequestManager {
             return null;
         }
     }
-
-
 }

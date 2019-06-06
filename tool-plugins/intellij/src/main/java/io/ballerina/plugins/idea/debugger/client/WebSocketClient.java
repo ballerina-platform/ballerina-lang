@@ -67,7 +67,7 @@ public class WebSocketClient {
      * @return true if the handshake is done properly.
      * @throws URISyntaxException   throws if there is an error in the URI syntax.
      * @throws InterruptedException throws if the connecting the server is interrupted.
-     * @throws SSLException throws if any SSL error is occurred.
+     * @throws SSLException         throws if any SSL error is occurred.
      */
     public boolean handshake(Callback callback) throws InterruptedException, URISyntaxException, SSLException {
         boolean isDone;
@@ -106,9 +106,8 @@ public class WebSocketClient {
             // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
             // If you change it to V00, ping is not supported and remember to change
             // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
-            handler = new WebSocketClientHandler(
-                    WebSocketClientHandshakerFactory.newHandshaker(uri, WebSocketVersion.V13, null, true, httpHeaders),
-                    callback);
+            handler = new WebSocketClientHandler(WebSocketClientHandshakerFactory.newHandshaker(uri,
+                    WebSocketVersion.V13, null, true, httpHeaders), callback);
 
             Bootstrap b = new Bootstrap();
             b.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>() {

@@ -94,7 +94,7 @@ public class BallerinaCompletionUtils {
      * @return {@link LookupElementBuilder} which will be used to create the lookup element.
      */
     private static LookupElementBuilder createLookupElement(@NotNull String name,
-            @Nullable InsertHandler<LookupElement> insertHandler) {
+                                                            @Nullable InsertHandler<LookupElement> insertHandler) {
         return createLookupElement(name).withInsertHandler(insertHandler);
     }
 
@@ -111,14 +111,14 @@ public class BallerinaCompletionUtils {
 
     @NotNull
     private static LookupElementBuilder createKeywordLookupElement(@NotNull String name,
-            @Nullable String traileringString) {
+                                                                   @Nullable String traileringString) {
 
         return createLookupElement(name, createTemplateBasedInsertHandler("ballerina_lang_" + name, traileringString));
     }
 
     @NotNull
     private static InsertHandler<LookupElement> createTemplateBasedInsertHandler(@NotNull String templateId,
-            @Nullable String traileringString) {
+                                                                                 @Nullable String traileringString) {
         return (context, item) -> {
             Template template = TemplateSettings.getInstance().getTemplateById(templateId);
             Editor editor = context.getEditor();
@@ -140,15 +140,15 @@ public class BallerinaCompletionUtils {
     }
 
     public static LookupElement createPackageLookup(@NotNull PsiElement identifier,
-            @Nullable InsertHandler<LookupElement> insertHandler) {
+                                                    @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.create(identifier.getText()).withTypeText("Package")
                 .withIcon(BallerinaIcons.PACKAGE).withInsertHandler(insertHandler);
         return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);
     }
 
     public static LookupElement createUnImportedPackageLookup(@Nullable String organization,
-            @NotNull String packageName, @NotNull PsiElement element,
-            @Nullable InsertHandler<LookupElement> insertHandler) {
+                                                              @NotNull String packageName, @NotNull PsiElement element,
+                                                              @Nullable InsertHandler<LookupElement> insertHandler) {
         if (organization != null) {
             element.putUserData(ORGANIZATION_NAME, organization);
         }
@@ -165,7 +165,7 @@ public class BallerinaCompletionUtils {
     // Todo - Update icon getting logic to get the icon from a util method.
     @NotNull
     public static LookupElement createFunctionLookupElement(@NotNull BallerinaTopLevelDefinition definition,
-            @Nullable InsertHandler<LookupElement> insertHandler) {
+                                                            @Nullable InsertHandler<LookupElement> insertHandler) {
         return createFunctionLookupElementWithSemicolon(definition, insertHandler, true);
     }
 
@@ -209,7 +209,8 @@ public class BallerinaCompletionUtils {
 
     @NotNull
     public static LookupElement createFunctionLookupElement(@NotNull BallerinaObjectFunctionDefinition definition,
-            @NotNull PsiElement owner, @Nullable InsertHandler<LookupElement> insertHandler) {
+                                                            @NotNull PsiElement owner,
+                                                            @Nullable InsertHandler<LookupElement> insertHandler) {
 
         BallerinaCallableUnitSignature objectCallableUnitSignature = definition.getCallableUnitSignature();
         // We check and confirm that the objectCallableUnitSignature != null before calling the method.
@@ -245,7 +246,7 @@ public class BallerinaCompletionUtils {
 
     @NotNull
     public static LookupElement createTypeLookupElement(@NotNull BallerinaTopLevelDefinition definition,
-            @Nullable InsertHandler<LookupElement> insertHandler) {
+                                                        @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder
                 .createWithSmartPointer(definition.getIdentifier().getText(), definition)
                 .withInsertHandler(insertHandler).withTypeText("Type")
@@ -267,7 +268,7 @@ public class BallerinaCompletionUtils {
 
     @NotNull
     public static LookupElement createParameterLookupElement(@NotNull PsiElement element, @Nullable String type,
-            @Nullable String defaultValue) {
+                                                             @Nullable String defaultValue) {
         // Todo - Add support to render default value
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withIcon(BallerinaIcons.PARAMETER);
@@ -307,8 +308,9 @@ public class BallerinaCompletionUtils {
 
     @NotNull
     public static LookupElement createFieldLookupElement(@NotNull PsiElement fieldName, @NotNull PsiElement ownerName,
-            @NotNull String type, @Nullable String defaultValue, @Nullable InsertHandler<LookupElement> insertHandler,
-            boolean isPublic, boolean isPrivate) {
+                                                         @NotNull String type, @Nullable String defaultValue,
+                                                         @Nullable InsertHandler<LookupElement> insertHandler,
+                                                         boolean isPublic, boolean isPrivate) {
         LookupElementBuilder lookupElementBuilder = LookupElementBuilder
                 .createWithSmartPointer(fieldName.getText(), fieldName).withInsertHandler(insertHandler)
                 .withTypeText(type).bold();
