@@ -58,6 +58,7 @@ public class ToByteArray extends BlockingNativeCallableUnit {
     }
 
     public static ArrayValue toByteArray(Strand strand, String value, String encoding) {
+        StringUtils.checkForNull(value, encoding);
         try {
             byte[] bytes = value.getBytes(encoding);
             return new ArrayValue(bytes);
