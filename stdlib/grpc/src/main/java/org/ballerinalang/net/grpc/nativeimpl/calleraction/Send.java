@@ -17,7 +17,6 @@ package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -46,7 +45,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.RESPONSE_MESSAGE_REF_INDEX;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONTENT;
 
 /**
  * Extern function to respond the caller.
@@ -62,9 +61,10 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         isPublic = true
 )
 public class Send extends BlockingNativeCallableUnit {
+
     private static final Logger LOG = LoggerFactory.getLogger(Send.class);
     private static final int MESSAGE_HEADER_REF_INDEX = 2;
-    
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
@@ -92,9 +92,12 @@ public class Send extends BlockingNativeCallableUnit {
                     }
                     if (headers != null) {
                         responseMessage.setHeaders(headers);
+                        headers.entries().forEach(
+                                x -> observerContext.ifPresent(ctx -> ctx.addTag(x.getKey(), x.getValue())));
                     }
                     responseObserver.onNext(responseMessage);
-                    observerContext.ifPresent(ctx -> ctx.addTag("grpc.message_content", responseValue.toString()));
+                    observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT,
+                            responseValue.toString()));
                 }
             } catch (Exception e) {
                 LOG.error("Error while sending client response.", e);

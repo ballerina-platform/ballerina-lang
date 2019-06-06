@@ -86,6 +86,8 @@ public class SendError extends BlockingNativeCallableUnit {
                 }
                 if (headers != null) {
                     errorMessage.setHeaders(headers);
+                    headers.entries().forEach(
+                            x -> observerContext.ifPresent(ctx -> ctx.addTag(x.getKey(), x.getValue())));
                 }
                 observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE,
                         String.valueOf(getMappingHttpStatusCode((int) statusCode))));

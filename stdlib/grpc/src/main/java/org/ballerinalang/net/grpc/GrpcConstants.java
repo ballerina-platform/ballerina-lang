@@ -180,4 +180,8 @@ public class GrpcConstants {
     public static final String LISTENER_ID_FIELD = "id";
     public static final String LISTENER_CONNECTION_FIELD = "conn";
 
+    //Observability tag keys
+    public static final String TAG_KEY_GRPC_ERROR_MESSAGE = "grpc.error_message";
+    public static final String TAG_KEY_GRPC_MESSAGE_CONTENT = "grpc.message_content";
+
 }

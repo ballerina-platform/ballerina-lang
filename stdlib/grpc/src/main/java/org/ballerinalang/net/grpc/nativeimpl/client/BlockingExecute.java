@@ -31,8 +31,11 @@ import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.BlockingStub;
 import org.ballerinalang.net.http.DataContext;
+import org.ballerinalang.util.observability.ObserveUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
@@ -42,6 +45,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONTENT;
 
 /**
  * {@code BlockingExecute} is the BlockingExecute action implementation of the gRPC Connector.
@@ -102,6 +106,12 @@ public class BlockingExecute extends AbstractExecute {
         
         if (connectionStub instanceof BlockingStub) {
             BValue payloadBValue = context.getRefArgument(1);
+            // Add message content to observer context.
+            Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+            observerContext.ifPresent(ctx -> {
+                ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT, payloadBValue.stringValue());
+            });
+
             Message requestMsg = new Message(methodDescriptor.getInputType().getName(), payloadBValue);
             // Update request headers when request headers exists in the context.
             BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);

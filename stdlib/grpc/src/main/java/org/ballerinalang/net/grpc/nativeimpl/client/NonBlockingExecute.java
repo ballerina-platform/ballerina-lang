@@ -33,8 +33,11 @@ import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
 import org.ballerinalang.net.grpc.stubs.NonBlockingStub;
+import org.ballerinalang.util.observability.ObserveUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
@@ -44,6 +47,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONTENT;
 
 /**
  * {@code NonBlockingExecute} is the NonBlockingExecute action implementation of the gRPC Connector.
@@ -105,6 +109,11 @@ public class NonBlockingExecute extends AbstractExecute {
 
         if (connectionStub instanceof NonBlockingStub) {
             BValue payloadBValue = context.getRefArgument(1);
+            // Add message content to observer context.
+            Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+            observerContext.ifPresent(ctx -> {
+                ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT, payloadBValue.stringValue());
+            });
             Message requestMsg = new Message(methodDescriptor.getInputType().getName(), payloadBValue);
 
             // Update request headers when request headers exists in the context.
