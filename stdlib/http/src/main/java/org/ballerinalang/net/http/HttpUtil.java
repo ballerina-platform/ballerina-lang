@@ -1533,9 +1533,9 @@ public class HttpUtil {
             listenerConfiguration.setVersion(httpVersion);
         }
 
-        if (Arrays.asList(endpointConfig.getFields()).contains(SERVER_NAME)) {
-            Value serverName = endpointConfig.getRefField(SERVER_NAME);
-            listenerConfiguration.setServerHeader(serverName != null ? serverName.getStringValue() : getServerName());
+        if (endpointConfig.getPackage().equalsIgnoreCase(PROTOCOL_PACKAGE_HTTP)) {
+            String serverName = endpointConfig.getStringField(SERVER_NAME);
+            listenerConfiguration.setServerHeader(!serverName.isEmpty() ? serverName : getServerName());
         } else {
             listenerConfiguration.setServerHeader(getServerName());
         }
