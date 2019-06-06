@@ -44,6 +44,9 @@
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
+            <package name="org.ballerinalang.test.types.finaltypes.*"/>
+            <package name="org.ballerinalang.test.types.finite.*"/>
+            <package name="org.ballerinalang.test.types.map.*"/>
         </packages>
 
         <classes>
@@ -197,7 +200,7 @@
                     <include name="simpleLock"/>
                 </methods>
             </class>
-<!--            <class name="org.ballerinalang.test.types.bytetype.BByteOperationsTest" />-->
+            <class name="org.ballerinalang.test.types.bytetype.BByteOperationsTest" />
             <class name="org.ballerinalang.test.types.bytetype.BByteArrayValueNegativeTest" />
             <class name="org.ballerinalang.test.types.bytetype.BByteValueNegativeTest" />
             <class name="org.ballerinalang.test.types.bytetype.BByteValueTest">
@@ -206,6 +209,10 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
+            <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionTest"/>
+            <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionWithPkgTest"/>
+            <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
+            <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
         </classes>
     </test>
 </suite>

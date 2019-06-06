@@ -23,10 +23,6 @@ configurations.testCompileClasspath {
     }
 }
 
-configurations {
-    localDependency
-}
-
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
@@ -37,14 +33,14 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     implementation project(':ballerina-runtime-api')
 
-    testRuntimeOnly project(':ballerina-backend-jvm')
-
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-jvm')
+
+    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 }
 
 createBalo {

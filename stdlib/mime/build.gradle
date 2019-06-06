@@ -63,18 +63,7 @@ dependencies {
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
 
-//    localDependency project(path: ':ballerina-bir', configuration: 'baloImplementation')
-//    localDependency project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-//    localDependency project(path: ':ballerina-jvm', configuration: 'baloImplementation')
-}
-
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/ballerina-home/test/lib/repo/ballerina"
-        }
-    }
+    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 }
 
 task testJar(type: Jar, dependsOn: testClasses) {
