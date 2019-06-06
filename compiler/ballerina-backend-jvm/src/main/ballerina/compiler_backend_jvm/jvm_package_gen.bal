@@ -29,7 +29,7 @@ map<bir:TypeDef> typeDefMap = {};
 
 map<string> globalVarClassNames = {};
 
-map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
+map<[bir:AsyncCall|bir:FPLoad,string]> lambdas = {};
 
 map<bir:Package> compiledPkgCache = {};
 
@@ -126,7 +126,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, pkgEntries);
     generateFrameClasses(module, pkgEntries);
-    foreach var (moduleClass, v) in jvmClassMap {
+    foreach var [moduleClass, v] in jvmClassMap {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         currentClass = moduleClass;
         if (moduleClass == typeOwnerClass) {
@@ -152,7 +152,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
             generateMethod(getFunction(func), cw, module);
         }
         // generate lambdas created during generating methods
-        foreach var (name, call) in lambdas {
+        foreach var [name, call] in lambdas {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
         // clear the lambdas
@@ -186,7 +186,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
         mainClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
                                             cleanupBalExt(mainFunc.pos.sourceFileName));
     }
-    foreach var (moduleClass, v) in jvmClassMap {
+    foreach var [moduleClass, v] in jvmClassMap {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         currentClass = moduleClass;
         if (moduleClass == typeOwnerClass) {
@@ -220,7 +220,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
         }
         
         // generate lambdas
-        foreach var (name, call) in lambdas {
+        foreach var [name, call] in lambdas {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
         // clear the lambdas
@@ -319,11 +319,11 @@ function getPackageName(string orgName, string moduleName) returns string {
     return packageName;
 }
 
-function splitPkgName(string key) returns (string, string) {
+function splitPkgName(string key) returns [string, string] {
     int index = key.lastIndexOf("/");
     string pkgName = key.substring(0, index);
     string functionName = key.substring(index + 1, key.length());
-    return (pkgName, functionName);
+    return [pkgName, functionName];
 }
 
 function cleanupName(string name) returns string {
@@ -348,7 +348,7 @@ function cleanupPackageName(string pkgName) returns string {
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
 function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
-                                   map<(bir:AsyncCall|bir:FPLoad,string)> lambdaCalls) returns map<JavaClass> {
+                                   map<[bir:AsyncCall|bir:FPLoad,string]> lambdaCalls) returns map<JavaClass> {
     
     string orgName = module.org.value;
     string moduleName = module.name.value;
