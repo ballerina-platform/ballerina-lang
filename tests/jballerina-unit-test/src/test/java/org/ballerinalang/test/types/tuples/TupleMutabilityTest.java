@@ -89,7 +89,7 @@ public class TupleMutabilityTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"incompatible types: expected 'int'," +
-                            " found 'null'\"\\}.*")
+                            " found '\\(\\)'\"\\}.*")
     public void testCovarianceIntOrNilArray() {
         BRunUtil.invoke(compileResult, "testCovarianceIntOrNilTuple");
     }
