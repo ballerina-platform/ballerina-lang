@@ -68,6 +68,9 @@ under the License.
                     <exclude name="testGetFormParamsForUndefinedKey" />
                     <exclude name="testGetFormParamsEmptyResponseMsgPayload" />
                     <exclude name="testErrorReturn" />
+                    <exclude name="testGetFormParamsWithUnsupportedMediaType" />
+                    <exclude name="testGetFormParamsWithoutContentType" />
+                    <exclude name="testConstantValueAsAnnAttributeVal" />
                 </methods>
             </class>
         </classes>
