@@ -33,7 +33,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         orgName = "ballerina", packageName = "builtin",
         functionName = "future.cancel",
         args = {@Argument(name = "f", type = TypeKind.FUTURE)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
 public class Cancel extends BlockingNativeCallableUnit {
@@ -41,11 +40,11 @@ public class Cancel extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BFuture future = (BFuture) context.getRefArgument(0);
-        context.setReturnValues(new BBoolean(future.cancel()));
+        future.cancel();
     }
 
-    public static boolean cancel(Strand strand, FutureValue futureValue) {
-        return futureValue.cancel();
+    public static void cancel(Strand strand, FutureValue futureValue) {
+        futureValue.cancel();
     }
     
 }

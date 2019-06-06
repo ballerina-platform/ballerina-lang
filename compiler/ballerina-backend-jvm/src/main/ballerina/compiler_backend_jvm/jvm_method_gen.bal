@@ -84,12 +84,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         k = 0;
     }
 
-    // set channel details to strand.
+    // add channel details to strand.
     // these channel info is required to notify datachannels, when there is a panic
     // we cannot set this during strand creation, because function call do not have this info.
     mv.visitVarInsn(ALOAD, localVarOffset);
-    loadChannelDetails(mv, func.workerChannels);
-    mv.visitFieldInsn(PUTFIELD, STRAND, "channelDetails", io:sprintf("[L%s;", CHANNEL_DETAILS));
+    populateChannelDetailList(mv, func.workerChannels);
 
     // panic if this strand is cancelled
     checkStrandCancelled(mv, localVarOffset);
@@ -1588,4 +1587,37 @@ function checkStrandCancelled(jvm:MethodVisitor mv, int localVarOffset) {
     mv.visitInsn(ATHROW);
     
     mv.visitLabel(notCancelledLabel);
+}
+
+function populateChannelDetailList(jvm:MethodVisitor mv, bir:ChannelDetail[] channels) {
+    mv.visitFieldInsn(GETFIELD, STRAND, "channelDetails", io:sprintf("L%s;", LIST));
+    // int index = 0;
+    foreach bir:ChannelDetail ch in channels {
+        // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
+        mv.visitInsn(DUP);
+        // mv.visitIntInsn(BIPUSH, index);
+        // index += 1;
+
+        mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(ch.name.value);
+
+        if (ch.onSameStrand) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
+
+        if (ch.isSend) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
+
+        mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", io:sprintf("(L%s;ZZ)V", STRING_VALUE),
+            false);
+        mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
+        mv.visitInsn(POP);
+    }
+    mv.visitInsn(POP);
 }

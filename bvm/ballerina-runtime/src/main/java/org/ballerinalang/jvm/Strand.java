@@ -23,9 +23,11 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
@@ -41,7 +43,6 @@ public class Strand {
     public boolean yield;
     public Object[] frames;
     public int resumeIndex;
-    public Future future;
     public Object returnValue;
     public boolean blocked;
     public List<Strand> blockedOn;
@@ -50,7 +51,7 @@ public class Strand {
     public WDChannels wdChannels;
     public FlushDetail flushDetail;
     public boolean blockedOnExtern;
-    public ChannelDetails[] channelDetails;
+    public Set<ChannelDetails> channelDetails;
     private Map<String, Object> globalProps;
     public boolean cancel;
 
@@ -58,7 +59,7 @@ public class Strand {
         this.scheduler = scheduler;
         this.wdChannels = new WDChannels();
         this.blockedOn = new CopyOnWriteArrayList();
-        this.channelDetails = new ChannelDetails[0];
+        this.channelDetails = new
         this.globalProps = new HashMap<>();
     }
 
@@ -67,7 +68,7 @@ public class Strand {
         this.parent = parent;
         this.wdChannels = new WDChannels();
         this.blockedOn = new CopyOnWriteArrayList();
-        this.channelDetails = new ChannelDetails[0];
+        this.channelDetails = new ArrayList<>();
         this.globalProps = new HashMap<>();
     }
 
@@ -76,7 +77,7 @@ public class Strand {
         this.globalProps = properties;
         this.wdChannels = new WDChannels();
         this.blockedOn = new CopyOnWriteArrayList();
-        this.channelDetails = new ChannelDetails[0];
+        this.channelDetails = new ArrayList<>();
     }
 
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {

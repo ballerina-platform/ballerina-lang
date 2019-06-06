@@ -84,9 +84,7 @@
          return isCancelled;
      }
 
-     public boolean cancel() {
+     public void cancel() {
          this.strand.cancel = true;
-         this.isCancelled = true;
-         return true;
      }
  }

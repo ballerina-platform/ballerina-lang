@@ -67,7 +67,7 @@ public class Scheduler {
      */
     private Map<Strand, SchedulerItem> blockedOnUnknownList = new HashMap<>();
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static final BlockingQueue<String> DEBUG_LOG;
 
@@ -291,10 +291,12 @@ public class Scheduler {
     }
 
     private void notifyChannels(SchedulerItem item, Throwable panic) {
-        ChannelDetails[] channels = item.future.strand.channelDetails;
+        Set<ChannelDetails> channels = item.future.strand.channelDetails;
+        if (DEBUG) {
+            debugLog("notifying channels:" + channels.toString());
+        }
 
-        for (int i = 0; i < channels.length; i++) {
-            ChannelDetails details = channels[i];
+        for (ChannelDetails details: channels) {
             WorkerDataChannel wdChannel;
 
             if (details.channelInSameStrand) {
