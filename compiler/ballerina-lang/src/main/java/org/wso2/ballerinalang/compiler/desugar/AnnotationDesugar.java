@@ -87,6 +87,7 @@ public class AnnotationDesugar {
         BLangFunction initFunction = pkgNode.initFunction;
 
         BLangBlockStmt blockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        blockStmt.pos = initFunction.pos;
 
         // Handle service annotations
         for (BLangService service : pkgNode.services) {

@@ -44,12 +44,16 @@
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
             <package name="org.ballerinalang.test.error.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
             <package name="org.ballerinalang.test.types.finite.*"/>
             <package name="org.ballerinalang.test.types.map.*"/>
             <package name="org.ballerinalang.test.types.string.*"/>
             <package name="org.ballerinalang.test.types.errors.*"/>
+            <package name="org.ballerinalang.test.types.var.*"/>
+            <package name="org.ballerinalang.test.types.uniontypes.*"/>
+            <package name="org.ballerinalang.test.types.typedesc.*"/>
         </packages>
 
         <classes>
@@ -216,6 +220,7 @@
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionWithPkgTest"/>
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
+            <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
             <class name="org.ballerinalang.test.error.ErrorTest" >
                 <methods>
                     <!-- un-identified error -->
