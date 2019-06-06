@@ -1076,77 +1076,12 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleLiteral tupleLiteral) {
-        // Emit create array instruction
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(tupleLiteral.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
-
-        long size = tupleLiteral.exprs.size();
-
-        BLangLiteral literal = new BLangLiteral();
-        literal.pos = tupleLiteral.pos;
-        literal.value = size;
-        literal.type = symTable.intType;
-        literal.accept(this);
-        BIROperand sizeOp = this.env.targetOperand;
-
-        emit(new BIRNonTerminator.NewArray(tupleLiteral.pos, tupleLiteral.type, toVarRef, sizeOp));
-
-        // Emit instructions populate initial array values;
-        for (int i = 0; i < tupleLiteral.exprs.size(); i++) {
-            BLangExpression argExpr = tupleLiteral.exprs.get(i);
-            argExpr.accept(this);
-            BIROperand exprIndex = this.env.targetOperand;
-
-            BLangLiteral indexLiteral = new BLangLiteral();
-            indexLiteral.pos = tupleLiteral.pos;
-            indexLiteral.value = (long) i;
-            indexLiteral.type = symTable.intType;
-            indexLiteral.accept(this);
-            BIROperand arrayIndex = this.env.targetOperand;
-
-            emit(new FieldAccess(tupleLiteral.pos, InstructionKind.ARRAY_STORE, toVarRef, arrayIndex, exprIndex));
-        }
-        this.env.targetOperand = toVarRef;
-        this.env.targetOperandBB = env.enclBB;
+        generateGroupOrTupleLiteral(tupleLiteral);
     }
 
     @Override
     public void visit(BLangGroupExpr groupExpr) {
-        // Emit create array instruction
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(groupExpr.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
-
-        long size = groupExpr.expression != null ? 1 : 0;
-
-        BLangLiteral literal = new BLangLiteral();
-        literal.pos = groupExpr.pos;
-        literal.value = size;
-        literal.type = symTable.intType;
-        literal.accept(this);
-        BIROperand sizeOp = this.env.targetOperand;
-
-        emit(new BIRNonTerminator.NewArray(groupExpr.pos, groupExpr.type, toVarRef, sizeOp));
-
-        // Emit instructions populate initial array;
-        BLangExpression argExpr = groupExpr.expression;
-        argExpr.accept(this);
-        BIROperand exprIndex = this.env.targetOperand;
-
-        BLangLiteral indexLiteral = new BLangLiteral();
-        indexLiteral.pos = groupExpr.pos;
-        indexLiteral.value = size;
-        indexLiteral.type = symTable.intType;
-        indexLiteral.accept(this);
-        BIROperand arrayIndex = this.env.targetOperand;
-
-        emit(new FieldAccess(groupExpr.pos, InstructionKind.ARRAY_STORE, toVarRef, arrayIndex, exprIndex));
-
-        this.env.targetOperand = toVarRef;
-        this.env.targetOperandBB = env.enclBB;
+        generateGroupOrTupleLiteral(groupExpr);
     }
 
     @Override
@@ -1878,6 +1813,50 @@ public class BIRGen extends BLangNodeVisitor {
 
             emit(new BIRNonTerminator.FieldAccess(astArrayLiteralExpr.pos, InstructionKind.ARRAY_STORE, toVarRef,
                     arrayIndex, exprIndex));
+        }
+        this.env.targetOperand = toVarRef;
+        this.env.targetOperandBB = env.enclBB;
+    }
+
+    private void generateGroupOrTupleLiteral(BLangExpression expr) {
+        List<BLangExpression> expressions = new ArrayList<>();
+        if (expr.getKind() == NodeKind.GROUP_EXPR) {
+            expressions.add(((BLangGroupExpr)expr).expression);
+        } else {
+            expressions.addAll(((BLangTupleLiteral)expr).exprs);
+        }
+
+        // Emit create array instruction
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(expr.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        long size = expressions.size();
+
+        BLangLiteral literal = new BLangLiteral();
+        literal.pos = expr.pos;
+        literal.value = size;
+        literal.type = symTable.intType;
+        literal.accept(this);
+        BIROperand sizeOp = this.env.targetOperand;
+
+        emit(new BIRNonTerminator.NewArray(expr.pos, expr.type, toVarRef, sizeOp));
+
+        // Emit instructions populate initial array values;
+        for (int i = 0; i < expressions.size(); i++) {
+            BLangExpression argExpr = expressions.get(i);
+            argExpr.accept(this);
+            BIROperand exprIndex = this.env.targetOperand;
+
+            BLangLiteral indexLiteral = new BLangLiteral();
+            indexLiteral.pos = expr.pos;
+            indexLiteral.value = (long) i;
+            indexLiteral.type = symTable.intType;
+            indexLiteral.accept(this);
+            BIROperand arrayIndex = this.env.targetOperand;
+
+            emit(new FieldAccess(expr.pos, InstructionKind.ARRAY_STORE, toVarRef, arrayIndex, exprIndex));
         }
         this.env.targetOperand = toVarRef;
         this.env.targetOperandBB = env.enclBB;
