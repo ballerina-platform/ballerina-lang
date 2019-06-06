@@ -888,7 +888,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.bindingPattern() != null && ctx.bindingPattern().Identifier() != null) {
             bindingVarName = ctx.bindingPattern().Identifier().getText();
         }
-        this.pkgBuilder.addErrorDetailBinding(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), bindingVarName);
+        this.pkgBuilder.addErrorDetailBinding(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                bindingVarName);
     }
 
     @Override

@@ -166,14 +166,6 @@ public class ErrorTest {
         Assert.assertEquals(returns[1].stringValue(), "Error");
     }
 
-    public static void main(String[] args) {
-        try {
-            throw new RuntimeException("a");
-        } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
     @Test
     public void testOneLinePanic() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testOneLinePanic");

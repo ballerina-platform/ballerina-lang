@@ -160,6 +160,8 @@
                 <methods>
                     <!-- un-identified error -->
                     <exclude name="testOneLinePanic" />
+                    <exclude name="errorTrapTest" />
+                    <exclude name="testConsecutiveTraps" />
                     <!-- JBallerina ErrorValue and BallerinaException are not unified yet-->
                     <exclude name="testUnspecifiedErrorDetailFrozenness" />
                 </methods>
@@ -172,6 +174,7 @@
             </class>
             <class name="org.ballerinalang.test.statements.foreach.ForeachErrorBindingPatternsTests" />
             <class name="org.ballerinalang.test.expressions.varref.ErrorVariableReferenceTest" />
+            <class name="org.ballerinalang.test.statements.variabledef.ErrorVariableDefinitionTest" />
         </classes>
     </test>
 </suite>

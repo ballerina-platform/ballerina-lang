@@ -24,8 +24,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.expressions.RecordVariableReferenceNode;
-import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -59,7 +57,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -141,7 +138,6 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -1607,7 +1603,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         // rhs type, could be a map or record
-        if (rhsErrorType.detailType.tag == TypeTags.MAP ) {
+        if (rhsErrorType.detailType.tag == TypeTags.MAP) {
             BMapType detailMapType = (BMapType) rhsErrorType.detailType;
             for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
                 checkErrorDetailRefItem(pos, rhsPos, detailItem, detailMapType.constraint);
@@ -1660,7 +1656,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (detailItem.getKind() == NodeKind.SIMPLE_VARIABLE_REF && detailItem.name.value.equals(Names.IGNORE.value) ) {
+        if (detailItem.getKind() == NodeKind.SIMPLE_VARIABLE_REF && detailItem.name.value.equals(Names.IGNORE.value)) {
             return;
         }
         setTypeOfVarReferenceInAssignment(detailItem.expr);

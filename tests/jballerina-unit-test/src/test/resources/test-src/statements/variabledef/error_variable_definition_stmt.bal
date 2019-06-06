@@ -87,34 +87,34 @@ function testBasicErrorVariableWithRecordDetails() returns (string, string, stri
     return (res1, res2, message, fatal, rec);
 }
 
-function testErrorInTuple() returns (int, string, string, anydata|error, boolean) {
-    Foo f = { message: "fooMsg", fatal: true };
-    (int, string, error, (error, Foo)) t1 = (12, "Bal", error("Err", message = "Something Wrong"),
-                                                                (error("Err2", message = "Something Wrong2"), f));
-    (int, string, error, (error, Foo)) (intVar, stringVar, erroVar, (errorVar2, fooVar)) = t1;
-    return (intVar, stringVar, erroVar.reason(), errorVar2.detail().message, fooVar.fatal);
-}
-
-function testErrorInTupleWithVar() returns (int, string, string, anydata|error, boolean) {
-    Foo f = { message: "fooMsg", fatal: false };
-    (int, string, error, (error, Foo)) t1 = (12, "Bal", error("Err", message = "Something Wrong"),
-                                                                (error("Err2", message = "Something Wrong2"), f));
-    var (intVar, stringVar, erroVar, (errorVar2, fooVar)) = t1;
-    return (intVar, stringVar, erroVar.reason(), errorVar2.detail().message, fooVar.fatal);
-}
-
-function testErrorInTupleWithDestructure() returns (int, string, string, map<anydata|error>, boolean) {
-    (int, string, (error, boolean)) t1 = (12, "Bal", (error("Err2", message = "Something Wrong2"), true));
-    (int, string, (error, boolean)) (intVar, stringVar, (error(reasonVar, ... detailVar), booleanVar)) = t1;
-
-    return (intVar, stringVar, reasonVar, detailVar, booleanVar);
-}
-
-function testErrorInTupleWithDestructure2() returns (int, string, string, anydata|error, boolean) {
-    (int, string, (error, boolean)) t1 = (12, "Bal", (error("Err2", message = "Something Wrong2"), true));
-    (int, string, (error, boolean)) (intVar, stringVar, (error(reasonVar, message = message), booleanVar)) = t1;
-    return (intVar, stringVar, reasonVar, message, booleanVar);
-}
+//function testErrorInTuple() returns (int, string, string, anydata|error, boolean) {
+//    Foo f = { message: "fooMsg", fatal: true };
+//    (int, string, error, (error, Foo)) t1 = (12, "Bal", error("Err", message = "Something Wrong"),
+//                                                                (error("Err2", message = "Something Wrong2"), f));
+//    (int, string, error, (error, Foo)) (intVar, stringVar, erroVar, (errorVar2, fooVar)) = t1;
+//    return (intVar, stringVar, erroVar.reason(), errorVar2.detail().message, fooVar.fatal);
+//}
+//
+//function testErrorInTupleWithVar() returns (int, string, string, anydata|error, boolean) {
+//    Foo f = { message: "fooMsg", fatal: false };
+//    (int, string, error, (error, Foo)) t1 = (12, "Bal", error("Err", message = "Something Wrong"),
+//                                                                (error("Err2", message = "Something Wrong2"), f));
+//    var (intVar, stringVar, erroVar, (errorVar2, fooVar)) = t1;
+//    return (intVar, stringVar, erroVar.reason(), errorVar2.detail().message, fooVar.fatal);
+//}
+//
+//function testErrorInTupleWithDestructure() returns (int, string, string, map<anydata|error>, boolean) {
+//    (int, string, (error, boolean)) t1 = (12, "Bal", (error("Err2", message = "Something Wrong2"), true));
+//    (int, string, (error, boolean)) (intVar, stringVar, (error(reasonVar, ... detailVar), booleanVar)) = t1;
+//
+//    return (intVar, stringVar, reasonVar, detailVar, booleanVar);
+//}
+//
+//function testErrorInTupleWithDestructure2() returns (int, string, string, anydata|error, boolean) {
+//    (int, string, (error, boolean)) t1 = (12, "Bal", (error("Err2", message = "Something Wrong2"), true));
+//    (int, string, (error, boolean)) (intVar, stringVar, (error(reasonVar, message = message), booleanVar)) = t1;
+//    return (intVar, stringVar, reasonVar, message, booleanVar);
+//}
 
 type Bar record {
     int x;

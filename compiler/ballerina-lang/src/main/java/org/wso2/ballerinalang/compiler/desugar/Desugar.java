@@ -797,8 +797,14 @@ public class Desugar extends BLangNodeVisitor {
             }
 
             if (variable.getKind() == NodeKind.ERROR_VARIABLE) {
+
+                BType accessedElemType = symTable.errorType;
+                if (tupleVarSymbol.type.tag == TypeTags.ARRAY) {
+                    BArrayType arrayType = (BArrayType) tupleVarSymbol.type;
+                    accessedElemType = arrayType.eType;
+                }
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
-                        parentTupleVariable.pos, symTable.errorType, tupleVarSymbol, indexExpr);
+                        parentTupleVariable.pos, accessedElemType, tupleVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
@@ -942,8 +948,25 @@ public class Desugar extends BLangNodeVisitor {
      */
     private void createVarDefStmts(BLangErrorVariable parentErrorVariable, BLangBlockStmt parentBlockStmt,
                                    BVarSymbol errorVariableSymbol, BLangIndexBasedAccess parentIndexBasedAccess) {
+
+        BVarSymbol convertedErrorVarSymbol;
+        if (parentIndexBasedAccess != null) {
+            BType prevType = parentIndexBasedAccess.type;
+            parentIndexBasedAccess.type = symTable.anyType;
+            BLangSimpleVariableDef errorVarDef = createVarDef("$error$" + errorCount++,
+                    symTable.errorType,
+                    addConversionExprIfRequired(parentIndexBasedAccess, symTable.errorType),
+                    parentErrorVariable.pos);
+            parentIndexBasedAccess.type = prevType;
+            parentBlockStmt.addStatement(errorVarDef);
+            convertedErrorVarSymbol = errorVarDef.var.symbol;
+        } else {
+            convertedErrorVarSymbol = errorVariableSymbol;
+        }
+
         parentErrorVariable.reason.expr = generateErrorReasonBuiltinFunction(parentErrorVariable.reason.pos,
-                parentErrorVariable.reason.type, errorVariableSymbol, parentIndexBasedAccess);
+                parentErrorVariable.reason.type, convertedErrorVarSymbol, null);
+
         if (names.fromIdNode((parentErrorVariable.reason).name) == Names.IGNORE) {
             parentErrorVariable.reason = null;
         } else {
@@ -967,7 +990,7 @@ public class Desugar extends BLangNodeVisitor {
 
         parentErrorVariable.detailExpr = generateErrorDetailBuiltinFunction(
                 parentErrorVariable.pos, detailMapType, parentBlockStmt,
-                errorVariableSymbol, parentIndexBasedAccess);
+                convertedErrorVarSymbol, null);
 
         BLangSimpleVariableDef detailTempVarDef = createVarDef("$error$detail",
                 symTable.pureTypeConstrainedMap, parentErrorVariable.detailExpr, parentErrorVariable.pos);
@@ -1105,7 +1128,7 @@ public class Desugar extends BLangNodeVisitor {
         detailInvocation.builtinMethodInvocation = true;
         detailInvocation.builtInMethod = BLangBuiltInMethod.getFromString(ERROR_DETAIL_FUNCTION_NAME);
         if (parentIndexBasedAccess != null) {
-            detailInvocation.expr = parentIndexBasedAccess;
+            detailInvocation.expr = addConversionExprIfRequired(parentIndexBasedAccess, parentIndexBasedAccess.type);
             detailInvocation.symbol = symResolver.createSymbolForDetailBuiltInMethod(
                     ASTBuilderUtil.createIdentifier(parentIndexBasedAccess.pos, ERROR_DETAIL_FUNCTION_NAME),
                     parentIndexBasedAccess.type);
@@ -1131,7 +1154,7 @@ public class Desugar extends BLangNodeVisitor {
         reasonInvocation.builtinMethodInvocation = true;
         reasonInvocation.builtInMethod = BLangBuiltInMethod.getFromString(ERROR_REASON_FUNCTION_NAME);
         if (parentIndexBasedAccess != null) {
-            reasonInvocation.expr = parentIndexBasedAccess;
+            reasonInvocation.expr = addConversionExprIfRequired(parentIndexBasedAccess, symTable.errorType);
             reasonInvocation.symbol = symResolver.resolveBuiltinOperator(
                     names.fromString(ERROR_REASON_FUNCTION_NAME), parentIndexBasedAccess.type);
         } else {

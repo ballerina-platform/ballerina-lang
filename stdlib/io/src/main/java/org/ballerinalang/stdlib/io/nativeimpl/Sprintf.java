@@ -205,7 +205,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
                 try {
                     char formatSpecifier = format.charAt(j);
                     //TODO : Recheck following casting
-                    RefValue ref = (RefValue) args.getRefValue(k);
+                    Object ref = args.getRefValue(k);
                     switch (formatSpecifier) {
                         case 'b':
                         case 'B':

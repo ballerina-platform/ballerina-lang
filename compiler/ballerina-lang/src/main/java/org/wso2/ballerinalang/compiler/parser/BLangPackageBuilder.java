@@ -740,7 +740,7 @@ public class BLangPackageBuilder {
         }
 
         List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
-        for(int i = 0; i < numNamedArgs; i++) {
+        for (int i = 0; i < numNamedArgs; i++) {
             BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) this.exprNodeStack.pop();
             namedArgs.add(namedArg);
         }

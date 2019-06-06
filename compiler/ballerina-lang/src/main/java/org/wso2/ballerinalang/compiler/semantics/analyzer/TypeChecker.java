@@ -1137,7 +1137,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (varRefExpr.restVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
             || varRefExpr.restVar.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
             restFieldType = varRefExpr.restVar.type;
-        } else if (varRefExpr.restVar.type.tag == TypeTags.MAP){
+        } else if (varRefExpr.restVar.type.tag == TypeTags.MAP) {
             restFieldType = ((BMapType) varRefExpr.restVar.type).constraint;
         } else {
             dlog.error(varRefExpr.restVar.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
