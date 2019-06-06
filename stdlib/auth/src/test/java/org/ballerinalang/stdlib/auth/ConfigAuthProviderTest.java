@@ -26,10 +26,12 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -41,6 +43,7 @@ public class ConfigAuthProviderTest {
 
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
+    private Path secretCopyFilePath;
 
     @BeforeClass
     public void setup() throws IOException {
@@ -52,6 +55,9 @@ public class ConfigAuthProviderTest {
 
         String secretFile = "secret.txt";
         Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);
+        String secretCopyFile = "secret-copy.txt";
+        secretCopyFilePath = Paths.get(resourceRoot, "datafiles", "config", secretCopyFile);
+        copySecretFile(secretFilePath.toString(), secretCopyFilePath.toString());
 
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
@@ -145,6 +151,11 @@ public class ConfigAuthProviderTest {
         assertFailureOfResults(returns);
     }
 
+    @AfterClass
+    public void tearDown() throws IOException {
+        Files.deleteIfExists(secretCopyFilePath);
+    }
+
     private void assertSuccessOfResults(BValue[] returns) {
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
@@ -153,5 +164,10 @@ public class ConfigAuthProviderTest {
     private void assertFailureOfResults(BValue[] returns) {
         Assert.assertNotNull(returns);
         Assert.assertFalse(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+    }
+
+    private void copySecretFile(String from, String to) throws IOException {
+        Files.deleteIfExists(Paths.get(to));
+        Files.copy(Paths.get(from), Paths.get(to));
     }
 }

@@ -19,7 +19,7 @@
 package org.ballerinalang.docgen.docs;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.docgen.model.PackageDoc;
+import org.ballerinalang.docgen.model.ModuleDoc;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,24 +32,24 @@ public class BallerinaDocDataHolder {
     private static final BallerinaDocDataHolder instance = new BallerinaDocDataHolder();
     /**
      * Key - package name.
-     * Value - {@link PackageDoc}.
+     * Value - {@link ModuleDoc}.
      */
-    private Map<String, PackageDoc> packageMap;
+    private Map<String, ModuleDoc> packageMap;
     private String orgName;
 
     protected BallerinaDocDataHolder() {
-        packageMap = new HashMap<String, PackageDoc>();
+        packageMap = new HashMap<String, ModuleDoc>();
     }
 
     public static BallerinaDocDataHolder getInstance() {
         return instance;
     }
 
-    public Map<String, PackageDoc> getPackageMap() {
+    public Map<String, ModuleDoc> getPackageMap() {
         return packageMap;
     }
 
-    public void setPackageMap(Map<String, PackageDoc> packageMap) {
+    public void setPackageMap(Map<String, ModuleDoc> packageMap) {
         this.packageMap = packageMap;
     }
 

@@ -67,7 +67,7 @@ dependencies {
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
     dist 'org.apache.james:apache-mime4j-core:0.7.2'
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
-    dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.11-wso2v11'
+    dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
     dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.2'
     dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.20'
     dist 'io.ballerina.messaging:broker-auth:0.970.0'
@@ -151,6 +151,7 @@ dependencies {
     distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-jwt', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-ldap', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-auth', configuration: 'balSource')
     balSource project(path: ':ballerina-builtin', configuration: 'balSource')
@@ -189,6 +190,7 @@ dependencies {
     balSource project(path: ':ballerina-utils', configuration: 'balSource')
     balSource project(path: ':ballerina-jwt', configuration: 'balSource')
     balSource project(path: ':ballerina-ldap', configuration: 'balSource')
+    balSource project(path: ':ballerina-oauth2', configuration: 'balSource')
 
     dist 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     dist project(':ballerina-auth')
@@ -241,6 +243,7 @@ dependencies {
     dist project(':ballerina-nats')
     dist project(':ballerina-jwt')
     dist project(':ballerina-ldap')
+    dist project(':ballerina-oauth2')
 
     balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
 
