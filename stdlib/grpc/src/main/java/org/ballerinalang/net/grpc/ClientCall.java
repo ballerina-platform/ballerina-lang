@@ -133,7 +133,7 @@ public final class ClientCall {
      */
     public void start(final AbstractStub.Listener observer) {
         if (connectorListener != null) {
-            throw new IllegalStateException("Client connection is already setup.");
+            throw new IllegalStateException("Client connection already set up.");
         }
         if (cancelCalled) {
             throw new IllegalStateException("Client call was cancelled.");

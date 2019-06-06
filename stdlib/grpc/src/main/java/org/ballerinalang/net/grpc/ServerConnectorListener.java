@@ -144,7 +144,6 @@ public class ServerConnectorListener implements HttpConnectorListener {
     }
 
     private ObserverContext getObserverContext(String method, InboundMessage inboundMessage) {
-
         ObserverContext observerContext = new ObserverContext();
         observerContext.setConnectorName(SERVER_CONNECTOR_GRPC);
         observerContext.setResourceName(method);
@@ -156,7 +155,6 @@ public class ServerConnectorListener implements HttpConnectorListener {
                 (String) inboundMessage.getProperty(HttpConstants.HTTP_REQUEST_METHOD));
         observerContext.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
         observerContext.addTag(TAG_KEY_HTTP_URL, inboundMessage.getPath());
-
         return observerContext;
     }
 
