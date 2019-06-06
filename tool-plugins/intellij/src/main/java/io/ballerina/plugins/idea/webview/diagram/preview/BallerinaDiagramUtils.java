@@ -100,8 +100,6 @@ public class BallerinaDiagramUtils {
             // Constructs the script to be run when loaded.
             HashMap<String, String> scriptContents = new HashMap<>();
             scriptContents.put("docUri", uri);
-            scriptContents.put("windowWidth", Integer.toString(myPanel.getComponent().getWidth()));
-            scriptContents.put("windowHeight", Integer.toString(myPanel.getComponent().getHeight()));
             scriptContents.put("getLangClient", handlebars.compile(LANG_CLIENT_TEMPLATE_NAME).text());
             Context scriptContext = Context.newBuilder(scriptContents).resolver(MapValueResolver.INSTANCE).build();
 

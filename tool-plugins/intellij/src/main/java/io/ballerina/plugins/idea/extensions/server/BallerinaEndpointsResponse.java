@@ -15,34 +15,21 @@
  */
 package io.ballerina.plugins.idea.extensions.server;
 
-import com.google.gson.JsonElement;
+import java.util.List;
 
 /**
- * Represents a Ballerina AST response.
+ * Represents available endpoints response.
+ *
+ * @since 0.981.2
  */
-public class BallerinaASTResponse {
+public class BallerinaEndpointsResponse {
+    List<BallerinaEndpoint> endpoints;
 
-    private JsonElement ast;
-    private boolean parseSuccess;
-
-    public BallerinaASTResponse(JsonElement ast, boolean parseSuccess) {
-        this.ast = ast;
-        this.parseSuccess = parseSuccess;
+    public List<BallerinaEndpoint> getEndpoints() {
+        return endpoints;
     }
 
-    public JsonElement getAst() {
-        return ast;
-    }
-
-    public void setAst(JsonElement ast) {
-        this.ast = ast;
-    }
-
-    public boolean isParseSuccess() {
-        return parseSuccess;
-    }
-
-    public void setParseSuccess(boolean parseSuccess) {
-        this.parseSuccess = parseSuccess;
+    public void setEndpoints(List<BallerinaEndpoint> endpoints) {
+        this.endpoints = endpoints;
     }
 }

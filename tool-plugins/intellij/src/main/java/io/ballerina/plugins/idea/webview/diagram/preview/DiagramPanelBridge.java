@@ -27,10 +27,13 @@ import com.intellij.openapi.wm.ToolWindowId;
 import io.ballerina.plugins.idea.extensions.editoreventmanager.BallerinaEditorEventManager;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChangeResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
+import io.ballerina.plugins.idea.extensions.server.BallerinaEndpoint;
+import io.ballerina.plugins.idea.extensions.server.BallerinaEndpointsResponse;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.editor.EditorEventManager;
 import org.wso2.lsp4intellij.editor.EditorEventManagerBase;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -45,6 +48,7 @@ public class DiagramPanelBridge {
 
     private Project myProject;
     private VirtualFile myFile;
+    public BallerinaEndpoint[] endpoints;
 
     public DiagramPanelBridge(Project project, VirtualFile file) {
         this.myProject = project;
@@ -88,6 +92,37 @@ public class DiagramPanelBridge {
             LOG.warn("Editor event manager is null for: " + Objects.requireNonNull(editor).toString());
         }
         return editorEventManager;
+    }
+
+    public BallerinaEndpoint[] getEndpoints() {
+        try {
+            // Requests the AST from the Ballerina language server.
+            Editor editor = BallerinaDiagramUtils.getEditorFor(myFile, myProject);
+            EditorEventManager manager = EditorEventManagerBase.forEditor(editor);
+            BallerinaEditorEventManager editorManager = (BallerinaEditorEventManager) manager;
+            if (editorManager == null) {
+                LOG.debug(String.format("Editor event manager is null for: %s", editor.toString()));
+                return new BallerinaEndpoint[0];
+            }
+
+            // Gets the available list of endpoints.
+            BallerinaEndpointsResponse response = editorManager.getEndpoints();
+            if (response == null) {
+                LOG.debug("Error occurred when fetching endpoints response.");
+                return new BallerinaEndpoint[0];
+            }
+            List<BallerinaEndpoint> epList = response.getEndpoints();
+            if (epList != null && !epList.isEmpty()) {
+                return  epList.toArray(new BallerinaEndpoint[0]);
+            } else {
+                LOG.debug("Received list of endpoints are empty/null.");
+                return new BallerinaEndpoint[0];
+            }
+
+        } catch (Exception e) {
+            LOG.warn("Error occurred when fetching endpoints from the language server.", e);
+            return new BallerinaEndpoint[0];
+        }
     }
 
     public void log(@Nullable String text) {

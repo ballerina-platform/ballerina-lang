@@ -15,34 +15,17 @@
  */
 package io.ballerina.plugins.idea.extensions.server;
 
-import com.google.gson.JsonElement;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
- * Represents a Ballerina AST response.
+ * An extension interface for Language server to fetch information about ballerina symbols.
  */
-public class BallerinaASTResponse {
+@JsonSegment("ballerinaSymbol")
+public interface BallerinaSymbolService {
 
-    private JsonElement ast;
-    private boolean parseSuccess;
-
-    public BallerinaASTResponse(JsonElement ast, boolean parseSuccess) {
-        this.ast = ast;
-        this.parseSuccess = parseSuccess;
-    }
-
-    public JsonElement getAst() {
-        return ast;
-    }
-
-    public void setAst(JsonElement ast) {
-        this.ast = ast;
-    }
-
-    public boolean isParseSuccess() {
-        return parseSuccess;
-    }
-
-    public void setParseSuccess(boolean parseSuccess) {
-        this.parseSuccess = parseSuccess;
-    }
+    @JsonRequest
+    CompletableFuture<BallerinaEndpointsResponse> endpoints();
 }

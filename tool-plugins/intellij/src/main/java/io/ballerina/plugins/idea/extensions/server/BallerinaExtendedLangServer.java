@@ -10,4 +10,7 @@ public interface BallerinaExtendedLangServer extends LanguageServer {
 
     @JsonDelegate
     BallerinaDocumentService getBallerinaDocumentService();
+
+    @JsonDelegate
+    BallerinaSymbolService getBallerinaSymbolService();
 }

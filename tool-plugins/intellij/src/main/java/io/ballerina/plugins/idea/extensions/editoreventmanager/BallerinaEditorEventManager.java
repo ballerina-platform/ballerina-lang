@@ -27,6 +27,7 @@ import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChange;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChangeResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTRequest;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
+import io.ballerina.plugins.idea.extensions.server.BallerinaEndpointsResponse;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
@@ -48,6 +49,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
 
     private static final Logger LOG = Logger.getInstance(BallerinaEditorEventManager.class);
     private static final int TIMEOUT_AST = 3000;
+    private static final int TIMEOUT_ENDPOINtS = 2000;
 
     public BallerinaEditorEventManager(Editor editor, DocumentListener documentListener,
                                        EditorMouseListener mouseListener, EditorMouseMotionListener mouseMotionListener,
@@ -99,6 +101,27 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         }
         return null;
     }
+
+    public BallerinaEndpointsResponse getEndpoints() {
+        BallerinaRequestManager ballerinaRequestManager = (BallerinaRequestManager) getRequestManager();
+        CompletableFuture<BallerinaEndpointsResponse> future = ballerinaRequestManager
+                .endpoints();
+        if (future != null) {
+            try {
+                return future.get(TIMEOUT_ENDPOINtS, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                LOG.warn(e);
+                return null;
+            } catch (InterruptedException | JsonRpcException | ExecutionException e) {
+                LOG.warn(e);
+                // Todo - Enable after fixing
+                // wrapper.crashed(e);
+                return null;
+            }
+        }
+        return null;
+    }
+
 
     @Override
     public void documentChanged(DocumentEvent event) {

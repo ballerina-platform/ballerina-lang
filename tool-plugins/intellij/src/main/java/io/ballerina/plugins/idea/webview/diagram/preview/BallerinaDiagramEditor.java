@@ -29,7 +29,6 @@ import io.ballerina.plugins.idea.webview.diagram.settings.DiagramCssSettings;
 import io.ballerina.plugins.idea.webview.diagram.settings.DiagramPreviewSettings;
 import io.ballerina.plugins.idea.webview.diagram.split.SplitFileEditor;
 import netscape.javascript.JSException;
-import netscape.javascript.JSObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +47,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
 
     private static final Logger LOG = Logger.getInstance(BallerinaDiagramEditor.class);
 
-    private static final long DEBOUNCE_DELAY_MS = 200L;
+    private static final long DEBOUNCE_DELAY_MS = 400L;
     private static final long RENDERING_DELAY_MS = 20L;
 
     @NotNull
@@ -110,9 +109,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
                     }
                     attachHtmlPanel();
                 }, 0, ModalityState.stateForComponent(getComponent()));
-                myPooledAlarm.addRequest(() -> {
-                    updateHtml(false);
-                }, DEBOUNCE_DELAY_MS);
+                myPooledAlarm.addRequest(() -> updateHtml(false), DEBOUNCE_DELAY_MS);
                 isHidden = false;
             }
 
@@ -308,7 +305,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
                     }
                     try {
                         myPanel.runInPlatformWhenAvailable(() ->
-                                myPanel.getWebview().getEngine().executeScript("loadedScript();")
+                                myPanel.getWebview().getEngine().executeScript("window.updateAST();")
                         );
                     } catch (JSException e) {
                         LOG.warn("Javascript error Occurred.", e);
@@ -325,10 +322,6 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
                         return;
                     }
                     try {
-                        myPanel.runInPlatformWhenAvailable(() -> {
-                            JSObject win = (JSObject) myPanel.getWebview().getEngine().executeScript("window");
-                            win.setMember("DiagramPanelBridge", myPanel.getPanelBridge());
-                        });
                         if (!finalHtml.equals(myLastRenderedHtml) && !finalHtml.isEmpty()) {
                             myLastRenderedHtml = finalHtml;
                             myPanel.setHtml(myLastRenderedHtml);

@@ -17,6 +17,9 @@ function loadedScript() {
                 }
             };
             const diagram = ballerinaComposer.renderDiagramEditor(options);
+            window.updateAST = () => {
+                diagram.updateAST(docUri);
+            };
         } catch(e) {
             console.log(e.stack);
             drawError('Oops. Something went wrong. ' + e.message);

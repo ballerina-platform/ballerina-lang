@@ -52,10 +52,6 @@ public class DiagramJavaFxHtmlPanel extends JavaFxHtmlPanel implements DiagramHt
         return super.getWebViewGuaranteed();
     }
 
-    public DiagramPanelBridge getPanelBridge() {
-        return myPanelBridge;
-    }
-
     public void runInPlatformWhenAvailable(@NotNull Runnable runnable) {
         super.runInPlatformWhenAvailable(runnable);
     }

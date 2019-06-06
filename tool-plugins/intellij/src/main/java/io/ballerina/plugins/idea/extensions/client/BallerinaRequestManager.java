@@ -15,12 +15,15 @@
  */
 package io.ballerina.plugins.idea.extensions.client;
 
+import com.intellij.openapi.diagnostic.Logger;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChange;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChangeResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTRequest;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaDocumentService;
+import io.ballerina.plugins.idea.extensions.server.BallerinaEndpointsResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaExtendedLangServer;
+import io.ballerina.plugins.idea.extensions.server.BallerinaSymbolService;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
@@ -34,13 +37,17 @@ import java.util.concurrent.CompletableFuture;
  */
 public class BallerinaRequestManager extends DefaultRequestManager {
 
-    BallerinaDocumentService ballerinaDocumentService;
+    private static final Logger LOG = Logger.getInstance(BallerinaRequestManager.class);
+
+    private BallerinaDocumentService ballerinaDocumentService;
+    private BallerinaSymbolService ballerinaSymbolService;
 
     public BallerinaRequestManager(LanguageServerWrapper wrapper, LanguageServer server, LanguageClient client,
                                    ServerCapabilities serverCapabilities) {
         super(wrapper, server, client, serverCapabilities);
         BallerinaExtendedLangServer extendedServer = (BallerinaExtendedLangServer) server;
         ballerinaDocumentService = extendedServer.getBallerinaDocumentService();
+        ballerinaSymbolService = extendedServer.getBallerinaSymbolService();
     }
 
     public CompletableFuture<BallerinaASTResponse> ast(BallerinaASTRequest request) {
@@ -48,9 +55,11 @@ public class BallerinaRequestManager extends DefaultRequestManager {
             try {
                 return ballerinaDocumentService.ast(request);
             } catch (Exception e) {
+                LOG.warn("Unexpected error occurred in ballerina language client request manager", e);
                 return null;
             }
         } else {
+            LOG.warn("Language server is not initialized.");
             return null;
         }
     }
@@ -60,10 +69,28 @@ public class BallerinaRequestManager extends DefaultRequestManager {
             try {
                 return ballerinaDocumentService.astDidChange(notification);
             } catch (Exception e) {
+                LOG.warn("Unexpected error occurred in ballerina language client request manager", e);
                 return null;
             }
         } else {
+            LOG.warn("Language server is not initialized.");
             return null;
         }
     }
+
+    public CompletableFuture<BallerinaEndpointsResponse> endpoints() {
+        if (checkStatus()) {
+            try {
+                return ballerinaSymbolService.endpoints();
+            } catch (Exception e) {
+                LOG.warn("Unexpected error occurred in ballerina language client request manager", e);
+                return null;
+            }
+        } else {
+            LOG.warn("Language server is not initialized.");
+            return null;
+        }
+    }
+
+
 }
