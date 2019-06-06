@@ -368,7 +368,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config, CachedT
             if (authConfig is OAuth2AuthConfig) {
                 string authToken;
                 boolean retryRequired;
-                (authToken, retryRequired) = check getAuthTokenForOAuth2(authConfig, tokenCache, false);
+                [authToken, retryRequired] = check getAuthTokenForOAuth2(authConfig, tokenCache, false);
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
                 return retryRequired;
             } else {
@@ -420,7 +420,7 @@ function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|err
 # + return - Auth token with the status whether retrying is required for a 401 response or returns
 # `error` if the validation fails
 function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedToken tokenCache,
-                               boolean updateRequest) returns (string, boolean)|error {
+                               boolean updateRequest) returns [string, boolean]|error {
     var grantType = authConfig.grantType;
     var grantTypeConfig = authConfig.config;
     if (grantType is PASSWORD_GRANT) {
@@ -455,20 +455,20 @@ function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedToken tokenCac
 # + return - Auth token with the status whether retrying is required for a 401 response or
 # `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
-                                            CachedToken tokenCache) returns (string, boolean)|error {
+                                            CachedToken tokenCache) returns [string, boolean]|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
         log:printDebug(function () returns string {
             return "OAuth2 password grant type; Access token received from authorization request. Cache is empty.";
         });
-        return (accessToken, false);
+        return [accessToken, false];
     } else {
         if (isCachedTokenValid(tokenCache)) {
             log:printDebug(function () returns string {
                 return "OAuth2 password grant type; Access token received from cache.";
             });
-            return (cachedAccessToken, grantTypeConfig.retryRequest);
+            return [cachedAccessToken, grantTypeConfig.retryRequest];
         } else {
             lock {
                 if (isCachedTokenValid(tokenCache)) {
@@ -476,13 +476,13 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
                     log:printDebug(function () returns string {
                         return "OAuth2 password grant type; Access token received from cache.";
                     });
-                    return (cachedAccessToken, grantTypeConfig.retryRequest);
+                    return [cachedAccessToken, grantTypeConfig.retryRequest];
                 } else {
                     string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig, tokenCache);
                     log:printDebug(function () returns string {
                         return "OAuth2 password grant type; Access token received from refresh request.";
                     });
-                    return (accessToken, false);
+                    return [accessToken, false];
                 }
             }
         }
@@ -496,7 +496,7 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
 # + return - Auth token with the status whether retrying is required for a 401 response or
 # `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfig grantTypeConfig,
-                                                     CachedToken tokenCache) returns (string, boolean)|error {
+                                                     CachedToken tokenCache) returns [string, boolean]|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
@@ -504,13 +504,13 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
             return "OAuth2 client credentials grant type; Access token received from authorization request.
                 Cache is empty.";
         });
-        return (accessToken, false);
+        return [accessToken, false];
     } else {
         if (isCachedTokenValid(tokenCache)) {
             log:printDebug(function () returns string {
                 return "OAuth2 client credentials grant type; Access token received from cache.";
             });
-            return (cachedAccessToken, grantTypeConfig.retryRequest);
+            return [cachedAccessToken, grantTypeConfig.retryRequest];
         } else {
             lock {
                 if (isCachedTokenValid(tokenCache)) {
@@ -518,13 +518,13 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
                     log:printDebug(function () returns string {
                         return "OAuth2 client credentials grant type; Access token received from cache.";
                     });
-                    return (cachedAccessToken, grantTypeConfig.retryRequest);
+                    return [cachedAccessToken, grantTypeConfig.retryRequest];
                 } else {
                     string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
                     log:printDebug(function () returns string {
                         return "OAuth2 client credentials grant type; Access token received from authorization request.";
                     });
-                    return (accessToken, false);
+                    return [accessToken, false];
                 }
             }
         }
@@ -538,7 +538,7 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
 # + return - Auth token with the status whether retrying is required for a 401 response or
 # `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
-                                              CachedToken tokenCache) returns (string, boolean)|error {
+                                              CachedToken tokenCache) returns [string, boolean]|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         var directAccessToken = grantTypeConfig["accessToken"];
@@ -546,20 +546,20 @@ function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
             log:printDebug(function () returns string {
                 return "OAuth2 direct token mode; Access token received from user given request. Cache is empty.";
             });
-            return (directAccessToken, grantTypeConfig.retryRequest);
+            return [directAccessToken, grantTypeConfig.retryRequest];
         } else {
             string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig, tokenCache);
             log:printDebug(function () returns string {
                 return "OAuth2 direct token mode; Access token received from refresh request. Cache is empty.";
             });
-            return (accessToken, false);
+            return [accessToken, false];
         }
     } else {
         if (isCachedTokenValid(tokenCache)) {
             log:printDebug(function () returns string {
                 return "OAuth2 client credentials grant type; Access token received from cache.";
             });
-            return (cachedAccessToken, grantTypeConfig.retryRequest);
+            return [cachedAccessToken, grantTypeConfig.retryRequest];
         } else {
             lock {
                 if (isCachedTokenValid(tokenCache)) {
@@ -567,13 +567,13 @@ function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
                     log:printDebug(function () returns string {
                         return "OAuth2 client credentials grant type; Access token received from cache.";
                     });
-                    return (cachedAccessToken, grantTypeConfig.retryRequest);
+                    return [cachedAccessToken, grantTypeConfig.retryRequest];
                 } else {
                     string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig, tokenCache);
                     log:printDebug(function () returns string {
                         return "OAuth2 direct token mode; Access token received from refresh request.";
                     });
-                    return (accessToken, false);
+                    return [accessToken, false];
                 }
             }
         }
@@ -940,7 +940,7 @@ function updateRequest(Request req, ClientEndpointConfig config, CachedToken tok
         if (authConfig is OAuth2AuthConfig) {
             string authToken;
             boolean retryRequired;
-            (authToken, retryRequired) = check getAuthTokenForOAuth2(authConfig, tokenCache, true);
+            [authToken, retryRequired] = check getAuthTokenForOAuth2(authConfig, tokenCache, true);
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
         }
     }

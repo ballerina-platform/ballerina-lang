@@ -285,13 +285,13 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
             int responseStatusCode = backendResponse.statusCode;
             if (statusCodeIndex.length() > responseStatusCode && (statusCodeIndex[responseStatusCode] == true)
                                                               && currentRetryCount < (retryCount)) {
-                (interval, currentRetryCount) =
+                [interval, currentRetryCount] =
                                 calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
             } else {
                 return backendResponse;
             }
         } else {
-            (interval, currentRetryCount) =
+            [interval, currentRetryCount] =
                             calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
             httpConnectorErr = backendResponse;
         }
@@ -307,12 +307,12 @@ function getWaitTime(float backOffFactor, int maxWaitTime, int interval) returns
 }
 
 function calculateEffectiveIntervalAndRetryCount(RetryClient retryClient, int currentRetryCount, int currentDelay)
-                                                 returns (int, int) {
+                                                 returns [int, int] {
     int interval = currentDelay;
     if (currentRetryCount != 0) {
         interval = getWaitTime(retryClient.retryInferredConfig.backOffFactor,
                     retryClient.retryInferredConfig.maxWaitInterval, interval);
     }
     int retryCount = currentRetryCount + 1;
-    return (interval, retryCount);
+    return [interval, retryCount];
 }
