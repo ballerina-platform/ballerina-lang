@@ -1,16 +1,18 @@
-// Copyright 2000-2018 JetBrains s.r.o.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package io.ballerina.plugins.idea.webview.diagram.split;
 
 import com.intellij.openapi.fileEditor.AsyncFileEditorProvider;
@@ -43,12 +45,12 @@ public abstract class SplitTextEditorProvider implements AsyncFileEditorProvider
     private final String myEditorTypeId;
 
     public SplitTextEditorProvider(@NotNull FileEditorProvider firstProvider,
-            @NotNull FileEditorProvider secondProvider) {
+                                   @NotNull FileEditorProvider secondProvider) {
         myFirstProvider = firstProvider;
         mySecondProvider = secondProvider;
 
-        myEditorTypeId =
-                "split-provider[" + myFirstProvider.getEditorTypeId() + ";" + mySecondProvider.getEditorTypeId() + "]";
+        myEditorTypeId = String.format("split-provider[%s;%s]",
+                myFirstProvider.getEditorTypeId(), mySecondProvider.getEditorTypeId());
     }
 
     @Override
@@ -85,7 +87,7 @@ public abstract class SplitTextEditorProvider implements AsyncFileEditorProvider
     @NotNull
     @Override
     public FileEditorState readState(@NotNull Element sourceElement, @NotNull Project project,
-            @NotNull VirtualFile file) {
+                                     @NotNull VirtualFile file) {
         Element child = sourceElement.getChild(FIRST_EDITOR);
         FileEditorState firstState = null;
         if (child != null) {
@@ -143,7 +145,8 @@ public abstract class SplitTextEditorProvider implements AsyncFileEditorProvider
 
     @NotNull
     public static Builder getBuilderFromEditorProvider(@NotNull final FileEditorProvider provider,
-            @NotNull final Project project, @NotNull final VirtualFile file) {
+                                                       @NotNull final Project project,
+                                                       @NotNull final VirtualFile file) {
         if (provider instanceof AsyncFileEditorProvider) {
             return ((AsyncFileEditorProvider) provider).createEditorAsync(project, file);
         } else {

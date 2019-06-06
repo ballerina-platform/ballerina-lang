@@ -30,7 +30,7 @@ import javax.swing.Icon;
  */
 public class BallerinaIcons {
 
-    public static final Icon FILE = IconLoader.getIcon("/icons/ballerina.png");
+    public static final Icon FILE = IconLoader.getIcon("/icons/ballerina.png", BallerinaIcons.class);
     public static final Icon ICON = FILE;
     public static final Icon APPLICATION_RUN = createIconWithShift(ICON, AllIcons.Nodes.RunnableMark);
     public static final Icon RUN = AllIcons.RunConfigurations.TestState.Run;
