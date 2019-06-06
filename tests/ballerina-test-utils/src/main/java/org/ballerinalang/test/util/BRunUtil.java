@@ -380,7 +380,7 @@ public class BRunUtil {
             };
 
             Scheduler scheduler = new Scheduler(4);
-            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null);
+            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, null);
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
                 throw new org.ballerinalang.util.exceptions

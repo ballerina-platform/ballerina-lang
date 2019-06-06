@@ -86,6 +86,7 @@ public class Register extends AbstractHttpNativeFunction {
                                 Object annotationData) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
+        httpServicesRegistry.setScheduler(strand.scheduler);
 
         BType param;
         AttachedFunction[] resourceList = service.getType().getAttachedFunctions();

@@ -17,8 +17,10 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.values.ChannelDetails;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +52,10 @@ public class Scheduler {
 
 
     private static final Logger logger = LoggerFactory.getLogger(Scheduler.class);
+    /**
+     * Scheduler does not get killed if the immortal value is true. Specific to services.
+     */
+    private boolean immortal;
     /**
      * Strands that are ready for execution.
      */
@@ -87,8 +93,13 @@ public class Scheduler {
         this.numThreads = numThreads;
     }
 
+    public Scheduler(int numThreads, boolean immortal) {
+        this.numThreads = numThreads;
+        this.immortal = immortal;
+    }
+
     public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent) {
-        return schedule(params, fp.getFunction(), parent);
+        return schedule(params, fp.getFunction(), parent, null, null);
     }
 
     public FutureValue scheduleConsumer(Object[] params, FPValue<?, ?> fp, Strand parent) {
@@ -101,10 +112,12 @@ public class Scheduler {
      * @param params   - parameters to be passed to the function
      * @param function - function to be executed
      * @param parent   - parent strand that makes the request to schedule another
+     * @param callback - to notify any listener when ever the execution of the given function is finished
      * @return - Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Function function, Strand parent) {
-        FutureValue future = createFuture(parent);
+    public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
+                                Map<String, Object> properties) {
+        FutureValue future = createFuture(parent, callback, properties);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         totalStrands.incrementAndGet();
@@ -124,7 +137,7 @@ public class Scheduler {
      * @return - Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Consumer consumer, Strand parent) {
-        FutureValue future = createFuture(parent);
+        FutureValue future = createFuture(parent, null, null);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         totalStrands.incrementAndGet();
@@ -240,6 +253,14 @@ public class Scheduler {
                         item.future.result = result;
                         item.future.isDone = true;
                         item.future.panic = panic;
+                        // TODO clean, better move it to future value itself
+                        if (item.future.callback != null) {
+                            if (item.future.panic != null) {
+                                item.future.callback.notifyFailure((ErrorValue) panic);
+                            } else {
+                                item.future.callback.notifySuccess();
+                            }
+                        }
                     }
 
                     Strand justCompleted = item.future.strand;
@@ -248,6 +269,7 @@ public class Scheduler {
                         debugLog(item + " complected");
                     }
                     synchronized (justCompleted) {
+                        cleanUp(justCompleted);
                         blockedOnJustCompleted = blockedList.put(justCompleted, COMPLETED);
                     }
 
@@ -271,8 +293,10 @@ public class Scheduler {
                             debugLog("+++++++++ all work completed ++++++++");
                         }
 
-                        for (int i = 0; i < numThreads; i++) {
-                            runnableList.add(POISON_PILL);
+                        if (!immortal) {
+                            for (int i = 0; i < numThreads; i++) {
+                                runnableList.add(POISON_PILL);
+                            }
                         }
                     }
                     break;
@@ -280,6 +304,14 @@ public class Scheduler {
                     assert false : "illegal strand state during execute " + item.getState();
             }
         }
+    }
+
+    private void cleanUp(Strand justCompleted) {
+        justCompleted.scheduler = null;
+        justCompleted.frames = null;
+        assert justCompleted.blockedOn.size() == 0;
+        justCompleted.blockedOn = null;
+        //TODO: more cleanup , eg channels
     }
 
     private synchronized void debugLog(String msg) {
@@ -322,9 +354,9 @@ public class Scheduler {
         }
     }
 
-    private FutureValue createFuture(Strand parent) {
-        Strand newStrand = new Strand(this, parent);
-        FutureValue future = new FutureValue(newStrand);
+    private FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties) {
+        Strand newStrand = new Strand(this, parent, properties);
+        FutureValue future = new FutureValue(newStrand, callback);
         future.strand.frames = new Object[100];
         return future;
     }

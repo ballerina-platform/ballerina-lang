@@ -203,7 +203,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
             }
             boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
             generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
-            generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
+            generateMainMethod(mainFunc, cw, module, mainClass, moduleClass, serviceEPAvailable);
             if (mainFunc is bir:Function) {
                 generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
             }

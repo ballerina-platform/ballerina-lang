@@ -21,6 +21,7 @@
  import org.ballerinalang.jvm.commons.TypeValuePair;
  import org.ballerinalang.jvm.types.BType;
  import org.ballerinalang.jvm.types.BTypes;
+ import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
  import java.util.List;
  import java.util.Map;
@@ -41,8 +42,11 @@
 
      public Throwable panic;
 
-     public FutureValue(Strand strand) {
+     public CallableUnitCallback callback;
+
+     public FutureValue(Strand strand, CallableUnitCallback callback) {
          this.strand = strand;
+         this.callback = callback;
      }
 
      @Override

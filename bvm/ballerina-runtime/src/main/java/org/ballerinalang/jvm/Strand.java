@@ -61,21 +61,13 @@ public class Strand {
         this.globalProps = new HashMap<>();
     }
 
-    public Strand(Scheduler scheduler, Strand parent) {
+    public Strand(Scheduler scheduler, Strand parent, Map<String, Object> properties) {
         this.scheduler = scheduler;
         this.parent = parent;
         this.wdChannels = new WDChannels();
         this.blockedOn = new CopyOnWriteArrayList();
         this.channelDetails = new ChannelDetails[0];
-        this.globalProps = new HashMap<>();
-    }
-
-    public Strand(Scheduler scheduler, Map<String, Object> properties) {
-        this.scheduler = scheduler;
         this.globalProps = properties;
-        this.wdChannels = new WDChannels();
-        this.blockedOn = new CopyOnWriteArrayList();
-        this.channelDetails = new ChannelDetails[0];
     }
 
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {
