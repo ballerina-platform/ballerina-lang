@@ -84,6 +84,40 @@ public class DiagramPanelBridge {
         }
     }
 
+    public BallerinaEndpoint[] getEndpoints() {
+        try {
+            // Requests the available list of endpoints.
+            BallerinaEditorEventManager editorManager = getEditorManagerFor(myProject, myFile);
+            BallerinaEndpointsResponse response = editorManager.getEndpoints();
+
+            if (response == null) {
+                LOG.warn("Error occurred when fetching endpoints response.");
+                return new BallerinaEndpoint[0];
+            }
+            List<BallerinaEndpoint> epList = response.getEndpoints();
+            if (epList != null && !epList.isEmpty()) {
+                return epList.toArray(new BallerinaEndpoint[0]);
+            } else {
+                LOG.warn("Received list of endpoints are empty/null.");
+                return new BallerinaEndpoint[0];
+            }
+
+        } catch (Exception e) {
+            LOG.warn("Error occurred when fetching endpoints from the language server.", e);
+            return new BallerinaEndpoint[0];
+        }
+    }
+
+    public void gotoSource(String eventData) {
+        JsonParser parser = new JsonParser();
+        JsonObject sourceParams = parser.parse(eventData).getAsJsonObject();
+        JsonObject rangeStart = sourceParams.get("range").getAsJsonObject().get("start").getAsJsonObject();
+        JsonObject rangeEnd = sourceParams.get("range").getAsJsonObject().get("end").getAsJsonObject();
+
+        BallerinaEditorEventManager editorManager = getEditorManagerFor(myProject, myFile);
+        editorManager.setFocus(rangeStart, rangeEnd);
+    }
+
     private BallerinaEditorEventManager getEditorManagerFor(Project project, VirtualFile file) {
         Editor editor = BallerinaDiagramUtils.getEditorFor(file, project);
         EditorEventManager manager = EditorEventManagerBase.forEditor(editor);
@@ -94,36 +128,6 @@ public class DiagramPanelBridge {
         return editorEventManager;
     }
 
-    public BallerinaEndpoint[] getEndpoints() {
-        try {
-            // Requests the AST from the Ballerina language server.
-            Editor editor = BallerinaDiagramUtils.getEditorFor(myFile, myProject);
-            EditorEventManager manager = EditorEventManagerBase.forEditor(editor);
-            BallerinaEditorEventManager editorManager = (BallerinaEditorEventManager) manager;
-            if (editorManager == null) {
-                LOG.debug(String.format("Editor event manager is null for: %s", editor.toString()));
-                return new BallerinaEndpoint[0];
-            }
-
-            // Gets the available list of endpoints.
-            BallerinaEndpointsResponse response = editorManager.getEndpoints();
-            if (response == null) {
-                LOG.debug("Error occurred when fetching endpoints response.");
-                return new BallerinaEndpoint[0];
-            }
-            List<BallerinaEndpoint> epList = response.getEndpoints();
-            if (epList != null && !epList.isEmpty()) {
-                return  epList.toArray(new BallerinaEndpoint[0]);
-            } else {
-                LOG.debug("Received list of endpoints are empty/null.");
-                return new BallerinaEndpoint[0];
-            }
-
-        } catch (Exception e) {
-            LOG.warn("Error occurred when fetching endpoints from the language server.", e);
-            return new BallerinaEndpoint[0];
-        }
-    }
 
     public void log(@Nullable String text) {
         Logger.getInstance(DiagramPanelBridge.class).warn(text);

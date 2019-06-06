@@ -15,6 +15,13 @@ function getLangClient() {
             return new Promise((resolve, reject) => {
                 resolve(window.DiagramPanelBridge.handleDiagramEdit(JSON.stringify(params)));
             })
+        },
+        revealRange: (params) => {
+            if (params) {
+                return new Promise((resolve, reject) => {
+                    resolve(window.DiagramPanelBridge.gotoSource(JSON.stringify(params)));
+                })
+            }
         }
     }
 }

@@ -18,6 +18,8 @@ package io.ballerina.plugins.idea.extensions.editoreventmanager;
 import com.google.gson.JsonObject;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.LogicalPosition;
+import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.event.EditorMouseListener;
@@ -29,6 +31,7 @@ import io.ballerina.plugins.idea.extensions.server.BallerinaASTRequest;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaEndpointsResponse;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
 import org.jetbrains.annotations.Nullable;
@@ -36,6 +39,8 @@ import org.wso2.lsp4intellij.client.languageserver.ServerOptions;
 import org.wso2.lsp4intellij.client.languageserver.requestmanager.RequestManager;
 import org.wso2.lsp4intellij.client.languageserver.wrapper.LanguageServerWrapper;
 import org.wso2.lsp4intellij.editor.EditorEventManager;
+import org.wso2.lsp4intellij.utils.ApplicationUtils;
+import org.wso2.lsp4intellij.utils.DocumentUtils;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -134,6 +139,24 @@ public class BallerinaEditorEventManager extends EditorEventManager {
             this.getRequestManager().didChange(changeParams);
         } else {
             LOG.error("Wrong document for the EditorEventManager");
+        }
+    }
+
+    public void setFocus(JsonObject start, JsonObject end) {
+        try {
+            Position startPos = new Position(start.get("line").getAsInt() - 1, start.get("character").getAsInt() - 1);
+            Position endPos = new Position(end.get("line").getAsInt() - 1, end.get("character").getAsInt() - 1);
+            int startOffset = DocumentUtils.LSPPosToOffset(editor, startPos);
+            int endOffset = DocumentUtils.LSPPosToOffset(editor, endPos);
+            ApplicationUtils.invokeLater(() -> {
+                // Scrolls to the given offset.
+                editor.getScrollingModel().scrollTo(new LogicalPosition(startPos.getLine(), startPos.getCharacter()),
+                        ScrollType.CENTER);
+                // Highlights selected range.
+                editor.getSelectionModel().setSelection(startOffset, endOffset);
+            });
+        } catch (Exception e) {
+            LOG.warn("Couldn't process source focus request from diagram editor.", e);
         }
     }
 }
