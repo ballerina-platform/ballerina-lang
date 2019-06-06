@@ -3753,6 +3753,21 @@ public class BVM {
 
     public static boolean checkRecordEquivalency(BRecordType lhsType, BRecordType rhsType,
                                                  List<TypePair> unresolvedTypes) {
+        // Both records should be public or private.
+        // Get the XOR of both flags(masks)
+        // If both are public, then public bit should be 0;
+        // If both are private, then public bit should be 0;
+        // The public bit is on means, one is public, and the other one is private.
+        if (Flags.isFlagOn(lhsType.flags ^ rhsType.flags, Flags.PUBLIC)) {
+            return false;
+        }
+
+        // If both records are private, they should be in the same package.
+        if (!Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
+                !rhsType.getPackagePath().equals(lhsType.getPackagePath())) {
+            return false;
+        }
+
         // Cannot assign open records to closed record types
         if (lhsType.sealed && !rhsType.sealed) {
             return false;
