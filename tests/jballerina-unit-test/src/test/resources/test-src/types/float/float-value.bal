@@ -54,30 +54,30 @@ function testFloatParameter(float a) returns (float) {
     return b;
 }
 
-function testFloatValues() returns (float, float, float, float) {
+function testFloatValues() returns [float, float, float, float] {
     float a = 123.4;
     float b = 1.234e2;
     float c = 123.4;
     float d = 1.234e2;
-    return (a, b, c, d);
+    return [a, b, c, d];
 }
 
-function testHexFloatingPointLiterals() returns (float, float, float, float) {
+function testHexFloatingPointLiterals() returns [float, float, float, float] {
     float a = 0X12Ab.0;
     float b = 0x8.0;
     float c = 0xaP-1;
     float d = 0x3p2;
-    return (a, b, c, d);
+    return [a, b, c, d];
 }
 
-function testIntLiteralAssignment() returns (float, float) {
+function testIntLiteralAssignment() returns [float, float] {
     float x = 12;
-    return (x, 15);
+    return [x, 15];
 }
 
-function testDiscriminatedFloatLiteral() returns (float, float, float) {
+function testDiscriminatedFloatLiteral() returns [float, float, float] {
     float a = 1.0f;
     var b = 1.0f;
     float d = 2.2e3f;
-    return (a, b, d);
+    return [a, b, d];
 }
