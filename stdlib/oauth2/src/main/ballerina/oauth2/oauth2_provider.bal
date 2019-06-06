@@ -24,9 +24,9 @@ import ballerina/runtime;
 #
 # + introspectionClient - Introspection client endpoint
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
-public type OAuth2Provider object {
+public type InboundOAuth2Provider object {
 
-    *auth:AuthProvider;
+    *auth:InboundAuthProvider;
 
     public http:Client introspectionClient;
     public string? tokenTypeHint;

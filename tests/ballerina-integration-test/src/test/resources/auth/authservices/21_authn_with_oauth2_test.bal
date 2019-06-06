@@ -17,20 +17,21 @@
 import ballerina/oauth2;
 import ballerina/http;
 
+auth:OutboundBasicAuthProvider basicAuthProvider = new({
+    username: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
+    password: "9205371918321623741"
+});
+http:BasicAuthHeaderAuthnHandler basicAuthnHandler = new(basicAuthProvider);
+
 oauth2:IntrospectionServerConfig introspectionServerConfig = {
     url: "https://localhost:9196/oauth2/token/introspect",
     clientConfig: {
         auth: {
-            scheme: http:BASIC_AUTH,
-            config: {
-                username: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
-                password: "9205371918321623741"
-            }
+            authnHandler: basicAuthnHandler
         }
     }
 };
-
-oauth2:OAuth2Provider oauth2Provider21 = new(introspectionServerConfig);
+oauth2:InboundOAuth2Provider oauth2Provider21 = new(introspectionServerConfig);
 http:BearerAuthHeaderAuthnHandler oauth2AuthnHandler21 = new(oauth2Provider21);
 
 listener http:Listener listener21 = new(9116, config = {
