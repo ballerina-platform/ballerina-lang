@@ -1725,9 +1725,8 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (!isIgnoredErrorRefRestVar(parentErrorVarRef)) {
-
-            BLangSimpleVarRef detailVarRef = ASTBuilderUtil.createVariableRef(
-                    parentErrorVarRef.restVar.pos, detailTempVarDef.var.symbol);
+            BLangSimpleVarRef detailVarRef = ASTBuilderUtil.createVariableRef(parentErrorVarRef.restVar.pos,
+                    detailTempVarDef.var.symbol);
 
             BLangExpression restDetailExpr;
             if (!extractedKeys.isEmpty()) {
@@ -1740,10 +1739,10 @@ public class Desugar extends BLangNodeVisitor {
 
             BLangExpression stamped = visitCloneAndStampInvocation(restDetailExpr, parentErrorVarRef.restVar.type);
 
-            BLangAssignment restAssigment = ASTBuilderUtil.createAssignmentStmt(parentErrorVarRef.restVar.pos,
+            BLangAssignment restAssignment = ASTBuilderUtil.createAssignmentStmt(parentErrorVarRef.restVar.pos,
                     parentBlockStmt);
-            restAssigment.varRef = parentErrorVarRef.restVar;
-            restAssigment.expr = stamped;
+            restAssignment.varRef = parentErrorVarRef.restVar;
+            restAssignment.expr = stamped;
         }
 
         BErrorType errorType = (BErrorType) parentErrorVarRef.type;
