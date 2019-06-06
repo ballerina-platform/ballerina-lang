@@ -81,12 +81,16 @@ public final class ClientCall {
 
     private void prepareHeaders(
             Compressor compressor) {
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context.getStrand());
         outboundMessage.removeHeader(MESSAGE_ENCODING);
         if (compressor != Codec.Identity.NONE) {
             outboundMessage.setHeader(MESSAGE_ENCODING, compressor.getMessageEncoding());
         }
         String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
         outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
+        outboundMessage.getHeaders().entries().forEach(
+                x -> observerContext.ifPresent(ctx -> ctx.addTag(x.getKey(), x.getValue())));
+
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
         outboundMessage.setHttpMethod(GrpcConstants.HTTP_METHOD);
         outboundMessage.setHttpVersion("2.0");
@@ -151,7 +155,6 @@ public final class ClientCall {
             compressor = Codec.Identity.NONE;
         }
         prepareHeaders(compressor);
-        checkAndObserveHttpRequest();
         ClientStreamListener clientStreamListener = new ClientStreamListener(observer);
         connectorListener = ObserveUtils.isObservabilityEnabled() ?
                 new ObservableClientConnectorListener(clientStreamListener, context) :

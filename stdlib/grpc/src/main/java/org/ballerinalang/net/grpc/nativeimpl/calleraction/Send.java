@@ -43,6 +43,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONTENT;
+
 /**
  * Extern function to respond the caller.
  *
@@ -56,6 +58,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
+
 public class Send {
     private static final Logger LOG = LoggerFactory.getLogger(Send.class);
 
@@ -84,9 +87,12 @@ public class Send {
                     }
                     if (headers != null) {
                         responseMessage.setHeaders(headers);
+                        headers.entries().forEach(
+                                x -> observerContext.ifPresent(ctx -> ctx.addTag(x.getKey(), x.getValue())));
                     }
                     responseObserver.onNext(responseMessage);
-                    observerContext.ifPresent(ctx -> ctx.addTag("grpc.message_content", responseValue.toString()));
+                    observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT,
+                            responseValue.toString()));
                 }
             } catch (Exception e) {
                 LOG.error("Error while sending client response.", e);

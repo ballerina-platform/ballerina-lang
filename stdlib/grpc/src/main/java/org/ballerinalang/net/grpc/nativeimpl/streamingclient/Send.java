@@ -27,8 +27,12 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
+import org.ballerinalang.util.observability.ObserveUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
@@ -59,6 +63,10 @@ public class Send {
             Descriptors.Descriptor inputType = (Descriptors.Descriptor) streamConnection.getNativeData(GrpcConstants
                     .REQUEST_MESSAGE_DEFINITION);
             try {
+                // Add message content to observer context.
+                Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+                observerContext.ifPresent(ctx -> ctx.addTag("grpc.message_content", responseValue.stringValue()));
+
                 Message requestMessage = new Message(inputType.getName(), responseValue);
                 requestSender.onNext(requestMessage);
             } catch (Exception e) {
