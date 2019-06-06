@@ -415,6 +415,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.NewError birNewError) {
         writePosition(birNewError.pos);
         buf.writeByte(birNewError.kind.getValue());
+        writeType(birNewError.type);
         birNewError.lhsOp.accept(this);
         birNewError.reasonOp.accept(this);
         birNewError.detailOp.accept(this);

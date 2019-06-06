@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
@@ -25,11 +26,16 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
 
-import java.util.ArrayList;
+import java.lang.annotation.Annotation;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG;
+import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * Util Class for handling Error in Ballerina VM.
@@ -83,20 +89,59 @@ public class BallerinaErrors {
     }
 
     public static ArrayValue generateCallStack() {
-        List<MapValue<String, Object>> sfList = new ArrayList<>();
-        for (StackTraceElement frame : Thread.currentThread().getStackTrace()) {
-            MapValue<String, Object> sf = getStackFrame(frame);
-            if (sf != null) {
-                sfList.add(0, sf);
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        List<StackTraceElement> filteredStack = new LinkedList<>();
+        for (int i = 0; i < stackTrace.length; i++) {
+            StackTraceElement stackTraceElement = BallerinaErrors.filterStackTraceElement(stackTrace, i);
+            if (stackTraceElement != null) {
+                filteredStack.add(stackTraceElement);
             }
         }
         BType recordType = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT).getType();
-        ArrayValue callStack = new ArrayValue(recordType);
-        for (int i = 0; i < sfList.size(); i++) {
-            callStack.add(i, sfList.get(i));
+        ArrayValue callStack = new ArrayValue(new BArrayType(recordType));
+        for (int i = 0; i < filteredStack.size(); i++) {
+            callStack.add(i, getStackFrame(filteredStack.get(i)));
         }
         return callStack;
     }
+
+    public static StackTraceElement filterStackTraceElement(StackTraceElement[] stackTrace,
+                                                            int currentIndex) {
+        StackTraceElement stackFrame = stackTrace[currentIndex];
+        String pkgName = stackFrame.getClassName();
+        String fileName = stackFrame.getFileName();
+        int lineNo = stackFrame.getLineNumber();
+        if (lineNo < 0) {
+            return null;
+        }
+        // Handle init function
+        if (pkgName.equals(MODULE_INIT_CLASS_NAME)) {
+            if (currentIndex != 0) {
+                return new StackTraceElement(stackFrame.getClassName(), INIT_FUNCTION_SUFFIX,
+                                             fileName, stackFrame.getLineNumber());
+            }
+
+            return null;
+        }
+
+        if (!fileName.equals(pkgName.concat(BLANG_SRC_FILE_SUFFIX))) {
+            try {
+                // Handle stacktrace for extern functions.
+                Annotation[] annotations = Class.forName(pkgName).getAnnotations();
+                if (annotations != null && annotations.length > 0 && annotations[0] instanceof BallerinaFunction) {
+                    BallerinaFunction balAnnotation = (BallerinaFunction) annotations[0];
+                    return new StackTraceElement(balAnnotation.orgName() + "/" + balAnnotation.packageName(),
+                                                 balAnnotation.functionName(), "<native>", 0);
+                }
+            } catch (ClassNotFoundException e) {
+                throw createError(e.getMessage());
+            }
+            // Remove java sources for bal stacktrace if they are not extern functions.
+            return null;
+        }
+        return stackFrame;
+    }
+
 
     private static MapValue<String, Object> getStackFrame(StackTraceElement stackTraceElement) {
         Object[] values = new Object[4];
