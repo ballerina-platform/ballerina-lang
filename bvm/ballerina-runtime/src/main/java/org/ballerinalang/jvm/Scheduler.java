@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.jvm;
 
-import org.antlr.v4.runtime.misc.Array2DHashSet;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
