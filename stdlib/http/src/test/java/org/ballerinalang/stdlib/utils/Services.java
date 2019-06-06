@@ -23,7 +23,7 @@ import io.netty.handler.codec.http.HttpContent;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.BHTTPServicesRegistry;

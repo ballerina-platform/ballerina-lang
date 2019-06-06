@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.services.nativeimpl.endpoint;
 
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;

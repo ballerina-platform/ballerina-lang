@@ -248,7 +248,6 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -527,7 +526,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         for (BLangStatement stmt : blockNode.stmts) {
             if (stmt.getKind() != NodeKind.TRY && stmt.getKind() != NodeKind.CATCH
                     && stmt.getKind() != NodeKind.IF) {
-                addLineNumberInfo(stmt.pos);
+                // TODO: Find the root cause for missing position data and fix accordingly.
+                if (stmt.pos != null) {
+                    addLineNumberInfo(stmt.pos);
+                }
             }
 
             genNode(stmt, blockEnv);
