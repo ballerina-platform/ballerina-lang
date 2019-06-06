@@ -51,6 +51,7 @@ public class ToLower extends BlockingNativeCallableUnit {
     }
 
     public static String toLower(Strand strand, String value) {
+        StringUtils.checkForNull(value);
         return value.toLowerCase(Locale.getDefault());
     }
 }
