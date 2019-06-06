@@ -318,14 +318,7 @@ public class TypeChecker {
         switch (targetType.getTag()) {
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
-                if (sourceType.getTag() == TypeTags.INT_TAG) {
-                    return true;
-                }
             case TypeTags.DECIMAL_TAG:
-                if (sourceType.getTag() == TypeTags.INT_TAG || sourceType.getTag() == TypeTags.BYTE_TAG ||
-                    sourceType.getTag() == TypeTags.FLOAT_TAG) {
-                    return true;
-                }
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:

@@ -78,11 +78,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     // generate method body
     int k = 1;
-    boolean isVoidFunc = false;
-    if (func.typeValue.retType is bir:BTypeNil) {
-        isVoidFunc = true;
-        k = 0;
-    }
 
     // set channel details to strand.
     // these channel info is required to notify datachannels, when there is a panic
@@ -122,13 +117,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     jvm:Label varinitLable = labelGen.getLabel(funcName + "varinit");
     mv.visitLabel(varinitLable);
 
-    if (!isVoidFunc) {
-        bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
-        returnVarRefIndex = indexMap.getIndex(varDcl);
-        bir:BType returnType = func.typeValue.retType;
-        genDefaultValue(mv, returnType, returnVarRefIndex);
-    }
-
+    bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
+    returnVarRefIndex = indexMap.getIndex(varDcl);
+    bir:BType returnType = func.typeValue.retType;
+    genDefaultValue(mv, returnType, returnVarRefIndex);
+    
     // uncomment to test yield
     // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
     // mv.visitInsn(ICONST_1);
