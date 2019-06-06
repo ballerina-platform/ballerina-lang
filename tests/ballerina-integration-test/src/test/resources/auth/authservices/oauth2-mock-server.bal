@@ -120,13 +120,29 @@ service oauth2 on oauth2Server {
         }
         checkpanic caller->respond(res);
     }
+
+    @http:ResourceConfig {
+        methods: ["POST"],
+        path: "/token/introspect"
+    }
+    // This introspect the access token against the access token store, which holds the issued access tokens.
+    resource function introspect(http:Caller caller, http:Request req) {
+        http:Response res = new;
+        var authorizationHeader = trap req.getHeader("Authorization");
+        if (authorizationHeader is string) {
+            res = getResponseForIntrospectRequest(req, authorizationHeader);
+        } else {
+            // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+            res.statusCode = http:UNAUTHORIZED_401;
+            res.setPayload(INVALID_CLIENT);
+        }
+        checkpanic caller->respond(res);
+    }
 }
 
 function getResponseForHeaderBearerRequest(http:Request req, string authorizationHeader, string bearer) returns http:Response {
     http:Response res = new;
-    string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
-    string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8"));
-    if (authorizationHeader == expectedAuthorizationHeader) {
+    if (isAuthorizedClient(authorizationHeader)) {
         var payload = req.getTextPayload();
         if (payload is string) {
             string[] params = payload.split("&");
@@ -224,9 +240,7 @@ function getResponseForNoBearerRequest(string payload, string bearer) returns ht
 
 function getResponseForRefreshRequest(http:Request req, string authorizationHeader) returns http:Response {
     http:Response res = new;
-    string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
-    string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8"));
-    if (authorizationHeader == expectedAuthorizationHeader) {
+    if (isAuthorizedClient(authorizationHeader)) {
         var payload = req.getTextPayload();
         if (payload is string) {
             string[] params = payload.split("&");
@@ -269,6 +283,48 @@ function getResponseForRefreshRequest(http:Request req, string authorizationHead
                 // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                 res.statusCode = http:BAD_REQUEST_400;
                 res.setPayload(INVALID_GRANT);
+            }
+        } else {
+            // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+            res.statusCode = http:BAD_REQUEST_400;
+            res.setPayload(INVALID_REQUEST);
+        }
+    } else {
+        // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+        res.statusCode = http:UNAUTHORIZED_401;
+        res.setPayload(INVALID_CLIENT);
+    }
+    return res;
+}
+
+function getResponseForIntrospectRequest(http:Request req, string authorizationHeader) returns http:Response {
+    http:Response res = new;
+    if (isAuthorizedClient(authorizationHeader)) {
+        var payload = req.getTextPayload();
+        if (payload is string) {
+            string[] params = payload.split("&");
+            string token = "";
+            string tokenTypeHint = "";
+            foreach string param in params {
+                if (param.contains("token")) {
+                    token = param.split("=")[1];
+                } else if (param.contains("token_type_hint")) {
+                    tokenTypeHint = param.split("=")[1];
+                }
+            }
+
+            boolean tokenAvailable = false;
+            foreach string accessToken in accessTokenStore {
+                if (accessToken == token) {
+                    tokenAvailable = true;
+                }
+            }
+            if (tokenAvailable) {
+                json responsePayload = { "active": true };
+                res.setPayload(responsePayload);
+            } else {
+                json responsePayload = { "active": false };
+                res.setPayload(responsePayload);
             }
         } else {
             // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
@@ -334,6 +390,12 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
         res.setPayload(INVALID_GRANT);
     }
     return res;
+}
+
+function isAuthorizedClient(string authorizationHeader) returns boolean {
+    string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
+    string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8"));
+    return authorizationHeader == expectedAuthorizationHeader;
 }
 
 function addToAccessTokenStore(string accessToken) {
