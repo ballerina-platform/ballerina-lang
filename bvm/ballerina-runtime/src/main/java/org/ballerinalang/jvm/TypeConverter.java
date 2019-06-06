@@ -140,11 +140,9 @@ public class TypeConverter {
             return val != 0;
         } else if (sourceVal instanceof Double) {
             double val = (Double) sourceVal;
-
             if (val != 1.0 && val != 0.0) {
                 throw errorFunc.get();
             }
-
             return (Double) sourceVal != 0.0;
         } else if (sourceVal instanceof Byte) {
             byte val = (Byte) sourceVal;
