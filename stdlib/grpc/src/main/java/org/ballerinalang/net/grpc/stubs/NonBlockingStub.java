@@ -44,6 +44,7 @@ public class NonBlockingStub extends AbstractStub {
      * @param request  request message.
      * @param responseObserver response Observer.
      * @param methodDescriptor method descriptor.
+     * @param context Data Context.
      * @throws Exception if an error occur while processing client call.
      */
     public void executeServerStreaming(Message request, StreamObserver responseObserver,
@@ -65,6 +66,7 @@ public class NonBlockingStub extends AbstractStub {
      * @param requestHeaders request headers.
      * @param responseObserver response Observer.
      * @param methodDescriptor method descriptor.
+     * @param context Data Context.
      *
      * @return streaming observer
      */
@@ -85,6 +87,7 @@ public class NonBlockingStub extends AbstractStub {
      * @param request  request message.
      * @param responseObserver response Observer.
      * @param methodDescriptor method descriptor.
+     * @param context Observer Context.
      * @throws Exception if an error occur while processing client call.
      */
     public void executeUnary(Message request, StreamObserver responseObserver,
@@ -105,7 +108,8 @@ public class NonBlockingStub extends AbstractStub {
      *
      * @param requestHeaders request headers.
      * @param responseObserver response Observer.
-     * @param methodDescriptor method descriptor
+     * @param methodDescriptor method descriptor.
+     * @param context Observer Context.
      *
      * @return streaming observer
      */

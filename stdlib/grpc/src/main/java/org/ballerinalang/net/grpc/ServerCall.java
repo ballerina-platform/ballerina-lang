@@ -159,8 +159,12 @@ public final class ServerCall {
         }
     }
 
-    public void setObserverContext(ObserverContext context) {
+    void setObserverContext(ObserverContext context) {
         this.context = context;
+    }
+
+    public ObserverContext getObserverContext() {
+        return context;
     }
 
     public void setMessageCompression(boolean enable) {

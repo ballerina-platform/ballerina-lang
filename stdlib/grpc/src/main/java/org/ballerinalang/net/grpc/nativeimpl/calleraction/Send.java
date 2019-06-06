@@ -18,6 +18,8 @@ package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -32,6 +34,8 @@ import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
@@ -60,6 +64,7 @@ public class Send {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
 
         if (responseObserver == null) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status
@@ -81,6 +86,7 @@ public class Send {
                         responseMessage.setHeaders(headers);
                     }
                     responseObserver.onNext(responseMessage);
+                    observerContext.ifPresent(ctx -> ctx.addTag("grpc.message_content", responseValue.toString()));
                 }
             } catch (Exception e) {
                 LOG.error("Error while sending client response.", e);

@@ -43,6 +43,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_KEY;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ACCEPT_ENCODING;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
 import static org.ballerinalang.net.grpc.GrpcConstants.TE_KEY;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_VERSION;
 
 /**
  * This class handles a call to a remote method.
@@ -103,6 +104,9 @@ public final class ClientCall {
             ctx.addTag(TAG_KEY_PEER_ADDRESS,
                     outboundMessage.getProperty(Constants.HTTP_HOST) + ":"
                             + outboundMessage.getProperty(Constants.HTTP_PORT));
+            ctx.addTag(TE_KEY, GrpcConstants.TE_TRAILERS);
+            ctx.addTag(CONTENT_TYPE_KEY, GrpcConstants.CONTENT_TYPE_GRPC);
+            ctx.addTag(HTTP_VERSION, "2.0");
             // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
             // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
             // some value to HTTP Status Code to make sure that tags will not change depending on various

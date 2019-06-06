@@ -53,7 +53,7 @@ import static org.ballerinalang.net.grpc.MessageUtils.statusCodeToHttpCode;
 public class ServerConnectorListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(ServerConnectorListener.class);
-    public static final String SERVER_CONNECTOR_GRPC = "grpc";
+    private static final String SERVER_CONNECTOR_GRPC = "grpc";
 
     private final ServicesRegistry servicesRegistry;
 
@@ -137,20 +137,16 @@ public class ServerConnectorListener implements HttpConnectorListener {
         ServerCall call = new ServerCall(inboundMessage, outboundMessage, methodDefinition
                 .getMethodDescriptor(), DecompressorRegistry.getDefaultInstance(), CompressorRegistry
                 .getDefaultInstance());
-        ObserverContext context = null;
         if (ObserveUtils.isObservabilityEnabled()) {
-            context = getObserverContext(fullMethodName, inboundMessage);
+            call.setObserverContext(getObserverContext(fullMethodName, inboundMessage));
         }
-        return call.newServerStreamListener(methodDefinition.getServerCallHandler().startCall(call, context));
+        return call.newServerStreamListener(methodDefinition.getServerCallHandler().startCall(call));
     }
 
-    protected ObserverContext getObserverContext(String method, InboundMessage inboundMessage) {
+    private ObserverContext getObserverContext(String method, InboundMessage inboundMessage) {
 
         ObserverContext observerContext = new ObserverContext();
         observerContext.setConnectorName(SERVER_CONNECTOR_GRPC);
-//            observerContext.setServiceName(ObserveUtils.getFullServiceName(httpResource.getParentService()
-//                    .getBalService()
-//                    .getServiceInfo()));
         observerContext.setResourceName(method);
 
         Map<String, String> httpHeaders = new HashMap<>();
