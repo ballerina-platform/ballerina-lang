@@ -47,7 +47,7 @@ public class GetEntity extends BlockingNativeCallableUnit {
         context.setReturnValues(BHttpUtil.getEntity(context, true, true));
     }
 
-    public static ObjectValue getEntity(Strand strand, ObjectValue requestObj) {
+    public static Object getEntity(Strand strand, ObjectValue requestObj) {
         return HttpUtil.getEntity(requestObj, true, true);
     }
 }
