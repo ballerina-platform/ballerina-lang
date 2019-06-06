@@ -4,6 +4,7 @@ The following features are supported by the plugin, as listed below.
 
 - [Running Ballerina Programs](#running-ballerina-programs)
 - [Debugging Ballerina Programs](#debugging-ballerina-programs) 
+- [Diagram View](#diagram-view)
 - [Import modules On-the-fly](#import-modules-on-the-fly)
 - [Auto Import Unambiguous Modules](#auto-import-unambiguous-modules)
 - [Find Usage](#find-usage)
@@ -29,6 +30,16 @@ You can run Ballerina main/service programs with only few clicks. You don't have
 You can debug Ballerina main/service programs with only few clicks as well.
 
 ![alt text](images/DebugSupport.gif)
+
+## Diagram View
+
+Ballerina’s underlying language semantics were designed by modeling how independent parties communicate via structured interactions. 
+Subsequently, every Ballerina program can be displayed as a sequence diagram of its flow with endpoints, including synchronous and asynchronous calls. 
+To view the sequence diagram of a ballerina file press the diagram icon 
+( ![design view icon](https://raw.githubusercontent.com/ballerina-platform/ballerina-lang/2fd0bdd4e7d081adf23901ed65eca32623d81889/tool-plugins/vscode/docs/show-diagram-icon.png) ) 
+in top right corner.
+
+![alt text](images/DiagramView.gif)
 
 ## Import Modules On-the-fly
 
