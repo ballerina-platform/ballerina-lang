@@ -102,8 +102,6 @@ public class PushPromisedResponse extends ConnectionAction {
         HttpUtil.prepareOutboundResponse(connectionObj, inboundRequestMsg, outboundResponseMsg, outboundResponseObj);
         pushResponseRobust(dataContext, inboundRequestMsg, outboundResponseObj, outboundResponseMsg,
                 http2PushPromise);
-        //TODO : Temporary block the call. Remove this callback once the support is available
-        callback.sync();
     }
 
     private static void pushResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,

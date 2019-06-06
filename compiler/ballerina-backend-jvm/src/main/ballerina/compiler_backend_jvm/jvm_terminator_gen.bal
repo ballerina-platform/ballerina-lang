@@ -32,8 +32,7 @@ type TerminatorGenerator object {
         self.module = module;
     }
 
-    function genTerminator(bir:Terminator terminator, bir:Function func, string funcName, boolean isTrapped,
-                           bir:ErrorEntry? currentEE, jvm:Label endLabel, jvm:Label handlerLabel, jvm:Label jumpLabel,
+    function genTerminator(bir:Terminator terminator, bir:Function func, string funcName,
                            int localVarOffset, int returnVarRefIndex) {
         if (terminator is bir:Lock) {
             self.genLockTerm(terminator, funcName);
@@ -42,7 +41,7 @@ type TerminatorGenerator object {
         } else if (terminator is bir:GOTO) {
             self.genGoToTerm(terminator, funcName);
         } else if (terminator is bir:Call) {
-            self.genCallTerm(terminator, funcName, isTrapped, currentEE, endLabel, handlerLabel, jumpLabel, localVarOffset);
+            self.genCallTerm(terminator, funcName, localVarOffset);
         } else if (terminator is bir:AsyncCall) {
             self.genAsyncCallTerm(terminator, funcName);
         } else if (terminator is bir:Branch) {
@@ -205,8 +204,7 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, falseBBLabel);
     }
 
-    function genCallTerm(bir:Call callIns, string funcName, boolean isInTryBlock, bir:ErrorEntry? currentEE, 
-                         jvm:Label endLabel, jvm:Label handlerLabel, jvm:Label jumpLabel, int localVarOffset) {
+    function genCallTerm(bir:Call callIns, string funcName, int localVarOffset) {
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
 
@@ -248,20 +246,6 @@ type TerminatorGenerator object {
             // store return
             self.storeReturnFromCallIns(callIns);
         }
-
-        // handle trapped function calls.
-        if (isInTryBlock &&  currentEE is bir:ErrorEntry) {
-            self.errorGen.generateCatchInsForTrap(currentEE, endLabel, handlerLabel, jumpLabel);
-        }
-
-        self.mv.visitVarInsn(ALOAD, localVarOffset);
-        self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
-        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
-        self.mv.visitJumpInsn(IFNE, yieldLabel);
-
-        // goto thenBB
-        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + callIns.thenBB.id.value);
-        self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
     private function storeReturnFromCallIns(bir:Call callIns) {
@@ -555,15 +539,6 @@ type TerminatorGenerator object {
         self.lambdaIndex += 1;
         
         self.submitToScheduler(callIns.lhsOp);
-
-        self.mv.visitVarInsn(ALOAD, 0);
-        self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
-        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
-        self.mv.visitJumpInsn(IFNE, yieldLabel);
-
-        // goto thenBB
-        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + callIns.thenBB.id.value);
-        self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
     function generateWaitIns(bir:Wait waitInst, string funcName) {
@@ -607,7 +582,6 @@ type TerminatorGenerator object {
                     self.getJVMIndexOfVarRef(waitInst.lhsOp.variableDcl));
 
         self.mv.visitLabel(afterIf);
-        self.genYieldCheck(waitInst.thenBB, funcName);
     }
 
     function genWaitAllIns(bir:WaitAll waitAll, string funcName) {
@@ -633,7 +607,6 @@ type TerminatorGenerator object {
         generateVarLoad(self.mv, waitAll.lhsOp.variableDcl, currentPackageName, 
                     self.getJVMIndexOfVarRef(waitAll.lhsOp.variableDcl));
         self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleWaitMultiple", io:sprintf("(L%s;L%s;)V", MAP, MAP_VALUE), false);
-        self.genYieldCheck(waitAll.thenBB, funcName);
     }
 
     function genFPCallIns(bir:FPCall fpCall, string funcName) {
@@ -733,8 +706,6 @@ type TerminatorGenerator object {
                 generateVarStore(self.mv, lhsVar, currentPackageName, lhsIndex);
             }
         }
-
-        self.genYieldCheck(fpCall.thenBB, funcName);   
     }
 
     function loadTrueValueAsArg(int paramIndex) {
@@ -771,7 +742,6 @@ type TerminatorGenerator object {
                     self.getJVMIndexOfVarRef(lhsOp.variableDcl));
             }      
         } 
-        self.genYieldCheck(ins.thenBB, funcName);  
     }
 
     function genWorkerReceiveIns(bir:WorkerReceive ins, string funcName) {
@@ -793,19 +763,10 @@ type TerminatorGenerator object {
         int wrkResultIndex = self.getJVMIndexOfVarRef(tempVar);
         self.mv.visitVarInsn(ASTORE, wrkResultIndex);
 
-        self.mv.visitVarInsn(ALOAD, 0);
-        self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
-        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
-        self.mv.visitJumpInsn(IFNE, yieldLabel);
-
         self.mv.visitVarInsn(ALOAD, wrkResultIndex);
         addUnboxInsn(self.mv, ins.lhsOp.typeValue);
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         generateVarStore(self.mv, ins.lhsOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(ins.lhsOp.variableDcl));
-
-        // goto thenBB
-        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + ins.thenBB.id.value);
-        self.mv.visitJumpInsn(GOTO, gotoLabel);   
     }
 
     function genFlushIns(bir:Flush ins, string funcName) {
@@ -817,8 +778,6 @@ type TerminatorGenerator object {
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         generateVarStore(self.mv, ins.lhsOp.variableDcl, currentPackageName, 
                 self.getJVMIndexOfVarRef(ins.lhsOp.variableDcl));
-        
-        self.genYieldCheck(ins.thenBB, funcName);
     }
         
     function submitToScheduler(bir:VarRef? lhsOp) {
@@ -843,17 +802,6 @@ type TerminatorGenerator object {
             // store the returned strand as the future
             self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(getVariableDcl(lhsOpVarDcl)));
         }
-    }
-
-    function genYieldCheck(bir:BasicBlock thenBB, string funcName) {
-        self.mv.visitVarInsn(ALOAD, 0);
-        self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
-        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
-        self.mv.visitJumpInsn(IFNE, yieldLabel);
-
-        // goto thenBB
-        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + thenBB.id.value);
-        self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
     function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {

@@ -110,8 +110,6 @@ public class CancelWebSocketUpgrade implements NativeCallableUnit {
             callback.setReturnValues(HttpUtil.getError(e));
             callback.notifySuccess();
         }
-        //TODO : Temporary block the call. Remove this callback once the support is available
-        callback.sync();
     }
 
     @Override
