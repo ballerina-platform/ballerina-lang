@@ -724,7 +724,8 @@ type InstructionGenerator object {
             return;
         }
 
-        self.mv.visitMethodInsn(INVOKESTATIC, LIST_UTILS, "add", io:sprintf("(L%s;JL%s)V", ARRAY_VALUE, OBJECT), false);
+        self.mv.visitMethodInsn(INVOKESTATIC, LIST_UTILS, "add", io:sprintf("(L%s;JL%s;)V", ARRAY_VALUE, OBJECT),
+                                    false);
     }
 
     # Generating loading a new value from an array to the top of the stack
